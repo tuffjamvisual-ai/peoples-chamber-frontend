@@ -78,8 +78,12 @@ export function groupByParty(rows: Vote[]): PartyGroup[] {
     }));
 }
 
+// An MP who voted against their party in this division: is_rebellion, but never a teller. Tellers count the votes for
+// one side; they are not voting against their party (owner, 31 Oct 2026: 317 teller rows were flagged as rebels).
+export const isRebel = (v: { is_rebellion: boolean | null; is_teller: boolean | null }) => !!v.is_rebellion && !v.is_teller;
+
 // The figures the division page shows: totals (official, else counted without tellers), the lists by vote, the party
-// groups, and the MPs flagged as voting against their party (is_rebellion, as the page marks them "REBEL").
+// groups, and the MPs who voted against their party (isRebel, as the page marks them "REBEL").
 export function divisionTally(votes: Vote[], totals: Totals) {
   const ayes = votes.filter((v) => v.vote_type === 'aye');
   const noes = votes.filter((v) => v.vote_type === 'no');
@@ -91,6 +95,6 @@ export function divisionTally(votes: Vote[], totals: Totals) {
   const noNamed = noes.filter((v) => !v.is_teller).length;
   const ayeGroups = groupByParty(ayes);
   const noeGroups = groupByParty(noes);
-  const rebels = [...ayes, ...noes].filter((v) => v.is_rebellion);
+  const rebels = [...ayes, ...noes].filter(isRebel);
   return { ayes, noes, boths, tellers, ayeTotal, noTotal, ayeNamed, noNamed, ayeGroups, noeGroups, rebels };
 }

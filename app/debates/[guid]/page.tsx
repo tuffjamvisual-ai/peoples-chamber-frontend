@@ -83,10 +83,8 @@ async function getDebate(guid: string): Promise<Debate | null> {
 
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&#?\w+;/g, ' ').replace(/\s+/g, ' ').trim();
 
-// House style: no hyphens. De-hyphenate ordinary compounds (letter-letter
-// only, so number ranges like 2024-25 keep their hyphen). Covers the regular
-// hyphen plus the Unicode hyphen and non-breaking hyphen used in Hansard.
-const dehyphen = (s: string) => s.replace(/([A-Za-z])[‐‑-]([A-Za-z])/g, '$1 $2');
+// Hansard is shown word for word (owner, 31 Oct 2026): the no hyphen rule is for opengovt's own wording only, so
+// titles, the transcript, names and offices keep their hyphens ("Markus Campbell-Savours", "long-term").
 
 // Hansard marks paragraphs with blank lines, not <p> tags, so the browser
 // collapses them into one block. Wrap each blank-line block in a <p> so
@@ -105,7 +103,7 @@ function paragraphize(raw: string): string {
     if (prev && !/[.!?”"’)\]]$/.test(prev)) merged[merged.length - 1] = `${prev} ${b}`;
     else merged.push(b);
   }
-  return dehyphen(merged.map((b) => `<p>${b}</p>`).join(''));
+  return merged.map((b) => `<p>${b}</p>`).join('');
 }
 
 function fmtDate(s?: string) {
@@ -332,7 +330,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           Hansard{ov?.House ? ` · ${ov.House}` : ''}{ov?.Date ? ` · ${fmtDate(ov.Date)}` : ''}
         </div>
         <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.4vw, 42px)', fontWeight: 600, lineHeight: 1.15, margin: 0, color: INK }}>
-          {dehyphen(ov?.Title?.trim() || 'Debate')}
+          {ov?.Title?.trim() || 'Debate'}
         </h1>
         {ov?.Location && (
           <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: INK, marginTop: '8px' }}>{ov.Location}</div>
@@ -359,7 +357,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
             What this debate is about
           </div>
           <p style={{ fontFamily: SERIF, fontSize: '17px', lineHeight: 1.6, color: INK, margin: 0 }}>
-            {dehyphen(about)}
+            {about}
           </p>
         </section>
       )}
@@ -381,10 +379,10 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
                 <div style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: ACCENT, marginBottom: '8px', letterSpacing: '0.02em' }}>
                   {g.memberId && linkable.has(g.memberId) ? (
                     <Link href={`/mps/${g.memberId}`} style={{ color: ACCENT, textDecoration: 'none' }} className="no-hover-scale">
-                      {dehyphen(g.speaker)}
+                      {g.speaker}
                     </Link>
                   ) : (
-                    dehyphen(g.speaker)
+                    g.speaker
                   )}
                 </div>
               )}
@@ -404,13 +402,13 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         {ov?.PreviousDebateExtId ? (
           <Link href={`/debates/${ov.PreviousDebateExtId.toUpperCase()}`} className="no-hover-scale" style={{ flex: '1 1 240px', textDecoration: 'none', color: INK }}>
             <div style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, marginBottom: '4px' }}>← Previous debate</div>
-            <div style={{ fontFamily: SERIF, fontSize: '16px' }}>{dehyphen(ov.PreviousDebateTitle?.trim() || 'Previous')}</div>
+            <div style={{ fontFamily: SERIF, fontSize: '16px' }}>{ov.PreviousDebateTitle?.trim() || 'Previous'}</div>
           </Link>
         ) : <span />}
         {ov?.NextDebateExtId ? (
           <Link href={`/debates/${ov.NextDebateExtId.toUpperCase()}`} className="no-hover-scale" style={{ flex: '1 1 240px', textDecoration: 'none', color: INK, textAlign: 'right' }}>
             <div style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, marginBottom: '4px' }}>Next debate →</div>
-            <div style={{ fontFamily: SERIF, fontSize: '16px' }}>{dehyphen(ov.NextDebateTitle?.trim() || 'Next')}</div>
+            <div style={{ fontFamily: SERIF, fontSize: '16px' }}>{ov.NextDebateTitle?.trim() || 'Next'}</div>
           </Link>
         ) : <span />}
       </nav>

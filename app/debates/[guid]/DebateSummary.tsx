@@ -8,8 +8,8 @@ const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.2)';
 const MONO = 'var(--font-special-elite), monospace';
 
-// House style: no hyphens in our wording (the transcript's own rule).
-const dehyphen = (s: string) => s.replace(/([A-Za-z])[‐‑-]([A-Za-z])/g, '$1 $2');
+// Names, offices, parties, constituencies and division titles are shown as recorded, hyphens included; the no hyphen
+// rule applies to opengovt's own wording only (owner, 31 Oct 2026), and the labels here have none.
 
 export type Speaker = { key: string; name: string; memberId: number | null; linked: boolean; party: string | null; constituency: string | null; contributions: number; office: string | null };
 export type VoteSummary = {
@@ -32,7 +32,7 @@ export default function DebateSummary({ date, house, location, speakers, words, 
   for (const s of speakers) { const p = s.party || 'Party not given'; byParty.set(p, (byParty.get(p) ?? 0) + 1); }
   const parties = [...byParty.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   const name = (s: { name: string; memberId: number | null; linked: boolean }) =>
-    s.linked && s.memberId != null ? <Link href={`/mps/${s.memberId}`} style={link}>{dehyphen(s.name)}</Link> : <span>{dehyphen(s.name)}</span>;
+    s.linked && s.memberId != null ? <Link href={`/mps/${s.memberId}`} style={link}>{s.name}</Link> : <span>{s.name}</span>;
 
   return (
     <>
@@ -41,12 +41,12 @@ export default function DebateSummary({ date, house, location, speakers, words, 
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {date && <li>Date: {date}</li>}
           {(house || location) && <li>Where: {[house ? `House of ${house}` : null, location].filter(Boolean).join(', ')}</li>}
-          {ministers.length === 1 && <li>Responding minister: {dehyphen(ministers[0].office!)} ({name(ministers[0])})</li>}
+          {ministers.length === 1 && <li>Responding minister: {ministers[0].office!} ({name(ministers[0])})</li>}
           {ministers.length > 1 && (
-            <li>Ministers who spoke: {ministers.map((m, i) => <span key={m.key}>{i > 0 && '; '}{dehyphen(m.office!)} ({name(m)})</span>)}</li>
+            <li>Ministers who spoke: {ministers.map((m, i) => <span key={m.key}>{i > 0 && '; '}{m.office!} ({name(m)})</span>)}</li>
           )}
           <li>MPs who spoke: {speakers.length.toLocaleString()}</li>
-          {parties.length > 0 && <li>Speakers by party: {parties.map(([p, n]) => `${dehyphen(p)} ${n}`).join(', ')}</li>}
+          {parties.length > 0 && <li>Speakers by party: {parties.map(([p, n]) => `${p} ${n}`).join(', ')}</li>}
           <li>Length: {words.toLocaleString()} words</li>
         </ul>
       </section>
@@ -58,7 +58,7 @@ export default function DebateSummary({ date, house, location, speakers, words, 
             {speakers.map((s) => (
               <li key={s.key} style={{ breakInside: 'avoid', padding: '2px 0' }}>
                 {name(s)}
-                {[s.party, s.constituency].filter(Boolean).length > 0 && <span>, {[s.party, s.constituency].filter(Boolean).map((x) => dehyphen(x!)).join(', ')}</span>}
+                {[s.party, s.constituency].filter(Boolean).length > 0 && <span>, {[s.party, s.constituency].filter(Boolean).map((x) => x!).join(', ')}</span>}
                 <span> ({s.contributions} contribution{s.contributions === 1 ? '' : 's'})</span>
               </li>
             ))}
@@ -69,7 +69,7 @@ export default function DebateSummary({ date, house, location, speakers, words, 
       {votes.map((v) => (
         <section key={v.slug} aria-label={`The vote: ${v.title}`} style={box}>
           <h2 style={h2}>The vote</h2>
-          <p style={{ margin: '0 0 6px', fontWeight: 'bold' }}>{dehyphen(v.title)}</p>
+          <p style={{ margin: '0 0 6px', fontWeight: 'bold' }}>{v.title}</p>
           <p style={{ margin: '0 0 10px' }}>
             Ayes {v.ayes.toLocaleString()}, Noes {v.noes.toLocaleString()}: {v.ayes > v.noes ? 'passed' : v.ayes < v.noes ? 'not passed' : 'tied'}.{' '}
             <Link href={`/divisions/${v.slug}`} style={link}>How every MP voted</Link>
@@ -79,7 +79,7 @@ export default function DebateSummary({ date, house, location, speakers, words, 
               <thead><tr><th style={cell}>Party</th><th style={cell}>Aye</th><th style={cell}>No</th></tr></thead>
               <tbody>
                 {v.parties.map((p) => (
-                  <tr key={p.party}><td style={cell}>{dehyphen(p.party)}</td><td style={cell}>{p.ayes}</td><td style={cell}>{p.noes}</td></tr>
+                  <tr key={p.party}><td style={cell}>{p.party}</td><td style={cell}>{p.ayes}</td><td style={cell}>{p.noes}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -90,7 +90,7 @@ export default function DebateSummary({ date, house, location, speakers, words, 
           {v.rebels.length > 0 && (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {v.rebels.map((r) => (
-                <li key={r.memberId}>{name(r)}{r.party ? `, ${dehyphen(r.party)}` : ''}, voted {r.vote}</li>
+                <li key={r.memberId}>{name(r)}{r.party ? `, ${r.party}` : ''}, voted {r.vote}</li>
               ))}
             </ul>
           )}

@@ -22,7 +22,7 @@ import { normaliseParty } from '@/lib/party-helpers';
 import RelatedLinks from '../../components/RelatedLinks';
 import { displayMpName } from '@/lib/mp-name';
 import { divisionHref, divisionNeighbours, yearHref } from '@/lib/division-links';
-import { fetchDivisionVotes, divisionTally, type Vote as DivisionVote } from '@/lib/division-votes';
+import { fetchDivisionVotes, divisionTally, isRebel, type Vote as DivisionVote } from '@/lib/division-votes';
 
 export const revalidate = 86400;  // divisions don't change after the vote happens
 
@@ -498,7 +498,7 @@ function VoteColumn({
                       Teller
                     </span>
                   )}
-                  {v.is_rebellion && <span style={{ color: ACCENT, fontSize: '15px', fontWeight: 'bold' }}> · REBEL</span>}
+                  {isRebel(v) && <span style={{ color: ACCENT, fontSize: '15px', fontWeight: 'bold' }}> · REBEL</span>}
                 </MpVoteLink>
               </li>
             ))}
