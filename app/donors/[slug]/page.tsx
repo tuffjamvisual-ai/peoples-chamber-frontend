@@ -210,9 +210,12 @@ export default async function DonorPage({ params }: PageProps) {
   const [relatedFound, main, background, registry] = await Promise.all([relatedDonorNames(canonicalName, slug), mainSpellingFor(slug), getDonorProfile(slug), donorRegistry()]);
   // Every record here is public money (Short Money, Policy Development Grants and the like), not a private donation.
   const publicFunds = donations.every((d) => d.donor_status === 'Public Fund');
-  const relatedNames = main && !relatedFound.some((r) => r.slug === main.slug)
+  // A name the background confirms as the same donor (its other slugs) is not listed as possibly related (owner, 31 Oct
+  // 2026); pages without a background are unchanged.
+  const confirmed = new Set(background?.otherSlugs ?? []);
+  const relatedNames = (main && !relatedFound.some((r) => r.slug === main.slug)
     ? [...relatedFound, main].sort((a, b) => a.name.localeCompare(b.name, 'en-GB'))
-    : relatedFound;
+    : relatedFound).filter((r) => !confirmed.has(r.slug));
 
   // Roll-ups
   const total = donations.reduce((s, d) => s + (Number(d.amount) || 0), 0);
@@ -442,7 +445,8 @@ export default async function DonorPage({ params }: PageProps) {
           </p>
           {LABEL_ORDER.filter((label) => background.profile.facts.some((f) => f.label === label)).map((label) => (
             <div key={label}>
-              <h3 style={{ ...sectionH2, fontSize: '17px', borderBottom: 'none', paddingBottom: 0, margin: '16px 0 6px' }}>{label}</h3>
+              {/* The section heading already says "Who they are", so that group has no label of its own. */}
+              {label !== 'Who they are' && <h3 style={{ ...sectionH2, fontSize: '17px', borderBottom: 'none', paddingBottom: 0, margin: '16px 0 6px' }}>{label}</h3>}
               {background.profile.facts.filter((f) => f.label === label).map((f, i) => (
                 <p key={i} style={{ margin: '0 0 10px', maxWidth: '70ch', overflowWrap: 'anywhere' }}>
                   {f.text}{' '}
