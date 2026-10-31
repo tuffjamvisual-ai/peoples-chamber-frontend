@@ -400,19 +400,31 @@ const fmtMoney = (n: number) =>
 const fmtDate = (s?: string | null) =>
   s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
-// Background tab (24 Oct 2026): the timeline's phase headings, in order, and the shared row layout. The years sit
-// in a column beside each entry on wide screens and above it on narrow ones (flex wrap), so nothing scrolls sideways.
+// Background tab (24 Oct 2026): the timeline's phase headings, in order, and the entry layout. Compact layout (owner,
+// 31 Oct 2026): one line per entry where it fits, "<years> <title>, <organisation> · source", wrapping on narrow
+// screens, with the detail directly underneath; no dividers, about 8 px between entries. Every line is 24 px high so
+// each source link is a 24 px tap target.
 const TIMELINE_PHASES: Array<{ phase: BackgroundEntry['phase']; heading: string }> = [
   { phase: 'education', heading: 'Education' },
   { phase: 'career', heading: 'Career' },
   { phase: 'politics', heading: 'Into politics' },
 ];
-const backgroundLabel: React.CSSProperties = { fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '12px' };
-function TimelineRow({ years, last, children }: { years: string; last: boolean; children: React.ReactNode }) {
+const backgroundLabel: React.CSSProperties = { fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' };
+function TimelineEntry({ entry, last }: { entry: BackgroundEntry; last: boolean }) {
+  const years = yearsLabel(entry.start, entry.end);
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: '18px', rowGap: '2px', marginBottom: '14px', paddingBottom: '12px', borderBottom: last ? 'none' : '1px solid rgba(20,16,13,0.15)' }}>
-      <div style={{ flex: '0 0 190px', fontSize: '15px', fontFamily: 'monospace', paddingTop: '2px' }}>{years}</div>
-      <div style={{ flex: '1 1 220px', minWidth: 0 }}>{children}</div>
+    <div style={{ marginBottom: last ? 0 : '8px', fontSize: '15px', lineHeight: '24px', overflowWrap: 'anywhere' }}>
+      <div>
+        {years && <strong style={{ fontFamily: 'monospace', marginRight: '0.6em' }}>{years}</strong>}
+        <strong>{entry.title}</strong>
+        {entry.organisation && <>, {entry.organisation}</>}
+        <span style={{ whiteSpace: 'nowrap' }}>
+          {' · '}
+          <a href={entry.source.url} target="_blank" rel="noopener noreferrer" aria-label={`Source: ${entry.source.title}`}
+            style={{ ...inkLink, fontSize: '15px', display: 'inline-block', minHeight: '24px', lineHeight: '24px' }}>source</a>
+        </span>
+      </div>
+      {entry.detail && <div>{entry.detail}</div>}
     </div>
   );
 }
@@ -888,20 +900,15 @@ export default function MagazineProfileSections({
             <h2 style={sectionH2}>Background</h2>
             {timeline.length > 0 ? (
               <>
-                <p style={{ fontSize: '15px', marginBottom: '24px' }}>From education to today. Each entry links to its source.</p>
+                <p style={{ fontSize: '15px', marginBottom: '16px' }}>From education to today. Each entry links to its source.</p>
                 {TIMELINE_PHASES.map(({ phase, heading }) => {
                   const rows = timeline.filter((e) => e.phase === phase);
                   if (rows.length === 0) return null;
                   return (
-                    <div key={phase} style={{ marginBottom: '26px' }}>
+                    <div key={phase} style={{ marginBottom: '18px' }}>
                       <div style={backgroundLabel}>{heading}</div>
                       {rows.map((e, idx) => (
-                        <TimelineRow key={idx} years={yearsLabel(e.start, e.end)} last={idx === rows.length - 1}>
-                          <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.title}</div>
-                          {e.organisation && <div style={{ fontSize: '15px', marginTop: '2px' }}>{e.organisation}</div>}
-                          {e.detail && <div style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '6px' }}>{e.detail}</div>}
-                          <a href={e.source.url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '15px', display: 'inline-block', marginTop: '4px' }}>Source</a>
-                        </TimelineRow>
+                        <TimelineEntry key={idx} entry={e} last={idx === rows.length - 1} />
                       ))}
                     </div>
                   );
