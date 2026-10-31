@@ -122,7 +122,7 @@ export default async function RecommendationPage({ params }: { params: Promise<P
   if (!d) notFound();
   const { events, evidence } = d;
   const row = { ...d.row, status: effectiveStatus(d.row) }; // the target passed rule against today's date
-  const w = await wording();
+  const w = await wording([d.row, ...d.parts]);
   const status = w.words(row);
   const addressedTo = recommendationFor(d.recommendation, row.department);
   const later = laterEvidence(row);

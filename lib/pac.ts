@@ -7,6 +7,15 @@
 // Targets are always shown as the document writes them ("Summer 2025"); the months in the database (the month a
 // period ends) are only used to sort and to decide whether a target has passed.
 // Source: HM Treasury Treasury Minutes and Progress Reports on GOV.UK, Open Government Licence v3.0.
+//
+// 31 Oct 2026 (owner): detail pages read only their own recommendation. Every one of the 977 detail pages (and its
+// generateMetadata) used to read the whole status view (about 0.75 s) through allStatus, once in recommendationDetail
+// and again in wording(). When the day's cache ran out, many first visits read it at once and passed the site role's
+// 8 s statement timeout ("canceling statement due to statement timeout", 164 errors 30 to 31 Oct). Now
+// recommendationDetail finds the recommendation's id with two indexed reads (pac_reports by session and report number,
+// pac_recommendations by report and rec number) and reads its one status row (about 12 ms), plus the rows of any
+// recommendations it was split into; wording(rows) takes those rows instead of the whole list. effectiveStatus is
+// applied exactly as in allStatus. List and summary pages still use allStatus (one cached whole-view read).
 import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
@@ -84,10 +93,38 @@ const allEventTargets = unstable_cache(
 
 export type RecommendationDetail = {
   row: StatusRow; conclusion: string | null; recommendation: string | null; events: (EventRow & { document: SourceDocument })[]; evidence: Evidence[];
+  parts: StatusRow[]; // the status rows of the recommendations this one was split into (for the wording), else none
 };
+
+// Status rows for these recommendation ids, read from the view by id (each about 12 ms) with effectiveStatus applied,
+// as allStatus does for the whole list.
+async function statusRowsById(ids: number[]): Promise<StatusRow[]> {
+  if (!ids.length) return [];
+  const { data, error } = await db().from('pac_recommendation_status').select(STATUS_COLUMNS).in('recommendation_id', ids);
+  if (error) throw new Error(`pac: reading pac_recommendation_status for ${ids.join(', ')}: ${error.message}`);
+  const today = new Date();
+  return ((data ?? []) as unknown as StatusRow[]).map((r) => ({ ...r, status: effectiveStatus(r, today) }));
+}
+
+// The ids of a report's recommendations with these numbers: two indexed reads (pac_reports by session and report
+// number, pac_recommendations by report and rec number).
+async function recommendationIds(session: string, report: number, recs: string[]): Promise<number[]> {
+  const client = db();
+  const rep = await client.from('pac_reports').select('id').eq('session', session).eq('report_number', report).maybeSingle();
+  if (rep.error) throw new Error(`pac: reading pac_reports ${session}/${report}: ${rep.error.message}`);
+  if (!rep.data || !recs.length) return [];
+  const recRows = await client.from('pac_recommendations').select('id').eq('report_id', (rep.data as { id: number }).id).in('rec_number', recs);
+  if (recRows.error) throw new Error(`pac: reading pac_recommendations ${session}/${report}: ${recRows.error.message}`);
+  return ((recRows.data ?? []) as { id: number }[]).map((r) => r.id);
+}
+
 export const recommendationDetail = unstable_cache(async (session: string, report: number, rec: string): Promise<RecommendationDetail | null> => {
-  const row = (await allStatus()).find((r) => r.session === session && r.report_number === report && r.rec_number === rec);
-  if (!row) return null;
+  const [id] = await recommendationIds(session, report, [rec]);
+  if (id === undefined) return null;
+  const [row] = await statusRowsById([id]);
+  // The view lists every recommendation; a row missing here means it is not shown, as before.
+  if (!row || row.session !== session || row.report_number !== report || row.rec_number !== rec) return null;
+  const parts = row.split_into?.length ? await statusRowsById(await recommendationIds(session, report, row.split_into)) : [];
   const docs = new Map((await allDocuments()).map((d) => [d.id, d]));
   const client = db();
   const [text, events, evidence] = await Promise.all([
@@ -104,8 +141,9 @@ export const recommendationDetail = unstable_cache(async (session: string, repor
     events: ((events.data ?? []) as unknown as EventRow[]).map((e) => ({ ...e, document: docs.get(e.document_id)! })).filter((e) => e.document)
       .sort((a, b) => a.document.published_on.localeCompare(b.document.published_on)),
     evidence: (evidence.data ?? []) as Evidence[],
+    parts,
   };
-}, ['pac-recommendation-v4'], { tags: ['pac'], revalidate: DAY });
+}, ['pac-recommendation-v5'], { tags: ['pac'], revalidate: DAY });
 
 // ---------- bodies: one canonical name per body named in pac_reports.department, and its department page (if any).
 // A report can name several bodies. A body's current name is shown; a report filed under an earlier name also shows
@@ -290,9 +328,12 @@ export type Wording = {
   documents: SourceDocument[];
 };
 
-// Everything the wording needs, read once per render.
-export async function wording(): Promise<Wording> {
-  const [rows, docs, targets] = await Promise.all([allStatus(), allDocuments(), allEventTargets()]);
+// Everything the wording needs, read once per render. rows: the status rows the wording may refer to (a split
+// recommendation names its parts); a detail page passes its own row and its parts, so it never reads the whole view.
+// Without rows, every recommendation (allStatus, one cached read), as the list pages need.
+export async function wording(rows?: StatusRow[]): Promise<Wording> {
+  const [allRows, docs, targets] = await Promise.all([rows ? Promise.resolve(rows) : allStatus(), allDocuments(), allEventTargets()]);
+  rows = allRows;
   const byId = new Map(docs.map((d) => [d.id, d]));
   const byCp = new Map(docs.map((d) => [d.cp_number, d]));
   const implementedIn = new Map<number, SourceDocument>();
