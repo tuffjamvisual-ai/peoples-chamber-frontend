@@ -846,6 +846,8 @@ export default function MagazineProfileSections({
           .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
           .mp-sections-content { padding: 20px 2px !important; }
         }
+        .mp-col-inline { display: none; }
+        @media (max-width: 640px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
       `}</style>
       <aside className="lg:col-span-1" style={{ marginLeft: '-13%' }}>
         <div
@@ -1889,9 +1891,9 @@ export default function MagazineProfileSections({
                     <thead>
                       <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
                         <th style={thStyle}>Payer / role</th>
-                        <th style={thStyle}>Payments</th>
-                        <th style={thStyle}>Hours</th>
-                        <th style={{ ...thStyle, textAlign: 'right' }}>£/hr</th>
+                        <th className="mp-col-wide" style={thStyle}>Payments</th>
+                        <th className="mp-col-wide" style={thStyle}>Hours</th>
+                        <th className="mp-col-wide" style={{ ...thStyle, textAlign: 'right' }}>£/hr</th>
                         <th style={{ ...thStyle, textAlign: 'right' }}>Total paid</th>
                       </tr>
                     </thead>
@@ -1900,6 +1902,13 @@ export default function MagazineProfileSections({
                         const active = isActiveRow(r);
                         const hourly = r.hours > 0 ? r.total / r.hours : null;
                         const roleList = Array.from(r.roles).slice(0, 3).join(' · ');
+                        // Phones (640 px and below): the Payments, Hours and £/hr cells are hidden and the same values,
+                        // formatted the same way, show in one line under the payer (owner, 31 Oct 2026).
+                        const inlineFacts = [
+                          r.count > 0 ? `${r.count} payment${r.count === 1 ? '' : 's'}` : null,
+                          r.hours > 0 ? `${r.hours.toLocaleString('en-GB')} hours` : null,
+                          hourly !== null ? `${fmtMoney(hourly)} an hour` : null,
+                        ].filter(Boolean).join(' · ');
                         return (
                           <tr key={r.payer} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
                             <td style={{ padding: '6px 4px' }}>
@@ -1929,10 +1938,11 @@ export default function MagazineProfileSections({
                                   </span>
                                 )}
                               </div>
+                              {inlineFacts && <div className="mp-col-inline">{inlineFacts}</div>}
                             </td>
-                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.count > 0 ? r.count : 'n/a'}</td>
-                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.hours > 0 ? r.hours.toLocaleString('en-GB') : ', '}</td>
-                            <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                            <td className="mp-col-wide" style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.count > 0 ? r.count : 'n/a'}</td>
+                            <td className="mp-col-wide" style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.hours > 0 ? r.hours.toLocaleString('en-GB') : ', '}</td>
+                            <td className="mp-col-wide" style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>
                               {hourly !== null ? fmtMoney(hourly) : ', '}
                             </td>
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{r.count > 0 ? fmtMoney(r.total) : <span style={{ fontWeight: 'normal' }}>Not disclosed</span>}</td>
@@ -1949,7 +1959,7 @@ export default function MagazineProfileSections({
               </p>
               {rows.some((r) => r.acoba) && (
                 <p style={{ marginTop: '12px', fontSize: '15px', lineHeight: 1.55 }}>
-                  <strong>ACOBA</strong> is the Advisory Committee on Business Appointments, the independent body that vets new jobs taken by former ministers and senior officials in the two years after they leave government. It reviews each role for conflicts of interest and can recommend conditions such as lobbying bans or waiting periods, though it cannot block an appointment. &ldquo;ACOBA: Yes&rdquo; means the appointment was submitted for review; &ldquo;ACOBA: No&rdquo; means it was not, which is sometimes legitimate (the rules did not apply) and sometimes a story (an ex minister$1 bypassing the vetting).
+                  <strong>ACOBA</strong> is the Advisory Committee on Business Appointments, the independent body that vets new jobs taken by former ministers and senior officials in the two years after they leave government. It reviews each role for conflicts of interest and can recommend conditions such as lobbying bans or waiting periods, though it cannot block an appointment. &ldquo;ACOBA: Yes&rdquo; means the appointment was submitted for review; &ldquo;ACOBA: No&rdquo; means it was not, which is sometimes legitimate (the rules did not apply) and sometimes a story (a former minister bypassing the vetting).
                 </p>
               )}
             </>
@@ -2145,9 +2155,9 @@ export default function MagazineProfileSections({
                 <thead>
                   <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
                     <th style={thStyle}>Donor</th>
-                    <th style={thStyle}>Donations</th>
-                    <th style={thStyle}>First</th>
-                    <th style={thStyle}>Latest</th>
+                    <th className="mp-col-wide" style={thStyle}>Donations</th>
+                    <th className="mp-col-wide" style={thStyle}>First</th>
+                    <th className="mp-col-wide" style={thStyle}>Latest</th>
                     <th style={{ ...thStyle, textAlign: 'right' }}>Total</th>
                   </tr>
                 </thead>
@@ -2158,6 +2168,10 @@ export default function MagazineProfileSections({
                     // The donor's page, only when /donors/<slug> can find this donor (lib/donor-slug.ts, 24 Oct 2026);
                     // otherwise the name is shown without a link rather than linking to a 404.
                     const donorSlug = donorPageSlug(d.name);
+                    // Month and year of the first and latest donation, computed once and used by both the First and
+                    // Latest cells and the phone line under the donor, so the two can never differ (owner, 31 Oct 2026).
+                    const firstLabel = d.first ? new Date(d.first).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : null;
+                    const lastLabel = d.last ? new Date(d.last).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : null;
                     return (
                       <tr key={d.name} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
                         <td style={{ padding: '5px 4px' }}>
@@ -2189,6 +2203,7 @@ export default function MagazineProfileSections({
                               <span style={{ ...pillStyle, color: '#14100d', border: '1px solid #7a4a16' }} title="One or more donations from this donor was paid via a trust">↻ via trust</span>
                             )}
                           </div>
+                          <div className="mp-col-inline">{d.count} donation{d.count === 1 ? '' : 's'}{d.first ? `, ${firstLabel}` : ''}{d.last && lastLabel !== firstLabel ? ` to ${lastLabel}` : ''}</div>
                           {others.length > 0 && (
                             <div style={{ fontSize: '15px', marginTop: '4px' }}>
                               Also funds:{' '}
@@ -2202,9 +2217,9 @@ export default function MagazineProfileSections({
                             </div>
                           )}
                         </td>
-                        <td style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{d.count}</td>
-                        <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.first ? new Date(d.first).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</td>
-                        <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.last ? new Date(d.last).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</td>
+                        <td className="mp-col-wide" style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{d.count}</td>
+                        <td className="mp-col-wide" style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{firstLabel ?? ', '}</td>
+                        <td className="mp-col-wide" style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{lastLabel ?? ', '}</td>
                         <td style={{ padding: '5px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
                       </tr>
                     );
