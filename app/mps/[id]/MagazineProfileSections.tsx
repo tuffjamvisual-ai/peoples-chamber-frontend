@@ -2109,7 +2109,7 @@ export default function MagazineProfileSections({
                         <thead>
                           <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
                             <th style={thStyle}>Donor</th>
-                            <th style={thStyle}>Donations</th>
+                            <th className="mp-col-wide" style={thStyle}>Donations</th>
                             <th style={{ ...thStyle, textAlign: 'right' }}>Total</th>
                           </tr>
                         </thead>
@@ -2123,8 +2123,9 @@ export default function MagazineProfileSections({
                                   {sector && (
                                     <span style={{ marginLeft: '6px', ...pillStyle, color: sector.colour, border: `1px solid ${sector.colour}` }}>{sector.label}</span>
                                   )}
+                                  <div className="mp-col-inline">{d.count} donation{d.count === 1 ? '' : 's'}</div>
                                 </td>
-                                <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{d.count}</td>
+                                <td className="mp-col-wide" style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{d.count}</td>
                                 <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
                               </tr>
                             );
