@@ -130,7 +130,7 @@ export default async function DonorsIndex() {
       </table>
 
 <div style={{ marginTop: '20px', padding: '12px 14px', background: CREAM, fontSize: '15px' }}>
-        <strong>Heads up.</strong> &ldquo;House of Commons&rdquo; and &ldquo;House of Commons Fees Office&rdquo; appear in the EC register because they are the legal counterparty for MPs&rsquo; Members Estimate &ldquo;Short Money&rdquo; payments. Those are not donations in the lobbying sense; the EC simply records the payment trail.
+        <strong>Heads up.</strong> Some names here, such as the House of Commons, the House of Lords, the Scottish Parliament and the Electoral Commission, are sources of public funds, not private donors. Short Money and Cranborne Money support opposition parties in Parliament, and Policy Development Grants come from the Electoral Commission. The Electoral Commission reports them alongside donations.
       </div>
     </OpenGovShell>
   );

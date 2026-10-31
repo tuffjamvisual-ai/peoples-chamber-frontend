@@ -18,6 +18,7 @@ import { donorNameToSlug, narrowTokens } from '@/lib/donor-slug';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { relatedDonorNames, mainSpellingFor } from '@/lib/donor-related';
 import { donorRegistry } from '@/lib/donor-registry';
+import { getDonorProfile, LABEL_ORDER } from '@/lib/donor-profile';
 import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
 
@@ -204,7 +205,11 @@ export default async function DonorPage({ params }: PageProps) {
   if (donations.length === 0) notFound();
 
   // Other donor pages with a similar name (lib/donor-related.ts): a name similarity only, nothing is combined.
-  const [relatedFound, main] = await Promise.all([relatedDonorNames(canonicalName, slug), mainSpellingFor(slug)]);
+  // The donor's background ("Who they are", lib/donor-profile.ts) is read alongside, so it adds no wait; null when there
+  // is none or the read fails (the page then renders without the section).
+  const [relatedFound, main, background, registry] = await Promise.all([relatedDonorNames(canonicalName, slug), mainSpellingFor(slug), getDonorProfile(slug), donorRegistry()]);
+  // Every record here is public money (Short Money, Policy Development Grants and the like), not a private donation.
+  const publicFunds = donations.every((d) => d.donor_status === 'Public Fund');
   const relatedNames = main && !relatedFound.some((r) => r.slug === main.slug)
     ? [...relatedFound, main].sort((a, b) => a.name.localeCompare(b.name, 'en-GB'))
     : relatedFound;
@@ -389,6 +394,12 @@ export default async function DonorPage({ params }: PageProps) {
         </div>
       </header>
 
+      {publicFunds && (
+        <div style={{ marginBottom: '24px', padding: '12px 14px', background: CREAM, fontSize: '15px', lineHeight: 1.6 }}>
+          <strong>Public money, not a private donation.</strong> The Electoral Commission records public funds paid to political parties alongside donations. They include Short Money from the House of Commons and Cranborne Money from the House of Lords, which support opposition parties in Parliament, Policy Development Grants from the Electoral Commission, support from the devolved parliaments and assemblies, and other payments from public bodies such as government grants.
+        </div>
+      )}
+
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
         <Tile label="Total given under this registered name" value={fmtMoney(total)} sub={`${donations.length} donations`} accent={ACCENT} />
         <Tile label="Recipients" value={String(recipientRows.length)} sub="distinct entities" accent={INK_SOFT} />
@@ -420,6 +431,45 @@ export default async function DonorPage({ params }: PageProps) {
           </div>
         )}
       </section>
+
+      {/* Who they are (owner, 31 Oct 2026): the donor's background from public records and published reporting, each fact
+          with its source, shown as written (lib/donor-profile.ts). Only when a profile exists. */}
+      {background && (
+        <section aria-labelledby="donor-background" style={{ marginBottom: '28px', fontSize: '15px', lineHeight: 1.6, color: INK }}>
+          <h2 id="donor-background" style={sectionH2}>Who they are</h2>
+          <p style={{ margin: '0 0 12px', maxWidth: '70ch' }}>
+            Background from public records and published reporting, each with its source. It describes who the donor is. It does not suggest that any donation bought influence.
+          </p>
+          {LABEL_ORDER.filter((label) => background.profile.facts.some((f) => f.label === label)).map((label) => (
+            <div key={label}>
+              <h3 style={{ ...sectionH2, fontSize: '17px', borderBottom: 'none', paddingBottom: 0, margin: '16px 0 6px' }}>{label}</h3>
+              {background.profile.facts.filter((f) => f.label === label).map((f, i) => (
+                <p key={i} style={{ margin: '0 0 10px', maxWidth: '70ch', overflowWrap: 'anywhere' }}>
+                  {f.text}{' '}
+                  <span style={{ whiteSpace: 'normal' }}>
+                    Source:{' '}
+                    <a href={f.source.url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{f.source.title}</a>
+                  </span>
+                </p>
+              ))}
+            </div>
+          ))}
+          {background.otherSlugs.length > 0 && (
+            <p style={{ margin: '14px 0 0', maxWidth: '70ch' }}>
+              This background also covers donations recorded under:{' '}
+              {background.otherSlugs.map((s, i) => (
+                <span key={s}>
+                  {i > 0 && ', '}
+                  <Link href={`/donors/${s}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{registry.bySlug.get(s)?.label ?? s}</Link>
+                </span>
+              ))}
+            </p>
+          )}
+          <p style={{ margin: '14px 0 0' }}>
+            Last checked {new Date(`${background.profile.last_checked}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}
+          </p>
+        </section>
+      )}
 
       <section style={{ marginBottom: '28px' }}>
         <h2 style={sectionH2}>How the money was split</h2>
