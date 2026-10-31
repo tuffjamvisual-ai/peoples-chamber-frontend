@@ -3,6 +3,7 @@ import { supabaseAdminRead as supabase } from '@/lib/supabase-admin';
 import { SECTORS, sectorForDonor, sectorForVote, ALL_VOTE_KEYWORDS } from '@/lib/donor-sectors';
 import { readAll, inList } from '@/lib/read-all';
 import { storedSpellings } from '@/lib/donor-registry';
+import { recipientIsMp, stripHonorific } from '@/lib/mp-recipient-match';
 
 // Cached like the MP page (25 Oct 2026, report 43): the profile now fetches this as soon as the page is idle, so the
 // Donations tab opens at once, and the answer is kept for 6 hours (revalidate below) instead of being worked out for
@@ -10,13 +11,6 @@ import { storedSpellings } from '@/lib/donor-registry';
 // list: the last good answer stays up. The params are read; search params are not used.
 export const dynamic = 'force-static';
 export const revalidate = 21600;
-
-function stripHonorific(name: string): string {
-  return name
-    .replace(/^(?:Rt Hon|Sir|Dame|Dr|Ms|Mrs|Mr|The )\s+/i, '')
-    .replace(/\s+(?:MP|QC|KC|CBE|OBE|MBE)\s*$/i, '')
-    .trim();
-}
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -55,13 +49,14 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   type RawDonation = { id: number; recipient_name?: string | null; donor_name?: string | null; [key: string]: unknown };
 
-  const donations = ((rawDonations || []) as RawDonation[]).filter((d) => {
-    const rn = String(d.recipient_name || '').toLowerCase();
-    const tokens = rn.split(/[\s,.\-]+/).filter(Boolean);
-    if (!tokens.includes(lastWord)) return false;
-    if (firstWord.length < 2) return false;
-    return tokens.some((t) => t === firstWord || t.startsWith(firstWord));
-  });
+  // One test for "is this recipient the MP?", used by step 1 (which donations are the MP's) and step 2 (keeping the MP
+  // out of "Also funds"), so the two can never disagree (owner, 31 Oct 2026: Ed Davey's donors showed "Also funds:
+  // Mr Edward Davey MP" because step 2 used a plain substring test on "ed davey").
+  const isThisMp = (recipientName: string | null | undefined) => recipientIsMp(recipientName, firstWord, lastWord);
+
+  const donations = ((rawDonations || []) as RawDonation[]).filter((d) => isThisMp(d.recipient_name));
+  // Every recipient_name string among the MP's own donations, trimmed: also never shown as another recipient.
+  const ownRecipientNames = new Set(donations.map((d) => String(d.recipient_name || '').trim()).filter(Boolean));
 
   // 2. Donor other recipients
   const donorNames = Array.from(new Set(
@@ -89,7 +84,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         const dn = (r.donor_name || '').trim();
         const rn = (r.recipient_name || '').trim();
         if (!dn || !rn) continue;
-        if (rn.toLowerCase().includes(mpNameKey.toLowerCase())) continue;
+        if (isThisMp(rn) || ownRecipientNames.has(rn)) continue;
         if (!agg.has(dn)) agg.set(dn, new Map());
         const inner = agg.get(dn)!;
         inner.set(rn, (inner.get(rn) ?? 0) + (Number(r.amount) || 0));
