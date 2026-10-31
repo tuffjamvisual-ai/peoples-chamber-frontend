@@ -25,8 +25,19 @@ export const maxDuration = 300;
 // request has a timeout cut to the time left, no MP starts after 70 per cent of maxDuration, the run ends by 80 per
 // cent, a 429 stops it cleanly, the response says partial: true while MPs were left, and a run in which every request
 // failed returns 502 instead of ok.
+//
+// 31 Oct 2026 (owner; freshness alert "stopped part way on every run since 2026-10-28"): one MP at a time, each
+// Members API request taking about 2.8 s (median of 10), a run got through only about 40 to 60 of 650 MPs before the
+// 70 per cent cut-off, so a full pass took over two weeks against the 3 days lib/sync-cycles.ts expects. MPs are now
+// synced 4 at a time (CONCURRENCY): four workers take the next MP from the same stalest-first list, every request
+// still goes through politeFetch with the run's budget, a 429 still stops the run cleanly (no worker starts another MP;
+// requests in flight finish and are saved), and each MP's change comparison and upsert are unchanged. The response
+// adds concurrency and duration_s. The schedule stays once a day: Vercel Pro includes no function time (usage is
+// billed on demand against the monthly credit), so more runs were left for the owner to decide.
 
 const API = 'https://members-api.parliament.uk/api/Members';
+// MPs synced at once (owner, 31 Oct 2026): at most this many requests to the Members API in flight.
+const CONCURRENCY = 4;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const n = (v: unknown): number => { const x = Number(v); return Number.isFinite(x) ? Math.round(x) : 0; };
 
@@ -55,10 +66,21 @@ async function GET_impl(req: Request) {
   const now = new Date().toISOString();
   let processed = 0, rows_written = 0, withData = 0, failed = 0, dbFailed = 0;
   let stoppedBy: string | null = null;
-  let notReached = 0;
+  let fetchFailed = 0; // MPs whose request failed (they were reached, unlike MPs never started)
+  let next = 0;        // index of the next MP to start, shared by the workers
 
-  for (const [i, id] of memberIds.entries()) {
-    if (budget.stopStarting()) { stoppedBy = 'time budget'; notReached = memberIds.length - i; break; }
+  // CONCURRENCY workers take MPs in turn from the same stalest-first list, so at most CONCURRENCY requests are in flight.
+  // The first worker to see the budget end, or a polite stop (429 or the run's time), stops every worker from starting
+  // another MP; requests already in flight finish and are saved.
+  async function worker() {
+    for (;;) {
+      if (stoppedBy || next >= memberIds.length) return;
+      if (budget.stopStarting()) { stoppedBy = 'time budget'; return; }
+      await syncMp(memberIds[next++]);
+    }
+  }
+
+  async function syncMp(id: number) {
     let items: any[];
     try {
       const res = await politeFetch(`${API}/${id}/ContributionSummary?page=1`, {}, { budget });
@@ -66,8 +88,8 @@ async function GET_impl(req: Request) {
       const j = await res.json();
       items = Array.isArray(j?.items) ? j.items : [];
     } catch (e) {
-      if (isPoliteStop(e)) { stoppedBy = (e as Error).message; notReached = memberIds.length - i; break; }
-      failed++; await sleep(120); continue;
+      if (isPoliteStop(e)) { stoppedBy = stoppedBy ?? (e as Error).message; return; }
+      failed++; fetchFailed++; await sleep(120); return;
     }
     processed++;
     if (items.length) withData++;
@@ -111,6 +133,10 @@ async function GET_impl(req: Request) {
     await sleep(50);
   }
 
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, memberIds.length) }, () => worker()));
+  // MPs never started, or whose request was cut short by a polite stop: the next run takes them first (stalest first).
+  const notReached = stoppedBy ? memberIds.length - processed - fetchFailed : 0;
+
   noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
   const body = {
@@ -123,6 +149,8 @@ async function GET_impl(req: Request) {
     partial: stoppedBy !== null,
     stopped_by: stoppedBy,
     not_reached: notReached,
+    concurrency: CONCURRENCY,
+    duration_s: Math.round(budget.spent() / 100) / 10,
     syncedAt: now,
   };
   // A real failure fails the run: every database write failed, or every request did.
