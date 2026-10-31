@@ -2,21 +2,48 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink'
-import MpActivityClient, { type Row } from './MpActivityClient'
+import MpActivityTable, { type Row, type ViewKey, VIEWS, DEFAULT_VIEW } from './MpActivityTable'
+import Pagination from '../../components/Pagination'
 import { displayMpName } from '@/lib/mp-name';
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
+// Dynamic: the view, party, search and page come from the query string (owner, 31 Oct 2026: 50 MPs a page, sorted,
+// filtered and sliced on the server instead of sending every MP to the browser).
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'MP Activity: Most Active and Fewest Commons Contributions',
-  description: 'Every current MP ranked by how often they have spoken in Parliament this term, and how many words, taken from the official Hansard record.',
-  alternates: { canonical: '/transparency/mp-activity' },
+const PER_PAGE = 50
+
+type SP = { view?: string | string[]; party?: string | string[]; q?: string | string[]; page?: string | string[] }
+const one = (v: string | string[] | undefined): string | undefined => (Array.isArray(v) ? v[0] : v)
+
+// The query string, read once for both the metadata and the page. Unknown values fall back to the defaults; the party
+// is checked against the parties on the page later (an unknown party shows every party).
+function readParams(sp: SP) {
+  const v = one(sp.view)
+  const view: ViewKey = v && v in VIEWS ? (v as ViewKey) : DEFAULT_VIEW
+  const party = one(sp.party)?.trim() || null
+  const q = one(sp.q)?.trim().slice(0, 100) || null
+  const n = parseInt(one(sp.page) ?? '', 10)
+  const page = Number.isFinite(n) && n >= 1 ? n : 1
+  return { view, party, q, page }
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<SP> }): Promise<Metadata> {
+  const { view, party, q, page } = readParams(await searchParams)
+  const isDefault = view === DEFAULT_VIEW && !party && !q && page === 1
+  return {
+    title: 'MP Activity: Most Active and Fewest Commons Contributions',
+    description: 'Every current MP ranked by how often they have spoken in Parliament this term, and how many words, taken from the official Hansard record.',
+    alternates: { canonical: '/transparency/mp-activity' },
+    // Search engines index the main ranking only, and still follow the links on every other view.
+    ...(isDefault ? {} : { robots: { index: false, follow: true } }),
+  }
 }
 
 const INK = '#14100d'
 
-export default async function MpActivityPage() {
+export default async function MpActivityPage({ searchParams }: { searchParams: Promise<SP> }) {
+  const params = readParams(await searchParams)
   const [{ data: totals, error: totalsErr }, { data: mps, error: mpsErr }, { data: ministers, error: ministersErr }] = await Promise.all([
     supabase.from('mp_contribution_totals').select('member_id, total_contributions, word_count, written_questions, wq_top_departments'),
     supabase.from('mps').select('member_id, name, party, constituency, start_date').or('current_member.is.null,current_member.eq.true'),
@@ -51,6 +78,30 @@ export default async function MpActivityPage() {
       }
     })
 
+  // Sort, filter and slice: the same rules and sort fields the browser used. Ministers, whips and the Speaker are dropped
+  // only from the "fewest written questions" view; they ask few or none by role.
+  const parties = Array.from(new Set(rows.map((r) => r.party).filter(Boolean) as string[])).sort()
+  const party = params.party && parties.includes(params.party) ? params.party : null
+  const { view, q } = params
+  const { sortKey, dir } = VIEWS[view]
+  let list = party ? rows.filter((r) => r.party === party) : rows.slice()
+  if (view === 'fewest-questions') list = list.filter((r) => !r.frontbench)
+  if (q) {
+    const needle = q.toLowerCase()
+    list = list.filter((r) => r.name.toLowerCase().includes(needle) || (r.constituency ?? '').toLowerCase().includes(needle))
+  }
+  list.sort((a, b) => {
+    let d: number
+    if (sortKey === 'name') d = a.name.localeCompare(b.name)
+    else d = (a[sortKey === 'wq' ? 'writtenQuestions' : sortKey] as number) - (b[sortKey === 'wq' ? 'writtenQuestions' : sortKey] as number)
+    return dir === 'desc' ? -d : d
+  })
+  const totalPages = Math.max(1, Math.ceil(list.length / PER_PAGE))
+  const page = Math.min(params.page, totalPages) // a page past the end shows the last page
+  const start = (page - 1) * PER_PAGE
+  const pageRows = list.slice(start, start + PER_PAGE)
+  const qsExtra = [view !== DEFAULT_VIEW ? `&view=${encodeURIComponent(view)}` : '', party ? `&party=${encodeURIComponent(party)}` : '', q ? `&q=${encodeURIComponent(q)}` : ''].join('')
+
   return (
     <OpenGovShell pageStamp="MP Activity">
       <BackLink
@@ -71,7 +122,8 @@ export default async function MpActivityPage() {
         </p>
       </header>
 
-      <MpActivityClient rows={rows} />
+      <MpActivityTable rows={pageRows} firstRank={start + 1} total={list.length} view={view} party={party} q={q} parties={parties} />
+      <Pagination currentPage={page} totalPages={totalPages} baseUrl="/transparency/mp-activity" qsExtra={qsExtra} />
 
       <ParliamentSourceCredit />
     </OpenGovShell>
