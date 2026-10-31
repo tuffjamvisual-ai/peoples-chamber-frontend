@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 import { noteChanged } from '@/lib/refresh-count';
+import { CYCLE_HOURS } from '@/lib/sync-cycles';
+import { readAll, inList } from '@/lib/read-all';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -34,10 +36,21 @@ export const maxDuration = 300;
 // requests in flight finish and are saved), and each MP's change comparison and upsert are unchanged. The response
 // adds concurrency and duration_s. The schedule stays once a day: Vercel Pro includes no function time (usage is
 // billed on demand against the monthly credit), so more runs were left for the owner to decide.
+//
+// 31 Oct 2026 (owner, same day): partial means MPs are overdue, not MPs left in the queue. The queue is every current
+// MP on every run, so "partial while MPs were left" was true on every run and the freshness monitor could never see a
+// full pass. Now, as in /api/sync-mp-contributions, partial is true only if, after the run, some current MP's newest
+// mp_contributions row is older than this route's cycle in lib/sync-cycles.ts (3 days), or it has none. One extra read
+// checks the MPs this run did not bring up to date. An MP processed with no contributions to save is up to date, not
+// overdue (it never gets an updated_at stamp, and as the stalest it is processed first on every run). The response
+// adds overdue and no_items; stopped_by and not_reached still say where the run stopped.
 
 const API = 'https://members-api.parliament.uk/api/Members';
 // MPs synced at once (owner, 31 Oct 2026): at most this many requests to the Members API in flight.
 const CONCURRENCY = 4;
+const ROUTE = '/api/sync-hansard-contributions';
+// An MP is overdue when its newest row is older than the period lib/sync-cycles.ts expects a full pass to take.
+const CYCLE_MS = CYCLE_HOURS[ROUTE] * 60 * 60 * 1000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const n = (v: unknown): number => { const x = Number(v); return Number.isFinite(x) ? Math.round(x) : 0; };
 
@@ -68,6 +81,8 @@ async function GET_impl(req: Request) {
   let stoppedBy: string | null = null;
   let fetchFailed = 0; // MPs whose request failed (they were reached, unlike MPs never started)
   let next = 0;        // index of the next MP to start, shared by the workers
+  const synced = new Set<number>(); // MPs this run brought up to date: rows saved (or, in a dry run, read), or no rows to save
+  let noItems = 0;     // MPs processed with no contributions to save (they never get an updated_at stamp)
 
   // CONCURRENCY workers take MPs in turn from the same stalest-first list, so at most CONCURRENCY requests are in flight.
   // The first worker to see the budget end, or a polite stop (429 or the run's time), stops every worker from starting
@@ -128,7 +143,11 @@ async function GET_impl(req: Request) {
     if (rows.length && !dry) {
       const { error } = await supabase.from('mp_contributions').upsert(rows, { onConflict: 'member_id,debate_website_id' });
       if (error) { console.error(`[hansard] member ${id} upsert failed: ${error.message}`); failed++; dbFailed++; }
-      else rows_written += rows.length;
+      else { rows_written += rows.length; synced.add(id); }
+    } else {
+      // A dry run counts the MP as it would be after a real one; an MP with nothing to save is up to date, not overdue.
+      if (!rows.length) noItems++;
+      synced.add(id);
     }
     await sleep(50);
   }
@@ -136,6 +155,23 @@ async function GET_impl(req: Request) {
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, memberIds.length) }, () => worker()));
   // MPs never started, or whose request was cut short by a polite stop: the next run takes them first (stalest first).
   const notReached = stoppedBy ? memberIds.length - processed - fetchFailed : 0;
+
+  // Overdue (owner, 31 Oct 2026; as /api/sync-mp-contributions): MPs this run did not bring up to date whose newest row
+  // is older than the cycle, or who have none. One read: rows within the cycle for those MPs only.
+  const cutoff = new Date(Date.now() - CYCLE_MS).toISOString();
+  const unsynced = memberIds.filter((id: number) => !synced.has(id));
+  const recent = new Set<number>();
+  for (let i = 0; i < unsynced.length; i += 200) {
+    const ids = unsynced.slice(i, i + 200);
+    const rowsIn = await readAll<{ member_id: number }>(() => supabase.from('mp_contributions'), {
+      columns: 'id, member_id',
+      filter: (q) => q.filter('member_id', 'in', inList(ids.map(String))).gte('updated_at', cutoff),
+      orderBy: 'id',
+      label: `${ROUTE} overdue check`,
+    });
+    for (const r of rowsIn) recent.add(r.member_id);
+  }
+  const overdue = unsynced.filter((id: number) => !recent.has(id)).length;
 
   noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
@@ -146,7 +182,10 @@ async function GET_impl(req: Request) {
     ...(dry ? { dry_run: true } : {}),
     total_current_mps: memberIds.length,
     processed, withData, failed, rows_written,
-    partial: stoppedBy !== null,
+    // partial: MPs are still overdue after the run, not merely left in the queue (the queue is every current MP).
+    partial: overdue > 0,
+    overdue,
+    no_items: noItems,
     stopped_by: stoppedBy,
     not_reached: notReached,
     concurrency: CONCURRENCY,
