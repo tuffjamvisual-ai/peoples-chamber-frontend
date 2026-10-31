@@ -9,7 +9,6 @@ import {
   type SalaryBand,
 } from '@/lib/ministerial-salaries'
 import { displayMpName } from '@/lib/mp-name';
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const metadata: Metadata = {
   title: "UK MP Earnings vs Public Spend, Salary, Outside Earnings & IPSA Costs",
@@ -173,7 +172,6 @@ export default async function EarningsPage() {
           Drill into any MP&apos;s profile for the line-item breakdown.
         </p>
       </section>
-      <ParliamentSourceCredit />
     </OpenGovShell>
   )
 }

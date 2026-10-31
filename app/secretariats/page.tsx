@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { secretariatNameToSlug } from './[slug]/page';
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 86400;
 
@@ -106,7 +105,6 @@ export default async function SecretariatsIndex() {
       </div>
 
       <LastUpdated sourceKey="appgs" />
-      <ParliamentSourceCredit marginTop="6px" />
 </OpenGovShell>
   );
 }

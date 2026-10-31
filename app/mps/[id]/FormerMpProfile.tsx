@@ -56,7 +56,7 @@ export default function FormerMpProfile({ mp }: { mp: FormerMp }) {
           <Link href="/mps" style={{ color: INK, textDecoration: 'underline' }}>Find your current MP</Link>.
         </p>
         <p style={line}>
-          Source: <a href={parliamentMemberUrl(mp.memberId)} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>UK Parliament, {mp.name}: career</a> (Members API). Contains Parliamentary information licensed under the Open Parliament Licence v3.0.
+          Source: <a href={parliamentMemberUrl(mp.memberId)} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>UK Parliament, {mp.name}: career</a> (Members API).
         </p>
       </section>
     </OpenGovShell>

@@ -207,7 +207,7 @@ export default async function SpecialAdvisersPage() {
                 </div>
               ))}
               <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '10px 0 18px' }}>
-                Posts and dates: <a href="https://members-api.parliament.uk/" rel="noopener" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>UK Parliament Members API</a>, checked every week. Contains Parliamentary information licensed under the Open Parliament Licence v3.0.
+                Posts and dates: <a href="https://members-api.parliament.uk/" rel="noopener" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>UK Parliament Members API</a>, checked every week.
               </p>
             </>
           )}

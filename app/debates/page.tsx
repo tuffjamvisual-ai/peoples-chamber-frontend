@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 import Unavailable from '@/app/components/Unavailable';
 
 // Commons debates index. Metadata is held in our `debates` table (synced daily
@@ -196,7 +195,6 @@ export default async function DebatesPage({
         </nav>
       )}
 
-      <ParliamentSourceCredit />
     </OpenGovShell>
   );
 }

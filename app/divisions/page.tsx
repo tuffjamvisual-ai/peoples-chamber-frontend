@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 import Unavailable from '@/app/components/Unavailable';
 
 // Browsable index of Commons divisions (recorded votes), newest first. Each
@@ -121,7 +120,6 @@ export default async function DivisionsIndexPage({
       )}
 
       <LastUpdated sourceKey="division_votes" />
-      <ParliamentSourceCredit marginTop="6px" />
     </OpenGovShell>
   );
 }

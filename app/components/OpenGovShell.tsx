@@ -5,6 +5,7 @@ import AccountTab from './AccountTab';
 import { NAV, menuHref } from '@/lib/site-nav';
 import MobileMenu from './MobileMenu';
 import HeaderNav from './HeaderNav';
+import { OPEN_PARLIAMENT_LICENCE_URL } from './ParliamentSourceCredit';
 
 // OpenGovShell — the shared "OPEN GOVERNMENT" page template.
 // Renders the folders-pile backdrop, the newb folder header (red-stamp masthead
@@ -95,6 +96,11 @@ export default function OpenGovShell({
           <div className="dossier-content">
             {children}
             <footer style={{ marginTop: '48px', paddingTop: '18px', borderTop: '1px solid rgba(20,16,13,0.25)', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d' }}>
+              {/* The Open Parliament Licence attribution on every page (owner, 31 Oct 2026), above the independence line. */}
+              <p style={{ margin: '0 0 14px', color: '#14100d', lineHeight: 1.65, maxWidth: '82ch' }}>
+                Contains Parliamentary information licensed under the{' '}
+                <a href={OPEN_PARLIAMENT_LICENCE_URL} rel="noopener" style={{ color: '#7a1612' }}>Open Parliament Licence v3.0</a>.
+              </p>
               <p style={{ margin: '0 0 14px', color: '#14100d', lineHeight: 1.65, maxWidth: '82ch' }}>
                 opengovt is independent and is not affiliated with GOV.UK, the UK Government, Parliament, any government department, local authority, public body or official public service.
               </p>

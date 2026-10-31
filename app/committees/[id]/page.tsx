@@ -7,7 +7,6 @@ import { COMMITTEE_IDS } from '@/lib/committees';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 // dynamicParams = false: any committee ID not in generateStaticParams returns a
 // clean Next.js 404 without hitting the database. mp_committee_memberships holds
@@ -238,7 +237,6 @@ export default async function CommitteeProfilePage({ params }: Props) {
       <p className="text-[15px] mt-6" style={{ color: INK, fontFamily: MONO }}>
         Source: UK Parliament members and committees APIs. Updated nightly.
       </p>
-      <ParliamentSourceCredit marginTop="6px" />
     </OpenGovShell>
   );
 }

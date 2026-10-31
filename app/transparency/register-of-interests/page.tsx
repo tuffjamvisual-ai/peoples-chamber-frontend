@@ -9,7 +9,6 @@ import RegisterSearchClient from './RegisterSearchClient';
 import DonationsCounter from './DonationsCounter';
 import { getDeclaredMpDonationsTotal } from '@/lib/mpDonationsTotal';
 import { displayMpName } from '@/lib/mp-name';
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 // The Register of Members' Financial Interests — a searchable, cross-MP view of
 // what MPs declare to Parliament (gifts, hospitality, employment, property,
@@ -331,7 +330,6 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
         Source: the Register of Members&rsquo; Financial Interests, published by the House of Commons and synced from the Parliament Members API. Entries are the Members&rsquo; own declarations. Covers 588 of 650 current MPs; the remainder have no registrable interests recorded.
       </p>
       <LastUpdated sourceKey="registered_interests" />
-      <ParliamentSourceCredit marginTop="6px" />
     </OpenGovShell>
   );
 }

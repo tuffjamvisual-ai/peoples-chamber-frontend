@@ -5,7 +5,6 @@ import BackLink from '../../components/BackLink'
 import MpActivityTable, { type Row, type ViewKey, VIEWS, DEFAULT_VIEW } from './MpActivityTable'
 import Pagination from '../../components/Pagination'
 import { displayMpName } from '@/lib/mp-name';
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 // Dynamic: the view, party, search and page come from the query string (owner, 31 Oct 2026: 50 MPs a page, sorted,
 // filtered and sliced on the server instead of sending every MP to the browser).
@@ -125,7 +124,6 @@ export default async function MpActivityPage({ searchParams }: { searchParams: P
       <MpActivityTable rows={pageRows} firstRank={start + 1} total={list.length} view={view} party={party} q={q} parties={parties} />
       <Pagination currentPage={page} totalPages={totalPages} baseUrl="/transparency/mp-activity" qsExtra={qsExtra} />
 
-      <ParliamentSourceCredit />
     </OpenGovShell>
   )
 }

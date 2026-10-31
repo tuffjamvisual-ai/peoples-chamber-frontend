@@ -11,7 +11,6 @@ import BackLink from '../../components/BackLink';
 import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 import { metaDescription } from '@/lib/meta-description'
 import { shortDate, fitTitle } from '@/lib/seo-title'
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 // In-house rendering of a Hansard debate. opengovt never links out, so rather
 // than send readers to hansard.parliament.uk we pull the debate transcript from
@@ -341,7 +340,6 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         ) : <span />}
       </nav>
 
-      <ParliamentSourceCredit />
       <style>{`.pca-hansard p { margin: 0 0 12px 0; } .pca-hansard p:last-child { margin-bottom: 0; } .pca-hansard em { font-style: italic; }`}</style>
     </OpenGovShell>
   );

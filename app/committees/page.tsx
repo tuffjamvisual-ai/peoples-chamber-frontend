@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabase';
 import { readAll } from '@/lib/read-all';
 import OpenGovShell from '../components/OpenGovShell';
 import { displayMpName } from '@/lib/mp-name';
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 86400;
 
@@ -147,7 +146,6 @@ export default async function CommitteesIndexPage() {
       <p className="text-[15px] mt-8" style={{ color: INK, fontFamily: MONO }}>
         Source: UK Parliament members and committees APIs. Updated nightly.
       </p>
-      <ParliamentSourceCredit marginTop="6px" />
     </OpenGovShell>
   );
 }

@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink'
 import PostcodeLookup from '../components/PostcodeLookup'
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const metadata: Metadata = {
   title: 'Find Your MP',
@@ -33,7 +32,6 @@ export default function FindYourMpPage() {
       <div style={{ maxWidth: '560px' }}>
         <PostcodeLookup heading="Who is your MP?" />
       </div>
-      <ParliamentSourceCredit />
     </OpenGovShell>
   )
 }
