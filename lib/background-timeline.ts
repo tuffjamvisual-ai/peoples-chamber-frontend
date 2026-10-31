@@ -59,17 +59,23 @@ export function validate(entries: unknown): string[] {
   return problems;
 }
 
-// Education, then career, then politics; within a phase by start ascending. Entries with no start keep their given
-// order and follow the dated entries of their phase (the sort is stable).
+// Education, then career, then politics; within a phase by a sort key, ascending (owner, 31 Oct 2026). The key is the
+// start, or the end when start is null but end is a date ("Until 1981" sorts at 1981). An entry with neither takes the
+// key of the nearest entry before it in the stored array in the same phase, so it stays directly after the entry it
+// follows; with none before it, it sorts before every dated entry of its phase. Equal keys keep the stored order.
 export function sortTimeline(entries: BackgroundEntry[]): BackgroundEntry[] {
+  const lastKey = new Map<BackgroundPhase, string>();
   return entries
-    .map((e, i) => ({ e, i }))
+    .map((e, i) => {
+      const own = e.start ?? (e.end && e.end !== 'present' ? e.end : null);
+      const key = own ? firstMonth(own) : (lastKey.get(e.phase) ?? '');
+      lastKey.set(e.phase, key);
+      return { e, i, key };
+    })
     .sort((a, b) => {
       const p = BACKGROUND_PHASES.indexOf(a.e.phase) - BACKGROUND_PHASES.indexOf(b.e.phase);
       if (p !== 0) return p;
-      if (a.e.start && b.e.start) return firstMonth(a.e.start) < firstMonth(b.e.start) ? -1 : firstMonth(a.e.start) > firstMonth(b.e.start) ? 1 : a.i - b.i;
-      if (a.e.start) return -1;
-      if (b.e.start) return 1;
+      if (a.key !== b.key) return a.key < b.key ? -1 : 1;
       return a.i - b.i;
     })
     .map(({ e }) => e);
@@ -78,8 +84,10 @@ export function sortTimeline(entries: BackgroundEntry[]): BackgroundEntry[] {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const label = (v: string) => (v.length === 7 ? `${MONTHS[Number(v.slice(5, 7)) - 1]} ${v.slice(0, 4)}` : v);
 
-// The years column: "2003 to 2007", "From 2015", "2019 to today", "Until 2007", or '' when both are null.
+// The years column: "2003 to 2007", "From 2015", "2019 to today", "Until 2007", or '' when both are null. A start
+// equal to its end shows once ("2016", "Oct 1974").
 export function yearsLabel(start: string | null, end: string | null): string {
+  if (start && end && start === end) return label(start);
   if (start && end) return `${label(start)} to ${end === 'present' ? 'today' : label(end)}`;
   if (start) return `From ${label(start)}`;
   if (end) return end === 'present' ? 'To today' : `Until ${label(end)}`;
