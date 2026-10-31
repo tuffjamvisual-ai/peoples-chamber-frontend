@@ -482,7 +482,11 @@ const pillStyle: React.CSSProperties = {
   textTransform: 'uppercase',
   fontFamily: 'var(--font-special-elite), monospace',
   background: 'transparent',
-  whiteSpace: 'nowrap',
+  // Pills wrap (owner, 31 Oct 2026) so the Donor and Payer columns can shrink on narrow phones: a long pill such as
+  // "Unincorporated Association" kept the donor table 61 px past the column on /mps/4804 at 375 px.
+  whiteSpace: 'normal',
+  overflowWrap: 'anywhere',
+  maxWidth: '100%',
 };
 
 // Link to our own in-house debate page (we never link out). The debate GUID
