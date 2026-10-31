@@ -87,7 +87,10 @@ export async function generateMetadata(
   const isAct = bill?.is_act === true
   const hasDivision = bill?.commons_division_id != null
 
-  return (hasVotes || activeStage || isAct || hasDivision) ? {} : { robots: { index: false, follow: true } }
+  // The page names itself canonical (owner, 31 Oct 2026, Search Console "duplicate without a main version"); the layout
+  // sets the same, this makes it explicit on the page. The robots rule above is unchanged.
+  const canonical = { alternates: { canonical: `/bills/${billId}` } }
+  return (hasVotes || activeStage || isAct || hasDivision) ? canonical : { ...canonical, robots: { index: false, follow: true } }
 }
 
 const INK = '#14100d'
