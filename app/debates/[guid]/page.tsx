@@ -11,6 +11,10 @@ import BackLink from '../../components/BackLink';
 import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 import { metaDescription } from '@/lib/meta-description'
 import { shortDate, fitTitle } from '@/lib/seo-title'
+import { normaliseParty } from '@/lib/party-helpers'
+import { displayMpName } from '@/lib/mp-name'
+import { fetchDivisionVotes, divisionTally } from '@/lib/division-votes'
+import DebateSummary, { type Speaker, type VoteSummary } from './DebateSummary'
 
 // In-house rendering of a Hansard debate. opengovt never links out, so rather
 // than send readers to hansard.parliament.uk we pull the debate transcript from
@@ -125,6 +129,27 @@ function speakerName(attributed: string): string {
   return head || attributed.trim();
 }
 
+// Ministers as Hansard attributes them, by the office held that day ("The Minister for Trade Policy (Gareth Thomas)").
+// dept_ministers holds only today's ministers, with no dates, so the office comes from the record itself.
+const MINISTER_RE = /^The\s+(?:Prime Minister|Deputy Prime Minister|Minister\b|Parliamentary Under[\s‐‑-]Secretary|Parliamentary Secretary|Secretary of State|Chancellor|Chief Secretary|Financial Secretary|Economic Secretary|Exchequer Secretary|Paymaster General|Attorney General|Solicitor General|Advocate General|Leader of the House|Lord Chancellor|Lord President|Treasurer of|Comptroller of|Vice[\s‐‑-]Chamberlain|Lord Privy Seal)/i;
+// Hansard's party abbreviations, for a speaker we hold no MP record for.
+const PARTY_ABBR: Record<string, string> = {
+  Lab: 'Labour', 'Lab/Co-op': 'Labour', Con: 'Conservative', LD: 'Liberal Democrat', SNP: 'Scottish National Party', DUP: 'Democratic Unionist Party',
+  PC: 'Plaid Cymru', Green: 'Green Party', Reform: 'Reform UK', RUK: 'Reform UK', Ind: 'Independent', SDLP: 'Social Democratic and Labour Party',
+  UUP: 'Ulster Unionist Party', APNI: 'Alliance', Alliance: 'Alliance', TUV: 'Traditional Unionist Voice', SF: 'Sinn Féin',
+};
+// "Sarah Champion (Rotherham) (Lab)": the constituency and party in the brackets, when the speaker is named, not an office.
+function attributionParts(attributed: string): { constituency: string | null; party: string | null; office: string | null } {
+  const head = attributed.replace(/\s*\[[^\]]*\]/g, '').replace(/\s*\([^()]*\)/g, '').trim();
+  const groups = [...attributed.matchAll(/\(([^()]*)\)/g)].map((m) => m[1].trim());
+  if (/^The\s/i.test(head)) return { constituency: null, party: null, office: MINISTER_RE.test(head) ? head : null };
+  const last = groups[groups.length - 1];
+  const party = last && PARTY_ABBR[last] ? PARTY_ABBR[last] : null;
+  const constituency = groups.length >= 2 ? groups[0] : null;
+  return { constituency, party, office: null };
+}
+const wordCount = (items: DebateItem[]) => items.reduce((n, it) => n + plain(it.Value || '').split(' ').filter(Boolean).length, 0);
+
 // Flatten a debate + its child debates into an ordered list of items.
 function allItems(d: Debate): DebateItem[] {
   const out: DebateItem[] = [...(d.Items || [])];
@@ -182,7 +207,12 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   // A sitting's header record ("Commons Chamber", "Westminster Hall") only gathers the day's debates, so its page
   // repeats their text: not indexed, its links still followed (owner's decision, 28 Oct 2026).
   const header = !!d && !(d.Items ?? []).some((it) => plain(it.Value || '')) && (d.ChildDebates ?? []).length > 0;
-  return { title: fullTitle, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` }, ...(header ? { robots: { index: false, follow: true } } : {}) };
+  // A procedural debate (owner, 31 Oct 2026): under 150 words of transcript and no division. Not indexed, its links
+  // still followed; everything else stays indexable with its canonical.
+  const drow = d ? await debateRow(guid) : null;
+  const hasDivision = Array.isArray(drow?.division_ids) && (drow!.division_ids as unknown[]).length > 0;
+  const procedural = !!d && !header && !hasDivision && wordCount(allItems(d).filter((it) => it.ItemType !== 'Timestamp')) < 150;
+  return { title: fullTitle, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` }, ...(header || procedural ? { robots: { index: false, follow: true } } : {}) };
 }
 
 // A debate still in our list whose Hansard record has gone (Hansard republishes some sitting headers under new IDs,
@@ -223,16 +253,59 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   // Only link speakers we actually hold an MP profile for, so no link 404s.
   const memberIds = [...new Set(groups.map((g) => g.memberId).filter((x): x is number => x != null))];
   const linkable = new Set<number>();
+  // The same one read as before, now with each MP's name, party and constituency for "Who spoke" (owner, 31 Oct 2026).
+  const mpInfo = new Map<number, { name: string | null; party: string | null; constituency: string | null }>();
   if (memberIds.length) {
-    const { data, error } = await supabase.from('mps').select('member_id').in('member_id', memberIds);
+    const { data, error } = await supabase.from('mps').select('member_id, display_name, name, party, constituency').in('member_id', memberIds);
     if (error) throw new Error(`debate ${guid} speakers: ${error.message}`);
-    for (const r of data || []) linkable.add(r.member_id as number);
+    for (const r of data || []) {
+      linkable.add(r.member_id as number);
+      mpInfo.set(r.member_id as number, { name: displayMpName((r.display_name as string | null) ?? (r.name as string | null)) ?? null, party: r.party ? normaliseParty(r.party as string) : null, constituency: (r.constituency as string | null) ?? null });
+    }
   }
+
+  // Who spoke (owner, 31 Oct 2026): each speaker once, in order of first contribution, with their contributions counted
+  // as the transcript groups them. The chair and group interjections are not speakers (CHAIR_RE, as in the metadata).
+  const speakerMap = new Map<string, Speaker>();
+  for (const g of groups) {
+    if (!g.speaker || CHAIR_RE.test(g.speaker)) continue;
+    const key = g.memberId != null ? `m${g.memberId}` : `a${speakerName(g.speaker)}`;
+    const existing = speakerMap.get(key);
+    if (existing) { existing.contributions++; if (!existing.office) existing.office = attributionParts(g.speaker).office; continue; }
+    const parts = attributionParts(g.speaker);
+    const mp = g.memberId != null ? mpInfo.get(g.memberId) : undefined;
+    speakerMap.set(key, {
+      key, name: mp?.name || speakerName(g.speaker), memberId: g.memberId, linked: g.memberId != null && linkable.has(g.memberId),
+      party: mp?.party ?? parts.party, constituency: mp?.constituency ?? parts.constituency, contributions: 1, office: parts.office,
+    });
+  }
+  const speakers = [...speakerMap.values()];
+  const words = wordCount(rawItems);
 
   // Divisions held in this debate, linked to our own division pages (populated
   // and validated by the debates sync, so these never 404).
   const drow = await debateRow(guid);
   const divisionIds: string[] = Array.isArray(drow?.division_ids) ? (drow!.division_ids as string[]) : [];
+
+  // The vote (owner, 31 Oct 2026): each division's totals, party split and rebels, from lib/division-votes.ts, the same
+  // calculation as the division page. Indexed reads only (date and number, division id, member ids).
+  const votes: VoteSummary[] = (await Promise.all(divisionIds.map(async (slug) => {
+    const m = /^pw-(\d{4}-\d{2}-\d{2})-(\d+)(?:-commons)?$/.exec(slug);
+    if (!m) return null;
+    const loaded = await fetchDivisionVotes(m[1], Number(m[2]), `debate ${guid} division ${slug}`);
+    if (!loaded) return null;
+    const t = divisionTally(loaded.votes, loaded.totals);
+    const partyNames = [...new Set([...t.ayeGroups, ...t.noeGroups].map((g) => g.party))];
+    const count = (groups: typeof t.ayeGroups, p: string) => groups.find((g) => g.party === p)?.rows.length ?? 0;
+    return {
+      slug,
+      title: loaded.voteRows[0].division_title || `Division ${m[2]}`,
+      ayes: t.ayeTotal, noes: t.noTotal,
+      parties: partyNames.map((p) => ({ party: p, ayes: count(t.ayeGroups, p), noes: count(t.noeGroups, p) })).sort((a, b) => (b.ayes + b.noes) - (a.ayes + a.noes)),
+      rebels: t.rebels.map((v) => ({ memberId: v.member_id, name: displayMpName(v.mp?.display_name ?? v.mp?.name) ?? `Member ${v.member_id}`, party: v.mp?.party ? normaliseParty(v.mp.party) : null, vote: v.vote_type === 'aye' ? 'Aye' as const : 'No' as const, linked: !!v.mp }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    };
+  }))).filter((v): v is VoteSummary => v !== null);
 
   // Read next (lib/read-next.ts) once, after the whole transcript and before the links to the adjacent debates (owner's
   // request, 25 Oct 2026). Only speakers we hold an MP page for count.
@@ -277,6 +350,8 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           </div>
         )}
       </header>
+
+      <DebateSummary date={ov?.Date ? fmtDate(ov.Date) : null} house={ov?.House ?? null} location={ov?.Location ?? null} speakers={speakers} words={words} votes={votes} />
 
       {about && (
         <section style={{ maxWidth: '46em', margin: '0 auto 7%', borderLeft: `2px solid ${ACCENT}`, paddingLeft: '16px' }}>

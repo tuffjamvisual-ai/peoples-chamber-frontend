@@ -18,10 +18,11 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { partyColourForMember, normaliseParty } from '@/lib/party-helpers';
+import { normaliseParty } from '@/lib/party-helpers';
 import RelatedLinks from '../../components/RelatedLinks';
 import { displayMpName } from '@/lib/mp-name';
 import { divisionHref, divisionNeighbours, yearHref } from '@/lib/division-links';
+import { fetchDivisionVotes, divisionTally, type Vote as DivisionVote } from '@/lib/division-votes';
 
 export const revalidate = 86400;  // divisions don't change after the vote happens
 
@@ -106,28 +107,7 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-type VoteRow = {
-  member_id: number;
-  vote_type: 'aye' | 'no' | 'both' | string;
-  is_teller: boolean | null;
-  is_rebellion: boolean | null;
-  bill_id: number | null;
-  division_title: string | null;
-  division_date: string;
-  division_id: number | null;
-};
-
-type MpRow = {
-  member_id: number;
-  display_name: string | null;
-  name: string | null;
-  party: string | null;
-  party_colour: string | null;
-  constituency: string | null;
-  photo_url: string | null;
-};
-
-type Vote = VoteRow & { mp: MpRow | null };
+type Vote = DivisionVote;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -254,36 +234,11 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   const neighboursP = divisionNeighbours(dateOnly, divisionNumber);
   neighboursP.catch(() => {}); // a 404 below leaves it unawaited; when awaited, its error still throws
 
-  // All vote rows for this division. Natural-key index makes this cheap.
-  const { data: voteRows, error: voteErr } = await supabase
-    .from('mp_division_votes')
-    .select('member_id, vote_type, is_teller, is_rebellion, bill_id, division_title, division_date, division_id')
-    .eq('division_date_only', dateOnly)
-    .eq('division_number', divisionNumber);
-  if (voteErr) throw new Error(`division ${slug}: ${voteErr.message}`);
-
-  if (!voteRows || voteRows.length === 0) notFound();
-
-  // Official totals from Parliament (tellers not included). The vote rows include the tellers
-  // and can miss a voter Parliament's list does not name, so they are only a fallback.
-  const { data: totalsRow, error: totalsRowErr } = await supabase
-    .from('commons_division_totals')
-    .select('aye_count, no_count, aye_tellers, no_tellers')
-    .eq('division_id', (voteRows[0] as { division_id: number }).division_id)
-    .maybeSingle();
-  if (totalsRowErr && totalsRowErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] commons_division_totals: ${totalsRowErr.message}`);
-  const totals = totalsRow as { aye_count: number; no_count: number; aye_tellers: string[]; no_tellers: string[] } | null;
-
-  // MP lookup — single batch on the distinct member_ids.
-  const memberIds = Array.from(new Set(voteRows.map((v) => v.member_id)));
-  const { data: mpRows, error: mpRowsErr } = await supabase
-    .from('mps')
-    .select('member_id, display_name, name, party, party_colour, constituency, photo_url')
-    .in('member_id', memberIds);
-  if (mpRowsErr && mpRowsErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] mps: ${mpRowsErr.message}`);
-  const mpById = new Map<number, MpRow>((mpRows ?? []).map((m) => [m.member_id, m as MpRow]));
-
-  const votes: Vote[] = voteRows.map((v) => ({ ...v, mp: mpById.get(v.member_id) ?? null }));
+  // All vote rows for this division, Parliament's totals and the MPs who voted (lib/division-votes.ts, shared with the
+  // debate pages so both show the same figures).
+  const loaded = await fetchDivisionVotes(dateOnly, divisionNumber, `/divisions/${slug}`);
+  if (!loaded) notFound();
+  const { voteRows, votes, totals } = loaded;
 
   // Headline metadata comes from the first row — all rows share these fields.
   const head = voteRows[0];
@@ -331,34 +286,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   // match on the lowercased division title.
   const description = billSummary || siDescription || proceduralContext(head.division_title);
 
-  const ayes = votes.filter((v) => v.vote_type === 'aye');
-  const noes = votes.filter((v) => v.vote_type === 'no');
-  const boths = votes.filter((v) => v.vote_type === 'both');
-  const tellers = votes.filter((v) => v.is_teller);
-  const ayeTotal = totals ? totals.aye_count : ayes.filter((v) => !v.is_teller).length;
-  const noTotal = totals ? totals.no_count : noes.filter((v) => !v.is_teller).length;
-  const ayeNamed = ayes.filter((v) => !v.is_teller).length;
-  const noNamed = noes.filter((v) => !v.is_teller).length;
-
-  // Party ordering: largest delegation in THIS division first.
-  function groupByParty(rows: Vote[]): Array<{ party: string; partyColour: string; rows: Vote[] }> {
-    const groups = new Map<string, Vote[]>();
-    for (const v of rows) {
-      const p = normaliseParty(v.mp?.party) || v.mp?.party || 'Unknown';
-      if (!groups.has(p)) groups.set(p, []);
-      groups.get(p)!.push(v);
-    }
-    return Array.from(groups.entries())
-      .sort((a, b) => b[1].length - a[1].length)
-      .map(([party, rs]) => ({
-        party,
-        partyColour: partyColourForMember(rs[0].mp?.party ?? null, rs[0].mp?.party_colour ?? null),
-        rows: rs.sort((x, y) => (x.mp?.display_name || x.mp?.name || '').localeCompare(y.mp?.display_name || y.mp?.name || '')),
-      }));
-  }
-
-  const ayeGroups = groupByParty(ayes);
-  const noeGroups = groupByParty(noes);
+  const { boths, tellers, ayeTotal, noTotal, ayeNamed, noNamed, ayeGroups, noeGroups } = divisionTally(votes, totals);
 
   return (
     <OpenGovShell pageStamp="Division">
