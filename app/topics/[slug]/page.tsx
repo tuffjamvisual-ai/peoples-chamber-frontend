@@ -9,7 +9,7 @@ import { getTopic, topics, topicBillArgs, newestPerTitle, wholeWordsPattern, mat
 import { departments } from '@/lib/departments';
 import { editorialSet } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
-import { readingLabel, textReadingLabel } from '@/lib/reading-time';
+import { listReadingLabel, textReadingLabel } from '@/lib/reading-time';
 import ContinueToArticle from '../../components/ContinueToArticle';
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
@@ -105,7 +105,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   const set = await editorialSet();
   const relatedEditorials = [
     ...(set.topicSlugs[topic.slug] ?? []).map((s) => set.bySlug[s]).filter(Boolean).map((e) => ({
-      href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`, headline: e.headline, summary: listSummary(e), date: e.publishedAt || '', readingLabel: readingLabel(e),
+      href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`, headline: e.headline, summary: listSummary(e), date: e.publishedAt || '', readingLabel: listReadingLabel(e),
     })),
     ...((briefRes.data || []) as { slug: string; headline: string; summary: string | null; body: string | null; published_at: string | null; created_at: string }[])
       .filter((b) => matchWords(`${b.headline} ${b.summary ?? ''}`, topic.words, topic.exclude))

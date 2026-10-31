@@ -1,6 +1,6 @@
 // The "Explore next" selection (app/components/ExploreNext.tsx), shared with the Read next block (lib/read-next.ts)
 // so Read next never repeats a link ExploreNext shows. Moved here unchanged on 21 Oct 2026.
-import { editorialSet } from '@/lib/editorials-source';
+import { editorialSet, type EditorialListEntry } from '@/lib/editorials-source';
 import { topics } from '@/lib/topics';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { subjectsOf } from '@/lib/editorials/subjects';
@@ -8,8 +8,8 @@ import { subjectsOf } from '@/lib/editorials/subjects';
 export type ExploreItem = { href: string; label: string; note?: string };
 
 export async function exploreNextSelection(piece: EditorialEntry): Promise<{
-  isBriefing: boolean; base: string; data: ExploreItem[]; next: EditorialEntry[]; latest: EditorialEntry[];
-  moreRelated: EditorialEntry[]; hrefs: string[];
+  isBriefing: boolean; base: string; data: ExploreItem[]; next: EditorialListEntry[]; latest: EditorialListEntry[];
+  moreRelated: EditorialListEntry[]; hrefs: string[];
 }> {
   type Item = ExploreItem;
   const set = await editorialSet();
@@ -20,7 +20,7 @@ export async function exploreNextSelection(piece: EditorialEntry): Promise<{
 
   const STOP = new Set(['the', 'and', 'for', 'with', 'that', 'this', 'from', 'into', 'over', 'what', 'when', 'who', 'how', 'why', 'are', 'was', 'were', 'has', 'have', 'its', 'their', 'they', 'but', 'not', 'more', 'than', 'after', 'about', 'which', 'will', 'been', 'government', 'minister', 'ministers', 'uk', 'britain', 'british']);
   const stem = (text: string) => new Set(text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((w) => w.length > 3 && !STOP.has(w)).map((w) => w.replace(/(ing|ed|es|s)$/, '')));
-  const words = (e: EditorialEntry) => stem(`${e.headline} ${e.standfirst || ''}`);
+  const words = (e: { headline: string; standfirst?: string }) => stem(`${e.headline} ${e.standfirst || ''}`);
   const mine = words(piece);
 
   // Explore the data: hand-picked first, then each topic's data pages and topic page.
@@ -49,13 +49,13 @@ export async function exploreNextSelection(piece: EditorialEntry): Promise<{
   // separate "Latest investigations" heading, so the panel never implies a connection the
   // selection does not have.
   const all = set.list.filter((e) => e.slug !== piece.slug && (e.kind === 'briefing') === isBriefing);
-  const byDate = (a: EditorialEntry, b: EditorialEntry) => (b.publishedAt || '').localeCompare(a.publishedAt || '');
-  const picked = (piece.readNext || []).map((s) => editorials[s]).filter((e): e is EditorialEntry => !!e && e.slug !== piece.slug);
+  const byDate = (a: EditorialListEntry, b: EditorialListEntry) => (b.publishedAt || '').localeCompare(a.publishedAt || '');
+  const picked = (piece.readNext || []).map((s) => editorials[s]).filter((e): e is EditorialListEntry => !!e && e.slug !== piece.slug);
   const used = new Set(picked.map((e) => e.slug));
-  const overlap = (e: EditorialEntry) => { let n = 0; for (const w of words(e)) if (mine.has(w)) n++; return n; };
+  const overlap = (e: EditorialListEntry) => { let n = 0; for (const w of words(e)) if (mine.has(w)) n++; return n; };
   const mySubjects = new Set(subjectsOf(piece.slug));
-  const sharedSubjects = (e: EditorialEntry) => subjectsOf(e.slug).filter((s) => mySubjects.has(s)).length;
-  const sharedTopics = (e: EditorialEntry) => pieceTopics.filter((t) => inTopic(t, e.slug)).length;
+  const sharedSubjects = (e: EditorialListEntry) => subjectsOf(e.slug).filter((s) => mySubjects.has(s)).length;
+  const sharedTopics = (e: EditorialListEntry) => pieceTopics.filter((t) => inTopic(t, e.slug)).length;
   // Topic hubs are broad (Housing also holds council-finance pieces), so pieces sharing a
   // subject group rank first, then pieces sharing a topic hub, then headline words, then date.
   const related = all

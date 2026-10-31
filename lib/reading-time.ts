@@ -47,6 +47,12 @@ export function readingLabel(entry: EditorialEntry): string {
   return `${readingMinutes(entry)} min read`;
 }
 
+// The same label for a list entry (lib/editorials-source.ts), whose words were counted with entryWords when the index
+// was built.
+export function listReadingLabel(entry: { words: number }): string {
+  return `${minutesForWords(entry.words)} min read`;
+}
+
 // Database briefings (the briefings table) store a plain-text body: the same count over the headline and body.
 export function textReadingLabel(...texts: Array<string | null | undefined>): string {
   return `${minutesForWords(texts.reduce((n: number, t) => n + (t ? countWords(t) : 0), 0))} min read`;

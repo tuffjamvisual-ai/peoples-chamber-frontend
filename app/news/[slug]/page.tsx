@@ -13,7 +13,7 @@ import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
 import { piecesExaminingRelease } from '@/lib/editorials/release-links'
 import { withoutEmDashes } from '@/lib/no-em-dash'
-import type { EditorialEntry } from '@/lib/editorials/types'
+import type { EditorialListEntry } from '@/lib/editorials-source'
 
 // Plain text of an HTML fragment, for comparing the summary with the body's opening.
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase()
@@ -177,7 +177,7 @@ async function DeptContextBlock({ organisation }: { organisation: string | null 
 // "Read our investigation" box (audit reassessment, 16 Oct 2026): shown under the headline,
 // and again after the release, when an Open Govt piece cites this exact release in its
 // "How this piece was checked" list.
-function InvestigationBox({ pieces, placement }: { pieces: EditorialEntry[]; placement: 'top' | 'end' }) {
+function InvestigationBox({ pieces, placement }: { pieces: EditorialListEntry[]; placement: 'top' | 'end' }) {
   if (!pieces.length) return null
   const one = pieces.length === 1
   return (

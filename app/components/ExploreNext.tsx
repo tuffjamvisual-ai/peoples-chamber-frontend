@@ -11,6 +11,7 @@
 
 import Link from 'next/link';
 import type { EditorialEntry } from '@/lib/editorials/types';
+import type { EditorialListEntry } from '@/lib/editorials-source';
 import { exploreNextSelection } from '@/lib/explore-next';
 import { listSummary } from '@/lib/editorials/list-summary';
 import ContinueToArticle from './ContinueToArticle';
@@ -67,7 +68,7 @@ export default async function ExploreNext({ piece }: { piece: EditorialEntry }) 
 
 const heading = { fontFamily: FONT, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase' as const, color: ACCENT, fontWeight: 'bold', margin: '0 0 6px' };
 
-function PieceLink({ e, base }: { e: EditorialEntry; base: string }) {
+function PieceLink({ e, base }: { e: EditorialListEntry; base: string }) {
   return (
     <Link href={`${base}/${e.slug}`} className="xn-link no-hover-scale">
       <span className="xn-title">{e.headline}</span>

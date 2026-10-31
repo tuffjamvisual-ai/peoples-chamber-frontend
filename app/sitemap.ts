@@ -153,7 +153,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${SITE}/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
     // The date the report's facts were last checked, else its publish date: the same rule as its NewsArticle
     // dateModified (lib/JsonLd.tsx editorialModifiedIso).
-    lastModified: (() => { const iso = editorialModifiedIso(e.evidence?.lastChecked, e.publishedAt); return iso ? new Date(iso) : now; })(),
+    lastModified: (() => { const iso = editorialModifiedIso(e.lastChecked, e.publishedAt); return iso ? new Date(iso) : now; })(),
     changeFrequency: 'monthly',
     priority: 0.9,
   }));

@@ -4,7 +4,7 @@ import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
 import { editorialsBySlug } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
-import { readingLabel } from '@/lib/reading-time';
+import { listReadingLabel } from '@/lib/reading-time';
 import ContinueToArticle from './components/ContinueToArticle';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
@@ -101,9 +101,8 @@ export default async function HomePage() {
     [shuffled[idx], shuffled[pick]] = [shuffled[pick], shuffled[idx]];
   }
   const [slot1, slot2, slot3, slot4] = shuffled;
-  // For slot 1's lede: use body[0] text if it's a plain paragraph.
-  const b0 = slot1.body[0];
-  const ledeText = b0 && b0.type === 'paragraph' ? b0.text : null;
+  // For slot 1's lede: body[0] text if it's a plain paragraph (stored in the editorials index as lede).
+  const ledeText = slot1.lede ?? null;
 
   // Each item links only to its press release (owner, 30 Oct 2026), so the department or agency name is plain text and
   // agency_cache is no longer read here. The read is tagged 'press-releases-latest' (lib/press-releases-latest.ts), which
@@ -179,7 +178,7 @@ export default async function HomePage() {
 
               <a className="og-block" href={`/editorials/${slot1.slug}`}>
                 <div className="og-head">{slot1.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot1)}</div>
+                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{listReadingLabel(slot1)}</div>
                 <div className="og-standfirst">{listSummary(slot1)}</div>
                 {ledeText && <p className="og-lede">{ledeText}</p>}
                 <ContinueToArticle />
@@ -187,7 +186,7 @@ export default async function HomePage() {
 
               <a className="og-block og-brief" href={`/editorials/${slot2.slug}`}>
                 <div className="og-head">{slot2.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot2)}</div>
+                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{listReadingLabel(slot2)}</div>
                 <p>{listSummary(slot2)}</p>
                 <ContinueToArticle />
               </a>
@@ -243,14 +242,14 @@ export default async function HomePage() {
 
               <Link className="og-block og-brief" href={`/editorials/${slot3.slug}`}>
                 <div className="og-head">{slot3.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot3)}</div>
+                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{listReadingLabel(slot3)}</div>
                 <p>{listSummary(slot3)}</p>
                 <ContinueToArticle />
               </Link>
 
               <Link className="og-block og-brief" href={`/editorials/${slot4.slug}`}>
                 <div className="og-head">{slot4.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot4)}</div>
+                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{listReadingLabel(slot4)}</div>
                 <p>{listSummary(slot4)}</p>
                 <ContinueToArticle />
               </Link>

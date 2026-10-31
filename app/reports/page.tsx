@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import { editorialSet, topicsOfIn } from '@/lib/editorials-source';
-import type { EditorialEntry } from '@/lib/editorials/types';
+import { editorialSet, topicsOfIn, type EditorialListEntry } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
-import { readingLabel, textReadingLabel } from '@/lib/reading-time';
+import { listReadingLabel, textReadingLabel } from '@/lib/reading-time';
 import { supabase } from '@/lib/supabase';
 import { topics, matchWords } from '@/lib/topics';
 import ReportsArchive, { type ArchiveItem } from './ReportsArchive';
@@ -37,7 +36,7 @@ interface Item {
   topics: string[];
 }
 
-function typeOf(e: EditorialEntry): ReportType {
+function typeOf(e: EditorialListEntry): ReportType {
   if (e.opinion) return 'Commentary';
   return e.kind === 'briefing' ? 'Briefing' : 'Investigation';
 }
@@ -46,14 +45,14 @@ export default async function ReportsPage() {
   // Topics, as the topic pages assign them: investigations and file briefings by each topic's editorialSlugs, and
   // published database briefings by the topic's words on headline and summary.
   const set = await editorialSet();
-  const fileItems: Item[] = (set.list as EditorialEntry[]).map((e) => ({
+  const fileItems: Item[] = set.list.map((e) => ({
     href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
     type: typeOf(e),
     kicker: e.kicker ?? null,
     headline: e.headline,
     summary: listSummary(e),
     date: e.publishedAt,
-    readingLabel: readingLabel(e),
+    readingLabel: listReadingLabel(e),
     topics: topicsOfIn(set, e.slug),
   }));
 
