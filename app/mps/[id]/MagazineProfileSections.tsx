@@ -59,7 +59,7 @@ type ActivityMetrics = {
   speeches_year: number | null;
   questions_year: number | null;
 };
-type MinisterMeeting = {
+export type MinisterMeeting = {
   id: number;
   minister_name: string | null;
   minister_dept: string | null;
@@ -70,7 +70,7 @@ type MinisterMeeting = {
   enriched_description?: string | null;
   source_publication_slug?: string | null;
 };
-type MinisterHospitality = {
+export type MinisterHospitality = {
   id: number;
   minister_name: string | null;
   minister_dept: string | null;

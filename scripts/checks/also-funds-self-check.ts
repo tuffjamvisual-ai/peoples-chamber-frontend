@@ -16,7 +16,16 @@
 // Usage: npx tsx --tsconfig tsconfig.json scripts/checks/also-funds-self-check.ts
 
 import { createClient } from '@supabase/supabase-js';
-import { recipientIsMp, stripHonorific } from '../../lib/mp-recipient-match';
+import { recipientIsMp, lastNamePrefilter, stripHonorific } from '../../lib/mp-recipient-match';
+
+// The step 1 rule as it was before the hyphenated surname fix (31 Oct 2026), kept here only to show what changed:
+// names split on spaces, commas, full stops AND hyphens, so a hyphenated last name could never match.
+function oldRecipientIsMp(recipientName: string | null | undefined, firstWord: string, lastWord: string): boolean {
+  const tokens = String(recipientName || '').toLowerCase().split(/[\s,.\-]+/).filter(Boolean);
+  if (!tokens.includes(lastWord)) return false;
+  if (firstWord.length < 2) return false;
+  return tokens.some((t) => t === firstWord || t.startsWith(firstWord));
+}
 
 process.loadEnvFile(`${__dirname}/../../.env.local`);
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -106,6 +115,42 @@ async function main() {
   console.log(`\nRemoved strings where the first name matched only as a prefix (check these are the same person): ${prefix.length}`);
   for (const p of prefix) console.log(`  ${p.id} ${p.name}: ${JSON.stringify(p.recipient)} (word "${p.token}")`);
   if (!davey?.removed.includes('Mr Edward Davey MP')) process.exit(1);
+
+  // Each MP's OWN donations (step 1), before and after the hyphenated surname fix. Before: the route's prefilter
+  // (ILIKE %first% and %last%) and the old rule. After: the same rule from lib/mp-recipient-match.ts, over every row
+  // whose name contains the first name and the longest hyphen part of the last name (so "Davies Jones" without the
+  // hyphen is seen too); "past the route's prefilter" says whether the route's current ILIKE %last% would let a gained
+  // row through. The 500 row cap is left out on both sides, so only the rule differs. Expected: gains for hyphenated
+  // last names only, and no losses.
+  console.log('\n=== Own donations (step 1) before and after the hyphenated surname fix ===');
+  let changedMps = 0;
+  let problems = 0;
+  for (const mp of mps) {
+    const nameTop = mp.display_name || mp.name || '';
+    const nameKey = stripHonorific(nameTop);
+    const firstWord = nameKey.split(/\s+/)[0]?.toLowerCase() ?? '';
+    const lastWord = nameKey.split(/\s+/).slice(-1)[0]?.toLowerCase() ?? '';
+    if (firstWord.length < 2 || lastWord.length < 2) continue;
+    const part = lastNamePrefilter(lastWord);
+    const pool = step1Pool.filter((r) => { const rn = (r.recipient_name || '').toLowerCase(); return rn.includes(firstWord) && rn.includes(part); });
+    const before = new Set(pool.filter((r) => { const rn = (r.recipient_name || '').toLowerCase(); return rn.includes(lastWord) && oldRecipientIsMp(r.recipient_name, firstWord, lastWord); }).map((r) => r.id));
+    const after = new Set(pool.filter((r) => recipientIsMp(r.recipient_name, firstWord, lastWord)).map((r) => r.id));
+    const gained = pool.filter((r) => after.has(r.id) && !before.has(r.id));
+    const lost = pool.filter((r) => before.has(r.id) && !after.has(r.id));
+    if (!gained.length && !lost.length) continue;
+    changedMps++;
+    const strings = (list: Row[]) => {
+      const m = new Map<string, { n: number; pastPrefilter: boolean }>();
+      for (const r of list) { const s = r.recipient_name || ''; const e = m.get(s) ?? { n: 0, pastPrefilter: s.toLowerCase().includes(lastWord) }; e.n++; m.set(s, e); }
+      return [...m.entries()].map(([s, e]) => `${JSON.stringify(s)} (${e.n}${e.pastPrefilter ? '' : ', NOT past the route\'s prefilter'})`).join(', ');
+    };
+    const hyphenated = lastWord.includes('-');
+    const flag = lost.length || !hyphenated ? '  <-- STOP' : '';
+    if (flag) problems++;
+    console.log(`  ${mp.member_id} ${nameTop}: ${before.size} -> ${after.size}${gained.length ? `; gained ${strings(gained)}` : ''}${lost.length ? `; LOST ${strings(lost)}` : ''}${flag}`);
+  }
+  console.log(`MPs whose own donations change: ${changedMps}; unexpected (a loss, or a gain for a last name without a hyphen): ${problems}`);
+  if (problems) process.exit(1);
 }
 
 main().catch((e) => {

@@ -18,10 +18,11 @@ import {
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
-import type { MpReports } from './MagazineProfileSections';
+import type { MpReports, MinisterMeeting, MinisterHospitality } from './MagazineProfileSections';
 import { fitTitle, TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
 import { displayMpName } from '@/lib/mp-name';
 import { readAll, inList } from '@/lib/read-all';
+import { recipientIsMp, lastNamePrefilter } from '@/lib/mp-recipient-match';
 import { storedSpellings } from '@/lib/donor-registry';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
@@ -323,20 +324,25 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     for (const s of st ?? []) leftOn[s.minister_title] = s.still_in_post ? null : s.left_on;
     return { release: rel as SpadReleaseRow, rows: data as SpadRow[], interests, leftOn };
   })(), 5000).catch(() => null);
+  // Ministers' diaries (owner, 31 Oct 2026): every row whose minister_name is this MP by lib/mp-recipient-match.ts
+  // (the rule the Donations tab uses), read in full. The database prefilter is the longest hyphen part of the last name,
+  // so "Davies-Jones" and "Davies Jones" both reach the rule. It replaced a full-name ILIKE capped at 500 rows, which
+  // missed "Edward Miliband", "Catherine Smith" and the like, and cut off the oldest meetings of Sarah Jones, Rachel
+  // Reeves and Peter Kyle.
+  const diaryPart = lastNamePrefilter(lastWord).replace(/[%_,]/g, '');
   const pMeetingsHosp = withTimeout(Promise.all([
-    supabase
-      .from('ministers_meetings')
-      .select('id, minister_name, minister_dept, meeting_date, organisation, purpose, quarter, enriched_description, source_publication_slug')
-      .or(`minister_name.ilike.%${mpNameKey.replace(/[%_,]/g, '')}%`)
-      .lte('meeting_date', new Date().toISOString().slice(0, 10))
-      .order('meeting_date', { ascending: false })
-      .limit(500),
-    supabase
-      .from('ministers_hospitality')
-      .select('id, minister_name, minister_dept, hospitality_date, donor, description, value, quarter, source_publication_slug')
-      .or(`minister_name.ilike.%${mpNameKey.replace(/[%_,]/g, '')}%`)
-      .order('hospitality_date', { ascending: false })
-      .limit(500),
+    readAll<MinisterMeeting>(() => supabase.from('ministers_meetings'), {
+      columns: 'id, minister_name, minister_dept, meeting_date, organisation, purpose, quarter, enriched_description, source_publication_slug',
+      filter: (q) => q.ilike('minister_name', `%${diaryPart}%`).lte('meeting_date', new Date().toISOString().slice(0, 10)),
+      orderBy: [{ column: 'meeting_date', ascending: false }, { column: 'id', ascending: false }],
+      label: `/mps/${memberId} ministers_meetings`,
+    }),
+    readAll<MinisterHospitality>(() => supabase.from('ministers_hospitality'), {
+      columns: 'id, minister_name, minister_dept, hospitality_date, donor, description, value, quarter, source_publication_slug',
+      filter: (q) => q.ilike('minister_name', `%${diaryPart}%`),
+      orderBy: [{ column: 'hospitality_date', ascending: false }, { column: 'id', ascending: false }],
+      label: `/mps/${memberId} ministers_hospitality`,
+    }),
   ]), 7000);
   const pContribs = Promise.resolve(
     supabase
@@ -452,20 +458,13 @@ export default async function MPMagazineProfile({ params }: PageProps) {
 
   // Ministerial diary — meetings + hospitality recorded by gov.uk.
   // Only ministers have entries; backbenchers fall through with empty
-  // arrays. minister_name is text (display-name format, no honorifics)
-  // so we fuzzy-match against the stripped MP name same as donations.
-  // Both queries fire in parallel.
-  const [meetingsRes, hospitalityRes] = await pMeetingsHosp;
+  // arrays. minister_name is text (display-name format, no honorifics).
+  // Both reads run in parallel and are read in full; a failed read throws, so the last good page stays up.
+  const [meetingsRows, hospitalityRows] = await pMeetingsHosp;
   const spadAdvisers = await pSpad;
-  // Tighten with first-and-last word check, same as donations.
-  const meetings = (meetingsRes.data || []).filter((m: { minister_name?: string | null }) => {
-    const n = String(m.minister_name || '').toLowerCase();
-    return firstWord && lastWord && n.includes(firstWord) && n.includes(lastWord);
-  });
-  const hospitality = (hospitalityRes.data || []).filter((h: { minister_name?: string | null }) => {
-    const n = String(h.minister_name || '').toLowerCase();
-    return firstWord && lastWord && n.includes(firstWord) && n.includes(lastWord);
-  });
+  // Keep only rows that are this MP by the shared rule (lib/mp-recipient-match.ts), same as donations.
+  const meetings = meetingsRows.filter((m) => recipientIsMp(m.minister_name, firstWord, lastWord));
+  const hospitality = hospitalityRows.filter((h) => recipientIsMp(h.minister_name, firstWord, lastWord));
 
   // Recent Hansard chamber contributions (mp_contributions), keyed by member_id.
   const { data: contributionsData } = await pContribs;
