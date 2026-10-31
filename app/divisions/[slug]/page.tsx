@@ -21,6 +21,7 @@ import BackLink from '../../components/BackLink';
 import { partyColourForMember, normaliseParty } from '@/lib/party-helpers';
 import RelatedLinks from '../../components/RelatedLinks';
 import { displayMpName } from '@/lib/mp-name';
+import { divisionHref, divisionNeighbours, yearHref } from '@/lib/division-links';
 
 export const revalidate = 86400;  // divisions don't change after the vote happens
 
@@ -249,6 +250,9 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   if (slug !== fullSlug(m[1], parseInt(m[2], 10))) permanentRedirect(`/divisions/${fullSlug(m[1], parseInt(m[2], 10))}`);
   const dateOnly = m[1];
   const divisionNumber = parseInt(m[2], 10);
+  // The votes around this one, for the "More votes" links (owner, 31 Oct 2026); read alongside the rest.
+  const neighboursP = divisionNeighbours(dateOnly, divisionNumber);
+  neighboursP.catch(() => {}); // a 404 below leaves it unawaited; when awaited, its error still throws
 
   // All vote rows for this division. Natural-key index makes this cheap.
   const { data: voteRows, error: voteErr } = await supabase
@@ -478,6 +482,35 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         </section>
       )}
 
+
+      {/* More votes (owner, 31 Oct 2026): plain links to the votes before and after this one, others that day, its year,
+          its bill and the full list, so a crawler that reaches one division can reach them all. */}
+      {await (async () => {
+        const nb = await neighboursP;
+        const year = Number(dateOnly.slice(0, 4));
+        const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' };
+        return (
+          <nav aria-label="More votes" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, marginTop: '36px', paddingTop: '20px', fontSize: '15px', lineHeight: 1.7, color: INK }}>
+            <h2 style={{ fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>More votes</h2>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {nb.previous && <li>Previous vote: <Link href={divisionHref(nb.previous.date, nb.previous.number)} style={link}>{nb.previous.title}</Link> ({nb.previous.date === dateOnly ? `division ${nb.previous.number}` : nb.previous.date})</li>}
+              {nb.next && <li>Next vote: <Link href={divisionHref(nb.next.date, nb.next.number)} style={link}>{nb.next.title}</Link> ({nb.next.date === dateOnly ? `division ${nb.next.number}` : nb.next.date})</li>}
+              {billId != null && billTitle && <li>The bill: <Link href={`/bills/${billId}`} style={link}>{billTitle}</Link></li>}
+              <li><Link href={yearHref(year)} style={link}>Every Commons vote in {year}</Link> · <Link href="/divisions" style={link}>All divisions</Link></li>
+            </ul>
+            {nb.sameDay.length > 0 && (
+              <>
+                <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '14px 0 6px' }}>Other votes that day</h3>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {nb.sameDay.map((d) => (
+                    <li key={d.number}>Division {d.number}: <Link href={divisionHref(d.date, d.number)} style={link}>{d.title}</Link></li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </nav>
+        );
+      })()}
 
       {/* B4 — bill + department related links via exact normalized title match */}
       <RelatedLinks variant="division" divisionTitle={title} />

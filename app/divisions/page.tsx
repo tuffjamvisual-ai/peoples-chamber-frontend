@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import Unavailable from '@/app/components/Unavailable';
+import { divisionYears } from '@/lib/division-links';
+import DivisionYearLinks from './DivisionYearLinks';
 
 // Browsable index of Commons divisions (recorded votes), newest first. Each
 // links to the in-house division page. Data we already hold in mp_division_votes
@@ -14,11 +16,16 @@ import Unavailable from '@/app/components/Unavailable';
 // after every votes sync, refreshes the copy).
 export const revalidate = 600;
 
-export const metadata: Metadata = {
-  title: 'Commons Divisions',
-  description: 'Every recorded vote in the House of Commons since March 2016, newest first, with how the House divided on each.',
-  alternates: { canonical: '/divisions' },
-};
+// Each list page names itself canonical (owner, 31 Oct 2026): pages 2 to 49 used to name /divisions, which told Google
+// they were copies of page 1, so it did not follow them back to the older divisions. All stay indexable.
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ page?: string }> }): Promise<Metadata> {
+  const pageNum = Math.max(1, parseInt((await searchParams).page || '1', 10) || 1);
+  return {
+    title: 'Commons Divisions',
+    description: 'Every recorded vote in the House of Commons since March 2016, newest first, with how the House divided on each.',
+    alternates: { canonical: pageNum > 1 ? `/divisions?page=${pageNum}` : '/divisions' },
+  };
+}
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -39,6 +46,7 @@ export default async function DivisionsIndexPage({
   const pageNum = Math.max(1, parseInt(sp.page || '1', 10) || 1);
   const from = (pageNum - 1) * PER_PAGE;
 
+  const yearsP = divisionYears();
   const { data, count } = await supabase
     .from('commons_divisions_fts')
     .select('division_date_only, division_number, division_title', { count: 'exact' })
@@ -77,6 +85,8 @@ export default async function DivisionsIndexPage({
           Every recorded vote in the House of Commons since March 2016, newest first. Open any division to see how every MP voted.
         </p>
       </header>
+
+      <DivisionYearLinks years={await yearsP} />
 
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '18px' }}>
         {total.toLocaleString()} divisions{totalPages > 1 ? ` · page ${pageNum} of ${totalPages}` : ''}

@@ -21,6 +21,7 @@ import FollowButton from '@/app/components/FollowButton';
 import { getBillPublications, latestText } from '@/lib/bill-text';
 import Link from 'next/link';
 import { editorialsForBill } from '@/lib/editorials-source';
+import { billDivisions, divisionHref } from '@/lib/division-links';
 export const revalidate = 604800  // a week; the bill syncs refresh a bill when its data changes (lib/bill-refresh.ts)
 
 // Prerender a small set of bill pages at build time. The list does NOT need
@@ -148,9 +149,13 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       .maybeSingle()
     if (dvErr && dvErr.code !== 'PGRST116') throw new Error(`/bills/[id] mp_division_votes: ${dvErr.message}`);
     if (dv?.division_date_only && dv?.division_number != null) {
-      commonsDivisionHref = `/divisions/pw-${String(dv.division_date_only).slice(0, 10)}-${dv.division_number}`
+      // The full address the division page serves (owner, 31 Oct 2026): the short form without "-commons" redirected.
+      commonsDivisionHref = divisionHref(String(dv.division_date_only), dv.division_number)
     }
   }
+  // The Commons divisions matched to this bill (mp_division_votes.bill_id), linked in the page (owner, 31 Oct 2026).
+  const billVotes = await billDivisions(billId)
+
   const commonsDivisionDate = bill.commons_vote_date
     ? new Date(bill.commons_vote_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
     : null
@@ -517,6 +522,23 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
       {/* How the Lords voted — formal Lords divisions on this bill. */}
       {lordsDivisions.length > 0 && <LordsVotesSection divisions={lordsDivisions} />}
+
+      {/* Commons votes on this bill (owner, 31 Oct 2026): plain links to each matched division page. */}
+      {billVotes.length > 0 && (
+        <section aria-labelledby="bill-commons-votes" style={{ marginBottom: '34px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
+          <h2 id="bill-commons-votes" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 12px' }}>
+            Commons votes on this bill
+          </h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.7, color: INK }}>
+            {billVotes.map((d) => (
+              <li key={`${d.date}-${d.number}`}>
+                <Link href={divisionHref(d.date, d.number)} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{d.title}</Link>
+                {' '}({new Date(d.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}, division {d.number})
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Sponsor */}
       {bill.sponsor_name && (

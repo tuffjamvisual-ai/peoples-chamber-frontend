@@ -9,6 +9,7 @@ import { topics } from '@/lib/topics';
 import { SECTION_PAGES } from '@/lib/site-nav';
 import { fetchMajorProjectKeys, projectHref } from '@/lib/major-projects';
 import { RECOMMENDATIONS_PUBLIC, allStatus, recPath } from '@/lib/pac';
+import { yearHref } from '@/lib/division-links';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -283,6 +284,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }));
 
+  // The year archives (owner, 31 Oct 2026): /divisions/year/<yyyy> and its page 2 onwards (100 divisions a page), so
+  // every division is two clicks from a page in the sitemap. Counted from the division rows read above.
+  const perYear = new Map<number, number>();
+  for (const d of divisions) if (d.division_date_only) { const y = Number(String(d.division_date_only).slice(0, 4)); perYear.set(y, (perYear.get(y) ?? 0) + 1); }
+  const thisYear = new Date().getUTCFullYear();
+  const divisionYearEntries: MetadataRoute.Sitemap = [...perYear.entries()].sort((a, b) => a[0] - b[0]).flatMap(([y, n]) =>
+    Array.from({ length: Math.ceil(n / 100) }, (_, k) => ({
+      url: `${SITE}${yearHref(y, k + 1)}`,
+      changeFrequency: y === thisYear ? ('weekly' as const) : ('yearly' as const),
+      priority: 0.5,
+    })));
+
   // Committee profile pages — 29 select committee IDs from lib/committees.ts.
   // Membership changes nightly; weekly changeFrequency matches the sync cadence.
   const committeeEntries: MetadataRoute.Sitemap = COMMITTEE_IDS.map((id) => ({
@@ -364,6 +377,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...mpEntries,
     ...councilEntries,
     ...divisionEntries,
+    ...divisionYearEntries,
     ...committeeEntries,
     ...majorProjectEntries,
     ...recommendationEntries,
