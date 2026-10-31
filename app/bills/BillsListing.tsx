@@ -1,23 +1,24 @@
 import { notFound } from 'next/navigation';
 import { getBillsPage } from '@/lib/data';
-import BillsGrid from '../components/BillsGrid';
-import BillsGridMobile from '../components/BillsGridMobile';
+import Pagination from '../components/Pagination';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import SectionLinks from '../components/SectionLinks';
 import VotingIntegrity from '../components/VotingIntegrity';
 import Link from 'next/link';
-import { getCurrentBillSessions, getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle, type SessionBillGroup } from '@/lib/parliament-sessions';
+import { getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle, type SessionBillGroup } from '@/lib/parliament-sessions';
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
-export const BILLS_PER_PAGE = 20;
+export const BILLS_PER_PAGE = 60;
 
 // The /bills listing, shared by /bills (page 1) and /bills/page/[page] (page 2 onwards). The page number is in the
 // path, not ?page=, so every page is cached (reading searchParams would render it on every request).
+// 31 Oct 2026 (owner): a plain A to Z list of links in two columns (one on phones), 60 a page, in place of the bill
+// cards (BillsGrid, BillsGridMobile), so a reader can find a bill by name. Each item is the title, linking to the
+// bill's page, and one line: the current stage and the house it is in.
 export default async function BillsListing({ page }: { page: number }) {
-  const [{ bills, totalCount }, filterSessions, sessions] = await Promise.all([
-    getBillsPage(page, BILLS_PER_PAGE),
-    getCurrentBillSessions(),
+  const [{ bills, totalCount }, sessions] = await Promise.all([
+    getBillsPage(page, BILLS_PER_PAGE, 'title'),
     getParliamentSessions(),
   ]);
   const current = sessions.find((s) => s.is_current);
@@ -72,12 +73,30 @@ export default async function BillsListing({ page }: { page: number }) {
 
       <VotingIntegrity />
 
-      <div className="md:hidden">
-        <BillsGridMobile initialBills={bills} currentPage={page} totalPages={totalPages} totalCount={totalCount} perPage={BILLS_PER_PAGE} />
-      </div>
-      <div className="hidden md:block">
-        <BillsGrid initialBills={bills} currentPage={page} totalPages={totalPages} totalCount={totalCount} perPage={BILLS_PER_PAGE} sessions={filterSessions} />
-      </div>
+      <style>{`
+        .bills-az { list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 48px; }
+        @media (min-width: 768px) { .bills-az { columns: 2; } }
+        .bills-az li { break-inside: avoid; page-break-inside: avoid; padding: 0 0 14px; }
+        .bills-az a { color: #7a1612; text-decoration: none; font-size: 17px; line-height: 1.35; font-weight: bold; }
+        .bills-az a:hover, .bills-az a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+      `}</style>
+      {totalCount > 0 && (
+        <p style={{ fontSize: '15px', color: '#14100d', margin: '24px 0 14px' }}>
+          Showing {((page - 1) * BILLS_PER_PAGE + 1).toLocaleString()} to {Math.min(page * BILLS_PER_PAGE, totalCount).toLocaleString()} of {totalCount.toLocaleString()}
+        </p>
+      )}
+      <ol className="bills-az" aria-label="Bills going through Parliament, A to Z">
+        {bills.map((b) => {
+          const line = [b.current_stage?.trim(), b.current_house].filter(Boolean).join(', ');
+          return (
+            <li key={b.id}>
+              <Link href={`/bills/${b.id}`}>{b.title}</Link>
+              {line && <span style={{ display: 'block', fontSize: '15px', color: '#14100d', marginTop: '2px' }}>{line}</span>}
+            </li>
+          );
+        })}
+      </ol>
+      <Pagination currentPage={page} totalPages={totalPages} baseUrl="/bills" />
 
       {/* Everything not going through Parliament now: the archive (every bill, by session) and the Acts. Replaces the
           old "Browse all bills" index, so this page has one going-through-Parliament figure. The archive links every

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import BillsListing from './BillsListing';
 
-// /bills lists the bills going through Parliament now (lib/data.ts getBillsPage, from the bill_current view), 20 a
-// page; Acts, withdrawn bills and earlier sessions are in the archive at /bills/sessions. Cached and rebuilt at most
+// /bills lists the bills going through Parliament now (lib/data.ts getBillsPage, from the bill_current view), 60 a
+// page, A to Z (since 31 Oct 2026); Acts, withdrawn bills and earlier sessions are in the archive at /bills/sessions. Cached and rebuilt at most
 // every 10 minutes; the bill syncs also refresh it as soon as they write (lib/revalidate-bills.ts). Page 2 onwards is
 // /bills/page/[page]; old /bills?page=N links redirect there (next.config.ts). Owner's approval, 21 Oct 2026: this
 // page was rendered on every request (force-dynamic).

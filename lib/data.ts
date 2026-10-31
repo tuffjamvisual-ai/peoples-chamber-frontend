@@ -31,6 +31,8 @@ export type Bill = {
   last_update: string;
   bill_withdrawn: string | null;
   is_act: boolean;
+  // The house the bill's current stage is in (from its stages), set by getBillsPage with order 'title'.
+  current_house?: string | null;
 };
 
 // Server-side paginated fetch. Used by /bills to avoid the ~4000-row
@@ -40,7 +42,9 @@ export type Bill = {
 export async function getBillsPage(
   page: number,
   perPage = 20,
+  order: 'votes' | 'title' = 'votes',
 ): Promise<{ bills: Bill[]; totalCount: number }> {
+  if (order === 'title') return getBillsPageByTitle(page, perPage);
   // bill_current: bills going through Parliament now (introduced in or carried into the current session; not Acts,
   // withdrawn, defeated or at Royal Assent), so every page has `perPage` cards and the count matches. Earlier bills
   // are in the archive (/bills/sessions). The summary is cut to the card's length here, not in the browser.
@@ -67,6 +71,39 @@ export async function getBillsPage(
     return { bills: (data || []).map(toCardBill), totalCount: count ?? 0 };
   } catch (error) {
     console.error('getBillsPage exception:', error);
+    return { bills: [], totalCount: 0 };
+  }
+}
+
+// The /bills A to Z list (owner, 31 Oct 2026): every bill going through Parliament, A to Z by title ignoring a
+// leading "The", then id, sliced to the page. bill_current holds about 190 bills, so all are read (readAll) and sorted
+// here: the database cannot order by a title with "The" taken off. Each bill gets current_house, the house its current
+// stage is in (the latest stage in its stages list with that name; else the house it started in), since a Commons bill
+// at committee in the Lords would otherwise read "Commons". stages itself is dropped.
+async function getBillsPageByTitle(page: number, perPage: number): Promise<{ bills: Bill[]; totalCount: number }> {
+  const cols =
+    'id, parliament_id, title, category, description, long_title, current_stage, stage_date, originating_house, introduced_session_id, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act, stages';
+  const safePage = Math.max(1, Math.floor(page) || 1);
+  try {
+    const rows = await readAll<Record<string, unknown>>(() => supabase.from('bill_current'), {
+      columns: cols,
+      orderBy: [{ column: 'title' }, { column: 'id' }],
+      label: 'getBillsPage (title)',
+    });
+    const key = (t: unknown) => String(t ?? '').trim().replace(/^the\s+/i, '');
+    rows.sort((a, b) => key(a.title).localeCompare(key(b.title), 'en-GB', { sensitivity: 'base' }) || (a.id as number) - (b.id as number));
+    const from = (safePage - 1) * perPage;
+    const bills = rows.slice(from, from + perPage).map((r) => {
+      const { stages, ...rest } = r as { stages?: { items?: { house?: string; description?: string; sortOrder?: number }[] } | null; [k: string]: unknown };
+      const stage = String(rest.current_stage ?? '').trim();
+      const match = (stages?.items ?? [])
+        .filter((it) => stage && it.description === stage)
+        .sort((x, y) => (y.sortOrder ?? 0) - (x.sortOrder ?? 0))[0];
+      return { ...toCardBill(rest), current_house: match?.house ?? (rest.originating_house as string | null) ?? null };
+    });
+    return { bills, totalCount: rows.length };
+  } catch (error) {
+    console.error('getBillsPage (title) exception:', error);
     return { bills: [], totalCount: 0 };
   }
 }
