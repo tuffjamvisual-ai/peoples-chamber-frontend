@@ -17,6 +17,7 @@ import {
 } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
+import { newestTimestamps } from '@/lib/data-freshness';
 import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
 import type { MpReports, MinisterMeeting, MinisterHospitality } from './MagazineProfileSections';
 import { fitTitle, TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
@@ -470,6 +471,20 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const contributions = contributionsData || [];
 
   const edmsRes = await pEdms;
+  // "Last updated" under each profile section whose table lib/data-freshness.ts tracks (owner, 1 Nov 2026): the newest
+  // update time of each table, read together once, from the same source as the site's freshness lines. Cached with the
+  // page like its other reads. On a read error or timeout no dates are shown and the page still renders.
+  const SECTION_SOURCES = { voting: 'division_votes', house: 'hansard_contributions', petitions: 'petitions', edms: 'early_day_motions', interests: 'registered_interests', expenses: 'mp_expenses' } as const;
+  const sectionUpdated: Partial<Record<keyof typeof SECTION_SOURCES, string>> = {};
+  try {
+    const newest = await withTimeout(newestTimestamps(Object.values(SECTION_SOURCES)), 9000);
+    for (const [section, key] of Object.entries(SECTION_SOURCES) as [keyof typeof SECTION_SOURCES, string][]) {
+      const d = newest[key];
+      if (d) sectionUpdated[section] = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' });
+    }
+  } catch (e) {
+    console.error(`/mps/${memberId} section dates:`, e instanceof Error ? e.message : e);
+  }
   const edmEntry = (id: number, e: EdmJoined) => ({
     id,
     title: e.title,
@@ -751,6 +766,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         petitionsAvailable,
         edms: mpEdms,
         reports: await reportsFor(memberId, fullName),
+        lastUpdated: sectionUpdated,
       }}
       footer={
         <>

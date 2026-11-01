@@ -347,6 +347,8 @@ interface Props {
   edms?: MpEdms | null;
   /** Reports whose relatedMemberIds include this MP: up to five, newest first, and how many there are in all. */
   reports?: MpReports | null;
+  /** "Last updated <day month year>" under the sections whose table lib/data-freshness.ts tracks (owner, 1 Nov 2026). */
+  lastUpdated?: Partial<Record<SectionId, string>>;
 }
 
 export type MpReports = { items: { href: string; headline: string; date: string; readingLabel: string; summary: string }[]; total: number; memberId: number; mpName: string };
@@ -433,6 +435,12 @@ const DAY_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'Jul
 function dayMonthYear(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
   return m ? `${Number(m[3])} ${DAY_MONTHS[Number(m[2]) - 1]} ${m[1]}` : iso;
+}
+
+// The "Last updated" line under a section heading (owner, 1 Nov 2026); nothing when there is no date.
+function SectionUpdated({ date }: { date?: string }) {
+  if (!date) return null;
+  return <p style={{ fontSize: '15px', color: '#14100d', margin: '-16px 0 20px' }}>Last updated {date}</p>;
 }
 
 const sectionH2: React.CSSProperties = {
@@ -541,6 +549,7 @@ export default function MagazineProfileSections({
   petitionsAvailable = false,
   edms = null,
   reports = null,
+  lastUpdated = {},
 }: Props) {
   // Biography visibility: the database switch (mp_biography.bio_visible) decides
   // whenever that column exists (the page selects the whole row, so it arrives as
@@ -1072,6 +1081,7 @@ export default function MagazineProfileSections({
         {active === 'voting' && (
           <>
             <h2 style={sectionH2}>Voting Record</h2>
+            <SectionUpdated date={lastUpdated.voting} />
 
             {/* Votes against most of their own party. Individual votes are marked REBEL in
                 the list. Counted from the party the MP belonged to on the day of each vote. */}
@@ -1283,6 +1293,7 @@ export default function MagazineProfileSections({
         {active === 'house' && (
           <>
             <h2 style={sectionH2}>In the House</h2>
+            <SectionUpdated date={lastUpdated.house} />
             <p style={{ fontSize: '15px', marginBottom: '18px' }}>
               The most recent debates this Member has taken part in, from the official Hansard record: speeches, questions, interventions and ministerial answers.
             </p>
@@ -1346,6 +1357,7 @@ export default function MagazineProfileSections({
           return (
             <section hidden={active !== 'petitions'} aria-labelledby="mp-petitions-heading">
               <h2 id="mp-petitions-heading" style={sectionH2}>Petitions</h2>
+              <SectionUpdated date={lastUpdated.petitions} />
               <p style={{ fontSize: '15px', marginBottom: '12px', color: '#14100d' }}>
                 The petitions most signed by people in this constituency.
               </p>
@@ -1442,6 +1454,7 @@ export default function MagazineProfileSections({
           return (
             <>
               <h2 style={sectionH2}>Early Day Motions</h2>
+              <SectionUpdated date={lastUpdated.edms} />
               <p style={{ fontSize: '15px', marginBottom: '12px', color: '#14100d' }}>
                 <strong>Started {fmtNum(edms.startedCount)}</strong> {edms.startedCount === 1 ? 'motion' : 'motions'} · <strong>Signed {fmtNum(edms.signedCount)}</strong>
               </p>
@@ -1512,6 +1525,7 @@ export default function MagazineProfileSections({
           return (
             <>
               <h2 style={sectionH2}>Registered Interests</h2>
+              <SectionUpdated date={lastUpdated.interests} />
               <p style={{ marginBottom: '16px', fontSize: '15px', lineHeight: 1.6 }}>
                 Mandatory declarations under the House of Commons Register of Members&rsquo; Financial Interests. Grouped by the Register&rsquo;s own categories: items potentially material to an MP&rsquo;s parliamentary work. This is the MP&rsquo;s own disclosure, the donor side view of political donations lives on the Donations tab and may overlap with the &ldquo;Campaign &amp; office support&rdquo; section below.
               </p>
@@ -2493,6 +2507,7 @@ export default function MagazineProfileSections({
           return (
           <>
             <h2 style={sectionH2}>Expenses</h2>
+            <SectionUpdated date={lastUpdated.expenses} />
             <p style={{ marginBottom: '8px', fontSize: '15px' }}>Annual IPSA totals with category breakdown. Click a year to drill into individual claims.</p>
             <p style={{ marginBottom: '16px', fontSize: '15px', lineHeight: 1.55 }}>
               The IPSA financial year runs 1 April to 31 March. Annual totals are published a few months after each year ends; individual claims are released quarterly with a two to three month lag, so the most recent months in any year are typically still filling in.

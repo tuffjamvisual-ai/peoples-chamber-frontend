@@ -135,6 +135,15 @@ export async function newestTimestamp(src: DataSource): Promise<Date | null> {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
+// The newest timestamp of several sources at once (owner, 1 Nov 2026: the "Last updated" line under each MP profile
+// section), by key, read together with newestTimestamp. Throws if any read fails, like newestTimestamp; callers that
+// must still render catch it and show no dates.
+export async function newestTimestamps(keys: string[]): Promise<Record<string, Date | null>> {
+  const found = keys.map((k) => [k, dataSource(k)] as const).filter((e): e is readonly [string, DataSource] => !!e[1]);
+  const dates = await Promise.all(found.map(([, src]) => newestTimestamp(src)));
+  return Object.fromEntries(found.map(([k], i) => [k, dates[i]]));
+}
+
 export function ageInDays(newest: Date, now: Date): number {
   return Math.floor((now.getTime() - newest.getTime()) / 86_400_000);
 }
