@@ -133,6 +133,17 @@ export function buildEditorialArticle(opts: {
 }
 
 // BreadcrumbList (23 Oct 2026): Home, the section, then the page itself, with absolute URLs.
+// Donor pages (owner, 1 Nov 2026): Organization unless the donor is an individual, then Person; name and canonical url
+// only, no other claims.
+export function buildDonorEntity(opts: { slug: string; name: string; individual: boolean }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': opts.individual ? 'Person' : 'Organization',
+    name: opts.name,
+    url: `${SITE}/donors/${opts.slug}`,
+  };
+}
+
 export function buildBreadcrumbs(items: { name: string; path: string }[]) {
   return {
     '@context': 'https://schema.org',
@@ -146,28 +157,29 @@ export function buildBreadcrumbs(items: { name: string; path: string }[]) {
   };
 }
 
+// MP profiles (owner, 1 Nov 2026): jobTitle "Member of Parliament for <constituency>" ("Former Member of Parliament
+// for" when the page shows a former member), the party as an affiliated Organization, and sameAs the member's page on
+// members.parliament.uk. Only values already on the page.
 export function buildMpPerson(opts: {
   memberId: number;
   fullName: string;
   party: string | null;
   constituency: string | null;
   photoUrl: string | null;
+  former?: boolean;
 }) {
-  const jobTitle = [
-    opts.party,
-    opts.constituency ? `MP for ${opts.constituency}` : 'MP',
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  const role = opts.former ? 'Former Member of Parliament' : 'Member of Parliament';
+  const jobTitle = opts.constituency ? `${role} for ${opts.constituency}` : role;
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
     '@id': `${SITE}/mps/${opts.memberId}#person`,
     name: opts.fullName,
     jobTitle,
-    memberOf: opts.party
-      ? { '@type': 'PoliticalParty', name: opts.party }
+    affiliation: opts.party
+      ? { '@type': 'Organization', name: opts.party }
       : undefined,
+    sameAs: [`https://members.parliament.uk/member/${opts.memberId}`],
     worksFor: {
       '@type': 'GovernmentOrganization',
       name: 'Parliament of the United Kingdom',

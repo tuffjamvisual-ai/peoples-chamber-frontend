@@ -21,6 +21,7 @@ import { donorRegistry } from '@/lib/donor-registry';
 import { getDonorProfile, LABEL_ORDER } from '@/lib/donor-profile';
 import { getDonorWhatFollowed, WHAT_FOLLOWED_CAP } from '@/lib/donor-what-followed';
 import PhoneTable from '../../components/PhoneTable';
+import JsonLd, { buildDonorEntity } from '@/lib/JsonLd';
 import FollowButton from '../../components/FollowButton';
 
 export const revalidate = 86400;
@@ -410,6 +411,8 @@ export default async function DonorPage({ params }: PageProps) {
 
   return (
     <OpenGovShell pageStamp="Donors">
+      {/* Structured data (owner, 1 Nov 2026): the donor as the header shows it (donor_type of its records). */}
+      <JsonLd data={buildDonorEntity({ slug, name: canonicalName.trim(), individual: (donations[0].donor_type ?? '') === 'Individual' })} />
       <BackLink fallbackHref="/donors" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>

@@ -681,6 +681,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         party: partyDisplay || mp.party,
         constituency: mp.constituency,
         photoUrl: mp.photo_url,
+        former: mp.current_member === false,
       })} />
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'MPs', path: '/mps' }, { name: fullName, path: `/mps/${memberId}` }])} />
     <MpDossier
