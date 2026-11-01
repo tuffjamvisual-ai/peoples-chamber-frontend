@@ -4,6 +4,8 @@ import { SECTORS, sectorForDonor, sectorForVote, ALL_VOTE_KEYWORDS } from '@/lib
 import { readAll, inList } from '@/lib/read-all';
 import { storedSpellings } from '@/lib/donor-registry';
 import { recipientIsMp, stripHonorific } from '@/lib/mp-recipient-match';
+import { donorPageSlug } from '@/lib/donor-slug';
+import { whoTheyAreLine } from '@/lib/donor-profile';
 
 // Cached like the MP page (25 Oct 2026, report 43): the profile now fetches this as soon as the page is idle, so the
 // Donations tab opens at once, and the answer is kept for 6 hours (revalidate below) instead of being worked out for
@@ -161,5 +163,24 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     });
   }
 
-  return NextResponse.json({ donations, donorOtherRecipients, sectorCrossRef, constituencyDonations });
+  // 5. Donor backgrounds (owner, 1 Nov 2026): for each donor shown, the donor background found by the same slug the
+  // donor link uses (donor_profile_slugs, then donor_profiles, as lib/donor-profile.ts reads them; no name matching), as
+  // one line on who the donor is. One read for all of them. On a read error it is logged and left out, so the
+  // donations show as before.
+  const donorProfiles: Record<string, string> = {};
+  const donorSlugs = Array.from(new Set(donorNames.map((n) => donorPageSlug(n)).filter((s): s is string => !!s)));
+  if (donorSlugs.length > 0) {
+    const { data: profileRows, error: profileErr } = await supabase
+      .from('donor_profile_slugs')
+      .select('slug, donor_profiles(facts)')
+      .in('slug', donorSlugs);
+    if (profileErr) console.error(`/api/mps/${memberId}/donations donor_profile_slugs: ${profileErr.message}`);
+    for (const r of (profileRows ?? []) as unknown as { slug: string; donor_profiles: { facts: unknown } | { facts: unknown }[] | null }[]) {
+      const prof = Array.isArray(r.donor_profiles) ? r.donor_profiles[0] : r.donor_profiles;
+      const line = whoTheyAreLine(prof?.facts);
+      if (line) donorProfiles[r.slug] = line;
+    }
+  }
+
+  return NextResponse.json({ donations, donorOtherRecipients, sectorCrossRef, constituencyDonations, donorProfiles });
 }

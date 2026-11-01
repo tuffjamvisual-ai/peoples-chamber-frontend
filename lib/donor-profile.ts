@@ -50,6 +50,19 @@ export function sortFacts(facts: DonorFact[]): DonorFact[] {
   return [...facts].sort((a, b) => LABEL_ORDER.indexOf(a.label) - LABEL_ORDER.indexOf(b.label));
 }
 
+// One line on who a donor is, for lists that name the donor (owner, 1 Nov 2026: MP profiles): the text of the first
+// "Who they are" fact, shortened to 160 characters at a word boundary with "..." when longer. Null when there is none.
+export function whoTheyAreLine(facts: unknown): string | null {
+  if (!Array.isArray(facts)) return null;
+  const f = (facts as DonorFact[]).find((x) => x && x.label === 'Who they are' && typeof x.text === 'string' && x.text.trim());
+  if (!f) return null;
+  const text = f.text.trim().replace(/\s+/g, ' ');
+  if (text.length <= 160) return text;
+  const cut = text.slice(0, 160);
+  const space = cut.lastIndexOf(' ');
+  return `${(space > 0 ? cut.slice(0, space) : cut).replace(/[\s,;:.]+$/, '')}...`;
+}
+
 // The profile for a donor page, with the other slugs it covers. On any error it logs and returns null, so the donor
 // page still renders without the section; it never throws.
 export const getDonorProfile = cache(async (slug: string): Promise<{ profile: DonorProfile; otherSlugs: string[] } | null> => {

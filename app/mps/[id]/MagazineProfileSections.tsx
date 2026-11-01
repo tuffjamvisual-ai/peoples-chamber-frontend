@@ -619,6 +619,8 @@ export default function MagazineProfileSections({
     donorOtherRecipients: DonorOtherRecipients[];
     sectorCrossRef: SectorCrossRefEntry[];
     constituencyDonations: Donation[];
+    /** One line on who the donor is, by donor page slug, where a donor background exists (owner, 1 Nov 2026). */
+    donorProfiles?: Record<string, string>;
   };
   const [donationsPayload, setDonationsPayload] = useState<DonationsPayload | null>(null);
   const [donationsLoading, setDonationsLoading] = useState(false);
@@ -1982,6 +1984,7 @@ export default function MagazineProfileSections({
           const donorOtherRecipients = donationsPayload?.donorOtherRecipients ?? [];
           const sectorCrossRef = donationsPayload?.sectorCrossRef ?? [];
           const constituencyDonations = donationsPayload?.constituencyDonations ?? [];
+          const donorProfiles = donationsPayload?.donorProfiles ?? {};
           // EC donations directed at this MP (recipient_type IN ('MP - Member
           // of Parliament', 'Regulated Donee', ...) AND recipient_name fuzzy-
           // matched in the server query). Aggregate + per-donor + flagged
@@ -2197,6 +2200,13 @@ export default function MagazineProfileSections({
                               </>
                             )}
                           </div>
+                          {/* Who the donor is, from the donor background (lib/donor-profile.ts), where one exists. */}
+                          {donorSlug && donorProfiles[donorSlug] && (
+                            <div style={{ fontSize: '15px', color: '#14100d', marginTop: '3px', overflowWrap: 'anywhere' }}>
+                              {donorProfiles[donorSlug]}{' '}
+                              <Link href={`/donors/${donorSlug}`} style={inkLink}>More about this donor</Link>
+                            </div>
+                          )}
                           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '3px' }}>
                             {d.donor_type && (
                               <span style={{ ...pillStyle, color: '#14100d', border: '1px solid rgba(20,16,13,0.25)' }}>{d.donor_type}</span>
