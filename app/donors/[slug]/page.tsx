@@ -19,6 +19,7 @@ import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { relatedDonorNames, mainSpellingFor } from '@/lib/donor-related';
 import { donorRegistry } from '@/lib/donor-registry';
 import { getDonorProfile, LABEL_ORDER } from '@/lib/donor-profile';
+import { getDonorWhatFollowed, WHAT_FOLLOWED_CAP } from '@/lib/donor-what-followed';
 import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
 
@@ -42,6 +43,12 @@ function fmtMoney(v: number | string | null | undefined): string {
 // The slug rule and its search words live in lib/donor-slug.ts (24 Oct 2026); donorNameToSlug is still exported here
 // for the pages that import it from this file.
 export { donorNameToSlug };
+
+// '2026-03-04' -> '4 March 2026' (day month year, en-GB), for "What followed".
+function fmtLongDay(iso: string): string {
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00Z`);
+  return isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
 
 // '2026-03-04' -> '4 Mar 2026'.
 function fmtDay(iso: string | null | undefined): string {
@@ -208,7 +215,16 @@ export default async function DonorPage({ params }: PageProps) {
   // Other donor pages with a similar name (lib/donor-related.ts): a name similarity only, nothing is combined.
   // The donor's background ("Who they are", lib/donor-profile.ts) is read alongside, so it adds no wait; null when there
   // is none or the read fails (the page then renders without the section).
-  const [relatedFound, main, background, registry] = await Promise.all([relatedDonorNames(canonicalName, slug), mainSpellingFor(slug), getDonorProfile(slug), donorRegistry()]);
+  // The donor's Companies House numbers, from its own donations that are not from individuals (used for contracts and
+  // for "What followed"; never a match by name).
+  const numberedDonations = donations.filter((d) => (d.donor_type ?? '') !== 'Individual' && d.company_registration_number);
+  const donorNumbers = [...new Set(numberedDonations
+    .map((d) => normaliseCompanyNumber(d.company_registration_number as string))
+    .filter((n): n is string => !!n))];
+  // "What followed" (owner, 1 Nov 2026): grants, and meetings and lobbying through an organisation_index row with the
+  // same number, read alongside (lib/donor-what-followed.ts); null for individuals or on a read error.
+  const [relatedFound, main, background, registry, followed] = await Promise.all([relatedDonorNames(canonicalName, slug), mainSpellingFor(slug), getDonorProfile(slug), donorRegistry(),
+    getDonorWhatFollowed(donorNumbers, [...new Set(numberedDonations.map((d) => (d.company_registration_number as string).trim()))])]);
   // Every record here is public money (Short Money, Policy Development Grants and the like), not a private donation.
   const publicFunds = donations.every((d) => d.donor_status === 'Public Fund');
   // A name the background confirms as the same donor (its other slugs) is not listed as possibly related (owner, 31 Oct
@@ -267,10 +283,6 @@ export default async function DonorPage({ params }: PageProps) {
   // 2026-10-27c): each counted contract (government_contracts_counted, one per notice, superseded change notices left
   // out) whose Find a Tender notice gives the supplier exactly that one number, the same rows as /organisations and
   // /donations/government-contractors. Frameworks are kept apart (potential value, never added up).
-  const donorNumbers = [...new Set(donations
-    .filter((d) => (d.donor_type ?? '') !== 'Individual' && d.company_registration_number)
-    .map((d) => normaliseCompanyNumber(d.company_registration_number as string))
-    .filter((n): n is string => !!n))];
   type ContractRow = { id: number; dept_slug: string; title: string | null; value: number | null; awarded_date: string | null; supplier: string | null; ocid: string | null; is_framework: boolean };
   let numberMatched: ContractRow[] = [];
   if (donorNumbers.length) {
@@ -305,6 +317,37 @@ export default async function DonorPage({ params }: PageProps) {
   // its procurement record on Find a Tender by OCID.
   const contractRecords = [...matchedContracts, ...matchedFrameworks].sort((a, b) => (b.awarded_date || '').localeCompare(a.awarded_date || ''));
   const totalContractValue = matchedContracts.reduce((s, c) => s + Number(c.value || 0), 0);
+  // "What followed": one list, newest first, of this donor's donations and the records for the same Companies House
+  // number. Each list is capped at the newest WHAT_FOLLOWED_CAP. Shown only when there is at least one record besides
+  // the donations.
+  type FollowedRow = { key: string; date: string | null; tag: 'Donation' | 'Contract' | 'Grant' | 'Meeting' | 'Lobbying'; line: string };
+  const followedRows: FollowedRow[] = [];
+  const followedCaps: string[] = [];
+  const showFollowed = !!followed && donorNumbers.length > 0 && (contractRecords.length + followed.grants.length + followed.meetings.length + followed.lobbying.length) > 0;
+  if (followed && showFollowed) {
+    const cap = WHAT_FOLLOWED_CAP;
+    const capNote = (shown: number, total: number, what: string) => { if (total > shown) followedCaps.push(`Newest ${shown} of ${total.toLocaleString('en-GB')} ${what} shown.`); };
+    const newestDonations = [...donations].sort((a, b) => (b.accepted_date || b.received_date || '').localeCompare(a.accepted_date || a.received_date || '')).slice(0, cap);
+    for (const d of newestDonations) followedRows.push({ key: `d${d.id}`, date: d.accepted_date || d.received_date, tag: 'Donation', line: `${fmtMoney(d.amount)} to ${d.recipient_name?.trim() || 'a recipient not recorded'}` });
+    capNote(newestDonations.length, donations.length, 'donations');
+    for (const c of contractRecords.slice(0, cap)) {
+      const value = c.value == null ? 'value not published' : c.is_framework ? `framework maximum ${fmtMoney(c.value)}` : fmtMoney(c.value);
+      followedRows.push({ key: `c${c.id}`, date: c.awarded_date, tag: 'Contract', line: `${buyerName(c.dept_slug)}: ${c.title?.trim() || 'title not published'}, ${value}` });
+    }
+    capNote(Math.min(cap, contractRecords.length), contractRecords.length, 'contracts');
+    for (const g of followed.grants) followedRows.push({ key: `g${g.identifier}`, date: g.award_date, tag: 'Grant', line: `${g.funder_name?.trim() || 'Funder not published'}: ${g.title?.trim() || g.scheme_title?.trim() || 'title not published'}, ${g.amount == null ? 'amount not published' : fmtMoney(g.amount)}` });
+    capNote(followed.grants.length, followed.grantsTotal, 'grants');
+    for (const m of followed.meetings) followedRows.push({ key: `m${m.meeting_key}`, date: m.date_flag ? null : m.meeting_date, tag: 'Meeting', line: `${m.minister_name}: ${m.purpose?.trim() || 'purpose not published'}` });
+    capNote(followed.meetings.length, followed.meetingsTotal, 'meetings');
+    for (const l of followed.lobbying) followedRows.push({ key: `l${l.firm}${l.start}`, date: l.start, tag: 'Lobbying', line: `${l.firm}, ${l.label}` });
+    capNote(followed.lobbying.length, followed.lobbyingTotal, 'lobbying quarters');
+    followedRows.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''));
+  }
+  const followedDated = followedRows.filter((r) => r.date);
+  const followedUndated = followedRows.filter((r) => !r.date);
+  const followedCounts = (['Donation', 'Contract', 'Grant', 'Meeting', 'Lobbying'] as const).map((t) => [t, followedRows.filter((r) => r.tag === t).length] as const);
+  // Bequests shown in "Each donation" (the newest 100): when some fall outside it, the bequest line says so.
+  const bequestsShown = donations.slice(0, 100).filter((d) => d.is_bequest).length;
   let appgsFunded: Array<{ slug: string; title: string; category: string | null }> = [];
   if (matchedAppgFunderRows.length > 0) {
     const slugs = Array.from(new Set(matchedAppgFunderRows.map((f) => f.appg_slug)));
@@ -427,7 +470,7 @@ export default async function DonorPage({ params }: PageProps) {
           <p style={{ margin: '10px 0 0', maxWidth: '70ch', color: INK }}>
             {bequestCount === donations.length
               ? "The Electoral Commission records every donation on this page as a bequest: money left to the recipient in a will, paid from the donor's estate."
-              : `The Electoral Commission records ${bequestCount} of these donations as bequests: money left to the recipient in a will, paid from the donor's estate. They are marked in the list below.`}{' '}
+              : `The Electoral Commission records ${bequestCount} of these donations as bequests: money left to the recipient in a will, paid from the donor's estate. ${bequestsShown < bequestCount ? 'The newest 100 donations are listed below; bequests among them are marked.' : 'They are marked in the list below.'}`}{' '}
             <Link href="/donations/bequest" style={{ color: ACCENT, textDecoration: 'underline' }}>See every political donation left in a will</Link>
           </p>
         )}
@@ -509,6 +552,39 @@ export default async function DonorPage({ params }: PageProps) {
           </tbody>
         </table>
       </section>
+
+      {/* What followed (owner, 1 Nov 2026): records only, matched by Companies House number; no commentary. */}
+      {showFollowed && (
+        <section aria-labelledby="what-followed" style={{ marginBottom: '28px', fontSize: '15px', lineHeight: 1.6, color: INK }}>
+          <h2 id="what-followed" style={sectionH2}>What followed</h2>
+          <p style={{ margin: '0 0 8px', maxWidth: '70ch' }}>
+            Donations and other public records for the same organisation, matched by Companies House number, in date order. Records appearing together does not mean one caused the other.
+          </p>
+          <p style={{ margin: '0 0 8px' }}>{followedCounts.filter(([, n]) => n > 0).map(([t, n]) => `${t} ${n}`).join(' · ')}</p>
+          {followedCaps.length > 0 && <p style={{ margin: '0 0 8px' }}>{followedCaps.join(' ')}</p>}
+          {[{ label: null as string | null, rows: followedDated }, { label: 'Date not published', rows: followedUndated }].filter((g) => g.rows.length > 0).map((g) => (
+            <div key={g.label ?? 'dated'}>
+              {g.label && <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '14px 0 4px' }}>{g.label}</h3>}
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {g.rows.map((r) => (
+                  <li key={r.key} style={{ padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, overflowWrap: 'anywhere' }}>
+                    {r.date && <span style={{ fontFamily: 'monospace', whiteSpace: 'nowrap', marginRight: '8px' }}>{fmtLongDay(r.date)}</span>}
+                    <span style={{ display: 'inline-block', fontSize: '15px', padding: '0 8px', marginRight: '8px', border: `1px solid ${INK_HAIRLINE}`, color: r.tag === 'Donation' ? INK : ACCENT, whiteSpace: 'nowrap' }}>{r.tag}</span>
+                    <span>{r.line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          {followed && followed.orgs.length > 0 && (
+            <p style={{ margin: '10px 0 0' }}>
+              {followed.orgs.map((o, i) => (
+                <span key={o.slug}>{i > 0 && ' · '}<Link href={`/organisations/${o.slug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>See the full organisation record{followed.orgs.length > 1 ? ` (${o.name})` : ''}</Link></span>
+              ))}
+            </p>
+          )}
+        </section>
+      )}
 
       {appgsFunded.length > 0 && (
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${WARN}` }}>
