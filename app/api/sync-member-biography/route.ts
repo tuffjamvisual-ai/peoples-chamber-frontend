@@ -85,40 +85,47 @@ async function fetchBiography(memberId: number, budget: SyncBudget): Promise<{ g
   }
 }
 
+// One spell in a post (owner, 1 Nov 2026): the post id and the date it started. Keyed by id alone, a second spell in the
+// same post (Angela Rayner's return as Housing Secretary on 20 Jul 2026, after 2024 to 2025) was taken for the first
+// and never added; 15 such spells were missing on 1 Nov 2026. Only the date part of the start is compared.
+const spellKey = (p: Pick<Post, 'id' | 'startDate'>) => `${p.id}|${(p.startDate ?? '').slice(0, 10)}`;
+
 // Reconcile a stored array with the live source under the monotonic-close +
 // override rules. Returns the merged array and whether anything actually changed.
+// Posts are matched on post id plus start date (spellKey), so a repeat spell is its own entry.
 function reconcile(existing: Post[] | null, source: Post[], overridden: Set<number>): { merged: Post[]; changed: boolean } {
   const ex = existing || [];
-  const byId = new Map<number, Post>(ex.map((p) => [p.id, p]));
+  const bySpell = new Map<string, Post>(ex.map((p) => [spellKey(p), p]));
   let changed = false;
 
   for (const src of source) {
-    if (overridden.has(src.id)) continue; // never touch an overridden post
-    const cur = byId.get(src.id);
+    if (overridden.has(src.id)) continue; // never touch an overridden post (any spell of it)
+    const key = spellKey(src);
+    const cur = bySpell.get(key);
     if (!cur) {
-      byId.set(src.id, src); // genuinely new post
+      bySpell.set(key, src); // genuinely new post, or a new spell in a post held before
       changed = true;
       continue;
     }
     const hasEnd = cur.endDate != null && cur.endDate !== '';
     if (!hasEnd && src.endDate) {
-      byId.set(src.id, { ...cur, endDate: src.endDate }); // fill a null end date only
+      bySpell.set(key, { ...cur, endDate: src.endDate }); // fill a null end date only
       changed = true;
     }
     // If cur already has an endDate, leave it (monotonic close, never reopen).
   }
   // Existing posts absent from the source are kept as-is (never deleted).
-  return { merged: Array.from(byId.values()), changed };
+  return { merged: Array.from(bySpell.values()), changed };
 }
 
 // Plain-English list of posts that started or ended between the stored array and
 // the live source (same override rules as reconcile), for the biography review flag.
 function postChanges(existing: Post[] | null, source: Post[], overridden: Set<number>): string[] {
-  const byId = new Map<number, Post>((existing || []).map((p) => [p.id, p]));
+  const bySpell = new Map<string, Post>((existing || []).map((p) => [spellKey(p), p]));
   const out: string[] = [];
   for (const src of source) {
     if (overridden.has(src.id)) continue;
-    const cur = byId.get(src.id);
+    const cur = bySpell.get(spellKey(src));
     if (!cur) {
       if (!src.endDate) out.push(`Started: ${src.name}${src.startDate ? ` (${ukDate(src.startDate)})` : ''}`);
     } else if (!(cur.endDate != null && cur.endDate !== '') && src.endDate) {
