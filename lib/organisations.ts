@@ -211,10 +211,11 @@ export function fmtDay(d: string | null): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 
-// A contract's buyer from its department slug, as the donor pages write it.
+// A contract's buyer from its department slug, as the donor pages write it. Initials stay in capitals as whole words
+// (owner, 1 Nov 2026: NHS, CCG, ICB, HMRC, MOD, DWP, BBC, UK, GP; HM as before).
 export function buyerLabel(slug: string): string {
   return slug.split('-').map((w) => (w.length > 3 || /^(nhs|uk|hm)$/i.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w)).join(' ')
-    .replace(/^./, (c) => c.toUpperCase()).replace(/\b(Nhs|Uk|Hm)\b/g, (w) => w.toUpperCase());
+    .replace(/^./, (c) => c.toUpperCase()).replace(/\b(nhs|ccg|icb|hmrc|mod|dwp|bbc|uk|gp|hm)\b/gi, (w) => w.toUpperCase());
 }
 
 // One sentence of what the page holds, for the page, its link preview and the index.

@@ -17,7 +17,7 @@ export type WhatFollowedData = {
   grants: OrgGrant[]; grantsTotal: number;
   meetings: OrgMeeting[]; meetingsTotal: number;
   lobbying: LobbyingQuarter[]; lobbyingTotal: number;
-  orgs: { slug: string; name: string }[];
+  orgs: { slug: string; name: string; company_number: string }[];
 };
 
 // The exact strings a register may hold for a normalised number: as written on the donor's own donations, the
@@ -66,7 +66,7 @@ export async function getDonorWhatFollowed(numbers: string[], raws: string[]): P
       grants, grantsTotal: grantsRes.count ?? grants.length,
       meetings: meetings.slice(0, WHAT_FOLLOWED_CAP), meetingsTotal: meetings.length,
       lobbying: lobbying.slice(0, WHAT_FOLLOWED_CAP), lobbyingTotal: lobbying.length,
-      orgs: index.map((o) => ({ slug: o.slug, name: o.name })),
+      orgs: index.map((o) => ({ slug: o.slug, name: o.name, company_number: o.company_number as string })),
     };
   } catch (e) {
     console.error('[donor-what-followed]', e instanceof Error ? e.message : e);

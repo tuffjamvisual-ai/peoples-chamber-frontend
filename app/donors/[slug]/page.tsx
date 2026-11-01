@@ -303,7 +303,9 @@ export default async function DonorPage({ params }: PageProps) {
   // name. Linking every buyer to /departments/<buyer> gave 404s (ChatGPT audit, 15 Oct 2026).
   // A value the buyer did not publish is counted as unpublished, never as £0.
   const deptBySlug = new Map(departments.map((d) => [d.slug, d.name]));
-  const buyerName = (slug: string) => deptBySlug.get(slug) ?? slug.split('-').map((w) => (w.length > 3 || /^(nhs|uk|hm)$/i.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w)).join(' ').replace(/^./, (c) => c.toUpperCase());
+  const buyerName = (slug: string) => deptBySlug.get(slug) ?? slug.split('-').map((w) => (w.length > 3 || /^(nhs|uk|hm)$/i.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w)).join(' ').replace(/^./, (c) => c.toUpperCase())
+    // Initials stay in capitals as whole words (owner, 1 Nov 2026).
+    .replace(/\b(nhs|ccg|icb|hmrc|mod|dwp|bbc|uk|gp)\b/gi, (w) => w.toUpperCase());
   const contractsByDept = new Map<string, { dept: string; name: string; isDept: boolean; count: number; total: number; unpublished: number }>();
   for (const c of matchedContracts) {
     const ex = contractsByDept.get(c.dept_slug) ?? { dept: c.dept_slug, name: buyerName(c.dept_slug), isDept: deptBySlug.has(c.dept_slug), count: 0, total: 0, unpublished: 0 };
@@ -560,6 +562,15 @@ export default async function DonorPage({ params }: PageProps) {
           <p style={{ margin: '0 0 8px', maxWidth: '70ch' }}>
             Donations and other public records for the same organisation, matched by Companies House number, in date order. Records appearing together does not mean one caused the other.
           </p>
+          {/* Which number the records are held under, and whose it is on the public record (owner, 1 Nov 2026). */}
+          {donorNumbers.map((n) => {
+            const owner = followed?.orgs.find((o) => o.company_number === n);
+            return (
+              <p key={n} style={{ margin: '0 0 8px', maxWidth: '70ch', color: INK }}>
+                Records held under Companies House number {n}, the number given on this donor&apos;s donations.{owner ? ` On the public record this number belongs to: ${owner.name}.` : ''}
+              </p>
+            );
+          })}
           <p style={{ margin: '0 0 8px' }}>{followedCounts.filter(([, n]) => n > 0).map(([t, n]) => `${t} ${n}`).join(' · ')}</p>
           {followedCaps.length > 0 && <p style={{ margin: '0 0 8px' }}>{followedCaps.join(' ')}</p>}
           {[{ label: null as string | null, rows: followedDated }, { label: 'Date not published', rows: followedUndated }].filter((g) => g.rows.length > 0).map((g) => (
