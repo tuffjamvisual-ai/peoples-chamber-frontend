@@ -85,6 +85,7 @@ type DonationRow = {
   addr_town: string | null;
   addr_country: string | null;
   ec_ref: string | null;
+  is_bequest: boolean | null;
 };
 
 interface PageProps {
@@ -170,7 +171,7 @@ export default async function DonorPage({ params }: PageProps) {
   // Every donation under this donor's registered name(s). Exact names when the registry holds the slug (every record,
   // newest first); otherwise the old word search, filtered to names whose slug matches.
   const ranked = narrowTokens(slug);
-  const DONATION_COLS = 'id, donor_name, donor_type, donor_status, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, accounting_unit_name, is_anonymous, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, trust_name, trust_creator_name, company_registration_number, addr_line1, addr_town, addr_country, ec_ref';
+  const DONATION_COLS = 'id, donor_name, donor_type, donor_status, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, accounting_unit_name, is_anonymous, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, trust_name, trust_creator_name, company_registration_number, addr_line1, addr_town, addr_country, ec_ref, is_bequest';
   let donations: DonationRow[] = [];
   if (resolved.names) {
     for (let i = 0; i < resolved.names.length; i += 100) {
@@ -213,6 +214,8 @@ export default async function DonorPage({ params }: PageProps) {
   // A name the background confirms as the same donor (its other slugs) is not listed as possibly related (owner, 31 Oct
   // 2026); pages without a background are unchanged.
   const confirmed = new Set(background?.otherSlugs ?? []);
+  // Donations the Electoral Commission flags as bequests (is_bequest), across every record of this donor.
+  const bequestCount = donations.filter((d) => d.is_bequest).length;
   const relatedNames = (main && !relatedFound.some((r) => r.slug === main.slug)
     ? [...relatedFound, main].sort((a, b) => a.name.localeCompare(b.name, 'en-GB'))
     : relatedFound).filter((r) => !confirmed.has(r.slug));
@@ -418,6 +421,16 @@ export default async function DonorPage({ params }: PageProps) {
         <p style={{ margin: 0, maxWidth: '70ch' }}>
           The Electoral Commission records donors by the name given on each report. The same person or company may appear under more than one name; these totals are not combined.
         </p>
+        {/* Bequests (owner, 1 Nov 2026): political_donations.is_bequest is the Electoral Commission's IsBequest flag. Shown
+            only when this donor has at least one; pages with none are unchanged. */}
+        {bequestCount > 0 && (
+          <p style={{ margin: '10px 0 0', maxWidth: '70ch', color: INK }}>
+            {bequestCount === donations.length
+              ? "The Electoral Commission records every donation on this page as a bequest: money left to the recipient in a will, paid from the donor's estate."
+              : `The Electoral Commission records ${bequestCount} of these donations as bequests: money left to the recipient in a will, paid from the donor's estate. They are marked in the list below.`}{' '}
+            <Link href="/donations/bequest" style={{ color: ACCENT, textDecoration: 'underline' }}>See every political donation left in a will</Link>
+          </p>
+        )}
         {relatedNames.length > 0 && (
           <div style={{ marginTop: '14px' }}>
             <h2 style={{ ...sectionH2, marginBottom: '4px' }}>Other donor names that may be related</h2>
@@ -648,6 +661,7 @@ export default async function DonorPage({ params }: PageProps) {
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>{fmtDay(d.accepted_date || d.received_date)}</td>
                     <td style={{ ...td, textAlign: 'left', overflowWrap: 'anywhere' }}>
                       {mp ? <Link href={`/mps/${mp.member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{d.recipient_name}</Link> : (d.recipient_name || 'Not recorded')}
+                      {d.is_bequest && <span style={{ display: 'inline-block', marginLeft: '8px', fontSize: '15px', padding: '3px 8px', border: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT, whiteSpace: 'nowrap' }}>Bequest</span>}
                       {d.accounting_unit_name && d.accounting_unit_name !== d.recipient_name && <span style={{ display: 'block', fontSize: '15px' }}>{d.accounting_unit_name}</span>}
                     </td>
                     <td style={{ ...td, textAlign: 'left' }}>
