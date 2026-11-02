@@ -31,8 +31,15 @@ const DEBATE_GUID = /^\/debates\/([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[
 // redirect to the page that now covers them, or 410 Gone, instead of a 404.
 const GONE_SECTION = /^\/(departments|donors|news)\/([^/]+)\/?$/
 
+// "/&" and "/$" are not links of ours (Search Console 404 review, 2 Nov 2026): React DOM's client code holds the strings
+// "/$" and "/&" (Suspense and Activity boundary markers) and Google reads them as links. 410 for exactly these two.
+const REACT_MARKER_PATHS = new Set(['/&', '/$'])
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+  if (REACT_MARKER_PATHS.has(pathname)) {
+    return new NextResponse(GONE_HTML, { status: 410, headers: { 'Content-Type': 'text/html; charset=utf-8', 'X-Robots-Tag': 'noindex', 'Cache-Control': 'public, max-age=0, s-maxage=86400' } })
+  }
   const gone = pathname.match(GONE_SECTION)
   if (gone) {
     const action = await goneAction(gone[1] as 'departments' | 'donors' | 'news', gone[2])
@@ -76,5 +83,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*', '/debates/:guid', '/departments/:slug', '/donors/:slug', '/news/:slug'],
+  matcher: ['/api/:path*', '/debates/:guid', '/departments/:slug', '/donors/:slug', '/news/:slug', '/&', '/\\$'],
 }

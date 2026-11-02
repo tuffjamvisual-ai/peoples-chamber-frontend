@@ -141,6 +141,10 @@ const nextConfig: NextConfig = {
     // holds goes to its sitting day on Hansard from the debate page.)
     const notFoundRedirects = [
       { source: '/departments/london-borough-of-enfield', destination: '/councils/enfield', statusCode: 301 as const },
+      // Search Console 404 review (2 Nov 2026): two contract buyers linked as departments that do have a page. These
+      // run before the proxy, so they win over its 410 for a /departments/<slug> that is not a department.
+      { source: '/departments/uk-biobank-limited', destination: '/organisations/uk-biobank', permanent: true },
+      { source: '/departments/secretary-of-state-for-health-and-social-care-acting-as-part-of-the-crown-through-uk-health-security-agency', destination: '/agencies/uk-health-security-agency', permanent: true },
     ];
     // /bills?page=N moved to /bills/page/N so every page is cached (owner's approval, 21 Oct 2026).
     const billsPageRedirects = [
