@@ -6,7 +6,6 @@ import { Fragment } from 'react';
 import Link from 'next/link';
 import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
-import EvidencePanel from './EvidencePanel';
 import RelatedLinks from './RelatedLinks';
 import ReadNext from './ReadNext';
 import ArticleEndSignup from './ArticleEndSignup';
@@ -98,7 +97,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
             </section>
           )}
           {/* One "Sources (N)" link to the article's sources page, never the full list (owner's standing instruction,
-              2 Nov 2026, as eda0b417 did on 23 Oct). The evidence panel below leaves out its own Sources row. */}
+              2 Nov 2026, as eda0b417 did on 23 Oct). The "How this piece was checked" panel is on that page only. */}
           {sources.length > 0 && (
             <p style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
               <Link href={`${basePath}/${piece.slug}/sources`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
@@ -112,7 +111,6 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
 
       </div>
 
-      {piece.evidence && <EvidencePanel {...piece.evidence} sourcesHref={`${basePath}/${piece.slug}/sources`} sourcesShownAbove={sources.length > 0} />}
 
       <RelatedLinks
         variant="editorial"

@@ -43,7 +43,7 @@ export default async function BriefingSourcesPage({ params }: { params: Promise<
   if (piece && piece.kind === 'briefing') {
     const records = piece.evidence?.recordsReviewed ?? [];
     if (!records.length) notFound();
-    return <SourcesPage stamp="Reports" articleHref={articleHref} headline={piece.headline} records={records} lastChecked={piece.evidence?.lastChecked} />;
+    return <SourcesPage stamp="Reports" articleHref={articleHref} headline={piece.headline} records={records} evidence={piece.evidence} />;
   }
 
   const b = await getDbBriefing(slug);

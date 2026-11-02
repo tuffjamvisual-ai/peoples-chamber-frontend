@@ -1,10 +1,11 @@
 // The /sources page of an investigation or file briefing (added 23 Oct 2026): every record the piece was checked
-// against, which the article's evidence panel now links to as one "Sources (N)" line.
+// against, linked from the article as one "Sources (N)" line. The "How this piece was checked" panel (facts last
+// checked, contacted, response, corrections) is shown here, under the list, not on the article (owner, 2 Nov 2026).
 import Link from 'next/link';
 import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
-import { SourcesList, linkStyle, type EvidenceRecord } from './SourcesList';
-import { formatLastChecked } from './EvidencePanel';
+import { SourcesList, type EvidenceRecord } from './SourcesList';
+import EvidencePanel, { type EvidencePanelProps } from './EvidencePanel';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -14,8 +15,8 @@ export const backStyle = { display: 'inline-flex', alignItems: 'center', gap: '8
 export const kickerStyle = { fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, fontWeight: 'bold', marginBottom: '10px' } as const;
 export const h1Style = { fontFamily: MONO, fontSize: 'clamp(24px, 3.4vw, 40px)', fontWeight: 'bold', lineHeight: 1.12, letterSpacing: '0.01em', marginBottom: '20px' } as const;
 
-export default function SourcesPage({ stamp, articleHref, headline, records, lastChecked }: {
-  stamp: string; articleHref: string; headline: string; records: EvidenceRecord[]; lastChecked?: string;
+export default function SourcesPage({ stamp, articleHref, headline, records, evidence }: {
+  stamp: string; articleHref: string; headline: string; records: EvidenceRecord[]; evidence?: EvidencePanelProps;
 }) {
   return (
     <OpenGovShell pageStamp={stamp}>
@@ -28,11 +29,7 @@ export default function SourcesPage({ stamp, articleHref, headline, records, las
       </header>
       <div style={{ maxWidth: '760px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK }}>
         <SourcesList records={records} />
-        {lastChecked && (
-          <p style={{ marginTop: '18px' }}>
-            <span style={{ ...linkStyle, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Facts last checked</span> {formatLastChecked(lastChecked)}
-          </p>
-        )}
+        {evidence && <EvidencePanel {...evidence} sourcesShownAbove />}
       </div>
     </OpenGovShell>
   );

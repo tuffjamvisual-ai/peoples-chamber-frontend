@@ -4,8 +4,7 @@
 // shows records reviewed, who was contacted and whether they replied.
 // Part of the "report more, perform less" standing rule (accountability shown, not claimed).
 
-import Link from 'next/link';
-import { SourcesList, linkStyle, type EvidenceRecord } from './SourcesList';
+import { SourcesList, type EvidenceRecord } from './SourcesList';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -30,9 +29,7 @@ export type EvidencePanelProps = {
   lastChecked?: string; // human label, e.g. "11 July 2026"
   correctionsEmail?: string;
   aiDisclosure?: string;
-  // When set, the records row is one "Sources (N)" link to this page instead of the full list.
-  sourcesHref?: string;
-  // The article already lists every source above the panel (30 Oct 2026): leave the records row out.
+  // The sources are already listed above the panel (the /sources page): leave the records row out.
   sourcesShownAbove?: boolean;
 };
 
@@ -56,7 +53,6 @@ export default function EvidencePanel({
   response,
   lastChecked,
   correctionsEmail = 'contact@opengovt.uk',
-  sourcesHref,
   sourcesShownAbove = false,
   // aiDisclosure = DEFAULT_AI, // temporarily not rendered — see note above
 }: EvidencePanelProps) {
@@ -75,15 +71,9 @@ export default function EvidencePanel({
         How this piece was checked
       </p>
       {recordsReviewed && recordsReviewed.length > 0 && !sourcesShownAbove && (
-        sourcesHref ? (
-          <Row label="Sources">
-            <Link href={sourcesHref} style={linkStyle}>Sources ({recordsReviewed.length})</Link>
-          </Row>
-        ) : (
-          <Row label="Records reviewed">
-            <SourcesList records={recordsReviewed} />
-          </Row>
-        )
+        <Row label="Records reviewed">
+          <SourcesList records={recordsReviewed} />
+        </Row>
       )}
       {contacted && <Row label="Contacted">{contacted}</Row>}
       {response && <Row label="Response">{response}</Row>}
