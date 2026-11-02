@@ -403,9 +403,9 @@ const fmtDate = (s?: string | null) =>
   s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
 // Background tab (24 Oct 2026): the timeline's phase headings, in order, and the entry layout. Compact layout (owner,
-// 31 Oct 2026): one line per entry where it fits, "<years> <title>, <organisation> · source", wrapping on narrow
-// screens, with the detail directly underneath; no dividers, about 8 px between entries. Every line is 24 px high so
-// each source link is a 24 px tap target.
+// 31 Oct 2026): one line per entry where it fits, "<years> <title>, <organisation>", wrapping on narrow screens, with
+// the detail directly underneath; no dividers, about 8 px between entries. Sources are not shown per entry (owner,
+// 2 Nov 2026): one closed "Sources (N)" fold-out under the timeline lists each distinct source once.
 const TIMELINE_PHASES: Array<{ phase: BackgroundEntry['phase']; heading: string }> = [
   { phase: 'education', heading: 'Education' },
   { phase: 'career', heading: 'Career' },
@@ -420,11 +420,6 @@ function TimelineEntry({ entry, last }: { entry: BackgroundEntry; last: boolean 
         {years && <strong style={{ fontFamily: 'monospace', marginRight: '0.6em' }}>{years}</strong>}
         <strong>{entry.title}</strong>
         {entry.organisation && <>, {entry.organisation}</>}
-        <span style={{ whiteSpace: 'nowrap' }}>
-          {' · '}
-          <a href={entry.source.url} target="_blank" rel="noopener noreferrer" aria-label={`Source: ${entry.source.title}`}
-            style={{ ...inkLink, fontSize: '15px', display: 'inline-block', minHeight: '24px', lineHeight: '24px' }}>source</a>
-        </span>
       </div>
       {entry.detail && <div>{entry.detail}</div>}
     </div>
@@ -441,6 +436,20 @@ function dayMonthYear(iso: string): string {
 function SectionUpdated({ date }: { date?: string }) {
   if (!date) return null;
   return <p style={{ fontSize: '15px', color: '#14100d', margin: '-16px 0 20px' }}>Last updated {date}</p>;
+}
+
+// Each distinct source in the timeline once, in the order first used as the timeline is shown (phase order).
+function timelineSources(timeline: BackgroundEntry[]): Array<{ title: string; url: string }> {
+  const seen = new Set<string>();
+  const out: Array<{ title: string; url: string }> = [];
+  for (const { phase } of TIMELINE_PHASES) {
+    for (const e of timeline) {
+      if (e.phase !== phase || !e.source?.url || seen.has(e.source.url)) continue;
+      seen.add(e.source.url);
+      out.push(e.source);
+    }
+  }
+  return out;
 }
 
 const sectionH2: React.CSSProperties = {
@@ -917,7 +926,7 @@ export default function MagazineProfileSections({
             <h2 style={sectionH2}>Background</h2>
             {timeline.length > 0 ? (
               <>
-                <p style={{ fontSize: '15px', marginBottom: '16px' }}>From education to today. Each entry links to its source.</p>
+                <p style={{ fontSize: '15px', marginBottom: '16px' }}>From education to today. Sources are listed below.</p>
                 {TIMELINE_PHASES.map(({ phase, heading }) => {
                   const rows = timeline.filter((e) => e.phase === phase);
                   if (rows.length === 0) return null;
@@ -930,6 +939,24 @@ export default function MagazineProfileSections({
                     </div>
                   );
                 })}
+                {(() => {
+                  const sources = timelineSources(timeline);
+                  if (sources.length === 0) return null;
+                  return (
+                    <details style={{ fontSize: '15px', color: '#14100d', marginBottom: '18px' }}>
+                      <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '15px' }}>
+                        Sources ({sources.length})
+                      </summary>
+                      <ol style={{ margin: '10px 0 0', paddingLeft: '20px', lineHeight: 1.55, overflowWrap: 'anywhere' }}>
+                        {sources.map((src) => (
+                          <li key={src.url} style={{ marginBottom: '6px' }}>
+                            <a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612' }}>{src.title}</a>
+                          </li>
+                        ))}
+                      </ol>
+                    </details>
+                  );
+                })()}
                 {bio?.background_last_checked && (
                   <p style={{ fontSize: '15px', marginBottom: '26px' }}>Last checked: {dayMonthYear(bio.background_last_checked)}</p>
                 )}
