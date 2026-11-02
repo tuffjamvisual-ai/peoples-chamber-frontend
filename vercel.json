@@ -205,6 +205,10 @@
       "schedule": "3 1 * * *"
     },
     {
+      "path": "/api/sync-hansard-contributions",
+      "schedule": "4 13 * * *"
+    },
+    {
       "path": "/api/monitor-freshness",
       "schedule": "3 17 * * *"
     },
