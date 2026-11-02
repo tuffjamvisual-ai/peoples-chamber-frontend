@@ -466,6 +466,21 @@ export async function sendCommissionRequest(r: {
   });
 }
 
+// User feedback (owner's brief, 2 Nov 2026): the same pattern as the commission request above. Emails the contact inbox
+// with reply-to set to the reader when they gave an address. The reader is not emailed. Never throws.
+export async function sendFeedback(msg: { subject: string; text: string; replyTo?: string }): Promise<SendResult> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+  return deliver('feedback', key, {
+    from,
+    to: COMMISSION_TO,
+    ...(msg.replyTo ? { replyTo: msg.replyTo } : {}),
+    subject: msg.subject,
+    text: msg.text,
+  });
+}
+
 // Members' weekly digest (job 74). Its own function and its own log (alert_log, lib/member-digest.ts), so the daily
 // cap of 60 digests only ever counts digests: confirmation, password reset, commission request and owner emails never
 // go through here and are never held back by it. Carries a one click unsubscribe (List-Unsubscribe with

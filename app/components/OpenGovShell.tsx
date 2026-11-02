@@ -5,6 +5,7 @@ import AccountTab from './AccountTab';
 import { NAV, menuHref } from '@/lib/site-nav';
 import MobileMenu from './MobileMenu';
 import HeaderNav from './HeaderNav';
+import FeedbackFooterLink from './FeedbackFooterLink';
 import { OPEN_PARLIAMENT_LICENCE_URL } from './ParliamentSourceCredit';
 
 // OpenGovShell — the shared "OPEN GOVERNMENT" page template.
@@ -112,6 +113,8 @@ export default function OpenGovShell({
                 <a href="/terms" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Terms</a>
                 <span aria-hidden >·</span>
                 <a href="/contact" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Contact</a>
+                <span aria-hidden >·</span>
+                <FeedbackFooterLink style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale" />
                 <span aria-hidden >·</span>
                 <a href="/commission" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Commission research</a>
                 <span style={{ flex: '1 1 auto', minWidth: '12px' }} />
