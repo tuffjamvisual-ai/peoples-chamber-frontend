@@ -6,7 +6,7 @@ import { Fragment } from 'react';
 import Link from 'next/link';
 import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
-import EvidencePanel, { type EvidenceRecord } from './EvidencePanel';
+import EvidencePanel from './EvidencePanel';
 import RelatedLinks from './RelatedLinks';
 import ReadNext from './ReadNext';
 import ArticleEndSignup from './ArticleEndSignup';
@@ -22,28 +22,6 @@ const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
-
-const sourceLink = { color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' } as const;
-
-// One source: its text linked to its url (same tab, rel noopener); a source made of two documents links each `match`
-// phrase where it first appears; plain text stays as written.
-function SourceLine({ record }: { record: EvidenceRecord }) {
-  if (typeof record === 'string') return <>{record}</>;
-  if (record.links?.length) {
-    const spots = record.links.map((l) => ({ ...l, at: record.text.indexOf(l.match) })).filter((l) => l.at >= 0).sort((x, y) => x.at - y.at);
-    const out: React.ReactNode[] = [];
-    let pos = 0;
-    for (const l of spots) {
-      if (l.at < pos) continue;
-      out.push(record.text.slice(pos, l.at));
-      out.push(<a key={l.at} href={l.url} rel="noopener" style={sourceLink}>{l.match}</a>);
-      pos = l.at + l.match.length;
-    }
-    out.push(record.text.slice(pos));
-    return <>{out}</>;
-  }
-  return record.url ? <a href={record.url} rel="noopener" style={sourceLink}>{record.text}</a> : <>{record.text}</>;
-}
 
 export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [] }: { piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
   const sources = piece.evidence?.recordsReviewed ?? [];
@@ -119,15 +97,12 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               ))}
             </section>
           )}
-          {/* Every source, in its stored order, straight after the text (owner's approval, 30 Oct 2026). The evidence
-              panel below then leaves out its "Sources (N)" link; the /sources page stays for emails that link to it. */}
+          {/* One "Sources (N)" link to the article's sources page, never the full list (owner's standing instruction,
+              2 Nov 2026, as eda0b417 did on 23 Oct). The evidence panel below leaves out its own Sources row. */}
           {sources.length > 0 && (
-            <section aria-labelledby="article-sources" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
-              <h2 id="article-sources" style={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>Sources</h2>
-              <ul style={{ margin: 0, paddingLeft: '1.1em' }}>
-                {sources.map((r, i) => <li key={i} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, marginBottom: '6px', overflowWrap: 'anywhere' }}><SourceLine record={r} /></li>)}
-              </ul>
-            </section>
+            <p style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
+              <Link href={`${basePath}/${piece.slug}/sources`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
+            </p>
           )}
           {/* Newsletter sign-up after the sources, for readers who are not signed in (report 80). */}
           <ArticleEndSignup source={`article-end-${basePath.slice(1)}`} />
