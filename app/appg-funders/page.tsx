@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import AppgSource from '../components/AppgSource';
 import { donorNameToSlug } from '../donors/[slug]/page';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll, inList } from '@/lib/read-all';
@@ -139,6 +140,7 @@ export default async function AppgFundersIndex() {
       <p style={{ fontSize: '15px' }}>
         An entry on this list is the public sponsor / funder of an APPG&rsquo;s secretariat costs; it does not mean every member of the group endorses the funder.
       </p>
+      <AppgSource />
     </OpenGovShell>
   );
 }

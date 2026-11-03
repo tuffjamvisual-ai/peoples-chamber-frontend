@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import AppgSource from '../components/AppgSource';
 import { secretariatNameToSlug } from './[slug]/page';
 
 export const revalidate = 86400;
@@ -104,6 +105,7 @@ export default async function SecretariatsIndex() {
         <span > who pays the secretariats to run these groups</span>
       </div>
 
+      <AppgSource />
       <LastUpdated sourceKey="appgs" />
 </OpenGovShell>
   );

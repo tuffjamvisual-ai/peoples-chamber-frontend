@@ -15,6 +15,7 @@ import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import AppgSource, { appgAmount } from '../../components/AppgSource';
 import ReadNext from '../../components/ReadNext';
 import type { ReadNextLink } from '@/lib/read-next';
 import { donorPageSlug } from '@/lib/donor-slug';
@@ -95,7 +96,7 @@ type AppgRow = {
   registrable_benefits: string | null;
   website_url: string | null;
 };
-type FunderRow = { appg_slug: string; source: string; value_band: string | null };
+type FunderRow = { appg_slug: string; source: string; value_band: string | null; value_exact: number | string | null };
 type OfficerRow = { appg_slug: string; member_id: number | null; name_at_time: string; party: string | null; role: string | null };
 
 export default async function SecretariatPage({ params }: PageProps) {
@@ -113,7 +114,7 @@ export default async function SecretariatPage({ params }: PageProps) {
 
   const slugs = appgs.map((a) => a.slug);
   const [fundersRes, officersRes] = await Promise.all([
-    supabase.from('appg_funders').select('appg_slug, source, value_band').in('appg_slug', slugs).limit(2000),
+    supabase.from('appg_funders').select('appg_slug, source, value_band, value_exact').in('appg_slug', slugs).limit(2000),
     supabase.from('appg_officers').select('appg_slug, member_id, name_at_time, party, role').in('appg_slug', slugs).eq('removed', false).limit(2000),
   ]);
   const fundersBySlug = new Map<string, FunderRow[]>();
@@ -223,7 +224,7 @@ export default async function SecretariatPage({ params }: PageProps) {
                   <div style={{ marginTop: '6px', fontSize: '15px' }}>
                     <span >Paid by: </span>
                     {aFunders.slice(0, 6).map((f, i) => (
-                      <span key={i}>{i > 0 && ', '}<strong>{f.source}</strong>{f.value_band && <span > (£{f.value_band})</span>}</span>
+                      <span key={i}>{i > 0 && ', '}<strong>{f.source}</strong>{appgAmount(f) && <span > ({appgAmount(f)})</span>}</span>
                     ))}
                     {aFunders.length > 6 && <span > +{aFunders.length - 6} more</span>}
                   </div>
@@ -237,6 +238,7 @@ export default async function SecretariatPage({ params }: PageProps) {
             );
           })}
         </ul>
+        <AppgSource />
       </section>
 
 

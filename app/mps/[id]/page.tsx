@@ -546,6 +546,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     source: string;
     description: string | null;
     value_band: string | null;
+    value_exact: number | string | null;
   };
   let mpAppgs: Array<AppgRow & { role: string | null; funders: AppgFunderRow[] }> = [];
   let appgDonorCheckFailed = false;
@@ -557,7 +558,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         .in('slug', officerSlugs),
       supabase
         .from('appg_funders')
-        .select('appg_slug, source, description, value_band')
+        .select('appg_slug, source, description, value_band, value_exact')
         .in('appg_slug', officerSlugs)
         .limit(2000),
     ]);

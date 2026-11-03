@@ -14,6 +14,7 @@ import { donorPageSlug } from '@/lib/donor-slug';
 import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
+import AppgSource, { appgAmount } from '../../components/AppgSource';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
 
@@ -102,6 +103,7 @@ type AppgEntry = {
     source: string;
     description: string | null;
     value_band: string | null;
+    value_exact?: number | string | null;
     ecMatch?: { totalAmount: number; donationCount: number } | null;
   }>;
 };
@@ -1701,7 +1703,7 @@ export default function MagazineProfileSections({
                             {a.funders.slice(0, 20).map((f, i) => (
                               <li key={i} style={{ padding: '4px 0', fontSize: '15px' }}>
                                 <strong>{f.source}</strong>
-                                {f.value_band && <span > · £{f.value_band}</span>}
+                                {appgAmount(f) && <span > · {appgAmount(f)}</span>}
                                 {f.ecMatch && f.ecMatch.donationCount > 0 && (
                                   <span style={{ marginLeft: '6px', ...pillStyle, color: '#7a1612', border: '1px solid #7a1612', fontSize: '15px' }} title="Also a registered political donor under this name in Electoral Commission records">
                                     Also donates · {fmtMoney(f.ecMatch.totalAmount)} · {f.ecMatch.donationCount}×
@@ -1726,6 +1728,7 @@ export default function MagazineProfileSections({
                     </li>
                   ))}
                 </ul>
+                <AppgSource />
               </>
             )}
           </div>
