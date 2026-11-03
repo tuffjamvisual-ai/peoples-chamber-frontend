@@ -199,6 +199,14 @@ async function GET_impl(req: Request) {
     : { data: [], error: null };
   if (stErr) return NextResponse.json({ error: stErr.message }, { status: 500 });
   const storedBy = new Map(((stored ?? []) as unknown as Record<string, unknown>[]).map((r) => [r.case_ref as string, r]));
+  // Reviewed fields are never overwritten (owner's brief, 3 Nov 2026): a stored non-empty summary is kept, and outcome,
+  // rule_breached and penalty are not written by this sync at all (they come from the reviewed migration), so an
+  // upsert leaves them as they are. A new row still gets the report title as its summary.
+  const filled = (v: unknown) => typeof v === 'string' && v.trim() !== '';
+  for (const r of rows) {
+    const o = storedBy.get(r.case_ref);
+    if (o && filled(o.summary)) r.summary = o.summary as string;
+  }
   const pick = (r: Record<string, unknown>) => Object.fromEntries(COLS.map((c) => [c, typeof r[c] === 'string' && /^\d{4}-\d{2}-\d{2}/.test(r[c] as string) && c !== 'summary' && c !== 'url' ? (r[c] as string).slice(0, 10) : r[c] ?? null]));
   const changed = rows.filter((r) => { const o = storedBy.get(r.case_ref); return !o || !sameValue(pick(o), pick(r)); });
   const changedMps = new Set<number>();

@@ -13,10 +13,9 @@
 //   summary          — Report description string from the API
 //   url              — the report's HTML page (API field additionalContentUrl, publications.parliament.uk) when
 //                      present, else https://committees.parliament.uk/publications/<id>/
-//   outcome / rule_breached / penalty — left NULL. Detail lives inside the
-//     PDF/HTML report; Cloudflare blocks automated fetches of those pages.
-//     Future enrichment pass can populate these via manual data entry or
-//     when the upstream API exposes them.
+//   (summary is only set when empty: a reviewed summary is never overwritten, 3 Nov 2026)
+//   outcome / rule_breached / penalty — never written by this sync; filled by reviewed migrations
+//     (e.g. scripts/migrations/2026-11-03a-standards-findings-fill.sql, read from the report PDFs). Left NULL on new rows.
 //
 // Idempotent: ON CONFLICT (case_ref) DO UPDATE.
 //
@@ -222,7 +221,8 @@ function dq(tag, v) {
         member_id = EXCLUDED.member_id,
         mp_name_at_time = EXCLUDED.mp_name_at_time,
         closed_date = EXCLUDED.closed_date,
-        summary = EXCLUDED.summary,
+        -- A reviewed summary is never overwritten (3 Nov 2026); outcome, rule_breached and penalty are not written here.
+        summary = COALESCE(NULLIF(btrim(mp_conduct_findings.summary), ''), EXCLUDED.summary),
         url = EXCLUDED.url,
         source_published = EXCLUDED.source_published,
         scraped_at = now();`;
