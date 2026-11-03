@@ -5,6 +5,12 @@
 export const TITLE_SUFFIX = ' | opengovt';
 export const TITLE_MAX = 60;
 
+// One title kept whole (owner's brief, 3 Nov 2026): with the suffix when the whole fits in 60 characters, on its own
+// when it fits without it, and on its own even when longer (never cut).
+export function titleWithin(title: string): string | { absolute: string } {
+  return title.length + TITLE_SUFFIX.length <= TITLE_MAX ? title : { absolute: title };
+}
+
 export function fitTitle(...candidates: string[]): string {
   for (const c of candidates) if (c.length + TITLE_SUFFIX.length <= TITLE_MAX) return c;
   return candidates[candidates.length - 1];

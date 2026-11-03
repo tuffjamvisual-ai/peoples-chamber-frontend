@@ -14,7 +14,8 @@ import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 export async function generateMetadata(): Promise<Metadata> {
   const y = yearShort(await latestYear());
   return {
-    title: `Highest Spending MPs ${y}, IPSA Business Cost Rankings`,
+    // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
+    title: `MPs' expenses ${y}: IPSA business costs`,
     description: PAGE_DESCRIPTIONS['/expenses'],
     alternates: { canonical: '/expenses' },
   };

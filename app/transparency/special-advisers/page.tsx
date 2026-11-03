@@ -41,9 +41,10 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
 export const metadata: Metadata = {
-  title: "Special Advisers: Who Advises Each UK Minister",
+  // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
+  title: 'Special advisers: ministers, pay and declarations',
   description:
-    'Every UK special adviser named by the Cabinet Office, with their minister, pay band and salary band, and the gifts, hospitality and media meetings they declared each quarter.',
+    "Every special adviser in the Cabinet Office's published list, with their minister, pay band and salary band, and the gifts, hospitality and media meetings declared each quarter.",
   alternates: { canonical: '/transparency/special-advisers' },
 };
 

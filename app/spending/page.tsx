@@ -10,9 +10,10 @@ import ArticleEndSignup from '../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
 export const metadata: Metadata = {
-  title: 'UK Department Budgets: Total DEL by Department',
+  // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
+  title: 'Government department budgets: spending limits',
   description:
-    "Total Departmental Expenditure Limits for every UK government department, ranked.",
+    "Each UK government department's total Departmental Expenditure Limit (DEL), the spending Parliament allows it, ranked, from HM Treasury's Estimates.",
   alternates: { canonical: '/spending' },
 };
 

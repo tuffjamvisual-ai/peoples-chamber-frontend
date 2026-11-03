@@ -5,7 +5,9 @@
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
+import JsonLd, { buildBreadcrumbs, buildMpPerson } from '@/lib/JsonLd';
+import RelatedLine from '../../components/RelatedLine';
+import type { RelatedLink } from '@/lib/related-links';
 import { parliamentMemberUrl, seatYears, type FormerMp } from '@/lib/former-mps';
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
 
@@ -18,10 +20,12 @@ const line = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, 
 // Parliament's dates carry no time zone ("2005-05-05T00:00:00"): read the date part only, so the day never shifts.
 const fmtDay = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : null);
 
-export default function FormerMpProfile({ mp, conductFindings = [] }: { mp: FormerMp; conductFindings?: ConductFinding[] }) {
+export default function FormerMpProfile({ mp, conductFindings = [], related = [] }: { mp: FormerMp; conductFindings?: ConductFinding[]; related?: RelatedLink[] }) {
   const lastSeat = mp.seats[mp.seats.length - 1];
   return (
     <OpenGovShell pageStamp="MP Profile">
+      {/* Person (owner's brief, 3 Nov 2026): a former member, so name, url and sameAs only (lib/JsonLd.tsx). */}
+      <JsonLd data={buildMpPerson({ memberId: mp.memberId, fullName: mp.name, party: mp.party ?? null, former: true })} />
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'MPs', path: '/mps' }, { name: mp.name, path: `/mps/${mp.memberId}` }])} />
       <BackLink fallbackHref="/mps" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)' }} />
       <h1 style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05, margin: '0 0 12px', color: INK, overflowWrap: 'break-word' }}>{mp.name}</h1>
@@ -63,6 +67,8 @@ export default function FormerMpProfile({ mp, conductFindings = [] }: { mp: Form
       </section>
 
       <StandardsFindings findings={conductFindings} />
+      {/* The compact Related line at the end (owner's brief, 3 Nov 2026): reports that name them, when there are any. */}
+      <RelatedLine links={related} />
     </OpenGovShell>
   );
 }

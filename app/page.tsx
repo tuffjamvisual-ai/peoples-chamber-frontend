@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
 import { editorialsBySlug } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
@@ -121,7 +120,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <JsonLd data={buildHomepageGraph()} />
       <OpenGovShell pageStamp="Front Page" brandAsHeading>
               <div className="og-lead">
             <div className="og-main">

@@ -33,7 +33,7 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
   '/councils/blue-badges':
     'Blue Badges held and issued in every English council area: the share of residents with one, the change on the year, and who qualifies automatically.',
   '/expenses':
-    'The ten MPs with the highest IPSA business costs in the latest year, ranked by total claimed across staffing, office, accommodation and travel.',
+    'The ten MPs with the highest business costs in the latest year, ranked by the total across staffing, office, accommodation and travel, from the Independent Parliamentary Standards Authority (IPSA).',
 };
 
 // Every party page (/parties/<slug>/bio) shows the same parts, so one template keeps all 15 consistent: the long form

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue } from "next/font/google";
+import { buildSiteGraph, serialiseJsonLd } from '@/lib/JsonLd';
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
@@ -47,8 +48,6 @@ const bebas = Bebas_Neue({
 
 const SITE_URL = "https://www.opengovt.uk";
 const SITE_NAME = "opengovt";
-// The WebSite JSON-LD description, the same as the Organization's in lib/JsonLd.tsx (owner, 30 Oct 2026).
-const JSON_LD_DESCRIPTION = "Independent UK Parliament tracker and government transparency record.";
 const SITE_DESCRIPTION =
   "opengovt: independent UK Parliament tracker and government transparency record.";
 
@@ -114,31 +113,8 @@ export const metadata: Metadata = {
   },
 };
 
-const JSON_LD = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: SITE_NAME,
-  alternateName: ["Open Govt", "OpenGovt", "opengovt.uk"],
-  url: SITE_URL,
-  description: JSON_LD_DESCRIPTION,
-  inLanguage: "en-GB",
-  publisher: {
-    "@type": "Organization",
-    name: SITE_NAME,
-    url: SITE_URL,
-  },
-  about: [
-    { "@type": "Thing", name: "UK politics" },
-    { "@type": "Thing", name: "UK government transparency" },
-    { "@type": "Thing", name: "Members of Parliament" },
-    { "@type": "Thing", name: "Government departments" },
-  ],
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${SITE_URL}/search?q={search_term_string}`,
-    "query-input": "required name=search_term_string",
-  },
-};
+// WebSite (with its SearchAction) and Organization, on every page (lib/JsonLd.tsx buildSiteGraph, 3 Nov 2026).
+const JSON_LD = buildSiteGraph();
 
 export default function RootLayout({
   children,
@@ -161,7 +137,7 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+          dangerouslySetInnerHTML={{ __html: serialiseJsonLd(JSON_LD) }}
         />
       </head>
       <body className="min-h-full flex flex-col">

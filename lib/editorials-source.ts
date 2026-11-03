@@ -21,6 +21,7 @@ import { topics } from '@/lib/topics';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { entryWords } from '@/lib/reading-time';
 import { releaseKeysOf } from '@/lib/editorial-release-keys';
+import { councilSlugsOf } from '@/lib/editorials/council-slugs';
 
 export const EDITORIALS_FROM_DB = process.env.EDITORIALS_FROM_DB === '1';
 
@@ -37,6 +38,7 @@ export type EditorialListEntry = Pick<EditorialEntry, 'slug' | 'headline' | 'sta
   lastChecked?: string;       // evidence.lastChecked (the sitemap's lastModified)
   releasePaths?: string[];    // the GOV.UK releases the piece examines (lib/editorial-release-keys.ts)
   releaseTitles?: string[];
+  councilSlugs?: string[];    // the councils the piece links to (lib/editorials/council-slugs.ts), for council pages' Related links
 };
 export type EditorialSet = {
   list: EditorialListEntry[];                    // registry order
@@ -86,6 +88,8 @@ function toListEntry(e: EditorialEntry): EditorialListEntry {
   const keys = releaseKeysOf(e);
   if (keys.paths.length) out.releasePaths = keys.paths;
   if (keys.titles.length) out.releaseTitles = keys.titles;
+  const councils = councilSlugsOf(e);
+  if (councils.length) out.councilSlugs = councils;
   return out as EditorialListEntry;
 }
 

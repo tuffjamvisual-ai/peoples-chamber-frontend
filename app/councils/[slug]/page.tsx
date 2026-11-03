@@ -4,6 +4,9 @@
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
+import { titleWithin } from '@/lib/seo-title';
+import RelatedLine from '../../components/RelatedLine';
+import { councilRelated } from '@/lib/related-links';
 import { administrationLabel, seatsLine, seatName, type CouncilComposition } from '@/lib/council-composition';
 import { shortParty, type ElectionSummary } from '@/lib/council-election-summary';
 import { loadCouncilTax, type CouncilTax } from '@/lib/council-tax';
@@ -200,7 +203,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const who = data.political_control ? ` Run by ${data.political_control === 'No overall control' ? 'no single party (no overall control)' : data.political_control}.` : '';
   const pop = data.population ? ` Population ${Number(data.population).toLocaleString('en-GB')}.` : '';
   return {
-    title: `${data.name}`,
+    // Owner's brief, 3 Nov 2026: "<Council name>: spending, services and ratings" (lib/seo-title.ts titleWithin).
+    title: titleWithin(`${data.name}: spending, services and ratings`),
     description: metaDescription(`${data.name}, ${data.type_label.toLowerCase()} in ${data.country}.${who}${pop} Spending, services and how the area compares.`),
     alternates: { canonical: `/councils/${slug}` },
   };
@@ -746,6 +750,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           }}
         />
 
+        {/* The compact Related line at the end of the main content (owner's brief, 3 Nov 2026): up to three reports
+            that link to this council; nothing when there are none (lib/related-links.ts). */}
+        <RelatedLine links={await councilRelated(c.slug)} />
       </article>
       {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
       <ArticleEndSignup source="data-council-page" line={DATA_SIGNUP_LINE} />

@@ -20,7 +20,9 @@ import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { newestTimestamps } from '@/lib/data-freshness';
 import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
 import type { MpReports, MinisterMeeting, MinisterHospitality } from './MagazineProfileSections';
-import { fitTitle, TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
+import { titleWithin } from '@/lib/seo-title';
+import RelatedLine from '../../components/RelatedLine';
+import { mpRelated } from '@/lib/related-links';
 import { displayMpName } from '@/lib/mp-name';
 import { readAll, inList } from '@/lib/read-all';
 import { recipientIsMp, lastNamePrefilter } from '@/lib/mp-recipient-match';
@@ -109,12 +111,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // queries in parallel — each is index-hit and head-only, so the per-MP
   // metadata fetch stays well inside the page's render budget. GSC fix
   // 2026-06-04.
-  const [mp, votesCountRes, interestsCountRes, lastVoteRes] = await Promise.all([
+  const [mp, votesCountRes, interestsCountRes, expensesCountRes] = await Promise.all([
     getMp(memberId),
     // Vote counts in one index-only read (mp_vote_counts, migration 2026-10-21b).
     supabase.rpc('mp_vote_counts', { p_member_id: memberId, p_since: PARL_START }),
     supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true),
-    supabase.from('mp_division_votes').select('division_title, division_date').eq('member_id', memberId).in('vote_type', ['aye', 'no']).order('division_date', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('mp_expenses_summary').select('id', { count: 'exact', head: true }).eq('member_id', memberId),
   ]);
 
   if (!mp) {
@@ -124,8 +126,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const seat = m.mp.seats[m.mp.seats.length - 1]?.constituency;
     const years = m.mp.firstYear && m.mp.lastYear ? ` (${m.mp.firstYear} to ${m.mp.lastYear})` : '';
     return {
-      title: fitTitle(...(seat ? [`${m.mp.name}, former MP for ${seat}`] : []), `${m.mp.name}, former MP`),
-      description: metaDescription(`${m.mp.name}${m.mp.party ? `, ${m.mp.party}` : ''}, former MP${seat ? ` for ${seat}` : ''}${years}. Seats held and dates served, from UK Parliament's record.`),
+      // Owner's brief, 3 Nov 2026: "<Name>: record and interests" for former MPs.
+      title: titleWithin(`${m.mp.name}: record and interests`),
+      description: metaDescription(`${m.mp.name}${m.mp.party ? `, ${m.mp.party}` : ''}, former MP${seat ? ` for ${seat}` : ''}${years}: seats held, dates served and any Standards findings, from UK Parliament's record.`),
       alternates: { canonical: `/mps/${memberId}` },
     };
   }
@@ -136,46 +139,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const untilYear = mp.end_date ? new Date(mp.end_date).getFullYear() : null;
   const isFormer = mp.current_member === false;
 
-  // Former MPs (left the Commons) read "former MP for X (2015–2026)" rather than
-  // "MP for X since 2015".
-  const head = isFormer
-    ? `${name}, ${[party, mp.constituency && `former MP for ${mp.constituency}${sinceYear && untilYear ? ` (${sinceYear} to ${untilYear})` : ''}`].filter(Boolean).join(', ')}.`
-    : `${name}, ${[party, mp.constituency && `MP for ${mp.constituency}`].filter(Boolean).join(', ')}${sinceYear ? ` since ${sinceYear}` : ''}.`;
-
-  const facts: string[] = [];
+  // One plain sentence from the data (owner's brief, 3 Nov 2026): who the MP is, then what the page lists, with counts.
+  const who = `${name}, ${[party, mp.constituency && `${isFormer ? 'former ' : ''}MP for ${mp.constituency}`].filter(Boolean).join(' ')}`
+    + (isFormer ? (sinceYear && untilYear ? ` from ${sinceYear} to ${untilYear}` : '') : (sinceYear ? ` since ${sinceYear}` : ''));
+  const lists: string[] = [];
   const vc = Number((votesCountRes.data as { aye_no?: number } | null)?.aye_no) || 0;
-  if (vc > 0) facts.push(`${vc} votes cast`);
+  if (vc > 0) lists.push(`voting record (${vc.toLocaleString('en-GB')} votes)`);
   const ic = interestsCountRes.count ?? 0;
-  if (ic > 0) facts.push(`${ic} registered interest${ic === 1 ? '' : 's'}`);
-  const lv = lastVoteRes.data;
-  if (lv?.division_title && lv?.division_date) {
-    const d = new Date(lv.division_date);
-    if (!Number.isNaN(d.getTime())) {
-      facts.push(`last voted on ${lv.division_title} (${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })})`);
-    }
-  }
+  if (ic > 0) lists.push(`${ic} registered interest${ic === 1 ? '' : 's'}`);
+  if ((expensesCountRes.count ?? 0) > 0) lists.push('expenses');
+  lists.push('contributions in Parliament');
+  const listed = lists.length > 1 ? `${lists.slice(0, -1).join(', ')} and ${lists[lists.length - 1]}` : lists[0];
+  const description = metaDescription(`${who}: ${listed}.`);
 
-  // Add facts while the whole description fits in a search result (160 characters); a fact
-  // that does not fit is left out rather than cut mid-sentence. A long division title is the
-  // usual one left out.
-  const kept: string[] = [];
-  for (const f of facts) {
-    const next = `${head} ${[...kept, f].join(', ')}.`;
-    if (next.length <= 160) kept.push(f);
-  }
-  const description = metaDescription(head + (kept.length ? ' ' + kept.join(', ') + '.' : ''));
-
-  // Title (owner's approval, 24 Oct 2026): the seat as well as the name, within 60 characters with the suffix
-  // (lib/seo-title.ts); "<name>, former MP" for a former member whose seat does not fit.
-  // A current MP's title always names the seat (24 Oct 2026): 87 of the 650 did not fit with " | opengovt" and fell
-  // back to "<name> MP", so those use "<name>, MP for <seat>" on its own, without the suffix, as long report
-  // headlines do. "<name> MP" is left only for an MP with no seat recorded.
-  const seatTitle = mp.constituency ? `${name}, MP for ${mp.constituency}` : null;
-  const title: Metadata['title'] = isFormer
-    ? fitTitle(...(mp.constituency ? [`${name}, former MP for ${mp.constituency}`] : []), `${name}, former MP`)
-    : seatTitle
-      ? seatTitle.length + TITLE_SUFFIX.length > TITLE_MAX ? { absolute: seatTitle } : seatTitle
-      : `${name} MP`;
+  // Title (owner's brief, 3 Nov 2026): "<Name> MP: expenses, votes and interests", or "<Name>: record and interests"
+  // for a former MP; with the " | opengovt" suffix when it fits in 60 characters, else on its own (lib/seo-title.ts).
+  const title: Metadata['title'] = titleWithin(isFormer ? `${name}: record and interests` : `${name} MP: expenses, votes and interests`);
 
   return {
     title,
@@ -285,7 +264,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         .select('id, mp_name_at_time, closed_date, outcome, rule_breached, summary, penalty, url, source')
         .eq('member_id', memberId)
         .order('closed_date', { ascending: false });
-      return <FormerMpProfile mp={m.mp} conductFindings={findings ?? []} />;
+      const formerReports = await mpReportItems(memberId).catch(() => []);
+      const related = formerReports.length ? [{ href: `/mps/${memberId}/reports`, label: `Reports on ${m.mp.name} (${formerReports.length})` }] : [];
+      return <FormerMpProfile mp={m.mp} conductFindings={findings ?? []} related={related} />;
     }
     if (m.kind === 'lords_only') permanentRedirect(parliamentMemberUrl(memberId));
     notFound();
@@ -707,13 +688,22 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   };
   const partyWhipSlug = PARTY_WHIP_SLUG[partyDisplay] ?? PARTY_WHIP_SLUG[mp.party ?? ''] ?? null;
 
+  const mpReports = await reportsFor(memberId, fullName);
+  const related = await mpRelated({
+    memberId,
+    name: fullName,
+    reportsCount: mpReports?.total ?? 0,
+    constituencyGss: mp.current_member === false ? null : ((mp.constituency_gss_code as string | null) ?? null),
+    interestsCount: (interestsRes.data || []).filter((r) => (r as { is_current?: boolean }).is_current !== false).length,
+    votesCount: Number(voteCounts.all_votes ?? votesWithSi.length) || 0,
+  });
+
   return (
     <>
       <JsonLd data={buildMpPerson({
         memberId,
         fullName,
         party: partyDisplay || mp.party,
-        constituency: mp.constituency,
         photoUrl: mp.photo_url,
         former: mp.current_member === false,
       })} />
@@ -785,13 +775,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         committeeMemberships: committeeMembershipsRes.data ?? [],
         petitionsAvailable,
         edms: mpEdms,
-        reports: await reportsFor(memberId, fullName),
+        reports: mpReports,
         lastUpdated: sectionUpdated,
       }}
       footer={
         <>
         {/* Newsletter sign-up at the end of the profile, for readers who are not signed in (report 81). */}
         <ArticleEndSignup source="data-mp-profile" line={DATA_SIGNUP_LINE} />
+        {/* The compact Related line, last of the visible content (owner's brief, 3 Nov 2026; lib/related-links.ts). */}
+        <RelatedLine links={related} />
         {/* Server-rendered RelatedLinks: same-party MPs, sponsored bills,
            recent votes, party page, optional ministerial dept. Lands as
            crawlable <a href> tags in static HTML for SEO. Wrapped in an

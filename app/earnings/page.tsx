@@ -11,9 +11,10 @@ import {
 import { displayMpName } from '@/lib/mp-name';
 
 export const metadata: Metadata = {
-  title: "UK MP Earnings vs Public Spend, Salary, Outside Earnings & IPSA Costs",
+  // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
+  title: "MPs' earnings: salary, outside pay and costs",
   description:
-    "Every UK MP's personal earnings (base salary, ministerial supplement, outside earnings from the Register of Financial Interests) set side by side with their public spend.",
+    "Every MP's pay set beside their public costs: the MP salary and any ministerial pay, outside earnings from the Register of Members' Financial Interests, and business costs from IPSA.",
   alternates: { canonical: '/earnings' },
 }
 

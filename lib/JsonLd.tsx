@@ -19,12 +19,15 @@ interface Props {
   data: JsonLdValue;
 }
 
+// JSON.stringify handles unicode + escaping; the only sequence we have to guard against inside a <script> body is the
+// literal "</", which would close the tag. Replace with a Unicode-escaped form that's identical when parsed back as
+// JSON. Exported for scripts/checks/json-ld-check.ts, which parses every block the builders make (run before builds).
+export function serialiseJsonLd(data: JsonLdValue): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
 export default function JsonLd({ data }: Props): ReactElement {
-  // JSON.stringify handles unicode + escaping; the only sequence we
-  // have to guard against inside a <script> body is the literal "</",
-  // which would close the tag. Replace with a Unicode-escaped form
-  // that's identical when parsed back as JSON.
-  const serialised = JSON.stringify(data).replace(/</g, '\\u003c');
+  const serialised = serialiseJsonLd(data);
   return (
     <script
       type="application/ld+json"
@@ -35,14 +38,34 @@ export default function JsonLd({ data }: Props): ReactElement {
 
 // ----- Schema builders -----------------------------------------------
 
-export function buildHomepageGraph() {
-  // The site-wide WebSite node (with its SearchAction) is emitted once in the
-  // root layout on EVERY page. The homepage therefore only adds the Organization
-  // node here — emitting a second WebSite was a duplicate flagged in the SEO
-  // audit and has been removed.
+// The site-wide graph, on every page from the root layout (owner's brief, 3 Nov 2026): the WebSite, with its
+// SearchAction pointing at /search?q=, and the Organization (opengovt, with its logo). The homepage used to add the
+// Organization on its own; it is now here once, for every page.
+export function buildSiteGraph() {
   return {
     '@context': 'https://schema.org',
     '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${SITE}/#website`,
+        name: 'opengovt',
+        alternateName: ['Open Govt', 'OpenGovt', 'opengovt.uk'],
+        url: SITE,
+        description: 'Independent UK Parliament tracker and government transparency record.',
+        inLanguage: 'en-GB',
+        publisher: { '@id': `${SITE}/#org` },
+        about: [
+          { '@type': 'Thing', name: 'UK politics' },
+          { '@type': 'Thing', name: 'UK government transparency' },
+          { '@type': 'Thing', name: 'Members of Parliament' },
+          { '@type': 'Thing', name: 'Government departments' },
+        ],
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `${SITE}/search?q={search_term_string}`,
+          'query-input': 'required name=search_term_string',
+        },
+      },
       {
         '@type': 'Organization',
         '@id': `${SITE}/#org`,
@@ -102,6 +125,8 @@ export function buildEditorialArticle(opts: {
   author?: string | null;
   /** evidence.lastChecked, as written ("23 October 2026" or ISO); dateModified falls back to datePublished. */
   lastChecked?: string | null;
+  /** The MPs the piece names (relatedMemberIds), each with their opengovt page (owner's brief, 3 Nov 2026). */
+  mentions?: { memberId: number; name: string }[];
 }) {
   const published = opts.datePublished ? editorialDateIso(opts.datePublished) : null;
   const modified = editorialModifiedIso(opts.lastChecked, opts.datePublished);
@@ -129,6 +154,9 @@ export function buildEditorialArticle(opts: {
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE}/editorials/${opts.slug}` },
     url: `${SITE}/editorials/${opts.slug}`,
+    ...(opts.mentions?.length
+      ? { mentions: opts.mentions.map((m) => ({ '@type': 'Person', name: m.name, url: `${SITE}/mps/${m.memberId}` })) }
+      : {}),
   };
 }
 
@@ -157,34 +185,29 @@ export function buildBreadcrumbs(items: { name: string; path: string }[]) {
   };
 }
 
-// MP profiles (owner, 1 Nov 2026): jobTitle "Member of Parliament for <constituency>" ("Former Member of Parliament
-// for" when the page shows a former member), the party as an affiliated Organization, and sameAs the member's page on
-// members.parliament.uk. Only values already on the page.
+// MP profiles (owner's brief, 3 Nov 2026): name, url and sameAs the member's page on members.parliament.uk for every
+// MP; for a current MP only, jobTitle "Member of Parliament", the party as memberOf (an Organization) and the House of
+// Commons as affiliation (a former member's party and seat are history, so neither is claimed). Only values already on
+// the page.
 export function buildMpPerson(opts: {
   memberId: number;
   fullName: string;
   party: string | null;
-  constituency: string | null;
-  photoUrl: string | null;
+  photoUrl?: string | null;
   former?: boolean;
 }) {
-  const role = opts.former ? 'Former Member of Parliament' : 'Member of Parliament';
-  const jobTitle = opts.constituency ? `${role} for ${opts.constituency}` : role;
+  const current = !opts.former;
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
     '@id': `${SITE}/mps/${opts.memberId}#person`,
     name: opts.fullName,
-    jobTitle,
-    affiliation: opts.party
-      ? { '@type': 'Organization', name: opts.party }
-      : undefined,
+    ...(current ? { jobTitle: 'Member of Parliament' } : {}),
+    ...(current && opts.party ? { memberOf: { '@type': 'Organization', name: opts.party } } : {}),
+    ...(current
+      ? { affiliation: { '@type': 'GovernmentOrganization', name: 'House of Commons', url: 'https://www.parliament.uk/business/commons/' } }
+      : {}),
     sameAs: [`https://members.parliament.uk/member/${opts.memberId}`],
-    worksFor: {
-      '@type': 'GovernmentOrganization',
-      name: 'Parliament of the United Kingdom',
-      url: 'https://www.parliament.uk/',
-    },
     image: opts.photoUrl || undefined,
     url: `${SITE}/mps/${opts.memberId}`,
   };

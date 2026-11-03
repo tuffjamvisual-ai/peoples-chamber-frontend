@@ -11,6 +11,8 @@ import ReadNext from './ReadNext';
 import ArticleEndSignup from './ArticleEndSignup';
 import type { ReadNextLink } from '@/lib/read-next';
 import ExploreNext from './ExploreNext';
+import RelatedLine from './RelatedLine';
+import type { RelatedLink } from '@/lib/related-links';
 import KeyStat from './KeyStat';
 import DataBlock from './DataBlock';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
@@ -22,7 +24,7 @@ const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
-export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [] }: { piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
+export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [], related }: { related?: RelatedLink[]; piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
   const sources = piece.evidence?.recordsReviewed ?? [];
   return (
     <OpenGovShell pageStamp={stamp}>
@@ -105,20 +107,26 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
           {/* Newsletter sign-up after the sources, for readers who are not signed in (report 80). */}
           <ArticleEndSignup source={`article-end-${basePath.slice(1)}`} />
-          {/* Read next once, after the sign up and before the evidence (owner's request, 25 Oct 2026; order 30 Oct 2026). */}
-          <ReadNext links={readNext} />
+          {/* Read next once, after the sign up and before the evidence (owner's request, 25 Oct 2026; order 30 Oct 2026).
+              Reports pass `related` instead (owner's brief, 3 Nov 2026): the compact one line Related block takes the
+              Read next box's place, merged into it rather than added (app/components/RelatedLine.tsx). */}
+          {related ? <RelatedLine links={related} /> : <ReadNext links={readNext} />}
         </article>
 
       </div>
 
 
-      <RelatedLinks
-        variant="editorial"
-        relatedDeptSlugs={piece.relatedDeptSlugs}
-        relatedMemberIds={piece.relatedMemberIds}
-        relatedBillIds={piece.relatedBillIds}
-        relatedProgrammeSlugs={piece.relatedProgrammeSlugs}
-      />
+      {/* Reports with the compact Related line (owner's brief, 3 Nov 2026) do not repeat its MPs in a second "Related"
+          section: one related block per page. Briefings keep this section. */}
+      {!related && (
+        <RelatedLinks
+          variant="editorial"
+          relatedDeptSlugs={piece.relatedDeptSlugs}
+          relatedMemberIds={piece.relatedMemberIds}
+          relatedBillIds={piece.relatedBillIds}
+          relatedProgrammeSlugs={piece.relatedProgrammeSlugs}
+        />
+      )}
 
       <ExploreNext piece={piece} />
 

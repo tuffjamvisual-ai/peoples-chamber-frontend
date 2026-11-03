@@ -7,7 +7,7 @@ import { metaDescription } from '@/lib/meta-description';
 import { TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
 import { notFound, permanentRedirect } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
-import { editorialReadNext } from '@/lib/read-next';
+import { editorialRelated, namedMps } from '@/lib/related-links';
 import { getEditorial, editorialSlugsFor } from '@/lib/editorials-source';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import JsonLd, { buildEditorialArticle, buildBreadcrumbs } from '@/lib/JsonLd';
@@ -64,20 +64,29 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
   const piece = (await getEditorial(slug)) as EditorialEntry | undefined;
   if (!piece) notFound();
   if (piece.kind === 'briefing') permanentRedirect(`/briefings/${slug}`);
+  // The MPs the piece names: the NewsArticle's mentions and the first of the Related links (owner's brief, 3 Nov 2026).
+  // A failed read leaves both without them.
+  const mps = await namedMps(piece.relatedMemberIds).catch((e) => {
+    console.error(`/editorials/${slug} named MPs:`, e instanceof Error ? e.message : String(e));
+    return [];
+  });
+  const related = await editorialRelated(piece, mps);
   return (
     <>
       <JsonLd
         data={buildEditorialArticle({
           slug,
           headline: piece.headline,
-          description: piece.standfirst ?? null,
+          // The same text as the meta description: the summary where the piece has one (owner's brief, 3 Nov 2026).
+          description: piece.summary?.trim() ? piece.summary : (piece.standfirst ?? null),
           datePublished: piece.publishedAt ?? null,
           author: piece.authorByline ?? null,
           lastChecked: piece.evidence?.lastChecked ?? null,
+          mentions: mps,
         })}
       />
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Reports', path: '/reports' }, { name: piece.headline, path: `/editorials/${slug}` }])} />
-      <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/editorials" readNext={await editorialReadNext(piece)} />
+      <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/editorials" related={related} />
     </>
   );
 }
