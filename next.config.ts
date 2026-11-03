@@ -197,6 +197,17 @@ const nextConfig: NextConfig = {
     // which would otherwise force re-fetch every minute.
     minimumCacheTTL: 31536000,
   },
+  // PostHog through the site's own address (owner's brief, 3 Nov 2026): the project is in PostHog's EU region
+  // (NEXT_PUBLIC_POSTHOG_HOST is eu.i.posthog.com), so its EU hosts. app/components/PostHogLoader.tsx sends to /ingest.
+  // The static rule must come before the catch all. skipTrailingSlashRedirect is not set: PostHog's guide adds it only
+  // to save a 308 round trip on its slash ending paths (events still arrive), and it would stop the trailing slash
+  // redirect for every page of the site.
+  async rewrites() {
+    return [
+      { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },
+      { source: '/ingest/:path*', destination: 'https://eu.i.posthog.com/:path*' },
+    ];
+  },
   async headers() {
     return [
       // Only www.opengovt.uk is indexed (owner, 28 Oct 2026): the vercel.app address and preview deployments carry

@@ -3,9 +3,12 @@
 // PostHog (EU Cloud) page by page tracking, loaded ONLY after a visitor accepts additional cookies (owner's approval,
 // 29 Oct 2026). Until then posthog-js is not even downloaded. Pageviews and pageleaves only: no autocapture, session
 // recording or surveys; never identify, so no person profile and no name or email is sent. Every URL property loses its
-// query string and hash before sending, so no reset token, email or search term leaves the browser; nothing is sent from
-// /admin, /internal, /account or /reset-password. If the visitor later rejects, capturing stops and every ph_* cookie
-// and storage key is deleted. Vercel Web Analytics and Speed Insights are separate and unchanged.
+// query string and hash before sending, so no reset token, email or search term leaves the browser in a URL; nothing is
+// sent from /admin, /internal, /account or /reset-password. If the visitor later rejects, capturing stops and every ph_*
+// cookie and storage key is deleted. Vercel Web Analytics and Speed Insights are separate and unchanged.
+// Since 3 Nov 2026 (owner's brief): events go through the site's own /ingest path (rewrites in next.config.ts, EU
+// region), and one custom event, "search" (app/search/SearchTracker.tsx), sends the submitted query with any email
+// address or UK postcode removed (lib/search-analytics.ts), through captureEvent below, under the same consent check.
 import { useEffect } from 'react';
 import type { PostHog, CaptureResult } from 'posthog-js';
 import { CONSENT_EVENT, readConsent, clearAnalyticsStorage, type ConsentPolicy } from '@/lib/cookie-consent';
@@ -38,10 +41,12 @@ function beforeSend(event: CaptureResult | null): CaptureResult | null {
 let client: PostHog | null = null;
 let loading: Promise<void> | null = null;
 
+// PostHog's EU app, for links from the toolbar (the events themselves go through /ingest, next.config.ts).
+const UI_HOST = 'https://eu.posthog.com';
+
 function start() {
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-  const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
-  if (!key || !host) return;
+  if (!key) return;
   if (client) {
     client.opt_in_capturing();
     return;
@@ -55,7 +60,8 @@ function start() {
   }
   loading = import('posthog-js').then(({ default: posthog }) => {
     posthog.init(key, {
-      api_host: host,
+      api_host: '/ingest',
+      ui_host: UI_HOST,
       person_profiles: 'identified_only',
       capture_pageview: 'history_change',
       capture_pageleave: true,
@@ -68,6 +74,16 @@ function start() {
     });
     client = posthog;
   });
+}
+
+// A custom event, sent only while the visitor has accepted additional cookies (before_send checks again at sending). If
+// PostHog has not started yet on this page but consent is given, it is started first; without consent nothing happens.
+export function captureEvent(name: string, properties: Record<string, unknown>) {
+  if (readConsent()?.analytics !== true) return;
+  const send = () => { if (client && readConsent()?.analytics === true) client.capture(name, properties); };
+  if (client) { send(); return; }
+  if (!loading) start();
+  loading?.then(send);
 }
 
 function stop() {

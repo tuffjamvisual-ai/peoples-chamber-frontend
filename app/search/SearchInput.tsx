@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { noteSearch } from '@/lib/search-note';
+import { SUBMITTED_SEARCH_KEY } from '@/lib/search-analytics';
 import { useRouter } from 'next/navigation';
 import { departments } from '@/lib/departments';
 
@@ -51,6 +52,9 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
     // The sign up note's count, at the moment of the search (lib/search-note.ts), so the note never moves the results
     // after they have been drawn.
     noteSearch(q);
+    // Marks this query as submitted, so the results page sends one "search" event for it (with consent only;
+    // app/search/SearchTracker.tsx). Arriving from a link or a filter sends none.
+    try { window.sessionStorage.setItem(SUBMITTED_SEARCH_KEY, q.trim()); } catch { /* storage unavailable */ }
     navigate(q, defaultType, dept, defaultSort);
   }
 

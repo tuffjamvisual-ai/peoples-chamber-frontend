@@ -44,7 +44,7 @@ export default function CookiesPage() {
 
         <h2 style={h2}>Cookies that measure website use</h2>
         <p style={p}>
-          With your permission, we use PostHog to see which pages you visit and in what order, so we can improve the site. The data is stored in the EU, kept for one year and never used for advertising.
+          With your permission, we use PostHog to see which pages you visit and in what order, and what you search for on the site (with any email address or postcode removed), so we can improve the site. The data is stored in the EU, kept for one year and never used for advertising.
         </p>
 
         <p style={p}>

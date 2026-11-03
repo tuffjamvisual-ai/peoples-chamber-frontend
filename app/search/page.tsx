@@ -4,6 +4,7 @@ import BackLink from '../components/BackLink';
 import SearchInput from './SearchInput';
 import SignupNote from './SignupNote';
 import SaveSearchButton from './SaveSearchButton';
+import SearchTracker from './SearchTracker';
 import { SEARCH_NOTE_JS } from '@/lib/search-note';
 import { searchContent, searchCouncils, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
@@ -294,6 +295,9 @@ export default async function SearchPage({ searchParams }: PageProps) {
       <script dangerouslySetInnerHTML={{ __html: `${SEARCH_NOTE_JS}window.__ogNoteSearch(${JSON.stringify(q)});` }} />
       {/* Signed in members can save the search (job 74 Part 5); lists and alerts are on /preferences. */}
       <SaveSearchButton q={q} type={type} dept={dept} from={from} to={to} sort={sort} />
+      {/* The "search" analytics event for a submitted search, with consent only; the count is every result shown or
+          counted on this page (content, councils, organisations, donor names). */}
+      <SearchTracker q={q} resultsCount={results.length + councils.length + orgMatches.length + (donorSearch.more ? donorSearch.totalNames : linkedDonors.length)} />
 
       {q.length >= 2 && results.length === 0 && councils.length === 0 && donors.length === 0 && orgs.length === 0 && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
