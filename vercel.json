@@ -61,6 +61,10 @@
       "schedule": "13 9 * * *"
     },
     {
+      "path": "/api/sync-bill-sponsors",
+      "schedule": "27 21 * * *"
+    },
+    {
       "path": "/api/sync-civil-service-salaries",
       "schedule": "53 9 * * 1"
     },

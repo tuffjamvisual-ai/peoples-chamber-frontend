@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { findLatestRelease, download, parseRelease, writeRelease, storedMonth, loadCouncilCodes } from '@/lib/connectivity';
+import { findLatestRelease, download, parseRelease, writeRelease, storedMonth, loadCouncilCodes, type PageSeen } from '@/lib/connectivity';
 import { isPoliteStop } from '@/lib/sync-budget';
 import { refreshCouncilRoutes } from '@/lib/council-refresh';
 import { isDryRun } from '@/lib/mp-refresh';
@@ -21,8 +21,14 @@ async function GET_impl(req: Request) {
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
+  // Every Ofcom page read and its HTTP status, logged with any 500 (owner, 3 Nov 2026: the 1 Nov failure left no trace).
+  const seen: PageSeen[] = [];
+  const fail = (body: Record<string, unknown>) => {
+    console.error(`[sync-connectivity] 500: ${JSON.stringify(body)}; Ofcom pages: ${seen.length ? seen.map((p) => `${p.url} ${p.status}`).join('; ') : 'none read'}`);
+    return NextResponse.json(body, { status: 500 });
+  };
   try {
-    const [rel, stored] = await Promise.all([findLatestRelease(), storedMonth(supabase)]);
+    const [rel, stored] = await Promise.all([findLatestRelease(new Date(), seen), storedMonth(supabase)]);
     if (stored && rel.month <= stored) return NextResponse.json({ status: 'up_to_date', data_month: stored, rows_written: 0 });
     // A local dry run (?dry=1, never on production) stops here: a newer release was found, so the council pages would be refreshed.
     if (isDryRun(req)) return NextResponse.json({ dry_run: true, status: 'would_update', would_refresh: ['/councils/[slug]'] });
@@ -30,13 +36,13 @@ async function GET_impl(req: Request) {
     const fixedZip = await download(rel.fixedUrl);
     const mobileZip = rel.mobileUrl ? await download(rel.mobileUrl) : null;
     const r = parseRelease(rel, fixedZip, mobileZip, codes);
-    if (r.unmatched.length) return NextResponse.json({ error: 'unmatched_codes', codes: r.unmatched, data_month: rel.month }, { status: 500 });
+    if (r.unmatched.length) return fail({ error: 'unmatched_codes', codes: r.unmatched, data_month: rel.month });
     const written = await writeRelease(supabase, r);
     const refreshed = refreshCouncilRoutes(written);
     return NextResponse.json({ status: 'updated', data_month: rel.month, previous_month: stored, rows_written: written, refreshed });
   } catch (e) {
     if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
-    return NextResponse.json({ error: 'sync_failed', message: (e as Error).message }, { status: 500 });
+    return fail({ error: 'sync_failed', message: (e as Error).message });
   }
 }
 

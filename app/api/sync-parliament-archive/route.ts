@@ -609,20 +609,33 @@ const PAGE = 100;
 // Questions: the copy with the latest date_answered, or else the last one seen.
 const laterAnswer = (a: Record<string, unknown>, b: Record<string, unknown>) => String(a.date_answered ?? '') >= String(b.date_answered ?? '');
 
-async function runQuestions(run: Run, s: State, from: string, until: string, topUp: boolean) {
+// onlyMissing (local tests only, ?missing_only=1): ids already stored are not fetched again (owner, 3 Nov 2026: the
+// recovery of questions skipped before the fix, scripts/recover-written-question-days.js).
+async function runQuestions(run: Run, s: State, from: string, until: string, topUp: boolean, onlyMissing = false) {
   const base = run.rows;
   let cur: QCursor = (!topUp && s.cursor && typeof s.cursor.date === 'string') ? (s.cursor as QCursor) : { date: from };
   if (cur.date < from) cur = { date: from };
   const rowsDone = () => (s.rows_done ?? 0) + run.rows - base;
   const save = async () => { await run.saveState({ ...s, cursor: topUp ? s.cursor : cur, rows_done: rowsDone(), last_error: null }); };
+  // Questions read but not yet written. The cursor moves past each question as it is read, so whenever a run stops
+  // (time budget), times out or is refused, these are written before the cursor is saved (owner, 3 Nov 2026: before,
+  // up to 19 questions were skipped at each stop). If that write fails, the cursor is not saved and they are read again.
+  const batch: Record<string, unknown>[] = [];
+  const flush = () => run.upsert('parliament_written_questions', 'id', batch.splice(0), 'questions', laterAnswer);
   try {
     while (cur.date <= until) {
       if (!cur.ids) {
         const page = await run.getJson<{ totalResults: number; results: { value: { id: number } }[] }>(`${QUESTIONS}/questions?tabledWhenFrom=${cur.date}&tabledWhenTo=${cur.date}&take=${PAGE}&skip=${cur.skip ?? 0}`);
-        cur = { date: cur.date, skip: cur.skip ?? 0, ids: page.results.map((r) => r.value.id), next: 0 };
+        let ids = page.results.map((r) => r.value.id);
+        if (onlyMissing && ids.length) {
+          const { data, error } = await run.db.from('parliament_written_questions').select('id').in('id', ids);
+          if (error) throw new Error(`stored ids read: ${error.message}`);
+          const stored = new Set((data ?? []).map((r: { id: number }) => r.id));
+          ids = ids.filter((id) => !stored.has(id));
+        }
+        cur = { date: cur.date, skip: cur.skip ?? 0, ids, next: 0 };
         (cur as QCursor & { total?: number }).total = page.totalResults;
       }
-      const batch: Record<string, unknown>[] = [];
       while ((cur.next ?? 0) < (cur.ids ?? []).length) {
         const id = (cur.ids ?? [])[cur.next ?? 0];
         const q = (await run.getJson<{ value: WQ }>(`${QUESTIONS}/questions/${id}`)).value;
@@ -636,9 +649,9 @@ async function runQuestions(run: Run, s: State, from: string, until: string, top
           fetched_at: new Date().toISOString(),
         });
         cur.next = (cur.next ?? 0) + 1;
-        if (batch.length >= 20) { await run.upsert('parliament_written_questions', 'id', batch.splice(0), 'questions', laterAnswer); if (!topUp) await save(); }
+        if (batch.length >= 20) { await flush(); if (!topUp) await save(); }
       }
-      await run.upsert('parliament_written_questions', 'id', batch.splice(0), 'questions', laterAnswer);
+      await flush();
       const total = (cur as QCursor & { total?: number }).total ?? 0;
       const nextSkip = (cur.skip ?? 0) + PAGE;
       cur = nextSkip < total ? { date: cur.date, skip: nextSkip } : { date: addDays(cur.date, 1) };
@@ -647,6 +660,8 @@ async function runQuestions(run: Run, s: State, from: string, until: string, top
     await run.saveState({ ...s, cursor: topUp ? s.cursor : { date: until }, rows_done: rowsDone(), last_error: null, finished_at: topUp ? s.finished_at : (s.finished_at ?? new Date().toISOString()) });
     return 'done';
   } catch (e) {
+    // A stop, a timeout (SourceRefused) or a refusal: the questions already read are written first, then the cursor.
+    if (e instanceof StopRun || e instanceof SourceRefused) await flush();
     if (e instanceof StopRun) { await save(); return 'partial'; }
     if (e instanceof SourceRefused) { await run.saveState({ ...s, cursor: topUp ? s.cursor : cur, rows_done: rowsDone(), last_error: `${e.message} at ${new Date().toISOString()}` }); return 'refused'; }
     throw e;
@@ -667,7 +682,8 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise
 //   ?source=speeches|questions|debates&date=YYYY-MM-DD fetches that one day (as a top up, so no cursor is touched);
 //   with source=debates, &only=GUID,GUID stores just those debates with their parents and children;
 //   ?source=refetch&guid=GUID re-fetches one stored id; ?budget_ms shortens the run;
-//   &dry=1 reads and writes nothing in the database and returns the rows it would write.
+//   &dry=1 reads and writes nothing in the database and returns the rows it would write;
+//   with source=questions, &missing_only=1 fetches only the day's questions not already stored.
 function testOptions(req: Request) {
   if (process.env.VERCEL_ENV === 'production') return null;
   const u = new URL(req.url);
@@ -676,10 +692,11 @@ function testOptions(req: Request) {
   const guid = u.searchParams.get('guid');
   const dry = u.searchParams.get('dry') === '1';
   const budgetMs = Number(u.searchParams.get('budget_ms')) || BUDGET_MS;
-  if (source === 'refetch' && guid && /^[0-9A-Fa-f-]{36}$/.test(guid)) return { source, date: '', guid: up(guid)!, only: null, dry, budgetMs };
+  const missingOnly = u.searchParams.get('missing_only') === '1';
+  if (source === 'refetch' && guid && /^[0-9A-Fa-f-]{36}$/.test(guid)) return { source, date: '', guid: up(guid)!, only: null, dry, budgetMs, missingOnly: false };
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || (source !== 'speeches' && source !== 'questions' && source !== 'debates')) return null;
   const only = u.searchParams.get('only');
-  return { date, source, guid: null, only: only ? new Set(only.split(',').map((g) => up(g)!).filter(Boolean)) : null, dry, budgetMs };
+  return { date, source, guid: null, only: only ? new Set(only.split(',').map((g) => up(g)!).filter(Boolean)) : null, dry, budgetMs, missingOnly };
 }
 
 async function GET_impl(req: Request) {
@@ -705,7 +722,7 @@ async function GET_impl(req: Request) {
     else {
       const s = await run.state(test.source === 'debates' ? 'speeches' : test.source);
       results[test.source] = test.source === 'questions'
-        ? await runQuestions(run, s, test.date, test.date, true)
+        ? await runQuestions(run, s, test.date, test.date, true, test.missingOnly && !test.dry)
         : await runDays(run, s, test.date, test.date, true, test.only ?? undefined);
     }
   } else {

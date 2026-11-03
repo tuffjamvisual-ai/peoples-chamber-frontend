@@ -112,7 +112,7 @@ export const ANNUAL_REPORTS: { department: string; org: string; title: RegExp; c
   { department: 'DCMS', org: 'department-for-culture-media-and-sport', title: /\bdcms\b|department for culture/i, checked: '2025 to 2026' },
   { department: 'Scotland Office', org: 'office-of-the-secretary-of-state-for-scotland', title: /scotland office/i, checked: '2025 to 2026' },
   { department: 'DSIT', org: 'department-for-science-innovation-technology', title: /\bdsit\b|science, innovation/i, checked: '2025 to 2026' },
-  { department: 'DHSC', org: 'department-of-health-and-social-care', title: /\bdhsc\b|department of health/i, checked: '2024 to 2025' },
+  { department: 'DHSC', org: 'department-of-health-and-social-care', title: /\bdhsc\b|department of health/i, checked: '2025 to 2026' },
   { department: 'DfE', org: 'department-for-education', title: /department for education|\bdfe\b/i, checked: '2024 to 2025' },
   { department: 'NIO', org: 'northern-ireland-office', title: /northern ireland office|\bnio\b/i, checked: '2024 to 2025' },
   { department: 'MoJ', org: 'ministry-of-justice', title: /ministry of justice|\bmoj\b/i, checked: '2024 to 2025' },

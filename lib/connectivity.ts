@@ -31,12 +31,22 @@ function candidatePages(now: Date): string[] {
   return out;
 }
 
-export async function findLatestRelease(now = new Date()): Promise<Release> {
+// seen (optional) gets each Ofcom page read and its HTTP status, or the error that stopped the request, so a failing
+// run can log what Ofcom answered (owner, 3 Nov 2026).
+export type PageSeen = { url: string; status: number | string };
+export async function findLatestRelease(now = new Date(), seen: PageSeen[] = []): Promise<Release> {
   const fixed = new Map<string, string>();
   const mobile = new Map<string, string>();
   const pages: string[] = [];
   for (const page of candidatePages(now)) {
-    const res = await politeFetch(page, { headers: UA });
+    let res: Response;
+    try {
+      res = await politeFetch(page, { headers: UA });
+    } catch (e) {
+      seen.push({ url: page, status: (e as Error).message });
+      throw e;
+    }
+    seen.push({ url: page, status: res.status });
     if (!res.ok) continue;
     pages.push(page);
     const html = await res.text();
