@@ -29,36 +29,19 @@ const SUPABASE_URL = 'https://nwnsvnbudmfkhhwcjwwr.supabase.co';
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, { realtime: { transport: ws } });
 
-const API_BASE = 'https://api.company-information.service.gov.uk';
-const AUTH_HEADER = 'Basic ' + Buffer.from(API_KEY + ':').toString('base64');
+// The request helper (auth, 429 backoff) lives in scripts/lib/companies-house.js, shared with
+// scripts/fetch-companies-house-profiles.js (3 Nov 2026); its behaviour is unchanged.
+const { makeClient, sleep } = require('./lib/companies-house');
+const fetchCH = makeClient(API_KEY);
 const DELAY_MS = 300;
 const PROGRESS_FILE = '/tmp/companies-house-progress.json';
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function loadProgress() {
   try { return JSON.parse(fs.readFileSync(PROGRESS_FILE, 'utf8')); } catch { return { candidates: null, doneCandidates: [], rows: [] }; }
 }
 function saveProgress(p) { fs.writeFileSync(PROGRESS_FILE, JSON.stringify(p, null, 2)); }
 
-async function fetchCH(path) {
-  // Backoff on 429. Otherwise 4xx returns null (treated as "no data"),
-  // 5xx throws so the outer loop can retry/skip.
-  for (let attempt = 0; attempt < 6; attempt++) {
-    const res = await fetch(API_BASE + path, { headers: { Authorization: AUTH_HEADER, Accept: 'application/json' } });
-    if (res.status === 429) {
-      const wait = 2000 * Math.pow(2, attempt); // 2s, 4s, 8s, 16s, 32s, 64s
-      console.warn(`  CH rate limited, sleeping ${wait}ms`);
-      await sleep(wait);
-      continue;
-    }
-    if (res.status === 404) return null;
-    if (res.status === 401) throw new Error('CH 401 — API key rejected');
-    if (!res.ok) throw new Error(`CH HTTP ${res.status} on ${path}`);
-    return res.json();
-  }
-  throw new Error('CH rate limit exceeded after 6 retries');
-}
 
 function extractCompanyName(category, summary) {
   if (!summary) return null;
