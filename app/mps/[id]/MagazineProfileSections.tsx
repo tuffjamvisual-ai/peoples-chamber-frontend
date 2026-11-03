@@ -271,6 +271,8 @@ interface Props {
   voteQuery?: string;
   sponsoredBills: Bill[];
   interests: Interest[];
+  /** Entries no longer on the register (is_current false), newest last listing first; never in the headline figures. */
+  formerInterests?: Array<{ category_name: string; interest_text: string | null; last_seen_date: string | null }>;
   donations?: Donation[];
   donorOtherRecipients?: DonorOtherRecipients[];
   sectorCrossRef?: SectorCrossRefEntry[];
@@ -524,6 +526,7 @@ export default function MagazineProfileSections({
   voteQuery = '',
   sponsoredBills,
   interests,
+  formerInterests = [],
   declaredDonations = { total: 0, entryCount: 0, asOf: null },
   donations = [],
   donorOtherRecipients = [],
@@ -581,7 +584,7 @@ export default function MagazineProfileSections({
     house: contributions.length > 0,
     petitions: petitionsAvailable,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
-    interests: interests.length > 0 || staffInterests.length > 0,
+    interests: interests.length > 0 || staffInterests.length > 0 || formerInterests.length > 0,
     roles: !!(
       (spadAdvisers?.rows.length ?? 0) > 0 ||
       committeeMemberships.length > 0 ||
@@ -1533,6 +1536,27 @@ export default function MagazineProfileSections({
                   </ul>
                 </section>
               ))}
+              {formerInterests.length > 0 && (
+                <details style={{ marginBottom: '20px' }}>
+                  <summary style={{ cursor: 'pointer', userSelect: 'none' }}>
+                    <h3 style={{ ...sectionH3, display: 'inline', marginTop: '8px' }}>
+                      No longer on the register <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({formerInterests.length})</span>
+                    </h3>
+                  </summary>
+                  <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '8px 0' }}>
+                    Entries that appeared in the Register of Members&rsquo; Financial Interests published since March 2024 but are no longer listed.
+                  </p>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: '1.7' }}>
+                    {formerInterests.map((i, idx) => (
+                      <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
+                        <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>{i.category_name}</div>
+                        <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
+                        {i.last_seen_date && <div style={{ fontSize: '15px', fontStyle: 'italic', marginTop: '2px' }}>Last listed {fmtDate(`${i.last_seen_date.slice(0, 10)}T12:00:00Z`)}</div>}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
               <StaffInterests items={staffInterests} headingStyle={sectionH3} />
             </>
           );

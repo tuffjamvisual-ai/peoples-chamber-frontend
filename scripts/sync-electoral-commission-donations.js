@@ -59,7 +59,10 @@ function parseEcDate(v) {
   if (!Number.isFinite(ms)) return null;
   const d = new Date(ms);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toISOString().slice(0, 10);
+  // UK calendar date (owner, 3 Nov 2026): the Commission sends UK midnight, so UTC gave summer dates a day early.
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(d);
+  const part = (t) => (parts.find((x) => x.type === t) || {}).value || '';
+  return `${part('year').padStart(4, '0')}-${part('month')}-${part('day')}`;
 }
 
 function dq(tag, v) {

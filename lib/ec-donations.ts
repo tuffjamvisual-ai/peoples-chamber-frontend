@@ -65,6 +65,9 @@ export type ECResult = {
 
 export type ECResponse = { Total: number; Result: ECResult[] };
 
+// The Commission sends each date as /Date(ms)/: midnight on that calendar date in UK time, so a summer date arrives as
+// 23:00 UTC the day before. The date is read in Europe/London, giving the calendar date the Commission publishes (owner,
+// 3 Nov 2026: reading it in UTC stored summer dates a day early).
 export function parseEcDate(v: string | null | undefined): string | null {
   if (!v) return null;
   const m = String(v).match(/\/Date\((-?\d+)\)\//);
@@ -72,8 +75,10 @@ export function parseEcDate(v: string | null | undefined): string | null {
   const ms = parseInt(m[1], 10);
   const d = new Date(ms);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toISOString().slice(0, 10);
+  const part = (t: string) => UK_DATE.formatToParts(d).find((x) => x.type === t)?.value ?? '';
+  return `${part('year').padStart(4, '0')}-${part('month')}-${part('day')}`;
 }
+const UK_DATE = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' });
 
 export function mapRow(r: ECResult): Record<string, unknown> | null {
   if (!r.ECRef) return null;

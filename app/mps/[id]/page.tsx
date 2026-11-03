@@ -206,6 +206,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     ministerialRowsRes,
     outsideRowRes,
     committeeMembershipsRes,
+    formerInterestsRes,
   ] = await withTimeout(Promise.all([
     getMp(memberId),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
@@ -254,6 +255,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       // Ties in a fixed order (committee name, then start date), so the page is the same on every render.
       .order('committee_name', { ascending: true })
       .order('start_date', { ascending: true }),
+    // Entries no longer on the register (owner, 3 Nov 2026): shown collapsed below the current interests, newest last
+    // listing first. Never counted in the headline figures, which stay current only.
+    supabase
+      .from('mp_registered_interests')
+      .select('category_name, interest_text, last_seen_date')
+      .eq('member_id', memberId)
+      .eq('is_current', false)
+      .order('last_seen_date', { ascending: false, nullsFirst: false })
+      .order('interest_id', { ascending: false }),
   ]), 9000);
   if (!mp) {
     // Not in our mps table: a former MP gets a basic page from Parliament's record; a member who only sat in the Lords
@@ -775,6 +785,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         ),
         expenses: expensesRes.data || [],
         committeeMemberships: committeeMembershipsRes.data ?? [],
+        formerInterests: formerInterestsRes.data ?? [],
         petitionsAvailable,
         edms: mpEdms,
         reports: mpReports,
