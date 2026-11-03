@@ -401,6 +401,47 @@
           ]
         }
       ]
+    },
+    {
+      "department": "DHSC",
+      "period": "2025/26",
+      "source_title": "DHSC annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6ae4c120713f8880fe546235/dhsc-annual-report-and-accounts-2025-2026-print-ready.pdf",
+      "advisers": [
+        {
+          "name": "Sam Forster",
+          "page": 144,
+          "entries": [
+            "Interest: Sam Forster held a part-time paid role with the Labour Party between 2 February and 26 February 2026. Mr Forster's work for this organisation was performed outside their hours as a Special Adviser in DHSC. Mr Forster's work as a Special Adviser was under a temporary part-time contract during this period."
+          ]
+        },
+        {
+          "name": "Ed Jones",
+          "page": 144,
+          "entries": [
+            "Interest: Ed Jones’ mother is owner and Managing Director of Cragg Ross Dawson Limited, a market research recruitment agency.",
+            "Mitigation: Ed Jones is recused from involvement in discussions or matters relating to Cragg Ross Dawson Limited."
+          ]
+        },
+        {
+          "name": "Kirsty O’Brien",
+          "page": 144,
+          "entries": [
+            "Interest: Kirsty O’Brien’s husband is Director of the Social Market Foundation.",
+            "Mitigation: Kirsty O'Brien is recused from involvement in discussions or matters relating to the Social Market Foundation."
+          ]
+        },
+        {
+          "name": "Will Prescott",
+          "page": 144,
+          "entries": [
+            "Interest: Will Prescott’s father-in-law is Chair of Cancer Research Horizons and Chair of Immatics N.V. He was previously a trustee of Cancer Research UK.",
+            "Mitigation: Will Prescott is recused from involvement in discussions or matters relating to Cancer Research Horizons.",
+            "Will Prescott is recused from involvement in discussions or matters relating to Immatics NV.",
+            "Will Prescott is recused from involvement in discussions or commercial matters relating to Cancer Research Organisations."
+          ]
+        }
+      ]
     }
   ],
   "no_entries": [
