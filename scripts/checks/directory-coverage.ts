@@ -20,7 +20,7 @@ const EXCLUDED: Record<string, string> = {
   '/preview-home2': 'demo',
   '/council-tax': 'redirects to a report', '/polls/voting-intention': 'redirects to /polls',
   '/your-tax-pound': 'hidden (feature flag off)', '/budget-trade-offs': 'hidden (feature flag off)',
-  '/councils/league-table': 'hidden (feature flag off) and noindex', '/your-area': 'noindex results page',
+  '/councils/league-table': 'hidden (feature flag off) and noindex',
   '/tools/welfare/search': 'noindex results page',
 };
 // Index pages of dynamic routes that readers use: each must be in the directory.

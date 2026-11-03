@@ -15,6 +15,8 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'APPG Funders', href: '/appg-funders', desc: 'Every organisation that funds one or more All Party Parliamentary Groups, ranked by groups funded.' },
   { name: 'APPG Secretariats', href: '/secretariats', desc: 'The firms and charities that run All Party Parliamentary Groups, ranked by the number of groups each runs.' },
   { name: 'Bills by Session', href: '/bills/sessions', desc: 'Every bill since the 2004 to 2005 session: which became law, which were withdrawn or ran out of time.' },
+  { name: 'Cookie Details', href: '/cookies/details', desc: 'Every cookie opengovt sets, what it does and how long it is kept.' },
+  { name: 'Cookies', href: '/cookies', desc: 'Choose which cookies opengovt may use, and change your choice at any time.' },
   { name: 'Commission Terms', href: '/commission/terms', desc: 'The terms that apply when you commission research from opengovt.' },
   { name: 'Constituency Donations', href: '/donations/constituencies', desc: 'Every constituency association ranked by the donations it declared.' },
   { name: 'Council Search', href: '/councils/search', desc: 'Find a council by name, town or postcode.' },
@@ -25,6 +27,7 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Donations Explained', href: '/explainers/donations', desc: 'How the UK political donation rules work: thresholds, permissibility, timing and sanctions.' },
   { name: 'Donations from Abroad', href: '/donations/foreign', desc: 'Every political donation declared from an address outside the UK, grouped by country.' },
   { name: 'Donors Who Also Employ Their MP', href: '/donations/double-dip', desc: 'MPs paid by an organisation that has also given them a political donation.' },
+  { name: 'Feedback', href: '/feedback', desc: 'Tell us what works, what is missing or what is wrong on opengovt.' },
   { name: 'Freedom of Information', href: '/transparency/freedom-of-information', desc: 'How many FOI requests each department received, how many were answered on time and how many were refused.' },
   { name: 'Government Contractors Who Donate', href: '/donations/government-contractors', desc: 'Companies holding public contracts that have also given political donations, matched by Companies House number.' },
   { name: 'Home', href: '/', desc: 'The front page: the latest reports, votes and data from opengovt.' },
@@ -50,6 +53,7 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Local Section', href: '/sections/local', desc: 'Councils and sewage spills in your area, in one list.' },
   { name: 'Accountability Section', href: '/sections/accountability', desc: 'Registers of interests, expenses, lobbying, donations and contracts, in one list.' },
   { name: 'Vote Section', href: '/sections/vote', desc: 'opengovt polls and voting on bills, in one list.' },
+  { name: 'Your Area', href: '/your-area', desc: 'Your MP, your council and the latest local figures for your area, from a postcode or town.' },
 ];
 
 // Second names readers may look under. [name, href]
@@ -60,6 +64,8 @@ const ALSO_KNOWN_AS: [string, string][] = [
   ['Your MP', '/find-your-mp'],
   ['Postcode Search for Your MP', '/find-your-mp'],
   ['Companies', '/organisations'],
+  ['Suppliers and Contractors', '/organisations'],
+  ['Follow the Money', '/organisations'],
   ['Lobbying and Organisations', '/organisations'],
   ['Organisations Lobbying Ministers', '/lobbying'],
   ['Lobbying Registry', '/lobbying'],
