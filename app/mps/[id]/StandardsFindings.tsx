@@ -1,7 +1,7 @@
 // Standards findings (House of Commons Committee on Standards reports naming this member), from mp_conduct_findings
 // (app/api/sync-standards-committee). Shown on a full profile's Background tab (MagazineProfileSections) and on the
 // basic former-MP page (FormerMpProfile), so a former member's findings appear too (owner's brief, 3 Nov 2026).
-// Outcome, rule and penalty show when they are filled.
+// Outcome (as a plain label), rule and penalty show when they are filled.
 
 export type ConductFinding = {
   id: number;
@@ -19,6 +19,15 @@ const INK = '#14100d';
 const ACCENT = '#7a1612';
 const divider = '1px dashed rgba(20,16,13,0.2)';
 const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline', fontSize: '15px' };
+
+// Plain labels for the stored outcome codes (owner's brief, 3 Nov 2026). An unknown code shows no label.
+const OUTCOME_LABEL: Record<string, string> = {
+  upheld: 'Breach found',
+  partially_upheld: 'Breach found in part',
+  not_upheld: 'No breach found',
+  no_finding: 'No finding by the Committee',
+  rectified: 'Rectified',
+};
 
 // Parliament's dates carry no time zone: read the date part only, so the month never shifts.
 const monthYear = (d: string) => new Date(`${d.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
@@ -40,9 +49,9 @@ export default function StandardsFindings({ findings, headingStyle }: { findings
               {f.closed_date && <strong style={{ fontFamily: 'monospace' }}>{monthYear(f.closed_date)}</strong>}
               <span>{f.summary || `Finding against ${f.mp_name_at_time}`}</span>
             </div>
-            {(f.outcome || f.rule_breached || f.penalty) && (
-              <div style={{ fontSize: '15px', marginTop: '4px' }}>
-                {f.outcome && <span>Outcome: <strong>{f.outcome}</strong>. </span>}
+            {((f.outcome && OUTCOME_LABEL[f.outcome]) || f.rule_breached || f.penalty) && (
+              <div style={{ fontSize: '15px', marginTop: '4px', color: INK }}>
+                {f.outcome && OUTCOME_LABEL[f.outcome] && <span><strong>{OUTCOME_LABEL[f.outcome]}</strong>. </span>}
                 {f.rule_breached && <span>Rule: {f.rule_breached}. </span>}
                 {f.penalty && <span>Penalty: {f.penalty}.</span>}
               </div>
