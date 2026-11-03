@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  opengovt evidence archive backfill (owner's brief, 3 Nov 2026), nightly at 22:47 local time, like the weekly backup
+  (uk.opengovt.weekly-backup). Runs scripts/evidence-archive.mjs for at most 300 minutes, working backwards a month at
+  a time from 3 Oct 2026: committee publications down to 1 Jan 1995, Contracts Finder down to 1 Feb 2015. Progress is
+  kept in /Volumes/GoliathSSD/opengovt-evidence-archive/backfill-state.json and the run logs to backfill.log there.
+  If the SSD is not mounted the script prints "skipped: SSD not mounted" (to the launchd log below) and exits cleanly;
+  once both sources are complete it logs "nothing to do" and exits; another run in progress (archive.lock) is skipped.
+  Install: cp scripts/launchd/opengovt.evidence-backfill.plist ~/Library/LaunchAgents/ &&
+           launchctl load ~/Library/LaunchAgents/opengovt.evidence-backfill.plist
+  Remove:  launchctl unload ~/Library/LaunchAgents/opengovt.evidence-backfill.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>opengovt.evidence-backfill</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/node</string>
+    <string>/Users/johnnybot/peoples-chamber-frontend/scripts/evidence-archive.mjs</string>
+    <string>--source</string>
+    <string>committees,contracts_finder</string>
+    <string>--from</string>
+    <string>committees=1995-01-01,contracts_finder=2015-02-01</string>
+    <string>--to</string>
+    <string>2026-10-03</string>
+    <string>--max-minutes</string>
+    <string>300</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/johnnybot/peoples-chamber-frontend</string>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>22</integer>
+    <key>Minute</key>
+    <integer>47</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/johnnybot/opengovt-backup/evidence-backfill.launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/johnnybot/opengovt-backup/evidence-backfill.launchd.err.log</string>
+  <key>RunAtLoad</key>
+  <false/>
+  <key>LowPriorityIO</key>
+  <true/>
+  <key>Nice</key>
+  <integer>10</integer>
+</dict>
+</plist>
