@@ -15,7 +15,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { SyncBudget, politeFetch } from '@/lib/sync-budget';
+import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
@@ -63,16 +63,24 @@ function reportUrl(r: Pub): string {
   return /^https:\/\/publications\.parliament\.uk\//.test(html) ? html : `https://committees.parliament.uk/publications/${r.id}/`;
 }
 
-// Former MPs (owner's brief, 3 Nov 2026): a name that matches no current MP is looked up in the Members API (Commons,
-// current and former members). The id is used only when exactly one Commons member has that name and their Commons
-// service began on or before the report date; otherwise member_id stays null and the name is logged.
+// Former MPs (owner's brief, 3 Nov 2026): a name that matches no current MP is looked up in the Members API, Commons
+// first (current and former members). The id is used only when exactly one Commons member has that name and their
+// Commons service began on or before the report date; otherwise member_id stays null and the name is logged.
+// When the Commons search finds nobody with the name (owner's brief, 3 Nov 2026), the Lords are searched by surname,
+// since a peer's search name is their title ("Lord Lilley"): the id is used only when exactly one of them held that
+// exact name (name history) and their Commons service began on or before the report date. Membership and name
+// history come from /api/Members/History?ids= (the per member /Members/{id}/History path answers 404).
 const MEMBERS_SEARCH = 'https://members-api.parliament.uk/api/Members/Search';
+const MEMBERS_HISTORY = 'https://members-api.parliament.uk/api/Members/History';
 const MEMBERS_TAKE = 20;
 const HONORIFIC = /^(?:(?:Rt Hon|The Rt Hon|Sir|Dame|Dr|Ms|Mrs|Miss|Mr|Lord|Baroness)\s+)+/i;
 const POSTNOMINAL = /(?:\s+(?:MP|QC|KC|CBE|OBE|MBE|PC))+\s*$/i;
 const plainName = (n: string) => n.replace(HONORIFIC, '').replace(POSTNOMINAL, '').replace(/\s+/g, ' ').trim().toLowerCase();
 type SearchItem = { value?: { id?: number; nameDisplayAs?: string; latestHouseMembership?: { house?: number; membershipStartDate?: string | null } | null } };
-type HistoryItem = { value?: { houseMembershipHistory?: { house?: number; membershipStartDate?: string | null }[] | null } };
+type HistoryItem = { value?: { id?: number; houseMembershipHistory?: { house?: number; membershipStartDate?: string | null }[] | null; nameHistory?: { nameDisplayAs?: string | null }[] | null } };
+const commonsStarts = (h: HistoryItem | undefined) => (h?.value?.houseMembershipHistory ?? [])
+  .filter((m) => m.house === 1 && m.membershipStartDate).map((m) => m.membershipStartDate!.slice(0, 10));
+const servedBefore = (starts: string[], reportDate: string | null) => starts.some((d) => !reportDate || d <= reportDate);
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
@@ -140,34 +148,76 @@ async function GET_impl(req: Request) {
     const key = `${name}|${reportDate}`;
     const hit = formerCache.get(key);
     if (hit) return hit;
+    // Out of time (or rate limited): the rest stay null for this run and are looked up again on the next one.
+    if (budgetStop) return { id: null, why: 'run budget reached; looked up again next run' };
+    try {
+      return await resolveFormerNow(name, reportDate, key);
+    } catch (e) {
+      if (!isPoliteStop(e)) throw e;
+      budgetStop = true;
+      return { id: null, why: 'run budget reached; looked up again next run' };
+    }
+  }
+  let budgetStop = false;
+
+  async function resolveFormerNow(name: string, reportDate: string | null, key: string): Promise<{ id: number | null; why?: string }> {
     let out: { id: number | null; why?: string };
     const found = await getJson<{ totalResults?: number; items?: SearchItem[] }>(`${MEMBERS_SEARCH}?Name=${encodeURIComponent(name)}&House=1&take=${MEMBERS_TAKE}`);
     if (!found) out = { id: null, why: 'Members API search failed' };
     else if ((found.totalResults ?? 0) > MEMBERS_TAKE) out = { id: null, why: `${found.totalResults} search results` };
     else {
       const same = (found.items ?? []).filter((i) => i.value?.id && plainName(i.value.nameDisplayAs || '') === plainName(name));
-      if (same.length !== 1) out = { id: null, why: same.length ? `${same.length} Commons members share the name` : 'no Commons member with this name' };
+      if (same.length === 0) out = await resolveFromLords(name, reportDate);
+      else if (same.length !== 1) out = { id: null, why: `${same.length} Commons members share the name` };
       else {
         const v = same[0].value!;
         let starts: string[] = [];
-        if (v.latestHouseMembership?.house === 1 && v.latestHouseMembership.membershipStartDate) starts = [v.latestHouseMembership.membershipStartDate];
-        else {
-          const h = await getJson<HistoryItem>(`https://members-api.parliament.uk/api/Members/${v.id}/History`);
-          starts = (h?.value?.houseMembershipHistory ?? []).filter((m) => m.house === 1 && m.membershipStartDate).map((m) => m.membershipStartDate!);
-        }
-        const before = starts.some((d) => !reportDate || d.slice(0, 10) <= reportDate);
-        out = before ? { id: v.id! } : { id: null, why: starts.length ? 'Commons service began after the report' : 'no Commons service found' };
+        if (v.latestHouseMembership?.house === 1 && v.latestHouseMembership.membershipStartDate) starts = [v.latestHouseMembership.membershipStartDate.slice(0, 10)];
+        else starts = commonsStarts((await histories([v.id!]))?.[0]);
+        out = servedBefore(starts, reportDate) ? { id: v.id! } : { id: null, why: starts.length ? 'Commons service began after the report' : 'no Commons service found' };
       }
     }
     formerCache.set(key, out);
     return out;
   }
 
+  // History for several members at once, or null on failure.
+  async function histories(ids: number[]): Promise<HistoryItem[] | null> {
+    if (!ids.length) return [];
+    return getJson<HistoryItem[]>(`${MEMBERS_HISTORY}?${ids.map((i) => `ids=${i}`).join('&')}`);
+  }
+
+  async function resolveFromLords(name: string, reportDate: string | null): Promise<{ id: number | null; why?: string }> {
+    const surname = plainName(name).split(' ').pop();
+    if (!surname) return { id: null, why: 'no Commons member with this name' };
+    const found = await getJson<{ totalResults?: number; items?: SearchItem[] }>(`${MEMBERS_SEARCH}?Name=${encodeURIComponent(surname)}&House=2&take=${MEMBERS_TAKE}`);
+    if (!found) return { id: null, why: 'Members API search failed (Lords)' };
+    if ((found.totalResults ?? 0) > MEMBERS_TAKE) return { id: null, why: `${found.totalResults} Lords search results` };
+    const ids = (found.items ?? []).map((i) => i.value?.id).filter((i): i is number => !!i);
+    if (!ids.length) return { id: null, why: 'no Commons or Lords member with this name' };
+    const hist = await histories(ids);
+    if (!hist) return { id: null, why: 'Members API history failed (Lords)' };
+    const same = hist.filter((h) => (h.value?.nameHistory ?? []).some((n) => plainName(n.nameDisplayAs || '') === plainName(name)));
+    if (same.length !== 1) return { id: null, why: same.length ? `${same.length} Lords members once held the name` : 'no Commons or Lords member with this name' };
+    const starts = commonsStarts(same[0]);
+    return servedBefore(starts, reportDate)
+      ? { id: same[0].value!.id! }
+      : { id: null, why: starts.length ? 'Commons service began after the report' : 'peer with no Commons service' };
+  }
+
+  // A row that already has a member_id keeps it (owner's brief, 3 Nov 2026): only rows still null are looked up, so the
+  // sync never re-points an id set by review, and the Members API calls (Commons, then Lords) fit the run's budget.
+  const { data: storedIdRows, error: idErr } = findings.length
+    ? await supabase.from('mp_conduct_findings').select('case_ref, member_id').in('case_ref', findings.map((f) => `pcs-cmt-${f.publication_id}`)).not('member_id', 'is', null)
+    : { data: [], error: null };
+  if (idErr) return NextResponse.json({ error: idErr.message, stage: 'read stored ids' }, { status: 500 });
+  const storedIds = new Map(((storedIdRows ?? []) as { case_ref: string; member_id: number }[]).map((r) => [r.case_ref, r.member_id]));
+
   let resolved = 0;
   const unresolved: { case_ref: string; name: string; why: string }[] = [];
   const rows = [];
   for (const f of findings) {
-    let member_id = resolveCurrent(f.mp_name);
+    let member_id = storedIds.get(`pcs-cmt-${f.publication_id}`) ?? resolveCurrent(f.mp_name);
     if (!member_id) {
       const former = await resolveFormer(f.mp_name, f.date);
       member_id = former.id;

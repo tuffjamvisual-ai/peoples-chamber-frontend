@@ -4,8 +4,10 @@
 // Each "Nth Report - <MP Name>" entry is one finding against an MP.
 //
 // What this writes vs leaves null:
-//   member_id        — current MPs by name (mps table); anyone else via the Members API, used only when exactly
-//                      one Commons member has the name and served before the report date (else NULL, logged)
+//   member_id        — kept when already set (never re-pointed, 3 Nov 2026); otherwise current MPs by name (mps
+//                      table), anyone else via the Members API (Commons, then the Lords by name history), used only
+//                      when exactly one member had the name and served in the Commons before the report date
+//                      (else NULL, logged)
 //   mp_name_at_time  — exact name from the Report title
 //   case_ref         — synthesised from committeeId + publicationId
 //   closed_date      — publicationStartDate (the finding date)
@@ -42,7 +44,7 @@ function psql(sql) {
     p.on('close', c => {
       if (c !== 0) return reject(new Error(err || `psql exit ${c}\n${out}`));
       if (err) console.error('psql warnings:', err.split('\n').slice(0,3).join(' | '));
-      resolve();
+      resolve(out);
     });
     p.stdin.end(sql);
   });
@@ -111,9 +113,14 @@ async function resolveCurrent(name) {
 }
 
 // Former MPs (owner's brief, 3 Nov 2026), as in app/api/sync-standards-committee/route.ts: a name that matches no
-// current MP is looked up in the Members API (Commons, current and former). The id is used only when exactly one
-// Commons member has that name and their Commons service began on or before the report date.
+// current MP is looked up in the Members API, Commons first (current and former members). The id is used only when
+// exactly one Commons member has that name and their Commons service began on or before the report date.
+// When the Commons search finds nobody with the name (owner's brief, 3 Nov 2026), the Lords are searched by surname,
+// since a peer's search name is their title ("Lord Lilley"): the id is used only when exactly one of them held that
+// exact name (name history) and their Commons service began on or before the report date. Membership and name
+// history come from /api/Members/History?ids= (the per member /Members/{id}/History path answers 404).
 const MEMBERS_SEARCH = 'https://members-api.parliament.uk/api/Members/Search';
+const MEMBERS_HISTORY = 'https://members-api.parliament.uk/api/Members/History';
 const MEMBERS_TAKE = 20;
 const HONORIFIC = /^(?:(?:Rt Hon|The Rt Hon|Sir|Dame|Dr|Ms|Mrs|Miss|Mr|Lord|Baroness)\s+)+/i;
 const POSTNOMINAL = /(?:\s+(?:MP|QC|KC|CBE|OBE|MBE|PC))+\s*$/i;
@@ -125,21 +132,48 @@ async function getJson(u) {
   return r.ok ? r.json() : null;
 }
 
+// History for several members at once: [{ value: { id, houseMembershipHistory, nameHistory } }], or null on failure.
+async function histories(ids) {
+  if (!ids.length) return [];
+  return getJson(`${MEMBERS_HISTORY}?${ids.map((i) => `ids=${i}`).join('&')}`);
+}
+const commonsStarts = (h) => ((h && h.value && h.value.houseMembershipHistory) || [])
+  .filter((m) => m.house === 1 && m.membershipStartDate).map((m) => m.membershipStartDate.slice(0, 10));
+const servedBefore = (starts, reportDate) => starts.some((d) => !reportDate || d <= reportDate);
+
+async function resolveFromLords(name, reportDate) {
+  const surname = plainName(name).split(' ').pop();
+  if (!surname) return { id: null, why: 'no Commons member with this name' };
+  const found = await getJson(`${MEMBERS_SEARCH}?Name=${encodeURIComponent(surname)}&House=2&take=${MEMBERS_TAKE}`);
+  if (!found) return { id: null, why: 'Members API search failed (Lords)' };
+  if ((found.totalResults || 0) > MEMBERS_TAKE) return { id: null, why: `${found.totalResults} Lords search results` };
+  const ids = (found.items || []).map((i) => i.value && i.value.id).filter(Boolean);
+  if (!ids.length) return { id: null, why: 'no Commons or Lords member with this name' };
+  const hist = await histories(ids);
+  if (!hist) return { id: null, why: 'Members API history failed (Lords)' };
+  const same = hist.filter((h) => ((h.value && h.value.nameHistory) || []).some((n) => plainName(n.nameDisplayAs || '') === plainName(name)));
+  if (same.length !== 1) return { id: null, why: same.length ? `${same.length} Lords members once held the name` : 'no Commons or Lords member with this name' };
+  const starts = commonsStarts(same[0]);
+  return servedBefore(starts, reportDate)
+    ? { id: same[0].value.id }
+    : { id: null, why: starts.length ? 'Commons service began after the report' : 'peer with no Commons service' };
+}
+
 async function resolveFormer(name, reportDate) {
   const found = await getJson(`${MEMBERS_SEARCH}?Name=${encodeURIComponent(name)}&House=1&take=${MEMBERS_TAKE}`);
   if (!found) return { id: null, why: 'Members API search failed' };
   if ((found.totalResults || 0) > MEMBERS_TAKE) return { id: null, why: `${found.totalResults} search results` };
   const same = (found.items || []).filter((i) => i.value?.id && plainName(i.value.nameDisplayAs || '') === plainName(name));
-  if (same.length !== 1) return { id: null, why: same.length ? `${same.length} Commons members share the name` : 'no Commons member with this name' };
+  if (same.length === 0) return resolveFromLords(name, reportDate);
+  if (same.length !== 1) return { id: null, why: `${same.length} Commons members share the name` };
   const v = same[0].value;
   let starts = [];
-  if (v.latestHouseMembership?.house === 1 && v.latestHouseMembership.membershipStartDate) starts = [v.latestHouseMembership.membershipStartDate];
+  if (v.latestHouseMembership?.house === 1 && v.latestHouseMembership.membershipStartDate) starts = [v.latestHouseMembership.membershipStartDate.slice(0, 10)];
   else {
-    const h = await getJson(`https://members-api.parliament.uk/api/Members/${v.id}/History`);
-    starts = (h?.value?.houseMembershipHistory || []).filter((m) => m.house === 1 && m.membershipStartDate).map((m) => m.membershipStartDate);
+    const h = await histories([v.id]);
+    starts = commonsStarts((h || [])[0]);
   }
-  const before = starts.some((d) => !reportDate || d.slice(0, 10) <= reportDate);
-  return before ? { id: v.id } : { id: null, why: starts.length ? 'Commons service began after the report' : 'no Commons service found' };
+  return servedBefore(starts, reportDate) ? { id: v.id } : { id: null, why: starts.length ? 'Commons service began after the report' : 'no Commons service found' };
 }
 
 async function resolveMember(name, reportDate) {
@@ -185,10 +219,25 @@ function dq(tag, v) {
   console.log(`  ${skipped.length.toLocaleString()} skipped as generic (Register of Interests / standards landscape / etc.)`);
 
   // Resolve members
+  // A row that already has a member_id keeps it (3 Nov 2026): only rows still null are looked up, so the sync never
+  // re-points an id set by review and makes few Members API calls.
   console.log(`Resolving member_ids…`);
+  const refs = findings.map((f) => `'pcs-cmt-${f.publication_id}'`).join(',');
+  const storedIds = new Map();
+  if (refs) {
+    // One tagged line (psql here prints aligned output): STORED_IDS:pcs-cmt-1=123,pcs-cmt-2=456
+    const out = await psql(`SELECT 'STORED_IDS:' || coalesce(string_agg(case_ref || '=' || member_id, ','), '') AS ids FROM mp_conduct_findings WHERE case_ref IN (${refs}) AND member_id IS NOT NULL;`);
+    const m = out.match(/STORED_IDS:([^\s]*)/);
+    if (!m) throw new Error('could not read the stored member ids');
+    for (const pair of m[1].split(',').filter(Boolean)) {
+      const [ref, id] = pair.split('=');
+      if (Number.isInteger(Number(id))) storedIds.set(ref, Number(id));
+    }
+  }
   let resolved = 0, unresolved = 0;
   for (const f of findings) {
-    const m = await resolveMember(f.mp_name, f.date);
+    const kept = storedIds.get(`pcs-cmt-${f.publication_id}`);
+    const m = kept ? { id: kept } : await resolveMember(f.mp_name, f.date);
     f.member_id = m.id;
     if (f.member_id) resolved++;
     else { unresolved++; console.log(`  ? member_id left null for ${f.mp_name} (pcs-cmt-${f.publication_id}): ${m.why}`); }
@@ -218,7 +267,7 @@ function dq(tag, v) {
          ${dq('d', f.date)}::date, 'standards_committee', ${dq('s', f.description)},
          ${dq('u', f.url)}, ${dq('d', f.date)}::date, now())
       ON CONFLICT (case_ref) WHERE case_ref IS NOT NULL DO UPDATE SET
-        member_id = EXCLUDED.member_id,
+        member_id = COALESCE(mp_conduct_findings.member_id, EXCLUDED.member_id),
         mp_name_at_time = EXCLUDED.mp_name_at_time,
         closed_date = EXCLUDED.closed_date,
         -- A reviewed summary is never overwritten (3 Nov 2026); outcome, rule_breached and penalty are not written here.
