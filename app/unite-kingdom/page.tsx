@@ -8,7 +8,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: 'Unite the Kingdom: When Over 100,000 People Show Up, Somebody Should Listen',
   description: "The march Westminster doesn't want to understand.",
-  alternates: { canonical: '/unite-kingdom' },
+  // No canonical: a test page, noindex and nofollow from ./layout.tsx (owner, 3 Nov 2026).
 };
 
 const INK = '#14100d';
