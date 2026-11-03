@@ -49,8 +49,9 @@ export type OrgDonation = {
   id: number; donor_name: string; recipient_name: string | null; amount: number | null; accepted_date: string | null;
   received_date: string | null; donation_action: string | null; ec_ref: string | null; donation_type_label: string | null; nature: string | null;
 };
+// One contract per OCID, award and supplier since 3 Nov 2026 (contract_awards, migration 2026-11-03h): the id is text.
 export type OrgContract = {
-  id: number; ocid: string | null; supplier: string; dept_slug: string; title: string | null; value: number | null;
+  id: string; ocid: string | null; supplier: string; dept_slug: string; title: string | null; value: number | null;
   awarded_date: string | null; is_framework: boolean;
 };
 export type OrgGrant = {
@@ -170,6 +171,15 @@ export const getOrgContracts = cache(async (companyNumber: string | null, limit?
     orderBy: [{ column: 'awarded_date', ascending: false }, { column: 'id', ascending: false }],
     label: 'organisation contracts',
   });
+});
+
+// Values over 1 billion pounds held back from the totals until checked (contract_awards.held_back, 3 Nov 2026).
+export const getOrgHeldBack = cache(async (companyNumber: string | null): Promise<number> => {
+  if (!companyNumber) return 0;
+  const { count, error } = await supabase.from('contract_awards').select('id', { count: 'exact', head: true })
+    .eq('company_number', companyNumber).eq('held_back', true);
+  if (error) throw new Error(`organisation held back contracts: ${error.message}`);
+  return count ?? 0;
 });
 
 export const getOrgGrants = cache(async (org: OrgIndexRow, limit?: number): Promise<OrgGrant[]> => {

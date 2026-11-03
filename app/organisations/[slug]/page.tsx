@@ -13,7 +13,7 @@ import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
 import { cleanDept, quarterLabel } from '@/lib/lobbying';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
-  getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
+  getOrganisation, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
   findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote,
 } from '@/lib/organisations';
 
@@ -48,11 +48,16 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
   const { slug } = await params;
   const org = await getOrganisation(slug);
   if (!org) notFound();
-  const [donations, contracts, grants, registry] = await Promise.all([
+  const [donations, contracts, grants, registry, heldBack] = await Promise.all([
     org.donations ? getOrgDonations(org, LATEST) : Promise.resolve([]),
     org.contracts + org.framework_places ? getOrgContracts(org.company_number, LATEST) : Promise.resolve([]),
     org.grants ? getOrgGrants(org, LATEST) : Promise.resolve([]),
     getOrgRegistryRecords(org),
+    // A failed read of the held back count shows no note rather than failing the page.
+    org.contracts + org.framework_places ? getOrgHeldBack(org.company_number).catch((e) => {
+      console.error(`/organisations/${org.slug} held back contracts:`, e instanceof Error ? e.message : String(e));
+      return 0;
+    }) : Promise.resolve(0),
   ]);
   const typeLabel = org.org_type ? ORG_TYPE_LABEL[org.org_type as OrgType] : 'Company';
 
@@ -121,10 +126,13 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
 
         {org.contracts + org.framework_places > 0 && (
           <Section id="org-contracts" title="Public contracts">
+            {/* Counted once per contract (OCID, award and supplier; contract_awards, owner's yes, 3 Nov 2026). */}
             <p style={para}>
-              {org.contracts > 0 && <><strong>{money(org.contract_value)}</strong> contract value awarded across {org.contracts.toLocaleString('en-GB')} contract{org.contracts === 1 ? '' : 's'}
+              {org.contracts > 0 && <><strong>{money(org.contract_value)}</strong> awarded across {org.contracts.toLocaleString('en-GB')} contract{org.contracts === 1 ? '' : 's'} since July 2023 (Find a Tender)
                 {org.contracts_unpublished > 0 && <> ({org.contracts_unpublished.toLocaleString('en-GB')} with no value published, not counted)</>}. </>}
-              {org.framework_places > 0 && <>{org.framework_places.toLocaleString('en-GB')} framework place{org.framework_places === 1 ? '' : 's'}; framework values are maximums, up to {money(org.framework_max_value)} in all, and are not added in.</>}
+              {org.contracts === 0 && <>Since July 2023 (Find a Tender): </>}
+              {org.framework_places > 0 && <>{org.framework_places.toLocaleString('en-GB')} framework place{org.framework_places === 1 ? '' : 's'}.</>}
+              {heldBack > 0 && <> {heldBack.toLocaleString('en-GB')} very large value{heldBack === 1 ? '' : 's'} (over £1 billion each) held back until checked.</>}
             </p>
             <ul style={list}>
               {contracts.map((c) => (
@@ -137,6 +145,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                 </li>
               ))}
             </ul>
+            <p style={{ ...para, marginTop: '8px' }}>Joint awards are shared equally between suppliers. Framework ceilings and estimates are not added.</p>
             {org.contracts + org.framework_places > contracts.length && <SeeAll href={`/organisations/${org.slug}/contracts`} text={`All ${(org.contracts + org.framework_places).toLocaleString('en-GB')} contracts and framework places`} />}
           </Section>
         )}
