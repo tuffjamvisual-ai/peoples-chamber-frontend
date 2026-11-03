@@ -6,6 +6,7 @@ import { lookupMember, parliamentMemberUrl } from '@/lib/former-mps';
 import FormerMpProfile from './FormerMpProfile';
 import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
+import { questionsSummary, type QuestionsSummary } from '@/lib/mp-written-questions';
 import { getHiddenBillIds } from '@/lib/hidden-bills';
 import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
 import MpDossier from './MpDossier';
@@ -353,6 +354,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .order('sitting_date', { ascending: false })
       .limit(25),
   );
+  // Written questions (owner, 3 Nov 2026): the count, first date and newest five, read alongside the contributions. A
+  // failed or slow read shows the tab without them rather than holding up the page.
+  const pQuestions: Promise<QuestionsSummary | null> = withTimeout(questionsSummary(supabase, memberId), 7000).catch((e) => {
+    console.error(`/mps/${memberId} written questions:`, e instanceof Error ? e.message : e);
+    return null;
+  });
   const pOfficers = Promise.resolve(
     supabase
       .from('appg_officers')
@@ -479,6 +486,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // Recent Hansard chamber contributions (mp_contributions), keyed by member_id.
   const { data: contributionsData } = await pContribs;
   const contributions = contributionsData || [];
+  const writtenQuestions = await pQuestions;
 
   const edmsRes = await pEdms;
   // "Last updated" under each profile section whose table lib/data-freshness.ts tracks (owner, 1 Nov 2026): the newest
@@ -756,6 +764,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         ministerHospitality: hospitality,
         spadAdvisers: spadAdvisers ? { ...spadAdvisers, ministerName: fullName, gender: mp.gender ?? null } : null,
         contributions,
+        writtenQuestions,
         conductFindings: conductRes.data || [],
         staffInterests: staffInterestsRes.data || [],
         activity: activityRes.data || null,

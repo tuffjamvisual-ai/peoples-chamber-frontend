@@ -9,6 +9,7 @@ import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
+import { questionUrl, type QuestionsSummary } from '@/lib/mp-written-questions';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';
 import PhoneTable from '../../components/PhoneTable';
@@ -290,6 +291,8 @@ interface Props {
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
   contributions?: Contribution[];
+  /** Commons written questions (lib/mp-written-questions.ts): count, first date and the newest five; null when unread. */
+  writtenQuestions?: QuestionsSummary | null;
   /** Votes against most of their party (is_rebellion, from the party on the day of the
       vote): since the July 2024 election, the aye/no votes cast in that time, and across
       all the votes we hold. Same rule as the party whip page. */
@@ -541,6 +544,7 @@ export default function MagazineProfileSections({
   staffInterests = [],
   activity = null,
   contributions = [],
+  writtenQuestions = null,
   rebellions = { sinceElection: 0, votesSinceElection: 0, allVotes: 0 },
   partyWhipSlug = null,
   bio,
@@ -581,7 +585,7 @@ export default function MagazineProfileSections({
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
-    house: contributions.length > 0,
+    house: contributions.length > 0 || (writtenQuestions?.total ?? 0) > 0,
     petitions: petitionsAvailable,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
     interests: interests.length > 0 || staffInterests.length > 0 || formerInterests.length > 0,
@@ -1329,6 +1333,32 @@ export default function MagazineProfileSections({
                 );
               })}
             </ul>
+            {writtenQuestions && writtenQuestions.total > 0 && (
+              <section aria-label="Written questions" style={{ marginTop: contributions.length > 0 ? '26px' : 0 }}>
+                <p style={{ fontSize: '15px', margin: '0 0 6px' }}>
+                  <strong>Written questions: {writtenQuestions.total.toLocaleString('en-GB')}</strong>
+                  {writtenQuestions.firstDate && <> since {fmtDate(`${writtenQuestions.firstDate.slice(0, 10)}T12:00:00Z`)}</>}
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 8px' }}>
+                  {writtenQuestions.recent.map((q) => {
+                    const href = questionUrl(q);
+                    const title = (q.heading || `Written question ${q.uin}`).trim();
+                    return (
+                      <li key={q.id} style={{ padding: '7px 0', borderBottom: inkDivider, fontSize: '15px' }}>
+                        <span style={{ fontFamily: 'var(--font-special-elite), monospace', whiteSpace: 'nowrap' }}>{q.date_tabled ? fmtDate(`${q.date_tabled.slice(0, 10)}T12:00:00Z`) : ''}</span>
+                        {q.answering_body && <span> · {q.answering_body}</span>}
+                        <div>
+                          {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold' }}>{title}</a> : <strong>{title}</strong>}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <Link href={`/mps/${memberId}/questions`} style={{ ...inkLink, fontSize: '15px', fontWeight: 'bold' }}>
+                  All {writtenQuestions.total.toLocaleString('en-GB')} questions
+                </Link>
+              </section>
+            )}
           </>
         )}
 

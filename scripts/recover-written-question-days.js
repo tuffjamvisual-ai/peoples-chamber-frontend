@@ -76,8 +76,17 @@ async function refetch() {
   const base = direct ? 'http://localhost' : arg('--base');
   if (!direct && (!base || !/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(base))) throw new Error('--base must be a local server, e.g. http://localhost:3100, or use --direct');
   if (direct && process.env.VERCEL_ENV === 'production') throw new Error('--direct is for local runs only');
-  // The route's own handler (test options are honoured off Vercel production only).
-  const handler = direct ? (await import('../app/api/sync-parliament-archive/route.ts')).GET : null;
+  // The route's own handler (test options are honoured off Vercel production only). Outside Next.js, 'server-only'
+  // (imported by the server clients) resolves to the empty module Next.js itself uses on the server.
+  if (direct) {
+    const Module = require('module');
+    const resolve = Module._resolveFilename;
+    const empty = require.resolve('next/dist/compiled/server-only/empty.js');
+    Module._resolveFilename = function (request, ...rest) { return request === 'server-only' ? empty : resolve.call(this, request, ...rest); };
+  }
+  const routeModule = direct ? await import('../app/api/sync-parliament-archive/route.ts') : null;
+  const handler = routeModule ? (routeModule.GET ?? (routeModule.default && routeModule.default.GET)) : null;
+  if (direct && typeof handler !== 'function') throw new Error('route GET handler not found');
   const call = (url, init) => (direct ? handler(new Request(url, init)) : fetch(url, init));
   const maxMs = Number(arg('--max-minutes', '9')) * 60_000;
   const started = Date.now();
