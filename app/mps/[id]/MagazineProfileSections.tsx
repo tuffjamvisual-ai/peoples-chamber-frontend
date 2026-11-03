@@ -15,6 +15,7 @@ import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
 import AppgSource, { appgAmount } from '../../components/AppgSource';
+import StaffInterests, { type StaffInterest } from './StaffInterests';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
 
@@ -282,6 +283,8 @@ interface Props {
   /** Special advisers this minister appointed (Cabinet Office named list), shown in Roles. */
   spadAdvisers?: { release: SpadReleaseRow; rows: SpadRow[]; interests?: Record<string, { total: number; recusals: number }>; leftOn?: Record<string, string | null>; ministerName: string; gender: string | null } | null;
   conductFindings?: ConductFinding[];
+  /** Register of interests of MPs' staff entries naming this MP (job titles only), shown on the Interests tab. */
+  staffInterests?: StaffInterest[];
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
   contributions?: Contribution[];
@@ -532,6 +535,7 @@ export default function MagazineProfileSections({
   ministerHospitality = [],
   spadAdvisers = null,
   conductFindings = [],
+  staffInterests = [],
   activity = null,
   contributions = [],
   rebellions = { sinceElection: 0, votesSinceElection: 0, allVotes: 0 },
@@ -577,7 +581,7 @@ export default function MagazineProfileSections({
     house: contributions.length > 0,
     petitions: petitionsAvailable,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
-    interests: interests.length > 0,
+    interests: interests.length > 0 || staffInterests.length > 0,
     roles: !!(
       (spadAdvisers?.rows.length ?? 0) > 0 ||
       committeeMemberships.length > 0 ||
@@ -1529,6 +1533,7 @@ export default function MagazineProfileSections({
                   </ul>
                 </section>
               ))}
+              <StaffInterests items={staffInterests} headingStyle={sectionH3} />
             </>
           );
         })()}

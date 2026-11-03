@@ -374,6 +374,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .eq('member_id', memberId)
       .maybeSingle(),
   );
+  // Staff with outside interests (owner's brief, 3 Nov 2026): job titles only, never names. A failed read (or the
+  // table before its migration) shows no section rather than failing the page.
+  const pStaffInterests = Promise.resolve(
+    supabase
+      .from('mp_staff_interests')
+      .select('id, register_id, register_date, category, job_title, description, organisation, country, start_date, end_date')
+      .eq('member_id', memberId)
+      .limit(200),
+  );
   const pConduct = Promise.resolve(
     supabase
       .from('mp_conduct_findings')
@@ -629,6 +638,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // committees-api.parliament.uk via app/api/sync-standards-committee (and scripts/sync-standards-committee.js).
   // Resolved findings (member_id matched) only; a name the sync could not match to one member stays unattached.
   const conductRes = await pConduct;
+  const staffInterestsRes = await pStaffInterests;
+  if (staffInterestsRes.error) console.error(`/mps/${memberId} mp_staff_interests: ${staffInterestsRes.error.message}`);
 
   const [partySlugRes, partyPeersRes] = await Promise.all([pPartySlug, pPartyPeers]);
 
@@ -744,6 +755,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         spadAdvisers: spadAdvisers ? { ...spadAdvisers, ministerName: fullName, gender: mp.gender ?? null } : null,
         contributions,
         conductFindings: conductRes.data || [],
+        staffInterests: staffInterestsRes.data || [],
         activity: activityRes.data || null,
         // Votes against most of their party (is_rebellion, set from the MP's party on the day of the vote; see the
         // 2026-10-15c migration): since the July 2024 election with the votes cast in that time, and across all the
