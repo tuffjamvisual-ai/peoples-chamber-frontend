@@ -72,6 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}`, changeFrequency: 'daily', priority: 1.0 },
     { url: `${SITE}/bills`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/mps`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/lords`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/departments`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/transparency`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/transparency/register-of-interests`, changeFrequency: 'daily', priority: 0.8 },
@@ -252,6 +253,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  // Members of the House of Lords with a page (owner, 3 Nov 2026): current peers and anyone who has sat since 4 July
+  // 2024 (lib/peers.ts peerHasPage). Their questions pages are not listed, like the MPs'.
+  const peers = await fetchAllRows<{ member_id: number }>(
+    'peers',
+    'member_id',
+    (q) => q.or('is_current.eq.true,end_date.gte.2024-07-04'),
+  );
+  const peerEntries: MetadataRoute.Sitemap = peers.map((p) => ({
+    url: `${SITE}/lords/${p.member_id}`,
+    changeFrequency: 'weekly',
+    priority: 0.5,
+  }));
+
   // Republished GOV.UK press releases (/news/[slug]) are not listed: they are word-for-word
   // copies of GOV.UK pages, so they are noindex and Google is pointed at the originals
   // (Search Console review, 16 Oct 2026: 4,923 of 10,425 sitemap URLs were these copies).
@@ -377,6 +391,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...billEntries,
     ...billSessionEntries,
     ...mpEntries,
+    ...peerEntries,
     ...councilEntries,
     ...divisionEntries,
     ...divisionYearEntries,

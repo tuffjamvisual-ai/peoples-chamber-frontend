@@ -4,7 +4,7 @@ import { useState, type CSSProperties } from 'react';
 import { questionUrl, QUESTIONS_PER_PAGE, type WrittenQuestion } from '@/lib/mp-written-questions';
 
 // The list on /mps/[id]/questions (owner, 3 Nov 2026): page 1 of all questions comes from the cached page; other pages
-// and a department filter are read from /api/mps/[id]/questions.
+// and a department filter are read from /api/mps/[id]/questions (or /api/lords/[id]/questions on peer pages).
 
 const INK = '#14100d';
 const MONO = 'var(--font-special-elite), monospace';
@@ -14,8 +14,9 @@ const button: CSSProperties = { padding: '8px 14px', background: 'transparent', 
 
 const fmt = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '');
 
-export default function QuestionsList({ memberId, initial, total: initialTotal, departments }: {
+export default function QuestionsList({ memberId, initial, total: initialTotal, departments, apiBase = '/api/mps' }: {
   memberId: number;
+  apiBase?: string; // '/api/mps' or '/api/lords'
   initial: WrittenQuestion[];
   total: number;
   departments: Array<{ name: string; count: number }>;
@@ -31,7 +32,7 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
     setStatus('loading');
     try {
       const q = new URLSearchParams({ page: String(nextPage), ...(nextDepartment ? { department: nextDepartment } : {}) });
-      const res = await fetch(`/api/mps/${memberId}/questions?${q}`);
+      const res = await fetch(`${apiBase}/${memberId}/questions?${q}`);
       if (!res.ok) throw new Error(String(res.status));
       const body = (await res.json()) as { questions: WrittenQuestion[]; total: number };
       setRows(body.questions);

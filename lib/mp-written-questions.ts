@@ -1,7 +1,7 @@
 // Written questions on MP pages (owner's go, 3 Nov 2026). Source: parliament_written_questions, the Parliament archive
 // (both Houses, every member, kept current every 10 minutes by /api/sync-parliament-archive, with the official record's
 // URL and the latest answer date), chosen over mp_questions (current MPs only, answers and headings older), which is
-// kept and still synced. Commons questions only, as these are MP pages.
+// kept and still synced. The House is a parameter: Commons for MP pages, Lords for peer pages (/lords/[id], 3 Nov 2026).
 //
 // Used by the profile's In the House tab (summary: count, first date, 5 most recent), /mps/[id]/questions (page 1 and
 // the departments, server rendered and cached) and /api/mps/[id]/questions (further pages and the department filter).
@@ -22,13 +22,15 @@ export type WrittenQuestion = {
   is_withdrawn: boolean | null;
 };
 export type QuestionsSummary = { total: number; firstDate: string | null; recent: WrittenQuestion[] };
+export type House = 'Commons' | 'Lords';
 
 // The Supabase builders are deeply generic; this only chains two filters on them.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const commons = (q: any, memberId: number) => q.eq('asking_member_id', memberId).eq('house', 'Commons');
+const byMember = (q: any, memberId: number, house: House) => q.eq('asking_member_id', memberId).eq('house', house);
 
 // Three small reads on the (asking_member_id, date_tabled) index: the count, the oldest date and the newest five.
-export async function questionsSummary(db: SupabaseClient, memberId: number): Promise<QuestionsSummary> {
+export async function questionsSummary(db: SupabaseClient, memberId: number, house: House = 'Commons'): Promise<QuestionsSummary> {
+  const commons = (q: unknown, id: number) => byMember(q, id, house);
   const t = () => db.from('parliament_written_questions');
   const [countRes, firstRes, recentRes] = await Promise.all([
     commons(t().select('id', { count: 'exact', head: true }), memberId),
@@ -46,7 +48,8 @@ export async function questionsSummary(db: SupabaseClient, memberId: number): Pr
 }
 
 // One page, newest first, optionally for one department (answering body).
-export async function questionsPage(db: SupabaseClient, memberId: number, page: number, department: string | null): Promise<{ rows: WrittenQuestion[]; total: number }> {
+export async function questionsPage(db: SupabaseClient, memberId: number, page: number, department: string | null, house: House = 'Commons'): Promise<{ rows: WrittenQuestion[]; total: number }> {
+  const commons = (q: unknown, id: number) => byMember(q, id, house);
   const start = (page - 1) * QUESTIONS_PER_PAGE;
   const filtered = (q: any) => (department ? commons(q, memberId).eq('answering_body', department) : commons(q, memberId)); // eslint-disable-line @typescript-eslint/no-explicit-any
   const t = () => db.from('parliament_written_questions');
@@ -60,7 +63,8 @@ export async function questionsPage(db: SupabaseClient, memberId: number, page: 
 }
 
 // Every department the MP has asked, with counts, most asked first (one column of every question, paged by readAll).
-export async function questionDepartments(db: SupabaseClient, memberId: number): Promise<Array<{ name: string; count: number }>> {
+export async function questionDepartments(db: SupabaseClient, memberId: number, house: House = 'Commons'): Promise<Array<{ name: string; count: number }>> {
+  const commons = (q: unknown, id: number) => byMember(q, id, house);
   const rows = await readAll<{ answering_body: string | null }>(() => db.from('parliament_written_questions'), {
     columns: 'id, answering_body',
     filter: (q) => commons(q, memberId),

@@ -1,0 +1,175 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound, permanentRedirect, redirect } from 'next/navigation';
+import { cache } from 'react';
+import { supabase } from '@/lib/supabase';
+import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
+import { metaDescription } from '@/lib/meta-description';
+import OpenGovShell from '../../components/OpenGovShell';
+import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
+import { getPeer, peerVoting, lordsDivisionUrl, type Peer } from '@/lib/lords';
+import { peerHasPage, parliamentProfileUrl, type Post } from '@/lib/peers';
+import { questionsSummary } from '@/lib/mp-written-questions';
+import { lookupMember } from '@/lib/former-mps';
+
+// A member of the House of Lords (owner's yes, 3 Nov 2026): name, party, type of peerage, sitting since, posts held,
+// a voting record summary with recent votes, written questions and links to the official Parliament profile. No
+// biography. Pages exist for current peers and anyone who has sat since 4 July 2024 (lib/peers.ts peerHasPage); earlier
+// former peers go to their Parliament profile, and a member who was only ever an MP goes to /mps/[id]. A former MP now
+// in the Lords links to their Commons record, and that record links back. Cached for a day; /api/sync-peers refreshes a
+// peer's page when their stored row changes.
+export const revalidate = 86400;
+
+export function generateStaticParams() {
+  return [];
+}
+
+const INK = '#14100d';
+const ACCENT = '#7a1612';
+const divider = '1px dashed rgba(20,16,13,0.2)';
+const h2: React.CSSProperties = { fontSize: '20px', fontWeight: 'bold', margin: '26px 0 8px', color: INK };
+const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' };
+
+const fmt = (d: string | null | undefined) => (d ? new Date(`${d.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '');
+const peer = cache((memberId: number) => getPeer(supabase, memberId));
+const statusLabel = (p: Peer) => (!p.is_current ? `Former member${p.end_date ? `, left ${fmt(p.end_date)}` : ''}` : p.status && p.status !== 'Current Member' ? p.status : null);
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const memberId = Number(id);
+  const p = Number.isInteger(memberId) && memberId > 0 ? await peer(memberId) : null;
+  if (!p || !peerHasPage(p)) return { title: 'House of Lords', robots: { index: false, follow: true } };
+  const what = [p.party, p.peerage_type].filter(Boolean).join(', ');
+  return {
+    title: `${p.name_display}${p.party ? `, ${p.party}` : ''}`,
+    description: metaDescription(`${p.name_display}${what ? ` (${what})` : ''}, member of the House of Lords${p.start_date ? ` since ${fmt(p.start_date)}` : ''}: posts held, votes and written questions, from Parliament's records.`),
+    alternates: { canonical: `/lords/${memberId}` },
+  };
+}
+
+function PostList({ posts, current }: { posts: Post[]; current: boolean }) {
+  const rows = posts.filter((p) => (current ? !p.endDate : !!p.endDate));
+  if (!rows.length) return null;
+  return (
+    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 6px', fontSize: '15px' }}>
+      {rows.map((p, i) => (
+        <li key={`${p.name}-${p.startDate}-${i}`} style={{ padding: '5px 0', borderBottom: divider }}>
+          <strong>{p.name}</strong>
+          {p.additionalInfo && p.additionalInfo !== p.name && <span>, {p.additionalInfo}</span>}
+          <span style={{ whiteSpace: 'nowrap' }}> · {p.startDate ? fmt(p.startDate) : ''}{p.endDate ? ` to ${fmt(p.endDate)}` : ' to date'}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default async function PeerPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const memberId = Number(id);
+  if (!Number.isInteger(memberId) || memberId <= 0) notFound();
+  const p = await peer(memberId);
+  if (!p) {
+    // Not a peer: an MP or former MP has a page at /mps/[id]; anyone else is not found.
+    const m = await lookupMember(memberId);
+    if (m.kind === 'former_mp') permanentRedirect(`/mps/${memberId}`);
+    notFound();
+  }
+  if (!peerHasPage(p)) redirect(parliamentProfileUrl(memberId));
+
+  const [voting, questions, member] = await Promise.all([
+    peerVoting(supabase, memberId).catch((e) => { console.error(`/lords/${memberId} votes:`, e instanceof Error ? e.message : e); return null; }),
+    questionsSummary(supabase, memberId, 'Lords').catch((e) => { console.error(`/lords/${memberId} questions:`, e instanceof Error ? e.message : e); return null; }),
+    lookupMember(memberId).catch(() => null), // a former MP: link to the Commons record
+  ]);
+  const wasMp = member?.kind === 'former_mp';
+  const status = statusLabel(p);
+  const allPosts = { government: p.government_posts ?? [], opposition: p.opposition_posts ?? [], other: p.other_posts ?? [] };
+  const posts = [...allPosts.government, ...allPosts.opposition, ...allPosts.other];
+  const committees = p.committee_memberships ?? [];
+
+  return (
+    <OpenGovShell pageStamp="House of Lords">
+      <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'House of Lords', path: '/lords' }, { name: p.name_display, path: `/lords/${memberId}` }])} />
+      <Link href="/lords" className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+        ← House of Lords
+      </Link>
+
+      <header style={{ display: 'flex', gap: '18px', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: '8px', color: INK }}>
+        {p.thumbnail_url && (
+          // Parliament's official thumbnail, served by Parliament (attributed in the site footer, as on MP pages).
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={p.thumbnail_url} alt={p.name_display} width={120} height={120} loading="eager"
+            style={{ width: '120px', height: '120px', objectFit: 'cover', border: `1px solid rgba(20,16,13,0.25)`, background: '#d6cdb8' }} />
+        )}
+        <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 'bold', margin: '0 0 6px', lineHeight: 1.15 }}>{p.name_display}</h1>
+          <p style={{ fontSize: '16px', margin: '0 0 4px' }}>
+            {p.party_colour && <span aria-hidden style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', background: `#${p.party_colour}`, marginRight: '8px' }} />}
+            {[p.party, p.peerage_type].filter(Boolean).join(' · ')}
+          </p>
+          {p.start_date && <p style={{ fontSize: '15px', margin: '0 0 4px' }}>{p.is_current ? 'Sitting since' : 'Sat from'} {fmt(p.start_date)}{!p.is_current && p.end_date ? ` to ${fmt(p.end_date)}` : ''}</p>}
+          {status && <p style={{ fontSize: '15px', fontWeight: 'bold', color: ACCENT, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{status}</p>}
+          <p style={{ fontSize: '15px', margin: '6px 0 0' }}>
+            <a href={parliamentProfileUrl(memberId)} target="_blank" rel="noopener noreferrer" style={link}>Official Parliament profile</a>
+            {wasMp && <> · <Link href={`/mps/${memberId}`} style={link}>Record as an MP</Link></>}
+          </p>
+        </div>
+      </header>
+
+      {(posts.length > 0 || committees.length > 0) && (
+        <section aria-labelledby="peer-posts" style={{ color: INK }}>
+          <h2 id="peer-posts" style={h2}>Posts held</h2>
+          <PostList posts={posts} current />
+          {committees.some((c) => !c.endDate) && (
+            <>
+              <h3 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '12px 0 4px' }}>Committees</h3>
+              <PostList posts={committees} current />
+            </>
+          )}
+          {(posts.some((x) => x.endDate) || committees.some((x) => x.endDate)) && (
+            <details style={{ marginTop: '8px' }}>
+              <summary style={{ cursor: 'pointer', fontSize: '15px' }}>Past posts and committees</summary>
+              <PostList posts={posts} current={false} />
+              <PostList posts={committees} current={false} />
+            </details>
+          )}
+        </section>
+      )}
+
+      {voting && (
+        <section aria-labelledby="peer-votes" style={{ color: INK }}>
+          <h2 id="peer-votes" style={h2}>Voting record</h2>
+          {voting.voted === 0 ? (
+            <p style={{ fontSize: '15px' }}>No votes recorded in the {voting.divisions.toLocaleString('en-GB')} Lords divisions since {fmt(voting.firstDivision)}.</p>
+          ) : (
+            <>
+              <p style={{ fontSize: '15px', margin: '0 0 8px' }}>
+                Voted in <strong>{voting.voted.toLocaleString('en-GB')}</strong> of {voting.divisions.toLocaleString('en-GB')} divisions since {fmt(voting.firstDivision)}:
+                {' '}{voting.content.toLocaleString('en-GB')} content, {voting.notContent.toLocaleString('en-GB')} not content.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
+                {voting.recent.map((v) => (
+                  <li key={v.division_id} style={{ padding: '7px 0', borderBottom: divider }}>
+                    <span style={{ fontFamily: 'var(--font-special-elite), monospace', whiteSpace: 'nowrap' }}>{fmt(v.division_date)}</span>
+                    {' · '}<strong>{v.vote === 'content' ? 'Content' : v.vote === 'not_content' ? 'Not content' : v.vote}</strong>
+                    <div>
+                      <a href={lordsDivisionUrl(v.division_id)} target="_blank" rel="noopener noreferrer" style={link}>{(v.title || `Division ${v.division_id}`).trim()}</a>
+                      {v.bill_id && <> · <Link href={`/bills/${v.bill_id}`} style={link}>the bill</Link></>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </section>
+      )}
+
+      {questions && questions.total > 0 && (
+        <section aria-labelledby="peer-questions" style={{ color: INK }}>
+          <h2 id="peer-questions" style={h2}>Written questions</h2>
+          <WrittenQuestionsSummary summary={questions} allHref={`/lords/${memberId}/questions`} />
+        </section>
+      )}
+    </OpenGovShell>
+  );
+}

@@ -6,6 +6,8 @@ import { lookupMember, parliamentMemberUrl } from '@/lib/former-mps';
 import FormerMpProfile from './FormerMpProfile';
 import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
+import { getPeer } from '@/lib/lords';
+import { peerHasPage } from '@/lib/peers';
 import { questionsSummary, type QuestionsSummary } from '@/lib/mp-written-questions';
 import { getHiddenBillIds } from '@/lib/hidden-bills';
 import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
@@ -277,11 +279,17 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         .select('id, mp_name_at_time, closed_date, outcome, rule_breached, summary, penalty, url, source')
         .eq('member_id', memberId)
         .order('closed_date', { ascending: false });
-      const formerReports = await mpReportItems(memberId).catch(() => []);
+      const [formerReports, peer] = await Promise.all([mpReportItems(memberId).catch(() => []), getPeer(supabase, memberId).catch(() => null)]);
       const related = formerReports.length ? [{ href: `/mps/${memberId}/reports`, label: `Reports on ${m.mp.name} (${formerReports.length})` }] : [];
+      // A former MP now in the Lords links to their peer page, which links back (owner, 3 Nov 2026).
+      if (peer && peerHasPage(peer)) related.unshift({ href: `/lords/${memberId}`, label: `${peer.name_display} in the House of Lords` });
       return <FormerMpProfile mp={m.mp} conductFindings={findings ?? []} related={related} />;
     }
-    if (m.kind === 'lords_only') permanentRedirect(parliamentMemberUrl(memberId));
+    // A member who only sat in the Lords: their peer page (owner, 3 Nov 2026), or Parliament's profile if they have none.
+    if (m.kind === 'lords_only') {
+      const peer = await getPeer(supabase, memberId).catch(() => null);
+      permanentRedirect(peer && peerHasPage(peer) ? `/lords/${memberId}` : parliamentMemberUrl(memberId));
+    }
     notFound();
   }
   // A failed count read throws, like the page's other timeouts, rather than showing zero votes.
