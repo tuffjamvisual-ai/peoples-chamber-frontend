@@ -1,0 +1,35 @@
+{
+  "committees": {
+    "name": "Parliament committee publications",
+    "base": "https://committees-api.parliament.uk/api",
+    "licence": "Open Parliament Licence v3.0",
+    "licence_url": "https://www.parliament.uk/site-information/copyright/",
+    "rate": "1 request per second (no published limit; conservative)",
+    "keep": true,
+    "republish": "yes with attribution",
+    "personal_data": "low (evidence may name witnesses)",
+    "robots_checked_at": "2026-11-03T13:04:17Z: https://committees-api.parliament.uk/robots.txt answered HTTP 404 (no robots.txt), so no Disallow covers /api/Publications or /api/Publications/{id}/Document/{docId}/OriginalFormat"
+  },
+  "govuk": {
+    "name": "GOV.UK publications",
+    "base": "https://www.gov.uk/api",
+    "licence": "Open Government Licence v3.0 except where otherwise stated",
+    "licence_url": "https://content-api.publishing.service.gov.uk/",
+    "rate": "2 requests per second (published maximum 10 per second)",
+    "keep": true,
+    "republish": "yes with attribution, check exceptions",
+    "personal_data": "low",
+    "robots_checked_at": "2026-11-03T13:04:18Z: https://www.gov.uk/robots.txt (HTTP 200) disallows /*/print$ and /search/all* for all agents, neither of which covers /api/search.json or /api/content/; https://assets.publishing.service.gov.uk/robots.txt (attachments) answered HTTP 404 (no robots.txt) at 2026-11-03T13:04:20Z"
+  },
+  "contracts_finder": {
+    "name": "Contracts Finder (OCDS)",
+    "base": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search",
+    "licence": "Open Government Licence v3.0 (stated in each release)",
+    "licence_url": "https://www.contractsfinder.service.gov.uk/Home/TermsAndConditions",
+    "rate": "1 request per second; on 403 wait 5 minutes as the API documentation says",
+    "keep": true,
+    "republish": "yes with attribution; never republish buyer contact names, emails or phone numbers",
+    "personal_data": "medium (buyer contact details)",
+    "robots_checked_at": "2026-11-03T13:04:21Z: https://www.contractsfinder.service.gov.uk/robots.txt answered HTTP 404 (no robots.txt), so no Disallow covers /Published/Notices/OCDS/Search"
+  }
+}
