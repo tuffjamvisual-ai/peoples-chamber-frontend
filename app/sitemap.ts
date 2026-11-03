@@ -77,6 +77,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/transparency/register-of-interests`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/money`, changeFrequency: 'daily', priority: 0.9 },
     { url: `${SITE}/reports`, changeFrequency: 'weekly', priority: 0.8 },
+    // The area finder itself (3 Nov 2026); its search and result views are noindex and never listed.
+    { url: `${SITE}/your-area`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/laws`, changeFrequency: 'weekly', priority: 0.8 },
     // Laws made without a vote and treaties, from UK Parliament's APIs (report 81).
     { url: `${SITE}/laws/made-without-a-vote`, changeFrequency: 'daily', priority: 0.8 },

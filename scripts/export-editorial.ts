@@ -38,7 +38,7 @@ const optional: [string, string][] = [
   ['evidence', 'evidence'], ['updateNote', 'update_note'], ['relatedProgrammeSlugs', 'related_programme_slugs'], ['explore', 'explore'], ['readNext', 'read_next'],
 ];
 for (const [field, col] of optional) if (row[col] !== null && row[col] !== undefined) e[field] = row[col];
-for (const [field, col] of [['relatedDeptSlugs', 'related_dept_slugs'], ['relatedMemberIds', 'related_member_ids'], ['relatedBillIds', 'related_bill_ids']]) {
+for (const [field, col] of [['relatedDeptSlugs', 'related_dept_slugs'], ['relatedMemberIds', 'related_member_ids'], ['relatedBillIds', 'related_bill_ids'], ['relatedCouncilSlugs', 'related_council_slugs']]) {
   if (Array.isArray(row[col]) && (row[col] as unknown[]).length > 0) e[field] = row[col];
 }
 

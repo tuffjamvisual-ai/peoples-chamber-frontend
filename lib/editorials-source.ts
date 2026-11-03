@@ -38,7 +38,7 @@ export type EditorialListEntry = Pick<EditorialEntry, 'slug' | 'headline' | 'sta
   lastChecked?: string;       // evidence.lastChecked (the sitemap's lastModified)
   releasePaths?: string[];    // the GOV.UK releases the piece examines (lib/editorial-release-keys.ts)
   releaseTitles?: string[];
-  councilSlugs?: string[];    // the councils the piece links to (lib/editorials/council-slugs.ts), for council pages' Related links
+  councilSlugs?: string[];    // relatedCouncilSlugs and the councils its text links to (lib/editorials/council-slugs.ts), for council pages' Related links
 };
 export type EditorialSet = {
   list: EditorialListEntry[];                    // registry order
@@ -52,7 +52,7 @@ type IndexEntry = EditorialListEntry & { topicPositions?: Record<string, number>
 const INDEX_LIMIT = 1_000_000;
 
 const WEEK = 604800;   // owner, 30 Oct 2026 (was a day): a publish refreshes the tags straight away
-const COLUMNS = 'slug, headline, standfirst, summary, published_at, author_byline, kind, kicker, body_json, related_dept_slugs, related_member_ids, related_bill_ids, opinion, hero_image, hero_alt, evidence, update_note, related_programme_slugs, explore, read_next, topic_positions, registry_order, unpublished';
+const COLUMNS = 'slug, headline, standfirst, summary, published_at, author_byline, kind, kicker, body_json, related_dept_slugs, related_member_ids, related_bill_ids, opinion, hero_image, hero_alt, evidence, update_note, related_programme_slugs, related_council_slugs, explore, read_next, topic_positions, registry_order, unpublished';
 
 function client() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
@@ -61,7 +61,8 @@ function client() {
   });
 }
 
-// A row back into an EditorialEntry: NULL is an absent field; the three older related_* arrays store absent as empty.
+// A row back into an EditorialEntry: NULL is an absent field; the older related_* arrays and related_council_slugs store
+// absent as empty.
 function fromRow(r: Row): EditorialEntry {
   const e: Record<string, unknown> = {
     slug: r.slug, headline: r.headline, standfirst: r.standfirst, publishedAt: r.published_at, authorByline: r.author_byline, body: r.body_json,
@@ -71,7 +72,7 @@ function fromRow(r: Row): EditorialEntry {
     ['evidence', 'evidence'], ['updateNote', 'update_note'], ['relatedProgrammeSlugs', 'related_programme_slugs'], ['explore', 'explore'], ['readNext', 'read_next'],
   ];
   for (const [field, col] of optional) if (r[col] !== null && r[col] !== undefined) e[field] = r[col];
-  for (const [field, col] of [['relatedDeptSlugs', 'related_dept_slugs'], ['relatedMemberIds', 'related_member_ids'], ['relatedBillIds', 'related_bill_ids']]) {
+  for (const [field, col] of [['relatedDeptSlugs', 'related_dept_slugs'], ['relatedMemberIds', 'related_member_ids'], ['relatedBillIds', 'related_bill_ids'], ['relatedCouncilSlugs', 'related_council_slugs']]) {
     if (Array.isArray(r[col]) && (r[col] as unknown[]).length > 0) e[field] = r[col];
   }
   // Keys in the order the code objects are written in, so serialised output (JSON-LD) is the same.
@@ -88,7 +89,8 @@ function toListEntry(e: EditorialEntry): EditorialListEntry {
   const keys = releaseKeysOf(e);
   if (keys.paths.length) out.releasePaths = keys.paths;
   if (keys.titles.length) out.releaseTitles = keys.titles;
-  const councils = councilSlugsOf(e);
+  // The councils it names (related_council_slugs) and the ones its text links to, once each (3 Nov 2026).
+  const councils = [...new Set([...(e.relatedCouncilSlugs ?? []), ...councilSlugsOf(e)])];
   if (councils.length) out.councilSlugs = councils;
   return out as EditorialListEntry;
 }

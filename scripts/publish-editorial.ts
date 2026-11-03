@@ -15,7 +15,7 @@
 //
 // Stops before writing if any check fails: slug format (new: 6 to 16 lower case letters or digits); summary 22 words or fewer; headline 70 characters or fewer
 // (a warning above 60); no hyphens or dashes in our wording outside quotations, URLs and --allow names; every
-// relatedMemberIds a current member in mps; every relatedDeptSlugs, relatedBillIds and topic slug real; every
+// relatedMemberIds a current member in mps; every relatedDeptSlugs, relatedBillIds, relatedCouncilSlugs and topic slug real; every
 // evidence URL https; every Open Govt evidence URL pointing at an id that exists.
 //
 // Safeguards: reads run in a READ ONLY transaction; the write is one statement in its own transaction with
@@ -149,6 +149,7 @@ async function main() {
   for (const d of piece.relatedDeptSlugs ?? []) if (!deptSlugs.has(d)) problems.push(`no department "${d}"`);
   const memberIds = piece.relatedMemberIds ?? [];
   const billIds = piece.relatedBillIds ?? [];
+  const councilSlugs = piece.relatedCouncilSlugs ?? [];
   for (const n of [...memberIds, ...billIds]) if (!Number.isInteger(n)) problems.push(`${n} is not a whole number id`);
 
   // Open Govt evidence URLs: the section and id of each.
@@ -179,7 +180,7 @@ async function main() {
     'existing', (SELECT to_jsonb(e) - 'search_vec' FROM public.editorials e WHERE slug = ${lit(piece.slug)}),
     'members', (SELECT coalesce(json_agg(json_build_object('id', member_id, 'current', current_member, 'name', name)), '[]') FROM public.mps WHERE member_id = ANY(${intArray(memberLookup)})),
     'bills', (SELECT coalesce(json_agg(id), '[]') FROM public.bill WHERE id = ANY(${intArray([...new Set([...billIds, ...intIds('bills')])])})),
-    'councils', (SELECT coalesce(json_agg(slug), '[]') FROM public.councils WHERE slug = ANY(${textArray(ids('councils'))})),
+    'councils', (SELECT coalesce(json_agg(slug), '[]') FROM public.councils WHERE slug = ANY(${textArray([...new Set([...ids('councils'), ...councilSlugs])])})),
     'news', (SELECT coalesce(json_agg(news_slug), '[]') FROM public.press_releases WHERE news_slug = ANY(${textArray(ids('news'))})),
     'editorials', (SELECT coalesce(json_agg(slug), '[]') FROM public.editorials WHERE slug = ANY(${textArray([...ids('editorials'), ...ids('briefings')])})),
     'committees', (SELECT coalesce(json_agg(id), '[]') FROM public.committees WHERE id = ANY(${intArray(intIds('committees'))}))
@@ -202,6 +203,7 @@ async function main() {
   }
   const bills = new Set(db.bills.map(Number));
   for (const id of billIds) if (!bills.has(id)) problems.push(`relatedBillIds ${id} is not in bill`);
+  for (const c of councilSlugs) if (!db.councils.includes(c)) problems.push(`relatedCouncilSlugs "${c}" is not in councils`);
   const has: Record<string, (id: string) => boolean> = {
     mps: (id) => members.has(Number(id)),
     bills: (id) => bills.has(Number(id)),
@@ -289,6 +291,8 @@ ${apply ? 'COMMIT' : 'ROLLBACK'};
     ...[...new Set([...oldDepts, ...(piece.relatedDeptSlugs ?? [])])].map((d) => `/departments/${d}`),
     ...allMembers.flatMap((m) => [`/mps/${m}`, `/mps/${m}/reports`]),
     ...allBills.map((b) => `/bills/${b}`),
+    // Council pages list the reports that name them (Related, 3 Nov 2026): before and after the change.
+    ...[...new Set([...((existing?.related_council_slugs as string[] | null) ?? []), ...councilSlugs])].map((c) => `/councils/${c}`),
   ];
   console.log(`  ${apply ? 'refreshing' : 'would refresh'} ${tags.length} tags: ${tags.join(', ')}`);
   console.log(`  and ${paths.length} paths: ${paths.join(', ')}`);

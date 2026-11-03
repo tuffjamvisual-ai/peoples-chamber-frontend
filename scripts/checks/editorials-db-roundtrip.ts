@@ -35,7 +35,7 @@ function fromRow(r: DbRow): EditorialEntry {
     ['explore', 'explore'], ['readNext', 'read_next'],
   ];
   for (const [field, col] of optional) if (r[col] !== null && r[col] !== undefined) e[field] = r[col];
-  for (const [field, col] of [['relatedDeptSlugs', 'related_dept_slugs'], ['relatedMemberIds', 'related_member_ids'], ['relatedBillIds', 'related_bill_ids']]) {
+  for (const [field, col] of [['relatedDeptSlugs', 'related_dept_slugs'], ['relatedMemberIds', 'related_member_ids'], ['relatedBillIds', 'related_bill_ids'], ['relatedCouncilSlugs', 'related_council_slugs']]) {
     if (Array.isArray(r[col]) && (r[col] as unknown[]).length > 0) e[field] = r[col];
   }
   return e as unknown as EditorialEntry;

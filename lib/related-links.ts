@@ -60,7 +60,7 @@ export async function editorialRelated(piece: EditorialEntry, mps: { memberId: n
   const add = (l: RelatedLink) => { if (links.length < MAX && !links.some((x) => x.href === l.href)) links.push(l); };
   for (const m of mps) add({ href: `/mps/${m.memberId}`, label: m.name });
   try {
-    const slugs = councilSlugsOf(piece);
+    const slugs = [...new Set([...(piece.relatedCouncilSlugs ?? []), ...councilSlugsOf(piece)])];
     if (slugs.length && links.length < MAX) {
       const { data, error } = await supabase.from('councils').select('slug, name').in('slug', slugs);
       if (error) throw new Error(`related: councils: ${error.message}`);

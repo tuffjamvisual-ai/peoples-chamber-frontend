@@ -44,6 +44,9 @@ export type EditorialEntry = {
   relatedMemberIds?: number[];
   relatedBillIds?: number[];
   relatedProgrammeSlugs?: string[];
+  /** Councils the piece names (owner's brief, 3 Nov 2026; editorials.related_council_slugs): read with the councils
+   *  linked in the body text (lib/editorials/council-slugs.ts) by the council pages' Related links. */
+  relatedCouncilSlugs?: string[];
   // Optional hand-picked links for the "Explore next" block at the foot of the piece
   // (app/components/ExploreNext.tsx): the data pages behind the story. Internal paths only.
   explore?: { href: string; label: string; note?: string }[];

@@ -32,12 +32,19 @@ import { displayMpName } from '@/lib/mp-name';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Your area',
-  description: 'Your MP, your council and the latest local figures for your area, from a postcode or town.',
-  alternates: { canonical: '/your-area' },
-  robots: { index: false, follow: true },
-};
+// The page itself is indexable (owner's brief, 3 Nov 2026: index, follow, canonical, in the sitemap); any search or
+// result view (a postcode or town search, a place, coordinates, or a council or constituency) stays noindex, follow.
+const RESULT_PARAMS = ['q', 'place', 'lat', 'lon', 'council', 'constituency'];
+export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
+  const sp = await searchParams;
+  const resultView = Object.keys(sp).some((k) => RESULT_PARAMS.includes(k) || sp[k] !== undefined);
+  return {
+    title: 'Your area',
+    description: 'Your MP, your council and the latest local figures for your area, from a postcode or town.',
+    alternates: { canonical: '/your-area' },
+    robots: resultView ? { index: false, follow: true } : { index: true, follow: true },
+  };
+}
 
 const INK = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.2)';

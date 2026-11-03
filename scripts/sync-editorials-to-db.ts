@@ -148,6 +148,7 @@ export function rowFor(piece: EditorialEntry, place: Placement) {
     related_dept_slugs:      piece.relatedDeptSlugs  ?? [],
     related_member_ids:      piece.relatedMemberIds  ?? [],
     related_bill_ids:        piece.relatedBillIds    ?? [],
+    related_council_slugs:   piece.relatedCouncilSlugs ?? [],
     opinion:                 piece.opinion ?? null,
     hero_image:              piece.heroImage ?? null,
     hero_alt:                piece.heroAlt ?? null,
@@ -174,7 +175,7 @@ export function canon(v: unknown): string {
 }
 
 async function currentRows(): Promise<Map<string, Record<string, unknown>>> {
-  const cols = 'slug, headline, standfirst, summary, published_at, author_byline, kind, kicker, body_text, body_json, related_dept_slugs, related_member_ids, related_bill_ids, opinion, hero_image, hero_alt, evidence, last_checked, update_note, related_programme_slugs, explore, read_next, topic_slugs, unpublished, registry_order, topic_positions, updated_at';
+  const cols = 'slug, headline, standfirst, summary, published_at, author_byline, kind, kicker, body_text, body_json, related_dept_slugs, related_member_ids, related_bill_ids, related_council_slugs, opinion, hero_image, hero_alt, evidence, last_checked, update_note, related_programme_slugs, explore, read_next, topic_slugs, unpublished, registry_order, topic_positions, updated_at';
   const { data, error } = await supabase.from('editorials').select(cols).range(0, 999);
   if (error) throw new Error(`reading current rows: ${error.message}`);
   return new Map(((data ?? []) as unknown as Record<string, unknown>[]).map((r) => [r.slug as string, r]));
@@ -191,7 +192,7 @@ function withTimes(row: Row, stored: Record<string, unknown> | undefined, now: s
 export const SQL_TYPES: Record<string, string> = {
   slug: 'text', headline: 'text', standfirst: 'text', summary: 'text', published_at: 'date', author_byline: 'text', kind: 'text',
   kicker: 'text', body_text: 'text', body_json: 'jsonb', related_dept_slugs: 'text[]', related_member_ids: 'int[]',
-  related_bill_ids: 'int[]', opinion: 'boolean', hero_image: 'text', hero_alt: 'text', evidence: 'jsonb', last_checked: 'date',
+  related_bill_ids: 'int[]', related_council_slugs: 'text[]', opinion: 'boolean', hero_image: 'text', hero_alt: 'text', evidence: 'jsonb', last_checked: 'date',
   update_note: 'jsonb', related_programme_slugs: 'text[]', explore: 'jsonb', read_next: 'text[]', topic_slugs: 'text[]',
   unpublished: 'boolean', registry_order: 'int', topic_positions: 'jsonb', synced_at: 'timestamptz', updated_at: 'timestamptz',
 };
