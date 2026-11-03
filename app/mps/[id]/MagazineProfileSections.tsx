@@ -621,6 +621,16 @@ export default function MagazineProfileSections({
         ? 'career'
         : (sections[0]?.id ?? 'bio');
   const [active, setActive] = useState<SectionId>(initialActive);
+  // Phones under 480px (owner, 3 Nov 2026): every section in turn instead of tabs. The server renders the tabs; the
+  // phone layout takes over once the page is running in the browser.
+  const [phone, setPhone] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 479px)');
+    const on = () => setPhone(mq.matches);
+    on();
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
   // ?section= in the address wins. The page is statically cached, so the server never sees the address
   // (initialSection is null there); read it here once the page has loaded.
   useEffect(() => {
@@ -749,10 +759,20 @@ export default function MagazineProfileSections({
       .finally(() => setDonationsLoading(false));
   }, [memberId]);
   useEffect(() => {
+    if (phone) return; // on phones each loads when its section comes into view (below)
     if (active === 'expenses') loadExpenses();
     if (active === 'donations') loadDonations();
     if (active === 'petitions') loadPetitions();
-  }, [active, loadExpenses, loadDonations, loadPetitions]);
+  }, [phone, active, loadExpenses, loadDonations, loadPetitions]);
+  useEffect(() => {
+    if (!phone) return;
+    const load: Partial<Record<SectionId, () => void>> = { expenses: loadExpenses, donations: loadDonations, petitions: loadPetitions };
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) load[(e.target as HTMLElement).dataset.sectionBlock as SectionId]?.();
+    }, { rootMargin: '400px 0px' });
+    document.querySelectorAll<HTMLElement>('[data-section-block]').forEach((el) => { if (load[el.dataset.sectionBlock as SectionId]) io.observe(el); });
+    return () => io.disconnect();
+  }, [phone, loadExpenses, loadDonations, loadPetitions]);
   useEffect(() => {
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     if (saveData) return;
@@ -858,75 +878,9 @@ export default function MagazineProfileSections({
     .filter((b) => !compactExpenses || expenses.some((e) => Number(e[b.key]) > 0))
     .map((b) => ({ key: b.key, label: compactExpenses ? b.short : b.label }));
 
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px mp-sections-grid" style={{ marginTop: '-80px' }}>
-      {/* Hold the content pane at a uniform height across tabs on desktop, so
-          switching between short tabs (Contact, Expenses, Before Politics) and
-          taller ones doesn't change the page height — which reflowed the
-          centred folder and jogged the scroll position. Tabs with genuinely
-          long tables (voting, donations) still grow past this. */}
-      <style>{`
-        @media (min-width: 1024px){ .mp-sections-content{ min-height: 82vh } }
-        @media (max-width: 1023px){
-          .mp-sections-nav { flex-direction: row !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-right: 0 !important; padding: 4px 0 0 !important; gap: 2px !important; border-bottom: 1px solid rgba(20,16,13,0.2); }
-          .mp-sections-nav::-webkit-scrollbar { display: none; }
-          .mp-sections-nav.more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
-          .mp-sections-nav button { white-space: nowrap; flex: 0 0 auto; transform: none !important; border-left: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; padding: 10px 12px !important; font-size: 15px !important; }
-          .mp-sections-nav button[data-active="true"] { border-bottom-color: #7a1612 !important; }
-          .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
-          .mp-sections-content { padding: 20px 2px !important; }
-        }
-        .mp-col-inline { display: none; }
-        @container (max-width: 560px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
-      `}</style>
-      <aside className="lg:col-span-1" style={{ marginLeft: '-13%' }}>
-        <div
-          ref={stickyRef}
-          className={jsSticky ? undefined : 'lg:sticky lg:top-16'}
-          style={jsSticky ? { transform: `translateY(${stickyOffset}px)`, willChange: 'transform' } : undefined}
-        >
-          <nav
-            ref={sectionNavRef}
-            aria-label="MP profile sections"
-            className={`mp-sections-nav${navMoreRight ? ' more-right' : ''}`}
-            style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}
-          >
-            {sections.map((s) => {
-              const isActive = active === s.id;
-              return (
-                <button
-                  key={s.id}
-                  data-section={s.id}
-                  data-active={isActive ? 'true' : 'false'}
-                  aria-pressed={isActive}
-                  onClick={() => select(s.id)}
-                  style={{
-                    padding: '12px 16px',
-                    border: 'none',
-                    borderLeft: isActive ? '4px solid #7a1612' : '4px solid transparent',
-                    background: isActive ? 'rgba(122,22,18,0.08)' : 'transparent',
-                    boxShadow: isActive ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
-                    fontWeight: isActive ? 'bold' : 'normal',
-                    fontSize: '15px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: '#14100d',
-                    fontFamily: 'inherit',
-                    transform: `rotate(${s.rotate})`,
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {s.label}
-                </button>
-              );
-            })}
-            {followable && !formerMember && <FollowButton variant="sidebar" kind="mp" targetKey={String(memberId)} label={fullName || 'this MP'} />}
-          </nav>
-        </div>
-      </aside>
-
-      <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
+  // One section's content (the active tab on desktop; each section in turn on phones).
+  const renderSection = (active: SectionId) => (
+    <>
         {active === 'career' && (
           <>
             <h2 style={sectionH2}>Background</h2>
@@ -1343,7 +1297,7 @@ export default function MagazineProfileSections({
         {/* Petitions (owner, 30 Oct 2026, cache Stage 2a part 4): the heading and the note with its link to the petitions
             site are always in the page, hidden unless the tab is open, so crawlers see them; the list, with its live
             signature counts, is loaded from /api/mps/[id]/petitions when the tab opens. */}
-        {petitionsAvailable && (() => {
+        {petitionsAvailable && (!phone || active === 'petitions') && (() => {
           const fmtNum = (n: number) => n.toLocaleString('en-GB');
           const ordinal = (n: number) => {
             const mod100 = n % 100;
@@ -2722,6 +2676,101 @@ export default function MagazineProfileSections({
         })()}
         {/* An MP with reports but no biography tab still gets the list, at the end of the tab the profile opens on. */}
         {!has.bio && active === initialActive && <ReportsMentioning reports={reports} />}
+    </>
+  );
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px mp-sections-grid" style={{ marginTop: '-80px' }}>
+      {/* Hold the content pane at a uniform height across tabs on desktop, so
+          switching between short tabs (Contact, Expenses, Before Politics) and
+          taller ones doesn't change the page height — which reflowed the
+          centred folder and jogged the scroll position. Tabs with genuinely
+          long tables (voting, donations) still grow past this. */}
+      <style>{`
+        @media (min-width: 1024px){ .mp-sections-content{ min-height: 82vh } }
+        @media (max-width: 1023px){
+          .mp-sections-nav { flex-direction: row !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-right: 0 !important; padding: 4px 0 0 !important; gap: 2px !important; border-bottom: 1px solid rgba(20,16,13,0.2); }
+          .mp-sections-nav::-webkit-scrollbar { display: none; }
+          .mp-sections-nav.more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
+          .mp-sections-nav button { white-space: nowrap; flex: 0 0 auto; transform: none !important; border-left: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; padding: 10px 12px !important; font-size: 15px !important; }
+          .mp-sections-nav button[data-active="true"] { border-bottom-color: #7a1612 !important; }
+          .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
+          .mp-sections-content { padding: 20px 2px !important; }
+        }
+        .mp-col-inline { display: none; }
+        @container (max-width: 560px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
+      `}</style>
+      <aside className="lg:col-span-1" style={{ marginLeft: '-13%' }}>
+        <div
+          ref={stickyRef}
+          className={jsSticky ? undefined : 'lg:sticky lg:top-16'}
+          style={jsSticky ? { transform: `translateY(${stickyOffset}px)`, willChange: 'transform' } : undefined}
+        >
+          <nav
+            ref={sectionNavRef}
+            aria-label="MP profile sections"
+            className={`mp-sections-nav${navMoreRight ? ' more-right' : ''}`}
+            style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}
+          >
+            {!phone && sections.map((s) => {
+              const isActive = active === s.id;
+              return (
+                <button
+                  key={s.id}
+                  data-section={s.id}
+                  data-active={isActive ? 'true' : 'false'}
+                  aria-pressed={isActive}
+                  onClick={() => select(s.id)}
+                  style={{
+                    padding: '12px 16px',
+                    border: 'none',
+                    borderLeft: isActive ? '4px solid #7a1612' : '4px solid transparent',
+                    background: isActive ? 'rgba(122,22,18,0.08)' : 'transparent',
+                    boxShadow: isActive ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    fontSize: '15px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: '#14100d',
+                    fontFamily: 'inherit',
+                    transform: `rotate(${s.rotate})`,
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
+            {followable && !formerMember && <FollowButton variant="sidebar" kind="mp" targetKey={String(memberId)} label={fullName || 'this MP'} />}
+          </nav>
+        </div>
+      </aside>
+
+      <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
+        {phone ? (
+          <>
+            {/* Phones (owner, 3 Nov 2026): every section one after another, with a contents list, as GOV.UK tabs show
+                on small screens. Desktop keeps the tabs. */}
+            <nav aria-label="On this page" className="mp-on-this-page" style={{ marginBottom: '18px', fontSize: '15px' }}>
+              <h2 style={{ fontSize: '17px', fontWeight: 'bold', margin: '0 0 4px' }}>On this page</h2>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {sections.map((s) => (
+                  <li key={s.id}>
+                    <a href={`#section-${s.id}`} style={{ display: 'flex', alignItems: 'center', minHeight: '44px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+                      {s.label.charAt(0) + s.label.slice(1).toLowerCase().replace('the house', 'the House')}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            {sections.map((s) => (
+              <section key={s.id} id={`section-${s.id}`} data-section-block={s.id} style={{ marginBottom: '28px', scrollMarginTop: '12px' }}>
+                {renderSection(s.id)}
+              </section>
+            ))}
+          </>
+        ) : renderSection(active)}
       </div>
     </div>
   );

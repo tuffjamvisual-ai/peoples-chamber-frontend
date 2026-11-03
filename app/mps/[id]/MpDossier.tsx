@@ -90,6 +90,12 @@ export default function MpDossier({
           .pca-paperclip { display: none !important; }
           .pca-mp-bio { margin: 0 !important; }
         }
+        /* Phones under 480px (owner, 3 Nov 2026): the photo, with its frame, at most 40 per cent of the screen height,
+           so the name and party show on the first screen. */
+        @media (max-width: 479px) {
+          .pca-mp-photo img, .pca-mp-photo > div { width: min(180px, calc(30vh - 60px)) !important; height: min(180px, calc(30vh - 60px)) !important; }
+          .pca-mp-header { margin-bottom: 12px !important; gap: 8px !important; }
+        }
       `}</style>
 
       {/* Back-to-party link above the header. Uses the shared BackLink

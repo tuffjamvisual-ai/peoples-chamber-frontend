@@ -96,7 +96,7 @@ export default function FloatingScrollDownButton() {
       title={label}
       tabIndex={pos.visible ? 0 : -1}
       aria-hidden={!pos.visible}
-      className="no-hover-scale"
+      className="no-hover-scale og-scroll-arrow"
       style={{
         position: 'fixed',
         left: pos.left != null ? `${pos.left}px` : '50%',

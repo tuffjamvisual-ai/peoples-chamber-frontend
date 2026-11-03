@@ -38,7 +38,9 @@ export default function OpenGovShell({
   // had arrived, and on desktop it is the largest thing painted (the LCP). Preloading it from the page head starts the
   // download with the HTML instead (25 Oct 2026, report 43); each width gets only the file its stylesheet uses.
   preload('/folders.webp', { as: 'image', media: '(min-width: 641px)', fetchPriority: 'high' });
-  preload('/folders-900.webp', { as: 'image', media: '(max-width: 640px)' });
+  // Under 480px the desk backdrop is not shown at all (owner, 3 Nov 2026: the folder is the page on phones), so it is
+  // not preloaded there either.
+  preload('/folders-900.webp', { as: 'image', media: '(min-width: 480px) and (max-width: 640px)' });
   const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, border: '0.07em solid #7a1612', padding: '0.14em 0.32em 0.06em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#7a1612', fontSize: 'clamp(24px, 4.6vw, 64px)' };
   return (
     <div
@@ -49,13 +51,13 @@ export default function OpenGovShell({
       {/* The image is set in opengov-shell.css (.og-backdrop) so phones get the 900px version. */}
       <div aria-hidden className="og-backdrop" style={{ position: 'fixed', inset: 0, backgroundColor: '#140d07', backgroundSize: '135%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', zIndex: 0, pointerEvents: 'none' }} />
 
-      <div style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
+      <div className="og-shell-inner" style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
         {/* Header: newb folder with the OPEN GOVERNMENT red stamp + nav + tab. */}
         <div className="og-header" style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448', containerType: 'inline-size' }}>
           {/* Phones (25 Oct 2026, report 43): sizes says 60vw below 640px so a 3x phone takes the 800px file (72 KB) and
               a 2x phone the 600px one (16 KB), not the full 1086px file (128 KB); still about twice the shown width. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="(max-width: 640px) 60vw, min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
+          <img className="og-header-img" src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="(max-width: 640px) 60vw, min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
 
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
             <AccountTab />
@@ -105,7 +107,7 @@ export default function OpenGovShell({
               <p style={{ margin: '0 0 14px', color: '#14100d', lineHeight: 1.65, maxWidth: '82ch' }}>
                 opengovt is independent and is not affiliated with GOV.UK, the UK Government, Parliament, any government department, local authority, public body or official public service.
               </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px' }}>
+              <div className="og-footer-links" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px' }}>
                 <a href="/privacy" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Privacy</a>
                 <span aria-hidden >·</span>
                 <a href="/cookies" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Cookies</a>

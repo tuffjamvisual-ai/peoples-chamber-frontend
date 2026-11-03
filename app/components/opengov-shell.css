@@ -5,7 +5,7 @@
 
 /* ---- Folders-pile backdrop: a 900px copy for phones (27 KiB instead of 155 KiB) ---- */
 .og-backdrop { background-image: url(/folders.webp); }
-@media (max-width: 640px) { .og-backdrop { background-image: url(/folders-900.webp); } }
+@media (min-width: 480px) and (max-width: 640px) { .og-backdrop { background-image: url(/folders-900.webp); } }
 
 /* ---- Nav bar (real links; no dropdowns since report 60) ---- */
 .ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; font-family: var(--font-special-elite), monospace; text-transform: uppercase; letter-spacing: 0.04em; color: #14100d; font-size: clamp(15px, 1.3cqw, 15px); text-shadow: 0.7px 0.7px 0 rgba(20, 16, 13, 0.42), -0.3px 0.2px 0.4px rgba(20, 16, 13, 0.24), 0 0 1.6px rgba(20, 16, 13, 0.3); }
@@ -108,4 +108,25 @@
   .og-menu-account { margin-top: 20px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; }
   .og-menu-account a { color: #14100d; text-decoration: none; padding: 10px 6px; }
   .og-menu-sep { display: inline-block; width: 1px; height: 1em; background: currentColor; opacity: 0.5; margin: 0 6px; }
+}
+
+/* ---- Phones under 480px (owner, 3 Nov 2026; GOV.UK Design System approach: small screens first, one column) ----
+   The folder is the page: no desk backdrop (not shown, so not downloaded: the image is only set on the element above
+   480px, and OpenGovShell preloads it only from 480px), the folder's paper edge to edge, a short header bar, and the
+   folder's top strip with its tab and the page stamp kept. Content runs at 12px from each side (over 92 per cent of
+   the screen). Nothing here applies from 480px up. */
+@media (max-width: 479px) {
+  .og-backdrop { display: none !important; background-image: none !important; }
+  .ng-page { padding: 0 !important; background-color: #e1c495 !important; }
+  .og-shell-inner { width: 100% !important; }
+  .og-header { aspect-ratio: auto !important; height: 56px; background: #d9b97f; border-bottom: 1px solid rgba(20, 16, 13, 0.2); }
+  .og-header-img { display: none !important; }
+  .og-masthead-wrap { top: 50% !important; left: 12px !important; width: auto !important; transform: translateY(-50%) !important; }
+  .og-masthead-wrap a { display: inline-flex; align-items: center; min-height: 44px; }
+  .og-mbar { top: 50% !important; right: 4px !important; transform: translateY(-50%) !important; }
+  .og-dossier { margin: 0 !important; width: 100% !important; background: #e1c495; }
+  .dossier-frame { filter: none; }
+  .dossier-frame .d-mid, .dossier-frame .d-bottom { display: none; }
+  .dossier-content { padding: 44px 12px 28px !important; }
+  .og-footer-links a { display: inline-flex; align-items: center; min-height: 44px; }
 }

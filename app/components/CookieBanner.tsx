@@ -64,9 +64,9 @@ export default function CookieBanner() {
           <div ref={confirmRef} tabIndex={-1} style={{ outline: 'none' }}>
             <p style={text}>
               {state === 'accepted' ? 'You’ve accepted additional cookies.' : 'You’ve rejected additional cookies.'}{' '}
-              You can <Link href="/cookies" className="focus-ring" style={link}>change your cookie settings</Link> at any time.
+              You can <Link href="/cookies" className="focus-ring og-cb-inline" style={link}>change your cookie settings</Link> at any time.
             </p>
-            <button type="button" className="focus-ring" style={button} onClick={() => setState('hidden')}>
+            <button type="button" className="focus-ring og-cb-btn" style={button} onClick={() => setState('hidden')}>
               Hide cookie message
             </button>
           </div>
@@ -75,16 +75,18 @@ export default function CookieBanner() {
             <h2 style={{ fontFamily: MONO, fontSize: '20px', fontWeight: 'bold', lineHeight: 1.3, color: INK, margin: '0 0 10px' }}>
               Cookies on opengovt
             </h2>
-            <p style={text}>We use some essential cookies to make this site work.</p>
-            <p style={text}>We&rsquo;d like to set additional cookies to understand how you use opengovt, so we can improve it.</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginTop: '6px' }}>
-              <button type="button" className="focus-ring" style={button} onClick={() => choose(true)}>
+            <p className="og-cb-long" style={text}>We use some essential cookies to make this site work.</p>
+            <p className="og-cb-long" style={text}>We&rsquo;d like to set additional cookies to understand how you use opengovt, so we can improve it.</p>
+            {/* Phones under 480px (owner, 3 Nov 2026): the same message in one sentence (globals.css shows one or the other). */}
+            <p className="og-cb-short" style={text}>We use essential cookies to make this site work, and we&rsquo;d like to set additional cookies to understand how you use it.</p>
+            <div className="og-cb-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginTop: '6px' }}>
+              <button type="button" className="focus-ring og-cb-btn" style={button} onClick={() => choose(true)}>
                 Accept additional cookies
               </button>
-              <button type="button" className="focus-ring" style={button} onClick={() => choose(false)}>
+              <button type="button" className="focus-ring og-cb-btn" style={button} onClick={() => choose(false)}>
                 Reject additional cookies
               </button>
-              <Link href="/cookies" className="focus-ring" style={{ ...link, fontFamily: MONO, fontSize: '16px' }}>View cookies</Link>
+              <Link href="/cookies" className="focus-ring og-cb-link" style={{ ...link, fontFamily: MONO, fontSize: '16px' }}>View cookies</Link>
             </div>
           </>
         )}
