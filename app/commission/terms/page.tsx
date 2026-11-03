@@ -3,7 +3,8 @@ import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
-// Terms for commissioned research (owner's brief, 24 Oct 2026; launched the same day with /commission).
+// Terms for commissioned research (owner's brief, 24 Oct 2026; launched the same day with /commission). "question" became
+// "enquiry" on 3 Nov 2026 (owner), with the meaning unchanged.
 
 export const metadata: Metadata = {
   title: 'Terms for commissioned research',
@@ -40,7 +41,7 @@ export default function CommissionTermsPage() {
 
       <h2 style={h2}>What we do not take on</h2>
       <p style={p}>We may decline any commission.</p>
-      <p style={p}>This includes work for election campaigns, lobbying material, and questions about private individuals who hold no public role.</p>
+      <p style={p}>This includes work for election campaigns, lobbying material, and enquiries about private individuals who hold no public role.</p>
 
       <h2 style={h2}>Sources</h2>
       <p style={p}>Every figure and claim is sourced to a public record or a named source.</p>
@@ -52,7 +53,7 @@ export default function CommissionTermsPage() {
 
       <h2 style={h2}>Changes</h2>
       <p style={p}>Every request includes one round of amendments to fix errors or clarify wording, within the agreed scope.</p>
-      <p style={p}>New questions need a new quote.</p>
+      <p style={p}>New enquiries need a new quote.</p>
 
       <h2 style={h2}>Delivery</h2>
       <p style={p}>We deliver by email, on or before the agreed date.</p>
@@ -79,7 +80,7 @@ export default function CommissionTermsPage() {
       <p style={p}>If opengovt is not VAT registered, no VAT is added.</p>
 
       <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '36px' }}>
-        Last updated: 25 October 2026
+        Last updated: 3 November 2026
       </p>
     </OpenGovShell>
   );

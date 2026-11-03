@@ -425,17 +425,24 @@ export async function sendNewsletterSubscriberNotification(sub: {
 }
 
 
-// Commission research requests (owner's brief, 24 Oct 2026): the request from /commission, in plain text, to the
-// contact inbox, with reply-to set to the client so a reply goes straight to them. The client is not emailed. Uses the
-// same key and sender as the emails above; returns { sent: false, reason: 'no_api_key' } when RESEND_API_KEY is
-// missing (the route answers 503 before calling this). Never throws.
+// Commission research enquiries (owner's brief, 24 Oct 2026; a research enquiry from 3 Nov 2026): the enquiry from
+// /commission, in plain text, to the contact inbox, with reply-to set to the client so a reply goes straight to them.
+// The client is not emailed and nothing is stored. Uses the same key and sender as the emails above; returns
+// { sent: false, reason: 'no_api_key' } when RESEND_API_KEY is missing (the route answers 503 before calling this).
+// Never throws.
 const COMMISSION_TO = 'contact@opengovt.uk';
 
 export async function sendCommissionRequest(r: {
   name: string;
   email: string;
   organisation: string;
+  title: string;
   question: string;
+  knownPeople: string;
+  knownFrom: string;
+  knownTo: string;
+  knownArea: string;
+  knownLinks: string[];
   deadline: string;
   publish: string;
 }) {
@@ -445,8 +452,9 @@ export async function sendCommissionRequest(r: {
   const received = new Date().toLocaleString('en-GB', {
     timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
+  const period = r.knownFrom || r.knownTo ? `${r.knownFrom || 'not given'} to ${r.knownTo || 'not given'}` : 'Not given';
   const text =
-    `Research request from opengovt.uk/commission\n\n` +
+    `Research enquiry from opengovt.uk/commission\n\n` +
     `Name:          ${r.name}\n` +
     `Email:         ${r.email}\n` +
     `Organisation:  ${r.organisation || 'Not given'}\n` +
@@ -454,14 +462,20 @@ export async function sendCommissionRequest(r: {
     `Publishing:    ${r.publish}\n` +
     `Terms read:    Yes\n` +
     `Received:      ${received} (UK time)\n\n` +
-    `Question:\n${r.question}\n\n` +
+    `Title:\n${r.title}\n\n` +
+    `Enquiry (what to investigate, and why):\n${r.question}\n\n` +
+    `What they already know\n` +
+    `People, bodies or companies:  ${r.knownPeople || 'Not given'}\n` +
+    `Period:                       ${period}\n` +
+    `Area:                         ${r.knownArea || 'Not given'}\n` +
+    `Links:                        ${r.knownLinks.length ? '\n' + r.knownLinks.map((l) => `  ${l}`).join('\n') : 'Not given'}\n\n` +
     `Reply to this email to answer the client directly.\n`;
 
   return deliver('commission request', key, {
     from,
     to: COMMISSION_TO,
     replyTo: r.email,
-    subject: `Research request from ${r.name}`,
+    subject: `Research enquiry from ${r.name}: ${r.title}`,
     text,
   });
 }

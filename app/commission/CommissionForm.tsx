@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { useState, type CSSProperties, type FormEvent } from 'react';
 import {
-  COMMISSION_PUBLISH, QUESTION_MAX, QUESTION_MIN, SUCCESS_MESSAGE, UNAVAILABLE_MESSAGE,
+  COMMISSION_PUBLISH, QUESTION_MAX, QUESTION_MIN, TITLE_MAX, LINKS_MAX, SUCCESS_MESSAGE, UNAVAILABLE_MESSAGE,
   normaliseCommission, todayUk, validateCommission, type CommissionErrors, type CommissionField,
 } from '@/lib/commission';
 
-// The commission request form (owner's brief, 24 Oct 2026). Checked here with the same rules the server uses
-// (lib/commission.ts), then sent to /api/commission, which emails it to the contact inbox.
+// The commission enquiry form (owner's brief, 24 Oct 2026; a research enquiry from 3 Nov 2026: your details, your
+// enquiry, what you already know, then deadline and publishing; opengovt decides how to investigate, so there is no
+// research type or output to choose). Checked here with the same rules the server uses (lib/commission.ts), then sent
+// to /api/commission, which emails it to the contact inbox.
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
@@ -32,8 +34,19 @@ const label: CSSProperties = { display: 'block', fontSize: '15px', fontWeight: '
 const hint: CSSProperties = { fontSize: '15px', margin: '4px 0 0' };
 const errorText: CSSProperties = { fontSize: '15px', color: ACCENT, fontWeight: 'bold', margin: '6px 0 0' };
 
-type Values = { name: string; email: string; organisation: string; question: string; deadline: string; publish: string; terms: boolean; website: string };
-const EMPTY: Values = { name: '', email: '', organisation: '', question: '', deadline: '', publish: '', terms: false, website: '' };
+const legend: CSSProperties = { fontSize: '17px', fontWeight: 'bold', padding: 0, marginBottom: '14px' };
+const group: CSSProperties = { border: 'none', borderTop: `2px solid ${INK}`, margin: '0 0 8px', padding: '14px 0 0', minWidth: 0 };
+
+type Values = {
+  name: string; email: string; organisation: string; title: string; question: string;
+  knownPeople: string; knownFrom: string; knownTo: string; knownArea: string; knownLinks: string;
+  deadline: string; publish: string; terms: boolean; website: string;
+};
+const EMPTY: Values = {
+  name: '', email: '', organisation: '', title: '', question: '',
+  knownPeople: '', knownFrom: '', knownTo: '', knownArea: '', knownLinks: '',
+  deadline: '', publish: '', terms: false, website: '',
+};
 
 export default function CommissionForm() {
   const [v, setV] = useState<Values>(EMPTY);
@@ -87,8 +100,13 @@ export default function CommissionForm() {
   const sending = status === 'sending';
   const row: CSSProperties = { marginBottom: '20px' };
 
+  const optional = <span style={{ fontWeight: 'normal' }}>(optional)</span>;
+
   return (
     <form onSubmit={onSubmit} noValidate style={{ fontFamily: MONO, color: INK, maxWidth: '640px' }}>
+      <style>{`.cm-period { display: flex; gap: 16px; flex-wrap: wrap; } .cm-period > div { flex: 1 1 200px; }`}</style>
+      <fieldset style={group}>
+      <legend style={legend}>Your details</legend>
       <div style={row}>
         <label htmlFor="commission-name" style={label}>Name</label>
         <input id="commission-name" name="name" type="text" autoComplete="name" value={v.name} onChange={(e) => set('name', e.target.value)} style={border('name')} {...aria('name')} />
@@ -106,16 +124,65 @@ export default function CommissionForm() {
         <input id="commission-organisation" name="organisation" type="text" autoComplete="organization" value={v.organisation} onChange={(e) => set('organisation', e.target.value)} style={border('organisation')} {...aria('organisation')} />
         {err('organisation')}
       </div>
+      </fieldset>
 
+      <fieldset style={group}>
+      <legend style={legend}>Your enquiry</legend>
       <div style={row}>
-        <label htmlFor="commission-question" style={label}>Your question</label>
-        <textarea id="commission-question" name="question" rows={7} value={v.question} onChange={(e) => set('question', e.target.value)} style={{ ...border('question'), resize: 'vertical', lineHeight: 1.5 }} {...aria('question')} />
-        <p style={hint}>Between {QUESTION_MIN} and {QUESTION_MAX.toLocaleString('en-GB')} characters. {v.question.trim().length.toLocaleString('en-GB')} so far.</p>
-        {err('question')}
+        <label htmlFor="commission-title" style={label}>Title</label>
+        <input id="commission-title" name="title" type="text" maxLength={TITLE_MAX} value={v.title} onChange={(e) => set('title', e.target.value)} style={border('title')} {...aria('title')} />
+        <p style={hint}>Up to {TITLE_MAX} characters.</p>
+        {err('title')}
       </div>
 
       <div style={row}>
-        <label htmlFor="commission-deadline" style={label}>Deadline <span style={{ fontWeight: 'normal' }}>(optional)</span></label>
+        <label htmlFor="commission-question" style={label}>What do you want investigated, and why?</label>
+        <textarea id="commission-question" name="question" rows={7} value={v.question} onChange={(e) => set('question', e.target.value)} style={{ ...border('question'), resize: 'vertical', lineHeight: 1.5 }} {...aria('question')} />
+        <p style={hint}>Between {QUESTION_MIN} and {QUESTION_MAX.toLocaleString('en-GB')} characters. {v.question.trim().length.toLocaleString('en-GB')} so far. We decide how to investigate.</p>
+        {err('question')}
+      </div>
+      </fieldset>
+
+      <fieldset style={group}>
+      <legend style={legend}>What you already know {optional}</legend>
+      <div style={row}>
+        <label htmlFor="commission-knownPeople" style={label}>People, bodies or companies involved</label>
+        <textarea id="commission-knownPeople" name="knownPeople" rows={3} value={v.knownPeople} onChange={(e) => set('knownPeople', e.target.value)} style={{ ...border('knownPeople'), resize: 'vertical', lineHeight: 1.5 }} {...aria('knownPeople')} />
+        {err('knownPeople')}
+      </div>
+
+      <div className="cm-period" style={row}>
+        <div>
+          <label htmlFor="commission-knownFrom" style={label}>Period from</label>
+          <input id="commission-knownFrom" name="knownFrom" type="date" value={v.knownFrom} onChange={(e) => set('knownFrom', e.target.value)} style={border('knownFrom')} {...aria('knownFrom')} />
+          {err('knownFrom')}
+        </div>
+        <div>
+          <label htmlFor="commission-knownTo" style={label}>Period to</label>
+          <input id="commission-knownTo" name="knownTo" type="date" min={v.knownFrom || undefined} value={v.knownTo} onChange={(e) => set('knownTo', e.target.value)} style={border('knownTo')} {...aria('knownTo')} />
+          {err('knownTo')}
+        </div>
+      </div>
+
+      <div style={row}>
+        <label htmlFor="commission-knownArea" style={label}>Area</label>
+        <input id="commission-knownArea" name="knownArea" type="text" value={v.knownArea} onChange={(e) => set('knownArea', e.target.value)} style={border('knownArea')} {...aria('knownArea')} />
+        <p style={hint}>A place, such as a council or constituency, or a policy area.</p>
+        {err('knownArea')}
+      </div>
+
+      <div style={row}>
+        <label htmlFor="commission-knownLinks" style={label}>Links</label>
+        <textarea id="commission-knownLinks" name="knownLinks" rows={3} value={v.knownLinks} onChange={(e) => set('knownLinks', e.target.value)} style={{ ...border('knownLinks'), resize: 'vertical', lineHeight: 1.5 }} {...aria('knownLinks')} />
+        <p style={hint}>Up to {LINKS_MAX} web addresses, one per line.</p>
+        {err('knownLinks')}
+      </div>
+      </fieldset>
+
+      <fieldset style={group}>
+      <legend style={legend}>Deadline and publishing</legend>
+      <div style={row}>
+        <label htmlFor="commission-deadline" style={label}>Deadline {optional}</label>
         <input id="commission-deadline" name="deadline" type="date" min={todayUk()} value={v.deadline} onChange={(e) => set('deadline', e.target.value)} style={{ ...border('deadline'), maxWidth: '240px' }} {...aria('deadline')} />
         {err('deadline')}
       </div>
@@ -128,6 +195,7 @@ export default function CommissionForm() {
         </select>
         {err('publish')}
       </div>
+      </fieldset>
 
       {/* Honeypot: hidden from people and from screen readers, so only bots fill it. */}
       <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}>
@@ -149,7 +217,7 @@ export default function CommissionForm() {
         padding: '12px 24px', background: sending ? 'rgba(20,16,13,0.45)' : INK, color: '#f4e8d4', border: `1px solid ${INK}`, borderRadius: 0,
         fontFamily: MONO, fontSize: '16px', letterSpacing: '0.06em', cursor: sending ? 'default' : 'pointer',
       }}>
-        {sending ? 'Sending…' : 'Send request'}
+        {sending ? 'Sending…' : 'Send enquiry'}
       </button>
     </form>
   );

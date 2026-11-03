@@ -224,9 +224,9 @@ export default async function HomePage() {
                   server-rendered markup: no image and no script. */}
               <section className="og-promo" aria-labelledby="og-promo-head">
                 <div className="og-kicker">opengovt service</div>
-                <h2 id="og-promo-head" className="og-promo-head">Need a question answered from the public record?</h2>
+                <h2 id="og-promo-head" className="og-promo-head">Want something investigated from the public record?</h2>
                 <p>Commission an independent, fully sourced research report. Every figure cited; the findings are ours, not the client&rsquo;s.</p>
-                <p className="og-promo-price">One fee for any request: £295, including data not yet on opengovt</p>
+                <p className="og-promo-price">From £295, with a fixed quote for each enquiry, including data not yet on opengovt</p>
                 <Link href="/commission" className="og-promo-btn">Commission research</Link>
               </section>
 

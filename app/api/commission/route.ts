@@ -4,7 +4,7 @@ import { sendCommissionRequest } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
-// Commission research requests (owner's brief, 24 Oct 2026). Checks every field with the same rules as the form
+// Commission research enquiries (owner's brief, 24 Oct 2026; a research enquiry from 3 Nov 2026). Checks every field with the same rules as the form
 // (lib/commission.ts), then emails the request to contact@opengovt.uk with reply-to set to the client. The client is
 // not emailed, and nothing is written to the database.
 //
