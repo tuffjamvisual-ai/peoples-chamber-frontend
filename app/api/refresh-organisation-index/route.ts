@@ -7,8 +7,10 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 180;
 
 // Daily at 04:45 UTC, after the donations (01:13) and contracts (01:53) syncs and the contractor refresh (03:27):
-// rebuilds the organisation summary behind /organisations (organisation_index and organisation_contracts, migration
-// 2026-10-27c; report 71). refresh_organisation_index() has its own 120 s limit. A failure returns 500, so the
+// rebuilds the organisation summary behind /organisations (contract_awards, organisation_contracts and
+// organisation_index, migrations 2026-10-27c and 2026-11-03h; report 71). refresh_organisation_index() refreshes all
+// three CONCURRENTLY (each has a unique index), so pages keep reading the old rows while it runs (checked 3 Nov 2026:
+// 25 s, page reads unaffected), and has its own 240 s limit. A failure returns 500, so the
 // heartbeat and the freshness monitor show it.
 
 async function GET_impl(req: Request) {
