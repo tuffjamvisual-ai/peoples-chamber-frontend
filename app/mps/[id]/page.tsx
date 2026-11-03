@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { lookupMember, parliamentMemberUrl } from '@/lib/former-mps';
 import FormerMpProfile from './FormerMpProfile';
 import { supabase } from '@/lib/supabase';
+import { getMpBiography } from '@/lib/mp-biography';
 import { getHiddenBillIds } from '@/lib/hidden-bills';
 import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
 import MpDossier from './MpDossier';
@@ -208,7 +209,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   ] = await withTimeout(Promise.all([
     getMp(memberId),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
-    supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
+    // The written biography, its sources and background text only when bio_visible is true (lib/mp-biography.ts).
+    getMpBiography(supabase, memberId),
     supabase
       .from('bill')
       .select('id, title, status, current_stage, description, long_title, is_act, last_update')
@@ -723,7 +725,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       followable
       sections={{
         memberId,
-        paragraphs: (bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0),
+        paragraphs: (bioRes.data?.bio_visible === true ? bioRes.data.political_bio ?? '' : '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0),
         contact: {
           // Prefer mp_contact, fall back to fields on the mps row.
           phone:         contactRes.data?.phone         ?? mp.phone         ?? null,

@@ -65,7 +65,9 @@ async function fetchMpItems(): Promise<FeedItem[]> {
   const { data: bios, error: bioErr } = await supabase
     .from('mp_biography')
     .select('member_id, political_bio')
-    .in('member_id', ids);
+    .in('member_id', ids)
+    // Hidden biographies are never read (owner, 3 Nov 2026; lib/mp-biography.ts).
+    .eq('bio_visible', true);
   if (bioErr) throw new Error(`feed biographies: ${bioErr.message}`);
   const bioByMember = new Map<number, string>();
   (bios || []).forEach((b: { member_id: number; political_bio: string | null }) => {

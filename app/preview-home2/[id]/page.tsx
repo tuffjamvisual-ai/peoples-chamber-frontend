@@ -2,6 +2,7 @@ import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { getMpBiography } from '@/lib/mp-biography';
 import '../../components/magazine-layout.css';
 
 import MagazineNav from '../../components/MagazineNav';
@@ -23,7 +24,7 @@ export default async function PreviewHome2Dynamic({ params }: PageProps) {
   if (Number.isNaN(memberId)) notFound();
 
   const [bioRes, mpRes] = await Promise.all([
-    supabase.from('mp_biography').select('political_bio').eq('member_id', memberId).single(),
+    getMpBiography(supabase, memberId),
     supabase
       .from('mps')
       .select('photo_url, display_name, name, party, constituency, party_colour')
@@ -37,7 +38,7 @@ export default async function PreviewHome2Dynamic({ params }: PageProps) {
   const fullName = mp.display_name || mp.name || '';
   const partyColour = mp.party_colour ? `#${mp.party_colour.replace('#', '')}` : '#7697a2';
 
-  const paragraphs = (bio?.political_bio ?? '')
+  const paragraphs = (bio?.bio_visible === true ? bio.political_bio ?? '' : '')
     .split(/\n\n+/)
     .map((p: string) => p.trim())
     .filter((p: string) => p.length > 0);

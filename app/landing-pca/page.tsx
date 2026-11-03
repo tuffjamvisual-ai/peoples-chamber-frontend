@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { SHOW_DEMO_PAGES, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
+import { getMpBiography } from '@/lib/mp-biography';
 import MpDossier from '../mps/[id]/MpDossier';
 import {
   MP_BASE_SALARY_2026,
@@ -37,7 +38,7 @@ export default async function LandingPcaPage() {
   ] = await Promise.all([
     supabase.from('mps').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
-    supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
+    getMpBiography(supabase, memberId),
     supabase.from('bill').select('id, title, status, current_stage, plain_summary, is_act, last_update').eq('sponsor_member_id', memberId).is('hidden_reason', null).order('created_at', { ascending: false }),
     supabase.from('mp_division_votes').select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id').eq('member_id', memberId).order('division_date', { ascending: false }).range(0, 199),
     supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true }),
@@ -70,7 +71,7 @@ export default async function LandingPcaPage() {
     public_spend: latestExpense?.total_spend ? Number(latestExpense.total_spend) : 0,
     public_spend_year: latestExpense?.year || null,
   };
-  const bioParas = (bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
+  const bioParas = (bioRes.data?.bio_visible === true ? bioRes.data.political_bio ?? '' : '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
 
   const fullName = displayMpName(mp?.display_name || mp?.name || '');
   const partyColour = partyColourForMember(mp?.party, mp?.party_colour);
