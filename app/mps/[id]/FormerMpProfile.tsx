@@ -1,11 +1,13 @@
 // Basic page for a former MP who is not in our mps table (lib/former-mps.ts; owner's decision, 28 Oct 2026). Same
 // heading style as a former member's full profile in MpDossier ("Former MP for X (2015 to 2024)"), with every seat
-// held and the dates, from Parliament's Members API. The full Parliament record is linked as the source.
+// held and the dates, from Parliament's Members API. The full Parliament record is linked as the source. Any Standards
+// findings follow (3 Nov 2026).
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { parliamentMemberUrl, seatYears, type FormerMp } from '@/lib/former-mps';
+import StandardsFindings, { type ConductFinding } from './StandardsFindings';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -16,7 +18,7 @@ const line = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, 
 // Parliament's dates carry no time zone ("2005-05-05T00:00:00"): read the date part only, so the day never shifts.
 const fmtDay = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : null);
 
-export default function FormerMpProfile({ mp }: { mp: FormerMp }) {
+export default function FormerMpProfile({ mp, conductFindings = [] }: { mp: FormerMp; conductFindings?: ConductFinding[] }) {
   const lastSeat = mp.seats[mp.seats.length - 1];
   return (
     <OpenGovShell pageStamp="MP Profile">
@@ -59,6 +61,8 @@ export default function FormerMpProfile({ mp }: { mp: FormerMp }) {
           Source: <a href={parliamentMemberUrl(mp.memberId)} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>UK Parliament, {mp.name}: career</a> (Members API).
         </p>
       </section>
+
+      <StandardsFindings findings={conductFindings} />
     </OpenGovShell>
   );
 }

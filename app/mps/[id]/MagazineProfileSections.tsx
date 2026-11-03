@@ -2,6 +2,7 @@
 
 import { pageview } from '@vercel/analytics';
 import { billSummary } from '@/lib/bill-summary';
+import StandardsFindings, { type ConductFinding } from './StandardsFindings';
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -80,17 +81,6 @@ export type MinisterHospitality = {
   value: string | null;
   quarter: string | null;
   source_publication_slug?: string | null;
-};
-type ConductFinding = {
-  id: number;
-  mp_name_at_time: string;
-  closed_date: string | null;
-  outcome: string | null;
-  rule_breached: string | null;
-  summary: string | null;
-  penalty: string | null;
-  url: string | null;
-  source: string | null;
 };
 type DonorOtherRecipients = {
   donor_name: string;
@@ -572,11 +562,13 @@ export default function MagazineProfileSections({
   // Background tab: the sourced timeline in phase and date order.
   const timeline = sortTimeline(bio?.background_timeline ?? []);
 
+  const hasBackground = !!((bio?.background_timeline && bio.background_timeline.length > 0) || (bio?.career_history && bio.career_history.length > 0)
+    || (bio?.education && bio.education.length > 0) || bio?.career_background);
   const has: Record<SectionId, boolean> = {
     bio: bioVisible && paragraphs.length > 0,
     // Background (24 Oct 2026): shown for a sourced timeline or the older career/education fields.
-    career: !!((bio?.background_timeline && bio.background_timeline.length > 0) || (bio?.career_history && bio.career_history.length > 0)
-      || (bio?.education && bio.education.length > 0) || bio?.career_background),
+    // Standards findings (3 Nov 2026) sit at the foot of Background, so the tab also shows for an MP with findings only.
+    career: hasBackground || conductFindings.length > 0,
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
@@ -961,7 +953,7 @@ export default function MagazineProfileSections({
                   <p style={{ fontSize: '15px', marginBottom: '26px' }}>Last checked: {dayMonthYear(bio.background_last_checked)}</p>
                 )}
               </>
-            ) : (
+            ) : hasBackground && (
             <>
             <p style={{ fontSize: '15px', marginBottom: '24px' }}>Qualifications and career before entering Parliament, so you can weigh an MP&rsquo;s relevant background.</p>
 
@@ -997,6 +989,7 @@ export default function MagazineProfileSections({
             )}
             </>
             )}
+            <StandardsFindings findings={conductFindings} headingStyle={sectionH3} />
           </>
         )}
         {active === 'bio' && bioVisible && (
@@ -1048,38 +1041,6 @@ export default function MagazineProfileSections({
 
             <ReportsMentioning reports={reports} />
 
-            {conductFindings.length > 0 && (
-              <section style={{ marginTop: '32px', padding: '14px 16px', border: '1px solid #a64030', background: 'rgba(166,64,48,0.04)' }}>
-                <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '8px', color: '#14100d' }}>
-                  Standards findings <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({conductFindings.length})</span>
-                </h3>
-                <p style={{ fontSize: '15px', marginBottom: '12px' }}>
-                  Cases referred to the House of Commons Committee on Standards. The Committee publishes a numbered report for each case; outcome and penalty (where applicable) live inside the report PDF.
-                </p>
-                <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: 1.55 }}>
-                  {conductFindings.map((f) => (
-                    <li key={f.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
-                      <div style={{ display: 'flex', gap: '12px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                        <strong style={{ fontFamily: 'monospace' }}>{f.closed_date ? new Date(f.closed_date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</strong>
-                        <span>{f.summary || `Finding against ${f.mp_name_at_time}`}</span>
-                      </div>
-                      {(f.outcome || f.rule_breached || f.penalty) && (
-                        <div style={{ fontSize: '15px', marginTop: '4px' }}>
-                          {f.outcome && <span>Outcome: <strong>{f.outcome}</strong>. </span>}
-                          {f.rule_breached && <span>Rule: {f.rule_breached}. </span>}
-                          {f.penalty && <span>Penalty: {f.penalty}.</span>}
-                        </div>
-                      )}
-                      {f.url && (
-                        <div style={{ marginTop: '4px' }}>
-                          <a href={f.url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '15px' }}>View original ruling &rarr;</a>
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
           </>
         )}
 

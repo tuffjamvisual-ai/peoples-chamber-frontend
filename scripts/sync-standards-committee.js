@@ -4,13 +4,15 @@
 // Each "Nth Report - <MP Name>" entry is one finding against an MP.
 //
 // What this writes vs leaves null:
-//   member_id        — resolved by name fuzzy-match against current + former MPs
+//   member_id        — current MPs by name (mps table); anyone else via the Members API, used only when exactly
+//                      one Commons member has the name and served before the report date (else NULL, logged)
 //   mp_name_at_time  — exact name from the Report title
 //   case_ref         — synthesised from committeeId + publicationId
 //   closed_date      — publicationStartDate (the finding date)
 //   source           — 'standards_committee'
 //   summary          — Report description string from the API
-//   url              — https://committees.parliament.uk/publications/<id>/
+//   url              — the report's HTML page (API field additionalContentUrl, publications.parliament.uk) when
+//                      present, else https://committees.parliament.uk/publications/<id>/
 //   outcome / rule_breached / penalty — left NULL. Detail lives inside the
 //     PDF/HTML report; Cloudflare blocks automated fetches of those pages.
 //     Future enrichment pass can populate these via manual data entry or
@@ -62,11 +64,16 @@ function psqlQ(sql) {
 const REPORT_RE = /^(\d+(?:st|nd|rd|th)?|First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth|Eleventh|Twelfth|Thirteenth|Fourteenth|Fifteenth|Sixteenth|Seventeenth|Eighteenth|Nineteenth|Twentieth)\s+[Rr]eport\s*[-–]\s*(.+?)$/;
 const GENERIC_NAMES = /^(register of interests|the house of commons standards landscape|members'?\s*staff|influencing code|standards|code of conduct|all[- ]?party parliamentary groups|rules for|precautionary exclusion|risk[- ]based|recall of mps act|house of commons commission|complaints procedure|appeals process|review of|inquiry into|alternatives to|members'? conduct)/i;
 
+// "3rd Report - Interim Report: Kevin Hollinrake" (publication 55293, Oct 2026): the name follows the colon.
+const INTERIM_RE = /^Interim Report\s*:\s*(.+)$/i;
+
 function extractMpName(description) {
   if (!description) return null;
   const m = REPORT_RE.exec(description.trim());
   if (!m) return null;
   let candidate = m[2].trim();
+  const interim = INTERIM_RE.exec(candidate);
+  if (interim) candidate = interim[1].trim();
   // Generic-name detection: known prefixes OR contains a colon (titles like
   // 'Topic: response to X') OR longer than what a name can realistically be.
   if (GENERIC_NAMES.test(candidate)) return null;
@@ -79,24 +86,67 @@ function extractMpName(description) {
     .trim();
 }
 
-async function resolveMember(name) {
-  // Strict-then-fuzzy: try display_name exact, then name exact, then ILIKE.
-  // Returns the first match's member_id (caller handles ambiguity by skipping).
+// The report's readable HTML page (publications.parliament.uk) when the API gives one, else the publication page.
+function reportUrl(r) {
+  const html = (r.additionalContentUrl || '').trim();
+  return /^https:\/\/publications\.parliament\.uk\//.test(html) ? html : `https://committees.parliament.uk/publications/${r.id}/`;
+}
+
+async function resolveCurrent(name) {
+  // Current MPs only: display_name or name exact, then ILIKE when exactly one current MP matches.
   const safe = name.replace(/'/g, "''");
   const sql = `
     SELECT member_id FROM mps
-      WHERE display_name = '${safe}' OR name = '${safe}'
-      ORDER BY current_member DESC NULLS LAST LIMIT 1`;
+      WHERE current_member = true AND (display_name = '${safe}' OR name = '${safe}')
+      LIMIT 1`;
   let r = (await psqlQ(sql)).trim();
   if (r) return parseInt(r, 10);
   const sqlFuzzy = `
     SELECT member_id FROM mps
-      WHERE display_name ILIKE '%${safe}%' OR name ILIKE '%${safe}%'
-      ORDER BY current_member DESC NULLS LAST LIMIT 2`;
+      WHERE current_member = true AND (display_name ILIKE '%${safe}%' OR name ILIKE '%${safe}%')
+      LIMIT 2`;
   r = (await psqlQ(sqlFuzzy)).trim();
   const ids = r.split('\n').filter(Boolean);
   if (ids.length === 1) return parseInt(ids[0], 10);
   return null;
+}
+
+// Former MPs (owner's brief, 3 Nov 2026), as in app/api/sync-standards-committee/route.ts: a name that matches no
+// current MP is looked up in the Members API (Commons, current and former). The id is used only when exactly one
+// Commons member has that name and their Commons service began on or before the report date.
+const MEMBERS_SEARCH = 'https://members-api.parliament.uk/api/Members/Search';
+const MEMBERS_TAKE = 20;
+const HONORIFIC = /^(?:(?:Rt Hon|The Rt Hon|Sir|Dame|Dr|Ms|Mrs|Miss|Mr|Lord|Baroness)\s+)+/i;
+const POSTNOMINAL = /(?:\s+(?:MP|QC|KC|CBE|OBE|MBE|PC))+\s*$/i;
+const plainName = (n) => n.replace(HONORIFIC, '').replace(POSTNOMINAL, '').replace(/\s+/g, ' ').trim().toLowerCase();
+const API_HEADERS = { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' };
+
+async function getJson(u) {
+  const r = await fetch(u, { headers: API_HEADERS });
+  return r.ok ? r.json() : null;
+}
+
+async function resolveFormer(name, reportDate) {
+  const found = await getJson(`${MEMBERS_SEARCH}?Name=${encodeURIComponent(name)}&House=1&take=${MEMBERS_TAKE}`);
+  if (!found) return { id: null, why: 'Members API search failed' };
+  if ((found.totalResults || 0) > MEMBERS_TAKE) return { id: null, why: `${found.totalResults} search results` };
+  const same = (found.items || []).filter((i) => i.value?.id && plainName(i.value.nameDisplayAs || '') === plainName(name));
+  if (same.length !== 1) return { id: null, why: same.length ? `${same.length} Commons members share the name` : 'no Commons member with this name' };
+  const v = same[0].value;
+  let starts = [];
+  if (v.latestHouseMembership?.house === 1 && v.latestHouseMembership.membershipStartDate) starts = [v.latestHouseMembership.membershipStartDate];
+  else {
+    const h = await getJson(`https://members-api.parliament.uk/api/Members/${v.id}/History`);
+    starts = (h?.value?.houseMembershipHistory || []).filter((m) => m.house === 1 && m.membershipStartDate).map((m) => m.membershipStartDate);
+  }
+  const before = starts.some((d) => !reportDate || d.slice(0, 10) <= reportDate);
+  return before ? { id: v.id } : { id: null, why: starts.length ? 'Commons service began after the report' : 'no Commons service found' };
+}
+
+async function resolveMember(name, reportDate) {
+  const current = await resolveCurrent(name);
+  if (current) return { id: current };
+  return resolveFormer(name, reportDate);
 }
 
 function dq(tag, v) {
@@ -129,7 +179,7 @@ function dq(tag, v) {
       mp_name: mpName,
       date: (r.publicationStartDate || '').slice(0, 10) || null,
       description,
-      url: `https://committees.parliament.uk/publications/${r.id}/`,
+      url: reportUrl(r),
     });
   }
   console.log(`  ${findings.length.toLocaleString()} look like case findings`);
@@ -139,8 +189,10 @@ function dq(tag, v) {
   console.log(`Resolving member_ids…`);
   let resolved = 0, unresolved = 0;
   for (const f of findings) {
-    f.member_id = await resolveMember(f.mp_name);
-    if (f.member_id) resolved++; else unresolved++;
+    const m = await resolveMember(f.mp_name, f.date);
+    f.member_id = m.id;
+    if (f.member_id) resolved++;
+    else { unresolved++; console.log(`  ? member_id left null for ${f.mp_name} (pcs-cmt-${f.publication_id}): ${m.why}`); }
   }
   console.log(`  resolved: ${resolved}, unresolved: ${unresolved}`);
 

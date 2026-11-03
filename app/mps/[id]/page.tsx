@@ -278,7 +278,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     // Not in our mps table: a former MP gets a basic page from Parliament's record; a member who only sat in the Lords
     // goes to their Parliament page; anyone else is not found (owner's decision, 28 Oct 2026).
     const m = await lookupMember(memberId);
-    if (m.kind === 'former_mp') return <FormerMpProfile mp={m.mp} />;
+    if (m.kind === 'former_mp') {
+      // Their Standards findings too (owner's brief, 3 Nov 2026); a failed read shows the page without them.
+      const { data: findings } = await supabase
+        .from('mp_conduct_findings')
+        .select('id, mp_name_at_time, closed_date, outcome, rule_breached, summary, penalty, url, source')
+        .eq('member_id', memberId)
+        .order('closed_date', { ascending: false });
+      return <FormerMpProfile mp={m.mp} conductFindings={findings ?? []} />;
+    }
     if (m.kind === 'lords_only') permanentRedirect(parliamentMemberUrl(memberId));
     notFound();
   }
@@ -617,9 +625,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const activityRes = await pActivity;
 
   // Standards Committee findings against this MP — sourced from
-  // committees-api.parliament.uk via scripts/sync-standards-committee.js.
-  // Resolved findings (member_id matched) only; un-resolved former-MP
-  // rows sit in the table unattached.
+  // committees-api.parliament.uk via app/api/sync-standards-committee (and scripts/sync-standards-committee.js).
+  // Resolved findings (member_id matched) only; a name the sync could not match to one member stays unattached.
   const conductRes = await pConduct;
 
   const [partySlugRes, partyPeersRes] = await Promise.all([pPartySlug, pPartyPeers]);
