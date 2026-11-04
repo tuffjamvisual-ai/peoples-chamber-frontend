@@ -49,7 +49,7 @@ export default function SupportPage() {
 
       <h3 className="font-bold mt-4 mb-2 text-[#14100d]">Can I change my vote?</h3>
       <p className="text-[#14100d] mb-4">
-        No, votes are final once submitted to maintain data integrity.
+        Yes. You can change your vote while the bill is going through Parliament. Once the bill becomes an Act, is withdrawn or is defeated, your vote is final.
       </p>
 
       <h3 className="font-bold mt-4 mb-2 text-[#14100d]">Is this official?</h3>
