@@ -14,6 +14,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import SectionLinks from '../components/SectionLinks';
 import CouncilSearch from '../components/CouncilSearch';
+import PhoneMore from '../components/PhoneMore';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import ArticleEndSignup from '../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
@@ -149,6 +150,7 @@ export default async function CouncilsIndex() {
                         {items[0].type_label}{items.length > 1 ? 's' : ''} · {items.length}
                       </div>
                       <ul
+                        id={`councils-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}
                         style={{
                           listStyle: 'none',
                           padding: 0,
@@ -177,6 +179,7 @@ export default async function CouncilsIndex() {
                           </li>
                         ))}
                       </ul>
+                      <PhoneMore selector={`#${`councils-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}`} total={items.length} />
                     </div>
                   );
                 })}

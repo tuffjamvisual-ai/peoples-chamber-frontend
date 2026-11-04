@@ -104,7 +104,7 @@ export default async function PartiesIndexPage() {
       </p>
 
       <p style={{ margin: '28px 0 0' }}>
-        <Link href="/parties/manifestos" className="no-hover-scale" style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 'bold', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '4px', display: 'inline-block', padding: '6px 0' }}>
+        <Link href="/parties/manifestos" className="no-hover-scale og-tap" style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 'bold', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '4px', display: 'inline-block', padding: '6px 0' }}>
           Compare the 2024 manifestos →
         </Link>
       </p>

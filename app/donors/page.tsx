@@ -9,6 +9,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import DonorSearch from './DonorSearch';
+import PhoneMore from '../components/PhoneMore';
 import '../components/phone-table.css';
 
 export const revalidate = 86400;
@@ -110,7 +111,7 @@ export default async function DonorsIndex() {
             <th style={{ padding: '8px 6px', textAlign: 'right' }}>Lifetime total</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="donors-list">
           {top.map((d, i) => (
             <tr key={d.donor_name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
               <td data-label="#" style={{ padding: '6px' }}>{i + 1}</td>
@@ -128,6 +129,7 @@ export default async function DonorsIndex() {
           ))}
         </tbody>
       </table>
+      <PhoneMore selector="#donors-list" total={top.length} />
 
 <div style={{ marginTop: '20px', padding: '12px 14px', background: CREAM, fontSize: '15px' }}>
         <strong>Heads up.</strong> Some names here, such as the House of Commons, the House of Lords, the Scottish Parliament and the Electoral Commission, are sources of public funds, not private donors. Short Money and Cranborne Money support opposition parties in Parliament, and Policy Development Grants come from the Electoral Commission. The Electoral Commission reports them alongside donations.

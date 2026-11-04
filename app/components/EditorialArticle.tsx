@@ -102,7 +102,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               2 Nov 2026, as eda0b417 did on 23 Oct). The "How this piece was checked" panel is on that page only. */}
           {sources.length > 0 && (
             <p style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
-              <Link href={`${basePath}/${piece.slug}/sources`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
+              <Link href={`${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
             </p>
           )}
           {/* Newsletter sign-up after the sources, for readers who are not signed in (report 80). */}

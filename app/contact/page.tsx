@@ -72,7 +72,7 @@ export default function ContactPage() {
         <p style={{ marginTop: '18px' }}>
           <a
             href={`mailto:${EMAIL}`}
-            className="no-hover-scale"
+            className="no-hover-scale og-tap"
             style={{ fontSize: 'clamp(20px, 2.6vw, 30px)', fontWeight: 'bold', color: '#7a1612', textDecoration: 'none', letterSpacing: '0.01em' }}
           >
             {EMAIL}

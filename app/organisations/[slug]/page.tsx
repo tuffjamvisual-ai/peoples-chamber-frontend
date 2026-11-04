@@ -227,7 +227,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 }
 
 function SeeAll({ href, text }: { href: string; text: string }) {
-  return <p style={{ ...para, marginTop: '10px' }}><Link href={href} style={{ color: ACCENT }}>{text}</Link></p>;
+  return <p style={{ ...para, marginTop: '10px' }}><Link href={href} className="og-tap" style={{ color: ACCENT }}>{text}</Link></p>;
 }
 
 const head: React.CSSProperties = { fontFamily: FONT, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', margin: '0 0 10px' };

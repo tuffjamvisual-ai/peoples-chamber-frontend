@@ -1019,7 +1019,7 @@ export default function MagazineProfileSections({
               </div>
             )}
 
-            <ReportsMentioning reports={reports} />
+            <div className="mp-reports-wide"><ReportsMentioning reports={reports} /></div>
 
           </>
         )}
@@ -2692,7 +2692,7 @@ export default function MagazineProfileSections({
           );
         })()}
         {/* An MP with reports but no biography tab still gets the list, at the end of the tab the profile opens on. */}
-        {!has.bio && active === initialActive && <ReportsMentioning reports={reports} />}
+        {!has.bio && active === initialActive && <div className="mp-reports-wide"><ReportsMentioning reports={reports} /></div>}
     </>
   );
 
@@ -2763,8 +2763,11 @@ export default function MagazineProfileSections({
           .mp-sections-content { padding: 20px 2px !important; }
         }
         @media (max-width: 479px){ .mp-sections-nav button[data-section] { display: none !important; } }
-        .mp-headline { display: none; }
+        .mp-headline, .mp-reports-phone { display: none; }
         @media (max-width: 639.98px){
+          .mp-reports-wide { display: none; }
+          .mp-reports-phone { display: block; }
+          .mp-reports-phone > section { margin-top: 8px !important; }
           .mp-sections-nav button[data-section] { display: none !important; }
           .mp-sections-nav { border-bottom: none !important; }
           .mp-headline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
@@ -2824,6 +2827,12 @@ export default function MagazineProfileSections({
         </div>
       </aside>
 
+      {/* Under 640px (owner, 4 Nov 2026): reports directly below Follow this MP, above "On this page". Nothing at all for an
+          MP with none. From 640px they stay in their section. */}
+      {phoneHeadline && reports && reports.items.length > 0 && (
+        <div className="mp-reports-phone"><ReportsMentioning reports={reports} headingId="mp-reports-heading-phone" /></div>
+      )}
+
       <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
         {/* Under 640px (owner, 4 Nov 2026): every section folds away under "On this page", as the GOV.UK accordion does, in
             PHONE_FOLDS order; wider screens keep the tabs. Both are in the HTML and the stylesheets pick one by screen
@@ -2866,15 +2875,15 @@ export function MpReportList({ items }: { items: MpReports['items'] }) {
   );
 }
 
-function ReportsMentioning({ reports }: { reports: MpReports | null }) {
+function ReportsMentioning({ reports, headingId = 'mp-reports-heading' }: { reports: MpReports | null; headingId?: string }) {
   if (!reports || reports.items.length === 0) return null;
   return (
-    <section aria-labelledby="mp-reports-heading" style={{ marginTop: '32px' }}>
-      <h3 id="mp-reports-heading" style={sectionH3}>Reports mentioning this MP</h3>
+    <section aria-labelledby={headingId} style={{ marginTop: '32px' }}>
+      <h3 id={headingId} style={sectionH3}>Reports mentioning this MP</h3>
       <MpReportList items={reports.items} />
       {reports.total > reports.items.length && (
         <p style={{ marginTop: '10px', fontSize: '15px' }}>
-          <Link href={`/mps/${reports.memberId}/reports`} style={inkLink}>All {reports.total} reports mentioning {reports.mpName}</Link>
+          <Link href={`/mps/${reports.memberId}/reports`} className="og-tap" style={inkLink}>All {reports.total} reports mentioning {reports.mpName}</Link>
         </p>
       )}
     </section>

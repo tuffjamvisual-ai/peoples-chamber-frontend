@@ -189,7 +189,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
         For example, {EXAMPLE_POSTCODE}. You can also type an MP&rsquo;s name or a constituency.
       </p>
       <p style={{ margin: '6px 0 0', fontFamily: SERIF, fontSize: '15px', lineHeight: 1.5 }}>
-        <Link href="/mps" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Browse all MPs</Link>
+        <Link href="/mps" className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Browse all MPs</Link>
       </p>
 
       {open && (

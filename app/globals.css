@@ -156,6 +156,31 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
    strip (55), the scroll button and mobile menu (60, 70), dialogs (1000), toasts (9999) and the menu panel. */
 .og-cookie-banner { position: relative; z-index: 50; }
 
+/* ---- Phones under 640px: every tap target at least 44px tall (owner, 4 Nov 2026). Its own box, not an invisible layer:
+   rows get taller, text stays the same size. Links in running paragraph text and the footer are left alone. The rules
+   sit in the base layer, so a page's own display (a flex row, a block link) wins and only plain inline links become
+   boxes. Nothing here applies from 640px up. */
+@layer base {
+  @media (max-width: 639.98px) {
+    .ng-page a:not(p a, blockquote a, figcaption a, footer a),
+    .ng-page button:not(footer button),
+    .ng-page summary:not(footer summary),
+    .ng-page select,
+    .ng-page input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+    .ng-page textarea { min-height: 44px; box-sizing: border-box; align-content: center; }
+    .ng-page a:not(p a, blockquote a, figcaption a, footer a):not(:has(> div, > article, > section, > h1, > h2, > h3, > h4, > ul, > ol, > table, > figure)) { display: inline-block; }
+  }
+}
+.og-phone-more { display: none; }
+@media (max-width: 639.98px) {
+  .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
+  /* The small round help button: a 44px box, with the ring drawn at its old size in the middle. */
+  .og-help-i { position: relative; width: 44px !important; height: 44px !important; margin: -12px; border-color: transparent !important; }
+  .og-help-i::before { content: ''; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; box-sizing: border-box; border: 1.5px solid #14100d; border-radius: 50%; transform: translate(-50%, -50%); }
+  /* A link alone in its paragraph, a tap target like any other. */
+  .ng-page a.og-tap { display: inline-block; min-height: 44px; align-content: center; }
+}
+
 /* ---- Phones under 480px (owner, 3 Nov 2026; GOV.UK Design System approach). Nothing here applies from 480px up. ----
    Cookie banner (owner, 4 Nov 2026): still in the page flow at the very top (never fixed or sticky); the heading, one
    15px sentence ending in the "View cookies" link, and two equal buttons side by side, "Accept analytics" and "Reject

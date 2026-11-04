@@ -824,7 +824,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         {/* Newsletter sign-up at the end of the profile, for readers who are not signed in (report 81). */}
         <ArticleEndSignup source="data-mp-profile" line={DATA_SIGNUP_LINE} />
         {/* The compact Related line, last of the visible content (owner's brief, 3 Nov 2026; lib/related-links.ts). */}
-        <RelatedLine links={related} />
+        {/* Not under 640px (owner, 4 Nov 2026): its links repeat sections already on the page. */}
+        <style>{'@media (max-width: 639.98px) { .mp-related-line { display: none; } }'}</style>
+        <div className="mp-related-line"><RelatedLine links={related} /></div>
         {/* Server-rendered RelatedLinks: same-party MPs, sponsored bills,
            recent votes, party page, optional ministerial dept. Lands as
            crawlable <a href> tags in static HTML for SEO. Wrapped in an

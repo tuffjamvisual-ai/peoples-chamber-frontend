@@ -109,6 +109,38 @@ export function sectionRow(section: string): { label: string; links: NavLink[] }
   return item?.children?.length ? { label: item.label, links: item.children } : undefined;
 }
 
+// The phone menu under 640px, in four groups (owner, 4 Nov 2026). Section pages not listed here are linked from each
+// section's own pages; Home is the wordmark; Commission is the menu's button. From 640px to 767px the menu is still the
+// flat list of NAV.
+export const PHONE_MENU_GROUPS: { label: string; links: NavLink[] }[] = [
+  { label: 'Read', links: [
+    { label: 'Reports', href: '/reports' },
+    { label: 'This week', href: '/this-week' },
+    { label: 'Topics', href: '/topics' },
+  ] },
+  { label: 'Politicians and Parliament', links: [
+    { label: 'MPs', href: '/mps' },
+    { label: 'Lords', href: '/lords' },
+    { label: 'Bills', href: '/bills' },
+    { label: 'Votes', href: '/divisions' },
+    { label: 'Parties', href: '/parties' },
+    { label: 'Find your MP', href: '/find-your-mp' },
+  ] },
+  { label: 'Councils and money', links: [
+    { label: 'Local', href: '/sections/local' },
+    { label: 'Organisations', href: '/organisations' },
+    { label: 'Donors', href: '/donors' },
+    { label: 'Contracts', href: '/transparency/contracts' },
+    { label: 'Accountability', href: '/sections/accountability' },
+  ] },
+  { label: 'Search and tools', links: [
+    { label: 'Search', href: '/search' },
+    { label: 'Directory', href: '/directory' },
+    { label: 'Vote', href: '/sections/vote' },
+    { label: 'Contact', href: '/contact' },
+  ] },
+];
+
 // Where a click on a top level item goes: the section page when the section has one, otherwise its own page.
 export function menuHref(item: NavItem): string {
   return item.page ?? item.href;

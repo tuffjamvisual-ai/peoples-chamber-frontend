@@ -213,7 +213,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       )}
       {(bills.length > 0 || keyActs.length > 0) && (
         <p style={{ marginTop: '-4%', marginBottom: '6%', fontSize: '17px' }}>
-          <Link href={`/topics/${topic.slug}/bills`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>All bills and Acts on this topic</Link>
+          <Link href={`/topics/${topic.slug}/bills`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>All bills and Acts on this topic</Link>
         </p>
       )}
 

@@ -97,7 +97,7 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
 
         <style>{`.cs-phone { display: none; } @media (max-width: 639.98px) { .cs-phone { display: block; } .cs-wide { display: none; } }`}</style>
         <div className="cs-phone">
-          <CouncilSearch key={q} initialQuery={q} placeholder="Council name, town or postcode" />
+          <CouncilSearch key={q} initialQuery={q} noMatchText="No council has that name. Try your postcode instead." />
           <p style={{ fontFamily: MONO, fontSize: '15px', margin: '14px 0 28px' }}>
             <Link href="/councils" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '10px 0' }}>Browse all councils</Link>
           </p>
@@ -117,7 +117,7 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
               <Link href="/councils" style={{ color: INK, textDecoration: 'underline' }}>browse the full list</Link>.
             </p>
             <p className="cs-phone" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK_SOFT, margin: 0 }}>
-              No councils matched &ldquo;{q}&rdquo;. Council names are searched, so for a town try its postcode, or check the spelling.
+              No councils matched &ldquo;{q}&rdquo;. Try your postcode instead.
             </p>
           </>
         )}

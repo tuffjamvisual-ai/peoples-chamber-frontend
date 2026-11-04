@@ -318,7 +318,7 @@ export default async function DepartmentPage({ params }: PageProps) {
         {dept.name}
       </h1>
       <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', margin: '0 0 14px', letterSpacing: '0.04em' }}>
-        <Link href={`/search?dept=${slug}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
+        <Link href={`/search?dept=${slug}`} className="og-tap" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
           Search releases and reports →
         </Link>
       </p>

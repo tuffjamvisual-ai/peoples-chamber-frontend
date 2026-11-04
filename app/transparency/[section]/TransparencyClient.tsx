@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useMemo } from 'react'
+import PhoneMore from '../../components/PhoneMore'
 import { donorPageSlug } from '@/lib/donor-slug'
 import { ecDonationSearchUrl } from '@/lib/ec-links'
 
@@ -121,7 +122,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
         </p>
       ) : section === 'revolving-door' ? (
         <>
-          <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
+          <ul id="revolving-list" className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const personName = (row.person_name as string) || '(unknown)'
               const previousRole = row.previous_role as string | null
@@ -153,6 +154,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
+          <PhoneMore selector="#revolving-list" total={rows.length} />
         </>
       ) : section === 'ministers-meetings' ? (
         <>

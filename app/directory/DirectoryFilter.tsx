@@ -16,6 +16,8 @@ export default function DirectoryFilter() {
     setQ(value);
     const words = value.toLowerCase().split(/\s+/).filter(Boolean);
     let shown = 0;
+    // Phones: while a filter is on, every match shows, not only the first 25 of a letter (PhoneMore.tsx).
+    document.getElementById('directory-list')?.classList.toggle('pm-all', words.length > 0);
     document.querySelectorAll<HTMLElement>('#directory-list section[data-letter]').forEach((sec) => {
       let inSection = 0;
       sec.querySelectorAll<HTMLElement>('li[data-entry]').forEach((li) => {

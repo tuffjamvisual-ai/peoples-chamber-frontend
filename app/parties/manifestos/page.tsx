@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import SectionLinks from '../../components/SectionLinks';
+import ManifestoPicker, { type ThemeRow } from './ManifestoPicker';
 
 export const revalidate = 3600;
 
@@ -146,6 +147,15 @@ function extract(text: string): string {
 
 export default async function PartiesIndex() {
   const { parties, byParty, mpCounts } = await getAll();
+  // Phones: every party's position on each theme, for "Compare by policy" (ManifestoPicker.tsx).
+  const themeRows: ThemeRow[] = THEMES.map((theme) => ({
+    theme,
+    href: `#${encodeURIComponent(theme.toLowerCase().replace(/\s+/g, '-'))}`,
+    positions: parties.map((p) => {
+      const cell = byParty[p.slug]?.[theme];
+      return { slug: p.slug, name: p.name, colour: p.party_colour || '#7697a2', text: cell ? extract(cell.manifesto_position) : null, shifted: !!cell?.current_shift };
+    }),
+  }));
 
   return (
     <OpenGovShell pageStamp="Parties">
@@ -207,6 +217,7 @@ export default async function PartiesIndex() {
             in EB Garamond serif, and a two-column theme/position list.
             Parties without research yet render a single 'Coming soon'
             stub instead of a full empty list. */}
+        <ManifestoPicker themes={themeRows}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
           {parties.map((p) => {
             const hasData = !!byParty[p.slug] && Object.keys(byParty[p.slug]).length > 0;
@@ -326,6 +337,7 @@ export default async function PartiesIndex() {
             );
           })}
         </div>
+        </ManifestoPicker>
 
       </article>
     </OpenGovShell>

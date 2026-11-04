@@ -41,7 +41,7 @@ function cleanPostcode(v: string): string {
   return v.toUpperCase().replace(/\s+/g, '')
 }
 
-export default function CouncilSearch({ initialQuery = '', placeholder = 'Postcode or council name' }: { initialQuery?: string; placeholder?: string } = {}) {
+export default function CouncilSearch({ initialQuery = '', placeholder = 'Postcode or council name', noMatchText = 'No matches. Press Search to see full results.' }: { initialQuery?: string; placeholder?: string; noMatchText?: string } = {}) {
   const router = useRouter()
 
   const [q, setQ] = useState(initialQuery)
@@ -170,6 +170,7 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
           onClick={() => setShowHelp((v) => !v)}
           aria-expanded={showHelp}
           aria-label="How to use this search"
+          className="og-help-i"
           style={{
             flex: '0 0 auto', width: '20px', height: '20px', borderRadius: '50%',
             border: `1.5px solid ${INK}`, background: 'transparent', color: INK,
@@ -250,7 +251,7 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
                 <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>Searching…</li>
               )}
               {!loading && nameSuggestions.length === 0 && (
-                <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>No matches. Press Search to see full results.</li>
+                <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>{noMatchText}</li>
               )}
               {nameSuggestions.map((r) => (
                 <li key={r.slug}>

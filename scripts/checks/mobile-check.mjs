@@ -2,23 +2,24 @@
 // site, with no cookie choice made (so the banner shows, as on a first visit), and records for each phone view:
 //   horizontal scroll  how far the page is wider than the screen (0 is right)
 //   text column        the width of the main content box, as a share of the screen width
-//   tap targets        visible links, buttons and form controls under 44px tall, split into standalone controls and
-//                      links inside running text (WCAG 2.5.8 treats inline links separately)
+//   tap targets        visible a, button, input, select and summary whose own box is under 44px tall, leaving out
+//                      only links in running paragraph text and the footer; a tap layer (::after) does not count
 //   first screen       where the page heading sits, the banner's height and how much of the first screen is chrome
 //   background         whether the desk backdrop image (folders.webp or folders-900.webp) was requested
 // It saves a first screen screenshot of each view and a full page one at 375px.
 //
-//   node scripts/checks/mobile-check.mjs <base url> <out dir> <label> [extra path ...]
+//   node scripts/checks/mobile-check.mjs <base url> <out dir> <label> [extra path ...]     (PHONES_ONLY=1 skips 1440px)
 //   node scripts/checks/mobile-check.mjs --compare <dir a> <dir b>     (desktop screenshots, pixel by pixel)
 import fs from 'fs';
 import path from 'path';
 import { chromium } from 'playwright';
 import sharp from 'sharp';
 
-const PAGES = ['/', '/mps/4874', '/editorials/alghyhvbbo', '/councils/nottingham', '/transparency/contracts', '/organisations/kpmg-llp', '/commission', '/lords', '/lords/100'];
+// The 32 pages Cowork measures (4 Nov 2026).
+const PAGES = ['/', '/search?q=nhs', '/directory', '/topics/housing', '/sections/parliament', '/sections/accountability', '/sections/vote', '/departments/housing', '/parties', '/parties/labour/bio', '/parties/manifestos', '/bills/4035', '/laws', '/divisions', '/lords/100', '/mps', '/councils', '/councils/manchester', '/organisations/serco-limited', '/donors', '/expenses', '/lobbying', '/transparency/ministers-meetings', '/editorials/q1yfr4lome', '/transparency/revolving-door', '/polls', '/this-week', '/your-area', '/support', '/contact', '/donations/government-contractors', '/transparency/state-dashboard'];
 const PHONES = [{ width: 375, height: 812 }, { width: 360, height: 780 }];
 const DESKTOP = { width: 1440, height: 900 };
-const slug = (p) => (p === '/' ? 'home' : p.slice(1).replace(/\//g, '_'));
+const slug = (p) => (p === '/' ? 'home' : p.slice(1).replace(/[/?=]/g, '_'));
 
 async function measure(page) {
   return page.evaluate(() => {
@@ -27,26 +28,20 @@ async function measure(page) {
     const content = document.querySelector('.dossier-content') || document.querySelector('main') || document.body;
     const cs = getComputedStyle(content);
     const colWidth = content.getBoundingClientRect().width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    const targets = [...document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, summary, [role=button]')].filter(visible);
-    // A target's tap height: its box, its 44px tap layer (::after) where it has one, or for a checkbox or radio inside
-    // a label, the label it is tapped through.
-    const tapHeight = (el) => {
-      let h = el.getBoundingClientRect().height;
-      const after = getComputedStyle(el, '::after');
-      if (after.content && after.content !== 'none' && after.position === 'absolute') h = Math.max(h, parseFloat(after.height) || 0);
-      const label = el.closest('label');
-      if (label && (el.type === 'checkbox' || el.type === 'radio')) h = Math.max(h, label.getBoundingClientRect().height);
-      return h;
-    };
-    const small = targets.filter((el) => tapHeight(el) < 44);
-    const inline = (el) => {
+    // Counted as Cowork counts (owner, 4 Nov 2026): every visible a, button, input, select and summary whose own box is
+    // under 44px tall. An invisible ::after tap layer or a surrounding label does not count. The only exceptions are
+    // links inside running paragraph text and the footer.
+    const targets = [...document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, summary, [role=button]')].filter(visible).filter((el) => !el.closest('footer'));
+    const running = (el) => {
       if (el.tagName !== 'A') return false;
-      const block = el.closest('p, li, td, dd, figcaption, blockquote');
+      const block = el.closest('p, blockquote, figcaption');
       if (!block) return false;
       const own = (el.textContent || '').trim().length, all = (block.textContent || '').trim().length;
-      return all > own + 15; // other text around it in the same block
+      return all > own + 15; // other text around it in the same paragraph
     };
-    const inlineSmall = small.filter(inline);
+    const small = targets.filter((el) => !running(el) && el.getBoundingClientRect().height < 43.99);
+    const inlineLinks = targets.filter(running).length;
+    const describe = (e) => `${e.tagName.toLowerCase()} "${(e.textContent || e.getAttribute('aria-label') || e.getAttribute('placeholder') || '').trim().replace(/\s+/g, ' ').slice(0, 30)}" ${Math.round(e.getBoundingClientRect().height)}px`;
     const h1 = [...document.querySelectorAll('h1')].find(visible);
     const h1r = h1 ? h1.getBoundingClientRect() : null;
     const banner = document.querySelector('[data-cookie-banner], .cookie-banner, [aria-label*="ookie"]');
@@ -58,9 +53,8 @@ async function measure(page) {
       textColumnPct: Math.round((colWidth / vw) * 1000) / 10,
       tapTargets: targets.length,
       under44: small.length,
-      under44Standalone: small.length - inlineSmall.length,
-      under44Inline: inlineSmall.length,
-      examplesStandalone: small.filter((e) => !inline(e)).slice(0, 6).map((e) => `${e.tagName.toLowerCase()} "${(e.textContent || e.getAttribute('aria-label') || '').trim().slice(0, 30)}" ${Math.round(tapHeight(e))}px`),
+      linksInRunningText: inlineLinks,
+      offenders: small.slice(0, 400).map(describe),
       h1: h1 ? (h1.textContent || '').trim().slice(0, 60) : null,
       h1Top: h1r ? Math.round(h1r.top) : null,
       h1OnFirstScreen: h1r ? h1r.bottom <= vh : false,
@@ -76,7 +70,7 @@ async function run(base, outDir, label, extra = []) {
   const browser = await chromium.launch();
   const results = {};
   for (const p of [...PAGES, ...extra]) {
-    for (const vp of [...PHONES, DESKTOP]) {
+    for (const vp of [...PHONES, ...(process.env.PHONES_ONLY ? [] : [DESKTOP])]) {
       const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1, isMobile: vp.width < 600, hasTouch: vp.width < 600 });
       const page = await ctx.newPage();
       const backdrop = [];

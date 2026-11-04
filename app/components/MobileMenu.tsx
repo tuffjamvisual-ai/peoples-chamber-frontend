@@ -17,11 +17,26 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AccountTab from './AccountTab';
+import { PHONE_MENU_GROUPS } from '@/lib/site-nav';
 
 type Section = { label: string; href: string };
 const PANEL_ID = 'og-menu-panel';
 // The account row's links, at least 44px tall to tap (owner, 4 Nov 2026). The panel shows only under 768px.
 const ACCOUNT_CSS = '.og-menu-account a { display: inline-block; box-sizing: border-box; min-height: 44px; line-height: 24px; }';
+// Under 640px the links are in four groups (owner, 4 Nov 2026; lib/site-nav.ts); from 640px to 767px the flat list stays.
+const GROUPS_CSS = `.og-menu-groups { display: none; }
+@media (max-width: 639.98px) {
+  .og-menu-flat { display: none; }
+  .og-menu-groups { display: block; width: 100%; box-sizing: border-box; padding: 0 16px; text-align: left; }
+  .og-menu-group + .og-menu-group { margin-top: 12px; }
+  .og-menu-group h2 { margin: 0 0 2px; padding-bottom: 4px; border-bottom: 1px solid #14100d; font-size: 15px; font-weight: bold; letter-spacing: 0.04em; color: #7a1612; }
+  .og-menu-group ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
+  .og-menu-group a { display: block; box-sizing: border-box; min-height: 44px; align-content: center; color: #14100d; text-decoration: none; font-size: 17px; line-height: 1.2; }
+  .og-menu-group a:active { color: #7a1612; }
+  .og-menu-group a:focus-visible { outline: 2px solid #7a1612; outline-offset: 1px; }
+  .og-menu-cta { margin-top: 14px; }
+  .og-menu-account { margin-top: 10px; }
+}`;
 
 export default function MobileMenu({ sections }: { sections: Section[] }) {
   const router = useRouter();
@@ -73,7 +88,8 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
     if (gap > 0) html.style.paddingRight = `${gap}px`;
     window.addEventListener('popstate', onPop);
     document.addEventListener('keydown', onKey);
-    panelRef.current?.querySelector<HTMLElement>('a[href]')?.focus();
+    // The first link that shows at this width (the flat list and the groups are toggled by CSS).
+    [...(panelRef.current?.querySelectorAll<HTMLElement>('a[href]') ?? [])].find((a) => a.offsetParent !== null)?.focus();
     const button = buttonRef.current;
     return () => {
       window.removeEventListener('popstate', onPop);
@@ -107,7 +123,18 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
         <button type="button" className="og-menu-close" aria-label="Close menu" onClick={closeMenu}>
           <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 5l16 16M21 5 5 21" /></svg>
         </button>
-        <nav aria-label="Sections">
+        <style>{GROUPS_CSS}</style>
+        <nav aria-label="Sections" className="og-menu-groups">
+          {PHONE_MENU_GROUPS.map((g) => (
+            <div key={g.label} className="og-menu-group">
+              <h2>{g.label}</h2>
+              <ul>
+                {g.links.map((l) => <li key={l.href}><a href={l.href} onClick={(e) => follow(e, l.href)}>{l.label}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </nav>
+        <nav aria-label="Sections" className="og-menu-flat">
           <ul className="og-menu-list">
             {/* Commission is the button below, not a section link as well (owner, 4 Nov 2026). */}
             {sections.filter((s) => s.label !== 'Commission').map((s) => (

@@ -8,6 +8,7 @@ import BackLink from '../components/BackLink';
 import { DIRECTORY, LETTERS, directoryLetter } from '@/lib/directory';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import DirectoryFilter from './DirectoryFilter';
+import PhoneMore from '../components/PhoneMore';
 import Unavailable from '../components/Unavailable';
 
 export const metadata: Metadata = {
@@ -20,6 +21,14 @@ const INK = '#14100d';
 const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONO = 'var(--font-special-elite), monospace';
+
+// Phones (under 640px): each entry's name is a 44px row, so the padding around it comes in; letters with no entries line
+// up with the 44px letters.
+const DIRECTORY_PHONE_CSS = `@media (max-width: 639.98px) {
+  .dir-letters { align-items: center; }
+  .dir-entry { padding: 0 0 9px !important; }
+  .dir-entry p { margin: 0 !important; }
+}`;
 
 export default function DirectoryPage() {
   const groups = new Map<string, typeof DIRECTORY>();
@@ -40,7 +49,8 @@ export default function DirectoryPage() {
         </p>
       </header>
 
-      <nav aria-label="Jump to a letter" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', margin: '0 0 16px', fontFamily: MONO, fontSize: '16px' }}>
+      <style dangerouslySetInnerHTML={{ __html: DIRECTORY_PHONE_CSS }} />
+      <nav aria-label="Jump to a letter" className="dir-letters" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', margin: '0 0 16px', fontFamily: MONO, fontSize: '16px' }}>
         {letters.map((l) => groups.has(l)
           ? <a key={l} href={`#letter-${l === '#' ? 'other' : l}`} data-letter-link={l} className="no-hover-scale" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', color: ACCENT, border: `1px solid ${HAIRLINE}`, textDecoration: 'none', fontWeight: 'bold' }}>{l}</a>
           : <Unavailable key={l} note="no entries" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', border: '1px dashed transparent' }}>{l}</Unavailable>)}
@@ -54,12 +64,13 @@ export default function DirectoryPage() {
             <h2 style={{ fontFamily: MONO, fontSize: '22px', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, padding: '0 0 4px', margin: '0 0 6px' }}>{l}</h2>
             <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {groups.get(l)!.map((e) => (
-                <li key={`${e.name}|${e.href}`} data-entry={`${e.name} ${e.desc}`.toLowerCase()} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '9px 0' }}>
+                <li key={`${e.name}|${e.href}`} className="dir-entry" data-entry={`${e.name} ${e.desc}`.toLowerCase()} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '9px 0' }}>
                   <Link href={e.href} style={{ fontSize: '17px', fontWeight: 'bold', color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', overflowWrap: 'anywhere' }}>{e.name}</Link>
                   {e.desc && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '3px 0 0', color: INK, maxWidth: '52em' }}>{e.desc}</p>}
                 </li>
               ))}
             </ul>
+            <PhoneMore selector={`#directory-list:not(.pm-all) section[data-letter="${l}"] > ul`} total={groups.get(l)!.length} />
           </section>
         ))}
       </div>

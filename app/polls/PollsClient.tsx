@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import Toast from '../components/Toast'
+import PhoneMore from '../components/PhoneMore'
 
 type Poll = {
   id: number
@@ -218,6 +219,7 @@ export default function PollsClient() {
       ) : (
         <>
           <div
+            id="polls-list"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
@@ -238,6 +240,7 @@ export default function PollsClient() {
               />
             ))}
           </div>
+          <PhoneMore selector="#polls-list" total={filtered.length} off={!!search} />
           {filtered.length === 0 && (
             <div style={{ textAlign: 'center', padding: '48px 0', color: INK_SOFT }}>
               {search ? `No polls match "${search}".` : 'No other polls yet.'}
