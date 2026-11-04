@@ -2,7 +2,7 @@
 
 // Phone header and menu (owner's choice, 25 Oct 2026, report 47; the TaxPayers' Alliance pattern): under 768px the
 // header is one row, the wordmark with a search icon and a menu icon, and the menu icon opens a full screen panel
-// listing the 13 top level sections as large links, with "Commission research" as the one call to action. Each section's
+// listing the top level sections as large links (10 of the 11 in NAV, as Commission is the button), with "Commission research" as the one call to action. Each section's
 // landing page lists that section's pages ("In this section", SectionLinks.tsx), so every page in the desktop dropdowns
 // is two taps away. Hidden from 768px up (opengov-shell.css), where the desktop header and dropdowns are unchanged.
 //
@@ -20,6 +20,8 @@ import AccountTab from './AccountTab';
 
 type Section = { label: string; href: string };
 const PANEL_ID = 'og-menu-panel';
+// The account row's links, at least 44px tall to tap (owner, 4 Nov 2026). The panel shows only under 768px.
+const ACCOUNT_CSS = '.og-menu-account a { display: inline-block; box-sizing: border-box; min-height: 44px; line-height: 24px; }';
 
 export default function MobileMenu({ sections }: { sections: Section[] }) {
   const router = useRouter();
@@ -107,12 +109,14 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
         </button>
         <nav aria-label="Sections">
           <ul className="og-menu-list">
-            {sections.map((s) => (
+            {/* Commission is the button below, not a section link as well (owner, 4 Nov 2026). */}
+            {sections.filter((s) => s.label !== 'Commission').map((s) => (
               <li key={s.href}><a href={s.href} onClick={(e) => follow(e, s.href)}>{s.label}</a></li>
             ))}
           </ul>
         </nav>
         <a href="/commission" className="og-menu-cta" onClick={(e) => follow(e, '/commission')}>Commission research</a>
+        <style>{ACCOUNT_CSS}</style>
         {/* The account links and Support Us, which sit on the folder tab on larger screens. */}
         <div
           className="og-menu-account"
