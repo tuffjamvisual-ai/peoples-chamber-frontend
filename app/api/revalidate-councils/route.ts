@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   revalidateTag(COUNCIL_LEAGUE_TAG, 'max');
   // The council pages too (owner, 30 Oct 2026, cache Stage 2a part 4): they keep for a week, and the hand loaders that
   // call this (scripts/lib/refresh-site.js) write data every council page shows.
-  const paths = ['/councils/[slug]', '/councils/[slug]/schools', '/councils/[slug]/sewage'];
+  const paths = ['/councils/[slug]', '/councils/[slug]/schools', '/councils/[slug]/sewage', '/councils/[slug]/panel/[tab]'];
   for (const p of paths) revalidatePath(p, 'page');
   return NextResponse.json({ revalidated: [COUNCIL_LEAGUE_TAG, ...paths], at: new Date().toISOString() });
 }

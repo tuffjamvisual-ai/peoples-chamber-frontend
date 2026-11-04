@@ -17,22 +17,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import CouncilTabs from './CouncilTabs';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
-import CouncilCrimeSection from '../../components/CouncilCrimeSection';
-import CouncilChildPovertySection from '../../components/CouncilChildPovertySection';
-import CouncilFuelPovertySection from '../../components/CouncilFuelPovertySection';
-import CouncilHousePricesSection from '../../components/CouncilHousePricesSection';
-import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSection';
-import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSection';
-import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspectionsSection';
-import CouncilEhcpSection from '../../components/CouncilEhcpSection';
-import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
-import CouncilRoadConditionSection from '../../components/CouncilRoadConditionSection';
-import CouncilChildrenInCareSection from '../../components/CouncilChildrenInCareSection';
-import CouncilFlyTippingSection from '../../components/CouncilFlyTippingSection';
-import CouncilPipMobilitySection from '../../components/CouncilPipMobilitySection';
-import CouncilBlueBadgesSection from '../../components/CouncilBlueBadgesSection';
-import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
-import CouncilSewageSection from '../../components/CouncilSewageSection';
+import { showsWelfare, tabsWithContent } from './panels';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
 import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
@@ -256,26 +241,12 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const comp = (compRow as CouncilComposition | null) || null;
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
+  const lazyTabs = await tabsWithContent({ c, parent, children });
 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null || councilTax != null;
   const hasLeadership = c.political_control != null || c.chief_exec != null || c.chief_exec_note != null || c.leader_source_url != null || byelections.length > 0;
   const hasOverview =
     c.population != null || (SHOW_COUNCIL_FOUNDED && c.founded_year != null) || c.website_url != null;
-
-  // Welfare spending section: counties are upper-tier aggregates with no
-  // welfare row of their own (districts/unitaries hold the actual
-  // benefit data) — the "Districts under X" list below is the correct
-  // drill-down path for those, so this section is skipped for them.
-  // Northern Ireland councils are also excluded: the welfare explorer is
-  // GB-only (England/Wales/Scotland — DWP Stat-Xplore and ONS/Nomis
-  // don't cover NI benefits the same way), and NI GSS codes (starting
-  // "N") don't match the welfare API's accepted shape (/^[EWS]\d{8}$/)
-  // anyway, so showing this section there would only ever surface a
-  // confusing "no data found" error rather than a genuine gap.
-  const welfareGss = c.gss_code;
-  // Counties show the sum of their districts (the welfare API adds them up), 17 Oct 2026.
-  // Northern Ireland councils (N09) are included from 17 Oct 2026 (Department for Communities figures).
-  const showWelfare = /^[EWSN]\d{8}$/.test(welfareGss);
 
   // Public health metrics: same county exclusion as welfare — upper-tier
   // counties have no row of their own in council_public_health_metrics
@@ -372,9 +343,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           </div>
         </header>
 
-        {/* Sections are grouped into tabs (same pattern as the department and
-            MP pages). Every tab's content is server-rendered; CouncilTabs only
-            switches which one is visible and hides tabs with no figures. */}
+        {/* Sections are grouped into tabs (same pattern as the department and MP pages). The summary tabs are in the page;
+            the detail tabs load when opened (panels.tsx). CouncilTabs switches which one is visible and hides tabs with
+            no figures. */}
         <CouncilTabs
           tabs={[
             { id: 'overview', label: 'Overview', rotate: '0.1deg' },
@@ -589,97 +560,6 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 </Section>
               )}
             </>,
-            work: <>
-              {/* Claimant count: every council, counties included, has its own figures. */}
-              <CouncilClaimantCountSection gssCode={c.gss_code} />
-
-              {showWelfare && (
-                <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-                  <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
-                    Welfare spending
-                  </h2>
-                  <WelfareLocalAuthorityDetail gss={welfareGss} embedded />
-                </section>
-              )}
-
-              {/* Motability: PIP enhanced mobility rate, England and Wales (DWP Stat-Xplore); a county's figure adds up
-                  its districts, each listed. Hidden where no figures are held. */}
-              <CouncilPipMobilitySection gssCode={c.gss_code} />
-
-              {/* Blue Badges (England, DfT): issuing councils show their figures against England; districts point to
-                  their county. */}
-              <CouncilBlueBadgesSection
-                gssCode={c.gss_code}
-                country={c.country}
-                isDistrict={c.type === 'district'}
-                countyName={parent ? parent.name : null}
-                countySlug={parent ? parent.slug : null}
-              />
-
-              {/* Child poverty: same district/county logic as crime. */}
-              <CouncilChildPovertySection
-                gssCodes={
-                  c.type === 'county'
-                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-                    : [c.gss_code]
-                }
-                isCounty={c.type === 'county'}
-              />
-
-              {/* Fuel poverty: every English council has its own figure, shown with England's. */}
-              <CouncilFuelPovertySection gssCode={c.gss_code} />
-            </>,
-            housing: <>
-              {/* House prices: every council with a published series, county
-                  councils included, has its own HPI figures, so no summing. */}
-              <CouncilHousePricesSection gssCode={c.gss_code} />
-
-              {/* Homelessness (England): same district/county logic as crime. */}
-              <CouncilHomelessnessSection
-                gssCodes={
-                  c.type === 'county'
-                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-                    : c.gss_code ? [c.gss_code] : []
-                }
-                isCounty={c.type === 'county'}
-              />
-            </>,
-            crime: <>
-              {/* Crime: district/unitary councils use their own rows; a county's
-                  figures are the sum of its districts (no county-level rows exist
-                  in any source). Renders nothing when there's no data. */}
-              <CouncilCrimeSection
-                gssCodes={
-                  c.type === 'county'
-                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-                    : [c.gss_code]
-                }
-                population={c.population}
-                isCounty={c.type === 'county'}
-              />
-
-              {/* Road casualties: highway authorities show DfT figures; districts point to their county. */}
-              <CouncilRoadCasualtiesSection
-                gssCode={c.gss_code}
-                isDistrict={c.type === 'district'}
-                countyName={parent ? parent.name : null}
-                countySlug={parent ? parent.slug : null}
-              />
-
-              {/* Road condition (England, DfT, to March 2026, the last red, amber and green year): highway authorities;
-                  districts point to their county. */}
-              <CouncilRoadConditionSection
-                gssCode={c.gss_code}
-                country={c.country}
-                isDistrict={c.type === 'district'}
-                countyName={parent ? parent.name : null}
-                countySlug={parent ? parent.slug : null}
-              />
-
-              {/* Fly-tipping: England (Defra) and Wales (StatsWales); a county's figures are its districts' total.
-                  Scotland and Northern Ireland get one line: no official council figures are published. */}
-              <CouncilFlyTippingSection gssCode={c.gss_code} country={c.country} />
-            </>,
             health: <>
               {showPublicHealth && (
                 <Section title="Public Health">
@@ -690,42 +570,6 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   <PublicHealthRow label="Life expectancy (female)" row={publicHealthByKey.get('life_expectancy_female')} nation={c.country} isYears />
                 </Section>
               )}
-            </>,
-            schools: <>
-              {/* Schools: education authorities show Ofsted results; districts point to their county. */}
-              <CouncilSchoolInspectionsSection
-                gssCode={c.gss_code}
-                isDistrict={c.type === 'district'}
-                countyName={parent ? parent.name : null}
-                countySlug={parent ? parent.slug : null}
-                fullListHref={`/councils/${c.slug}/schools`}
-              />
-              {/* Children in care (England, DfE): children's services councils; districts point to their county. */}
-              <CouncilChildrenInCareSection
-                gssCode={c.gss_code}
-                country={c.country}
-                isDistrict={c.type === 'district'}
-                countyName={parent ? parent.name : null}
-                countySlug={parent ? parent.slug : null}
-              />
-              {/* EHC plans (DfE timeliness, council_ehcp): education authorities; districts point to their county. */}
-              <CouncilEhcpSection
-                gssCode={c.gss_code}
-                isDistrict={c.type === 'district'}
-                countyName={parent ? parent.name : null}
-                countySlug={parent ? parent.slug : null}
-              />
-            </>,
-            broadband: <>
-              {/* Broadband and mobile: districts/unitaries have their own figures; a county sums its districts. */}
-              <CouncilConnectivitySection
-                gssCodes={
-                  c.type === 'county'
-                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-                    : c.gss_code ? [c.gss_code] : []
-                }
-                isCounty={c.type === 'county'}
-              />
             </>,
             ratings: <>
               {/* Area league table (England): area rating, council services score, financial health. */}
@@ -738,16 +582,17 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               {/* Ombudsman complaints (England, council_ombudsman): every council has its own figures. */}
               <CouncilOmbudsmanSection gssCode={c.gss_code} />
             </>,
-            sewage: <>
-              {/* Sewage spills: England and NI; a county sums its districts. Water companies run overflows. */}
-              <CouncilSewageSection
-                gssCode={c.gss_code}
-                isCounty={c.type === 'county'}
-                districtCodes={children.map((d) => d.gss_code).filter((g): g is string => !!g)}
-                fullListHref={`/councils/${c.slug}/sewage`}
-              />
-            </>,
           }}
+          slug={c.slug}
+          lazyTabs={lazyTabs}
+          welfare={showsWelfare(c.gss_code) ? (
+            <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+              <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+                Welfare spending
+              </h2>
+              <WelfareLocalAuthorityDetail gss={c.gss_code} embedded />
+            </section>
+          ) : null}
         />
 
         {/* The compact Related line at the end of the main content (owner's brief, 3 Nov 2026): up to three reports

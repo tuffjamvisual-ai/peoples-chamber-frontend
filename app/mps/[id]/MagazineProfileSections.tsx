@@ -15,6 +15,7 @@ import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';
 import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
+import PhoneFolds from '../../components/PhoneFolds';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
 import AppgSource, { appgAmount } from '../../components/AppgSource';
 import StaffInterests, { type StaffInterest } from './StaffInterests';
@@ -416,7 +417,7 @@ const backgroundLabel: React.CSSProperties = { fontSize: '15px', textTransform: 
 function TimelineEntry({ entry, last }: { entry: BackgroundEntry; last: boolean }) {
   const years = yearsLabel(entry.start, entry.end);
   return (
-    <div style={{ marginBottom: last ? 0 : '8px', fontSize: '15px', lineHeight: '24px', overflowWrap: 'anywhere' }}>
+    <div className="og-read" style={{ marginBottom: last ? 0 : '8px', fontSize: '15px', lineHeight: '24px', overflowWrap: 'anywhere' }}>
       <div>
         {years && <strong style={{ fontFamily: 'monospace', marginRight: '0.6em' }}>{years}</strong>}
         <strong>{entry.title}</strong>
@@ -754,8 +755,8 @@ export default function MagazineProfileSections({
     if (active === 'donations') loadDonations();
     if (active === 'petitions') loadPetitions();
   }, [active, loadExpenses, loadDonations, loadPetitions]);
-  // A section hidden by the stylesheet (every tab but the open one, above 480px) never comes into view, so this loads
-  // only what is on screen at any width.
+  // A section hidden by the stylesheet (every tab but the open one above 480px, every closed fold below it) never comes
+  // into view, so this loads only what is on screen at any width. data-section-block is on PhoneFolds' section body.
   useEffect(() => {
     const load: Partial<Record<SectionId, () => void>> = { expenses: loadExpenses, donations: loadDonations, petitions: loadPetitions };
     const io = new IntersectionObserver((entries) => {
@@ -766,7 +767,8 @@ export default function MagazineProfileSections({
   }, [loadExpenses, loadDonations, loadPetitions]);
   useEffect(() => {
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
-    if (saveData) return;
+    // Phones (owner, 4 Nov 2026): sections are closed, so each loads when it is opened (the observer above).
+    if (saveData || window.matchMedia('(max-width: 479px)').matches) return;
     const start = () => { loadDonations(); loadExpenses(); };
     const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
     if (w.requestIdleCallback) {
@@ -2670,6 +2672,27 @@ export default function MagazineProfileSections({
     </>
   );
 
+  // The one line beside each fold's heading on phones, from figures already in the page; none where there is no count
+  // to give without loading something.
+  const countOf = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-GB')} ${n === 1 ? one : many}`;
+  const latestExpenses = [...expenses].sort((a, b) => String(b.year).localeCompare(String(a.year)))[0];
+  const foldSummary: Record<SectionId, string | null> = {
+    bio: null,
+    career: timeline.length > 0 ? countOf(timeline.length, 'entry', 'entries') : null,
+    contact: [contact?.phone && 'phone', contact?.email && 'email', contact?.website && 'website', contact?.twitter && 'social media', contact?.address_line1 && 'address'].filter(Boolean).join(', ') || null,
+    voting: countOf(totalVotes ?? votes.length, 'vote'),
+    bills: countOf(sponsoredBills.length, 'bill'),
+    house: (writtenQuestions?.total ?? 0) > 0 ? countOf(writtenQuestions!.total, 'written question') : countOf(contributions.length, 'recent debate'),
+    petitions: null,
+    edms: edms ? `started ${edms.startedCount.toLocaleString('en-GB')}, signed ${edms.signedCount.toLocaleString('en-GB')}` : null,
+    interests: interests.length > 0 ? countOf(interests.length, 'entry', 'entries') : null,
+    roles: currentCommittees.length > 0 ? countOf(currentCommittees.length, 'current committee') : null,
+    earnings: `${fmtMoney((earnings.base || 0) + (earnings.ministerial || 0))} as an MP`,
+    donations: declaredDonations.entryCount > 0 ? `${fmtMoney(declaredDonations.total)} declared` : null,
+    diary: [ministerMeetings.length > 0 && countOf(ministerMeetings.length, 'meeting'), ministerHospitality.length > 0 && `${ministerHospitality.length.toLocaleString('en-GB')} hospitality`].filter(Boolean).join(', ') || null,
+    expenses: latestExpenses?.total_spend != null ? `${fmtMoney(latestExpenses.total_spend)} in ${fmtExpenseYear(latestExpenses.year)}` : null,
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-px mp-sections-grid" style={{ marginTop: '-80px' }}>
       {/* Hold the content pane at a uniform height across tabs on desktop, so
@@ -2688,8 +2711,7 @@ export default function MagazineProfileSections({
           .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
           .mp-sections-content { padding: 20px 2px !important; }
         }
-        @media (min-width: 480px){ .mp-on-this-page, .mp-sec-off { display: none !important; } }
-        @media (max-width: 479px){ .mp-sections-nav button[data-section] { display: none !important; } .mp-sec { margin-bottom: 28px; scroll-margin-top: 12px; } }
+        @media (max-width: 479px){ .mp-sections-nav button[data-section] { display: none !important; } }
         .mp-col-inline { display: none; }
         @container (max-width: 560px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
       `}</style>
@@ -2741,27 +2763,19 @@ export default function MagazineProfileSections({
       </aside>
 
       <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
-        {/* Phones under 480px (owner, 3 Nov 2026): every section one after another, with a contents list, as GOV.UK tabs
-            show on small screens; wider screens keep the tabs. Both are in the HTML and the stylesheet above picks one by
-            screen width (4 Nov 2026), so nothing changes once the page script runs: each section is rendered once, and
-            above 480px every section but the open tab's is hidden. */}
-        <nav aria-label="On this page" className="mp-on-this-page" style={{ marginBottom: '18px', fontSize: '15px' }}>
-          <h2 style={{ fontSize: '17px', fontWeight: 'bold', margin: '0 0 4px' }}>On this page</h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {sections.map((s) => (
-              <li key={s.id}>
-                <a href={`#section-${s.id}`} style={{ display: 'flex', alignItems: 'center', minHeight: '44px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                  {s.label.charAt(0) + s.label.slice(1).toLowerCase().replace('the house', 'the House')}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        {sections.map((s) => (
-          <section key={s.id} id={`section-${s.id}`} data-section-block={s.id} className={s.id === active ? 'mp-sec' : 'mp-sec mp-sec-off'}>
-            {renderSection(s.id)}
-          </section>
-        ))}
+        {/* Phones under 480px (owner, 4 Nov 2026): every section folds away under "On this page", as the GOV.UK accordion
+            does; wider screens keep the tabs. Both are in the HTML and the stylesheets pick one by screen width, so
+            nothing changes once the page script runs: each section is rendered once, and above 480px every section but
+            the open tab's is hidden. */}
+        <PhoneFolds
+          folds={sections.map((s) => ({
+            id: s.id,
+            label: s.label.charAt(0) + s.label.slice(1).toLowerCase().replace('the house', 'the House'),
+            summary: foldSummary[s.id],
+            hiddenWide: s.id !== active,
+            node: renderSection(s.id),
+          }))}
+        />
       </div>
     </div>
   );

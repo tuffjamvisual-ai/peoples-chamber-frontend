@@ -7,7 +7,7 @@ import { revalidatePath, noteChanged } from '@/lib/refresh-count';
 export function refreshCouncilRoutes(rowsWritten: number, also: { schools?: boolean; sewage?: boolean } = {}): string[] {
   noteChanged(rowsWritten);
   if (rowsWritten <= 0) return [];
-  const paths = ['/councils/[slug]', ...(also.schools ? ['/councils/[slug]/schools'] : []), ...(also.sewage ? ['/councils/[slug]/sewage'] : [])];
+  const paths = ['/councils/[slug]', '/councils/[slug]/panel/[tab]', ...(also.schools ? ['/councils/[slug]/schools'] : []), ...(also.sewage ? ['/councils/[slug]/sewage'] : [])];
   for (const p of paths) revalidatePath(p, 'page');
   return paths;
 }

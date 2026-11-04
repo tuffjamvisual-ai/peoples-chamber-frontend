@@ -53,7 +53,7 @@ async function refreshQueuedCouncils(): Promise<Record<string, unknown>> {
     if (error) throw new Error(error.message);
     if (!data) return { queued: false };
     revalidateTag(COUNCIL_LEAGUE_TAG, 'max');
-    for (const p of ['/councils/[slug]', '/councils/[slug]/schools', '/councils/[slug]/sewage']) revalidatePath(p, 'page');
+    for (const p of ['/councils/[slug]', '/councils/[slug]/schools', '/councils/[slug]/sewage', '/councils/[slug]/panel/[tab]']) revalidatePath(p, 'page');
     const { error: delErr } = await supabaseAdmin.from('sync_cursor').delete().eq('route', 'council-refresh-queue');
     if (delErr) throw new Error(delErr.message);
     return { queued: true, refreshed: true };

@@ -2,10 +2,10 @@
 
 // Council profile tabs — the same pattern as the department and MP pages
 // (app/departments/[slug]/DepartmentTabs.tsx, app/mps/[id]/MagazineProfileSections.tsx):
-// chip-buttons in a sidebar and a content column that swaps on click. Each
-// tab's content is a server-rendered slot, so every tab's markup ships in
-// the static HTML (good for crawlers) and this component only toggles which
-// slot is visible.
+// chip-buttons in a sidebar and a content column that swaps on click. The summary tabs are server-rendered slots in the
+// page. The detail tabs (lazyTabs; owner, 4 Nov 2026, panels.tsx) are read from /councils/<slug>/panel/<tab> the first
+// time they are opened: that HTML is cached like the page, and is plain markup, so it is shown as it comes. The welfare
+// section, which has its own script, is rendered here at its marked place.
 //
 // Empty tabs: several council sections render nothing when a council has no
 // figures from that source (e.g. Scottish councils have no Ofsted or MHCLG
@@ -17,16 +17,39 @@
 //
 // The desktop sidebar floats with the page (see floatRef below), as on the MP profile page.
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { WELFARE_SLOT } from '@/lib/council-panels';
 
 type Tab = { id: string; label: string; rotate: string };
 
 const ACCENT = '#7a1612';
 const INK = '#14100d';
 
-export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Record<string, ReactNode> }) {
+export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare }: { tabs: Tab[]; slots: Record<string, ReactNode>; slug: string; lazyTabs: string[]; welfare: ReactNode }) {
   const [active, setActive] = useState<string>(tabs[0]?.id ?? '');
+  const [panelHtml, setPanelHtml] = useState<Record<string, string>>({});
+  const [panelFailed, setPanelFailed] = useState<string | null>(null);
+  const requested = useRef(new Set<string>());
+  const loadPanel = useCallback((id: string) => {
+    if (requested.current.has(id)) return;
+    requested.current.add(id);
+    setPanelFailed(null);
+    fetch(`/councils/${slug}/panel/${id}`)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((html) => {
+        const body = new DOMParser().parseFromString(html, 'text/html').getElementById('council-panel-body');
+        if (!body) throw new Error('no panel in the answer');
+        setPanelHtml((cur) => ({ ...cur, [id]: body.innerHTML }));
+      })
+      .catch(() => {
+        requested.current.delete(id);
+        setPanelFailed(id);
+      });
+  }, [slug]);
+  useEffect(() => {
+    if (lazyTabs.includes(active)) loadPanel(active);
+  }, [active, lazyTabs, loadPanel]);
   const [visible, setVisible] = useState<string[]>(tabs.map((t) => t.id));
   const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -83,8 +106,8 @@ export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Recor
       window.removeEventListener('resize', compute);
       desktop.removeEventListener('change', compute);
     };
-    // Recompute after a tab change, which changes the height of the tab area.
-  }, [active]);
+    // Recompute after a tab change or a tab's content arriving, which change the height of the tab area.
+  }, [active, panelHtml]);
 
   // Soft fade at the right edge of the phone chip row while there are more
   // tabs off to the right; it goes once the row is scrolled to the end.
@@ -119,6 +142,22 @@ export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Recor
     } catch {
       // Address update is a convenience only.
     }
+  };
+
+  const lazyPanel = (id: string) => {
+    const html = panelHtml[id];
+    if (html == null) {
+      const note: React.CSSProperties = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', margin: '12px 0' };
+      if (panelFailed !== id) return <p data-panel-loading style={note}>Loading…</p>;
+      return <p style={note}>This section could not be loaded. <button type="button" onClick={() => loadPanel(id)} style={{ font: 'inherit', color: ACCENT, background: 'none', border: 'none', padding: 0, textDecoration: 'underline', cursor: 'pointer' }}>Try again</button></p>;
+    }
+    const [before, after] = html.split(WELFARE_SLOT);
+    return (
+      <>
+        <div dangerouslySetInnerHTML={{ __html: before }} />
+        {after != null && <>{welfare}<div dangerouslySetInnerHTML={{ __html: after }} /></>}
+      </>
+    );
   };
 
   const hideEmptyCss = tabs
@@ -188,7 +227,7 @@ export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Recor
             role="region"
             aria-label={t.label}
             style={{ display: t.id === active ? 'block' : 'none' }}
-          >{slots[t.id]}</div>
+          >{lazyTabs.includes(t.id) ? lazyPanel(t.id) : slots[t.id]}</div>
         ))}
       </div>
     </div>

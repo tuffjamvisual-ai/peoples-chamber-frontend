@@ -15,7 +15,7 @@ import path from 'path';
 import { chromium } from 'playwright';
 import sharp from 'sharp';
 
-const PAGES = ['/', '/mps/4874', '/editorials/alghyhvbbo', '/councils/nottingham', '/transparency/contracts', '/organisations/kpmg-llp', '/commission', '/lords'];
+const PAGES = ['/', '/mps/4874', '/editorials/alghyhvbbo', '/councils/nottingham', '/transparency/contracts', '/organisations/kpmg-llp', '/commission', '/lords', '/lords/100'];
 const PHONES = [{ width: 375, height: 812 }, { width: 360, height: 780 }];
 const DESKTOP = { width: 1440, height: 900 };
 const slug = (p) => (p === '/' ? 'home' : p.slice(1).replace(/\//g, '_'));
@@ -53,6 +53,7 @@ async function measure(page) {
     const br = banner && visible(banner) ? banner.getBoundingClientRect() : null;
     const contentTop = content.getBoundingClientRect().top + parseFloat(cs.paddingTop);
     return {
+      pageHeight: document.documentElement.scrollHeight,
       horizontalScroll: Math.max(0, document.documentElement.scrollWidth - vw),
       textColumnPct: Math.round((colWidth / vw) * 1000) / 10,
       tapTargets: targets.length,

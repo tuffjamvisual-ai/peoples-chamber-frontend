@@ -7,6 +7,7 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { metaDescription } from '@/lib/meta-description';
 import OpenGovShell from '../../components/OpenGovShell';
 import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
+import PhoneFolds, { type Fold } from '../../components/PhoneFolds';
 import { getPeer, peerVoting, lordsDivisionUrl, type Peer } from '@/lib/lords';
 import { peerHasPage, parliamentProfileUrl, type Post } from '@/lib/peers';
 import { questionsSummary } from '@/lib/mp-written-questions';
@@ -87,6 +88,78 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
   const posts = [...allPosts.government, ...allPosts.opposition, ...allPosts.other];
   const committees = p.committee_memberships ?? [];
 
+  const countOf = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-GB')} ${n === 1 ? one : many}`;
+  const currentPosts = posts.filter((x) => !x.endDate).length;
+  const currentCommittees = committees.filter((x) => !x.endDate).length;
+  const folds: Fold[] = [];
+  if (posts.length > 0 || committees.length > 0) folds.push({
+    id: 'posts',
+    label: 'Posts held',
+    summary: [currentPosts > 0 && countOf(currentPosts, 'current post'), currentCommittees > 0 && countOf(currentCommittees, 'committee')].filter(Boolean).join(', ') || null,
+    node: (
+        <div style={{ color: INK }}>
+          <h2 id="peer-posts" style={h2}>Posts held</h2>
+          <PostList posts={posts} current />
+          {committees.some((c) => !c.endDate) && (
+            <>
+              <h3 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '12px 0 4px' }}>Committees</h3>
+              <PostList posts={committees} current />
+            </>
+          )}
+          {(posts.some((x) => x.endDate) || committees.some((x) => x.endDate)) && (
+            <details style={{ marginTop: '8px' }}>
+              <summary style={{ cursor: 'pointer', fontSize: '15px' }}>Past posts and committees</summary>
+              <PostList posts={posts} current={false} />
+              <PostList posts={committees} current={false} />
+            </details>
+          )}
+        </div>
+    ),
+  });
+  if (voting) folds.push({
+    id: 'votes',
+    label: 'Voting record',
+    summary: voting.voted === 0 ? 'no votes recorded' : `voted in ${voting.voted.toLocaleString('en-GB')} of ${voting.divisions.toLocaleString('en-GB')} divisions`,
+    node: (
+        <div style={{ color: INK }}>
+          <h2 id="peer-votes" style={h2}>Voting record</h2>
+          {voting.voted === 0 ? (
+            <p style={{ fontSize: '15px' }}>No votes recorded in the {voting.divisions.toLocaleString('en-GB')} Lords divisions since {fmt(voting.firstDivision)}.</p>
+          ) : (
+            <>
+              <p style={{ fontSize: '15px', margin: '0 0 8px' }}>
+                Voted in <strong>{voting.voted.toLocaleString('en-GB')}</strong> of {voting.divisions.toLocaleString('en-GB')} divisions since {fmt(voting.firstDivision)}:
+                {' '}{voting.content.toLocaleString('en-GB')} content, {voting.notContent.toLocaleString('en-GB')} not content.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
+                {voting.recent.map((v) => (
+                  <li key={v.division_id} style={{ padding: '7px 0', borderBottom: divider }}>
+                    <span style={{ fontFamily: 'var(--font-special-elite), monospace', whiteSpace: 'nowrap' }}>{fmt(v.division_date)}</span>
+                    {' · '}<strong>{v.vote === 'content' ? 'Content' : v.vote === 'not_content' ? 'Not content' : v.vote}</strong>
+                    <div>
+                      <a href={lordsDivisionUrl(v.division_id)} target="_blank" rel="noopener noreferrer" style={link}>{(v.title || `Division ${v.division_id}`).trim()}</a>
+                      {v.bill_id && <> · <Link href={`/bills/${v.bill_id}`} style={link}>the bill</Link></>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+    ),
+  });
+  if (questions && questions.total > 0) folds.push({
+    id: 'questions',
+    label: 'Written questions',
+    summary: countOf(questions.total, 'question'),
+    node: (
+        <div style={{ color: INK }}>
+          <h2 id="peer-questions" style={h2}>Written questions</h2>
+          <WrittenQuestionsSummary summary={questions} allHref={`/lords/${memberId}/questions`} />
+        </div>
+    ),
+  });
+
   return (
     <OpenGovShell pageStamp="House of Lords">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'House of Lords', path: '/lords' }, { name: p.name_display, path: `/lords/${memberId}` }])} />
@@ -116,60 +189,8 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
         </div>
       </header>
 
-      {(posts.length > 0 || committees.length > 0) && (
-        <section aria-labelledby="peer-posts" style={{ color: INK }}>
-          <h2 id="peer-posts" style={h2}>Posts held</h2>
-          <PostList posts={posts} current />
-          {committees.some((c) => !c.endDate) && (
-            <>
-              <h3 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '12px 0 4px' }}>Committees</h3>
-              <PostList posts={committees} current />
-            </>
-          )}
-          {(posts.some((x) => x.endDate) || committees.some((x) => x.endDate)) && (
-            <details style={{ marginTop: '8px' }}>
-              <summary style={{ cursor: 'pointer', fontSize: '15px' }}>Past posts and committees</summary>
-              <PostList posts={posts} current={false} />
-              <PostList posts={committees} current={false} />
-            </details>
-          )}
-        </section>
-      )}
-
-      {voting && (
-        <section aria-labelledby="peer-votes" style={{ color: INK }}>
-          <h2 id="peer-votes" style={h2}>Voting record</h2>
-          {voting.voted === 0 ? (
-            <p style={{ fontSize: '15px' }}>No votes recorded in the {voting.divisions.toLocaleString('en-GB')} Lords divisions since {fmt(voting.firstDivision)}.</p>
-          ) : (
-            <>
-              <p style={{ fontSize: '15px', margin: '0 0 8px' }}>
-                Voted in <strong>{voting.voted.toLocaleString('en-GB')}</strong> of {voting.divisions.toLocaleString('en-GB')} divisions since {fmt(voting.firstDivision)}:
-                {' '}{voting.content.toLocaleString('en-GB')} content, {voting.notContent.toLocaleString('en-GB')} not content.
-              </p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
-                {voting.recent.map((v) => (
-                  <li key={v.division_id} style={{ padding: '7px 0', borderBottom: divider }}>
-                    <span style={{ fontFamily: 'var(--font-special-elite), monospace', whiteSpace: 'nowrap' }}>{fmt(v.division_date)}</span>
-                    {' · '}<strong>{v.vote === 'content' ? 'Content' : v.vote === 'not_content' ? 'Not content' : v.vote}</strong>
-                    <div>
-                      <a href={lordsDivisionUrl(v.division_id)} target="_blank" rel="noopener noreferrer" style={link}>{(v.title || `Division ${v.division_id}`).trim()}</a>
-                      {v.bill_id && <> · <Link href={`/bills/${v.bill_id}`} style={link}>the bill</Link></>}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </section>
-      )}
-
-      {questions && questions.total > 0 && (
-        <section aria-labelledby="peer-questions" style={{ color: INK }}>
-          <h2 id="peer-questions" style={h2}>Written questions</h2>
-          <WrittenQuestionsSummary summary={questions} allHref={`/lords/${memberId}/questions`} />
-        </section>
-      )}
+      {/* Under 480px each section folds away, as on MP pages; from 480px up they read as before. */}
+      <PhoneFolds folds={folds} />
     </OpenGovShell>
   );
 }
