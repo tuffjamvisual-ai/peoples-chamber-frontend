@@ -20,6 +20,10 @@ const TYPE_CHIPS = [
   { value: 'bill',         label: 'Bills' },
   { value: 'division',     label: 'Divisions' },
   { value: 'mp',           label: 'MPs' },
+  { value: 'peer',         label: 'Peers' },
+  { value: 'council',      label: 'Councils' },
+  { value: 'organisation', label: 'Organisations' },
+  { value: 'donor',        label: 'Donors' },
 ];
 
 interface Props {

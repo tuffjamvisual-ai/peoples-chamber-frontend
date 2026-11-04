@@ -1,3 +1,4 @@
+import { updatedDate } from '@/lib/record-dates';
 import { cache } from 'react';
 import { metaDescription } from '@/lib/meta-description';
 import type { Metadata } from 'next';
@@ -500,7 +501,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // "Last updated" under each profile section whose table lib/data-freshness.ts tracks (owner, 1 Nov 2026): the newest
   // update time of each table, read together once, from the same source as the site's freshness lines. Cached with the
   // page like its other reads. On a read error or timeout no dates are shown and the page still renders.
-  const SECTION_SOURCES = { voting: 'division_votes', house: 'hansard_contributions', petitions: 'petitions', edms: 'early_day_motions', interests: 'registered_interests', expenses: 'mp_expenses' } as const;
+  const SECTION_SOURCES = { bills: 'bills', voting: 'division_votes', house: 'hansard_contributions', petitions: 'petitions', edms: 'early_day_motions', interests: 'registered_interests', expenses: 'mp_expenses' } as const;
   const sectionUpdated: Partial<Record<keyof typeof SECTION_SOURCES, string>> = {};
   try {
     const newest = await withTimeout(newestTimestamps(Object.values(SECTION_SOURCES)), 9000);
@@ -511,6 +512,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   } catch (e) {
     console.error(`/mps/${memberId} section dates:`, e instanceof Error ? e.message : e);
   }
+  // The other sections' tables, each read about four times a day across all pages (lib/record-dates.ts). The contact
+  // details table holds no update date, so Contact has no line.
+  const [rolesUpdated, earningsUpdated, donationsUpdated, diaryUpdated] = await Promise.all([
+    updatedDate('mp_committee_memberships', 'synced_at'),
+    updatedDate('mp_outside_earnings_summary', 'updated_at'),
+    updatedDate('political_donations', 'updated_at'),
+    updatedDate('ministers_meetings', 'updated_at'),
+  ]);
+  const allSectionDates = { ...sectionUpdated, ...(rolesUpdated && { roles: rolesUpdated }), ...(earningsUpdated && { earnings: earningsUpdated }), ...(donationsUpdated && { donations: donationsUpdated }), ...(diaryUpdated && { diary: diaryUpdated }) };
   const edmEntry = (id: number, e: EdmJoined) => ({
     id,
     title: e.title,
@@ -806,7 +816,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         petitionsAvailable,
         edms: mpEdms,
         reports: mpReports,
-        lastUpdated: sectionUpdated,
+        lastUpdated: allSectionDates,
       }}
       footer={
         <>

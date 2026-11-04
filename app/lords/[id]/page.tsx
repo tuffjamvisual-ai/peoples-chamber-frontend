@@ -8,6 +8,8 @@ import { metaDescription } from '@/lib/meta-description';
 import OpenGovShell from '../../components/OpenGovShell';
 import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
 import PhoneFolds, { type Fold } from '../../components/PhoneFolds';
+import RecordDate from '../../components/RecordDate';
+import { longDay, updatedDate } from '@/lib/record-dates';
 import { getPeer, peerVoting, lordsDivisionUrl, type Peer } from '@/lib/lords';
 import { peerHasPage, parliamentProfileUrl, type Post } from '@/lib/peers';
 import { questionsSummary } from '@/lib/mp-written-questions';
@@ -88,6 +90,8 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
   const posts = [...allPosts.government, ...allPosts.opposition, ...allPosts.other];
   const committees = p.committee_memberships ?? [];
 
+  // Under each section: the peer's own posts check; the newest sync of the Lords votes and written questions tables.
+  const [votesUpdated, questionsUpdated] = await Promise.all([updatedDate('lords_divisions', 'synced_at'), updatedDate('parliament_written_questions', 'fetched_at')]);
   const countOf = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-GB')} ${n === 1 ? one : many}`;
   const currentPosts = posts.filter((x) => !x.endDate).length;
   const currentCommittees = committees.filter((x) => !x.endDate).length;
@@ -113,6 +117,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
               <PostList posts={committees} current={false} />
             </details>
           )}
+          {p.posts_checked_at && <RecordDate text={`Updated ${longDay(p.posts_checked_at)}`} />}
         </div>
     ),
   });
@@ -145,6 +150,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
               </ul>
             </>
           )}
+          {votesUpdated && <RecordDate text={`Updated ${votesUpdated}`} />}
         </div>
     ),
   });
@@ -156,6 +162,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
         <div style={{ color: INK }}>
           <h2 id="peer-questions" style={h2}>Written questions</h2>
           <WrittenQuestionsSummary summary={questions} allHref={`/lords/${memberId}/questions`} />
+          {questionsUpdated && <RecordDate text={`Updated ${questionsUpdated}`} />}
         </div>
     ),
   });

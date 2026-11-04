@@ -27,6 +27,7 @@ type Law = {
   vote_count_no?: number | null
   vote_count_abstain?: number | null
   commons_ayes?: number | null
+  commons_vote_date?: string | null
   commons_noes?: number | null
   is_act?: boolean | null
 }

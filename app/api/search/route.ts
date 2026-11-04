@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchContent, searchCouncils, VALID_SEARCH_TYPES, type SearchResult, type SearchResultType } from '@/lib/search-content';
+import { searchContent, searchCouncils, searchPeers, VALID_SEARCH_TYPES, type SearchResult, type SearchResultType } from '@/lib/search-content';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,10 +23,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Councils are a separate group, as on /search: only with type=all and no department or date filter.
-  const [results, councils] = await Promise.all([
+  // Councils and peers are separate groups, as on /search: only with type=all and no department or date filter.
+  const [results, councils, peers] = await Promise.all([
     searchContent(q, type, dept, from, to),
     type === 'all' && !dept && !from && !to ? searchCouncils(q) : Promise.resolve([]),
+    type === 'all' && !dept && !from && !to ? searchPeers(q) : Promise.resolve([]),
   ]);
-  return NextResponse.json({ q, type, results, councils });
+  return NextResponse.json({ q, type, results, councils, peers });
 }

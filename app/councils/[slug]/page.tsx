@@ -17,7 +17,9 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import CouncilTabs from './CouncilTabs';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
-import { showsWelfare, tabsWithContent } from './panels';
+import { Dated, recordText, showsWelfare, tabsWithContent } from './panels';
+import RecordDate from '../../components/RecordDate';
+import { longDay } from '@/lib/record-dates';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
 import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
@@ -87,6 +89,7 @@ type CouncilFull = {
   website_url: string | null;
   description: string | null;
   wikipedia_url: string | null;
+  updated_at: string | null;
 };
 
 type RelatedCouncil = { slug: string; name: string; short_name: string | null; political_control: string | null; gss_code?: string | null };
@@ -242,6 +245,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
   const lazyTabs = await tabsWithContent({ c, parent, children });
+  // The date lines under each section (owner, 4 Nov 2026): this council's own row, its own periods, or the newest sync of
+  // the table behind the section (lib/record-dates.ts).
+  const [publicHealthDate, welfareDate] = await Promise.all([
+    recordText({ updated: ['council_public_health_metrics', 'updated_at'] }),
+    recordText({ updated: ['welfare_local_authority_summary', 'updated_at'] }),
+  ]);
+  const councilUpdated = c.updated_at ? `Updated ${longDay(c.updated_at)}` : null;
 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null || councilTax != null;
   const hasLeadership = c.political_control != null || c.chief_exec != null || c.chief_exec_note != null || c.leader_source_url != null || byelections.length > 0;
@@ -375,7 +385,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
 
               {hasLeadership && (
-                <Section title="Political Control & Leadership">
+                <Section title="Political Control & Leadership" date={councilUpdated}>
                   <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
                   {/* The publisher's administration label is left out when it contradicts the seats shown
                       below (e.g. "minority" while one named party holds more than half the seats). */}
@@ -423,7 +433,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
 
               {hasOverview && (
-                <Section title="Overview">
+                <Section title="Overview" date={c.population_year ? `Period ${c.population_year}` : councilUpdated}>
                   <DataRow
                     label={c.population_year ? `Population (${c.population_year} estimate)` : 'Population'}
                     value={c.population?.toLocaleString('en-GB') ?? null}
@@ -497,7 +507,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             </>,
             money: <>
               {hasFinance && (
-                <Section title="Finance">
+                <Section title="Finance" date={councilTax ? `Period ${councilTax.year.replace('-', '/')}` : councilUpdated}>
                   <DataRow label="Annual revenue budget" value={c.revenue_budget_mn != null ? `£${c.revenue_budget_mn.toLocaleString()}m` : null} />
                   {councilTax ? (
                     <DataRow label={`Council tax ${councilTax.year.replace('-', '/')} (Band D)`} value={councilTaxValue(councilTax, c.name, c.type)} sub={councilTaxSub(councilTax)} />
@@ -526,7 +536,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
 
               {showServiceSpending && (
-                <Section title="Council Spending by Service">
+                <Section title="Council Spending by Service" date={spendingPeriodLabel ? `Period ${spendingPeriodLabel}` : null}>
                   <DataRow
                     label="Total"
                     value={spendingTotalPounds != null ? formatPoundsMillions(spendingTotalPounds) : null}
@@ -562,7 +572,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             </>,
             health: <>
               {showPublicHealth && (
-                <Section title="Public Health">
+                <Section title="Public Health" date={publicHealthDate}>
                   <PublicHealthRow label="Smoking (adults)" row={publicHealthByKey.get('smoking_prevalence')} nation={c.country} />
                   <PublicHealthRow label="Physically active (adults)" row={publicHealthByKey.get('physical_activity_prevalence')} nation={c.country} />
                   <PublicHealthRow label="Overweight or obese (adults)" row={publicHealthByKey.get('obesity_prevalence')} nation={c.country} />
@@ -573,14 +583,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             </>,
             ratings: <>
               {/* Area league table (England): area rating, council services score, financial health. */}
-              <CouncilRatingsSection
-                gssCode={c.gss_code}
-                type={c.type}
-                name={c.short_name || c.name}
-                districtCodes={children.map((d) => d.gss_code).filter((g): g is string => !!g)}
+              <Dated
+                C={CouncilRatingsSection}
+                props={{ gssCode: c.gss_code, type: c.type, name: c.short_name || c.name, districtCodes: children.map((d) => d.gss_code).filter((g): g is string => !!g) }}
+                source={{ updated: ['area_ratings', 'synced_at'] }}
               />
               {/* Ombudsman complaints (England, council_ombudsman): every council has its own figures. */}
-              <CouncilOmbudsmanSection gssCode={c.gss_code} />
+              <Dated C={CouncilOmbudsmanSection} props={{ gssCode: c.gss_code }} source={{ updated: ['council_ombudsman', 'imported_at'] }} />
             </>,
           }}
           slug={c.slug}
@@ -591,6 +600,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 Welfare spending
               </h2>
               <WelfareLocalAuthorityDetail gss={c.gss_code} embedded />
+              <RecordDate text={welfareDate} />
             </section>
           ) : null}
         />
@@ -625,7 +635,7 @@ function controlStatusText(status: string | null): string | null {
   return status;
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, date }: { title: string; children: React.ReactNode; date?: string | null }) {
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
@@ -634,6 +644,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <dl className="council-dl" style={{ margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 220px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` }}>
         {children}
       </dl>
+      <RecordDate text={date} />
     </section>
   );
 }

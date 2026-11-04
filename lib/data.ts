@@ -50,7 +50,7 @@ export async function getBillsPage(
   // are in the archive (/bills/sessions). The summary is cut to the card's length here, not in the browser.
   // Ordered by public_votes (Aye + No, the total the card shows), then id.
   const cols =
-    'id, parliament_id, title, category, description, long_title, current_stage, stage_date, originating_house, introduced_session_id, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
+    'id, parliament_id, title, category, description, long_title, current_stage, stage_date, originating_house, introduced_session_id, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, commons_vote_date, last_update, bill_withdrawn, is_act';
   const safePage = Math.max(1, Math.floor(page) || 1);
   const from = (safePage - 1) * perPage;
   const to = from + perPage - 1;
@@ -82,7 +82,7 @@ export async function getBillsPage(
 // at committee in the Lords would otherwise read "Commons". stages itself is dropped.
 async function getBillsPageByTitle(page: number, perPage: number): Promise<{ bills: Bill[]; totalCount: number }> {
   const cols =
-    'id, parliament_id, title, category, description, long_title, current_stage, stage_date, originating_house, introduced_session_id, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act, stages';
+    'id, parliament_id, title, category, description, long_title, current_stage, stage_date, originating_house, introduced_session_id, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, commons_vote_date, last_update, bill_withdrawn, is_act, stages';
   const safePage = Math.max(1, Math.floor(page) || 1);
   try {
     const rows = await readAll<Record<string, unknown>>(() => supabase.from('bill_current'), {
@@ -136,7 +136,7 @@ export async function getAllBills(): Promise<Bill[]> {
   // at most 4,000 bills and were ordered only by vote_count_yes (ties could repeat or skip bills across pages).
   // Nothing calls this today. Still returns [] on failure, as before.
   const cols =
-    'id, parliament_id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
+    'id, parliament_id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, commons_vote_date, last_update, bill_withdrawn, is_act';
 
   try {
     const bills = await readAll<BillRow>(() => supabase.from('bill'), {

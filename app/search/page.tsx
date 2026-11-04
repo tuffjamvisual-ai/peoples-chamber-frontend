@@ -6,7 +6,7 @@ import SignupNote from './SignupNote';
 import SaveSearchButton from './SaveSearchButton';
 import SearchTracker from './SearchTracker';
 import { SEARCH_NOTE_JS } from '@/lib/search-note';
-import { searchContent, searchCouncils, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult } from '@/lib/search-content';
+import { searchContent, searchCouncils, searchPeers, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult, type PeerSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
 import { cachedOrganisationList, searchOrganisations, type OrgListRow } from '@/lib/organisations';
 
@@ -138,7 +138,6 @@ function CouncilRow({ c }: { c: CouncilSearchResult }) {
 }
 
 // A donor name, in the same row style as the other results: the name as registered and its record count.
-const DONORS_SHOWN = 10;
 const DONOR_META = { label: 'Donor', color: '#5c3a1a' };
 function DonorRow({ d }: { d: DonorNameResult }) {
   return (
@@ -177,7 +176,6 @@ function DonorRow({ d }: { d: DonorNameResult }) {
 }
 
 // An organisation page (report 71): name, Companies House number and what the page holds.
-const ORGS_SHOWN = 10;
 const ORG_META = { label: 'Organisation', color: '#3a4a1a' };
 function OrgRow({ o }: { o: OrgListRow }) {
   const held = [o.donations && 'donations', (o.contracts || o.framework_places) && 'contracts', o.grants && 'grants', o.meetings && 'meetings with ministers', o.lobbying_quarters && 'lobbying'].filter(Boolean).join(', ');
@@ -216,6 +214,36 @@ function OrgRow({ o }: { o: OrgListRow }) {
   );
 }
 
+// A member of the House of Lords, in the same row style.
+const PEER_META = { label: 'Peer', color: '#5a1a3a' };
+function PeerRow({ p }: { p: PeerSearchResult }) {
+  const external = p.href.startsWith('http');
+  const link: React.CSSProperties = { display: 'block', fontSize: '16px', fontWeight: 600, color: INK, textDecoration: 'none', lineHeight: 1.4 };
+  return (
+    <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+        <span style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.1em', color: INK, border: `1px solid ${PEER_META.color}`, padding: '2px 6px', whiteSpace: 'nowrap', flexShrink: 0, marginTop: '3px', textTransform: 'uppercase' }}>
+          {PEER_META.label}
+        </span>
+        <div style={{ minWidth: 0 }}>
+          {external
+            ? <a href={p.href} target="_blank" rel="noopener noreferrer" style={link}>{p.name}</a>
+            : <Link href={p.href} style={link}>{p.name}</Link>}
+          <span style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d' }}>
+            {[p.party, p.peerageType, !p.isCurrent && 'Former member', external && "Parliament's profile"].filter(Boolean).join(' · ')}
+          </span>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+// The two groups of results (owner, 4 Nov 2026): the record itself, and what mentions the term.
+const groupHeading: React.CSSProperties = { fontSize: '19px', fontWeight: 'bold', color: INK, margin: '0 0 2px' };
+const groupNote: React.CSSProperties = { fontSize: '15px', color: INK, margin: '0 0 16px', lineHeight: 1.5 };
+const RECORD_FILTERS = ['peer', 'council', 'organisation', 'donor'];
+const FILTERED_SHOWN = 50;
+
 type PageProps = {
   searchParams: Promise<{
     q?: string;
@@ -236,23 +264,30 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const to   = sp.to    ?? null;
   const sort = (sp.sort === 'newest' ? 'newest' : 'relevance') as 'relevance' | 'newest';
 
-  // Councils are their own group, shown with All selected; a department or date filter does not apply to them.
-  const wantCouncils = q.length >= 2 && type === 'all' && !dept && !from && !to;
-  // Donor names (24 Oct 2026): the same rule as councils. Name matches only, linked when the donor page exists
-  // (lib/donor-search.ts); the first DONORS_SHOWN, with the full list on /donors.
-  // Organisations (report 71): the same rule; the first ORGS_SHOWN, with the rest on /organisations.
-  const [results, councils, donorSearch, orgList]: [SearchResult[], CouncilSearchResult[], { results: DonorNameResult[]; more: boolean; totalNames: number }, OrgListRow[]] = q.length >= 2
-    ? await Promise.all([
-        searchContent(q, type, dept, from, to, sort),
-        wantCouncils ? searchCouncils(q) : Promise.resolve([]),
-        wantCouncils ? searchDonorNames(q) : Promise.resolve({ results: [], more: false, totalNames: 0 }),
-        wantCouncils ? cachedOrganisationList() : Promise.resolve([]),
-      ])
-    : [[], [], { results: [], more: false, totalNames: 0 }, []];
+  // Councils, peers, organisations and donors are shown with All selected, or alone with their own filter (owner,
+  // 4 Nov 2026). A department or date filter does not apply to them. Donor names are name matches only, linked when
+  // the donor page exists (lib/donor-search.ts). With All, the first few of each, and the full lists are on their pages.
+  const inAll = q.length >= 2 && type === 'all' && !dept && !from && !to;
+  const wants = (t: string) => q.length >= 2 && (inAll || type === t);
+  const shown = type === 'all' ? 10 : FILTERED_SHOWN;
+  const noDonors = { results: [] as DonorNameResult[], more: false, totalNames: 0 };
+  const [allResults, councils, peers, donorSearch, orgList]: [SearchResult[], CouncilSearchResult[], PeerSearchResult[], { results: DonorNameResult[]; more: boolean; totalNames: number }, OrgListRow[]] = await Promise.all([
+    q.length >= 2 ? searchContent(q, type, dept, from, to, sort) : Promise.resolve([]),
+    wants('council') ? searchCouncils(q, shown) : Promise.resolve([]),
+    wants('peer') ? searchPeers(q, shown) : Promise.resolve([]),
+    wants('donor') ? searchDonorNames(q) : Promise.resolve(noDonors),
+    wants('organisation') ? cachedOrganisationList() : Promise.resolve([]),
+  ]);
   const orgMatches = orgList.length ? searchOrganisations(orgList, q) : [];
-  const orgs = orgMatches.slice(0, ORGS_SHOWN);
+  const orgs = orgMatches.slice(0, shown);
   const linkedDonors = donorSearch.results.filter((d) => d.slug);
-  const donors = linkedDonors.slice(0, DONORS_SHOWN);
+  const donors = linkedDonors.slice(0, shown);
+  // The record itself (an MP's page, a council, a company) apart from the reports, releases, bills and votes that
+  // mention the term.
+  const mps = allResults.filter((r) => r.type === 'mp');
+  const results = allResults.filter((r) => r.type !== 'mp');
+  const hasRecords = mps.length + peers.length + councils.length + orgs.length + donors.length > 0;
+  const isEmpty = !hasRecords && results.length === 0;
 
   return (
     <OpenGovShell pageStamp="Search">
@@ -281,7 +316,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           Search
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
-          Reports, press releases, bills, votes, MPs, councils, donors and organisations, searched together.
+          Reports, press releases, bills, votes, MPs, peers, councils, donors and organisations, searched together.
         </p>
       </header>
 
@@ -294,12 +329,13 @@ export default async function SearchPage({ searchParams }: PageProps) {
       <SignupNote q={q} returnTo={'/search' + (q ? `?q=${encodeURIComponent(q)}` : '')} />
       <script dangerouslySetInnerHTML={{ __html: `${SEARCH_NOTE_JS}window.__ogNoteSearch(${JSON.stringify(q)});` }} />
       {/* Signed in members can save the search (job 74 Part 5); lists and alerts are on /preferences. */}
-      <SaveSearchButton q={q} type={type} dept={dept} from={from} to={to} sort={sort} />
+      {/* Saved search alerts cover reports, releases, bills, votes and MPs, so the record only filters do not offer it. */}
+      {!RECORD_FILTERS.includes(type) && <SaveSearchButton q={q} type={type} dept={dept} from={from} to={to} sort={sort} />}
       {/* The "search" analytics event for a submitted search, with consent only; the count is every result shown or
           counted on this page (content, councils, organisations, donor names). */}
-      <SearchTracker q={q} resultsCount={results.length + councils.length + orgMatches.length + (donorSearch.more ? donorSearch.totalNames : linkedDonors.length)} />
+      <SearchTracker q={q} resultsCount={allResults.length + councils.length + peers.length + orgMatches.length + (donorSearch.more ? donorSearch.totalNames : linkedDonors.length)} />
 
-      {q.length >= 2 && results.length === 0 && councils.length === 0 && donors.length === 0 && orgs.length === 0 && (
+      {q.length >= 2 && isEmpty && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
           <p style={{ fontSize: '17px', color: INK, marginBottom: '6px' }}>No results for &ldquo;{q}&rdquo;</p>
           <p style={{ fontSize: '15px', color: '#14100d' }}>
@@ -309,11 +345,40 @@ export default async function SearchPage({ searchParams }: PageProps) {
         </div>
       )}
 
+      {hasRecords && (
+        <>
+          <h2 style={groupHeading}>Records matching &ldquo;{q}&rdquo;</h2>
+          <p style={groupNote}>The page for the MP, peer, council, organisation or donor itself.</p>
+        </>
+      )}
+
+      {mps.length > 0 && (
+        <section aria-labelledby="search-mps" style={{ marginBottom: '28px' }}>
+          <h3 id="search-mps" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            MPs · {mps.length}
+          </h3>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {mps.map((r) => <ResultRow key={r.url} r={r} />)}
+          </ul>
+        </section>
+      )}
+
+      {peers.length > 0 && (
+        <section aria-labelledby="search-peers" style={{ marginBottom: '28px' }}>
+          <h3 id="search-peers" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            Members of the House of Lords · {peers.length}
+          </h3>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {peers.map((p) => <PeerRow key={p.memberId} p={p} />)}
+          </ul>
+        </section>
+      )}
+
       {councils.length > 0 && (
         <section aria-labelledby="search-councils" style={{ marginBottom: '28px' }}>
-          <h2 id="search-councils" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          <h3 id="search-councils" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Councils · {councils.length}
-          </h2>
+          </h3>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {councils.map((c) => <CouncilRow key={c.slug} c={c} />)}
           </ul>
@@ -322,9 +387,9 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
       {orgs.length > 0 && (
         <section aria-labelledby="search-orgs" style={{ marginBottom: '28px' }}>
-          <h2 id="search-orgs" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          <h3 id="search-orgs" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Organisations · {orgMatches.length.toLocaleString('en-GB')}
-          </h2>
+          </h3>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {orgs.map((o) => <OrgRow key={o.slug} o={o} />)}
           </ul>
@@ -338,9 +403,9 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
       {donors.length > 0 && (
         <section aria-labelledby="search-donors" style={{ marginBottom: '28px' }}>
-          <h2 id="search-donors" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          <h3 id="search-donors" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Donor names (as registered with the Electoral Commission) · {(donorSearch.more ? donorSearch.totalNames : linkedDonors.length).toLocaleString('en-GB')}
-          </h2>
+          </h3>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {donors.map((d) => <DonorRow key={d.slug} d={d} />)}
           </ul>
@@ -354,8 +419,9 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
       {results.length > 0 && (
         <section>
+          <h2 style={groupHeading}>Reports, releases, bills and votes that mention &ldquo;{q}&rdquo;</h2>
           <p style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '12px' }}>
-            {results.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+ results` : `${results.length} result${results.length === 1 ? '' : 's'}`}
+            {allResults.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+ results` : `${results.length} result${results.length === 1 ? '' : 's'}`}
             {type !== 'all' && ` · ${type === 'editorial' || type === 'briefing' ? 'Reports' : TYPE_META[type]?.label ?? type} only`}
           </p>
           <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>

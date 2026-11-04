@@ -117,7 +117,7 @@ export const metadata: Metadata = {
 // here applies from 480px up. Long reading text (paragraphs, list text, descriptions) is in system serif fonts, nothing
 // downloaded; Special Elite stays for headings, labels, stamps, buttons, navigation, tables and the footer. Also the
 // homepage intro's sentences as separate paragraphs, and the torn paper strip under the header at half its height.
-const BODY_TEXT = ':is(p, li, blockquote, dd, figcaption, .og-read):not(nav *, header *, footer *, button *, table *, form *, .og-cookie-banner *, .og-kicker, [class*="stamp"], [style*="uppercase"])';
+const BODY_TEXT = ':is(p, li, blockquote, dd, figcaption, .og-read):not(nav *, header *, footer *, button *, table *, form *, .og-cookie-banner *, .og-kicker, .og-record-date, [class*="stamp"], [style*="uppercase"])';
 const PHONE_CSS = `@media (max-width: 479px) {
   ${BODY_TEXT} { font-family: Georgia, "Times New Roman", serif !important; font-size: 17px !important; line-height: 1.6 !important; letter-spacing: normal !important; text-shadow: none !important; }
   ${BODY_TEXT} :is(span, a, strong, em, b, i, time, small, cite, q, div):not([style*="font-family"], [style*="uppercase"], [class*="stamp"]) { font-size: inherit !important; letter-spacing: normal !important; }

@@ -5,6 +5,8 @@
 import type { ReactNode } from 'react';
 import { pageDb } from '@/lib/page-reads';
 import { COUNCIL_LAZY_TABS, type CouncilLazyTab } from '@/lib/council-panels';
+import { latestPeriod, updatedDate } from '@/lib/record-dates';
+import RecordDate from '../../components/RecordDate';
 import CouncilCrimeSection from '../../components/CouncilCrimeSection';
 import CouncilChildPovertySection from '../../components/CouncilChildPovertySection';
 import CouncilFuelPovertySection from '../../components/CouncilFuelPovertySection';
@@ -29,8 +31,29 @@ export type PanelContext = { c: PanelCouncil; parent: { slug: string; name: stri
 // from that source: the page uses it to leave out a tab with nothing in it. The reads are the page's own, from the data
 // cache, so the panel route's render repeats none of them against the database within the cache period.
 type Part = { node: ReactNode; read: () => unknown };
-function part<P extends object>(C: (props: P) => Promise<ReactNode>, props: P): Part {
-  return { node: <C {...props} />, read: () => C(props) };
+// Where a section's date comes from: its table's newest sync stamp, or for a table with none its newest period.
+type DateSource = { updated: [string, string] } | { period: [string, string] } | null;
+const updated = (table: string, column: string): DateSource => ({ updated: [table, column] });
+
+export async function recordText(source: DateSource): Promise<string | null> {
+  if (!source) return null;
+  if ('updated' in source) {
+    const d = await updatedDate(...source.updated);
+    return d && `Updated ${d}`;
+  }
+  const p = await latestPeriod(...source.period);
+  return p && `Period ${p}`;
+}
+
+// A section with its date line under it; nothing at all when the council has no figures from that source.
+export async function Dated<P extends object>({ C, props, source }: { C: (props: P) => Promise<ReactNode>; props: P; source: DateSource }) {
+  const node = await C(props);
+  if (node == null || node === false) return null;
+  return <>{node}<RecordDate tight text={await recordText(source)} /></>;
+}
+
+function part<P extends object>(C: (props: P) => Promise<ReactNode>, props: P, source: DateSource): Part {
+  return { node: <Dated C={C} props={props} source={source} />, read: () => C(props) };
 }
 
 /** Welfare spending: England, Wales, Scotland and Northern Ireland; counties show the sum of their districts. */
@@ -44,38 +67,40 @@ export function panelParts(tab: CouncilLazyTab, { c, parent, children }: PanelCo
   const districtCodes = children.map((d) => d.gss_code).filter((g): g is string => !!g);
   const ownOrDistricts = isCounty ? districtCodes : [c.gss_code];
   const pointer = { isDistrict, countyName, countySlug };
+  // A district's section only points to its county there, so it has no figures to date.
+  const own = (source: DateSource) => (isDistrict ? null : source);
   switch (tab) {
     case 'work':
       return [
-        part(CouncilClaimantCountSection, { gssCode: c.gss_code }),
+        part(CouncilClaimantCountSection, { gssCode: c.gss_code }, updated('council_claimant_count', 'synced_at')),
         ...(showsWelfare(c.gss_code) ? [{ node: welfareSlot, read: () => true }] : []),
-        part(CouncilPipMobilitySection, { gssCode: c.gss_code }),
-        part(CouncilBlueBadgesSection, { gssCode: c.gss_code, country: c.country, ...pointer }),
-        part(CouncilChildPovertySection, { gssCodes: ownOrDistricts, isCounty }),
-        part(CouncilFuelPovertySection, { gssCode: c.gss_code }),
+        part(CouncilPipMobilitySection, { gssCode: c.gss_code }, updated('council_pip_mobility', 'fetched_at')),
+        part(CouncilBlueBadgesSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_blue_badges', 'updated_at'))),
+        part(CouncilChildPovertySection, { gssCodes: ownOrDistricts, isCounty }, updated('council_child_poverty', 'updated_at')),
+        part(CouncilFuelPovertySection, { gssCode: c.gss_code }, updated('council_fuel_poverty', 'synced_at')),
       ];
     case 'housing':
       return [
-        part(CouncilHousePricesSection, { gssCode: c.gss_code }),
-        part(CouncilHomelessnessSection, { gssCodes: ownOrDistricts, isCounty }),
+        part(CouncilHousePricesSection, { gssCode: c.gss_code }, updated('council_house_prices', 'synced_at')),
+        part(CouncilHomelessnessSection, { gssCodes: ownOrDistricts, isCounty }, updated('council_homelessness', 'synced_at')),
       ];
     case 'crime':
       return [
-        part(CouncilCrimeSection, { gssCodes: ownOrDistricts, population: c.population, isCounty }),
-        part(CouncilRoadCasualtiesSection, { gssCode: c.gss_code, ...pointer }),
-        part(CouncilRoadConditionSection, { gssCode: c.gss_code, country: c.country, ...pointer }),
-        part(CouncilFlyTippingSection, { gssCode: c.gss_code, country: c.country }),
+        part(CouncilCrimeSection, { gssCodes: ownOrDistricts, population: c.population, isCounty }, updated('council_crime_stats', 'updated_at')),
+        part(CouncilRoadCasualtiesSection, { gssCode: c.gss_code, ...pointer }, own(updated('council_road_casualties', 'synced_at'))),
+        part(CouncilRoadConditionSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_road_condition', 'updated_at'))),
+        part(CouncilFlyTippingSection, { gssCode: c.gss_code, country: c.country }, c.country === 'England' || c.country === 'Wales' ? { period: ['council_fly_tipping', 'year'] } : null),
       ];
     case 'schools':
       return [
-        part(CouncilSchoolInspectionsSection, { gssCode: c.gss_code, ...pointer, fullListHref: `/councils/${c.slug}/schools` }),
-        part(CouncilChildrenInCareSection, { gssCode: c.gss_code, country: c.country, ...pointer }),
-        part(CouncilEhcpSection, { gssCode: c.gss_code, ...pointer }),
+        part(CouncilSchoolInspectionsSection, { gssCode: c.gss_code, ...pointer, fullListHref: `/councils/${c.slug}/schools` }, own(updated('school_inspections', 'synced_at'))),
+        part(CouncilChildrenInCareSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_children_in_care', 'updated_at'))),
+        part(CouncilEhcpSection, { gssCode: c.gss_code, ...pointer }, own(updated('council_ehcp', 'imported_at'))),
       ];
     case 'broadband':
-      return [part(CouncilConnectivitySection, { gssCodes: ownOrDistricts, isCounty })];
+      return [part(CouncilConnectivitySection, { gssCodes: ownOrDistricts, isCounty }, updated('council_broadband', 'synced_at'))];
     case 'sewage':
-      return [part(CouncilSewageSection, { gssCode: c.gss_code, isCounty, districtCodes, fullListHref: `/councils/${c.slug}/sewage` })];
+      return [part(CouncilSewageSection, { gssCode: c.gss_code, isCounty, districtCodes, fullListHref: `/councils/${c.slug}/sewage` }, updated('sewage_overflows', 'synced_at'))];
   }
 }
 

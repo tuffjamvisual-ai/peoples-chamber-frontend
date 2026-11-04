@@ -32,6 +32,7 @@ type Bill = {
   vote_count_no?: number | null;
   vote_count_abstain?: number | null;
   commons_ayes?: number | null;
+  commons_vote_date?: string | null;
   commons_noes?: number | null;
   is_act?: boolean | null;
 };
@@ -194,30 +195,23 @@ export default function BillCoverCard({ bill, userVote = null }: Props) {
           paddingTop: '10px',
           marginTop: '4px',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
+          flexDirection: 'column',
           fontFamily: MONO,
           fontSize: '15px',
           color: INK_SOFT,
-          gap: '12px',
+          gap: '4px',
         }}
       >
+        {/* Reader figures and Parliament's, each labelled in full and in its own style (owner, 4 Nov 2026). */}
         <span style={{ fontStyle: 'italic' }}>
-          {total > 0 ? (
-            <>
-              <span style={{ color: INK, fontWeight: 600 }}>{yesPercent}% Aye</span>
-              {' · '}
-              <span style={{ color: INK, fontWeight: 600 }}>{noPercent}% No</span>
-              {' · '}
-              {total.toLocaleString()} {total === 1 ? 'vote' : 'votes'}
-            </>
-          ) : (
-            <span>No public votes yet.</span>
-          )}
+          {total > 0
+            ? `opengovt readers: ${yesPercent}% Aye, ${noPercent}% No (${total.toLocaleString('en-GB')} ${total === 1 ? 'vote' : 'votes'})`
+            : 'opengovt readers: no votes yet'}
         </span>
         {hasDivision && (
-          <span style={{ fontStyle: 'italic', whiteSpace: 'nowrap' }}>
-            Parliament: {(cAye || 0).toLocaleString()}-{(cNo || 0).toLocaleString()}
+          <span style={{ color: INK, fontWeight: 'bold' }}>
+            MPs&rsquo; official vote: Ayes {(cAye || 0).toLocaleString('en-GB')}, Noes {(cNo || 0).toLocaleString('en-GB')}
+            {bill.commons_vote_date ? ` (${new Date(bill.commons_vote_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })})` : ''}
           </span>
         )}
       </div>

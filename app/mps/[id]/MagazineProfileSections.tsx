@@ -434,10 +434,10 @@ function dayMonthYear(iso: string): string {
   return m ? `${Number(m[3])} ${DAY_MONTHS[Number(m[2]) - 1]} ${m[1]}` : iso;
 }
 
-// The "Last updated" line under a section heading (owner, 1 Nov 2026); nothing when there is no date.
+// The "Updated" line under a section heading (owner, 1 Nov 2026); nothing when there is no date.
 function SectionUpdated({ date }: { date?: string }) {
   if (!date) return null;
-  return <p style={{ fontSize: '15px', color: '#14100d', margin: '-16px 0 20px' }}>Last updated {date}</p>;
+  return <p className="og-record-date" style={{ fontSize: '15px', color: '#14100d', margin: '-16px 0 20px' }}>Updated {date}</p>;
 }
 
 // Each distinct source in the timeline once, in the order first used as the timeline is shown (phase order).
@@ -1219,6 +1219,7 @@ export default function MagazineProfileSections({
         {active === 'bills' && (
           <>
             <h2 style={sectionH2}>Bills Sponsored</h2>
+            <SectionUpdated date={lastUpdated.bills} />
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
               {sponsoredBills.map((b) => (
                 <li key={b.id} style={{ padding: '12px 0', borderBottom: inkDivider }}>
@@ -1520,6 +1521,7 @@ export default function MagazineProfileSections({
         {active === 'roles' && (
           <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
             <h2 style={sectionH2}>Roles</h2>
+            <SectionUpdated date={lastUpdated.roles} />
 
             {spadAdvisers && <SpadAdvisersBlock rows={spadAdvisers.rows} release={spadAdvisers.release} interests={spadAdvisers.interests} leftOn={spadAdvisers.leftOn} ministerName={spadAdvisers.ministerName} gender={spadAdvisers.gender} memberId={memberId} headingStyle={sectionH3} />}
 
@@ -1830,6 +1832,7 @@ export default function MagazineProfileSections({
           return (
             <>
               <h2 style={sectionH2}>Earnings</h2>
+              <SectionUpdated date={lastUpdated.earnings} />
               <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.8' }}>
                 <li><strong>Base MP salary:</strong> {fmtMoney(earnings.base)}</li>
                 <li><strong>Ministerial salary:</strong> {fmtMoney(earnings.ministerial)} {earnings.band_label ? `(${earnings.band_label})` : ''}</li>
@@ -2043,6 +2046,7 @@ export default function MagazineProfileSections({
           return (
             <>
               <h2 style={sectionH2}>Donations</h2>
+              <SectionUpdated date={lastUpdated.donations} />
 
               {/* Short summary at the top of the tab; the full critique
                   lives at /explainers/donations and is linked below. */}
@@ -2383,6 +2387,7 @@ export default function MagazineProfileSections({
           return (
             <>
               <h2 style={sectionH2}>Ministerial diary</h2>
+              <SectionUpdated date={lastUpdated.diary} />
               <p style={{ marginBottom: '16px', fontSize: '15px', lineHeight: 1.6 }}>
                 Meetings and hospitality recorded by the relevant government department under the ministerial transparency regime. Published quarterly with a 2 to 3 month lag. Backbench engagements and constituency surgeries are not included.
               </p>

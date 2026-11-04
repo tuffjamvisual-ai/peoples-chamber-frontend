@@ -1,3 +1,4 @@
+import { peerHasPage, parliamentProfileUrl } from '@/lib/peers';
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
@@ -271,7 +272,7 @@ async function queryFormerMPs(q: string): Promise<SearchResult[]> {
 export type CouncilSearchResult = { slug: string; name: string; typeLabel: string | null; country: string | null };
 const COUNCIL_LIMIT = 10;
 
-export async function searchCouncils(q: string): Promise<CouncilSearchResult[]> {
+export async function searchCouncils(q: string, limit = COUNCIL_LIMIT): Promise<CouncilSearchResult[]> {
   const term = (isPhrase(q) ? unwrapPhrase(q) : q).trim();
   // % and _ are ilike wildcards; commas and parentheses would break the .or() filter.
   const safe = term.replace(/[%_,()\\"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
@@ -282,7 +283,7 @@ export async function searchCouncils(q: string): Promise<CouncilSearchResult[]> 
     .select('slug, name, short_name, type_label, country')
     .or(`name.ilike.${pattern},short_name.ilike.${pattern}`)
     .order('name', { ascending: true })
-    .limit(COUNCIL_LIMIT);
+    .limit(limit);
   if (error) {
     console.warn('[search] councils error:', error.message);
     return [];
@@ -294,6 +295,36 @@ export async function searchCouncils(q: string): Promise<CouncilSearchResult[]> 
     .slice()
     .sort((x, y) => exact(x) - exact(y))
     .map((r) => ({ slug: r.slug, name: r.name, typeLabel: r.type_label ?? null, country: r.country ?? null }));
+}
+
+// Members of the House of Lords (owner, 4 Nov 2026), from the peers table, matched on any form of their name, current
+// members first. A peer with no page here links to Parliament's profile (lib/peers.ts).
+export type PeerSearchResult = { memberId: number; name: string; party: string | null; peerageType: string | null; isCurrent: boolean; href: string };
+
+export async function searchPeers(q: string, limit = 10): Promise<PeerSearchResult[]> {
+  const term = (isPhrase(q) ? unwrapPhrase(q) : q).trim();
+  const safe = term.replace(/[%_,()\\"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
+  if (safe.length < 2) return [];
+  const pattern = `%${safe.replace(/ /g, '%')}%`;
+  const { data, error } = await supabase
+    .from('peers')
+    .select('member_id, name_display, name_list_as, name_full_title, party, peerage_type, is_current, end_date')
+    .or(`name_display.ilike.${pattern},name_list_as.ilike.${pattern},name_full_title.ilike.${pattern}`)
+    .order('is_current', { ascending: false })
+    .order('name_list_as', { ascending: true })
+    .limit(limit);
+  if (error) {
+    console.warn('[search] peers error:', error.message);
+    return [];
+  }
+  return (data ?? []).map((r) => ({
+    memberId: r.member_id,
+    name: r.name_display,
+    party: r.party ?? null,
+    peerageType: r.peerage_type ?? null,
+    isCurrent: r.is_current,
+    href: peerHasPage(r) ? `/lords/${r.member_id}` : parliamentProfileUrl(r.member_id),
+  }));
 }
 
 export async function searchContent(

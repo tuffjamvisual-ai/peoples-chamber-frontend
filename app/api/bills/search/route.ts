@@ -20,7 +20,7 @@ const COLS =
   'originating_house, introduced_session_id, ' +
   'sponsor_name, sponsor_party, sponsor_party_colour, ' +
   'vote_count_yes, vote_count_no, vote_count_abstain, ' +
-  'commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
+  'commons_ayes, commons_noes, commons_vote_date, last_update, bill_withdrawn, is_act';
 
 const MAX_RESULTS = 50;
 

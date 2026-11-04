@@ -422,7 +422,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         <div style={{ position: 'relative', padding: '0 4px' }}>
           <div style={{ textAlign: 'center', marginBottom: '22px' }}>
             <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
-              Official Ballot · opengovt
+              Reader ballot · opengovt
             </div>
             <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 'bold', margin: '10px 0 0', lineHeight: 1.15 }}>
               How would you vote on this bill?
@@ -438,17 +438,14 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           {/* The count so far */}
           <div style={{ borderTop: `1px solid ${INK}`, marginTop: '24px', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <VoteBar
-              label="opengovt visitors' votes"
-              totalLabel={`${totalVotes.toLocaleString()} ${totalVotes === 1 ? 'vote' : 'votes'}`}
+              variant="reader"
+              label={totalVotes > 0
+                ? `opengovt readers: ${yesPercent}% Aye, ${noPercent}% No (${totalVotes.toLocaleString('en-GB')} ${totalVotes === 1 ? 'vote' : 'votes'})`
+                : 'opengovt readers: no votes yet'}
               yesPct={yesPercent}
               noPct={noPercent}
-              yesText={`${yesPercent}% Aye · ${yesVotes.toLocaleString()}`}
-              noText={`${noPercent}% No · ${noVotes.toLocaleString()}`}
               empty={totalVotes === 0}
             />
-            <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK_SOFT, margin: '-8px 0 0' }}>
-              Votes cast on this site by visitors who chose to vote. They are not a poll of the public.
-            </p>
 
             {(() => {
               // For 0/0 bills the Commons Votes API holds no division record.
@@ -473,16 +470,12 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
                 : 'MPs have not voted on this bill yet.'
               return (
                 <VoteBar
-                  label="MPs' vote"
-                  totalLabel={
-                    totalMPVotes > 0
-                      ? `${totalMPVotes.toLocaleString()} MPs`
-                      : noVoteLabel
-                  }
+                  variant="official"
+                  label={totalMPVotes > 0
+                    ? `MPs' official vote: Ayes ${(bill.commons_ayes || 0).toLocaleString('en-GB')}, Noes ${(bill.commons_noes || 0).toLocaleString('en-GB')}${commonsDivisionDate ? ` (${commonsDivisionDate})` : ''}`
+                    : `MPs' official vote: ${noVoteLabel.toLowerCase()}`}
                   yesPct={mpAyePercent}
                   noPct={mpNoePercent}
-                  yesText={`${mpAyePercent}% Ayes · ${(bill.commons_ayes || 0).toLocaleString()}`}
-                  noText={`${mpNoePercent}% Noes · ${(bill.commons_noes || 0).toLocaleString()}`}
                   empty={totalMPVotes === 0}
                   emptyText={noVoteHelper}
                 />
@@ -501,17 +494,30 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               </p>
             ) : null}
 
+            <details style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK_SOFT }}>
+              <summary style={{ cursor: 'pointer', color: INK, fontWeight: 'bold' }}>How reader voting works</summary>
+              <p style={{ margin: '8px 0 0' }}>
+                Reader votes are cast on this site by visitors who chose to vote, one vote for each account. They are not a poll of the public, and they have no effect in Parliament.
+              </p>
+              <p style={{ margin: '8px 0 0' }}>
+                You can change your vote while the bill is going through Parliament. Voting closes when the bill becomes an Act, is withdrawn or is defeated.
+              </p>
+              <p style={{ margin: '8px 0 0' }}>
+                The official figures are how MPs voted in the House of Commons division named here, from Parliament&rsquo;s own record.
+              </p>
+            </details>
+
             {democraticGap !== null && (
               <div style={{ borderLeft: `3px solid ${outcomeMismatch ? WARN : ACCENT}`, padding: '12px 18px', background: CREAM_DEEP }}>
                 <div style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT, marginBottom: '5px' }}>
-                  Gap between site voters and MPs
+                  Gap between opengovt readers and MPs
                 </div>
                 <p style={{ fontFamily: SERIF, fontSize: '16px', fontWeight: 'bold', lineHeight: 1.4, margin: 0 }}>
                   {democraticGap} percentage points{democraticGap > 20 ? ', a wide gap' : democraticGap > 10 ? ', a moderate gap' : ', a narrow gap'}
                 </p>
                 {outcomeMismatch && (
                   <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '6px', lineHeight: 1.7, color: INK_SOFT }}>
-                    Outcome mismatch: site voters would {yesPercent > 50 ? 'pass' : 'block'} this bill, but MPs {mpAyePercent > 50 ? 'passed' : 'rejected'} it in this division.
+                    Outcome mismatch: opengovt readers would {yesPercent > 50 ? 'pass' : 'block'} this bill, but MPs {mpAyePercent > 50 ? 'passed' : 'rejected'} it in this division.
                   </p>
                 )}
               </div>
@@ -709,12 +715,10 @@ function LordsDivisionItem({ d }: { d: LordsDivision }) {
         </p>
       )}
       <VoteBar
-        label="Peers' vote"
-        totalLabel={`${total.toLocaleString()} peers`}
+        variant="official"
+        label={`Peers' official vote: Content ${d.content_count.toLocaleString('en-GB')}, Not content ${d.not_content_count.toLocaleString('en-GB')} (${fmtLordsDate(d.division_date)})`}
         yesPct={contentPct}
         noPct={notContentPct}
-        yesText={`Content · ${d.content_count.toLocaleString()}`}
-        noText={`Not content · ${d.not_content_count.toLocaleString()}`}
       />
       {parties.length > 0 && (
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '10px 0 0' }}>
@@ -795,48 +799,39 @@ function ExplainerColumn({ label, colour, points }: { label: string; colour: str
   )
 }
 
+// Reader figures and Parliament's are never to be mistaken for one another (owner, 4 Nov 2026): each is labelled in
+// full, readers in plain italic with a dashed rule, MPs' official vote in bold with a solid rule.
 function VoteBar({
+  variant,
   label,
-  totalLabel,
   yesPct,
   noPct,
-  yesText,
-  noText,
-  muted = false,
   empty = false,
-  emptyText = 'No public votes yet, be the first.',
+  emptyText,
 }: {
+  variant: 'reader' | 'official'
   label: string
-  totalLabel: string
   yesPct: number
   noPct: number
-  yesText: string
-  noText: string
-  muted?: boolean
   empty?: boolean
   emptyText?: string
 }) {
+  const official = variant === 'official'
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: INK_SOFT }}>
-        <span>{label}</span>
-        <span>{totalLabel}</span>
+    <div style={{ borderLeft: official ? `4px solid ${INK}` : `2px dashed ${INK_SOFT}`, paddingLeft: '12px' }}>
+      <div style={{ marginBottom: '6px', fontFamily: MONO, fontSize: official ? '16px' : '15px', fontWeight: official ? 'bold' : 'normal', fontStyle: official ? 'normal' : 'italic', lineHeight: 1.4, color: INK }}>
+        {label}
       </div>
       {/* Empty bar still renders so the layout is consistent between
           bills MPs haven't voted on and bills they have — keeps the
           eye anchored on the same horizontal rail down the page. */}
       <div style={{ height: '10px', background: CREAM_DEEP, display: 'flex', border: `1px solid ${INK_HAIRLINE}`, overflow: 'hidden' }} aria-hidden>
-        {!empty && yesPct > 0 && <div style={{ width: `${yesPct}%`, background: SUCCESS, opacity: muted ? 0.7 : 1 }} />}
-        {!empty && noPct > 0 && <div style={{ width: `${noPct}%`, background: DANGER, opacity: muted ? 0.7 : 1 }} />}
+        {!empty && yesPct > 0 && <div style={{ width: `${yesPct}%`, background: SUCCESS }} />}
+        {!empty && noPct > 0 && <div style={{ width: `${noPct}%`, background: DANGER }} />}
       </div>
-      {empty ? (
-        <div style={{ marginTop: '6px', fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, textAlign: 'center' }}>
-          {emptyText || 'Not voted yet.'}
-        </div>
-      ) : (
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontFamily: MONO, fontSize: '15px' }}>
-          <span style={{ color: INK, fontWeight: 'bold' }}>{yesText}</span>
-          <span style={{ color: INK, fontWeight: 'bold' }}>{noText}</span>
+      {empty && emptyText && (
+        <div style={{ marginTop: '6px', fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT }}>
+          {emptyText}
         </div>
       )}
     </div>
