@@ -1,0 +1,4 @@
+#!/bin/sh
+# Refuses a push when the fast mobile audit fails (owner, 4 Nov 2026). Turn on once per clone:
+#   git config core.hooksPath scripts/git-hooks
+exec node scripts/checks/mobile-audit-prepush.mjs

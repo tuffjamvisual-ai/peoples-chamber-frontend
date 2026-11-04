@@ -7,7 +7,8 @@
     "prebuild": "npx tsx scripts/sync-editorials-to-db.ts && npx tsx scripts/checks/json-ld-check.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "audit:mobile": "node scripts/checks/mobile-audit.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.1.0",
