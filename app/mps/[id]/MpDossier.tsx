@@ -96,6 +96,18 @@ export default function MpDossier({
           .pca-mp-photo img, .pca-mp-photo > div { width: min(180px, calc(30vh - 60px)) !important; height: min(180px, calc(30vh - 60px)) !important; }
           .pca-mp-header { margin-bottom: 12px !important; gap: 8px !important; }
         }
+        /* Under 640px (owner, 4 Nov 2026): a small photo, then name, party and constituency, so the headline figures below
+           show on the first screen. */
+        @media (max-width: 639.98px) {
+          .pca-mp-header { flex-direction: row !important; align-items: center !important; gap: 12px !important; margin-bottom: 12px !important; }
+          .pca-mp-photo { margin: 0 !important; padding: 4px !important; transform: none !important; }
+          .pca-mp-photo img, .pca-mp-photo > div { width: 72px !important; height: 72px !important; }
+          .pca-mp-photo .mp-resigned-stamp { width: auto !important; height: auto !important; font-size: 15px !important; bottom: -6px !important; border-width: 2px !important; }
+          .pca-mp-bio { display: flex; flex-direction: column; gap: 4px; flex: 1 1 0 !important; min-width: 0; margin: 0 !important; }
+          .pca-mp-bio h1 { font-size: 24px !important; margin: 0 !important; }
+          .pca-mp-party { order: 2; }
+          .pca-mp-constituency { order: 3; margin: 0 !important; }
+        }
       `}</style>
 
       {/* Back-to-party link above the header. Uses the shared BackLink
@@ -179,14 +191,14 @@ export default function MpDossier({
         <div className="pca-mp-bio" style={{ flex: '1 1 auto', marginTop: '6%', marginLeft: '-4%' }}>
           <h1 style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', textShadow: '1px 1px 0 rgba(0,0,0,0.1)', lineHeight: 1.05, margin: '0 0 4%' }}>{fullName}</h1>
           {constituency && (
-            <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '3%' }}>
+            <div className="pca-mp-constituency" style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '3%' }}>
               {formerMember
                 ? `Former MP for ${constituency}${servedFromYear && servedToYear ? ` (${servedFromYear} to ${servedToYear})` : ''}`
                 : `MP for ${constituency}`}
             </div>
           )}
           {partyDisplay && (
-            <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)' }}>
+            <div className="pca-mp-party" style={{ fontSize: 'clamp(15px, 1.9vw, 25px)' }}>
               <span style={{ display: 'inline-block', width: '0.7em', height: '0.7em', borderRadius: '50%', background: partyColour, marginRight: '0.4em', verticalAlign: 'middle' }} />
               {partyDisplay}
               {partyIsCoop && (

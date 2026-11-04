@@ -35,6 +35,22 @@ const HIDE_POLITICAL_BIO = true;
 // 5484 Sagal Abdi-Wali added 12 Oct 2026 (Holborn and St Pancras by-election).
 const BIO_VISIBLE_MEMBER_IDS = new Set<number>([1427, 400, 3914, 420, 5099, 4263, 1587, 4038, 491, 4119, 4356, 4641, 4504, 4082, 4473, 1510, 4620, 632, 4359, 1446, 529, 5142, 5168, 5044, 4671, 5235, 5185, 5080, 5173, 5238, 4849, 5141, 5349, 4658, 5133, 5254, 4083, 5093, 5000, 5149, 5294, 5195, 5061, 5243, 5046, 4979, 5134, 4269, 1516, 5281, 5353, 4632, 4449, 4657, 5038, 5048, 4790, 4981, 5176, 4610, 146, 5181, 4764, 5344, 5205, 4061, 5076, 5196, 4046, 5193, 4480, 5293, 4436, 5143, 5291, 4125, 4523, 4799, 5109, 5118, 4572, 4040, 5244, 5155, 5116, 5245, 5237, 5276, 5025, 4871, 5306, 5113, 165, 4500, 5273, 4124, 1533, 1524, 1541, 193, 5010, 5172, 4651, 4243, 5282, 5184, 4382, 5339, 4621, 5270, 5126, 5092, 5106, 5360, 5218, 5348, 5151, 1489, 4212, 5075, 429, 5057, 5334, 5307, 5259, 5269, 5098, 4573, 4511, 5212, 5030, 5213, 5139, 1536, 5029, 4277, 4077, 5110, 415, 4822, 4870, 4788, 5183, 5174, 4595, 177, 5011, 5305, 4501, 4571, 5104, 5189, 5275, 449, 3973, 5167, 5059, 5289, 4510, 5192, 413, 5121, 4831, 4139, 3966, 5136, 4394, 5145, 5131, 5077, 5236, 5082, 5211, 4797, 5047, 4698, 5227, 5279, 4456, 5056, 5160, 5156, 4370, 1548, 5202, 5223, 4569, 4673, 5105, 5079, 5036, 5229, 5063, 5170, 178, 5127, 5342, 5081, 5115, 410, 5256, 5264, 5187, 5295, 5033, 5034, 4391, 5058, 4418, 5039, 4444, 5224, 4515, 4783, 5260, 5309, 4993, 5200, 1491, 5051, 5300, 4824, 4923, 5095, 5179, 5114, 5341, 5234, 5315, 5233, 5290, 5028, 1171, 5132, 4029, 5043, 5107, 4026, 5225, 4618, 5217, 5037, 5232, 5258, 5333, 5112, 5248, 4682, 5147, 5272, 483, 5031, 5166, 5124, 5129, 5251, 1579, 4126, 4753, 5323, 4654, 5130, 4617, 5162, 4520, 5137, 5228, 4676, 4464, 39, 40, 54, 55, 87, 152, 242, 249, 345, 350, 373, 1211, 1444, 1466, 1482, 1508, 1512, 1560, 1572, 1576, 3912, 3935, 3948, 3969, 3991, 3997, 4005, 4008, 4018, 4020, 4032, 4048, 4051, 4066, 4074, 4084, 4095, 4107, 4108, 4110, 4118, 4358, 4362, 4366, 4399, 4407, 4439, 4441, 4460, 4462, 4474, 4483, 4484, 4494, 4495, 4503, 4513, 4519, 4527, 4592, 4597, 4601, 4608, 4613, 4647, 4679, 4739, 4759, 4778, 4780, 4781, 4785, 4787, 4798, 4803, 4804, 4805, 4806, 4813, 4818, 4850, 4853, 4860, 4861, 4872, 4874, 4932, 5062, 5068, 5072, 5089, 5100, 5101, 5169, 5186, 5197, 5203, 5209, 5241, 5255, 5285, 5297, 5301, 5311, 5330, 5340, 5347, 5351, 5355, 5358, 188, 227, 4769, 4934, 5083, 5096, 5138, 5182, 5191, 5207, 5214, 5250, 5263, 5283, 5284, 5286, 5288, 5296, 5304, 5326, 5336, 5346, 5350, 5352, 163, 172, 206, 473, 1383, 3909, 3924, 3928, 4031, 4056, 4076, 4088, 4138, 4253, 4264, 4267, 4268, 4368, 4389, 4396, 4397, 4409, 4425, 4457, 4471, 4479, 4491, 4493, 4505, 4514, 4518, 4603, 4607, 4623, 4631, 4653, 4716, 4747, 4777, 4779, 4811, 4828, 4864, 4869, 4873, 4938, 4943, 4976, 5001, 5035, 5041, 5042, 5052, 5053, 5064, 5065, 5067, 5069, 5071, 5087, 5088, 5108, 5117, 5119, 5123, 5128, 5135, 5144, 5150, 5152, 5154, 5163, 5165, 5178, 5180, 5188, 5190, 5194, 5204, 5208, 5210, 5215, 5220, 5221, 5222, 5230, 5246, 5247, 5253, 5257, 5266, 5267, 5274, 5278, 5287, 5298, 5302, 5308, 5312, 5317, 5324, 5328, 5337, 5338, 5345, 5359, 185, 221, 467, 1409, 1440, 1447, 1593, 4131, 4320, 4360, 4371, 4403, 4475, 4521, 4630, 4736, 4743, 4786, 4827, 4846, 4857, 4858, 5085, 5091, 5102, 5125, 5158, 5161, 5177, 5249, 5262, 5268, 5277, 5280, 5314, 5319, 5320, 5356, 5403, 5447, 5449, 5484]); //Andy Burnham, John Healey, Shabana Mahmood, Yvette Cooper, Miatta Fahnbulleh, Lucy Powell, Pat McFadden, Heidi Alexander, Angela Eagle, Jonathan Reynolds, Angela Rayner, Alex Norris, Wes Streeting, Lisa Nandy, Louise Haigh, Ed Miliband, Ellie Reeves, Douglas Alexander, Stephen Kinnock, Chris Bryant, Alan Campbell, Abtisam Mohamed, Adam Jogee, Adam Thompson, Afzal Khan, Al Carns, Alan Gemmell, Alan Strickland, Alex Baker, Alex Ballinger, Alex Davies-Jones, Alex Mayer, Alex McIntyre, Alex Sobel, Alice Macdonald, Alison Hume, Alison McGovern, Alison Taylor, Alistair Strathern, Amanda Hack, Amanda Martin, Andrew Cooper, Andrew Lewin, Andrew Pakes, Andrew Ranger, Andrew Western, Andy MacNae, Andy McDonald, Andy Slaughter, Anna Dixon, Anna Gelderd, Anna McMorrin, Anna Turley, Anneliese Dodds, Anneliese Midgley, Antonia Bance, Apsana Begum, Ashley Dalton, Baggy Shanker, Bambos Charalambous, Barry Gardiner, Becky Gittins, Bell Ribeiro-Addy, Ben Coleman, Ben Goldsborough, Bill Esterson, Blair McDougall, Brian Leishman, Bridget Phillipson, Callum Anderson, Carolyn Harris, Cat Eccles, Cat Smith, Catherine Atkinson, Catherine Fookes, Catherine McKinnell, Catherine West, Charlotte Nichols, Chris Bloore, Chris Curtis, Chris Elmore, Chris Evans, Chris Hinchliff, Chris Kane, Chris McDonald, Chris Murray, Chris Vince, Chris Ward, Chris Webb, Christian Wakeford, Claire Hazelgrove, Claire Hughes, Clive Efford, Clive Lewis, Connor Naismith, Dame Chi Onwurah, Dame Diana Johnson, Dame Meg Hillier, Dame Nia Griffith, Dame Siobhain McDonagh, Damien Egan, Dan Aldridge, Dan Carden, Dan Jarvis, Dan Tomlinson, Daniel Francis, Daniel Zeichner, Danny Beales, Darren Jones, Darren Paffey, Dave Robertson, David Baines, David Burton-Sampson, David Pinto-Duschinsky, David Smith, David Taylor, David Williams, Dawn Butler, Debbie Abrahams, Deirdre Costigan, Derek Twigg, Douglas McAllister, Allison Gardner, Beccy Cooper, Jeevun Sandher, Lauren Sullivan, Marie Tidball, Rosena Allin-Khan, Rupa Huq, Scott Arthur, Simon Opher, Zubir Ahmed, Emily Darlington, Emily Thornberry, Emma Foody, Emma Lewell, Emma Reynolds, Euan Stainbank, Fabian Hamilton, Feryal Clark, Florence Eshalomi, Fleur Anderson, Frank McNally, Fred Thomas, Gareth Snell, Gareth Thomas, Gen Kitchen, Georgia Gould, Gerald Jones, Gill Furniss, Gill German, Gordon McKee, Graeme Downie, Graham Stringer, Grahame Morris, Gregor Poynton, Gurinder Singh Josan, Harpreet Uppal, Helen Hayes, Helena Dollimore, Hilary Benn, Henry Tufnell, Ian Byrne, Ian Lavery, Ian Murray, Imogen Walker, Imran Hussain, Irene Campbell, Jack Abbott, Jacob Collier, Jade Botterill, Jake Richards, James Asser, James Murray, James Naish, Janet Daby, Jas Athwal, Jayne Kirkham, Jeff Smith, Jen Craft, Jenny Riddell-Carpenter, Jess Asato, Jess Phillips, Jessica Morden, Jessica Toale, Jim Dickson, Jim McMahon, Jo Platt, Jo White, Joani Reid, Jodie Gosling, Joe Powell, Johanna Baxter, John Grady, John McDonnell, John Slinger, John Whitby, Joe Morris, Jon Pearce, Jon Trickett, Jonathan Davies, Jonathan Hinder, Josh Dean, Josh Fenton-Glynn, Josh MacAlister, Josh Newbury, Judith Cummins, Juliet Campbell, Justin Madders, Kanishka Narayan, Karin Smyth, Kate Dearden, Kate Osamor, Kate Osborne, Katie White, Katrina Murray, Keir Mather, Kenneth Stevenson, Kerry McCarthy, Kevin Bonavia, Kevin McKenna, Kim Johnson, Kim Leadbeater, Kirith Entwistle, Kirsteen Sullivan, Kirsty McNeill, Laura Kyrke-Smith, Laurence Turner, Lee Barron, Lee Pitcher, Leigh Ingham, Lewis Atkinson, Liam Byrne, Liam Conlon, Lilian Greenwood, Lillian Jones, Linsey Farnsworth, Liz Kendall, Lizzi Collinge, Liz Twist, Lloyd Hatton, Lola McEvoy, Lorraine Beavers, Louise Sandher-Jones, Lucy Rigby, Luke Akehurst, Luke Murphy, Luke Pollard, Luke Myer, Margaret Mullane, Maria Eagle, Mark Ferguson, Mark Sewards, Markus Campbell-Savours, Martin McCluskey, Martin Rhodes, Mary Creagh, Mary Glindon, Mary Kelly Foy, Matt Bishop, Matt Rodda, Matt Turmaine, Matt Western, Matthew Patrick, Matthew Pennycook, Maureen Burke, Maya Ellis
 
+// Sections under 640px (owner, 4 Nov 2026), in this order, each folded. Two hold more than one tab. Diary is not in the
+// owner's list; it follows Roles so that nothing is lost.
+const PHONE_FOLDS: Array<{ id: string; label: string; sections: SectionId[] }> = [
+  { id: 'voting', label: 'Voting record', sections: ['voting'] },
+  { id: 'interests', label: 'Registered interests', sections: ['interests'] },
+  { id: 'earnings', label: 'Earnings', sections: ['earnings'] },
+  { id: 'donations', label: 'Donations', sections: ['donations'] },
+  { id: 'expenses', label: 'Expenses', sections: ['expenses'] },
+  { id: 'activity', label: 'Parliamentary activity', sections: ['house', 'edms', 'petitions', 'bills'] },
+  { id: 'roles', label: 'Roles', sections: ['roles'] },
+  { id: 'diary', label: 'Diary', sections: ['diary'] },
+  { id: 'background', label: 'Background and biography', sections: ['career', 'bio'] },
+  { id: 'contact', label: 'Contact', sections: ['contact'] },
+];
+const PHONE_MAX = 639;
+
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
   { id: 'career',    label: 'BACKGROUND',       rotate: '-0.12deg' },
@@ -262,6 +278,14 @@ interface Props {
   paragraphs: string[];
   contact: Contact;
   votes: Vote[];
+  /** The real profile pages (owner, 4 Nov 2026): votes, debates and written questions are not in the page; each loads
+      when its section is opened, and on wider screens as soon as the page is idle. */
+  lazyRecords?: boolean;
+  /** How many debates and written questions there are, when they are not in the page. */
+  contributionCount?: number;
+  questionCount?: number | null;
+  /** Phones: Category 2 donations dated in this Parliament. */
+  donationsThisParliament?: number;
   /** Total vote count across all pages — for the "N divisions recorded" line. */
   totalVotes?: number;
   /** 1-indexed current page within the voting tab. */
@@ -473,6 +497,7 @@ const sectionH3: React.CSSProperties = {
   fontFamily: 'var(--font-special-elite), monospace',
 };
 
+const retryButton: React.CSSProperties = { font: 'inherit', color: '#7a1612', background: 'none', border: 'none', padding: 0, textDecoration: 'underline', cursor: 'pointer' };
 const inkLink: React.CSSProperties = { color: '#7a1612', textDecoration: 'underline' };
 const inkDivider = '1px dashed rgba(20,16,13,0.2)';
 
@@ -524,6 +549,10 @@ export default function MagazineProfileSections({
   paragraphs,
   contact,
   votes,
+  lazyRecords = false,
+  contributionCount,
+  questionCount,
+  donationsThisParliament = 0,
   totalVotes,
   votePage = 1,
   votesPerPage = 20,
@@ -545,8 +574,8 @@ export default function MagazineProfileSections({
   conductFindings = [],
   staffInterests = [],
   activity = null,
-  contributions = [],
-  writtenQuestions = null,
+  contributions: contributionsProp = [],
+  writtenQuestions: writtenQuestionsProp = null,
   rebellions = { sinceElection: 0, votesSinceElection: 0, allVotes: 0 },
   partyWhipSlug = null,
   bio,
@@ -587,7 +616,7 @@ export default function MagazineProfileSections({
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
-    house: contributions.length > 0 || (writtenQuestions?.total ?? 0) > 0,
+    house: (contributionCount ?? contributionsProp.length) > 0 || (questionCount ?? writtenQuestionsProp?.total ?? 0) > 0,
     petitions: petitionsAvailable,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
     interests: interests.length > 0 || staffInterests.length > 0 || formerInterests.length > 0,
@@ -715,6 +744,35 @@ export default function MagazineProfileSections({
   // a few seconds. Now both are fetched as soon as the page is idle after its first paint (25 Oct 2026, report 43), from
   // cached API answers, so opening either tab is instant; opening a tab before then starts its fetch at once. Visitors
   // who ask their browser to save data keep the old behaviour (fetched on opening the tab).
+  // Votes, debates and written questions (owner, 4 Nov 2026), from cached API answers.
+  const votesRequested = useRef(!lazyRecords);
+  const [votesReady, setVotesReady] = useState(!lazyRecords);
+  const [votesFailed, setVotesFailed] = useState(false);
+  const loadFirstVotes = useCallback(() => {
+    if (votesRequested.current) return;
+    votesRequested.current = true;
+    setVotesFailed(false);
+    fetch(`/api/mps/${memberId}/votes/first`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((d: { votes: Vote[]; total: number }) => { setVoteList(d.votes || []); setVoteTotal(d.total ?? 0); setVotesReady(true); })
+      .catch(() => { votesRequested.current = false; setVotesFailed(true); });
+  }, [memberId]);
+  const houseRequested = useRef(!lazyRecords);
+  const [houseAnswer, setHouseAnswer] = useState<{ contributions: Contribution[]; writtenQuestions: QuestionsSummary | null } | null>(null);
+  const [houseFailed, setHouseFailed] = useState(false);
+  const loadHouse = useCallback(() => {
+    if (houseRequested.current) return;
+    houseRequested.current = true;
+    setHouseFailed(false);
+    fetch(`/api/mps/${memberId}/house`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((d: { contributions: Contribution[]; writtenQuestions: QuestionsSummary | null }) => setHouseAnswer(d))
+      .catch(() => { houseRequested.current = false; setHouseFailed(true); });
+  }, [memberId]);
+  const contributions = houseAnswer?.contributions ?? contributionsProp;
+  const writtenQuestions = houseAnswer?.writtenQuestions ?? writtenQuestionsProp;
+  const houseReady = !lazyRecords || houseAnswer != null;
+
   const [expenseClaims, setExpenseClaims] = useState<ExpenseClaim[] | null>(expensesDetail ?? null);
   const [expenseClaimsFailed, setExpenseClaimsFailed] = useState(false);
   const expensesRequested = useRef(expensesDetail != null);
@@ -750,26 +808,28 @@ export default function MagazineProfileSections({
       .finally(() => setDonationsLoading(false));
   }, [memberId]);
   useEffect(() => {
-    if (window.matchMedia('(max-width: 479px)').matches) return; // phones: each loads when its section comes into view (below)
+    if (window.matchMedia(`(max-width: ${PHONE_MAX}px)`).matches) return; // phones: each loads when its section comes into view (below)
     if (active === 'expenses') loadExpenses();
     if (active === 'donations') loadDonations();
     if (active === 'petitions') loadPetitions();
-  }, [active, loadExpenses, loadDonations, loadPetitions]);
-  // A section hidden by the stylesheet (every tab but the open one above 480px, every closed fold below it) never comes
+    if (active === 'voting') loadFirstVotes();
+    if (active === 'house') loadHouse();
+  }, [active, loadExpenses, loadDonations, loadPetitions, loadFirstVotes, loadHouse]);
+  // A section hidden by the stylesheet (every tab but the open one from 640px, every closed fold below it) never comes
   // into view, so this loads only what is on screen at any width. data-section-block is on PhoneFolds' section body.
   useEffect(() => {
-    const load: Partial<Record<SectionId, () => void>> = { expenses: loadExpenses, donations: loadDonations, petitions: loadPetitions };
+    const load: Partial<Record<SectionId, () => void>> = { expenses: loadExpenses, donations: loadDonations, petitions: loadPetitions, voting: loadFirstVotes, house: loadHouse };
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) load[(e.target as HTMLElement).dataset.sectionBlock as SectionId]?.();
     }, { rootMargin: '400px 0px' });
     document.querySelectorAll<HTMLElement>('[data-section-block]').forEach((el) => { if (load[el.dataset.sectionBlock as SectionId]) io.observe(el); });
     return () => io.disconnect();
-  }, [loadExpenses, loadDonations, loadPetitions]);
+  }, [loadExpenses, loadDonations, loadPetitions, loadFirstVotes, loadHouse]);
   useEffect(() => {
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     // Phones (owner, 4 Nov 2026): sections are closed, so each loads when it is opened (the observer above).
-    if (saveData || window.matchMedia('(max-width: 479px)').matches) return;
-    const start = () => { loadDonations(); loadExpenses(); };
+    if (saveData || window.matchMedia(`(max-width: ${PHONE_MAX}px)`).matches) return;
+    const start = () => { loadDonations(); loadExpenses(); loadFirstVotes(); loadHouse(); };
     const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
     if (w.requestIdleCallback) {
       const id = w.requestIdleCallback(start, { timeout: 3000 });
@@ -777,7 +837,7 @@ export default function MagazineProfileSections({
     }
     const t = setTimeout(start, 1500);
     return () => clearTimeout(t);
-  }, [loadExpenses, loadDonations]);
+  }, [loadExpenses, loadDonations, loadFirstVotes, loadHouse]);
 
   // Phones and tablets (below the lg breakpoint, 1024px): the section buttons
   // become one sideways-swiping row instead of a 13-button column, so the
@@ -1154,6 +1214,11 @@ export default function MagazineProfileSections({
               )}
               .
             </p>
+            {!votesReady && (
+              <p style={{ fontSize: '15px' }}>
+                {votesFailed ? <>These votes could not be loaded. <button type="button" onClick={loadFirstVotes} style={retryButton}>Try again</button></> : 'Loading…'}
+              </p>
+            )}
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7', opacity: vLoading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
               {voteList.map((v) => (
                 <li key={v.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
@@ -1253,6 +1318,11 @@ export default function MagazineProfileSections({
                 {activity.speeches_year != null && activity.questions_year != null && ' · '}
                 {activity.questions_year != null && <span><strong>{activity.questions_year}</strong> questions</span>}
                 <span > in the last year</span>
+              </p>
+            )}
+            {!houseReady && (
+              <p style={{ fontSize: '15px' }}>
+                {houseFailed ? <>These debates and questions could not be loaded. <button type="button" onClick={loadHouse} style={retryButton}>Try again</button></> : 'Loading…'}
               </p>
             )}
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -2681,25 +2751,53 @@ export default function MagazineProfileSections({
   // to give without loading something.
   const countOf = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-GB')} ${n === 1 ? one : many}`;
   const latestExpenses = [...expenses].sort((a, b) => String(b.year).localeCompare(String(a.year)))[0];
-  const foldSummary: Record<SectionId, string | null> = {
-    bio: null,
-    career: timeline.length > 0 ? countOf(timeline.length, 'entry', 'entries') : null,
+  const questionTotal = questionCount ?? writtenQuestionsProp?.total ?? 0;
+  const debateTotal = contributionCount ?? contributionsProp.length;
+  const foldSummary: Record<string, string | null> = {
+    background: timeline.length > 0 ? countOf(timeline.length, 'entry', 'entries') : conductFindings.length > 0 ? countOf(conductFindings.length, 'standards finding') : 'career and education',
     contact: [contact?.phone && 'phone', contact?.email && 'email', contact?.website && 'website', contact?.twitter && 'social media', contact?.address_line1 && 'address'].filter(Boolean).join(', ') || null,
-    voting: countOf(totalVotes ?? votes.length, 'vote'),
-    bills: countOf(sponsoredBills.length, 'bill'),
-    house: (writtenQuestions?.total ?? 0) > 0 ? countOf(writtenQuestions!.total, 'written question') : countOf(contributions.length, 'recent debate'),
-    petitions: null,
-    edms: edms ? `started ${edms.startedCount.toLocaleString('en-GB')}, signed ${edms.signedCount.toLocaleString('en-GB')}` : null,
-    interests: interests.length > 0 ? countOf(interests.length, 'entry', 'entries') : null,
-    roles: currentCommittees.length > 0 ? countOf(currentCommittees.length, 'current committee') : null,
+    voting: countOf(totalVotes ?? votes.length, 'division'),
+    activity: [questionTotal > 0 && countOf(questionTotal, 'written question'), debateTotal > 0 && countOf(debateTotal, 'debate'), edms && edms.startedCount + edms.signedCount > 0 && countOf(edms.startedCount + edms.signedCount, 'EDM'), sponsoredBills.length > 0 && countOf(sponsoredBills.length, 'bill')].filter(Boolean).join(', ') || null,
+    interests: interests.length > 0 ? countOf(interests.length, 'entry', 'entries') : 'none current',
+    roles: currentCommittees.length > 0
+      ? countOf(currentCommittees.length, 'current committee')
+      : countOf((bio?.government_posts?.length ?? 0) + (bio?.opposition_posts?.length ?? 0) + (bio?.committee_memberships?.length ?? 0) + (bio?.representations?.length ?? 0) + (bio?.party_history?.length ?? 0) + formerCommittees.length + (spadAdvisers?.rows.length ?? 0), 'entry', 'entries'),
     earnings: `${fmtMoney((earnings.base || 0) + (earnings.ministerial || 0))} as an MP`,
-    donations: declaredDonations.entryCount > 0 ? `${fmtMoney(declaredDonations.total)} declared` : null,
+    donations: donationsThisParliament > 0 ? `${fmtMoney(donationsThisParliament)} this Parliament` : 'none recorded',
     diary: [ministerMeetings.length > 0 && countOf(ministerMeetings.length, 'meeting'), ministerHospitality.length > 0 && `${ministerHospitality.length.toLocaleString('en-GB')} hospitality`].filter(Boolean).join(', ') || null,
     expenses: latestExpenses?.total_spend != null ? `${fmtMoney(latestExpenses.total_spend)} in ${fmtExpenseYear(latestExpenses.year)}` : null,
   };
 
+  // The phone headline figures (owner, 4 Nov 2026): attendance from mp_activity_metrics, interests from the current
+  // register, donations in this Parliament, and the latest year's expenses. "None recorded" when there is no real figure.
+  const expensesLatest = latestExpenses?.total_spend != null && Number(latestExpenses.total_spend) > 0 ? Number(latestExpenses.total_spend) : null;
+  const headline: Array<{ label: string; value: string | null; note: string; fold: string; shown: boolean }> = [
+    { label: 'Votes attended', value: activity?.attendance_pct != null && (activity.divisions_total ?? 0) > 0 ? `${Math.round(Number(activity.attendance_pct))} per cent` : null, note: 'this Parliament', fold: 'voting', shown: has.voting },
+    { label: 'Registered interests', value: interests.length > 0 ? interests.length.toLocaleString('en-GB') : null, note: 'current entries', fold: 'interests', shown: has.interests },
+    { label: 'Donations', value: donationsThisParliament > 0 ? fmtMoney(donationsThisParliament) : null, note: 'this Parliament', fold: 'donations', shown: has.donations },
+    { label: 'Expenses', value: expensesLatest != null ? fmtMoney(expensesLatest) : null, note: latestExpenses ? fmtExpenseYear(latestExpenses.year) : 'latest full year', fold: 'expenses', shown: has.expenses },
+  ];
+  // A second tap on the same figure leaves the address as it was, so tell the folds again.
+  const goToFold = (fold: string) => { if (window.location.hash === `#section-${fold}`) window.dispatchEvent(new HashChangeEvent('hashchange')); };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-px mp-sections-grid" style={{ marginTop: '-80px' }}>
+      {lazyRecords && (
+        <div className="mp-headline" aria-label="Headline figures">
+          {headline.map((h) => {
+            const inner = (
+              <>
+                <span className="mp-headline-label">{h.label}</span>
+                <span className={h.value == null ? 'mp-headline-none' : 'mp-headline-value'}>{h.value ?? 'None recorded'}</span>
+                {h.value != null && <span className="mp-headline-note">{h.note}</span>}
+              </>
+            );
+            return h.shown
+              ? <a key={h.label} href={`#section-${h.fold}`} onClick={() => goToFold(h.fold)} className="mp-headline-tile">{inner}</a>
+              : <div key={h.label} className="mp-headline-tile">{inner}</div>;
+          })}
+        </div>
+      )}
       {/* Hold the content pane at a uniform height across tabs on desktop, so
           switching between short tabs (Contact, Expenses, Before Politics) and
           taller ones doesn't change the page height — which reflowed the
@@ -2717,6 +2815,17 @@ export default function MagazineProfileSections({
           .mp-sections-content { padding: 20px 2px !important; }
         }
         @media (max-width: 479px){ .mp-sections-nav button[data-section] { display: none !important; } }
+        .mp-headline { display: none; }
+        @media (max-width: 639.98px){
+          .mp-sections-nav button[data-section] { display: none !important; }
+          .mp-sections-nav { border-bottom: none !important; }
+          .mp-headline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+          .mp-headline-tile { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 84px; padding: 8px 10px; box-sizing: border-box; border: 1px solid rgba(20,16,13,0.35); color: #14100d; text-decoration: none; font-size: 15px; line-height: 1.25; }
+          a.mp-headline-tile::after { display: none; }
+          .mp-headline-label { font-weight: bold; }
+          .mp-headline-value { font-size: 20px; font-weight: bold; color: #7a1612; }
+          .mp-headline-none { font-size: 16px; }
+        }
         .mp-col-inline { display: none; }
         @container (max-width: 560px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
       `}</style>
@@ -2768,17 +2877,23 @@ export default function MagazineProfileSections({
       </aside>
 
       <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
-        {/* Phones under 480px (owner, 4 Nov 2026): every section folds away under "On this page", as the GOV.UK accordion
-            does; wider screens keep the tabs. Both are in the HTML and the stylesheets pick one by screen width, so
-            nothing changes once the page script runs: each section is rendered once, and above 480px every section but
-            the open tab's is hidden. */}
+        {/* Under 640px (owner, 4 Nov 2026): every section folds away under "On this page", as the GOV.UK accordion does, in
+            PHONE_FOLDS order; wider screens keep the tabs. Both are in the HTML and the stylesheets pick one by screen
+            width, so nothing changes once the page script runs: each section is rendered once, and from 640px every
+            section but the open tab's is hidden. A fold holding several sections keeps each in a box of its own, with
+            its own address, heading and loading. */}
         <PhoneFolds
-          folds={sections.map((s) => ({
-            id: s.id,
-            label: s.label.charAt(0) + s.label.slice(1).toLowerCase().replace('the house', 'the House'),
-            summary: foldSummary[s.id],
-            hiddenWide: s.id !== active,
-            node: renderSection(s.id),
+          phoneMax={PHONE_MAX}
+          folds={PHONE_FOLDS.map((f) => ({ ...f, sections: f.sections.filter((id) => has[id]) })).filter((f) => f.sections.length > 0).map((f) => ({
+            id: f.id,
+            label: f.label,
+            summary: foldSummary[f.id],
+            hiddenWide: !f.sections.includes(active),
+            node: f.sections.length === 1 && f.sections[0] === f.id
+              ? renderSection(f.sections[0])
+              : f.sections.map((id) => (
+                <div key={id} id={`section-${id}`} className={`pf-sub${id !== active ? ' pf-off' : ''}`} data-section-block={id}>{renderSection(id)}</div>
+              )),
           }))}
         />
       </div>

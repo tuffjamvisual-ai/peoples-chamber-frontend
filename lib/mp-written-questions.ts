@@ -47,6 +47,13 @@ export async function questionsSummary(db: SupabaseClient, memberId: number, hou
   };
 }
 
+// The count alone, for the profile's section summary; the questions load when the section is opened.
+export async function questionsCount(db: SupabaseClient, memberId: number, house: House = 'Commons'): Promise<number> {
+  const { count, error } = await byMember(db.from('parliament_written_questions').select('id', { count: 'exact', head: true }), memberId, house);
+  if (error) throw new Error(`written questions count: ${error.message || 'read failed'}`);
+  return count ?? 0;
+}
+
 // One page, newest first, optionally for one department (answering body).
 export async function questionsPage(db: SupabaseClient, memberId: number, page: number, department: string | null, house: House = 'Commons'): Promise<{ rows: WrittenQuestion[]; total: number }> {
   const commons = (q: unknown, id: number) => byMember(q, id, house);

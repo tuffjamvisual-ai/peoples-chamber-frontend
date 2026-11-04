@@ -6,7 +6,8 @@
 // up none of this shows: the buttons, list and folds are display:none and each section's content is as it was.
 //
 // The closed state is in the page HTML and the stylesheet below applies only under 480px, so nothing moves when the
-// script runs. The rules are here, not in globals.css, so they always arrive with the markup they style.
+// script runs. The rules are here, not in globals.css, so they always arrive with the markup they style. The MP page folds
+// under 640px (owner, 4 Nov 2026): phoneMax sets the width, 479 for every other page.
 
 import { useEffect, useState, type ReactNode } from 'react';
 
@@ -21,10 +22,10 @@ export type Fold = {
   hiddenWide?: boolean;
 };
 
-const CSS = `
+const css = (phoneMax: number) => `
 .pf-contents, .pf-all, .pf-h { display: none; }
-@media (min-width: 480px) { .pf-off { display: none !important; } }
-@media (max-width: 479px) {
+@media (min-width: ${phoneMax + 1}px) { .pf-off { display: none !important; } }
+@media (max-width: ${phoneMax}px) {
   .pf-contents { display: block; margin-bottom: 12px; font-size: 15px; }
   .pf-contents h2 { font-size: 17px; font-weight: bold; margin: 0 0 4px; }
   .pf-contents ul { list-style: none; padding: 0; margin: 0; }
@@ -39,11 +40,10 @@ const CSS = `
   .pf-sec:not(.pf-open) > .pf-body { display: none; }
   .pf-body { padding: 16px 0 12px; }
   .pf-body > h2:first-child, .pf-body > div:first-child > h2:first-child { display: none; }
+  .pf-list .pf-body > .pf-sub > h2:first-child { display: block; }
 }`;
 
-const isPhone = () => window.matchMedia('(max-width: 479px)').matches;
-
-export default function PhoneFolds({ folds, contentsLabel = 'On this page' }: { folds: Fold[]; contentsLabel?: string }) {
+export default function PhoneFolds({ folds, contentsLabel = 'On this page', phoneMax = 479 }: { folds: Fold[]; contentsLabel?: string; phoneMax?: number }) {
   const [open, setOpen] = useState<Set<string>>(() => new Set());
   const allOpen = folds.length > 0 && folds.every((f) => open.has(f.id));
   const add = (id: string) => setOpen((cur) => (cur.has(id) ? cur : new Set(cur).add(id)));
@@ -56,7 +56,7 @@ export default function PhoneFolds({ folds, contentsLabel = 'On this page' }: { 
   // The address names a section, or something inside one (a link from elsewhere on the site): open it and go there.
   useEffect(() => {
     const reveal = () => {
-      if (!isPhone()) return;
+      if (!window.matchMedia(`(max-width: ${phoneMax}px)`).matches) return;
       const named = new URLSearchParams(window.location.search).get('section');
       const hash = window.location.hash.slice(1);
       const el = (named && document.getElementById(`section-${named}`))
@@ -69,11 +69,11 @@ export default function PhoneFolds({ folds, contentsLabel = 'On this page' }: { 
     reveal();
     window.addEventListener('hashchange', reveal);
     return () => window.removeEventListener('hashchange', reveal);
-  }, []);
+  }, [phoneMax]);
 
   return (
     <>
-      <style>{CSS}</style>
+      <style>{css(phoneMax)}</style>
       <nav aria-label={contentsLabel} className="pf-contents">
         <h2>{contentsLabel}</h2>
         <ul>
