@@ -2841,7 +2841,8 @@ export default function MagazineProfileSections({
             its own address, heading and loading. */}
         <PhoneFolds
           phoneMax={PHONE_MAX}
-          folds={PHONE_FOLDS.map((f) => ({ ...f, sections: f.sections.filter((id) => has[id]) })).filter((f) => f.sections.length > 0).map((f) => ({
+          // The label names the biography only when this MP's is shown (owner, 4 Nov 2026).
+          folds={PHONE_FOLDS.map((f) => ({ ...f, label: f.id === 'background' && !has.bio ? 'Background' : f.label, sections: f.sections.filter((id) => has[id]) })).filter((f) => f.sections.length > 0).map((f) => ({
             id: f.id,
             label: f.label,
             summary: foldSummary[f.id],

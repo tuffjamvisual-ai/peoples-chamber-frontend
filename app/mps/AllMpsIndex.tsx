@@ -122,7 +122,7 @@ export default async function AllMpsIndex() {
           marginBottom: '20px',
         }}
       >
-        Every current Member of Parliament with a full profile on the site, grouped by party. Each line links to the full MP record: voting history, declared interests, expenses, biography.
+        Every current Member of Parliament with a full profile on the site, grouped by party. Each line links to the full MP record: voting history, declared interests and expenses.
       </p>
       {sortedParties.map(([party, members]) => (
         <details key={party} style={{ marginBottom: '12px' }}>
