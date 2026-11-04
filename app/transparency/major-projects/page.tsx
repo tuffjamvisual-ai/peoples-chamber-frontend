@@ -11,7 +11,7 @@ import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { departments } from '@/lib/departments';
-import { fetchMajorProjectList, deptLabel, ratingText, dateText, lastReported, projectHref, REPORT_PAGES } from '@/lib/major-projects';
+import { fetchMajorProjectList, DEPT_FULL_NAMES, deptLabel, ratingText, dateText, lastReported, projectHref, REPORT_PAGES } from '@/lib/major-projects';
 import MajorProjectsBrowser, { type ProjectLine } from './MajorProjectsBrowser';
 
 export const revalidate = 86400;
@@ -40,7 +40,7 @@ export default async function MajorProjectsPage() {
       deptCode: code,
       deptLabel: deptLabel(code),
       deptSlug: p.latest.dept_slug,
-      deptName: p.latest.dept_slug ? deptName.get(p.latest.dept_slug) ?? null : null,
+      deptName: (p.latest.dept_slug ? deptName.get(p.latest.dept_slug) : null) ?? DEPT_FULL_NAMES[code] ?? null,
       rating: p.latest.rating,
       ratingText: ratingText(p.latest),
       endText: dateText(p.latest.end_date, p.latest.end_text),

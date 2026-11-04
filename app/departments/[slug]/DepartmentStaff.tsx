@@ -68,7 +68,7 @@ export default function DepartmentStaff({ govukData }: { govukData: StaffData | 
       <h2 className="text-[15px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
         Department Staff
       </h2>
-      {juniorMinisters.length > 0 && <StaffGroup label="Ministers" people={juniorMinisters} />}
+      {juniorMinisters.length > 0 && <StaffGroup label="Ministers" people={juniorMinisters} showRoles />}
       {seniorOfficials.length > 0 && (
         <StaffGroup
           label="Senior Civil Service"
@@ -93,24 +93,30 @@ type StaffPerson = {
   pay_ceiling?: number | null;
 };
 
+// showRoles (owner, 4 Nov 2026): under 640px, each minister's GOV.UK role title under their name, one to a line.
+const ROLES_CSS = '.dept-role { display: none; } @media (max-width: 639.98px) { .dept-role { display: block; } .dept-role-list { grid-template-columns: minmax(0, 1fr) !important; row-gap: 10px !important; } }';
+
 function StaffGroup({
   label,
   eyebrow,
   people,
+  showRoles = false,
 }: {
   label: string;
   eyebrow?: string;
   people: StaffPerson[];
+  showRoles?: boolean;
 }) {
   return (
     <div className="mb-5">
+      {showRoles && <style>{ROLES_CSS}</style>}
       <p className="text-[15px] uppercase tracking-[0.2em] text-[#14100d] mb-1.5 font-semibold">{label}</p>
       {eyebrow && (
         <p className="text-[#14100d] text-[15px] mb-2 italic" >
           {eyebrow}
         </p>
       )}
-      <ul className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1">
+      <ul className={`grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1${showRoles ? ' dept-role-list' : ''}`}>
         {people.map((person, i) => {
           const href = person.member_id ? `/mps/${person.member_id}` : person.slug ? `/people/${person.slug}` : null;
           const inner = (
@@ -124,6 +130,7 @@ function StaffGroup({
           return (
             <li key={i}>
               {href ? <Link href={href} className="block">{inner}</Link> : <div className="block">{inner}</div>}
+              {showRoles && person.role && <span className="dept-role text-[#14100d] text-[15px] leading-snug" style={{ overflowWrap: 'anywhere' }}>{person.role}</span>}
             </li>
           );
         })}

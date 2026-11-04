@@ -59,8 +59,14 @@ const KEYS: (keyof State)[] = ['q', 'dept', 'rating', 'year', 'evaluation'];
 // Phone cards (owner, 4 Nov 2026, under 640px): the project's name, department, rating, expected completion and last
 // report; everything else, including the department's commentary, is read when the card is opened. An independent
 // assessment is a solid label and a departmental one a dashed outline, so the two read differently at a glance.
-const CARD_CSS = `.mpb-card { display: none; }
+// Under 640px the list also shows PHONE_PAGE projects at a time and headings give full department names. Every project is
+// still in the HTML, and from 640px up all of them show as before.
+const PHONE_PAGE = 25;
+const CARD_CSS = `.mpb-card, .mpb-more, .mpb-phone-name { display: none; }
 @media (max-width: 639.98px) {
+  .mpb-over { display: none !important; }
+  .mpb-more { display: block; min-height: 44px; margin: 0 0 28px; padding: 8px 16px; background: transparent; border: 1px solid #14100d; color: #14100d; font: inherit; font-size: 15px; cursor: pointer; }
+  .mpb-phone-name { display: inline; }
   .mpb-wide { display: none; }
   .mpb-card { display: block; }
   .mpb-card > summary { display: block; min-height: 44px; padding: 4px 26px 4px 0; position: relative; cursor: pointer; list-style: none; }
@@ -129,6 +135,7 @@ function ProjectCard({ p }: { p: ProjectLine }) {
 
 export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount }: { projects: ProjectLine[]; latestYear: number; noPlanCount: number }) {
   const [state, setState] = useState<State>(EMPTY);
+  const [phoneLimit, setPhoneLimit] = useState(PHONE_PAGE);
   const ready = useRef(false);
 
   const depts = useMemo(() => {
@@ -164,7 +171,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
     if (url.href !== window.location.href) window.history.replaceState(window.history.state, '', url.href);
   }, [state]);
 
-  const set = (patch: Partial<State>) => setState((s) => ({ ...s, ...patch }));
+  const set = (patch: Partial<State>) => { setState((s) => ({ ...s, ...patch })); setPhoneLimit(PHONE_PAGE); };
   // Curly and straight apostrophes count as the same ("Children's" finds "Children’s").
   const norm = (s: string) => s.toLowerCase().replace(/[’‘]/g, "'");
   const term = norm(state.q.trim());
@@ -185,6 +192,8 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
     return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [projects]);
 
+  // How many projects are shown before each group, for the phone limit.
+  const shownBefore = groups.map((_, g) => groups.slice(0, g).reduce((n, [, x]) => n + x.filter((i) => visible[i]).length, 0));
   return (
     <>
       <style>{CARD_CSS}</style>
@@ -221,20 +230,23 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
         {filtered && (
           <>
             {' · '}
-            <button type="button" onClick={() => setState(EMPTY)} style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: ACCENT, textDecoration: 'underline', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: 'inherit' }}>
+            <button type="button" onClick={() => { setState(EMPTY); setPhoneLimit(PHONE_PAGE); }} style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: ACCENT, textDecoration: 'underline', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: 'inherit' }}>
               Clear
             </button>
           </>
         )}
       </p>
 
-      {groups.map(([code, idx]) => {
+      {groups.map(([code, idx], g) => {
         const shown = idx.filter((i) => visible[i]);
         const first = projects[idx[0]];
+        // Whether a project is past the phone limit, counting the ones shown so far in list order.
+        const startRank = shownBefore[g];
+        const overFrom = (i: number) => startRank + shown.indexOf(i) >= phoneLimit;
         return (
-          <section key={code} hidden={shown.length === 0} style={{ marginBottom: '32px', display: shown.length ? 'block' : 'none' }}>
+          <section key={code} className={startRank >= phoneLimit ? 'mpb-over' : undefined} hidden={shown.length === 0} style={{ marginBottom: '32px', display: shown.length ? 'block' : 'none' }}>
             <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 10px' }}>
-              {first.deptLabel} · {filtered ? `${shown.length} of ${idx.length}` : idx.length}
+              <span className="mpb-wide">{first.deptLabel}</span><span className="mpb-phone-name">{first.deptName ?? first.deptLabel}</span> · {filtered ? `${shown.length} of ${idx.length}` : idx.length}
             </h2>
             {first.deptSlug && (
               <p style={{ fontSize: '15px', margin: '0 0 6px' }}>
@@ -245,7 +257,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
               {idx.map((i) => {
                 const p = projects[i];
                 return (
-                  <li key={p.key} hidden={!visible[i]} style={{ display: visible[i] ? 'block' : 'none', borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0', fontSize: '15px', lineHeight: 1.5 }}>
+                  <li key={p.key} className={visible[i] && overFrom(i) ? 'mpb-over' : undefined} hidden={!visible[i]} style={{ display: visible[i] ? 'block' : 'none', borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0', fontSize: '15px', lineHeight: 1.5 }}>
                     <span className="mpb-wide">
                     <Link href={p.href} style={{ color: INK, fontWeight: 600, fontSize: '15px', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{p.name}</Link>
                     {' · '}{p.ratingText}
@@ -260,6 +272,11 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
           </section>
         );
       })}
+      {count > phoneLimit && (
+        <button type="button" className="mpb-more" onClick={() => setPhoneLimit((n) => n + PHONE_PAGE)}>
+          Show more ({count - phoneLimit} left)
+        </button>
+      )}
       {count === 0 && <p style={{ fontSize: '15px', margin: '0 0 28px' }}>No projects match.</p>}
     </>
   );

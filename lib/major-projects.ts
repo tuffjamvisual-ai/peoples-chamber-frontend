@@ -28,6 +28,13 @@ const DEPT_LABELS: Record<string, string> = {
   HMRC: 'HMRC (reports to the Treasury)',
   VOA: 'VOA (Valuation Office Agency, reports to the Treasury)',
 };
+// Full names for codes with no department page, for the phone headings and cards (owner, 4 Nov 2026).
+export const DEPT_FULL_NAMES: Record<string, string> = {
+  DSIT: 'Department for Science, Innovation and Technology',
+  HMLR: 'HM Land Registry',
+  NCA: 'National Crime Agency',
+  ONS: 'Office for National Statistics',
+};
 export const deptLabel = (code: string) => DEPT_LABELS[code.toUpperCase()] ?? code;
 
 // The table's columns; the narratives are read only on a project's own page.

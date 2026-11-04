@@ -324,7 +324,9 @@ export default async function DepartmentPage({ params }: PageProps) {
       </p>
 
       {/* Body scaled to match the MP profile text size (16px base x zoom 1.18). */}
-      <div style={{ zoom: 1.18 }}>
+      {/* The zoom makes the 44px tap layer (globals.css) work out a fraction under 44px; this brings it back on phones. */}
+      <style>{'@media (max-width: 639.98px) { .dept-zoom a::after, .dept-zoom button::after, .dept-zoom summary::after { min-height: 44.5px; } }'}</style>
+      <div className="dept-zoom" style={{ zoom: 1.18 }}>
         {/* Quip — the department's one-line characterisation, sits directly
             under the name (per-department, from meta.description). */}
         {dept.description && (

@@ -157,7 +157,27 @@ export default async function SewagePage() {
 
         <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
           <h2 style={h2}>Water companies</h2>
-          {/* Phones (report 47): the company column stays put while the figures scroll, with a hint when more are out of view. */}
+          {/* Under 640px (owner, 4 Nov 2026): cards like the league tables (their styles are in SewageExplorer.tsx); from 640px
+              the table, whose company column stays put while the figures scroll up to 768px (report 47). */}
+          <style>{'@media (max-width: 639.98px) { .sew-co-table { display: none; } }'}</style>
+          <ol className="sew-cards" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
+            {companies.map((c, i) => (
+              <li key={`${c.nation}-${c.company}`} className="sew-card">
+                <details>
+                  <summary>
+                    <span aria-hidden className="card-mark" />
+                    <span style={{ display: 'block', fontWeight: 'bold', fontSize: '16px', lineHeight: 1.3 }}>{i + 1}. {c.company}{c.nation === 'Northern Ireland' ? ` (Northern Ireland, ${niYear})` : c.nation === 'Scotland' ? ` (Scotland, ${swYear})` : ''}</span>
+                    <span style={{ display: 'block', marginTop: '2px' }}>{fmtInt(c.hours)} hours · {fmtInt(c.spills)} spills</span>
+                  </summary>
+                  <div style={{ padding: '0 0 12px', lineHeight: 1.6 }}>
+                    <div>{fmtInt(c.overflows)} overflow{c.overflows === 1 ? '' : 's'}</div>
+                    <div>{c.withData ? Math.round((c.spilled / c.withData) * 100) : 0} per cent spilled</div>
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ol>
+          <div className="sew-co-table">
           <PhoneTable sticky={1}>
             <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%', minWidth: '600px' }}>
               <thead>
@@ -182,6 +202,7 @@ export default async function SewagePage() {
               </tbody>
             </table>
           </PhoneTable>
+          </div>
           <p style={{ ...para, fontSize: '15px', marginTop: '10px' }}>
             Dwr Cymru Welsh Water’s figures here are only the overflows listed in the Environment Agency’s return for England.
           </p>
