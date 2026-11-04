@@ -2770,6 +2770,7 @@ export default function MagazineProfileSections({
           .mp-reports-phone > section { margin-top: 8px !important; }
           .mp-sections-nav button[data-section] { display: none !important; }
           .mp-sections-nav { border-bottom: none !important; }
+          .mp-sections-nav .mp-follow-chip { flex: 1 1 100%; width: 100% !important; min-height: 48px; margin: 0 !important; padding: 8px 12px !important; border: 1px solid #14100d !important; box-shadow: none !important; background: transparent !important; color: #14100d !important; font-weight: bold !important; font-size: 15px !important; text-align: center !important; text-transform: none !important; letter-spacing: normal !important; }
           .mp-headline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
           .mp-headline-tile { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 84px; padding: 8px 10px; box-sizing: border-box; border: 1px solid rgba(20,16,13,0.35); color: #14100d; text-decoration: none; font-size: 15px; line-height: 1.25; }
           a.mp-headline-tile::after { display: none; }
@@ -2827,7 +2828,7 @@ export default function MagazineProfileSections({
         </div>
       </aside>
 
-      {/* Under 640px (owner, 4 Nov 2026): reports directly below Follow this MP, above "On this page". Nothing at all for an
+      {/* Under 640px (owner, 4 Nov 2026): reports directly below Follow this MP, above the folded sections. Nothing at all for an
           MP with none. From 640px they stay in their section. */}
       {phoneHeadline && reports && reports.items.length > 0 && (
         <div className="mp-reports-phone"><ReportsMentioning reports={reports} headingId="mp-reports-heading-phone" /></div>
@@ -2840,6 +2841,7 @@ export default function MagazineProfileSections({
             section but the open tab's is hidden. A fold holding several sections keeps each in a box of its own, with
             its own address, heading and loading. */}
         <PhoneFolds
+          showContents={false}
           phoneMax={PHONE_MAX}
           // The label names the biography only when this MP's is shown (owner, 4 Nov 2026).
           folds={PHONE_FOLDS.map((f) => ({ ...f, label: f.id === 'background' && !has.bio ? 'Background' : f.label, sections: f.sections.filter((id) => has[id]) })).filter((f) => f.sections.length > 0).map((f) => ({

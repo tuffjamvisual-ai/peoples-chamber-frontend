@@ -113,15 +113,18 @@ export const metadata: Metadata = {
   },
 };
 
-// Phones under 480px (owner, 4 Nov 2026). In the page itself, so these can never arrive without the markup, and nothing
-// here applies from 480px up. Long reading text (paragraphs, list text, descriptions) is in system serif fonts, nothing
-// downloaded; Special Elite stays for headings, labels, stamps, buttons, navigation, tables and the footer. Also the
+// Phones (owner, 4 Nov 2026). In the page itself, so these can never arrive without the markup, and nothing here applies
+// from 640px up. Under 640px, long reading text (paragraphs, list text, descriptions) is in system serif fonts, nothing
+// downloaded; Special Elite stays for headings, labels, stamps, buttons, navigation, tables and the footer. Under 480px, also the
 // homepage intro's sentences as separate paragraphs, and the torn paper strip under the header at half its height.
-const BODY_TEXT = ':is(p, li, blockquote, dd, figcaption, .og-read):not(nav *, header *, footer *, button *, table *, form *, .og-cookie-banner *, .og-kicker, .og-record-date, [class*="stamp"], [style*="uppercase"])';
-const PHONE_CSS = `@media (max-width: 479px) {
+// Under 640px and inside a page's own <header> too since 4 Nov 2026 (owner): long introductions were still in the typewriter font.
+const BODY_TEXT = ':is(p, li, blockquote, dd, figcaption, .og-read):not(nav *, footer *, button *, table *, form *, .og-cookie-banner *, .og-kicker, .og-record-date, [class*="stamp"], [style*="uppercase"], [style*="small-caps"], [style*="0.3em"])';
+const PHONE_CSS = `@media (max-width: 639.98px) {
   ${BODY_TEXT} { font-family: Georgia, "Times New Roman", serif !important; font-size: 17px !important; line-height: 1.6 !important; letter-spacing: normal !important; text-shadow: none !important; }
   ${BODY_TEXT} :is(span, a, strong, em, b, i, time, small, cite, q, div):not([style*="font-family"], [style*="uppercase"], [class*="stamp"]) { font-size: inherit !important; letter-spacing: normal !important; }
   ${BODY_TEXT} [style*="uppercase"] { font-family: var(--font-special-elite), monospace !important; font-size: 15px !important; }
+}
+@media (max-width: 479px) {
   .og-intro-s { display: block; margin-bottom: 12px; }
   .og-intro-s:last-child { margin-bottom: 0; }
   .og-intro-br { display: none; }

@@ -43,7 +43,7 @@ const css = (phoneMax: number) => `
   .pf-list .pf-body > .pf-sub > h2:first-child { display: block; }
 }`;
 
-export default function PhoneFolds({ folds, contentsLabel = 'On this page', phoneMax = 479 }: { folds: Fold[]; contentsLabel?: string; phoneMax?: number }) {
+export default function PhoneFolds({ folds, showContents = true, contentsLabel = 'On this page', phoneMax = 479 }: { folds: Fold[]; showContents?: boolean; contentsLabel?: string; phoneMax?: number }) {
   const [open, setOpen] = useState<Set<string>>(() => new Set());
   const allOpen = folds.length > 0 && folds.every((f) => open.has(f.id));
   const add = (id: string) => setOpen((cur) => (cur.has(id) ? cur : new Set(cur).add(id)));
@@ -74,16 +74,18 @@ export default function PhoneFolds({ folds, contentsLabel = 'On this page', phon
   return (
     <>
       <style>{css(phoneMax)}</style>
-      <nav aria-label={contentsLabel} className="pf-contents">
-        <h2>{contentsLabel}</h2>
-        <ul>
-          {folds.map((f) => (
-            <li key={f.id}>
-              <a href={`#section-${f.id}`} onClick={() => add(f.id)}>{f.label}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {showContents && (
+        <nav aria-label={contentsLabel} className="pf-contents">
+          <h2>{contentsLabel}</h2>
+          <ul>
+            {folds.map((f) => (
+              <li key={f.id}>
+                <a href={`#section-${f.id}`} onClick={() => add(f.id)}>{f.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <button type="button" className="pf-all" aria-expanded={allOpen} onClick={() => setOpen(allOpen ? new Set() : new Set(folds.map((f) => f.id)))}>
         {allOpen ? 'Hide all sections' : 'Show all sections'}
       </button>

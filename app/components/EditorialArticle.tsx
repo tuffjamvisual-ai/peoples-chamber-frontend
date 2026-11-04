@@ -65,6 +65,13 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(24px, 3.4vw, 40px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '20px' }}>
             {piece.headline}
           </h1>
+          {/* Phones (under 640px, owner, 4 Nov 2026): the main finding first, the list summary as a standfirst. */}
+          {piece.summary?.trim() && (
+            <>
+              <style dangerouslySetInnerHTML={{ __html: '.art-summary { display: none; } @media (max-width: 639.98px) { .art-summary { display: block; margin: 12px 0 0; font-weight: 600; color: #14100d; } }' }} />
+              <p className="art-summary">{piece.summary}</p>
+            </>
+          )}
           <div style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             By {piece.authorByline}
           </div>

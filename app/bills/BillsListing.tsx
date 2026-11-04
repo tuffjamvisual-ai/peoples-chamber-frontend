@@ -70,7 +70,9 @@ export default async function BillsListing({ page }: { page: number }) {
         )}
       </header>
 
-      <VotingIntegrity />
+      {/* Under 640px (owner, 4 Nov 2026) the box comes after the list. */}
+      <style>{`.vi-phone { display: none; } @media (max-width: 639.98px) { .vi-wide { display: none; } .vi-phone { display: block; margin-top: 24px; } }`}</style>
+      <div className="vi-wide"><VotingIntegrity /></div>
 
       <style>{`
         .bills-az { list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 48px; }
@@ -96,6 +98,7 @@ export default async function BillsListing({ page }: { page: number }) {
         })}
       </ol>
       <Pagination currentPage={page} totalPages={totalPages} baseUrl="/bills" />
+      <div className="vi-phone"><VotingIntegrity /></div>
 
       {/* Everything not going through Parliament now: the archive (every bill, by session) and the Acts. Replaces the
           old "Browse all bills" index, so this page has one going-through-Parliament figure. The archive links every

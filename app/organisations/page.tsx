@@ -79,7 +79,7 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', marginBottom: '12px', lineHeight: 1.1 }}>Organisations</h1>
-        <p style={{ fontSize: '16px', lineHeight: 1.75, maxWidth: '46em', margin: 0 }}>
+        <p className="org-intro-wide" style={{ fontSize: '16px', lineHeight: 1.75, maxWidth: '46em', margin: 0 }}>
           {all.length.toLocaleString('en-GB')} organisations, each on one page with its political donations, public contracts,
           government grants, meetings with ministers and consultant lobbying. {(all.length - companies).toLocaleString('en-GB')} come
           from our checked lobbying registry and {companies.toLocaleString('en-GB')} are companies whose Companies House number
@@ -109,6 +109,19 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
           );
         })}
       </nav>
+
+      {/* Under 640px (owner, 4 Nov 2026): the search and filters first, the introduction folded after them. */}
+      <style>{`.org-about { display: none; } @media (max-width: 639.98px) { .org-intro-wide { display: none; } .org-about { display: block; margin: 0 0 16px; } .org-about summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid ${INK}; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; cursor: pointer; list-style: none; } .org-about summary::-webkit-details-marker { display: none; } .org-about[open] .org-mark { transform: rotate(180deg); } }`}</style>
+      <details className="org-about">
+        <summary>About this list<span className="org-mark" aria-hidden>▾</span></summary>
+        <p style={{ margin: '8px 0 0' }}>
+          {all.length.toLocaleString('en-GB')} organisations, each on one page with its political donations, public contracts,
+          government grants, meetings with ministers and consultant lobbying. {(all.length - companies).toLocaleString('en-GB')} come
+          from our checked lobbying registry and {companies.toLocaleString('en-GB')} are companies whose Companies House number
+          appears in two or more of the donations, contracts and grants records. Records are matched by Companies House number
+          and the checked lobbying list, never by name alone. Public bodies and universities are not included.
+        </p>
+      </details>
 
       <p style={{ fontFamily: FONT, fontSize: '15px', margin: '0 0 10px' }}>
         {q ? `${list.length.toLocaleString('en-GB')} match${list.length === 1 ? '' : 'es'} for “${q}”` : `A to Z${filter ? `, ${list.length.toLocaleString('en-GB')} with ${filter.label.toLowerCase()}` : ''}`}{pages > 1 ? `, page ${page} of ${pages}` : ''}
