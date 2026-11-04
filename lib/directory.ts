@@ -6,6 +6,7 @@
 import { NAV } from '@/lib/site-nav';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { topics } from '@/lib/topics';
+import { RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 
 export type DirectoryEntry = { name: string; href: string; desc: string };
 
@@ -55,6 +56,8 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Accountability Section', href: '/sections/accountability', desc: 'Registers of interests, expenses, lobbying, donations and contracts, in one list.' },
   { name: 'Vote Section', href: '/sections/vote', desc: 'opengovt polls and voting on bills, in one list.' },
   { name: 'Your Area', href: '/your-area', desc: 'Your MP, your council and the latest local figures for your area, from a postcode or town.' },
+  // The menu lists it as Recommendations while the tracker is public (4 Nov 2026); this is its full name.
+  ...(RECOMMENDATIONS_PUBLIC ? [{ name: 'Public Accounts Committee Recommendations', href: '/recommendations', desc: 'What the Public Accounts Committee recommended, what the government said it would do and by when, and what happened next.' }] : []),
 ];
 
 // Second names readers may look under. [name, href]

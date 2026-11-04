@@ -7,6 +7,7 @@
 import fs from 'fs';
 import path from 'path';
 import { DIRECTORY } from '@/lib/directory';
+import { RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 
 const EXCLUDED: Record<string, string> = {
   '/account': 'account page', '/login': 'sign in', '/signup': 'sign up', '/reset-password': 'password reset',
@@ -22,6 +23,8 @@ const EXCLUDED: Record<string, string> = {
   '/your-tax-pound': 'hidden (feature flag off)', '/budget-trade-offs': 'hidden (feature flag off)',
   '/councils/league-table': 'hidden (feature flag off) and noindex',
   '/tools/welfare/search': 'noindex results page',
+  // Not found unless RECOMMENDATIONS_PUBLIC=1 (on in production, 4 Nov 2026); listed in the directory when it is on.
+  ...(RECOMMENDATIONS_PUBLIC ? {} : { '/recommendations': 'hidden (feature flag off)' }),
 };
 // Index pages of dynamic routes that readers use: each must be in the directory.
 const DYNAMIC_INDEXES = ['/transparency/ministers-meetings', '/transparency/hospitality', '/transparency/appgs', '/transparency/revolving-door',

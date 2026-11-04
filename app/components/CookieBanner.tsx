@@ -81,10 +81,10 @@ export default function CookieBanner() {
             <p className="og-cb-short" style={text}>We use essential cookies to make this site work, and we&rsquo;d like to set additional cookies to understand how you use it.</p>
             <div className="og-cb-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginTop: '6px' }}>
               <button type="button" className="focus-ring og-cb-btn" style={button} onClick={() => choose(true)}>
-                Accept additional cookies
+                Accept analytics cookies
               </button>
               <button type="button" className="focus-ring og-cb-btn" style={button} onClick={() => choose(false)}>
-                Reject additional cookies
+                Reject analytics cookies
               </button>
               <Link href="/cookies" className="focus-ring og-cb-link" style={{ ...link, fontFamily: MONO, fontSize: '16px' }}>View cookies</Link>
             </div>

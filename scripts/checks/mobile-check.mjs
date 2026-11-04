@@ -102,9 +102,17 @@ async function compare(a, b) {
     if (!twin) { console.log(f, 'no counterpart'); continue; }
     const [x, y] = await Promise.all([sharp(path.join(a, f)).raw().toBuffer({ resolveWithObject: true }), sharp(path.join(b, twin)).raw().toBuffer({ resolveWithObject: true })]);
     if (x.info.width !== y.info.width || x.info.height !== y.info.height) { console.log(f, 'size differs'); continue; }
-    let diff = 0;
-    for (let i = 0; i < x.data.length; i += x.info.channels) if (x.data[i] !== y.data[i] || x.data[i + 1] !== y.data[i + 1] || x.data[i + 2] !== y.data[i + 2]) diff++;
-    console.log(f.replace(/^[^-]+-/, ''), `${diff} of ${x.info.width * x.info.height} pixels differ (${((diff / (x.info.width * x.info.height)) * 100).toFixed(2)} per cent)`);
+    let diff = 0, x0 = Infinity, y0 = Infinity, x1 = -1, y1 = -1;
+    for (let i = 0, px = 0; i < x.data.length; i += x.info.channels, px++) {
+      if (x.data[i] !== y.data[i] || x.data[i + 1] !== y.data[i + 1] || x.data[i + 2] !== y.data[i + 2]) {
+        diff++;
+        const cx = px % x.info.width, cy = Math.floor(px / x.info.width);
+        x0 = Math.min(x0, cx); y0 = Math.min(y0, cy); x1 = Math.max(x1, cx); y1 = Math.max(y1, cy);
+      }
+    }
+    // Where they differ: the box around every differing pixel (left, top to right, bottom).
+    const box = diff ? ` within ${x0},${y0} to ${x1},${y1}` : '';
+    console.log(f.replace(/^[^-]+-/, ''), `${diff} of ${x.info.width * x.info.height} pixels differ (${((diff / (x.info.width * x.info.height)) * 100).toFixed(2)} per cent)${box}`);
   }
 }
 

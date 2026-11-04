@@ -621,16 +621,6 @@ export default function MagazineProfileSections({
         ? 'career'
         : (sections[0]?.id ?? 'bio');
   const [active, setActive] = useState<SectionId>(initialActive);
-  // Phones under 480px (owner, 3 Nov 2026): every section in turn instead of tabs. The server renders the tabs; the
-  // phone layout takes over once the page is running in the browser.
-  const [phone, setPhone] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 479px)');
-    const on = () => setPhone(mq.matches);
-    on();
-    mq.addEventListener('change', on);
-    return () => mq.removeEventListener('change', on);
-  }, []);
   // ?section= in the address wins. The page is statically cached, so the server never sees the address
   // (initialSection is null there); read it here once the page has loaded.
   useEffect(() => {
@@ -759,20 +749,21 @@ export default function MagazineProfileSections({
       .finally(() => setDonationsLoading(false));
   }, [memberId]);
   useEffect(() => {
-    if (phone) return; // on phones each loads when its section comes into view (below)
+    if (window.matchMedia('(max-width: 479px)').matches) return; // phones: each loads when its section comes into view (below)
     if (active === 'expenses') loadExpenses();
     if (active === 'donations') loadDonations();
     if (active === 'petitions') loadPetitions();
-  }, [phone, active, loadExpenses, loadDonations, loadPetitions]);
+  }, [active, loadExpenses, loadDonations, loadPetitions]);
+  // A section hidden by the stylesheet (every tab but the open one, above 480px) never comes into view, so this loads
+  // only what is on screen at any width.
   useEffect(() => {
-    if (!phone) return;
     const load: Partial<Record<SectionId, () => void>> = { expenses: loadExpenses, donations: loadDonations, petitions: loadPetitions };
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) load[(e.target as HTMLElement).dataset.sectionBlock as SectionId]?.();
     }, { rootMargin: '400px 0px' });
     document.querySelectorAll<HTMLElement>('[data-section-block]').forEach((el) => { if (load[el.dataset.sectionBlock as SectionId]) io.observe(el); });
     return () => io.disconnect();
-  }, [phone, loadExpenses, loadDonations, loadPetitions]);
+  }, [loadExpenses, loadDonations, loadPetitions]);
   useEffect(() => {
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     if (saveData) return;
@@ -1297,7 +1288,7 @@ export default function MagazineProfileSections({
         {/* Petitions (owner, 30 Oct 2026, cache Stage 2a part 4): the heading and the note with its link to the petitions
             site are always in the page, hidden unless the tab is open, so crawlers see them; the list, with its live
             signature counts, is loaded from /api/mps/[id]/petitions when the tab opens. */}
-        {petitionsAvailable && (!phone || active === 'petitions') && (() => {
+        {petitionsAvailable && active === 'petitions' && (() => {
           const fmtNum = (n: number) => n.toLocaleString('en-GB');
           const ordinal = (n: number) => {
             const mod100 = n % 100;
@@ -2697,6 +2688,8 @@ export default function MagazineProfileSections({
           .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
           .mp-sections-content { padding: 20px 2px !important; }
         }
+        @media (min-width: 480px){ .mp-on-this-page, .mp-sec-off { display: none !important; } }
+        @media (max-width: 479px){ .mp-sections-nav button[data-section] { display: none !important; } .mp-sec { margin-bottom: 28px; scroll-margin-top: 12px; } }
         .mp-col-inline { display: none; }
         @container (max-width: 560px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
       `}</style>
@@ -2712,7 +2705,7 @@ export default function MagazineProfileSections({
             className={`mp-sections-nav${navMoreRight ? ' more-right' : ''}`}
             style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}
           >
-            {!phone && sections.map((s) => {
+            {sections.map((s) => {
               const isActive = active === s.id;
               return (
                 <button
@@ -2748,29 +2741,27 @@ export default function MagazineProfileSections({
       </aside>
 
       <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
-        {phone ? (
-          <>
-            {/* Phones (owner, 3 Nov 2026): every section one after another, with a contents list, as GOV.UK tabs show
-                on small screens. Desktop keeps the tabs. */}
-            <nav aria-label="On this page" className="mp-on-this-page" style={{ marginBottom: '18px', fontSize: '15px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 'bold', margin: '0 0 4px' }}>On this page</h2>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {sections.map((s) => (
-                  <li key={s.id}>
-                    <a href={`#section-${s.id}`} style={{ display: 'flex', alignItems: 'center', minHeight: '44px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                      {s.label.charAt(0) + s.label.slice(1).toLowerCase().replace('the house', 'the House')}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+        {/* Phones under 480px (owner, 3 Nov 2026): every section one after another, with a contents list, as GOV.UK tabs
+            show on small screens; wider screens keep the tabs. Both are in the HTML and the stylesheet above picks one by
+            screen width (4 Nov 2026), so nothing changes once the page script runs: each section is rendered once, and
+            above 480px every section but the open tab's is hidden. */}
+        <nav aria-label="On this page" className="mp-on-this-page" style={{ marginBottom: '18px', fontSize: '15px' }}>
+          <h2 style={{ fontSize: '17px', fontWeight: 'bold', margin: '0 0 4px' }}>On this page</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {sections.map((s) => (
-              <section key={s.id} id={`section-${s.id}`} data-section-block={s.id} style={{ marginBottom: '28px', scrollMarginTop: '12px' }}>
-                {renderSection(s.id)}
-              </section>
+              <li key={s.id}>
+                <a href={`#section-${s.id}`} style={{ display: 'flex', alignItems: 'center', minHeight: '44px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+                  {s.label.charAt(0) + s.label.slice(1).toLowerCase().replace('the house', 'the House')}
+                </a>
+              </li>
             ))}
-          </>
-        ) : renderSection(active)}
+          </ul>
+        </nav>
+        {sections.map((s) => (
+          <section key={s.id} id={`section-${s.id}`} data-section-block={s.id} className={s.id === active ? 'mp-sec' : 'mp-sec mp-sec-off'}>
+            {renderSection(s.id)}
+          </section>
+        ))}
       </div>
     </div>
   );
