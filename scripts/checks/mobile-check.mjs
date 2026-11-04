@@ -8,7 +8,7 @@
 //   background         whether the desk backdrop image (folders.webp or folders-900.webp) was requested
 // It saves a first screen screenshot of each view and a full page one at 375px.
 //
-//   node scripts/checks/mobile-check.mjs <base url> <out dir> <label>
+//   node scripts/checks/mobile-check.mjs <base url> <out dir> <label> [extra path ...]
 //   node scripts/checks/mobile-check.mjs --compare <dir a> <dir b>     (desktop screenshots, pixel by pixel)
 import fs from 'fs';
 import path from 'path';
@@ -71,11 +71,11 @@ async function measure(page) {
   });
 }
 
-async function run(base, outDir, label) {
+async function run(base, outDir, label, extra = []) {
   fs.mkdirSync(outDir, { recursive: true });
   const browser = await chromium.launch();
   const results = {};
-  for (const p of PAGES) {
+  for (const p of [...PAGES, ...extra]) {
     for (const vp of [...PHONES, DESKTOP]) {
       const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1, isMobile: vp.width < 600, hasTouch: vp.width < 600 });
       const page = await ctx.newPage();
@@ -118,4 +118,4 @@ async function compare(a, b) {
 }
 
 const args = process.argv.slice(2);
-(args[0] === '--compare' ? compare(args[1], args[2]) : run(args[0], args[1], args[2])).catch((e) => { console.error(e); process.exit(1); });
+(args[0] === '--compare' ? compare(args[1], args[2]) : run(args[0], args[1], args[2], args.slice(3))).catch((e) => { console.error(e); process.exit(1); });

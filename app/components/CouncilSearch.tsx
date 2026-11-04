@@ -41,10 +41,12 @@ function cleanPostcode(v: string): string {
   return v.toUpperCase().replace(/\s+/g, '')
 }
 
-export default function CouncilSearch() {
+export default function CouncilSearch({ initialQuery = '', placeholder = 'Postcode or council name' }: { initialQuery?: string; placeholder?: string } = {}) {
   const router = useRouter()
 
-  const [q, setQ] = useState('')
+  const [q, setQ] = useState(initialQuery)
+  // A search already on the page (/councils/search?q=...) does not open the dropdown over its own results.
+  const skipFirstLookup = useRef(initialQuery !== '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [postcodeResult, setPostcodeResult] = useState<CouncilResult | null>(null)
@@ -55,11 +57,14 @@ export default function CouncilSearch() {
   const boxRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
+    if (skipFirstLookup.current) { skipFirstLookup.current = false; return }
     if (debounceRef.current) clearTimeout(debounceRef.current)
     const trimmed = q.trim()
     const clean = cleanPostcode(trimmed)
 
     if (trimmed.length < 2) {
+      // Clearing the results as the box empties; the fetches below set them from their answers.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPostcodeResult(null)
       setNameSuggestions([])
       setError('')
@@ -197,8 +202,8 @@ export default function CouncilSearch() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => { if (postcodeResult || nameSuggestions.length > 0 || error) setOpen(true) }}
-          placeholder="Postcode or council name"
-          aria-label="Search by postcode or council name"
+          placeholder={placeholder}
+          aria-label={`Search by ${placeholder.toLowerCase()}`}
           autoComplete="off"
           style={{ flex: '1 1 200px', minWidth: 0, fontFamily: SERIF, fontSize: '18px', color: INK, background: '#fbf4e3', border: `1px solid ${INK}`, borderRadius: 0, padding: '11px 14px', outline: 'none', letterSpacing: '0.02em' }}
         />

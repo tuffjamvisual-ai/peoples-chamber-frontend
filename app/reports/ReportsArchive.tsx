@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import ContinueToArticle from '../components/ContinueToArticle';
 
-// The /reports archive (23 Oct 2026): search, topic and type filters and 20 a page, all on the client. Every report
+// The /reports archive (23 Oct 2026): search, topic and type filters and 20 a page, all on the client. Under 640px
+// (owner, 4 Nov 2026) topic buttons replace the topic list, one for each topic with a report, in a row that scrolls
+// sideways; from 640px up the page is as it was. Every report
 // is rendered into the page's HTML by the server; the client only hides the ones that do not match or are on another
 // page, so search engines see the full list and the page stays cached. q, topic, type and page live in the address
 // bar (history.replaceState), so Back from a report restores them.
@@ -84,6 +86,16 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
     return () => clearTimeout(t);
   }, [topicSlugs]);
 
+  // Only topics with at least one report get a button; the active one is kept in view in the phone row.
+  const topicButtons = useMemo(() => topics.filter((t) => items.some((e) => e.topics.includes(t.slug))), [topics, items]);
+  const topicRow = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const row = topicRow.current;
+    if (!row || row.scrollWidth <= row.clientWidth) return;
+    const btn = row.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (btn) row.scrollLeft = Math.max(0, btn.offsetLeft - row.offsetLeft - 16);
+  }, [state.topic]);
+
   const term = state.q.trim().toLowerCase();
   const matches = useMemo(() => items.map((e) =>
     (!term || e.headline.toLowerCase().includes(term) || e.summary.toLowerCase().includes(term))
@@ -133,7 +145,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', alignItems: 'baseline' }}>
         <input aria-label="Search reports" type="search" placeholder="Search reports…" value={state.q}
           onChange={(e) => update({ q: e.target.value })} style={{ ...field, flex: '1 1 280px', maxWidth: '420px' }} />
-        <select aria-label="Topic" value={state.topic} onChange={(e) => update({ topic: e.target.value })} style={{ ...field, cursor: 'pointer' }}>
+        <select className="reports-topic-select" aria-label="Topic" value={state.topic} onChange={(e) => update({ topic: e.target.value })} style={{ ...field, cursor: 'pointer' }}>
           <option value="">All topics</option>
           {topics.map((t) => <option key={t.slug} value={t.slug}>{t.title}</option>)}
         </select>
@@ -143,12 +155,29 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
         </select>
       </div>
 
+      <div ref={topicRow} className="reports-topics" role="group" aria-label="Filter by topic">
+        {[{ slug: '', title: 'All' }, ...topicButtons].map((t) => {
+          const on = state.topic === t.slug;
+          return (
+            <button key={t.slug || 'all'} type="button" aria-pressed={on} onClick={() => update({ topic: t.slug })}
+              style={{ flex: '0 0 auto', minHeight: '44px', padding: '0 14px', border: `1px solid ${INK}`, borderRadius: 0, background: on ? INK : 'transparent', color: on ? '#f4efe6' : INK, fontFamily: MONO, fontSize: '15px', cursor: 'pointer' }}>
+              {t.title}
+            </button>
+          );
+        })}
+      </div>
+
       <p aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK, margin: '0 0 16px' }}>
         {state.q.trim() ? `${count} report${count === 1 ? '' : 's'} matching "${state.q.trim()}"` : `${count} report${count === 1 ? '' : 's'}`}
       </p>
 
       {/* Inline styles cannot hold a media query: the grid's columns live in this class. */}
       <style>{`
+        .reports-topics { display: none; }
+        @media (max-width: 639.98px) {
+          .reports-topics { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+          .reports-topic-select { display: none; }
+        }
         .reports-month-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; row-gap: 0; align-items: stretch; }
         @media (max-width: 719.98px) { .reports-month-grid { grid-template-columns: minmax(0, 1fr); } }
       `}</style>

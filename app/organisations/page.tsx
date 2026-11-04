@@ -25,6 +25,21 @@ const ACCENT = '#7a1612';
 const FONT = 'var(--font-special-elite), monospace';
 const PER_PAGE = 100;
 
+// Filter buttons, shown under 640px only (owner, 4 Nov 2026), in the address as ?has=. Contracts include framework places, as the counts do.
+const FILTERS: { key: string; label: string; has: (r: OrgListRow) => boolean }[] = [
+  { key: 'contracts', label: 'Contracts', has: (r: OrgListRow) => r.contracts + r.framework_places > 0 },
+  { key: 'donations', label: 'Donations', has: (r: OrgListRow) => r.donations > 0 },
+  { key: 'grants', label: 'Grants', has: (r: OrgListRow) => r.grants > 0 },
+  { key: 'meetings', label: 'Ministerial meetings', has: (r: OrgListRow) => r.meetings > 0 },
+  { key: 'lobbying', label: 'Lobbying', has: (r: OrgListRow) => r.lobbying_quarters > 0 },
+];
+
+// Phones: the counts alone on one line, for example "12 contracts · 3 donations · 5 meetings" (owner, 4 Nov 2026).
+function phoneCountsLine(r: OrgListRow): string {
+  const count = (n: number, one: string) => (n ? `${n.toLocaleString('en-GB')} ${one}${n === 1 ? '' : 's'}` : '');
+  return [count(r.contracts + r.framework_places, 'contract'), count(r.donations, 'donation'), count(r.grants, 'grant'), count(r.meetings, 'meeting'), count(r.lobbying_quarters, 'lobbying quarter')].filter(Boolean).join(' · ');
+}
+
 function datasetsLine(r: OrgListRow): string {
   const parts: string[] = [];
   if (r.donations) parts.push(`${r.donations.toLocaleString('en-GB')} donation${r.donations === 1 ? '' : 's'}`);
@@ -36,10 +51,11 @@ function datasetsLine(r: OrgListRow): string {
   return parts.join(' · ');
 }
 
-export default async function OrganisationsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
+export default async function OrganisationsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string; has?: string }> }) {
   const sp = await searchParams;
   const q = (sp.q ?? '').trim().slice(0, 100);
   const page = Math.max(1, parseInt(sp.page || '1', 10) || 1);
+  const filter = FILTERS.find((f) => f.key === sp.has) ?? null;
   const all = await cachedOrganisationList();
 
   // An exact Companies House number with a page goes straight to it.
@@ -49,10 +65,12 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
     if (hit) redirect(`/organisations/${hit.slug}`);
   }
 
-  const list = q ? searchOrganisations(all, q) : [...all].sort((a, b) => a.name.localeCompare(b.name, 'en-GB', { sensitivity: 'base' }));
+  const found = q ? searchOrganisations(all, q) : [...all].sort((a, b) => a.name.localeCompare(b.name, 'en-GB', { sensitivity: 'base' }));
+  const list = filter ? found.filter(filter.has) : found;
   const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
   const shown = list.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-  const href = (p: number) => `/organisations?${new URLSearchParams({ ...(q ? { q } : {}), ...(p > 1 ? { page: String(p) } : {}) }).toString()}`.replace(/\?$/, '');
+  const link = (o: { q?: string; has?: string; page?: number }) => `/organisations?${new URLSearchParams({ ...(o.q ? { q: o.q } : {}), ...(o.has ? { has: o.has } : {}), ...(o.page && o.page > 1 ? { page: String(o.page) } : {}) }).toString()}`.replace(/\?$/, '');
+  const href = (p: number) => link({ q, has: filter?.key, page: p });
   const companies = all.filter((r) => r.kind === 'company').length;
 
   return (
@@ -72,15 +90,31 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
 
       <form method="get" action="/organisations" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', margin: '0 0 18px', padding: '14px 0', borderTop: `1px solid ${HAIRLINE}`, borderBottom: `1px solid ${HAIRLINE}` }}>
         <label htmlFor="org-q" style={{ fontFamily: FONT, fontSize: '15px', width: '100%' }}>Name or Companies House number</label>
+        {filter && <input type="hidden" name="has" value={filter.key} />}
         <input id="org-q" name="q" type="search" defaultValue={q} autoComplete="off"
           style={{ flex: '1 1 200px', minWidth: 0, fontFamily: FONT, fontSize: '16px', color: INK, background: '#f4e8d4', border: `1px solid ${INK}`, padding: '8px 10px', boxSizing: 'border-box' }} />
         <button type="submit" style={{ fontFamily: FONT, fontSize: '16px', padding: '8px 16px', border: `1px solid ${ACCENT}`, background: ACCENT, color: '#f4efe6', cursor: 'pointer' }}>Search</button>
       </form>
 
+      {/* Under 640px only: from 640px up the page is as it was. */}
+      <style>{`.org-filters, .org-phone { display: none; } @media (max-width: 639.98px) { .org-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; } .org-phone { display: block; } .org-wide { display: none; } }`}</style>
+      <nav className="org-filters" aria-label="Filter organisations">
+        {[{ key: '', label: 'All' }, ...FILTERS].map((f) => {
+          const on = (filter?.key ?? '') === f.key;
+          return (
+            <Link key={f.key || 'all'} href={link({ q, has: f.key })} aria-current={on ? 'true' : undefined} className="no-hover-scale"
+              style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', boxSizing: 'border-box', padding: '0 14px', fontFamily: FONT, fontSize: '15px', textDecoration: 'none', border: `1px solid ${INK}`, background: on ? INK : 'transparent', color: on ? '#f4efe6' : INK }}>
+              {f.label}
+            </Link>
+          );
+        })}
+      </nav>
+
       <p style={{ fontFamily: FONT, fontSize: '15px', margin: '0 0 10px' }}>
-        {q ? `${list.length.toLocaleString('en-GB')} match${list.length === 1 ? '' : 'es'} for “${q}”` : 'A to Z'}{pages > 1 ? `, page ${page} of ${pages}` : ''}
-        {q && <> · <Link href="/organisations" style={{ color: ACCENT }}>Clear</Link></>}
+        {q ? `${list.length.toLocaleString('en-GB')} match${list.length === 1 ? '' : 'es'} for “${q}”` : `A to Z${filter ? `, ${list.length.toLocaleString('en-GB')} with ${filter.label.toLowerCase()}` : ''}`}{pages > 1 ? `, page ${page} of ${pages}` : ''}
+        {q && <> · <Link href={link({ has: filter?.key })} style={{ color: ACCENT }}>Clear</Link></>}
       </p>
+      {!q && list.length === 0 && <p style={{ fontFamily: FONT, fontSize: '15px' }}>No organisation has this connection.</p>}
       {q && list.length === 0 && <p style={{ fontFamily: FONT, fontSize: '15px' }}>No organisation page matches. Try a shorter name, or a donor search on <Link href={`/search?q=${encodeURIComponent(q)}`} style={{ color: ACCENT }}>the site search</Link>.</p>}
 
       <ol style={{ listStyle: 'none', margin: 0, padding: 0, borderTop: `1px solid ${HAIRLINE}` }}>
@@ -88,7 +122,9 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
           <li key={r.slug} style={{ padding: '10px 0', borderBottom: `1px solid ${HAIRLINE}` }}>
             <Link href={`/organisations/${r.slug}`} className="no-hover-scale" style={{ color: INK, fontWeight: 'bold', fontSize: '16px', textDecoration: 'none', overflowWrap: 'anywhere' }}>{r.name}</Link>
             <div style={{ fontFamily: FONT, fontSize: '15px', marginTop: '3px', lineHeight: 1.5, overflowWrap: 'anywhere' }}>
-              {r.company_number ? `Companies House ${r.company_number} · ` : ''}{datasetsLine(r)}
+              <span className="org-wide">{r.company_number ? `Companies House ${r.company_number} · ` : ''}{datasetsLine(r)}</span>
+              {r.company_number && <span className="org-phone">Companies House {r.company_number}</span>}
+              <span className="org-phone">{phoneCountsLine(r)}</span>
             </div>
           </li>
         ))}
