@@ -78,7 +78,17 @@ export default async function RecommendationsPage() {
           Public Accounts Committee recommendations
         </h1>
       </header>
-      <section style={{ color: INK }}>
+      {/* Under 640px (owner, 4 Nov 2026): the status summary first, then the searchable list, then the rest. */}
+      <style>{`@media (max-width: 639.98px) {
+        .rec-page { display: flex; flex-direction: column; }
+        .rec-status { order: 1; }
+        .rec-all { order: 2; }
+        .rec-intro { order: 3; margin-top: 24px; }
+        .rec-moved { order: 4; }
+        .rec-status h2 { margin-top: 0 !important; }
+      }`}</style>
+      <section className="rec-page" style={{ color: INK }}>
+        <div className="rec-intro">
         <p style={p}>
           The Committee of Public Accounts examines how government spends public money and makes recommendations to departments. The government answers each recommendation in a Treasury Minute, saying whether it agrees and by when it will act, and reports on the ones still open in Treasury Minutes Progress Reports.
         </p>
@@ -86,6 +96,9 @@ export default async function RecommendationsPage() {
           This tracker follows {total.toLocaleString('en-GB')} recommendations through those documents{w.latestDocument ? `, up to the ${documentWords(w.latestDocument)}` : ''}. The documents are published by HM Treasury on GOV.UK under the Open Government Licence v3.0.
         </p>
 
+        </div>
+
+        <div className="rec-status">
         <h2 style={h2}>Where the recommendations stand</h2>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, maxWidth: '40em' }}>
           {totals.map((t) => (
@@ -100,6 +113,9 @@ export default async function RecommendationsPage() {
           </li>
         </ul>
 
+        </div>
+
+        <div className="rec-moved">
         <h2 style={h2}>Most moved targets</h2>
         <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {moved.map((r) => (
@@ -114,8 +130,12 @@ export default async function RecommendationsPage() {
           ))}
         </ol>
 
+        </div>
+
+        <div className="rec-all">
         <h2 style={h2}>All recommendations</h2>
         <RecommendationList reports={reports} rows={list} departmentOptions={departmentOptions} statusOptions={statusOptions} pageNames={pageNames} bodyNotes={BODY_NOTES} />
+        </div>
       </section>
     </OpenGovShell>
   );

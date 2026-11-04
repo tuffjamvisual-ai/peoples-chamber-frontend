@@ -1,5 +1,6 @@
 'use client'
 
+import { SCOTLAND_NOTE } from './WelfareSearch';
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
@@ -89,6 +90,7 @@ export default function WelfareSearchResults() {
 
   return (
     <div>
+      <style>{'.wf-result-note { display: none; } @media (max-width: 639.98px) { .wf-result-note { display: block; } }'}</style>
       <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(24px, 3.2vw, 36px)', fontWeight: 600, letterSpacing: '-0.01em', marginBottom: '20px', color: INK }}>
         {heading}
       </h1>
@@ -107,6 +109,7 @@ export default function WelfareSearchResults() {
         </p>
       )}
 
+      {!loading && !error && results.length > 0 && <p className="wf-result-note" style={{ fontSize: '15px', lineHeight: 1.5, margin: '0 0 12px' }}>{SCOTLAND_NOTE}</p>}
       {!loading && !error && results.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
           {constituencies.length > 0 && (

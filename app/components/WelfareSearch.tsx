@@ -47,6 +47,10 @@ function resultTypeLabel(r: SearchResult): string {
   return r.label === 'borough' ? 'Borough' : 'County'
 }
 
+// Under 640px (owner, 4 Nov 2026) the searches come first, so the coverage note also sits directly above any results.
+export const SCOTLAND_NOTE = 'PIP, DLA and Carer’s Allowance are devolved in Scotland, so Scottish results show the three benefits still administered by DWP (Universal Credit, Housing Benefit and ESA) rather than the full comparison of six benefits available for England and Wales.';
+const NOTE_CSS = '.wf-result-note { display: none; } @media (max-width: 639.98px) { .wf-result-note { display: block; } }';
+
 export default function WelfareSearch() {
   const router = useRouter()
 
@@ -87,6 +91,8 @@ export default function WelfareSearch() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
     if (q.trim().length < 2) {
+      // Clearing the list as the box empties; the fetch below sets it from its answer.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSuggestions([])
       setOpen(false)
       return
@@ -154,6 +160,8 @@ export default function WelfareSearch() {
         {pcErr && (
           <p role="alert" style={{ margin: '10px 0 0', fontFamily: SERIF, fontSize: '15px', color: ACCENT }}>{pcErr}</p>
         )}
+        <style>{NOTE_CSS}</style>
+        {pcResult && <p className="wf-result-note" style={{ margin: '12px 0 0', fontFamily: SERIF, fontSize: '15px', lineHeight: 1.5 }}>{SCOTLAND_NOTE}</p>}
         {pcResult && (
           <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {pcResult.constituency && (
@@ -208,6 +216,7 @@ export default function WelfareSearch() {
               boxShadow: '3px 3px 0 rgba(20,16,13,0.18)', maxHeight: '340px', overflowY: 'auto',
             }}
           >
+            {suggestions.length > 0 && <li className="wf-result-note" style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', lineHeight: 1.5, color: INK_SOFT, borderBottom: '1px solid rgba(20,16,13,0.2)' }}>{SCOTLAND_NOTE}</li>}
             {qLoading && suggestions.length === 0 && (
               <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>Searching…</li>
             )}

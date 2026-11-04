@@ -7,6 +7,7 @@
 // for projects that have left; the history tables are on the project pages and the department tabs.
 
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { departments } from '@/lib/departments';
@@ -45,6 +46,8 @@ export default async function MajorProjectsPage() {
       endText: dateText(p.latest.end_date, p.latest.end_text),
       reportYear: p.latest.report_year,
       lastReported: lastReported(p, latestYear),
+      dataAsAt: p.latest.data_as_at,
+      assessment: !p.latest.rating ? null : p.latest.rating_column === 'IPA' ? 'independent' : 'departmental',
       noPlan2025: p.noPlan2025,
     };
   });
@@ -79,9 +82,9 @@ export default async function MajorProjectsPage() {
 
       {noPlan.length > 0 && (
         <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '-12px 0 24px' }}>
-          <a href="/transparency/major-projects?evaluation=no" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+          <Link href="/transparency/major-projects?evaluation=no" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
             In March 2025, {noPlan.length} projects said they had no evaluation plan.
-          </a>
+          </Link>
         </p>
       )}
 

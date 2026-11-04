@@ -40,7 +40,15 @@ const FIRST = 50;
 // From 768px up the league table was wider than the screen below about 1100px, with its last column cut off, as long
 // lists of water companies stayed on one line. Up to 1439px they now wrap, and anything still too wide scrolls inside the
 // table's own box (owner, 4 Nov 2026). Phones keep PhoneTable's scrolling table; 1440px and wider are unchanged.
-const LEAGUE_CSS = '@media (min-width: 768px) and (max-width: 1439.98px) { .sew-league .pt-box { overflow-x: auto; } .sew-league table { min-width: 0 !important; } .sew-league td.sew-company { white-space: normal !important; } }';
+const LEAGUE_CSS = '@media (min-width: 768px) and (max-width: 1439.98px) { .sew-league .pt-box { overflow-x: auto; } .sew-league table { min-width: 0 !important; } .sew-league td.sew-company { white-space: normal !important; } }'
+  // Under 640px (owner, 4 Nov 2026) area cards replace the table, from the same rows, so tables and sort orders still apply.
+  + ' .sew-cards { display: none; }'
+  + ' @media (max-width: 639.98px) { .sew-league { display: none; } .sew-cards { display: block; list-style: none; margin: 0; padding: 0; }'
+  + ' .sew-card { border-top: 1px solid rgba(20,16,13,0.25); } .sew-card:last-child { border-bottom: 1px solid rgba(20,16,13,0.25); }'
+  + ' .sew-card summary { display: block; min-height: 44px; padding: 10px 26px 10px 0; position: relative; cursor: pointer; list-style: none; }'
+  + ' .sew-card summary::-webkit-details-marker { display: none; }'
+  + ' .card-mark { position: absolute; right: 4px; top: 10px; font-size: 20px; line-height: 1; color: #7a1612; }'
+  + ' .card-mark::before { content: "+"; } .sew-card details[open] .card-mark::before { content: "\\2212"; } }';
 
 const fmtInt = (v: number) => Math.round(v).toLocaleString('en-GB');
 const ordinal = (k: number) => {
@@ -285,6 +293,25 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
           </table>
         </PhoneTable>
         </div>
+        <ol className="sew-cards" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
+          {visible.map((r, i) => (
+            <li key={r.code} className="sew-card">
+              <details>
+                <summary>
+                  <span aria-hidden className="card-mark" />
+                  <span style={{ display: 'block', fontWeight: 'bold', fontSize: '16px', lineHeight: 1.3 }}>{i + 1}. {r.name}</span>
+                  <span style={{ display: 'block', marginTop: '2px' }}>{fmtInt(r.hours)} hours · {fmtInt(r.spills)} spills</span>
+                </summary>
+                <div style={{ padding: '0 0 12px', lineHeight: 1.6 }}>
+                  <div>{fmtInt(r.overflows)} overflow{r.overflows === 1 ? '' : 's'}</div>
+                  <div>{Math.round(share(r))} per cent spilled</div>
+                  <div>Water compan{r.companies.length === 1 ? 'y' : 'ies'}: {r.companies.join(', ')}</div>
+                  {r.href && <a href={r.href} style={{ display: 'inline-block', padding: '10px 0', color: ACCENT }}>{r.name} council page</a>}
+                </div>
+              </details>
+            </li>
+          ))}
+        </ol>
         {rows.length > FIRST && (
           <button type="button" onClick={() => setShowAll((v) => !v)} style={{ ...btn(false), marginTop: '12px' }}>
             {showAll ? `Show the first ${FIRST}` : `Show all ${fmtInt(rows.length)}`}
