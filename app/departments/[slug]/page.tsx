@@ -181,7 +181,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   const slots: Record<string, ReactNode> = {};
   // Open Govt data pages for a department, shown at the end of its About tab.
   const DATA_PAGES: Record<string, { href: string; title: string; description: string }[]> = {
-    environment: [{ href: '/sewage', title: 'Sewage spills', description: 'How long storm overflows spilled sewage in every council area and constituency in England and Northern Ireland, and for each water company.' }],
+    environment: [{ href: '/sewage', title: 'Sewage spills', description: 'How long storm overflows spilled sewage in every council area and constituency in England, Scotland and Northern Ireland, and for each water company.' }],
   };
   const dataPages = DATA_PAGES[slug] ?? [];
   // The About tab (the written account of each department) is hidden for now, on the

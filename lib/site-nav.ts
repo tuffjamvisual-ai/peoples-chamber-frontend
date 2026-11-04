@@ -1,4 +1,4 @@
-// The site's main menu (25 Oct 2026, reports 47 and 60): the 13 top level sections and each section's links. One list
+// The site's main menu (25 Oct 2026, reports 47 and 60): the 11 top level sections and each section's links. One list
 // for the desktop header (OpenGovShell.tsx, no dropdowns since report 60), the phone menu panel (MobileMenu.tsx), the
 // section pages (app/sections/[slug]/page.tsx) and the "In this section" rows on the section landing pages
 // (SectionLinks.tsx), so they cannot drift apart.

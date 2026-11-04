@@ -37,6 +37,10 @@ const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 const MIN_FOR_AVERAGES = 10;
 const FIRST = 50;
+// From 768px up the league table was wider than the screen below about 1100px, with its last column cut off, as long
+// lists of water companies stayed on one line. Up to 1439px they now wrap, and anything still too wide scrolls inside the
+// table's own box (owner, 4 Nov 2026). Phones keep PhoneTable's scrolling table; 1440px and wider are unchanged.
+const LEAGUE_CSS = '@media (min-width: 768px) and (max-width: 1439.98px) { .sew-league .pt-box { overflow-x: auto; } .sew-league table { min-width: 0 !important; } .sew-league td.sew-company { white-space: normal !important; } }';
 
 const fmtInt = (v: number) => Math.round(v).toLocaleString('en-GB');
 const ordinal = (k: number) => {
@@ -85,6 +89,8 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const t = q.get('table');
+    // A shared link can only be read in the browser, so the state is set here, once.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (t && tables.some((x) => x.id === t)) setTableId(t);
     const so = q.get('sort');
     if (so && SORTS.some((x) => x.key === so)) setSort(so as SortKey);
@@ -111,6 +117,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
     const qs = q.toString();
     const url = `${window.location.pathname}${qs ? `?${qs}` : ''}${lookup ? '#your-area' : ''}`;
     window.history.replaceState(null, '', url);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCopied(null);
   }, [ready, tableId, sort, lookup, tables]);
 
@@ -247,6 +254,8 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
           </p>
         )}
         {/* Phones (report 47): the rank and area columns stay put while the figures scroll, with a hint when more are out of view. */}
+        <style>{LEAGUE_CSS}</style>
+        <div className="sew-league">
         <PhoneTable sticky={2}>
           <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%', minWidth: '640px' }}>
             <thead>
@@ -269,12 +278,13 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
                   <td style={tdNum}>{fmtInt(r.spills)}</td>
                   <td style={tdNum}>{fmtInt(r.overflows)}</td>
                   <td style={tdNum}>{Math.round(share(r))}%</td>
-                  <td style={{ ...td, whiteSpace: 'nowrap' }}>{r.companies.join(', ')}</td>
+                  <td className="sew-company" style={{ ...td, whiteSpace: 'nowrap' }}>{r.companies.join(', ')}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </PhoneTable>
+        </div>
         {rows.length > FIRST && (
           <button type="button" onClick={() => setShowAll((v) => !v)} style={{ ...btn(false), marginTop: '12px' }}>
             {showAll ? `Show the first ${FIRST}` : `Show all ${fmtInt(rows.length)}`}
