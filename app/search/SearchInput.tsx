@@ -95,10 +95,14 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
           onBlur={(e) => { e.currentTarget.style.borderColor = HAIRLINE; }}
         />
         {q && (
+          <>
+          {/* Phones (under 640px, owner, 4 Nov 2026): a 44px box at the end of the field; the mark stays the same size. */}
+          <style dangerouslySetInnerHTML={{ __html: '@media (max-width: 639.98px) { .og-search-clear { width: 44px; height: 44px; right: 0 !important; padding: 0 !important; display: inline-flex; align-items: center; justify-content: center; } }' }} />
           <button
             type="button"
             onClick={handleClear}
             aria-label="Clear search"
+            className="og-search-clear"
             style={{
               position: 'absolute',
               right: '12px',
@@ -115,6 +119,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
           >
             ✕
           </button>
+          </>
         )}
         </div>
         <button

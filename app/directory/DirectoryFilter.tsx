@@ -2,10 +2,18 @@
 
 // "Filter this list" on /directory: narrows the list already in the page as the reader types, in the browser only (no
 // server call). It hides entries and letters with no match; the list itself is server rendered (page.tsx).
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 
 const INK = '#14100d';
 const MONO = 'var(--font-special-elite), monospace';
+
+// A heading button says open when its letter shows: folded open, or every letter while a filter is on.
+function syncToggles() {
+  const list = document.getElementById('directory-list');
+  list?.querySelectorAll<HTMLElement>('[data-letter-toggle]').forEach((b) => {
+    b.setAttribute('aria-expanded', String(!!list.classList.contains('pm-all') || !!b.closest('.dir-open')));
+  });
+}
 
 export default function DirectoryFilter() {
   const [q, setQ] = useState('');
@@ -39,7 +47,34 @@ export default function DirectoryFilter() {
       if (off) { a.setAttribute('aria-disabled', 'true'); a.setAttribute('tabindex', '-1'); } else { a.removeAttribute('aria-disabled'); a.removeAttribute('tabindex'); }
     });
     setNone(words.length > 0 && shown === 0);
+    syncToggles();
   }
+
+  // Phones: a letter's heading folds it open and closed; its letter in the A to Z bar, or an address ending in it, opens
+  // it before the browser scrolls there. The classes do nothing from 640px up, where the headings are not buttons.
+  useEffect(() => {
+    const section = (letter?: string) => document.querySelector<HTMLElement>(`#directory-list section[data-letter="${letter}"]`);
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const toggle = target.closest<HTMLElement>('[data-letter-toggle]');
+      if (toggle && !document.getElementById('directory-list')?.classList.contains('pm-all')) section(toggle.dataset.letterToggle)?.classList.toggle('dir-open');
+      const link = target.closest<HTMLElement>('[data-letter-link]');
+      if (link) section(link.dataset.letterLink)?.classList.add('dir-open');
+      if (toggle || link) syncToggles();
+    };
+    const openFromHash = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      const sec = id ? document.getElementById(id) : null;
+      if (!sec?.matches('#directory-list section[data-letter]')) return;
+      sec.classList.add('dir-open');
+      syncToggles();
+      sec.scrollIntoView();
+    };
+    document.addEventListener('click', onClick);
+    window.addEventListener('hashchange', openFromHash);
+    openFromHash();
+    return () => { document.removeEventListener('click', onClick); window.removeEventListener('hashchange', openFromHash); };
+  }, []);
 
   return (
     <div style={{ margin: '0 0 20px', maxWidth: '520px' }}>
