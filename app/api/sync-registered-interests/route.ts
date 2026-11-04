@@ -23,9 +23,9 @@ export const maxDuration = 300;
 //      no longer in the API response — entries are RETAINED as historical,
 //      never deleted, so the cumulative-this-Parliament backfill survives.
 //
-// NB: first_seen_date is populated by the Phase 3 edition backfill (min edition
-// publishedDate per interest); this endpoint deliberately omits it from the
-// upsert payload so it is never clobbered on refresh.
+// NB: a new entry's first_seen_date is the earlier of Parliament's publishedDate
+// (Interests API) and today, or today if that cannot be read (owner, 4 Nov 2026).
+// Rows already in the table are upserted without it, so it is never changed.
 //
 // A full pass over ~650 MPs exceeds the 300s budget at real API latency, so
 // the endpoint is CHUNKED: each call handles ?start&?limit (default 150) and
@@ -34,6 +34,7 @@ export const maxDuration = 300;
 // start=0 and the chain completes the pass.
 
 const PARLIAMENT_API = 'https://members-api.parliament.uk/api/Members';
+const INTERESTS_API = 'https://interests-api.parliament.uk/api/v1/Interests';
 const THROTTLE_MS = 130;
 const UA = 'PeoplesChamber-RegisterSync/1.0';
 
@@ -68,6 +69,18 @@ async function fetchInterests(memberId: number): Promise<ApiCategory[]> {
   // drive the empty-response path).
   if (!Array.isArray(json?.value)) throw new Error('Members API malformed: no value array');
   return json.value;
+}
+
+// A new entry's first_seen_date: the earlier of Parliament's publishedDate and today.
+async function firstSeenDate(interestId: number, today: string): Promise<string> {
+  try {
+    const res = await fetch(`${INTERESTS_API}/${interestId}`, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
+    if (!res.ok) return today;
+    const published = String((await res.json())?.publishedDate ?? '').slice(0, 10);
+    return /^\d{4}-\d{2}-\d{2}$/.test(published) && published < today ? published : today;
+  } catch {
+    return today;
+  }
 }
 
 function flattenRows(memberId: number, categories: ApiCategory[]) {
@@ -150,7 +163,7 @@ async function GET_impl(req: Request) {
       // Tag every live row as current and stamp last_seen_date. source stays
       // 'members-api': this endpoint is the current-register source of truth;
       // historical editions are ingested separately by the Phase 3 backfill.
-      const rows = baseRows.map((r) => ({
+      const rows: Array<Record<string, unknown>> = baseRows.map((r) => ({
         ...r,
         is_current: true,
         last_seen_date: today,
@@ -158,10 +171,32 @@ async function GET_impl(req: Request) {
       }));
 
       if (rows.length > 0) {
-        const { error: upErr } = await supabase
+        const { data: stored, error: readErr } = await supabase
           .from('mp_registered_interests')
-          .upsert(rows, { onConflict: 'member_id,interest_id' });
-        if (upErr) throw upErr;
+          .select('interest_id')
+          .eq('member_id', memberId)
+          .in('interest_id', liveIds);
+        if (readErr) throw readErr;
+        const inTable = new Set((stored ?? []).map((s) => s.interest_id as number));
+        const existing = rows.filter((r) => inTable.has(r.interest_id as number));
+        const fresh = [];
+        for (const r of rows.filter((x) => !inTable.has(x.interest_id as number))) {
+          fresh.push({ ...r, first_seen_date: await firstSeenDate(r.interest_id as number, today) });
+          await sleep(THROTTLE_MS);
+        }
+        if (existing.length > 0) {
+          const { error: upErr } = await supabase
+            .from('mp_registered_interests')
+            .upsert(existing, { onConflict: 'member_id,interest_id' });
+          if (upErr) throw upErr;
+        }
+        if (fresh.length > 0) {
+          // ignoreDuplicates: an insert only, so a row that appeared since the read above keeps its first_seen_date.
+          const { error: insErr } = await supabase
+            .from('mp_registered_interests')
+            .upsert(fresh, { onConflict: 'member_id,interest_id', ignoreDuplicates: true });
+          if (insErr) throw insErr;
+        }
         totalUpserted += rows.length;
       }
 

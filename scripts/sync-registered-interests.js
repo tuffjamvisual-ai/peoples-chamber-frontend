@@ -14,7 +14,8 @@
 //     Stage 2a part 3: unchanged rows are not rewritten; the stamp is kept for the register's freshness line and is not
 //     read by the MP page)
 //   - entries no longer on the register are kept but set is_current = false
-//   - first_seen_date is never touched
+//   - a new entry's first_seen_date is the earlier of Parliament's publishedDate (Interests API) and today, or today if
+//     that API cannot be read (owner, 4 Nov 2026); an existing row's first_seen_date is never changed
 //   - donations and gifts (categories 2, 3, 4 and 5) also get donor_name, donor_amount, received_date,
 //     accepted_date and payment_type from the Interests API's structured fields (same interest ids). These were
 //     filled by a one-off load until 14 July 2026 and then left empty, and some had since been amended on the
@@ -30,14 +31,18 @@
 //
 // Usage:
 //   node scripts/sync-registered-interests.js
+//   node scripts/sync-registered-interests.js --ids=172,4874   # these MPs only, listing what would be written
 //   node scripts/sync-registered-interests.js --write
 
+/* eslint-disable @typescript-eslint/no-require-imports -- run directly by Node, as the other sync scripts are */
 'use strict';
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const { queueMpRefresh } = require('./mp-refresh-queue');
 
 const WRITE = process.argv.includes('--write');
+const idsArg = process.argv.find((a) => a.startsWith('--ids='));
+const ONLY_IDS = idsArg ? idsArg.slice(6).split(',').map(Number).filter((n) => Number.isInteger(n) && n > 0) : null;
 const API = 'https://members-api.parliament.uk/api/Members';
 const INTERESTS_API = 'https://interests-api.parliament.uk/api/v1/Interests'; // 20 per page at most
 const UA = 'opengovt-RegisterSync/1.0 (+https://opengovt.uk)';
@@ -61,9 +66,11 @@ async function fetchInterests(memberId) {
   }
 }
 
-// interest id -> { donor_name, donor_amount, received_date, accepted_date, payment_type } for entries that name a donor.
-async function fetchDonationFields(memberId) {
+// From the Interests API, for one MP: donors, interest id -> { donor_name, donor_amount, received_date, accepted_date,
+// payment_type } for entries that name a donor; and published, interest id -> Parliament's publishedDate.
+async function fetchInterestsApiFields(memberId) {
   const out = new Map();
+  const published = new Map();
   for (let skip = 0; skip < 2000; skip += 20) {
     let json;
     for (let attempt = 1; attempt <= 3; attempt++) {
@@ -79,6 +86,7 @@ async function fetchDonationFields(memberId) {
     }
     const items = Array.isArray(json && json.items) ? json.items : [];
     for (const it of items) {
+      if (it.publishedDate) published.set(it.id, String(it.publishedDate).slice(0, 10));
       const f = Object.fromEntries((it.fields || []).map((x) => [x.name, x.value]));
       if (!f.DonorName) continue;
       const amount = f.Value != null && f.Value !== '' && Number.isFinite(Number(f.Value)) ? Number(f.Value) : null;
@@ -93,7 +101,7 @@ async function fetchDonationFields(memberId) {
     await sleep(THROTTLE_MS);
     if (items.length < 20 || skip + 20 >= (json.totalResults || 0)) break;
   }
-  return out;
+  return { donors: out, published };
 }
 
 const DONATION_KEYS = ['donor_name', 'donor_amount', 'received_date', 'accepted_date', 'payment_type'];
@@ -149,7 +157,8 @@ async function pageAll(build) {
   for (const r of stored) { if (!storedBy.has(r.member_id)) storedBy.set(r.member_id, new Set()); storedBy.get(r.member_id).add(r.interest_id); }
   const currentIds = new Set(current.map((m) => m.member_id));
   const former = [...storedBy.keys()].filter((id) => !currentIds.has(id)).sort((a, b) => a - b);
-  const targets = [...current.map((m) => m.member_id), ...former];
+  const allTargets = [...current.map((m) => m.member_id), ...former];
+  const targets = ONLY_IDS ? allTargets.filter((id) => ONLY_IDS.includes(id)) : allTargets;
   console.log(`current MPs: ${current.length}; former MPs still holding current entries: ${former.length}; entries now marked current: ${stored.length}`);
 
   let ok = 0, failed = 0, added = 0, kept = 0, ended = 0, emptyConfirmed = 0, donationRows = 0, donationFailures = 0;
@@ -173,12 +182,15 @@ async function pageAll(build) {
         if (rows.length === 0) emptyConfirmed++;
       }
       // Structured donation fields, all rows of an MP or none (one upsert sets the same columns on every row).
+      let published = new Map();
       try {
-        const fields = rows.length ? await fetchDonationFields(memberId) : new Map();
+        const api = rows.length ? await fetchInterestsApiFields(memberId) : { donors: new Map(), published };
+        const fields = api.donors;
+        published = api.published;
         // No donor entries at all leaves saved values alone, in case the Interests API answered with nothing.
         if (fields.size) for (const r of rows) Object.assign(r, fields.get(r.interest_id) || Object.fromEntries(DONATION_KEYS.map((k) => [k, null])));
         donationRows += rows.filter((r) => r.donor_name).length;
-      } catch (e) {
+      } catch {
         donationFailures++;
       }
       const have = storedBy.get(memberId) || new Set();
@@ -189,14 +201,29 @@ async function pageAll(build) {
       // Stored copies of this MP's live entries, to write only the ones whose content changed.
       const old = rows.length ? await pageAll(() => db.from('mp_registered_interests').select(`interest_id, last_seen_date, ${COMPARED.join(', ')}`).eq('member_id', memberId).in('interest_id', rows.map((r) => r.interest_id)).order('id')) : [];
       const oldBy = new Map(old.map((r) => [r.interest_id, r]));
-      const changedRows = rows.filter((r) => { const o = oldBy.get(r.interest_id); return !o || !sameRow(o, r); });
-      const restamp = rows.filter((r) => !changedRows.includes(r) && oldBy.get(r.interest_id).last_seen_date !== today).map((r) => r.interest_id);
-      if (newOnes || gone.length || changedRows.length) {
-        changedMps.push(`${memberId} (+${newOnes} / -${gone.length} / ~${changedRows.length - newOnes})`);
+      const changedRows = rows.filter((r) => { const o = oldBy.get(r.interest_id); return o && !sameRow(o, r); });
+      // Rows not in the table at all, the only ones given a first_seen_date. An entry coming back onto the register is an
+      // existing row, so it keeps the date it has.
+      const insertRows = rows.filter((r) => !oldBy.has(r.interest_id)).map((r) => {
+        const seen = published.get(r.interest_id);
+        return { ...r, first_seen_date: seen && seen < today ? seen : today };
+      });
+      const restamp = rows.filter((r) => oldBy.has(r.interest_id) && !changedRows.includes(r) && oldBy.get(r.interest_id).last_seen_date !== today).map((r) => r.interest_id);
+      if (ONLY_IDS) {
+        console.log(`MP ${memberId}: on the register ${rows.length}; published dates read ${published.size}; ${WRITE ? '' : 'would '}insert ${insertRows.length}, update in full ${changedRows.length} (first_seen_date not sent), restamp ${restamp.length}, set not current ${gone.length}`);
+        for (const r of insertRows) console.log(`  insert interest ${r.interest_id}: first_seen_date ${r.first_seen_date} (publishedDate ${published.get(r.interest_id) ?? 'not read'})`);
+      }
+      if (insertRows.length || gone.length || changedRows.length) {
+        changedMps.push(`${memberId} (+${insertRows.length} / -${gone.length} / ~${changedRows.length})`);
         changedIds.push(memberId);
       }
 
       if (WRITE) {
+        if (insertRows.length) {
+          // ignoreDuplicates: an insert only, so even a row that appeared since the read above keeps its first_seen_date.
+          const { error } = await db.from('mp_registered_interests').upsert(insertRows, { onConflict: 'member_id,interest_id', ignoreDuplicates: true });
+          if (error) throw new Error(`insert: ${error.message}`);
+        }
         if (changedRows.length) {
           const { error } = await db.from('mp_registered_interests').upsert(changedRows, { onConflict: 'member_id,interest_id' });
           if (error) throw new Error(`upsert: ${error.message}`);
@@ -214,7 +241,7 @@ async function pageAll(build) {
           }
         }
       }
-      rowsWritten += changedRows.length; rowsRestamped += restamp.length;
+      rowsWritten += insertRows.length + changedRows.length; rowsRestamped += restamp.length;
       ok++;
     } catch (e) {
       failed++;
