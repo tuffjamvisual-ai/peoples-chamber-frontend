@@ -1,6 +1,6 @@
 // MP pages on phones (owner, 4 Nov 2026), on a running site, at 375px: small photo, name, party, constituency; four
 // headline figures that tap through; sections folded in the owner's order with a summary each; the section buttons gone
-// and "On this page" kept; votes, debates and written questions asked for only when opened; nothing wider than the screen.
+// and "On this page" kept; votes, debates and written questions in the page's HTML, folded; nothing wider than the screen.
 //   node scripts/checks/mp-phone-check.mjs <base url> <out dir> <id> [id ...]
 import fs from 'fs';
 import path from 'path';
@@ -35,6 +35,8 @@ for (const id of ids) {
   check('name, party, constituency in order', top.name < top.party && (top.seat == null || top.party < top.seat));
   check('four figures', top.tiles.length === 4);
   for (const t of top.tiles) { console.log(`     ${t.text}${t.link ? ` -> ${t.link}` : ' (no section)'}`); check('  figure tall enough, never blank', t.h >= 44 && t.text.split('|').length >= 2); }
+  const labels4 = top.tiles.map((t) => t.text.split(' | ')[0]);
+  check('figure labels', labels4[0] === 'Votes attended since July 2024' && labels4[1] === 'Registered interests (current)' && labels4[2] === 'Donations (current register)' && /^Expenses( \d{4}\/\d{2})?$/.test(labels4[3]), labels4.join(' ; '));
   const folds = await page.$$eval('.pf-btn', (b) => b.map((x) => x.innerText.replace(/[+−]\s*$/, '').replace(/\s+/g, ' ').trim()));
   console.log('     ' + folds.join('\n     '));
   const labels = folds.map((f) => f.split(':')[0]);
@@ -43,22 +45,24 @@ for (const id of ids) {
   check('section buttons gone', (await page.locator('[data-section]:visible').count()) === 0);
   check('On this page kept', await page.locator('.pf-contents').isVisible());
   check('not wider than the screen', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  check('nothing loaded before opening', asked.length === 0, asked.join(','));
+  check('expenses, donations and petitions not fetched before opening', asked.length === 0, asked.join(','));
 
+  // In the HTML as the server sends it, for crawlers, and hidden until opened.
+  const html = await (await page.request.get(`${base}/mps/${id}`)).text();
   const voting = page.locator('.pf-btn', { hasText: 'Voting record' });
   if (await voting.count()) {
+    check('votes are in the server HTML', /Division|vote/i.test(html) && (await page.locator('[data-fold="voting"] .pf-body ul li').count()) > 0, `${await page.locator('[data-fold="voting"] .pf-body ul li').count()} rows`);
+    check('and folded until opened', !(await page.locator('[data-fold="voting"] .pf-body ul li').first().isVisible()));
     await voting.tap();
-    await page.waitForFunction(() => !/Loading…/.test(document.getElementById('section-voting')?.innerText ?? ''), null, { timeout: 30000 });
-    const rows = await page.locator('#section-voting ul li').count();
-    check('votes load when opened', asked.includes('votes/first') && rows > 0, `${rows} rows; asked ${asked.join(',')}`);
+    check('and show when opened', await page.locator('[data-fold="voting"] .pf-body ul li').first().isVisible());
     await voting.tap();
   }
   const activity = page.locator('.pf-btn', { hasText: 'Parliamentary activity' });
   if (await activity.count()) {
-    const before = asked.length;
+    const debates = await page.locator('#section-house ul li').count();
+    check('debates and questions are in the page, folded', !(await page.locator('#section-house').count()) || debates > 0, `${debates} rows`);
     await activity.tap();
-    await page.waitForTimeout(1500);
-    check('debates and questions load when opened', asked.slice(before).includes('house') || !(await page.locator('#section-house').count()), asked.slice(before).join(','));
+    await page.waitForTimeout(800);
     await page.screenshot({ path: path.join(outDir, `${id}-activity.png`) });
     await activity.tap();
   }

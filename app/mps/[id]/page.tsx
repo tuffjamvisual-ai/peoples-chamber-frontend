@@ -9,9 +9,9 @@ import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
 import { getPeer } from '@/lib/lords';
 import { peerHasPage } from '@/lib/peers';
-import { questionsCount } from '@/lib/mp-written-questions';
+import { questionsSummary, type QuestionsSummary } from '@/lib/mp-written-questions';
 import { getHiddenBillIds } from '@/lib/hidden-bills';
-import { sumDeclaredDonations, type InterestRow } from '@/lib/mpDonationsTotal';
+import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
 import MpDossier from './MpDossier';
 import RelatedLinks from '../../components/RelatedLinks';
 import {
@@ -182,12 +182,14 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const memberId = parseInt(id, 10);
   if (Number.isNaN(memberId)) notFound();
 
-  // Voting record: not in the page (owner, 4 Nov 2026). It is read from /api/mps/[id]/votes/first when the section is
-  // opened, which keeps /mps/[id] free of searchParams and statically ISR-cached; page 2+ and search come from
-  // /api/mps/[id]/votes. Only the five newest votes are read here, for the related links under the profile.
+  // Voting record: the server renders only page 1, unfiltered — this is what
+  // keeps /mps/[id] free of searchParams and therefore statically ISR-cached
+  // (previously reading ?vp/?vq/?section forced dynamic rendering on every
+  // request). Page 2+ and search are fetched client-side from
+  // /api/mps/[id]/votes; the server-rendered page 1 stays for SEO / no-JS.
   const votePage = 1;
   const voteStart = 0;
-  const voteEnd = 4;
+  const voteEnd = VOTES_PER_PAGE - 1;
   const initialSection = null;
   const voteQuery = '';
 
@@ -209,7 +211,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     outsideRowRes,
     committeeMembershipsRes,
     formerInterestsRes,
-    donationRowsRes,
   ] = await withTimeout(Promise.all([
     getMp(memberId),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
@@ -221,7 +222,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .eq('sponsor_member_id', memberId)
       .is('hidden_reason', null)
       .order('created_at', { ascending: false }),
-    // The five newest votes, for the related links.
+    // 20-per-page paginated voting record. ParlParse backfill (2026-06-05)
+    // means some MPs now have hundreds of votes — Abbott alone has 308 —
+    // so the previous bulk 999-row fetch became a heavy cold payload.
+    // When ?vq= is set the same filter is applied to both the list query
+    // and the count query so totalPages reflects the matches, not all
+    // votes.
     (() => {
       let q = supabase
         .from('mp_division_votes')
@@ -262,12 +268,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .eq('is_current', false)
       .order('last_seen_date', { ascending: false, nullsFirst: false })
       .order('interest_id', { ascending: false }),
-    // Category 2 entries, current and past, for the phone headline figure "Donations, this Parliament".
-    supabase
-      .from('mp_registered_interests')
-      .select('category_name, interest_text, is_correction, created_when, last_amended_when, received_date, first_seen_date')
-      .eq('member_id', memberId)
-      .like('category_name', '2.%'),
   ]), 9000);
   if (!mp) {
     // Not in our mps table: a former MP gets a basic page from Parliament's record; a member who only sat in the Lords
@@ -294,7 +294,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     notFound();
   }
   // A failed count read throws, like the page's other timeouts, rather than showing zero votes.
-  if (donationRowsRes.error) throw new Error(`donations of ${memberId}: ${donationRowsRes.error.message}`);
   if (voteCountsRes.error || !voteCountsRes.data) throw new Error(`mp_vote_counts(${memberId}): ${voteCountsRes.error?.message ?? 'no data'}`);
   const voteCounts = voteCountsRes.data as { all_votes: number; aye_no: number; aye_no_since: number; rebellions_since: number; rebellions_all: number };
 
@@ -356,13 +355,17 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       label: `/mps/${memberId} ministers_hospitality`,
     }),
   ]), 7000);
-  // How many: the debates and questions themselves load when the section is opened (/api/mps/[id]/house).
   const pContribs = Promise.resolve(
-    supabase.from('mp_contributions').select('member_id', { count: 'exact', head: true }).eq('member_id', memberId),
+    supabase
+      .from('mp_contributions')
+      .select('debate_title, sitting_date, section, house, speech_count, question_count, intervention_count, answer_count, statement_count, total_contributions, hansard_url')
+      .eq('member_id', memberId)
+      .order('sitting_date', { ascending: false })
+      .limit(25),
   );
   // Written questions (owner, 3 Nov 2026): the count, first date and newest five, read alongside the contributions. A
   // failed or slow read shows the tab without them rather than holding up the page.
-  const pQuestions: Promise<number | null> = withTimeout(questionsCount(supabase, memberId), 7000).catch((e) => {
+  const pQuestions: Promise<QuestionsSummary | null> = withTimeout(questionsSummary(supabase, memberId), 7000).catch((e) => {
     console.error(`/mps/${memberId} written questions:`, e instanceof Error ? e.message : e);
     return null;
   });
@@ -490,8 +493,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const hospitality = hospitalityRows.filter((h) => recipientIsMp(h.minister_name, firstWord, lastWord));
 
   // Recent Hansard chamber contributions (mp_contributions), keyed by member_id.
-  const contributionCount = (await pContribs).count ?? 0;
-  const questionCount = await pQuestions;
+  const { data: contributionsData } = await pContribs;
+  const contributions = contributionsData || [];
+  const writtenQuestions = await pQuestions;
 
   const edmsRes = await pEdms;
   // "Last updated" under each profile section whose table lib/data-freshness.ts tracks (owner, 1 Nov 2026): the newest
@@ -767,8 +771,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           address_line1: contactRes.data?.address_line1 ?? null,
           postcode:      contactRes.data?.postcode      ?? null,
         },
-        votes: [],
-        lazyRecords: true,
+        votes: votesWithSi,
+        phoneHeadline: true,
         donations: [],
         donorOtherRecipients: [],
         sectorCrossRef: [],
@@ -778,8 +782,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
         spadAdvisers: spadAdvisers ? { ...spadAdvisers, ministerName: fullName, gender: mp.gender ?? null } : null,
-        contributionCount,
-        questionCount,
+        contributions,
+        writtenQuestions,
         conductFindings: conductRes.data || [],
         staffInterests: staffInterestsRes.data || [],
         activity: activityRes.data || null,
@@ -801,13 +805,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         // added by the cumulative backfill are retained in the table but excluded
         // from this primary number. (is_current !== false treats today's rows,
         // which have no explicit false, as current.)
-        // Phones: current and past Category 2 entries dated in this Parliament, by the same sum (lib/mpDonationsTotal.ts). A
-        // row's date is the day the donation was received or, without one, the day the entry was first seen on the register.
-        donationsThisParliament: sumDeclaredDonations(
-          ((donationRowsRes.data || []) as Array<{ received_date: string | null; first_seen_date: string | null } & InterestRow>)
-            .filter((r) => (r.received_date ?? r.first_seen_date ?? '') >= PARL_START),
-          true,
-        ).total,
         declaredDonations: sumDeclaredDonations(
           (interestsRes.data || []).filter(
             (r) => (r as { is_current?: boolean }).is_current !== false,

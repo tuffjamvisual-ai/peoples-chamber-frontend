@@ -278,14 +278,8 @@ interface Props {
   paragraphs: string[];
   contact: Contact;
   votes: Vote[];
-  /** The real profile pages (owner, 4 Nov 2026): votes, debates and written questions are not in the page; each loads
-      when its section is opened, and on wider screens as soon as the page is idle. */
-  lazyRecords?: boolean;
-  /** How many debates and written questions there are, when they are not in the page. */
-  contributionCount?: number;
-  questionCount?: number | null;
-  /** Phones: Category 2 donations dated in this Parliament. */
-  donationsThisParliament?: number;
+  /** The real profile pages (owner, 4 Nov 2026): the four headline figures under 640px. */
+  phoneHeadline?: boolean;
   /** Total vote count across all pages — for the "N divisions recorded" line. */
   totalVotes?: number;
   /** 1-indexed current page within the voting tab. */
@@ -497,7 +491,6 @@ const sectionH3: React.CSSProperties = {
   fontFamily: 'var(--font-special-elite), monospace',
 };
 
-const retryButton: React.CSSProperties = { font: 'inherit', color: '#7a1612', background: 'none', border: 'none', padding: 0, textDecoration: 'underline', cursor: 'pointer' };
 const inkLink: React.CSSProperties = { color: '#7a1612', textDecoration: 'underline' };
 const inkDivider = '1px dashed rgba(20,16,13,0.2)';
 
@@ -549,10 +542,7 @@ export default function MagazineProfileSections({
   paragraphs,
   contact,
   votes,
-  lazyRecords = false,
-  contributionCount,
-  questionCount,
-  donationsThisParliament = 0,
+  phoneHeadline = false,
   totalVotes,
   votePage = 1,
   votesPerPage = 20,
@@ -574,8 +564,8 @@ export default function MagazineProfileSections({
   conductFindings = [],
   staffInterests = [],
   activity = null,
-  contributions: contributionsProp = [],
-  writtenQuestions: writtenQuestionsProp = null,
+  contributions = [],
+  writtenQuestions = null,
   rebellions = { sinceElection: 0, votesSinceElection: 0, allVotes: 0 },
   partyWhipSlug = null,
   bio,
@@ -616,7 +606,7 @@ export default function MagazineProfileSections({
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
-    house: (contributionCount ?? contributionsProp.length) > 0 || (questionCount ?? writtenQuestionsProp?.total ?? 0) > 0,
+    house: contributions.length > 0 || (writtenQuestions?.total ?? 0) > 0,
     petitions: petitionsAvailable,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
     interests: interests.length > 0 || staffInterests.length > 0 || formerInterests.length > 0,
@@ -744,35 +734,6 @@ export default function MagazineProfileSections({
   // a few seconds. Now both are fetched as soon as the page is idle after its first paint (25 Oct 2026, report 43), from
   // cached API answers, so opening either tab is instant; opening a tab before then starts its fetch at once. Visitors
   // who ask their browser to save data keep the old behaviour (fetched on opening the tab).
-  // Votes, debates and written questions (owner, 4 Nov 2026), from cached API answers.
-  const votesRequested = useRef(!lazyRecords);
-  const [votesReady, setVotesReady] = useState(!lazyRecords);
-  const [votesFailed, setVotesFailed] = useState(false);
-  const loadFirstVotes = useCallback(() => {
-    if (votesRequested.current) return;
-    votesRequested.current = true;
-    setVotesFailed(false);
-    fetch(`/api/mps/${memberId}/votes/first`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((d: { votes: Vote[]; total: number }) => { setVoteList(d.votes || []); setVoteTotal(d.total ?? 0); setVotesReady(true); })
-      .catch(() => { votesRequested.current = false; setVotesFailed(true); });
-  }, [memberId]);
-  const houseRequested = useRef(!lazyRecords);
-  const [houseAnswer, setHouseAnswer] = useState<{ contributions: Contribution[]; writtenQuestions: QuestionsSummary | null } | null>(null);
-  const [houseFailed, setHouseFailed] = useState(false);
-  const loadHouse = useCallback(() => {
-    if (houseRequested.current) return;
-    houseRequested.current = true;
-    setHouseFailed(false);
-    fetch(`/api/mps/${memberId}/house`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((d: { contributions: Contribution[]; writtenQuestions: QuestionsSummary | null }) => setHouseAnswer(d))
-      .catch(() => { houseRequested.current = false; setHouseFailed(true); });
-  }, [memberId]);
-  const contributions = houseAnswer?.contributions ?? contributionsProp;
-  const writtenQuestions = houseAnswer?.writtenQuestions ?? writtenQuestionsProp;
-  const houseReady = !lazyRecords || houseAnswer != null;
-
   const [expenseClaims, setExpenseClaims] = useState<ExpenseClaim[] | null>(expensesDetail ?? null);
   const [expenseClaimsFailed, setExpenseClaimsFailed] = useState(false);
   const expensesRequested = useRef(expensesDetail != null);
@@ -812,24 +773,22 @@ export default function MagazineProfileSections({
     if (active === 'expenses') loadExpenses();
     if (active === 'donations') loadDonations();
     if (active === 'petitions') loadPetitions();
-    if (active === 'voting') loadFirstVotes();
-    if (active === 'house') loadHouse();
-  }, [active, loadExpenses, loadDonations, loadPetitions, loadFirstVotes, loadHouse]);
+  }, [active, loadExpenses, loadDonations, loadPetitions]);
   // A section hidden by the stylesheet (every tab but the open one from 640px, every closed fold below it) never comes
   // into view, so this loads only what is on screen at any width. data-section-block is on PhoneFolds' section body.
   useEffect(() => {
-    const load: Partial<Record<SectionId, () => void>> = { expenses: loadExpenses, donations: loadDonations, petitions: loadPetitions, voting: loadFirstVotes, house: loadHouse };
+    const load: Partial<Record<SectionId, () => void>> = { expenses: loadExpenses, donations: loadDonations, petitions: loadPetitions };
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) load[(e.target as HTMLElement).dataset.sectionBlock as SectionId]?.();
     }, { rootMargin: '400px 0px' });
     document.querySelectorAll<HTMLElement>('[data-section-block]').forEach((el) => { if (load[el.dataset.sectionBlock as SectionId]) io.observe(el); });
     return () => io.disconnect();
-  }, [loadExpenses, loadDonations, loadPetitions, loadFirstVotes, loadHouse]);
+  }, [loadExpenses, loadDonations, loadPetitions]);
   useEffect(() => {
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     // Phones (owner, 4 Nov 2026): sections are closed, so each loads when it is opened (the observer above).
     if (saveData || window.matchMedia(`(max-width: ${PHONE_MAX}px)`).matches) return;
-    const start = () => { loadDonations(); loadExpenses(); loadFirstVotes(); loadHouse(); };
+    const start = () => { loadDonations(); loadExpenses(); };
     const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
     if (w.requestIdleCallback) {
       const id = w.requestIdleCallback(start, { timeout: 3000 });
@@ -837,7 +796,7 @@ export default function MagazineProfileSections({
     }
     const t = setTimeout(start, 1500);
     return () => clearTimeout(t);
-  }, [loadExpenses, loadDonations, loadFirstVotes, loadHouse]);
+  }, [loadExpenses, loadDonations]);
 
   // Phones and tablets (below the lg breakpoint, 1024px): the section buttons
   // become one sideways-swiping row instead of a 13-button column, so the
@@ -1214,11 +1173,6 @@ export default function MagazineProfileSections({
               )}
               .
             </p>
-            {!votesReady && (
-              <p style={{ fontSize: '15px' }}>
-                {votesFailed ? <>These votes could not be loaded. <button type="button" onClick={loadFirstVotes} style={retryButton}>Try again</button></> : 'Loading…'}
-              </p>
-            )}
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7', opacity: vLoading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
               {voteList.map((v) => (
                 <li key={v.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
@@ -1318,11 +1272,6 @@ export default function MagazineProfileSections({
                 {activity.speeches_year != null && activity.questions_year != null && ' · '}
                 {activity.questions_year != null && <span><strong>{activity.questions_year}</strong> questions</span>}
                 <span > in the last year</span>
-              </p>
-            )}
-            {!houseReady && (
-              <p style={{ fontSize: '15px' }}>
-                {houseFailed ? <>These debates and questions could not be loaded. <button type="button" onClick={loadHouse} style={retryButton}>Try again</button></> : 'Loading…'}
               </p>
             )}
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -2751,45 +2700,44 @@ export default function MagazineProfileSections({
   // to give without loading something.
   const countOf = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-GB')} ${n === 1 ? one : many}`;
   const latestExpenses = [...expenses].sort((a, b) => String(b.year).localeCompare(String(a.year)))[0];
-  const questionTotal = questionCount ?? writtenQuestionsProp?.total ?? 0;
-  const debateTotal = contributionCount ?? contributionsProp.length;
+  const questionTotal = writtenQuestions?.total ?? 0;
   const foldSummary: Record<string, string | null> = {
     background: timeline.length > 0 ? countOf(timeline.length, 'entry', 'entries') : conductFindings.length > 0 ? countOf(conductFindings.length, 'standards finding') : 'career and education',
     contact: [contact?.phone && 'phone', contact?.email && 'email', contact?.website && 'website', contact?.twitter && 'social media', contact?.address_line1 && 'address'].filter(Boolean).join(', ') || null,
     voting: countOf(totalVotes ?? votes.length, 'division'),
-    activity: [questionTotal > 0 && countOf(questionTotal, 'written question'), debateTotal > 0 && countOf(debateTotal, 'debate'), edms && edms.startedCount + edms.signedCount > 0 && countOf(edms.startedCount + edms.signedCount, 'EDM'), sponsoredBills.length > 0 && countOf(sponsoredBills.length, 'bill')].filter(Boolean).join(', ') || null,
+    activity: [questionTotal > 0 && countOf(questionTotal, 'written question'), contributions.length > 0 && countOf(contributions.length, 'recent debate'), edms && edms.startedCount + edms.signedCount > 0 && countOf(edms.startedCount + edms.signedCount, 'EDM'), sponsoredBills.length > 0 && countOf(sponsoredBills.length, 'bill')].filter(Boolean).join(', ') || null,
     interests: interests.length > 0 ? countOf(interests.length, 'entry', 'entries') : 'none current',
     roles: currentCommittees.length > 0
       ? countOf(currentCommittees.length, 'current committee')
       : countOf((bio?.government_posts?.length ?? 0) + (bio?.opposition_posts?.length ?? 0) + (bio?.committee_memberships?.length ?? 0) + (bio?.representations?.length ?? 0) + (bio?.party_history?.length ?? 0) + formerCommittees.length + (spadAdvisers?.rows.length ?? 0), 'entry', 'entries'),
     earnings: `${fmtMoney((earnings.base || 0) + (earnings.ministerial || 0))} as an MP`,
-    donations: donationsThisParliament > 0 ? `${fmtMoney(donationsThisParliament)} this Parliament` : 'none recorded',
+    donations: declaredDonations.entryCount > 0 ? `${fmtMoney(declaredDonations.total)} on the current register` : 'none on the current register',
     diary: [ministerMeetings.length > 0 && countOf(ministerMeetings.length, 'meeting'), ministerHospitality.length > 0 && `${ministerHospitality.length.toLocaleString('en-GB')} hospitality`].filter(Boolean).join(', ') || null,
     expenses: latestExpenses?.total_spend != null ? `${fmtMoney(latestExpenses.total_spend)} in ${fmtExpenseYear(latestExpenses.year)}` : null,
   };
 
   // The phone headline figures (owner, 4 Nov 2026): attendance from mp_activity_metrics, interests from the current
-  // register, donations in this Parliament, and the latest year's expenses. "None recorded" when there is no real figure.
+  // register, the same donations total as the Donations section (current register, Category 2), and the latest year's
+  // expenses. "None recorded" when there is no real figure.
   const expensesLatest = latestExpenses?.total_spend != null && Number(latestExpenses.total_spend) > 0 ? Number(latestExpenses.total_spend) : null;
-  const headline: Array<{ label: string; value: string | null; note: string; fold: string; shown: boolean }> = [
-    { label: 'Votes attended', value: activity?.attendance_pct != null && (activity.divisions_total ?? 0) > 0 ? `${Math.round(Number(activity.attendance_pct))} per cent` : null, note: 'this Parliament', fold: 'voting', shown: has.voting },
-    { label: 'Registered interests', value: interests.length > 0 ? interests.length.toLocaleString('en-GB') : null, note: 'current entries', fold: 'interests', shown: has.interests },
-    { label: 'Donations', value: donationsThisParliament > 0 ? fmtMoney(donationsThisParliament) : null, note: 'this Parliament', fold: 'donations', shown: has.donations },
-    { label: 'Expenses', value: expensesLatest != null ? fmtMoney(expensesLatest) : null, note: latestExpenses ? fmtExpenseYear(latestExpenses.year) : 'latest full year', fold: 'expenses', shown: has.expenses },
+  const headline: Array<{ label: string; value: string | null; fold: string; shown: boolean }> = [
+    { label: 'Votes attended since July 2024', value: activity?.attendance_pct != null && (activity.divisions_total ?? 0) > 0 ? `${Math.round(Number(activity.attendance_pct))} per cent` : null, fold: 'voting', shown: has.voting },
+    { label: 'Registered interests (current)', value: interests.length > 0 ? interests.length.toLocaleString('en-GB') : null, fold: 'interests', shown: has.interests },
+    { label: 'Donations (current register)', value: declaredDonations.entryCount > 0 ? fmtMoney(declaredDonations.total) : null, fold: 'donations', shown: has.donations },
+    { label: expensesLatest != null ? `Expenses ${fmtExpenseYear(latestExpenses!.year)}` : 'Expenses', value: expensesLatest != null ? fmtMoney(expensesLatest) : null, fold: 'expenses', shown: has.expenses },
   ];
   // A second tap on the same figure leaves the address as it was, so tell the folds again.
   const goToFold = (fold: string) => { if (window.location.hash === `#section-${fold}`) window.dispatchEvent(new HashChangeEvent('hashchange')); };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-px mp-sections-grid" style={{ marginTop: '-80px' }}>
-      {lazyRecords && (
+      {phoneHeadline && (
         <div className="mp-headline" aria-label="Headline figures">
           {headline.map((h) => {
             const inner = (
               <>
                 <span className="mp-headline-label">{h.label}</span>
                 <span className={h.value == null ? 'mp-headline-none' : 'mp-headline-value'}>{h.value ?? 'None recorded'}</span>
-                {h.value != null && <span className="mp-headline-note">{h.note}</span>}
               </>
             );
             return h.shown
@@ -2820,7 +2768,7 @@ export default function MagazineProfileSections({
           .mp-sections-nav button[data-section] { display: none !important; }
           .mp-sections-nav { border-bottom: none !important; }
           .mp-headline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
-          .mp-headline-tile { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 84px; padding: 8px 10px; box-sizing: border-box; border: 1px solid rgba(20,16,13,0.35); color: #14100d; text-decoration: none; font-size: 15px; line-height: 1.25; }
+          .mp-headline-tile { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 84px; padding: 8px 10px; box-sizing: border-box; border: 1px solid rgba(20,16,13,0.35); color: #14100d; text-decoration: none; font-size: 15px; line-height: 1.25; }
           a.mp-headline-tile::after { display: none; }
           .mp-headline-label { font-weight: bold; }
           .mp-headline-value { font-size: 20px; font-weight: bold; color: #7a1612; }
