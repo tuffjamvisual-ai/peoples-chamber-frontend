@@ -4,8 +4,9 @@
   opengovt evidence archive backfill (owner's brief, 3 Nov 2026), nightly at 22:47 local time, like the weekly backup
   (uk.opengovt.weekly-backup). Runs scripts/evidence-archive.mjs for at most 300 minutes, working backwards a month at
   a time from 3 Oct 2026: committee publications down to 1 Jan 1995, Contracts Finder down to 1 Feb 2015. Progress is
-  kept in /Volumes/GoliathSSD/opengovt-evidence-archive/backfill-state.json and the run logs to backfill.log there.
-  If the SSD is not mounted the script prints "skipped: SSD not mounted" (to the launchd log below) and exits cleanly;
+  kept in /Volumes/EDGE_SSD/opengovt-evidence-archive/backfill-state.json and the run logs to backfill.log there (moved
+  from GoliathSSD on 4 Nov 2026; OPENGOVT_ARCHIVE_ROOT below sets the drive, and GoliathSSD gets a weekly copy from
+  opengovt.archive-backup). If the SSD is not mounted the script prints "skipped: SSD not mounted" (to the launchd log below) and exits cleanly;
   once both sources are complete it logs "nothing to do" and exits; another run in progress (archive.lock) is skipped.
   Install: cp scripts/launchd/opengovt.evidence-backfill.plist ~/Library/LaunchAgents/ &&
            launchctl load ~/Library/LaunchAgents/opengovt.evidence-backfill.plist
@@ -28,6 +29,11 @@
     <string>--max-minutes</string>
     <string>300</string>
   </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>OPENGOVT_ARCHIVE_ROOT</key>
+    <string>/Volumes/EDGE_SSD</string>
+  </dict>
   <key>WorkingDirectory</key>
   <string>/Users/johnnybot/peoples-chamber-frontend</string>
   <key>StartCalendarInterval</key>

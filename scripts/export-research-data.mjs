@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Research data export (owner's brief, 3 Nov 2026): one CSV per dataset, a data dictionary and a README, written to
-// /Volumes/GoliathSSD/opengovt-research-data/<YYYY-MM-DD>/, each CSV also zipped. Read only on the database: every
+// <OPENGOVT_ARCHIVE_ROOT, default /Volumes/EDGE_SSD>/opengovt-research-data/<YYYY-MM-DD>/, each CSV also zipped. Read only on the database: every
 // query runs in a read only transaction (default_transaction_read_only) with a statement timeout; nothing is written to
 // the database or the site. Stops if the SSD is not mounted, and never writes into a dated folder that already has files.
 //
@@ -12,9 +12,11 @@
 // DATABASE_URL comes from .env.local and is never printed. Uses psql's \copy and the system zip (no new dependencies).
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
-const VOLUME = '/Volumes/GoliathSSD';
+// The drive that holds the research data and the evidence archive (owner, 4 Nov 2026: EDGE_SSD; GoliathSSD keeps a
+// weekly copy). One setting for both scripts.
+const VOLUME = process.env.OPENGOVT_ARCHIVE_ROOT || '/Volumes/EDGE_SSD';
 const STAMP = new Date().toISOString().slice(0, 10);
 const OUT = join(VOLUME, 'opengovt-research-data', STAMP);
 
@@ -26,8 +28,8 @@ function env(name) {
 const DATABASE_URL = env('DATABASE_URL');
 if (!DATABASE_URL) { console.error('STOP: DATABASE_URL is not set'); process.exit(2); }
 let mounted = false;
-try { mounted = statSync(VOLUME).dev !== statSync('/Volumes').dev; } catch { mounted = false; }
-if (!mounted) { console.error('STOP: /Volumes/GoliathSSD is not mounted'); process.exit(3); }
+try { mounted = statSync(VOLUME).dev !== statSync(dirname(VOLUME)).dev; } catch { mounted = false; }
+if (!mounted) { console.error(`STOP: ${VOLUME} is not mounted`); process.exit(3); }
 if (existsSync(OUT) && readdirSync(OUT).length) { console.error(`STOP: ${OUT} already has files; nothing written`); process.exit(4); }
 mkdirSync(OUT, { recursive: true });
 

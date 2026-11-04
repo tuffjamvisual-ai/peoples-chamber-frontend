@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Weekly backup of the opengovt folders on EDGE_SSD (the evidence archive and the research data) to GoliathSSD (owner,
+  4 Nov 2026): Sundays at 14:17 local time, two hours after the database backup (uk.opengovt.weekly-backup, 12:00).
+  Runs scripts/launchd/opengovt.archive-backup.sh (rsync -a, never deletes); skips cleanly if either drive is missing.
+  Log: ~/opengovt-backup/archive-backup.log.
+  Install: cp scripts/launchd/opengovt.archive-backup.plist ~/Library/LaunchAgents/ &&
+           launchctl load ~/Library/LaunchAgents/opengovt.archive-backup.plist
+  Remove:  launchctl unload ~/Library/LaunchAgents/opengovt.archive-backup.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>opengovt.archive-backup</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/johnnybot/peoples-chamber-frontend/scripts/launchd/opengovt.archive-backup.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Weekday</key>
+    <integer>0</integer>
+    <key>Hour</key>
+    <integer>14</integer>
+    <key>Minute</key>
+    <integer>17</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/johnnybot/opengovt-backup/archive-backup.launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/johnnybot/opengovt-backup/archive-backup.launchd.err.log</string>
+  <key>RunAtLoad</key>
+  <false/>
+  <key>LowPriorityIO</key>
+  <true/>
+  <key>Nice</key>
+  <integer>10</integer>
+</dict>
+</plist>

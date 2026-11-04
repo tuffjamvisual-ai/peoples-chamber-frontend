@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // opengovt evidence archive (owner's briefs, 3 Nov 2026). Collects official publications into a local archive on the
-// GoliathSSD, outside the repo, with a manifest of every file. Sources, licences and rate limits are in
+// EDGE_SSD (OPENGOVT_ARCHIVE_ROOT, below), outside the repo, with a manifest of every file. Sources, licences and rate limits are in
 // scripts/evidence-archive-sources.json. No database access, no site code.
 //
 //   node scripts/evidence-archive.mjs --source <name[,name]|all> [--days 30] [--limit N] [--max-minutes M]
@@ -33,7 +33,7 @@
 // rate; a 403, 429 or bot challenge is logged, waited out as the source's rule says (Contracts Finder: 5 minutes on
 // 403; otherwise Retry-After, or 60 seconds), retried once, and then that source stops for this run. Nothing is ever
 // got round.
-// Safety: if /Volumes/GoliathSSD is not mounted the run prints "skipped: SSD not mounted" and exits cleanly, writing
+// Safety: if the drive (OPENGOVT_ARCHIVE_ROOT, /Volumes/EDGE_SSD unless set) is not mounted the run prints "skipped: SSD not mounted" and exits cleanly, writing
 // nothing. Only one run at a time: <root>/archive.lock is held for the run; a run that finds it logs "skipped: another
 // run in progress" and exits; a lock older than 12 hours is treated as stale and removed.
 // Files: <root>/<source>/<yyyy>/<mm>/<id>.<ext>. Never overwritten: the same id fetched again with a different sha256
@@ -45,7 +45,9 @@ import { promises as fs, existsSync, readFileSync, writeFileSync, appendFileSync
 import { dirname, join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const VOLUME = '/Volumes/GoliathSSD';
+// The drive that holds the archive and the research data (owner, 4 Nov 2026: moved from GoliathSSD to EDGE_SSD, with a
+// weekly copy back to GoliathSSD by scripts/launchd/opengovt.archive-backup.sh). One setting for both scripts.
+const VOLUME = process.env.OPENGOVT_ARCHIVE_ROOT || '/Volumes/EDGE_SSD';
 const ROOT = `${VOLUME}/opengovt-evidence-archive`;
 const UA = 'opengovt-evidence-archive/0.1 (+https://opengovt.uk; contact@opengovt.uk)';
 const SOURCES = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'evidence-archive-sources.json'), 'utf8'));
@@ -87,7 +89,7 @@ if (!BACKFILL && !(DAYS > 0)) usage();
 
 // The volume must really be mounted (not just an empty folder under /Volumes).
 function ssdMounted() {
-  try { return statSync(VOLUME).dev !== statSync('/Volumes').dev; } catch { return false; }
+  try { return statSync(VOLUME).dev !== statSync(dirname(VOLUME)).dev; } catch { return false; }
 }
 if (!ssdMounted()) { console.log(`${new Date().toISOString()} skipped: SSD not mounted`); process.exit(0); }
 mkdirSync(join(ROOT, 'state'), { recursive: true });

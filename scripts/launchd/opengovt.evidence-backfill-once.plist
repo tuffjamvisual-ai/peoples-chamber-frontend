@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  opengovt evidence archive backfill, one daytime run (owner, 4 Nov 2026): the same work as the nightly job
+  (opengovt.evidence-backfill), started as soon as it is loaded and once only, for at most 900 minutes so it ends before
+  the nightly run at 22:47. It resumes from /Volumes/EDGE_SSD/opengovt-evidence-archive/backfill-state.json. If the
+  nightly run starts while this one holds archive.lock, the nightly run logs "skipped: another run in progress".
+  Start:  cp scripts/launchd/opengovt.evidence-backfill-once.plist ~/Library/LaunchAgents/ &&
+          launchctl load ~/Library/LaunchAgents/opengovt.evidence-backfill-once.plist
+  Remove after it has finished (or it runs again after the next restart):
+          launchctl unload ~/Library/LaunchAgents/opengovt.evidence-backfill-once.plist &&
+          rm ~/Library/LaunchAgents/opengovt.evidence-backfill-once.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>opengovt.evidence-backfill-once</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/node</string>
+    <string>/Users/johnnybot/peoples-chamber-frontend/scripts/evidence-archive.mjs</string>
+    <string>--source</string>
+    <string>committees,contracts_finder</string>
+    <string>--from</string>
+    <string>committees=1995-01-01,contracts_finder=2015-02-01</string>
+    <string>--to</string>
+    <string>2026-10-03</string>
+    <string>--max-minutes</string>
+    <string>900</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>OPENGOVT_ARCHIVE_ROOT</key>
+    <string>/Volumes/EDGE_SSD</string>
+  </dict>
+  <key>WorkingDirectory</key>
+  <string>/Users/johnnybot/peoples-chamber-frontend</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>LaunchOnlyOnce</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/johnnybot/opengovt-backup/evidence-backfill-once.launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/johnnybot/opengovt-backup/evidence-backfill-once.launchd.err.log</string>
+  <key>LowPriorityIO</key>
+  <true/>
+  <key>Nice</key>
+  <integer>10</integer>
+</dict>
+</plist>
