@@ -12,6 +12,11 @@ import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
+// Party history (owner, 4 Nov 2026): party_history was only written when an MP's row was first created
+// (app/api/sync-mp-roster), so a defection reached mps.party but not the history on the MP's page: 12 of 650 current MPs
+// were wrong. It is now replaced from the Biography endpoint's partyAffiliations whenever they differ, never with an empty
+// list.
+//
 // Live replacement for sync-parlparse-posts (whose mySociety source froze in
 // mid-January 2026). Pulls each current member's government_posts /
 // opposition_posts / committee_memberships from the UK Parliament Members API
@@ -62,7 +67,13 @@ function normPost(p: Record<string, unknown>): Post {
   };
 }
 
-async function fetchBiography(memberId: number, budget: SyncBudget): Promise<{ gov: Post[]; opp: Post[]; cmte: Post[] } | { error: string }> {
+// Same parties and dates, whatever the order or the time of day in the stored dates.
+function samePartyHistory(stored: Post[] | null, fresh: Post[]): boolean {
+  const key = (list: Post[]) => JSON.stringify(list.map((p) => [p.name, (p.startDate ?? '').slice(0, 10), (p.endDate ?? '').slice(0, 10)]).sort());
+  return key(stored ?? []) === key(fresh);
+}
+
+async function fetchBiography(memberId: number, budget: SyncBudget): Promise<{ gov: Post[]; opp: Post[]; cmte: Post[]; party: Post[] } | { error: string }> {
   try {
     const res = await politeFetch(`${MEMBERS_API}/${memberId}/Biography`, {
       headers: { 'User-Agent': 'PeoplesChamber/1.0 (bio-sync)', Accept: 'application/json' },
@@ -70,7 +81,7 @@ async function fetchBiography(memberId: number, budget: SyncBudget): Promise<{ g
     if (!res.ok) return { error: `Members API ${res.status}` };
     const v = ((await res.json())?.value ?? {}) as Record<string, unknown>;
     const arr = (k: string) => ((v[k] as Record<string, unknown>[]) || []).map(normPost).filter((p) => p.id != null);
-    return { gov: arr('governmentPosts'), opp: arr('oppositionPosts'), cmte: arr('committeeMemberships') };
+    return { gov: arr('governmentPosts'), opp: arr('oppositionPosts'), cmte: arr('committeeMemberships'), party: arr('partyAffiliations') };
   } catch (e) {
     if (isPoliteStop(e)) throw e;
     return { error: (e as Error).message || 'no answer' };
@@ -153,6 +164,7 @@ async function GET_impl(req: Request) {
   let processed = 0;
   let updated = 0;
   let seatsUpdated = 0;
+  const partyChanged: number[] = [];
   let apiMisses = 0;
   let timedOut = false;
   let stoppedBy: string | null = null;
@@ -180,7 +192,7 @@ async function GET_impl(req: Request) {
 
       const { data: rowArr } = await supabase
         .from('mp_biography')
-        .select('government_posts, opposition_posts, committee_memberships, representations')
+        .select('government_posts, opposition_posts, committee_memberships, representations, party_history')
         .eq('member_id', memberId)
         .limit(1);
       const row = rowArr?.[0];
@@ -197,7 +209,9 @@ async function GET_impl(req: Request) {
         && !seats.some((s) => ov.has(s.id))
         && !((row.representations as { id: number }[] | null) || []).some((s) => ov.has(s.id))
         && !sameRepresentations(row.representations, seats);
-      if (!g.changed && !o.changed && !m.changed && !seatsChanged) return;
+      const partyDiffers = bio.party.length > 0 && !samePartyHistory(row.party_history as Post[] | null, bio.party);
+      if (partyDiffers) partyChanged.push(memberId);
+      if (!g.changed && !o.changed && !m.changed && !seatsChanged && !partyDiffers) return;
       changedMps.add(memberId);
       if (dry) return;
 
@@ -210,6 +224,7 @@ async function GET_impl(req: Request) {
           opposition_posts: o.merged,
           committee_memberships: m.merged,
           ...(seatsChanged ? { representations: seats } : {}),
+          ...(partyDiffers ? { party_history: bio.party } : {}),
         })
         .eq('member_id', memberId);
       if (!upErr) {
@@ -250,6 +265,7 @@ async function GET_impl(req: Request) {
     processed,
     updated,
     seats_updated: seatsUpdated,
+    party_history_changed: partyChanged,
     mps_changed: changedMps.size,
     mp_refresh: mpRefresh,
     ...(dry ? { dry_run: true } : {}),
