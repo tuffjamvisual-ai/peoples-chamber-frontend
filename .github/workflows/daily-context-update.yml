@@ -97,6 +97,14 @@ jobs:
         id: registered-interests
         run: node scripts/sync-registered-interests.js --write
         continue-on-error: true
+      # Every peer's register, current and former (owner, 4 Nov 2026): about 2,800 peers, half a second apart. It stops on
+      # HTTP 429 or 403 without retrying (exit 2, shown as a failed step); the next night starts with the peers checked
+      # longest ago, so a stopped run still rotates through everyone.
+      - name: Refresh every peer's register of interests (Members API, powers the register section on /lords/[id])
+        id: peer-interests
+        timeout-minutes: 60
+        run: node scripts/sync-peer-interests.js --write
+        continue-on-error: true
       - name: Recompute outside-earnings summary (depends on mp_registered_interests)
         id: outside-earnings
         env:

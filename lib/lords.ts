@@ -15,6 +15,12 @@ export type PeerListRow = Pick<Peer, 'member_id' | 'name_display' | 'name_list_a
 export type LordsVote = { division_id: number; vote: string; division_date: string | null; title: string | null; bill_id: number | null; is_government_win: boolean | null };
 export type LordsVoting = { divisions: number; voted: number; content: number; notContent: number; firstDivision: string | null; recent: LordsVote[] };
 
+export type PeerInterest = {
+  interest_id: number; category_id: number; category_name: string; category_sort_order: number | null; interest_text: string;
+  child_interests: { id?: number; interest?: string | null }[] | null;
+};
+export type PeerInterestCategory = { id: number; name: string; entries: PeerInterest[] };
+
 export const lordsDivisionUrl = (id: number) => `https://votes.parliament.uk/Votes/Lords/Division/${id}`;
 
 export async function getPeer(db: SupabaseClient, memberId: number): Promise<Peer | null> {
@@ -23,6 +29,23 @@ export async function getPeer(db: SupabaseClient, memberId: number): Promise<Pee
     .eq('member_id', memberId).maybeSingle();
   if (error) throw new Error(`peer ${memberId}: ${error.message}`);
   return (data as Peer | null) ?? null;
+}
+
+// A peer's entries on the register of interests now (peer_registered_interests, scripts/sync-peer-interests.js), grouped
+// by category in the register's order.
+export async function peerInterests(db: SupabaseClient, memberId: number): Promise<PeerInterestCategory[]> {
+  const { data, error } = await db.from('peer_registered_interests')
+    .select('interest_id, category_id, category_name, category_sort_order, interest_text, child_interests')
+    .eq('member_id', memberId).eq('is_current', true)
+    .order('category_sort_order', { ascending: true }).order('interest_id', { ascending: true }).range(0, 1999);
+  if (error) throw new Error(`peer interests: ${error.message}`);
+  const groups = new Map<number, PeerInterestCategory>();
+  for (const row of (data ?? []) as PeerInterest[]) {
+    const group = groups.get(row.category_id) ?? { id: row.category_id, name: row.category_name, entries: [] };
+    group.entries.push(row);
+    groups.set(row.category_id, group);
+  }
+  return [...groups.values()];
 }
 
 // Every current peer (816 on 3 Nov 2026), in Parliament's list order (surname or title).

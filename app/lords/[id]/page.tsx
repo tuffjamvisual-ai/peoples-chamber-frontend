@@ -10,14 +10,14 @@ import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
 import PhoneFolds, { type Fold } from '../../components/PhoneFolds';
 import RecordDate from '../../components/RecordDate';
 import { longDay, updatedDate } from '@/lib/record-dates';
-import { getPeer, peerVoting, lordsDivisionUrl, type Peer } from '@/lib/lords';
-import { peerHasPage, parliamentProfileUrl, type Post } from '@/lib/peers';
+import { getPeer, peerInterests, peerVoting, lordsDivisionUrl, type Peer } from '@/lib/lords';
+import { peerHasPage, parliamentProfileUrl, parliamentRegisterUrl, type Post } from '@/lib/peers';
 import { questionsSummary } from '@/lib/mp-written-questions';
 import { lookupMember } from '@/lib/former-mps';
 
 // A member of the House of Lords (owner's yes, 3 Nov 2026): name, party, type of peerage, sitting since, posts held,
-// a voting record summary with recent votes, written questions and links to the official Parliament profile. No
-// biography. Pages exist for current peers and anyone who has sat since 4 July 2024 (lib/peers.ts peerHasPage); earlier
+// a voting record summary with recent votes, the register of interests (owner, 4 Nov 2026), written questions and links
+// to the official Parliament profile. No biography. Pages exist for current peers and anyone who has sat since 4 July 2024 (lib/peers.ts peerHasPage); earlier
 // former peers go to their Parliament profile, and a member who was only ever an MP goes to /mps/[id]. A former MP now
 // in the Lords links to their Commons record, and that record links back. Cached for a day; /api/sync-peers refreshes a
 // peer's page when their stored row changes.
@@ -79,8 +79,9 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
   }
   if (!peerHasPage(p)) redirect(parliamentProfileUrl(memberId));
 
-  const [voting, questions, member] = await Promise.all([
+  const [voting, interests, questions, member] = await Promise.all([
     peerVoting(supabase, memberId).catch((e) => { console.error(`/lords/${memberId} votes:`, e instanceof Error ? e.message : e); return null; }),
+    peerInterests(supabase, memberId).catch((e) => { console.error(`/lords/${memberId} interests:`, e instanceof Error ? e.message : e); return []; }),
     questionsSummary(supabase, memberId, 'Lords').catch((e) => { console.error(`/lords/${memberId} questions:`, e instanceof Error ? e.message : e); return null; }),
     lookupMember(memberId).catch(() => null), // a former MP: link to the Commons record
   ]);
@@ -91,7 +92,10 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
   const committees = p.committee_memberships ?? [];
 
   // Under each section: the peer's own posts check; the newest sync of the Lords votes and written questions tables.
-  const [votesUpdated, questionsUpdated] = await Promise.all([updatedDate('lords_divisions', 'synced_at'), updatedDate('parliament_written_questions', 'fetched_at')]);
+  const [votesUpdated, questionsUpdated, interestsUpdated] = await Promise.all([
+    updatedDate('lords_divisions', 'synced_at'), updatedDate('parliament_written_questions', 'fetched_at'),
+    interests.length ? updatedDate('peer_registered_interests', 'last_seen_date') : null,
+  ]);
   const countOf = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-GB')} ${n === 1 ? one : many}`;
   const currentPosts = posts.filter((x) => !x.endDate).length;
   const currentCommittees = committees.filter((x) => !x.endDate).length;
@@ -118,6 +122,43 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
             </details>
           )}
           {p.posts_checked_at && <RecordDate text={`Updated ${longDay(p.posts_checked_at)}`} />}
+        </div>
+    ),
+  });
+  const interestCount = interests.reduce((n, c) => n + c.entries.length, 0);
+  if (interestCount > 0) folds.push({
+    id: 'interests',
+    label: 'Register of interests',
+    summary: countOf(interestCount, 'entry', 'entries'),
+    node: (
+        <div style={{ color: INK }}>
+          <h2 id="peer-interests" style={h2}>Register of interests</h2>
+          {!p.is_current && p.end_date && (
+            <p style={{ fontSize: '15px', margin: '0 0 8px' }}>Last published by Parliament. This member left the House of Lords on {fmt(p.end_date)}.</p>
+          )}
+          {interests.map((c) => (
+            <section key={c.id} style={{ marginBottom: '12px' }}>
+              <h3 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '12px 0 4px' }}>{c.name}</h3>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
+                {c.entries.map((e) => (
+                  <li key={e.interest_id} style={{ padding: '6px 0', borderBottom: divider, overflowWrap: 'anywhere' }}>
+                    <div style={{ whiteSpace: 'pre-wrap' }}>{e.interest_text}</div>
+                    {(e.child_interests ?? []).length > 0 && (
+                      <ul style={{ listStyle: 'none', padding: 0, margin: '6px 0 0 12px', borderLeft: '2px solid rgba(20,16,13,0.15)' }}>
+                        {(e.child_interests ?? []).map((k, i) => (
+                          <li key={k.id ?? i} style={{ padding: '4px 0 4px 12px', whiteSpace: 'pre-wrap' }}>{k.interest || ''}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+          <p style={{ fontSize: '15px', margin: '8px 0 0' }}>
+            <a href={parliamentRegisterUrl(memberId)} target="_blank" rel="noopener noreferrer" style={link}>Official register of interests</a>
+          </p>
+          {interestsUpdated && <RecordDate text={`Updated ${interestsUpdated}`} />}
         </div>
     ),
   });

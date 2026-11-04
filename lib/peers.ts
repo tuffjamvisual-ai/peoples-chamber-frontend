@@ -15,6 +15,7 @@ const TAKE = 20; // the most Members/Search returns a page
 export const PAGES_FROM = '2024-07-04';
 export const peerHasPage = (p: { is_current: boolean; end_date: string | null }) => p.is_current || (!!p.end_date && p.end_date >= PAGES_FROM);
 export const parliamentProfileUrl = (id: number) => `https://members.parliament.uk/member/${id}/career`;
+export const parliamentRegisterUrl = (id: number) => `https://members.parliament.uk/member/${id}/registeredinterests`;
 
 type ApiMember = {
   id: number; nameListAs?: string; nameDisplayAs?: string; nameFullTitle?: string; gender?: string; thumbnailUrl?: string;
