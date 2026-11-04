@@ -1,6 +1,7 @@
 // Closed bills check (owner, 4 Nov 2026): runs the real POST handler of /api/vote against a stand in database, so no vote
 // or last seen time is written anywhere. It records each write the handler tries to make.
 //   npx tsx scripts/checks/vote-closed-check.cjs
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const Module = require('module');
 
 let world;
@@ -38,6 +39,7 @@ const stubs = {
 const load = Module._load;
 Module._load = function (request, ...rest) { return stubs[request] ?? load.call(this, request, ...rest); };
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { POST } = require('../../app/api/vote/route.ts');
 const open = { id: 9, hidden_reason: null, is_act: false, bill_withdrawn: null, is_defeated: false, vote_count_yes: 0, vote_count_no: 0, vote_count_abstain: 0 };
 const CASES = [
