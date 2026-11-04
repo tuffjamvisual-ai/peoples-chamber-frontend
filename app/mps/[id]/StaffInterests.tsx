@@ -88,8 +88,8 @@ export default function StaffInterests({ items, headingStyle }: { items: StaffIn
       </ul>
       <p style={{ fontSize: '15px', color: INK, lineHeight: 1.55, margin: '12px 0 0' }}>
         Source:{' '}
-        <a href={`https://interests-api.parliament.uk/api/v2/Registers/${registerId}/document`} target="_blank" rel="noopener noreferrer" style={link}>
-          House of Commons register of interests of MPs&rsquo; staff
+        <a href="https://members.parliament.uk/members/commonsstaff/interests/publications" target="_blank" rel="noopener noreferrer" style={link}>
+          Register of Interests of Members&rsquo; Staff (UK Parliament)
         </a>
         {registerDate ? `, published ${new Date(`${registerDate.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}` : ''}.
       </p>

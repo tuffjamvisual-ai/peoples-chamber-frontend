@@ -36,7 +36,7 @@ export const maxDuration = 300;
 // requests in flight finish and are saved), and each MP's change comparison and upsert are unchanged. The response
 // adds concurrency and duration_s. The schedule stays once a day: Vercel Pro includes no function time (usage is
 // billed on demand against the monthly credit), so more runs were left for the owner to decide.
-// 2 Nov 2026 (owner): a second daily run at 13:04 UTC (13:03 is sync-committee-memberships). One run reaches about
+// 2 Nov 2026 (owner): a second daily run, at 13:52 UTC since 4 Nov (it was 13:04, a minute after sync-committee-memberships). One run reaches about
 // 154 of 650 MPs, so once a day took over 4 days per full pass and left MPs overdue against the 3 day cycle.
 // An MP the API returns no contributions for (the 7 Sinn Fein MPs, who do not take their seats, have no rows) is
 // already counted in no_items and as up to date, not overdue (see syncMp).
