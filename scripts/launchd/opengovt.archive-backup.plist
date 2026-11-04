@@ -3,7 +3,7 @@
 <!--
   Weekly backup of the opengovt folders on EDGE_SSD (the evidence archive and the research data) to GoliathSSD (owner,
   4 Nov 2026): Sundays at 14:17 local time, two hours after the database backup (uk.opengovt.weekly-backup, 12:00).
-  Runs scripts/launchd/opengovt.archive-backup.sh (rsync -a, never deletes); skips cleanly if either drive is missing.
+  Runs scripts/launchd/opengovt.archive-backup.sh (a Node copy, never deletes); skips cleanly if either drive is missing.
   Log: ~/opengovt-backup/archive-backup.log.
   Install: cp scripts/launchd/opengovt.archive-backup.plist ~/Library/LaunchAgents/ &&
            launchctl load ~/Library/LaunchAgents/opengovt.archive-backup.plist
