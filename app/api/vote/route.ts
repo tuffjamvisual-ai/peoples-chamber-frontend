@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     // A bill that does not exist, or is hidden, gets 404 and nothing is recorded.
     const { data: target, error: targetErr } = await supabase
       .from('bill')
-      .select('id, hidden_reason')
+      .select('id, hidden_reason, is_act, bill_withdrawn, is_defeated')
       .eq('id', billId)
       .maybeSingle();
     if (targetErr) {
@@ -155,6 +155,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // A first vote on a closed bill is refused too (owner, 4 Nov 2026), on the same checks as public.change_bill_vote:
+    // an Act, withdrawn or defeated. Votes already cast stay as they are.
+    if (target.is_act || target.bill_withdrawn != null || target.is_defeated) {
+      return NextResponse.json({ error: 'Voting has closed on this bill', closed: true }, { status: 400 });
+    }
+
     // Insert vote. vote.created_at has no default, so the time is sent (25 Oct 2026, report 58): before this, bill
     // votes were stored with no date. A changed vote keeps its first time; change_bill_vote does not set it.
     const { error: voteError } = await supabase

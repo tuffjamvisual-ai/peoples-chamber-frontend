@@ -43,16 +43,12 @@ export default function BillVotingClient({ billId, closed: closedAtRender = fals
   }, [user, billId])
 
   async function handleVote(choice: Choice) {
-    if (authLoading) return
+    if (authLoading || closed) return
     if (!user) {
       router.push(`/login?mode=signup&returnTo=${encodeURIComponent(window.location.pathname)}`)
       return
     }
     if (voting) return
-    if (closed) {
-      setNotice('Voting has closed on this bill.')
-      if (userVote) return
-    }
     // Marking the box already marked changes nothing.
     if (userVote === choice) {
       setNotice(`Your vote is already ${LABEL[choice]}.`)
@@ -102,8 +98,8 @@ export default function BillVotingClient({ billId, closed: closedAtRender = fals
 
   return (
     <div style={{ maxWidth: '440px', margin: '0 auto' }}>
-      <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} disabled={voting || (closed && hasVoted)} onClick={() => handleVote('yes')} />
-      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} disabled={voting || (closed && hasVoted)} onClick={() => handleVote('no')} last />
+      <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} disabled={voting || closed} onClick={() => handleVote('yes')} />
+      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} disabled={voting || closed} onClick={() => handleVote('no')} last />
 
       <div role="status" style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.06em', color: INK_SOFT }}>
         {status}

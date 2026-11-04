@@ -156,6 +156,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   // The Commons divisions matched to this bill (mp_division_votes.bill_id), linked in the page (owner, 31 Oct 2026).
   const billVotes = await billDivisions(billId)
 
+  const votingClosed = bill.is_act === true || bill.bill_withdrawn != null || bill.is_defeated === true
   const commonsDivisionDate = bill.commons_vote_date
     ? new Date(bill.commons_vote_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
     : null
@@ -427,13 +428,15 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 'bold', margin: '10px 0 0', lineHeight: 1.15 }}>
               How would you vote on this bill?
             </h2>
-            <div style={{ fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', letterSpacing: '0.04em', color: INK_SOFT, marginTop: '8px' }}>
-              Mark one box with a cross.
-            </div>
+            {!votingClosed && (
+              <div style={{ fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', letterSpacing: '0.04em', color: INK_SOFT, marginTop: '8px' }}>
+                Mark one box with a cross.
+              </div>
+            )}
           </div>
 
           {/* Closed bills (an Act, withdrawn or defeated) take no vote changes (report 53). */}
-          <BillVotingClient billId={billId} closed={bill.is_act === true || bill.bill_withdrawn != null || bill.is_defeated === true} />
+          <BillVotingClient billId={billId} closed={votingClosed} />
 
           {/* The count so far */}
           <div style={{ borderTop: `1px solid ${INK}`, marginTop: '24px', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
