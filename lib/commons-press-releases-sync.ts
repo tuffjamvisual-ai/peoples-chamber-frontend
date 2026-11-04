@@ -12,6 +12,9 @@
 //     already handled, so the next run carries on from there and no publication is handled twice in one pass;
 //   - returns partial: true (HTTP 200) when the budget stopped it, and fails (5xx) on a real error: a database
 //     error, an error answer from the API, or no page answering at all.
+// 4 Nov 2026 (owner): 20 s was shorter than a cold answer, and three pages given up on at 20 s each filled the budget, so
+// a run could end with no page read (HTTP 504). Each request now gets 45 s, in a 100 s budget and a 120 s function limit,
+// so the first page's cold answer is waited for and the pages after it answer at once.
 
 import { ItemFailures } from '@/lib/sync-item-failures';
 import { revalidatePath, noteChanged } from '@/lib/refresh-count';
@@ -22,8 +25,8 @@ export const COMMITTEES_API = 'https://committees-api.parliament.uk/api/Publicat
 export const CURSOR_ROUTE = '/api/sync-commons-press-releases';
 const PAGE_SIZE = 20;
 const PAGES = 3;                          // the newest 60 publications, as before
-export const BUDGET_MS = 50_000;          // the function's limit is 60 s (maxDuration); keep 10 s in hand
-export const API_TIMEOUT_MS = 20_000;     // per request (b96ae20, report 43)
+export const BUDGET_MS = 100_000;         // the function's limit is 120 s (maxDuration); keep 20 s in hand
+export const API_TIMEOUT_MS = 45_000;     // per request: long enough for a cold answer (see below)
 const MIN_REQUEST_MS = 3_000;             // do not start a request with less time than this left
 const WRITE_RESERVE_MS = 3_000;           // kept back for the page's database writes and the cursor
 const CURSOR_MAX_AGE_MS = 24 * 60 * 60 * 1000; // an older saved position is dropped and a new pass started

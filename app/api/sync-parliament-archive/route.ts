@@ -26,7 +26,8 @@
 // The cursor (parliament_archive_sync_state.cursor) is the current date and position in it, saved with every batch of
 // rows, so a run that stops part way loses nothing. Rows are upserted by primary key, so a batch read twice is never
 // duplicated. When a source reaches today it sets finished_at; from then on speeches and questions top up only the last
-// 3 days, at most once every TOP_UP_EVERY_MS, so a run every 10 minutes does not reread the same days each time.
+// 3 days, at most once every TOP_UP_EVERY_MS, so a run every 10 minutes does not reread the same days each time (the
+// questions top up keeps its place across runs: QCursor below).
 // While the questions backfill is unfinished, the debates backfill takes 60 per cent of a run's remaining time.
 //
 // Saves go in batches of ITEM_BATCH rows (owner, 30 Oct 2026): a whole debate in one upsert (up to 2,002 items) hit the
@@ -604,6 +605,9 @@ async function runMonthly(run: Run) {
 // ---------- questions ----------
 
 type QCursor = { date: string; skip?: number; ids?: number[]; next?: number };
+// The questions top up (owner, 4 Nov 2026) keeps its place in cursor.top_up: three days can hold over 1,000 questions and a
+// run reads about 300, so starting again from the oldest day each time never reached the newest (3 Nov was missed). A top
+// up in progress carries on at the next run, every 10 minutes, and top_up is removed when it finishes.
 type WQ = { id: number; uin: string; house: string; dateTabled: string | null; dateAnswered: string | null; askingMemberId: number | null; answeringMemberId: number | null; answeringBodyId: number | null; answeringBodyName: string | null; heading: string | null; questionText: string | null; answerText: string | null; isWithdrawn: boolean | null };
 const PAGE = 100;
 // Questions: the copy with the latest date_answered, or else the last one seen.
@@ -611,12 +615,14 @@ const laterAnswer = (a: Record<string, unknown>, b: Record<string, unknown>) => 
 
 // onlyMissing (local tests only, ?missing_only=1): ids already stored are not fetched again (owner, 3 Nov 2026: the
 // recovery of questions skipped before the fix, scripts/recover-written-question-days.js).
-async function runQuestions(run: Run, s: State, from: string, until: string, topUp: boolean, onlyMissing = false) {
+async function runQuestions(run: Run, s: State, from: string, until: string, topUp: boolean, onlyMissing = false, keepPlace = false) {
   const base = run.rows;
-  let cur: QCursor = (!topUp && s.cursor && typeof s.cursor.date === 'string') ? (s.cursor as QCursor) : { date: from };
-  if (cur.date < from) cur = { date: from };
+  const savedTopUp = keepPlace ? (s.cursor?.top_up as QCursor | undefined) : undefined;
+  let cur: QCursor = (!topUp && s.cursor && typeof s.cursor.date === 'string') ? (s.cursor as QCursor) : (savedTopUp ?? { date: from });
+  if (!savedTopUp && cur.date < from) cur = { date: from };
   const rowsDone = () => (s.rows_done ?? 0) + run.rows - base;
-  const save = async () => { await run.saveState({ ...s, cursor: topUp ? s.cursor : cur, rows_done: rowsDone(), last_error: null }); };
+  const cursorNow = () => (keepPlace ? { ...(s.cursor ?? {}), top_up: cur } : topUp ? s.cursor : cur);
+  const save = async () => { await run.saveState({ ...s, cursor: cursorNow(), rows_done: rowsDone(), last_error: null }); };
   // Questions read but not yet written. The cursor moves past each question as it is read, so whenever a run stops
   // (time budget), times out or is refused, these are written before the cursor is saved (owner, 3 Nov 2026: before,
   // up to 19 questions were skipped at each stop). If that write fails, the cursor is not saved and they are read again.
@@ -649,21 +655,22 @@ async function runQuestions(run: Run, s: State, from: string, until: string, top
           fetched_at: new Date().toISOString(),
         });
         cur.next = (cur.next ?? 0) + 1;
-        if (batch.length >= 20) { await flush(); if (!topUp) await save(); }
+        if (batch.length >= 20) { await flush(); if (!topUp || keepPlace) await save(); }
       }
       await flush();
       const total = (cur as QCursor & { total?: number }).total ?? 0;
       const nextSkip = (cur.skip ?? 0) + PAGE;
       cur = nextSkip < total ? { date: cur.date, skip: nextSkip } : { date: addDays(cur.date, 1) };
-      if (!topUp) await save();
+      if (!topUp || keepPlace) await save();
     }
-    await run.saveState({ ...s, cursor: topUp ? s.cursor : { date: until }, rows_done: rowsDone(), last_error: null, finished_at: topUp ? s.finished_at : (s.finished_at ?? new Date().toISOString()) });
+    const withoutTopUp = () => { const rest = { ...(s.cursor ?? {}) }; delete rest.top_up; return rest; };
+    await run.saveState({ ...s, cursor: keepPlace ? withoutTopUp() : topUp ? s.cursor : { date: until }, rows_done: rowsDone(), last_error: null, finished_at: topUp ? s.finished_at : (s.finished_at ?? new Date().toISOString()) });
     return 'done';
   } catch (e) {
     // A stop, a timeout (SourceRefused) or a refusal: the questions already read are written first, then the cursor.
     if (e instanceof StopRun || e instanceof SourceRefused) await flush();
     if (e instanceof StopRun) { await save(); return 'partial'; }
-    if (e instanceof SourceRefused) { await run.saveState({ ...s, cursor: topUp ? s.cursor : cur, rows_done: rowsDone(), last_error: `${e.message} at ${new Date().toISOString()}` }); return 'refused'; }
+    if (e instanceof SourceRefused) { await run.saveState({ ...s, cursor: cursorNow(), rows_done: rowsDone(), last_error: `${e.message} at ${new Date().toISOString()}` }); return 'refused'; }
     throw e;
   }
 }
@@ -749,9 +756,9 @@ async function GET_impl(req: Request) {
     const sp = await run.state('speeches');
     if (sp.finished_at && run.timeLeft() > RESERVE_MS * 2) {
       const q = await run.state('questions');
-      const qTopUpDue = due(q, TOP_UP_EVERY_MS);
+      const qTopUpDue = !!q.cursor?.top_up || due(q, TOP_UP_EVERY_MS);
       if (!q.finished_at) results.questions = await runQuestions(run, q, START, today, false);
-      else if (qTopUpDue) results.questions = await runQuestions(run, q, addDays(today, -TOP_UP_DAYS), today, true);
+      else if (qTopUpDue) results.questions = await runQuestions(run, q, addDays(today, -TOP_UP_DAYS), today, true, false, true);
     }
     // The debates counters, text changes and checks, on the latest saved debates state.
     await run.saveState(await run.state('debates'), false);

@@ -107,6 +107,7 @@ export default function MpDossier({
           .pca-mp-bio h1 { font-size: 24px !important; margin: 0 !important; }
           .pca-mp-party { order: 2; }
           .pca-mp-constituency { order: 3; margin: 0 !important; }
+          .mp-back-link { min-height: 44px; }
         }
       `}</style>
 
@@ -119,7 +120,7 @@ export default function MpDossier({
       <BackLink
         fallbackHref={backHref}
         label="← Back"
-        className="no-hover-scale"
+        className="no-hover-scale mp-back-link"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-9%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
 

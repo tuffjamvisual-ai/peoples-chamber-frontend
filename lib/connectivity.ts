@@ -11,7 +11,7 @@
 
 import zlib from 'zlib';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
+import { politeFetch, isPoliteStop, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 
 const UA = { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)' };
 const OFCOM = 'https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/';
@@ -44,7 +44,11 @@ export async function findLatestRelease(now = new Date(), seen: PageSeen[] = [])
       res = await politeFetch(page, { headers: UA });
     } catch (e) {
       seen.push({ url: page, status: (e as Error).message });
-      throw e;
+      // A 429 stops the run cleanly. Any other failure on one page is passed over (owner, 4 Nov 2026: the run of 1 Nov
+      // failed with no trace, and most of these pages are old): if the release is on none of the others, the check below
+      // still fails the run.
+      if (isPoliteStop(e)) throw e;
+      continue;
     }
     seen.push({ url: page, status: res.status });
     if (!res.ok) continue;
@@ -56,7 +60,7 @@ export async function findLatestRelease(now = new Date(), seen: PageSeen[] = [])
     }
   }
   const months = [...fixed.keys()].sort();
-  if (months.length === 0) throw new Error(`No Ofcom fixed broadband download links found (pages read: ${pages.length})`);
+  if (months.length === 0) throw new Error(`No Ofcom fixed broadband download links found (pages read: ${pages.length}): ${seen.map((p) => `${p.url} ${p.status}`).join('; ')}`);
   const latest = months[months.length - 1];
   return { month: `${latest.slice(0, 4)}-${latest.slice(4, 6)}-01`, fixedUrl: fixed.get(latest)!, mobileUrl: mobile.get(latest) ?? null, pages };
 }

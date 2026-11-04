@@ -10,6 +10,7 @@ import type { CycleState } from '@/lib/sync-heartbeat';
 import vercelConfig from '../../../vercel.json';
 import { loadCursor } from '@/lib/sync-budget';
 import { SPAD_MANUAL_CHECKS_ROUTE } from '@/lib/spad-background-sync';
+import { annualReportStillUnread } from '@/lib/spad-background';
 import { FAILURES_PREFIX, FLAG_AFTER_RUNS, type ItemFailure } from '@/lib/sync-item-failures';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -269,7 +270,8 @@ async function GET_impl(req: Request) {
   // Special adviser interests printed in annual reports are read by hand: /api/sync-spad-roster saves a warning when a
   // department has a newer report than the one read (owner, 28 Oct 2026). A warning line, not a failed source.
   const spadChecks = await loadCursor<{ warnings: string[] }>(supabaseAdmin, SPAD_MANUAL_CHECKS_ROUTE, 30 * 86400_000).catch(() => null);
-  for (const w of spadChecks?.warnings ?? []) {
+  // A warning saved before the report was read (ANNUAL_REPORTS is updated when it is) no longer counts.
+  for (const w of (spadChecks?.warnings ?? []).filter(annualReportStillUnread)) {
     emailAlerts.push({ label: 'Special adviser interests (read by hand)', page: '/transparency/special-advisers', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null, reason: `warning: ${w}` });
   }
   // Items failing in a queue sync (lib/sync-item-failures.ts): one line each.

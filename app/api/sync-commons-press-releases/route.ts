@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { runCommonsPressReleasesSync } from '@/lib/commons-press-releases-sync';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 // House of Commons committee "press releases". GOV.UK's press-release feed
 // (sync-press-releases) only carries ministerial-department releases; it does
@@ -21,8 +21,8 @@ export const maxDuration = 60;
 // committee. Rows are distinguished from GOV.UK rows by the parliament.uk
 // domain in gov_url, which also drives per-source retention. Added 2026-07-10.
 //
-// The work is in lib/commons-press-releases-sync.ts (26 Oct 2026, report 79): pages of 20, a 20 s limit per request,
-// a 50 s budget, and a saved position so a run stopped by the budget is carried on by the next one.
+// The work is in lib/commons-press-releases-sync.ts (26 Oct 2026, report 79): pages of 20, a 45 s limit per request,
+// a 100 s budget, and a saved position so a run stopped by the budget is carried on by the next one.
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;

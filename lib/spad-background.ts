@@ -121,6 +121,15 @@ export const ANNUAL_REPORTS: { department: string; org: string; title: RegExp; c
 ];
 
 // "2025 to 2026" is later than "2024 to 2025"; null (never read) is earlier than any.
+// A saved "newer report" warning still holds only while its department's checked period is older than the report's: once
+// the report is read and ANNUAL_REPORTS updated, the warning drops at once rather than at the next weekly check.
+export function annualReportStillUnread(warning: string): boolean {
+  const m = warning.match(/^([^:]+): "([^"]+)"/);
+  const department = m && ANNUAL_REPORTS.find((d) => d.department === m[1]);
+  const period = m?.[2].match(/20\d\d\s*(?:to|-|–)\s*(?:20)?\d\d/)?.[0];
+  return department && period ? laterPeriod(period, department.checked) : true;
+}
+
 export function laterPeriod(a: string, b: string | null): boolean {
   const y = (s: string) => Number(s.match(/(20\d\d)\D+(20)?\d\d$/)?.[1] ?? s.match(/20\d\d/)?.[0] ?? 0);
   return b == null || y(a) > y(b);

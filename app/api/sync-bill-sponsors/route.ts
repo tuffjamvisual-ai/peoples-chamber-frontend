@@ -37,6 +37,12 @@ const RUN_CAP = 1500; // bills read from the queue per run; the time budget usua
 // 28 Oct 2026 (owner): a bill that fails FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts) has its
 // sponsors_synced_at moved on (the back of the queue); the run carries on, returns 200 with partial: true, and the
 // freshness email names the bill and its error.
+// 4 Nov 2026 (owner): a full pass. The queue is its own cursor across runs: bills are read stalest first and stamped as
+// each is read, so the next run carries on where this one stopped. No bill gets more than PER_BILL_MS, so one that hangs
+// (bill 3032, Parliament bill 618) costs seconds, and bills that failed last time go after the rest of the queue.
+// SLOW_STOP_AFTER timeouts in a row means the API itself is slow: the run stops, as for the time budget.
+const PER_BILL_MS = 8_000;
+const SLOW_STOP_AFTER = 5;
 const PARLIAMENT_API = 'https://bills-api.parliament.uk/api/v1/Bills';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -69,7 +75,7 @@ class BillNotFoundError extends Error {
 }
 
 async function fetchSponsors(parliamentId: number, budget: SyncBudget): Promise<Fetched> {
-  const res = await politeFetch(`${PARLIAMENT_API}/${parliamentId}`, {}, { budget, timeoutMs: 20_000 });
+  const res = await politeFetch(`${PARLIAMENT_API}/${parliamentId}`, {}, { budget, timeoutMs: PER_BILL_MS });
   if (res.status === 404) throw new BillNotFoundError(parliamentId);
   if (!res.ok) throw new Error(`Bills API ${res.status}`);
   const j = (await res.json()) as ApiBill;
@@ -129,7 +135,9 @@ async function GET_impl(req: Request) {
 
   const failing = await ItemFailures.load(supabase, '/api/sync-bill-sponsors');
   // Flagged bills still due go after the others.
-  const targets = [...(rows || []).filter((r) => !failing.isFlagged(r.id)), ...(rows || []).filter((r) => failing.isFlagged(r.id))];
+  // Bills that failed last time go after the others.
+  const targets = [...(rows || []).filter((r) => !failing.hasFailed(r.id)), ...(rows || []).filter((r) => failing.hasFailed(r.id))];
+  let timeoutsInARow = 0;
   let ok = 0,
     fail = 0,
     notFound = 0,
@@ -161,6 +169,7 @@ async function GET_impl(req: Request) {
         if (error) throw error;
       }
       ok++;
+      timeoutsInARow = 0;
       failing.succeeded(row.id);
     } catch (err) {
       if (isPoliteStop(err)) { stoppedBy = (err as Error).message; skippedForTime = targets.length - i; break; }
@@ -174,6 +183,10 @@ async function GET_impl(req: Request) {
       }
       const detail = (err as Error).message;
       if (failures.length < 20) failures.push({ id: row.id, detail });
+      if ((err as Error).name === 'TimeoutError' || /timeout|aborted/i.test(detail)) {
+        timeoutsInARow++;
+        if (timeoutsInARow >= SLOW_STOP_AFTER) { failing.failed(row.id, `bill ${row.id} (Parliament bill ${row.parliament_id})`, detail); stoppedBy = `${SLOW_STOP_AFTER} bills timed out in a row`; skippedForTime = targets.length - i - 1; fail++; break; }
+      } else timeoutsInARow = 0;
       if (failing.failed(row.id, `bill ${row.id} (Parliament bill ${row.parliament_id})`, detail)) {
         // Failed FLAG_AFTER_RUNS runs in a row: to the back of the queue; it does not fail the run.
         const { error: touchErr } = await supabase.from('bill').update({ sponsors_synced_at: new Date().toISOString() }).eq('id', row.id);
@@ -207,6 +220,8 @@ async function GET_impl(req: Request) {
     stores_refresh: storesRefresh,
     changed_bills: changed.size,
     refreshed,
+    // A run from a local server cannot refresh the live site: it lists what scripts/revalidate.js should refresh.
+    ...(process.env.VERCEL_ENV !== 'production' ? { changed_bill_ids: [...changed], changed_member_ids: [...changedSponsors] } : {}),
     ...(dry ? { dry_run: true, would_refresh: { bills: changed.size, mps: changedSponsors.size } } : {}),
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
