@@ -1,7 +1,8 @@
 // Staff with outside interests (owner's brief, 3 Nov 2026): the entries in the House of Commons register of interests
-// of MPs' staff that name this MP, from mp_staff_interests (app/api/sync-staff-interests, lib/staff-interests.js).
+// of MPs' staff that name this MP, from mp_staff_interests (scripts/sync-staff-register.js).
 // Shown on the Interests tab. Each line: job title · type · organisation · dates. Never a staff name (the register
-// has none since January 2026); a councillor role is stored as "Councillor" with the council, never the ward.
+// has none since January 2026); a councillor role is stored as "Councillor" with the council, never the ward. The
+// opening line counts them (owner, 4 Nov 2026); the register's date is in the source line at the foot.
 
 export type StaffInterest = {
   id: number;
@@ -14,6 +15,7 @@ export type StaffInterest = {
   country: string | null;
   start_date: string | null;
   end_date: string | null;
+  staff_identifier: string | null;
 };
 
 const INK = '#14100d';
@@ -56,12 +58,21 @@ export default function StaffInterests({ items, headingStyle }: { items: StaffIn
   const registerId = Math.max(...items.map((i) => i.register_id));
   const registerDate = items.find((i) => i.register_id === registerId)?.register_date ?? null;
   const link: React.CSSProperties = { color: INK, textDecoration: 'underline' };
+  const employedStaff = new Set(items.filter((i) => i.category === 'employment').map((i) => i.staff_identifier)).size;
+  const gifts = items.filter((i) => i.category === 'gift').length;
+  const visits = items.filter((i) => i.category === 'visit').length;
+  const counts = [
+    employedStaff > 0 && `${employedStaff} ${employedStaff === 1 ? 'staff member' : 'staff'} with outside employment`,
+    gifts > 0 && `${gifts} ${gifts === 1 ? 'gift' : 'gifts'} registered`,
+    visits > 0 && `${visits} overseas ${visits === 1 ? 'visit' : 'visits'}`,
+  ].filter(Boolean).join(', ');
   return (
     <section style={{ marginTop: '28px', color: INK }}>
       <h3 style={{ fontSize: '18px', fontWeight: 'bold', ...headingStyle, marginTop: 0, marginBottom: '8px', color: INK }}>
         Staff with outside interests <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({items.length})</span>
         {/* (n) counts lines: an entry naming two MPs shows once on each MP's page. */}
       </h3>
+      <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '8px' }}>{counts}.</p>
       <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '12px' }}>
         Jobs, gifts and visits abroad declared by people working for this MP, as published in the House of Commons register of interests of MPs&rsquo; staff. Staff are shown by job title only.
       </p>

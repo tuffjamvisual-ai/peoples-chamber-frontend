@@ -153,10 +153,6 @@
       "schedule": "47 14 * * 1"
     },
     {
-      "path": "/api/sync-staff-interests",
-      "schedule": "19 14 * * 2"
-    },
-    {
       "path": "/api/sync-spad-transparency",
       "schedule": "3 15 * * 1"
     },

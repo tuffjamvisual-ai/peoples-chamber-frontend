@@ -105,6 +105,15 @@ jobs:
         timeout-minutes: 60
         run: node scripts/sync-peer-interests.js --write
         continue-on-error: true
+      # Tuesdays. The only writer of mp_staff_interests; one request when no new edition is out. Stops on HTTP 429 or 403.
+      - name: Staff register (interests API, new editions of the Commons register of MPs' staff)
+        id: staff-register
+        timeout-minutes: 30
+        run: |
+          if [ "$(date -u +%u)" = "2" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            node scripts/sync-staff-register.js --write
+          fi
+        continue-on-error: true
       - name: Recompute outside-earnings summary (depends on mp_registered_interests)
         id: outside-earnings
         env:

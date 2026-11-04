@@ -388,8 +388,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const pStaffInterests = Promise.resolve(
     supabase
       .from('mp_staff_interests')
-      .select('id, register_id, register_date, category, job_title, description, organisation, country, start_date, end_date')
+      .select('id, register_id, register_date, category, job_title, description, organisation, country, start_date, end_date, staff_identifier')
       .eq('member_id', memberId)
+      .eq('is_current', true)
       .limit(200),
   );
   const pConduct = Promise.resolve(
