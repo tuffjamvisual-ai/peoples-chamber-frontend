@@ -22,6 +22,23 @@ const button: React.CSSProperties = {
 const text: React.CSSProperties = { fontFamily: MONO, fontSize: '16px', lineHeight: 1.6, color: INK, margin: '0 0 10px', maxWidth: '46em' };
 const link: React.CSSProperties = { color: INK, textDecoration: 'underline' };
 
+// Which wording shows at which width (owner, 4 Nov 2026). Kept here, in the banner's own HTML, as well as in
+// globals.css, so the banner can never show both wordings at once: on 4 Nov the live stylesheet lacked these rules and
+// every visitor saw both labels in each button and "View cookies" twice. Wide screens: the two paragraphs, the long
+// button labels and the "View cookies" link beside the buttons. Under 480px: one sentence ending in an inline "View
+// cookies" link, and "Accept analytics" and "Reject analytics" side by side, each on one line and 44px tall.
+const BANNER_CSS = `
+.og-cookie-banner .og-cb-short, .og-cookie-banner .og-cb-narrow { display: none; }
+@media (max-width: 479px) {
+  .og-cookie-banner { padding: 8px 12px !important; }
+  .og-cookie-banner h2 { font-size: 16px !important; line-height: 1.25 !important; margin-bottom: 4px !important; }
+  .og-cookie-banner .og-cb-long, .og-cookie-banner .og-cb-wide, .og-cookie-banner .og-cb-link { display: none !important; }
+  .og-cookie-banner .og-cb-short { display: block; font-size: 15px !important; line-height: 1.35 !important; margin-bottom: 8px !important; }
+  .og-cookie-banner .og-cb-narrow { display: inline; }
+  .og-cookie-banner .og-cb-actions { gap: 8px !important; margin-top: 0 !important; flex-wrap: nowrap !important; }
+  .og-cookie-banner .og-cb-btn { flex: 1 1 0; min-width: 0; min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 0 6px !important; }
+}`;
+
 export default function CookieBanner() {
   const [state, setState] = useState<State>('initial');
   const confirmRef = useRef<HTMLDivElement>(null);
@@ -59,6 +76,7 @@ export default function CookieBanner() {
       aria-label="Cookies on opengovt"
       style={{ background: PAPER, borderBottom: `2px solid ${INK}`, padding: '16px', boxSizing: 'border-box', width: '100%' }}
     >
+      <style>{BANNER_CSS}</style>
       <div style={{ maxWidth: '1144px', margin: '0 auto' }}>
         {state === 'accepted' || state === 'rejected' ? (
           <div ref={confirmRef} tabIndex={-1} style={{ outline: 'none' }}>
