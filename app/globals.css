@@ -157,19 +157,21 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .og-cookie-banner { position: relative; z-index: 50; }
 
 /* ---- Phones under 480px (owner, 3 Nov 2026; GOV.UK Design System approach). Nothing here applies from 480px up. ----
-   Cookie banner: still in the page flow at the very top (never fixed or sticky), the message in one sentence, the two
-   buttons and "View cookies", each at least 44px tall. The floating scroll arrow is hidden. Every link, button and
+   Cookie banner (owner, 4 Nov 2026): still in the page flow at the very top (never fixed or sticky); the heading, one
+   15px sentence ending in the "View cookies" link, and two equal buttons side by side, "Accept analytics" and "Reject
+   analytics", each on one line and 44px tall, with tighter padding (160px or less in all at 360px and 375px wide). The
+   floating scroll arrow is hidden. Every link, button and
    summary gets a tap area at least 44px tall: an invisible layer over it (::after), so no text moves; form controls,
    which cannot carry one, are made 44px tall. */
-.og-cb-short { display: none; }
+.og-cb-short, .og-cb-narrow { display: none; }
 @media (max-width: 479px) {
-  .og-cookie-banner { padding: 12px !important; }
-  .og-cookie-banner h2 { font-size: 18px !important; margin-bottom: 6px !important; }
-  .og-cb-long { display: none; }
-  .og-cb-short { display: block; margin-bottom: 8px !important; }
-  .og-cb-actions { gap: 8px !important; margin-top: 0 !important; }
-  .og-cb-btn { min-height: 44px; flex: 1 1 140px; text-align: center !important; padding: 6px 10px !important; }
-  .og-cb-link { display: inline-flex; align-items: center; min-height: 44px; }
+  .og-cookie-banner { padding: 8px 12px !important; }
+  .og-cookie-banner h2 { font-size: 16px !important; line-height: 1.25 !important; margin-bottom: 4px !important; }
+  .og-cb-long, .og-cb-wide, .og-cb-link { display: none !important; }
+  .og-cb-short { display: block; font-size: 15px !important; line-height: 1.35 !important; margin-bottom: 8px !important; }
+  .og-cb-narrow { display: inline; }
+  .og-cb-actions { gap: 8px !important; margin-top: 0 !important; flex-wrap: nowrap !important; }
+  .og-cb-btn { flex: 1 1 0; min-width: 0; min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 0 6px !important; }
   .og-scroll-arrow { display: none !important; }
 
   .ng-page a, .ng-page button, .ng-page summary, .og-cookie-banner a { position: relative; }

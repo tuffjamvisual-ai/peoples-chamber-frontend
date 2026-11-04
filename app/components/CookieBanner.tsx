@@ -77,14 +77,18 @@ export default function CookieBanner() {
             </h2>
             <p className="og-cb-long" style={text}>We use some essential cookies to make this site work.</p>
             <p className="og-cb-long" style={text}>We&rsquo;d like to set additional cookies to understand how you use opengovt, so we can improve it.</p>
-            {/* Phones under 480px (owner, 3 Nov 2026): the same message in one sentence (globals.css shows one or the other). */}
-            <p className="og-cb-short" style={text}>We use essential cookies to make this site work, and we&rsquo;d like to set additional cookies to understand how you use it.</p>
+            {/* Phones under 480px (owner, 4 Nov 2026): one sentence ending in the "View cookies" link, and shorter button
+                labels (globals.css shows one wording or the other; wider screens keep theirs). */}
+            <p className="og-cb-short" style={text}>
+              We use essential cookies to run the site, and we&rsquo;d like analytics cookies to see how it&rsquo;s used.{' '}
+              <Link href="/cookies" className="focus-ring og-cb-inline" style={link}>View cookies</Link>
+            </p>
             <div className="og-cb-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginTop: '6px' }}>
               <button type="button" className="focus-ring og-cb-btn" style={button} onClick={() => choose(true)}>
-                Accept analytics cookies
+                <span className="og-cb-wide">Accept additional cookies</span><span className="og-cb-narrow">Accept analytics</span>
               </button>
               <button type="button" className="focus-ring og-cb-btn" style={button} onClick={() => choose(false)}>
-                Reject analytics cookies
+                <span className="og-cb-wide">Reject additional cookies</span><span className="og-cb-narrow">Reject analytics</span>
               </button>
               <Link href="/cookies" className="focus-ring og-cb-link" style={{ ...link, fontFamily: MONO, fontSize: '16px' }}>View cookies</Link>
             </div>
