@@ -43,6 +43,9 @@ export class ItemFailures {
   /** Failed in an earlier run and has not succeeded since. */
   hasFailed(key: string | number): boolean { return String(key) in this.items; }
 
+  /** Every item that failed in an earlier run and has not succeeded since. */
+  keys(): string[] { return Object.keys(this.items); }
+
   isFlagged(key: string | number): boolean {
     return (this.items[String(key)]?.runs ?? 0) >= FLAG_AFTER_RUNS;
   }

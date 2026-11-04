@@ -38,9 +38,9 @@ export type EvidencePanelProps = {
 // const DEFAULT_AI =
 //   'Researched and drafted with AI tools; every figure is verified against the named public records above before publication.';
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({ label, first = false, children }: { label: string; first?: boolean; children: React.ReactNode }) {
   return (
-    <div className="ev-row" style={{ padding: '7px 0', borderTop: `1px solid ${HAIRLINE}` }}>
+    <div className="ev-row" style={{ padding: '7px 0', borderTop: first ? 'none' : `1px solid ${HAIRLINE}` }}>
       <div style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: ACCENT }}>{label}</div>
       <div style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK }}>{children}</div>
     </div>
@@ -56,9 +56,12 @@ export default function EvidencePanel({
   sourcesShownAbove = false,
   // aiDisclosure = DEFAULT_AI, // temporarily not rendered — see note above
 }: EvidencePanelProps) {
+  const showRecords = !!recordsReviewed?.length && !sourcesShownAbove;
+  // With nothing recorded about the checks, only the corrections line shows, without the heading (owner, 4 Nov 2026).
+  const hasChecks = showRecords || !!contacted || !!response || !!lastChecked;
   return (
     <aside
-      aria-label="How this piece was checked"
+      aria-label={hasChecks ? 'How this piece was checked' : 'Corrections'}
       style={{ marginTop: '44px', padding: '18px 20px 8px', border: `1px solid ${HAIRLINE}`, borderTop: `3px solid ${ACCENT}`, background: 'rgba(107,36,23,0.03)' }}
     >
       {/* Label beside the text on wider screens; stacked above it on phones, where a 150px
@@ -67,18 +70,20 @@ export default function EvidencePanel({
         .ev-row { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 8px 16px; }
         @media (max-width: 600px) { .ev-row { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
       `}</style>
-      <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, margin: '0 0 6px' }}>
-        How this piece was checked
-      </p>
-      {recordsReviewed && recordsReviewed.length > 0 && !sourcesShownAbove && (
+      {hasChecks && (
+        <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, margin: '0 0 6px' }}>
+          How this piece was checked
+        </p>
+      )}
+      {showRecords && (
         <Row label="Records reviewed">
-          <SourcesList records={recordsReviewed} />
+          <SourcesList records={recordsReviewed!} />
         </Row>
       )}
       {contacted && <Row label="Contacted">{contacted}</Row>}
       {response && <Row label="Response">{response}</Row>}
       {lastChecked && <Row label="Facts last checked">{formatLastChecked(lastChecked)}</Row>}
-      <Row label="Corrections">
+      <Row label="Corrections" first={!hasChecks}>
         Spotted an error? <a href={`mailto:${correctionsEmail}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{correctionsEmail}</a>. Corrections are logged.
       </Row>
       {/* AI-use row temporarily removed from rendering (pending a disclosure decision):

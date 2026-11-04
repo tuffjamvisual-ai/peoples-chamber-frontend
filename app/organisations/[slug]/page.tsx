@@ -13,7 +13,7 @@ import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
 import { cleanDept, quarterLabel } from '@/lib/lobbying';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
-  getOrganisation, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
+  getOrganisation, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
   findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote,
 } from '@/lib/organisations';
 
@@ -48,7 +48,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
   const { slug } = await params;
   const org = await getOrganisation(slug);
   if (!org) notFound();
-  const [donations, contracts, grants, registry, heldBack] = await Promise.all([
+  const [donations, contracts, grants, registry, heldBack, alsoSee] = await Promise.all([
     org.donations ? getOrgDonations(org, LATEST) : Promise.resolve([]),
     org.contracts + org.framework_places ? getOrgContracts(org.company_number, LATEST) : Promise.resolve([]),
     org.grants ? getOrgGrants(org, LATEST) : Promise.resolve([]),
@@ -58,6 +58,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
       console.error(`/organisations/${org.slug} held back contracts:`, e instanceof Error ? e.message : String(e));
       return 0;
     }) : Promise.resolve(0),
+    getOrgAlsoSee(org),
   ]);
   const typeLabel = org.org_type ? ORG_TYPE_LABEL[org.org_type as OrgType] : 'Company';
 
@@ -87,6 +88,10 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
           {org.name_variants && org.name_variants.length > 0 && (<>
             <dt style={{ fontWeight: 'bold' }}>Also recorded as</dt>
             <dd style={{ margin: 0, overflowWrap: 'anywhere' }}>{org.name_variants.map((v) => `“${v}”`).join(', ')}</dd>
+          </>)}
+          {alsoSee && (<>
+            <dt style={{ fontWeight: 'bold' }}>Also see</dt>
+            <dd style={{ margin: 0, overflowWrap: 'anywhere' }}><Link href={`/organisations/${alsoSee.slug}`} style={{ color: ACCENT }}>{alsoSee.name}</Link></dd>
           </>)}
           {org.kind === 'registry' && (<>
             <dt style={{ fontWeight: 'bold' }}>Lobbying</dt>

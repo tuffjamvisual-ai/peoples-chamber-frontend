@@ -206,6 +206,24 @@ export async function getOrgRegistryRecords(org: OrgIndexRow): Promise<{ meeting
   return { meetings, lobbying };
 }
 
+// "Also see" (owner, 4 Nov 2026; scripts/link-organisations.js): the page at the other end of a checked link between a
+// registry page and a company page. The two stay separate pages with separate records. No link, no line; a failed read
+// shows none rather than failing the page.
+export async function getOrgAlsoSee(org: Pick<OrgIndexRow, 'kind' | 'slug' | 'lobby_org_id' | 'company_number'>): Promise<{ slug: string; name: string } | null> {
+  const link = org.kind === 'registry' ? (org.lobby_org_id ? { lobby_org_id: org.lobby_org_id } : null) : org.company_number ? { company_number: org.company_number } : null;
+  if (!link) return null;
+  const { data, error } = await supabase.from('organisation_links').select('lobby_org_id, company_number').match(link).maybeSingle();
+  if (error) {
+    if (error.code !== 'PGRST205') console.error(`/organisations/${org.slug} also see: ${error.message}`); // PGRST205: table not created yet
+    return null;
+  }
+  if (!data) return null;
+  const other = org.kind === 'registry' ? { column: 'company_number', value: data.company_number } : { column: 'lobby_org_id', value: data.lobby_org_id };
+  const { data: page, error: pageErr } = await supabase.from('organisation_index').select('slug, kind, name, company_number').eq(other.column, other.value).neq('kind', org.kind).maybeSingle();
+  if (pageErr || !page) return null;
+  return { slug: page.slug, name: corrected(page as Pick<OrgIndexRow, 'kind' | 'company_number' | 'name'> & { slug: string }).name };
+}
+
 export const companiesHouseUrl = (n: string) => `https://find-and-update.company-information.service.gov.uk/company/${encodeURIComponent(n)}`;
 export const grantNavUrl = (identifier: string) => `https://grantnav.threesixtygiving.org/grant/${encodeURIComponent(identifier)}`;
 export const findTenderUrl = (ocid: string) => `https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(ocid)}`;

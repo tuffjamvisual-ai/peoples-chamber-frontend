@@ -5,16 +5,16 @@ import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { refreshBills, sponsorOf, sameJson } from '@/lib/bill-refresh';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
+import { SyncBudget, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-// Refreshes bill.sponsors from Parliament's Bills API. Each daily run
-// refreshes bills whose sponsors_synced_at is null (new bills) or older than
-// 30 days (the printed Bill sponsor/supporter list rarely changes after first
-// reading), stalest first, inside a time budget.
+// Refreshes bill.sponsors from Parliament's Bills API. Since 4 Nov 2026 (owner) a run reads only: new bills
+// (sponsors_synced_at is null); bills whose lastUpdate at Parliament is newer than this sync's last finished run (the
+// list sorted by date updated, newest first, stopping at the first older bill); and bills that failed last time. A full
+// pass over every bill starts each Sunday (UTC) as the safety net and carries on, stalest first, until it is done.
 //
 // Output shape stored on bill.sponsors:
 //   { items: [ { name, party, memberId, memberFrom, sortOrder, isMember, organisation } ] }
@@ -29,7 +29,7 @@ export const maxDuration = 300;
 const RUN_CAP = 1500; // bills read from the queue per run; the time budget usually stops it first
 // Time-budgeted (21 Oct 2026): 1,500 bills one at a time at about 1.5 s each could never finish in 300 s, so both
 // weekly runs timed out. No new bill starts after TIME_BUDGET_MS; each is saved as it is read, and the stalest go
-// first, so the next run carries on. About 160 bills a run, daily: the whole list well inside 30 days.
+// first, so the next run carries on. About 160 bills a run: Sunday's extra runs (vercel.json) cover the whole list.
 // 27 Oct 2026 (job 79): it timed out once (19 Oct) and ran to 241 s with the stores refresh still to come. The budget
 // is now lib/sync-budget.ts: no bill starts after 70 per cent of maxDuration, each request's timeout is cut to the time
 // left so the run ends by 80 per cent, a 429 stops it cleanly (the bill is not stamped, so it is first next run), and
@@ -44,6 +44,15 @@ const RUN_CAP = 1500; // bills read from the queue per run; the time budget usua
 const PER_BILL_MS = 8_000;
 const SLOW_STOP_AFTER = 5;
 const PARLIAMENT_API = 'https://bills-api.parliament.uk/api/v1/Bills';
+// sync_cursor rows. SINCE: when the last finished run started. FULL: the weekly pass, open or last started.
+const SINCE_CURSOR = 'bill-sponsors:since';
+const FULL_CURSOR = 'bill-sponsors:full';
+const CURSOR_MAX_AGE_MS = 90 * 86_400_000;
+// lastUpdate has no time zone: this much overlap means a bill is read twice at worst, never missed, in summer time too.
+const LAST_UPDATE_OVERLAP_MS = 2 * 60 * 60 * 1000;
+const LIST_PAGE = 100;
+const BILL_COLS = 'id, parliament_id, sponsors_synced_at, sponsors, bill_type_id, sponsor_departments, sponsor_member_id';
+type FullPass = { startedAt?: string | null; lastStartedDay?: string; lastCompleteAt?: string };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 type ApiMember = { name?: string; party?: string; memberId?: number; memberFrom?: string };
@@ -102,6 +111,23 @@ async function fetchSponsors(parliamentId: number, budget: SyncBudget): Promise<
   return { items, billTypeId: typeof j.billTypeId === 'number' ? j.billTypeId : null, departments };
 }
 
+// Parliament's ids of the bills updated since `since`: the list newest first, stopping at the first older bill.
+async function billsUpdatedSince(since: number, budget: SyncBudget): Promise<{ ids: number[]; read: number }> {
+  const ids: number[] = [];
+  for (let skip = 0; ; skip += LIST_PAGE) {
+    const res = await politeFetch(`${PARLIAMENT_API}?SortOrder=DateUpdatedDescending&Skip=${skip}&Take=${LIST_PAGE}`, {}, { budget, timeoutMs: 30_000 });
+    if (!res.ok) throw new Error(`Bills API list ${res.status}`);
+    const j = (await res.json()) as { items?: { billId: number; lastUpdate: string }[]; totalResults?: number };
+    const items = j.items ?? [];
+    for (const b of items) {
+      if (Date.parse(`${b.lastUpdate.replace(/Z$/, '')}Z`) < since) return { ids, read: skip + items.indexOf(b) + 1 };
+      ids.push(b.billId);
+    }
+    if (items.length < LIST_PAGE) return { ids, read: skip + items.length };
+    await sleep(120);
+  }
+}
+
 async function GET_impl(req: Request) {
   const started = Date.now();
   const budget = new SyncBudget(maxDuration);
@@ -121,22 +147,68 @@ async function GET_impl(req: Request) {
   const supabase = createClient(url, key);
   const dry = process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('dry') === '1';
 
-  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: rows, error: selErr } = await supabase
-    .from('bill')
-    .select('id, parliament_id, sponsors_synced_at, sponsors, bill_type_id, sponsor_departments, sponsor_member_id')
-    .not('parliament_id', 'is', null)
-    // Hidden bills (bill.hidden_reason) have no page and are not refreshed (24 Oct 2026).
-    .is('hidden_reason', null)
-    .or(`sponsors_synced_at.is.null,sponsors_synced_at.lt.${cutoff}`)
-    .order('sponsors_synced_at', { ascending: true, nullsFirst: true })
-    .limit(RUN_CAP);
-  if (selErr) return NextResponse.json({ error: selErr.message }, { status: 500 });
+  const search = new URL(req.url).searchParams;
+  const runStartedAt = new Date(started).toISOString();
+  const today = runStartedAt.slice(0, 10);
+  // ?sunday=1 tries a Sunday in a local dry run.
+  const isSunday = new Date(started).getUTCDay() === 0 || (dry && search.get('sunday') === '1');
 
+  // The last finished run; the first run under these rules uses the last good run in the heartbeat.
+  let sinceIso = (await loadCursor<{ at: string }>(supabase, SINCE_CURSOR, CURSOR_MAX_AGE_MS))?.at ?? null;
+  if (!sinceIso) {
+    const { data: beat, error: beatErr } = await supabase.from('sync_heartbeat').select('last_ran_at, last_status').eq('route', '/api/sync-bill-sponsors').maybeSingle();
+    if (beatErr) return NextResponse.json({ error: beatErr.message }, { status: 500 });
+    if (beat?.last_status === 200) sinceIso = beat.last_ran_at as string;
+  }
+
+  const full = (await loadCursor<FullPass>(supabase, FULL_CURSOR, CURSOR_MAX_AGE_MS)) ?? {};
+  const passStart = full.startedAt ?? (isSunday && full.lastStartedDay !== today ? runStartedAt : null);
+
+  const pick = () => supabase.from('bill').select(BILL_COLS).not('parliament_id', 'is', null).is('hidden_reason', null); // hidden bills have no page
+  type BillRow = { id: number; parliament_id: number; sponsors_synced_at: string | null; sponsors: unknown; bill_type_id: number | null; sponsor_departments: unknown; sponsor_member_id: number | null };
+  const targets: BillRow[] = [];
+  const seen = new Set<number>();
+  const add = (rows: unknown) => { for (const r of (rows ?? []) as BillRow[]) if (!seen.has(r.id)) { seen.add(r.id); targets.push(r); } };
+
+  const { data: newBills, error: newErr } = await pick().is('sponsors_synced_at', null).limit(RUN_CAP);
+  if (newErr) return NextResponse.json({ error: newErr.message }, { status: 500 });
+  add(newBills);
+  const newCount = targets.length;
+
+  // Bills updated at Parliament since the last finished run. With no last run known, the weekly pass is the only cover.
+  let updatedAtParliament = 0, listRead = 0;
+  if (sinceIso) {
+    try {
+      const { ids, read } = await billsUpdatedSince(Date.parse(sinceIso) - LAST_UPDATE_OVERLAP_MS, budget);
+      listRead = read;
+      for (let i = 0; i < ids.length; i += 200) {
+        const { data, error } = await pick().in('parliament_id', ids.slice(i, i + 200));
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+        add(data);
+      }
+      updatedAtParliament = targets.length - newCount;
+    } catch (err) {
+      return NextResponse.json({ error: `Bills API list: ${(err as Error).message}` }, { status: 502 });
+    }
+  }
+
+  // Bills that failed last time go after those, then the weekly pass, stalest first.
   const failing = await ItemFailures.load(supabase, '/api/sync-bill-sponsors');
-  // Flagged bills still due go after the others.
-  // Bills that failed last time go after the others.
-  const targets = [...(rows || []).filter((r) => !failing.hasFailed(r.id)), ...(rows || []).filter((r) => failing.hasFailed(r.id))];
+  const failingIds = failing.keys().map(Number).filter(Number.isFinite);
+  if (failingIds.length) {
+    const { data, error } = await pick().in('id', failingIds);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    add(data);
+  }
+  const beforePass = targets.length;
+  let passRead = 0;
+  if (passStart) {
+    const { data, error } = await pick().lt('sponsors_synced_at', passStart).order('sponsors_synced_at', { ascending: true }).limit(RUN_CAP);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    passRead = data?.length ?? 0;
+    add(data);
+  }
+  const passTargets = targets.length - beforePass;
   let timeoutsInARow = 0;
   let ok = 0,
     fail = 0,
@@ -204,8 +276,25 @@ async function GET_impl(req: Request) {
   const refreshed = changed.size > 0 && !dry ? (revalidateBillPages(), refreshBills(changed, changedSponsors)) : null;
   const failuresSaved = dry ? false : await failing.save();
 
+  // A run that got through all it had to read becomes the new starting point; a stopped one leaves it, so nothing is lost.
+  const finished = !stoppedBy;
+  if (!dry && finished) await saveCursor(supabase, SINCE_CURSOR, { at: runStartedAt });
+  // The pass is done when its queue fits in this run and the run finished; bills failing in it are retried above.
+  const passOpen = !!passStart && !(finished && passRead < RUN_CAP);
+  if (!dry && passStart) {
+    await saveCursor(supabase, FULL_CURSOR, passOpen
+      ? { ...full, startedAt: passStart, lastStartedDay: full.startedAt ? full.lastStartedDay : today }
+      : { lastStartedDay: full.startedAt ? full.lastStartedDay : today, lastCompleteAt: new Date().toISOString() });
+  }
+
   return NextResponse.json({
     targeted: targets.length,
+    new_bills: newCount,
+    updated_at_parliament: updatedAtParliament,
+    updated_since: sinceIso,
+    list_entries_read: listRead,
+    retries: beforePass - newCount - updatedAtParliament,
+    full_pass: passStart ? { started_at: passStart, bills_this_run: passTargets, open: passOpen } : null,
     rows_written: ok,
     fail,
     not_found: notFound,
@@ -215,7 +304,7 @@ async function GET_impl(req: Request) {
     failing_items: failing.summary(),
     failures_saved: failuresSaved,
     skipped_for_time: skippedForTime,
-    partial: skippedForTime > 0 || flaggedFail > 0,
+    partial: skippedForTime > 0 || flaggedFail > 0 || passOpen,
     stopped_by: stoppedBy,
     stores_refresh: storesRefresh,
     changed_bills: changed.size,

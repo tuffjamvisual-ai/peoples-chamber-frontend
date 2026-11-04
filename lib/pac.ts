@@ -289,6 +289,20 @@ export function sessionWords(session: string): string {
 }
 // One form for every document: "<title> (CP nnnn), published <d Month yyyy>".
 export const documentWords = (d: SourceDocument) => `${d.title} (${d.cp_number}), published ${dayMonthYear(d.published_on)}`;
+
+// The latest Treasury Minutes the tracker has actually used: the highest Command Paper number with at least one event
+// recorded from it. By number, not publication date: Minutes can come out of order (CP 1668, for August 2026, was
+// published two days after CP 1681, for September 2026). Progress reports do not count.
+export const latestMinutesUsed = unstable_cache(async (): Promise<SourceDocument | null> => {
+  const docs = (await allDocuments()).filter((d) => d.kind === 'treasury_minute');
+  const number = (d: SourceDocument) => Number(d.cp_number.replace(/\D/g, '')) || 0;
+  for (const d of docs.sort((a, b) => number(b) - number(a))) {
+    const { count, error } = await db().from('pac_recommendation_events').select('id', { count: 'exact', head: true }).eq('document_id', d.id);
+    if (error) throw new Error(`pac_recommendation_events: ${error.message}`);
+    if (count) return d;
+  }
+  return null;
+}, ['pac-latest-minutes-used'], { revalidate: 3600 });
 export const documentShort = (d: SourceDocument) => `${d.title} (${d.cp_number})`;
 // Official text as published, with words the PDF broke across a line put back together ("semi- permanent"); a
 // shared hyphen before and, or or to ("short- and long-term") is left as printed.
@@ -324,7 +338,6 @@ export type Wording = {
   words: (r: StatusRow) => StatusLink[];
   text: (r: StatusRow) => string;
   firstTarget: (r: StatusRow) => string;          // the first target as written
-  latestDocument: SourceDocument | null;
   documents: SourceDocument[];
 };
 
@@ -401,7 +414,6 @@ export async function wording(rows?: StatusRow[]): Promise<Wording> {
     words: (r) => words(r),
     text: (r) => words(r).map((p) => p.text).join(''),
     firstTarget: (r) => asWritten(first.get(r.recommendation_id)?.text ?? r.latest_target_text),
-    latestDocument: docs.length ? docs[docs.length - 1] : null,
     documents: docs,
   };
 }

@@ -6,7 +6,7 @@ import { departments } from '@/lib/departments';
 import BackLink from '../components/BackLink';
 import RecommendationList, { type ListRow, type ListReport } from './RecommendationList';
 import {
-  RECOMMENDATIONS_PUBLIC, allStatus, wording, bodiesFor, departmentWords, departmentSlugs, sessionWords, recPath, documentWords,
+  RECOMMENDATIONS_PUBLIC, allStatus, wording, bodiesFor, departmentWords, departmentSlugs, sessionWords, recPath, documentWords, latestMinutesUsed,
   STATUS_ORDER, STATUS_LABELS, datePart, targetPassed, BODY_NOTES,
 } from '@/lib/pac';
 
@@ -28,7 +28,7 @@ const p: React.CSSProperties = { fontSize: '16px', lineHeight: 1.75, color: INK,
 
 export default async function RecommendationsPage() {
   if (!RECOMMENDATIONS_PUBLIC) notFound();
-  const [rows, w] = await Promise.all([allStatus(), wording()]);
+  const [rows, w, latestMinutes] = await Promise.all([allStatus(), wording(), latestMinutesUsed()]);
   // The total and every box come from the same rows, so the boxes add up to the total.
   const total = rows.length;
   const totals = STATUS_ORDER.map((k) => ({ key: k, label: STATUS_LABELS[k], count: rows.filter((r) => r.status === k).length })).filter((t) => t.count > 0);
@@ -93,7 +93,7 @@ export default async function RecommendationsPage() {
           The Committee of Public Accounts examines how government spends public money and makes recommendations to departments. The government answers each recommendation in a Treasury Minute, saying whether it agrees and by when it will act, and reports on the ones still open in Treasury Minutes Progress Reports.
         </p>
         <p style={p}>
-          This tracker follows {total.toLocaleString('en-GB')} recommendations through those documents{w.latestDocument ? `, up to the ${documentWords(w.latestDocument)}` : ''}. The documents are published by HM Treasury on GOV.UK under the Open Government Licence v3.0.
+          This tracker follows {total.toLocaleString('en-GB')} recommendations through those documents{latestMinutes ? `, up to the ${documentWords(latestMinutes)}` : ''}. The documents are published by HM Treasury on GOV.UK under the Open Government Licence v3.0.
         </p>
 
         </div>
