@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { normaliseParty } from '@/lib/party-helpers'
 
@@ -17,8 +18,9 @@ import { normaliseParty } from '@/lib/party-helpers'
 // submitting goes straight to that MP's page, no intermediate list).
 // Anything else triggers /api/mps/search's name/constituency typeahead
 // instead; a partial postcode still being typed just won't happen to
-// match any MP or constituency name, so it harmlessly returns no
-// results until enough of it is typed to complete the postcode shape.
+// match any MP or constituency name, so it returns no results and the
+// box says the postcode looks incomplete until enough of it is typed to
+// complete the postcode shape (owner, 4 Nov 2026).
 
 const PAPER = '#f4e8d4'
 const INK = '#14100d'
@@ -26,6 +28,9 @@ const INK_SOFT = '#14100d'
 const ACCENT = '#7a1612'
 const SERIF = 'var(--font-special-elite), monospace'
 const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/
+const PARTIAL_POSTCODE_RE = /^[A-Z]{1,2}(\d[A-Z\d]?(\d[A-Z]?)?)?$/
+const EXAMPLE_POSTCODE = 'SW1A 0AA'
+const NOT_FOUND_MESSAGE = 'We could not find that postcode. Check it and try again.'
 
 type MpResult = {
   memberId: number
@@ -56,6 +61,8 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
     const clean = cleanPostcode(trimmed)
 
     if (trimmed.length < 2) {
+      // Clearing the results as the box empties; the fetches below set them from their answers.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPostcodeResult(null)
       setNameSuggestions([])
       setError('')
@@ -75,7 +82,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
             setNameSuggestions([])
           } else {
             setPostcodeResult(null)
-            setError(data.message || 'Lookup failed. Please try again.')
+            setError(data.error === 'notfound' ? NOT_FOUND_MESSAGE : data.message || 'Lookup failed. Please try again.')
           }
         } else {
           const res = await fetch('/api/mps/search?q=' + encodeURIComponent(trimmed))
@@ -109,7 +116,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     const trimmed = q.trim()
-    if (trimmed.length < 2) return
+    if (trimmed.length < 2) { if (trimmed) setOpen(true); return }
     const clean = cleanPostcode(trimmed)
 
     if (POSTCODE_RE.test(clean)) {
@@ -128,7 +135,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
           return
         }
         setPostcodeResult(null)
-        setError(data.message || 'Lookup failed. Please try again.')
+        setError(data.error === 'notfound' ? NOT_FOUND_MESSAGE : data.message || 'Lookup failed. Please try again.')
         setOpen(true)
       } catch {
         setError('Lookup is unavailable right now. Please try again.')
@@ -147,6 +154,9 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
     setOpen(true)
   }
 
+  const cleanNow = cleanPostcode(q.trim())
+  const incomplete = PARTIAL_POSTCODE_RE.test(cleanNow) && !POSTCODE_RE.test(cleanNow)
+
   return (
     <form
       onSubmit={submit}
@@ -163,6 +173,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
           onFocus={() => { if (postcodeResult || nameSuggestions.length > 0 || error) setOpen(true) }}
           placeholder="Postcode, MP name, or constituency"
           aria-label="Search by postcode, MP name, or constituency"
+          aria-describedby="postcode-lookup-hint"
           autoComplete="off"
           style={{ flex: '1 1 200px', minWidth: 0, fontFamily: SERIF, fontSize: '18px', color: INK, background: '#fbf4e3', border: `1px solid ${INK}`, borderRadius: 0, padding: '11px 14px', outline: 'none', letterSpacing: '0.02em' }}
         />
@@ -174,6 +185,12 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
           {loading ? 'Finding…' : 'Find my MP'}
         </button>
       </div>
+      <p id="postcode-lookup-hint" style={{ margin: '10px 0 0', fontFamily: SERIF, fontSize: '15px', lineHeight: 1.5 }}>
+        For example, {EXAMPLE_POSTCODE}. You can also type an MP&rsquo;s name or a constituency.
+      </p>
+      <p style={{ margin: '6px 0 0', fontFamily: SERIF, fontSize: '15px', lineHeight: 1.5 }}>
+        <Link href="/mps" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Browse all MPs</Link>
+      </p>
 
       {open && (
         <div
@@ -209,7 +226,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
                 <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>Searching…</li>
               )}
               {!loading && nameSuggestions.length === 0 && (
-                <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>No matches. Try a full postcode, or check the spelling.</li>
+                <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}><span role="alert">{incomplete ? `That postcode looks incomplete. Enter the full postcode, for example ${EXAMPLE_POSTCODE}.` : `No matches. Try a full postcode, for example ${EXAMPLE_POSTCODE}, or check the spelling.`}</span></li>
               )}
               {nameSuggestions.map((r) => (
                 <li key={r.memberId}>
