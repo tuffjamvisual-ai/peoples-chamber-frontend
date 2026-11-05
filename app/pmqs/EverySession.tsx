@@ -1,32 +1,41 @@
 import MoreChain from '../components/MoreChain';
 import ArchiveCredit from './ArchiveCredit';
-import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel } from '@/lib/pmqs-archive';
+import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel, type ListedSession } from '@/lib/pmqs-archive';
+import type { PmqsSet } from '@/lib/pmqs';
 
 const INK = '#14100d';
 
-// Every session in the archive, 1961 to 2024: a fold for each Prime Minister, newest first, and inside it a fold for each
-// year with 25 sessions at a time. Below it, our count against the Commons Library's. All native details, so it needs no
-// JavaScript, and the rest of /pmqs is unchanged.
-export default async function EverySession() {
-  const [sessions, totals] = await Promise.all([archiveSessions(), libraryTotals()]);
+// Every session in one list, 1961 to now (owner, 5 Nov 2026): the current sessions from the Hansard tables and the archive,
+// a fold for each Prime Minister, newest first, the newest open, and inside it a fold for each year with 25 sessions at a
+// time. Below it, our count against the Commons Library's. All native details, so it needs no JavaScript.
+export default async function EverySession({ set }: { set: PmqsSet }) {
+  const [archive, totals] = await Promise.all([archiveSessions(), libraryTotals()]);
+  const sessions: ListedSession[] = [
+    ...set.sessions.map((s) => ({ date: s.date, answeredBy: s.answeredBy.name })),
+    ...archive.map((s) => ({ date: s.date, answeredBy: answeredBy(s.date) })),
+  ].sort((x, y) => y.date.localeCompare(x.date));
   const groups = groupByPrimeMinister(sessions);
   const counted = new Map(groups.map((g) => [g.pm, g.count]));
+  // The stored note for the two Prime Ministers after the archive's cut off says they are not comparable; their count now
+  // comes from the Hansard tables, so the note says what the Library lists, as for the others, where it differs.
+  const noteFor = (pm: string, stored: string | null, library: number | null) =>
+    stored?.includes('cut-off') ? (library !== null && counted.get(pm) !== library ? `Commons Library lists ${library}` : null) : stored;
   return (
     <section aria-labelledby="pmqs-every-session" style={{ color: INK, marginBottom: '40px' }}>
       <h2 id="pmqs-every-session" style={{ fontSize: 'clamp(22px, 2.6vw, 30px)', fontWeight: 'bold', margin: '0 0 8px' }}>Every session since 1961</h2>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
-        {sessions.length.toLocaleString('en-GB')} sessions from 24 October 1961 to 22 May 2024, by Prime Minister, newest first. A session on the day the office changed hands counts for the outgoing Prime Minister.
+        {sessions.length.toLocaleString('en-GB')} sessions from 24 October 1961 to {longDateArchive(sessions[0].date)}, by Prime Minister, newest first. A session on the day the office changed hands counts for the outgoing Prime Minister.
       </p>
-      {groups.map((g) => (
-        <details key={g.pm} className="pa-fold">
+      {groups.map((g, i) => (
+        <details key={g.pm} className="pa-fold" open={i === 0}>
           <summary>{primeMinisterLabel(g.pm)}: {g.count.toLocaleString('en-GB')} {g.count === 1 ? 'session' : 'sessions'}</summary>
-          {g.years.map((y) => (
-            <details key={y.year} className="pa-fold pa-year">
+          {g.years.map((y, j) => (
+            <details key={y.year} className="pa-fold pa-year" open={i === 0 && j === 0}>
               <summary>{y.year}: {y.sessions.length} {y.sessions.length === 1 ? 'session' : 'sessions'}</summary>
               <MoreChain className="pa-list" items={y.sessions.map((s) => (
                 <li key={s.date}>
                   <a href={`/pmqs/${s.date}`}>{longDateArchive(s.date)}</a>
-                  {answeredBy(s.date) && <div>Answered by {answeredBy(s.date)}</div>}
+                  {s.answeredBy && <div>Answered by {s.answeredBy}</div>}
                 </li>
               ))} />
             </details>
@@ -49,7 +58,7 @@ export default async function EverySession() {
               <td style={{ padding: '6px', verticalAlign: 'top' }}>{t.prime_minister}</td>
               <td style={{ padding: '6px', verticalAlign: 'top', textAlign: 'right' }}>{(counted.get(t.prime_minister) ?? 0).toLocaleString('en-GB')}</td>
               <td style={{ padding: '6px', verticalAlign: 'top', textAlign: 'right' }}>{t.library_total?.toLocaleString('en-GB') ?? ''}</td>
-              <td style={{ padding: '6px', verticalAlign: 'top' }}>{t.note}</td>
+              <td style={{ padding: '6px', verticalAlign: 'top' }}>{noteFor(t.prime_minister, t.note, t.library_total)}</td>
             </tr>
           ))}
         </tbody>

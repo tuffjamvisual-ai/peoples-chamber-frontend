@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import PmqsAttendance from './PmqsAttendance';
-import SessionsArchive from './SessionsArchive';
 import EverySession from './EverySession';
 import { pmqsSet } from '@/lib/pmqs';
 
@@ -22,8 +21,7 @@ export default async function PmqsPage() {
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 24px' }}>
         Prime Minister&rsquo;s Questions
       </h1>
-      <SessionsArchive set={set} />
-      <EverySession />
+      <EverySession set={set} />
       <PmqsAttendance />
     </OpenGovShell>
   );

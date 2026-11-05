@@ -72,11 +72,12 @@ export function primeMinisterLabel(pm: string): string {
   return pm.includes('(') ? `${name} ${pm.slice(pm.indexOf('('))}` : name;
 }
 
-export type ArchiveYear = { year: string; sessions: ArchiveSession[] };
+export type ListedSession = { date: string; answeredBy: string | null };
+export type ArchiveYear = { year: string; sessions: ListedSession[] };
 export type ArchiveGroup = { pm: string; count: number; years: ArchiveYear[] };
 
-// Newest Prime Minister first; each one's sessions by year, newest first.
-export function groupByPrimeMinister(sessions: ArchiveSession[]): ArchiveGroup[] {
+// Newest Prime Minister first; each one's sessions by year, newest first. Give it the sessions newest first.
+export function groupByPrimeMinister(sessions: ListedSession[]): ArchiveGroup[] {
   const groups: ArchiveGroup[] = [];
   for (const s of sessions) {
     const pm = archivePrimeMinisterOn(s.date);
