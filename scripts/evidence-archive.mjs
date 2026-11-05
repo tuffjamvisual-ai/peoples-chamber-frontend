@@ -31,13 +31,16 @@
 //
 // Rules: the user agent below on every request, never a browser one; one request at a time, paced at each source's
 // rate; a 403, 429 or bot challenge is logged, waited out as the source's rule says (Contracts Finder: 5 minutes on
-// 403; otherwise Retry-After, or 60 seconds), retried once, and then that source stops for this run. Nothing is ever
-// got round.
+// 403; otherwise Retry-After, or 60 seconds), retried once, and then that source stops for this run. The committees
+// listing is stricter (owner, 5 Nov 2026): a 403, 429 or challenge stops the source at once, and a network timeout is
+// retried up to 3 more times, after 30, 60 and 120 seconds, before the source stops. Nothing is ever got round.
 // Safety: if the drive (OPENGOVT_ARCHIVE_ROOT, /Volumes/EDGE_SSD unless set) is not mounted the run prints "skipped: SSD not mounted" and exits cleanly, writing
 // nothing. Only one run at a time: <root>/archive.lock is held for the run; a run that finds it logs "skipped: another
 // run in progress" and exits; a lock older than 12 hours is treated as stale and removed.
 // Files: <root>/<source>/<yyyy>/<mm>/<id>.<ext>. Never overwritten: the same id fetched again with a different sha256
-// is saved as <id>.<utc timestamp>.<ext>. <root>/manifest.csv gets a row after every file (and every failure).
+// is saved as <id>.<utc timestamp to the millisecond>.<first 8 characters of the sha256>.<ext>, so two versions can never
+// share a name; if that name exists anyway, its content is the same and it counts as unchanged. Files saved earlier keep
+// their names. <root>/manifest.csv gets a row after every file (and every failure).
 // Resumable: an id already in the manifest with the same sha256 is skipped, and a document or attachment URL already
 // archived is not fetched again.
 import { createHash } from 'node:crypto';
@@ -198,8 +201,8 @@ const isChallenge = (res, body) => /text\/html/i.test(res.headers.get('content-t
   /just a moment|cf-chl|captcha|challenge-platform/i.test(body.slice(0, 5000));
 
 // One request at a time, paced; returns { res, buf } for any status other than a block (403, 429, challenge), which
-// is waited out once as the source's rule says and then stops the source.
-async function get(source, url, { accept = '*/*', maxBytes = Infinity } = {}) {
+// is waited out once as the source's rule says and then stops the source (at once, with stopOnBlock).
+async function get(source, url, { accept = '*/*', maxBytes = Infinity, stopOnBlock = false } = {}) {
   for (let attempt = 0; attempt < 2; attempt++) {
     const gap = PACE_MS[source] - (Date.now() - (lastCall[source] || 0));
     if (gap > 0) await sleep(gap);
@@ -208,7 +211,7 @@ async function get(source, url, { accept = '*/*', maxBytes = Infinity } = {}) {
     try {
       res = await fetch(url, { headers: { 'User-Agent': UA, Accept: accept }, redirect: 'follow', signal: AbortSignal.timeout(120_000) });
     } catch (e) {
-      return { res: null, buf: null, error: `network: ${e.message}` };
+      return { res: null, buf: null, error: `network: ${e.message}`, timedOut: e.name === 'TimeoutError' };
     }
     const len = Number(res.headers.get('content-length'));
     if (res.ok && Number.isFinite(len) && len > maxBytes) {
@@ -222,6 +225,10 @@ async function get(source, url, { accept = '*/*', maxBytes = Infinity } = {}) {
       return { res, buf };
     }
     const why = res.status === 200 ? 'bot challenge page' : `HTTP ${res.status}`;
+    if (stopOnBlock) {
+      log(`${source}: ${why} for ${url}; stopping this source for this run, no retry`);
+      throw new SourceStop(`${why} at ${url}`);
+    }
     if (attempt === 0) {
       const ms = waitFor(source, res.status, res);
       log(`${source}: ${why} for ${url}; waiting ${Math.round(ms / 1000)} s, then one retry`);
@@ -232,6 +239,17 @@ async function get(source, url, { accept = '*/*', maxBytes = Infinity } = {}) {
     throw new SourceStop(`${why} at ${url}`);
   }
   throw new Error('unreachable');
+}
+
+// A committees listing page: a network timeout is tried up to 3 more times, a block stops the source at once.
+const LISTING_RETRY_MS = [30_000, 60_000, 120_000];
+async function getCommitteesListing(url) {
+  for (let retry = 0; ; retry++) {
+    const out = await get('committees', url, { accept: 'application/json', stopOnBlock: true });
+    if (!out.timedOut || retry >= LISTING_RETRY_MS.length) return out;
+    log(`committees: listing timed out for ${url}; waiting ${LISTING_RETRY_MS[retry] / 1000} s, then retry ${retry + 1} of ${LISTING_RETRY_MS.length}`);
+    await sleep(LISTING_RETRY_MS[retry]);
+  }
 }
 
 // ---- writing files --------------------------------------------------------------------------------------------------
@@ -245,7 +263,7 @@ function fail(source, row, status) {
     licence: SOURCES[source].licence, personal_data_flag: SOURCES[source].personal_data, status });
 }
 
-// Saves buf as <id>.<ext> (or a timestamped version when the id already holds different content); appends the manifest.
+// Saves buf as <id>.<ext> (or a new version when the id already holds different content); appends the manifest.
 async function save(source, { id, ext, url, title, published_at }, buf) {
   const digest = sha256(buf);
   const key = `${source}|${id}`;
@@ -258,10 +276,17 @@ async function save(source, { id, ext, url, title, published_at }, buf) {
   if (existsSync(path)) {
     const existing = await fs.readFile(path);
     if (sha256(existing) === digest) { stat(source).unchanged++; return 'unchanged'; }
-    path = join(dir, `${id}.${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z')}.${ext}`);
+    path = join(dir, `${id}.${new Date().toISOString().replace(/[-:.]/g, '')}.${digest.slice(0, 8)}.${ext}`);
     status = 'ok-new-version';
   }
-  await fs.writeFile(path, buf, { flag: 'wx' }); // wx: never overwrite
+  try {
+    await fs.writeFile(path, buf, { flag: 'wx' }); // wx: never overwrite
+  } catch (e) {
+    if (e.code !== 'EEXIST') throw e;
+    // The same millisecond and the same sha256 prefix: the same content.
+    stat(source).unchanged++;
+    return 'unchanged';
+  }
   if (!seenSha.has(key)) seenSha.set(key, new Set());
   seenSha.get(key).add(digest);
   seenUrl.add(`${source}|${url}`);
@@ -285,7 +310,7 @@ async function runCommittees(from, to, pos, savePos) {
     if (limitReached(src) || outOfTime()) return false;
     // Pages of 10: larger pages can answer HTTP 500 (3 Nov 2026).
     const url = `${base}/Publications?StartDate=${from}&EndDate=${to}&Skip=${skip}&Take=10&SortOrder=PublicationDateAscending`;
-    const { res, buf, error } = await get(src, url, { accept: 'application/json' });
+    const { res, buf, error } = await getCommitteesListing(url);
     if (!res || !res.ok) {
       fail(src, { id: `listing-${from}-skip-${skip}`, url }, error ? 'network' : `http-${res.status}`);
       throw new SourceStop(`listing failed (${error || `HTTP ${res.status}`}) for ${from} to ${to} at skip ${skip}`);
