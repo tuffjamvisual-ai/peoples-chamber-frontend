@@ -86,8 +86,7 @@ export default async function DepartmentPage({ params }: PageProps) {
     getDeptContext(slug),
     // B2 — press releases tab: top 20 by published_at DESC across all
     // historical org names for this department (handles renames like
-    // BEIS → DBT). Returns [] when orgNames is empty (HMRC/DSIT gap
-    // handled automatically — neither slug is in DEPT_SLUG_TO_ORGS).
+    // BEIS → DBT). Returns [] when orgNames is empty.
     // Tagged 'press-releases-latest' (lib/press-releases-latest.ts), refreshed by the press release sync on new releases.
     loadDeptPressReleases(orgNames),
     // B3 — Reports tab (owner's approval, 23 Oct 2026): investigations and file briefings whose related_dept_slugs

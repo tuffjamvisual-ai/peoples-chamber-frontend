@@ -12,7 +12,7 @@ export const revalidate = 604800;  // a week; the bill syncs refresh it after th
 export const metadata: Metadata = {
   title: 'UK Parliament Bills by Session, 2004 to Now',
   description:
-    'Every bill in UK Parliament since the 2004/05 session, by session: which became law, which were withdrawn, carried over or ran out of time.',
+    'Every bill in UK Parliament since the 2006 to 2007 session, by session: which became law, which were withdrawn, carried over or ran out of time.',
   alternates: { canonical: '/bills/sessions' },
 };
 

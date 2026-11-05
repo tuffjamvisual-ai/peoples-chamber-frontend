@@ -57,27 +57,33 @@ export const DEPT_ORG_TO_SLUG: Record<string, string> = {
 
 // Reverse map: department_context slug → canonical press_releases.organisation
 // string(s). Historical names included so archive queries find older releases.
-// Used by Stage B's department press releases tab query.
+// Used by Stage B's department press releases tab query. The query matches these names exactly as GOV.UK gave them, so
+// "&" and "and", and a trailing space, are different names: list each one that is stored (fixed 5 Nov 2026, when housing,
+// energy and work and pensions had lost their current releases to this).
 export const DEPT_SLUG_TO_ORGS: Record<string, string[]> = {
   'attorney-general':      ["Attorney General's Office"],
   'cabinet-office':        ['Cabinet Office'],
   'business-trade':        ['Department for Business and Trade', 'Department for Business, Innovation, Science and Trade', 'Department for Business, Energy & Industrial Strategy', 'Department for Business, Innovation & Skills', 'Department for International Trade'],
-  'culture':               ['Department for Culture, Media & Sport', 'Department for Digital, Culture, Media & Sport', 'Department for Digital, Culture, Media and Sport'],
+  'culture':               ['Department for Culture, Media and Sport', 'Department for Culture, Media & Sport', 'Department for Digital, Culture, Media & Sport', 'Department for Digital, Culture, Media and Sport'],
   'education':             ['Department for Education'],
-  'energy':                ['Department for Energy Security & Net Zero', 'Department of Energy & Climate Change'],
+  'energy':                ['Department for Energy Security and Net Zero', 'Department for Energy Security & Net Zero', 'Department of Energy & Climate Change'],
   'environment':           ['Department for Environment, Food & Rural Affairs'],
   'health':                ['Department for Health & Social Care', 'Department of Health and Social Care', 'Department of Health'],
   'transport':             ['Department for Transport'],
-  'work-pensions':         ['Department for Work & Pensions'],
+  'work-pensions':         ['Department for Work and Pensions', 'Department for Work & Pensions'],
   'foreign-office':        ['Foreign, Commonwealth & Development Office', 'Foreign & Commonwealth Office', 'Department for International Development'],
   'treasury':              ['HM Treasury'],
   'home-office':           ['Home Office'],
   'defence':               ['Ministry of Defence'],
-  'housing':               ['Ministry of Housing, Communities & Local Government', 'Ministry of Housing, Communities & Local Government (2018 to 2021)', 'Department for Levelling Up, Housing and Communities', 'Department for Communities and Local Government'],
+  'housing':               ['Ministry of Housing, Communities and Local Government', 'Ministry of Housing, Communities & Local Government', 'Ministry of Housing, Communities & Local Government (2018 to 2021)', 'Department for Levelling Up, Housing and Communities', 'Department for Levelling Up, Housing and Communities ', 'Department for Communities and Local Government'],
   'justice':               ['Ministry of Justice'],
   'northern-ireland-office': ['Northern Ireland Office'],
   'scotland-office':       ['Scotland Office', 'Office of the Secretary of State for Scotland'],
   'wales-office':          ['Wales Office', 'Office of the Secretary of State for Wales'],
+  'ukef':                  ['UK Export Finance'],
+  'advocate-general':      ['Office of the Advocate General for Scotland'],
+  'commons-leader':        ['Office of the Leader of the House of Commons'],
+  'lords-leader':          ['Office of the Leader of the House of Lords'],
 };
 
 export function normalizeOrg(s: string): string {

@@ -15,7 +15,7 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'About opengovt', href: '/about', desc: 'Who runs opengovt, how the data is gathered and the editorial principles behind it.' },
   { name: 'APPG Funders', href: '/appg-funders', desc: 'Every organisation that funds one or more All Party Parliamentary Groups, ranked by groups funded.' },
   { name: 'APPG Secretariats', href: '/secretariats', desc: 'The firms and charities that run All Party Parliamentary Groups, ranked by the number of groups each runs.' },
-  { name: 'Bills by Session', href: '/bills/sessions', desc: 'Every bill since the 2004 to 2005 session: which became law, which were withdrawn or ran out of time.' },
+  { name: 'Bills by Session', href: '/bills/sessions', desc: 'Every bill since the 2006 to 2007 session: which became law, which were withdrawn or ran out of time.' },
   { name: 'Cookie Details', href: '/cookies/details', desc: 'Every cookie opengovt sets, what it does and how long it is kept.' },
   { name: 'Cookies', href: '/cookies', desc: 'Choose which cookies opengovt may use, and change your choice at any time.' },
   { name: 'Commission Terms', href: '/commission/terms', desc: 'The terms that apply when you commission research from opengovt.' },
