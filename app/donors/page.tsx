@@ -141,7 +141,7 @@ export default async function DonorsIndex() {
 <section aria-labelledby="public-funding" style={{ marginTop: '32px', borderTop: `2px solid ${INK}`, paddingTop: '16px', fontFamily: 'var(--font-special-elite), monospace' }}>
         <h2 id="public-funding" style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px' }}>Public funding (not private donors)</h2>
         <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
-          Short Money and similar public funding for parties, which the Electoral Commission reports alongside donations.
+          Money from public bodies, recorded by the Electoral Commission alongside donations: parliamentary funding for opposition parties (Short Money and its equivalents in the Lords and devolved parliaments), Electoral Commission policy development grants, and other public payments such as HMRC and council payments. These are not private donors.
         </p>
         <ul data-own-more style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '15px' }}>
           {publicListed.map((d) => (
