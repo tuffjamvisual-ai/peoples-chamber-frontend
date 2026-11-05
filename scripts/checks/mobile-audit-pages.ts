@@ -22,6 +22,7 @@ const EXCLUDED: Record<string, string> = {
   '/newspaper-101': 'test', '/newspaper-112': 'test', '/newspaper-blank': 'test', '/newspaper-demo': 'test', '/newspaper-new1': 'test',
   '/newspaper-preview': 'test', '/preview': 'test', '/preview-2': 'test', '/preview-3': 'test', '/preview-4': 'test', '/preview-5': 'test',
   '/preview-footer': 'test', '/preview-home2': 'test', '/preview-home2/[id]': 'test', '/template': 'test', '/unite-kingdom': 'test',
+  '/preview/briefings/[slug]': 'private', '/preview/briefings/[slug]/sources': 'private', '/preview/editorials/[slug]': 'private', '/preview/editorials/[slug]/sources': 'private', '/preview/programmes/[slug]': 'private',
   '/login': 'noindex', '/reset-password': 'noindex', '/preferences': 'noindex', '/feedback': 'noindex', '/tools/welfare/search': 'noindex',
   '/councils/league-table': 'noindex', '/your-tax-pound': 'noindex (hidden)', '/budget-trade-offs': 'noindex (hidden)', '/news/[slug]': 'noindex',
   '/mps/[id]/questions': 'noindex', '/mps/[id]/reports': 'noindex', '/lords/[id]/questions': 'noindex', '/editorials/[slug]/sources': 'noindex',

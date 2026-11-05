@@ -13,6 +13,7 @@ import type { ReadNextLink } from '@/lib/read-next';
 import ExploreNext from './ExploreNext';
 import RelatedLine from './RelatedLine';
 import type { RelatedLink } from '@/lib/related-links';
+import type { ReactNode } from 'react';
 import KeyStat from './KeyStat';
 import DataBlock from './DataBlock';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
@@ -25,10 +26,11 @@ const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
-export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [], related }: { related?: RelatedLink[]; piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
+export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [], related, banner, sourcesHref }: { banner?: ReactNode; sourcesHref?: string; related?: RelatedLink[]; piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
   const sources = piece.evidence?.recordsReviewed ?? [];
   return (
     <OpenGovShell pageStamp={stamp}>
+      {banner}
       <BackLink fallbackHref={backHref} label="← Reports" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       {piece.heroImage && (
@@ -111,7 +113,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               2 Nov 2026, as eda0b417 did on 23 Oct). The "How this piece was checked" panel is on that page only. */}
           {sources.length > 0 && (
             <p style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
-              <Link href={`${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
+              <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
             </p>
           )}
           {/* Newsletter sign-up after the sources, for readers who are not signed in (report 80). */}

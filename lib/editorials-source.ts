@@ -132,6 +132,13 @@ async function readOne(slug: string): Promise<EditorialEntry | null> {
   return data ? fromRow(data as unknown as Row) : null;
 }
 
+// One piece in any state, uncached, for the owner's private preview only (lib/draft-preview.ts). Never use it on a public page.
+export async function readEditorialAnyState(slug: string): Promise<(EditorialEntry & { unpublished: boolean }) | null> {
+  const { data, error } = await client().from('editorials').select(`${COLUMNS}, unpublished`).eq('slug', slug).maybeSingle();
+  if (error) throw new Error(`editorials source: ${error.message}`);
+  return data ? { ...fromRow(data as unknown as Row), unpublished: (data as unknown as { unpublished: boolean }).unpublished } : null;
+}
+
 const oneFromDatabase = cache((slug: string) =>
   unstable_cache(() => readOne(slug), ['editorials-source-one', slug], { tags: ['editorials', `editorial:${slug}`], revalidate: WEEK })());
 

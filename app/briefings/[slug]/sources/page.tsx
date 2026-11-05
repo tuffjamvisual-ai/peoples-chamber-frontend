@@ -1,6 +1,6 @@
 // /briefings/<slug>/sources: the sources of a briefing (added 23 Oct 2026). A file briefing lists its records as on
 // /editorials/<slug>/sources; a database briefing lists its string sources as plain text, as its article page used
-// to. Dynamic like the article, so drafts work by direct link. Never indexed; not in the sitemap.
+// to. Dynamic like the article; published only (a draft's sources are at /preview/briefings). Never indexed; not in the sitemap.
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';

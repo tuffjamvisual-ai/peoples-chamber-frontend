@@ -217,6 +217,14 @@ const nextConfig: NextConfig = {
         missing: [{ type: 'host' as const, value: 'www.opengovt.uk' }],
         headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
       },
+      // The owner's private draft preview: never indexed and never stored, whoever asks (5 Nov 2026).
+      {
+        source: '/preview/:kind(briefings|editorials|programmes)/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+          { key: 'Cache-Control', value: 'private, no-store' },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [

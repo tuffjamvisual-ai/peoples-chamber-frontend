@@ -23,7 +23,8 @@ export default function ShareButton({ title }: { title: string }) {
   }
 
   async function onClick() {
-    const url = location.origin + location.pathname;
+    // The owner's private preview shares the address the piece will have once it is published.
+    const url = location.origin + location.pathname.replace(/^\/preview(?=\/)/, '');
     if (!canShare) return copy(url);
     try {
       await navigator.share({ title, url });

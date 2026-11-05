@@ -95,8 +95,8 @@ export async function sendSignupNotification(user: {
   })), to: SIGNUP_NOTIFY_TO, from };
 }
 
-// Fires from the daily-briefings cron once the three drafts are saved. Lists the
-// headlines, with links only to published ones (a draft's page is a 404, owner, 5 Nov 2026). Inert (no-op) until RESEND_API_KEY is set. Never throws.
+// Fires from the daily-briefings cron once the three drafts are saved. Lists the headlines: a published one links to its
+// page, a draft to its private preview (lib/draft-preview.ts; its public page is a 404, owner, 5 Nov 2026). Inert (no-op) until RESEND_API_KEY is set. Never throws.
 const BRIEFINGS_NOTIFY_TO = 'contact@opengovt.uk';
 
 export async function sendBriefingNotification(
@@ -109,15 +109,15 @@ export async function sendBriefingNotification(
   const base = 'https://www.opengovt.uk';
   const state = opts?.published
     ? 'These are PUBLISHED and live.'
-    : 'These are DRAFTS: not public, and their pages answer 404 until published. Review each in the briefings table, then flip is_published to true (and set published_at) to publish.';
+    : 'These are DRAFTS: not public. Sign in, read each at its private preview link below, then flip is_published to true and set published_at to publish.';
 
-  const lines = briefings.map((b, i) => `${i + 1}. ${b.headline}\n   ${opts?.published ? `${base}/briefings/${b.slug}` : `briefings row ${b.slug}`}`).join('\n\n');
+  const lines = briefings.map((b, i) => `${i + 1}. ${b.headline}\n   ${opts?.published ? `${base}/briefings/${b.slug}` : `${base}/preview/briefings/${b.slug} (private preview: sign in first)`}`).join('\n\n');
   const text = `opengovt daily briefings ready for review.\n\n${state}\n\n${lines}\n`;
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
       <p style="margin:0 0 8px;font-weight:bold">opengovt daily briefings ready for review.</p>
       <p style="margin:0 0 16px;color:#7a1612">${state}</p>
       <ol style="margin:0;padding-left:18px">
-        ${briefings.map((b) => `<li style="margin:0 0 12px">${opts?.published ? `<a href="${base}/briefings/${b.slug}" style="color:#7a1612">${b.headline}</a>` : `${b.headline} (briefings row ${b.slug})`}</li>`).join('')}
+        ${briefings.map((b) => `<li style="margin:0 0 12px">${opts?.published ? `<a href="${base}/briefings/${b.slug}" style="color:#7a1612">${b.headline}</a>` : `<a href="${base}/preview/briefings/${b.slug}" style="color:#7a1612">${b.headline}</a> (private preview: sign in first)`}</li>`).join('')}
       </ol>
     </div>`;
 
