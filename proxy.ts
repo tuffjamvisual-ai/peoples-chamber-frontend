@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { goneAction, GONE_HTML } from '@/lib/url-gone'
+import { councilCodeLocation, goneAction, GONE_HTML } from '@/lib/url-gone'
 
 const RATE_LIMIT_WINDOW = 60 * 1000
 const MAX_REQUESTS = 60
@@ -31,6 +31,9 @@ const DEBATE_GUID = /^\/debates\/([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[
 // redirect to the page that now covers them, or 410 Gone, instead of a 404.
 const GONE_SECTION = /^\/(departments|donors|news)\/([^/]+)\/?$/
 
+// A council's official code as its address (owner, 5 Nov 2026), in any case: a permanent redirect to its page (lib/url-gone.ts).
+const COUNCIL_CODE = /^\/councils\/([A-Za-z][0-9]{8})\/?$/
+
 // "/&" and "/$" are not links of ours (Search Console 404 review, 2 Nov 2026): React DOM's client code holds the strings
 // "/$" and "/&" (Suspense and Activity boundary markers) and Google reads them as links. 410 for exactly these two.
 const REACT_MARKER_PATHS = new Set(['/&', '/$'])
@@ -39,6 +42,13 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   if (REACT_MARKER_PATHS.has(pathname)) {
     return new NextResponse(GONE_HTML, { status: 410, headers: { 'Content-Type': 'text/html; charset=utf-8', 'X-Robots-Tag': 'noindex', 'Cache-Control': 'public, max-age=0, s-maxage=86400' } })
+  }
+  const councilCode = pathname.match(COUNCIL_CODE)?.[1]
+  if (councilCode) {
+    const location = await councilCodeLocation(councilCode)
+    if (location === 'failed') return new NextResponse('Please try again shortly', { status: 503, headers: { 'Retry-After': '60' } })
+    if (location) return NextResponse.redirect(new URL(location, request.url), 308)
+    return NextResponse.next()
   }
   const gone = pathname.match(GONE_SECTION)
   if (gone) {
@@ -83,5 +93,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*', '/debates/:guid', '/departments/:slug', '/donors/:slug', '/news/:slug', '/&', '/\\$'],
+  matcher: ['/api/:path*', '/councils/:code([A-Za-z][0-9]{8})', '/debates/:guid', '/departments/:slug', '/donors/:slug', '/news/:slug', '/&', '/\\$'],
 }

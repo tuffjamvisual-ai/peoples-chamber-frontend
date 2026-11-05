@@ -10,6 +10,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { metaDescription } from '@/lib/meta-description'
 import { shortDate, fitTitle } from '@/lib/seo-title'
+import { debateSubjectWords, subjectSentence } from '@/lib/debate-subjects'
 import { normaliseParty } from '@/lib/party-helpers'
 import { displayMpName } from '@/lib/mp-name'
 import { fetchDivisionVotes, divisionTally } from '@/lib/division-votes'
@@ -194,7 +195,6 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   const parts = [`${ov?.House ? `${ov.House} debate` : 'Debate'}${ov?.Date ? `, ${fmtDate(ov.Date)}` : ''}`];
   if (lead) parts.push(`led by ${lead}`);
   if (speakers.length > 1) parts.push(`with ${speakers.length} speakers`);
-  const description = metaDescription(`${parts.join(', ')}. Read what was said and who spoke.`);
   // Title (owner's approval, 24 Oct 2026): the debate title with the House and date, then with the date only, within 60
   // characters with the suffix (lib/seo-title.ts); otherwise the debate title alone.
   const day = shortDate(ov?.Date);
@@ -209,6 +209,12 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   const drow = d ? await debateRow(guid) : null;
   const hasDivision = Array.isArray(drow?.division_ids) && (drow!.division_ids as unknown[]).length > 0;
   const procedural = !!d && !header && !hasDivision && wordCount(allItems(d).filter((it) => it.ItemType !== 'Timestamp')) < 150;
+  // The debate's main subject words (owner, 5 Nov 2026), only from its own title and text (lib/debate-subjects.ts), on the
+  // pages search engines index. Over 160 characters, metaDescription drops the last sentence first.
+  const subjects = d && !header && !procedural
+    ? subjectSentence(debateSubjectWords(title, allItems(d).filter((it) => it.ItemType !== 'Timestamp').map((it) => plain(it.Value || '')), [...new Set(allItems(d).map((it) => (it.AttributedTo || '').trim()).filter(Boolean))]))
+    : '';
+  const description = metaDescription(`${parts.join(', ')}.${subjects ? ` ${subjects}` : ''} Read what was said and who spoke.`);
   return { title: fullTitle, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` }, ...(header || procedural ? { robots: { index: false, follow: true } } : {}) };
 }
 

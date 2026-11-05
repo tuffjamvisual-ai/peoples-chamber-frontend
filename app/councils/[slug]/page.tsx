@@ -183,7 +183,7 @@ function formatPoundsMillions(valuePounds: number): string {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   setPageReadTimer(revalidate);
   const { slug } = await params;
-  const { data, error: dataErr } = await pageDb().from('councils').select('name, type_label, country, political_control, population').eq('slug', slug).single();
+  const { data, error: dataErr } = await pageDb().from('councils').select('name, type_label, country, political_control, population, gss_code').eq('slug', slug).single();
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/councils/[slug] councils: ${dataErr.message}`);
   if (!data) return { title: 'Council not found' };
   // A description that says what the page offers, not just the council's type (all 382
@@ -193,7 +193,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     // Owner's brief, 3 Nov 2026: "<Council name>: spending, services and ratings" (lib/seo-title.ts titleWithin).
     title: titleWithin(`${data.name}: spending, services and ratings`),
-    description: metaDescription(`${data.name}, ${data.type_label.toLowerCase()} in ${data.country}.${who}${pop} Spending, services and how the area compares.`),
+    description: metaDescription(`${data.name}, ${data.type_label.toLowerCase()} in ${data.country} (ONS code ${data.gss_code}).${who}${pop} Spending, services and how the area compares.`),
     alternates: { canonical: `/councils/${slug}` },
   };
 }

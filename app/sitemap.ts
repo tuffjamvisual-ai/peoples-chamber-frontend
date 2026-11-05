@@ -8,7 +8,7 @@ import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
 import { SECTION_PAGES } from '@/lib/site-nav';
-import { fetchMajorProjectKeys, projectHref } from '@/lib/major-projects';
+import { projectHref } from '@/lib/major-projects';
 import { RECOMMENDATIONS_PUBLIC, allStatus, recPath } from '@/lib/pac';
 import { yearHref } from '@/lib/division-links';
 
@@ -48,12 +48,19 @@ async function fetchAllRows<T>(
 // it as a plain string, so every section fell through to an empty result.
 // Total URL count (static + transparency + departments + ~3.9k bills + 650 MPs)
 // is well under the 50k single-sitemap limit, so one file is simplest.
-// lastmod (owner's approval, 29 Oct 2026, Search Console): a URL carries a date only where we hold a true one, the
-// editorial's facts last checked or publish date, the division date and the bill's last update. Every other entry
-// has no lastModified, so a deploy no longer tells search engines that every page changed.
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+// lastmod (owner's approval, 29 Oct 2026, Search Console; widened 5 Nov 2026, visibility campaign item 13): a URL carries
+// a date only where we hold a true one for that record, as each entry below says. Every other entry has no lastModified,
+// so a deploy or a bulk import never tells search engines that every page changed.
 
+// The newest of a record's dates, no later than today (a contract can carry a future date). Undefined when it has none.
+function newest(...dates: (string | null | undefined)[]): Date | undefined {
+  const today = new Date().toISOString().slice(0, 10);
+  const d = dates.filter((x): x is string => !!x).map((x) => x.slice(0, 10)).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x) && x <= today).sort().pop();
+  return d ? new Date(d) : undefined;
+}
+const dated = (d: Date | undefined) => (d ? { lastModified: d } : {});
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 'lobbyists' removed 2026-06-02. 'companies' removed 2026-06-03.
   // 'press-releases' added 2026-06-04 (7th transparency section; the
   // index page lists 100 most-recent releases, each linking through to
@@ -153,7 +160,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Every session of Prime Minister's Questions we hold.
-  const pmqsEntries: MetadataRoute.Sitemap = await pmqsSet().then((set) => set.sessions.map((p) => ({ url: `${SITE}/pmqs/${p.date}`, changeFrequency: 'monthly' as const, priority: 0.5 }))).catch(() => []);
+  const pmqsEntries: MetadataRoute.Sitemap = await pmqsSet().then((set) => set.sessions.map((p) => ({ url: `${SITE}/pmqs/${p.date}`, ...dated(newest(p.date)), changeFrequency: 'monthly' as const, priority: 0.5 }))).catch(() => []);
 
   // Every published editorial in the database
   // so new pieces are picked up automatically (no hardcoded slug list).
@@ -162,7 +169,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${SITE}/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
     // The date the report's facts were last checked, else its publish date: the same rule as its NewsArticle
     // dateModified (lib/JsonLd.tsx editorialModifiedIso).
-    lastModified: (() => { const iso = editorialModifiedIso(e.lastChecked, e.publishedAt); return iso ? new Date(iso) : now; })(),
+    ...(() => { const iso = editorialModifiedIso(e.lastChecked, e.publishedAt); return iso ? { lastModified: new Date(iso) } : {}; })(),
     changeFrequency: 'monthly',
     priority: 0.9,
   }));
@@ -188,6 +195,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Party sub-pages: /parties/[slug], /bio, /money for every party row
   // that has an EC recipient_name (parties with no donations register
   // entry don't get a /money page).
+  // Each MP's most recent vote and each party's (party_member_vote_stats.last_vote, a view refreshed nightly): the voting
+  // record is what changes on an MP's page and a party's whip page. A failed read leaves the dates out.
+  const voteRows = await fetchAllRows<{ party: string | null; member_id: number; last_vote: string | null }>(
+    'party_member_vote_stats',
+    'party, member_id, last_vote',
+    (q) => q.order('member_id', { ascending: true }).order('party', { ascending: true }),
+  ).catch(() => [] as { party: string | null; member_id: number; last_vote: string | null }[]);
+  const lastVoteByMember = new Map<number, string>(), lastVoteByParty = new Map<string, string>();
+  const later = <K,>(m: Map<K, string>, k: K, d: string) => { const c = m.get(k); if (!c || d > c) m.set(k, d); };
+  for (const r of voteRows) {
+    if (!r.last_vote) continue;
+    later(lastVoteByMember, r.member_id, r.last_vote);
+    if (r.party) later(lastVoteByParty, r.party, r.last_vote);
+  }
+
   const parties = await fetchAllRows<{ slug: string; recipient_name: string | null; mp_party_string: string | null }>(
     'parties',
     'slug, recipient_name, mp_party_string',
@@ -201,7 +223,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       partyEntries.push({ url: `${SITE}/parties/${p.slug}/money`, changeFrequency: 'weekly', priority: 0.8 });
     }
     if (p.mp_party_string) {
-      partyEntries.push({ url: `${SITE}/parties/${p.slug}/whip`, changeFrequency: 'weekly', priority: 0.7 });
+      partyEntries.push({ url: `${SITE}/parties/${p.slug}/whip`, ...dated(newest(lastVoteByParty.get(p.mp_party_string))), changeFrequency: 'weekly', priority: 0.7 });
     }
   }
 
@@ -221,9 +243,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
   const votedBillIds = new Set<number>(votedBillIdRows.map((r) => r.bill_id));
   // Hidden bills (bill.hidden_reason: duplicates, bad records) are never listed; their pages return 404.
-  const allBills = await fetchAllRows<{ id: number; status: string | null; is_act: boolean | null; commons_division_id: number | null; last_update: string | null }>(
+  const allBills = await fetchAllRows<{ id: number; status: string | null; is_act: boolean | null; commons_division_id: number | null; last_update: string | null; introduced_session_id: number | null }>(
     'bill',
-    'id, status, is_act, commons_division_id, last_update',
+    'id, status, is_act, commons_division_id, last_update, introduced_session_id',
     // Ordered by id so paging is stable (24 Oct 2026, report 36): unordered pages can repeat or skip rows.
     (q) => q.is('hidden_reason', null).order('id', { ascending: true }),
   );
@@ -250,10 +272,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'member_id',
     (q) => q.eq('current_member', true),
   );
-  // No lastModified for MPs: on 29 Oct 2026, 638 of 650 current MPs (98.2 per cent) shared one updated_at date, so it
-  // does not say when a profile changed.
+  // Not mps.updated_at: on 29 Oct 2026, 638 of 650 current MPs (98.2 per cent) shared one date, so it does not say when
+  // a profile changed. The MP's most recent vote does; an MP with no recorded vote has no date.
   const mpEntries: MetadataRoute.Sitemap = mps.map((m) => ({
     url: `${SITE}/mps/${m.member_id}`,
+    ...dated(newest(lastVoteByMember.get(m.member_id))),
     changeFrequency: 'weekly',
     priority: 0.6,
   }));
@@ -308,11 +331,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // The year archives (owner, 31 Oct 2026): /divisions/year/<yyyy> and its page 2 onwards (100 divisions a page), so
   // every division is two clicks from a page in the sitemap. Counted from the division rows read above.
   const perYear = new Map<number, number>();
-  for (const d of divisions) if (d.division_date_only) { const y = Number(String(d.division_date_only).slice(0, 4)); perYear.set(y, (perYear.get(y) ?? 0) + 1); }
+  const newestInYear = new Map<number, string>();
+  for (const d of divisions) if (d.division_date_only) {
+    const y = Number(String(d.division_date_only).slice(0, 4));
+    perYear.set(y, (perYear.get(y) ?? 0) + 1);
+    if (d.division_date_only > (newestInYear.get(y) ?? '')) newestInYear.set(y, d.division_date_only);
+  }
   const thisYear = new Date().getUTCFullYear();
   const divisionYearEntries: MetadataRoute.Sitemap = [...perYear.entries()].sort((a, b) => a[0] - b[0]).flatMap(([y, n]) =>
     Array.from({ length: Math.ceil(n / 100) }, (_, k) => ({
       url: `${SITE}${yearHref(y, k + 1)}`,
+      // The newest division of that year.
+      ...dated(newest(newestInYear.get(y))),
       changeFrequency: y === thisYear ? ('weekly' as const) : ('yearly' as const),
       priority: 0.5,
     })));
@@ -332,27 +362,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
-  const lobbyOrgs = await fetchAllRows<{ slug: string }>('lobby_org_rankings', 'slug', (q) => q.order('org_id'));
+  // The organisation's most recent ministerial meeting or lobbying register quarter.
+  const lobbyOrgs = await fetchAllRows<{ slug: string; last_meeting: string | null; last_lobbying_quarter: string | null }>('lobby_org_rankings', 'slug, last_meeting, last_lobbying_quarter', (q) => q.order('org_id'));
   const lobbyEntries: MetadataRoute.Sitemap = lobbyOrgs.filter((o) => o.slug).map((o) => ({
     url: `${SITE}/lobbying/${o.slug}`,
+    ...dated(newest(o.last_meeting, o.last_lobbying_quarter)),
     changeFrequency: 'monthly',
     priority: 0.5,
   }));
 
   // Organisation pages (report 71), one per organisation_index row. A failed read leaves them out rather than failing
   // the sitemap.
-  const orgSlugs = await fetchAllRows<{ slug: string }>('organisation_index', 'slug', (q) => q.order('slug')).catch(() => [] as { slug: string }[]);
+  // The date is the organisation's most recent donation, contract, grant, meeting or lobbying quarter.
+  type OrgRow = { slug: string; last_donation: string | null; last_contract: string | null; last_grant: string | null; last_meeting: string | null; last_lobbying_quarter: string | null };
+  const orgSlugs = await fetchAllRows<OrgRow>('organisation_index', 'slug, last_donation, last_contract, last_grant, last_meeting, last_lobbying_quarter', (q) => q.order('slug')).catch(() => [] as OrgRow[]);
   const orgEntries: MetadataRoute.Sitemap = orgSlugs.map((o) => ({
     url: `${SITE}/organisations/${o.slug}`,
+    ...dated(newest(o.last_donation, o.last_contract, o.last_grant, o.last_meeting, o.last_lobbying_quarter)),
     changeFrequency: 'weekly',
     priority: 0.5,
   }));
 
   // Major project pages (/transparency/major-projects/<project_key>), one per project in major_projects.
   // The annual reports come out once a year; a failed read leaves them out rather than failing the sitemap.
-  const majorProjectKeys = await fetchMajorProjectKeys().catch(() => [] as string[]);
-  const majorProjectEntries: MetadataRoute.Sitemap = majorProjectKeys.map((k) => ({
+  // The date is when we last imported the project's rows (major_projects.imported_at): the page shows only those rows.
+  const majorProjectRows = await fetchAllRows<{ project_key: string; imported_at: string | null }>('major_projects', 'project_key, imported_at', (q) => q.order('project_key').order('report_year')).catch(() => [] as { project_key: string; imported_at: string | null }[]);
+  const majorProjectDates = new Map<string, string | null>();
+  for (const r of majorProjectRows) { const c = majorProjectDates.get(r.project_key); if (c == null || (r.imported_at && r.imported_at > c)) majorProjectDates.set(r.project_key, r.imported_at); }
+  const majorProjectEntries: MetadataRoute.Sitemap = [...majorProjectDates].map(([k, d]) => ({
     url: `${SITE}${projectHref(k)}`,
+    ...dated(newest(d)),
     changeFrequency: 'yearly',
     priority: 0.5,
   }));
@@ -364,6 +403,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/bills/sessions`, changeFrequency: 'weekly', priority: 0.6 },
     ...billSessionIds.map((r) => ({
       url: `${SITE}/bills/sessions/${r.session_id}`,
+      // The newest update to a bill introduced in that session (bills carried in from an earlier session are not counted).
+      ...dated(newest(...allBills.filter((b) => b.introduced_session_id === r.session_id).map((b) => b.last_update))),
         changeFrequency: r.is_current ? ('daily' as const) : ('yearly' as const),
       priority: r.is_current ? 0.6 : 0.4,
     })),

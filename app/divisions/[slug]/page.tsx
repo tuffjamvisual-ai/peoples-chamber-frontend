@@ -1,3 +1,5 @@
+import { divisionSeoTitle } from '@/lib/division-title';
+import { titleWithin } from '@/lib/seo-title';
 import { billSummary as officialBillSummary } from '@/lib/bill-summary';
 import { metaDescription } from '@/lib/meta-description';
 // Server-rendered division detail page. Slug matches the ParlParse identifier
@@ -134,7 +136,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 
   // Search title and description (owner's approval, 23 Oct 2026), built from the division's own data only.
-  // Title: the motion title, then the bill's name when the motion title does not already contain it, then the date.
+  // The title is 60 characters or fewer (owner, 5 Nov 2026, lib/division-title.ts): the bill's name when the motion title
+  // does not already contain it goes first, and the day's other votes keep titles distinct.
   const motion = (row.division_title ?? '').replace(/\s+/g, ' ').trim() || `Commons Division ${divisionNumber}`;
   let billName: string | null = null;
   if (row.bill_id != null) {
@@ -145,7 +148,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // "X Act 2022" was "X Bill" when the vote was held, so compare on the name without Bill, Act and the year.
   const billCore = billName ? billName.replace(/\s*(\[[^\]]*\]|\bBill\b|\bAct\b(\s+\d{4})?)\s*/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase() : '';
   const showBill = !!billName && !!billCore && !motion.toLowerCase().includes(billCore);
-  const title = `How every MP voted on ${motion}${showBill ? `, ${billName}` : ''}, ${dateLabel}`;
+  const { data: sameDay, error: sameDayErr } = await supabase.from('commons_divisions_fts').select('division_number, division_title').eq('division_date_only', dateOnly);
+  if (sameDayErr) throw new Error(`/divisions/[slug] commons_divisions_fts: ${sameDayErr.message}`);
+  const title = divisionSeoTitle(
+    showBill ? `${billName}: ${motion}` : motion,
+    divisionNumber,
+    dateOnly,
+    (sameDay ?? []).map((v) => ({ number: v.division_number as number, motion: (v.division_title as string | null) ?? '' })),
+  );
 
   // Description: the official totals (tellers not counted) from Parliament, or the named votes when there are
   // none, and the result they give. A tie is left without a result: the data does not record the casting vote.
@@ -177,7 +187,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (description.length > 160) description = describe(shortMotion.replace(/\s*\[Lords\]/g, ''), true);
   if (description.length > 160) description = metaDescription(describe(shortMotion.replace(/\s*\[Lords\]/g, ''), false));
   return {
-    title: title.length > 200 ? title.slice(0, 197).trimEnd() + '…' : title,
+    title: titleWithin(title),
     description,
     alternates: { canonical: `/divisions/${fullSlug(m[1], parseInt(m[2], 10))}` },
   };

@@ -99,4 +99,23 @@ export async function goneAction(section: 'departments' | 'donors' | 'news', raw
   return action;
 }
 
+// An official council code as the address (owner, 5 Nov 2026), in any case: /councils/E07000063 and /councils/e07000063 go
+// permanently to /councils/lewes. Barnsley and Sheffield's current codes are not the ones councils.gss_code holds (see
+// app/api/sewage/lookup/route.ts), so both open. Returns the address, null for a code that is no council, 'failed' if the
+// read failed: only then is the answer not kept, and proxy.ts says try again rather than letting a 404 be cached.
+const CURRENT_CODES: Record<string, string> = { E08000038: 'E08000016', E08000039: 'E08000019' };
+const councilCodes = new Map<string, { at: number; location: string | null }>();
+export async function councilCodeLocation(rawCode: string): Promise<string | null | 'failed'> {
+  const code = rawCode.toUpperCase();
+  const hit = councilCodes.get(code);
+  if (hit && Date.now() - hit.at < TTL_MS) return hit.location;
+  const ctx: Ctx = { failed: false };
+  const rows = await rest<{ slug: string }[]>(ctx, `councils?select=slug&gss_code=eq.${encodeURIComponent(CURRENT_CODES[code] ?? code)}&limit=1`);
+  if (rows == null || ctx.failed) return 'failed';
+  const location = rows[0] ? `/councils/${rows[0].slug}` : null;
+  if (councilCodes.size >= MAX_CACHED) councilCodes.delete(councilCodes.keys().next().value as string);
+  councilCodes.set(code, { at: Date.now(), location });
+  return location;
+}
+
 export const GONE_HTML = `<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Page removed | opengovt</title></head><body style="margin:0;background:#ebe5d8;color:#14100d;font-family:'Special Elite',monospace;font-size:17px;line-height:1.6"><main style="max-width:40em;margin:0 auto;padding:48px 16px"><h1 style="font-size:28px;margin:0 0 16px">This page has been removed</h1><p>The record it showed is no longer in the official data opengovt publishes.</p><p><a href="/" style="color:#14100d">Go to the opengovt home page</a></p></main></body></html>`;
