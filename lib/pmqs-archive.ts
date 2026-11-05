@@ -6,6 +6,7 @@ import { cache } from 'react';
 import { timedClient } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
 import attendance from '@/lib/data/pmqs-attendance-2026-11-04.json';
+import answerers from '@/lib/data/pmqs-archive-answerers.json';
 
 // Same value as PMQS_TAG in lib/pmqs.ts, which is not imported here so that this file stays free of its reads.
 const db = () => timedClient(30 * 86400, ['pmqs']);
@@ -13,7 +14,8 @@ const db = () => timedClient(30 * 86400, ['pmqs']);
 export type ArchiveSession = { date: string; prime_minister_as_named: string | null; exchanges: number; source: string; note: string | null };
 export type LibraryTotal = { prime_minister: string; in_office_from: string | null; in_office_to: string | null; library_total: number | null; library_attended: number | null; library_missed: number | null; our_sessions: number | null; difference: number | null; note: string | null };
 type Row = { date: string; item_order: number; attributed_to: string | null; parlparse_speaker_id: string | null; member_id: number | null; contribution_text: string };
-export type ArchiveContribution = { order: number; name: string | null; href: string | null; external: boolean; text: string };
+// site: where the name links, so the page can say when it leaves opengovt.
+export type ArchiveContribution = { order: number; name: string | null; href: string | null; site: 'opengovt' | 'parliament' | 'historic' | null; text: string };
 export type ArchiveExchange = { lead: ArchiveContribution; answers: ArchiveContribution[] };
 export type MemberContribution = { date: string; order: number; text: string };
 
@@ -51,6 +53,23 @@ const OFFICE = [...attendance.attendance.map((a) => ({ prime_minister: a.prime_m
   .sort((a, b) => a.in_office_from.localeCompare(b.in_office_from));
 export function archivePrimeMinisterOn(date: string): string {
   return OFFICE.find((o) => o.in_office_from <= date && (!o.in_office_to || date <= o.in_office_to))?.prime_minister ?? 'Prime Minister';
+}
+
+// Who answered a session: by member id, never the printed name, which can carry OCR slips (scripts/build-pmqs-answerers.py).
+const ANSWERER_NAMES: Record<string, string> = answerers.names;
+const ANSWERER_ON: Record<string, string> = answerers.sessions;
+export const answeredBy = (date: string): string | null => ANSWERER_NAMES[ANSWERER_ON[date]] ?? null;
+
+// A Prime Minister's name in the group labels, from their member id. The key is the office table's name.
+const PM_MEMBER: Record<string, number> = {
+  'Rishi Sunak': 4483, 'Liz Truss': 4097, 'Boris Johnson': 1423, 'Theresa May': 8, 'David Cameron': 1467, 'Gordon Brown': 591, 'Tony Blair': 512,
+  'John Major': 119, 'Margaret Thatcher': 953, 'James Callaghan': 769, 'Harold Wilson (1974 to 1976)': 1016, 'Edward Heath': 195,
+  'Harold Wilson (1964 to 1970)': 1016, 'Alec Douglas-Home': 2938, 'Harold Macmillan': 2565,
+};
+export function primeMinisterLabel(pm: string): string {
+  const name = ANSWERER_NAMES[String(PM_MEMBER[pm])];
+  if (!name) return pm;
+  return pm.includes('(') ? `${name} ${pm.slice(pm.indexOf('('))}` : name;
 }
 
 export type ArchiveYear = { year: string; sessions: ArchiveSession[] };
@@ -124,9 +143,12 @@ export const archiveExchanges = cache(async (date: string): Promise<ArchiveExcha
   const answerer = answererOf(rows);
   const out: ArchiveExchange[] = [];
   for (const r of rows) {
-    const inMps = r.member_id !== null && known.has(r.member_id);
-    const old = !inMps && r.parlparse_speaker_id ? historic.get(r.parlparse_speaker_id) ?? null : null;
-    const c: ArchiveContribution = { order: r.item_order, name: r.attributed_to, href: inMps ? `/mps/${r.member_id}` : old, external: !inMps && !!old, text: r.contribution_text };
+    // Their MP page; else, with a member id, Parliament's page for them; else Historic Hansard; else plain text.
+    const old = r.member_id === null && r.parlparse_speaker_id ? historic.get(r.parlparse_speaker_id) ?? null : null;
+    const link: Pick<ArchiveContribution, 'href' | 'site'> = r.member_id !== null
+      ? (known.has(r.member_id) ? { href: `/mps/${r.member_id}`, site: 'opengovt' } : { href: `https://members.parliament.uk/member/${r.member_id}/career`, site: 'parliament' })
+      : (old ? { href: old, site: 'historic' } : { href: null, site: null });
+    const c: ArchiveContribution = { order: r.item_order, name: r.attributed_to, ...link, text: r.contribution_text };
     const isAnswer = !!r.attributed_to && !/\bSpeaker\b/i.test(r.attributed_to)
       && (/^the (deputy )?prime minister\b/i.test(r.attributed_to) || (r.parlparse_speaker_id ?? r.attributed_to) === answerer);
     const last = out[out.length - 1];
@@ -136,15 +158,23 @@ export const archiveExchanges = cache(async (date: string): Promise<ArchiveExcha
   return out;
 });
 
+// How many of those there are: the MP profile's "Questions at PMQs" count.
+const NOT_FROM_THE_CHAIR = 'attributed_to.is.null,attributed_to.not.ilike.*speaker*';
+export const memberArchiveCount = cache(async (memberId: number): Promise<number> => {
+  const { count, error } = await db().from('pmqs_archive_exchanges').select('date', { count: 'exact', head: true }).eq('member_id', memberId).or(NOT_FROM_THE_CHAIR);
+  if (error) throw new Error(`pmqs_archive_exchanges count: ${error.message}`);
+  return count ?? 0;
+});
+
 // An MP's own questions and answers in the archive, newest first. The Speaker's remarks from the chair are not theirs.
 export const memberArchive = cache(async (memberId: number): Promise<MemberContribution[]> => {
   const rows = await readAll<Row>(() => db().from('pmqs_archive_exchanges'), {
     columns: 'date, item_order, attributed_to, contribution_text',
-    filter: (q) => q.eq('member_id', memberId),
+    filter: (q) => q.eq('member_id', memberId).or(NOT_FROM_THE_CHAIR),
     orderBy: [{ column: 'date', ascending: false }, { column: 'item_order' }],
     label: 'pmqs_archive_exchanges member',
   });
-  return rows.filter((r) => !/\bSpeaker\b/i.test(r.attributed_to ?? '')).map((r) => ({ date: r.date, order: r.item_order, text: r.contribution_text }));
+  return rows.map((r) => ({ date: r.date, order: r.item_order, text: r.contribution_text }));
 });
 
 export function longDateArchive(iso: string): string {

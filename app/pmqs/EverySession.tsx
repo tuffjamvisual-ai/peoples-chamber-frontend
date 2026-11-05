@@ -1,6 +1,6 @@
 import MoreChain from '../components/MoreChain';
 import ArchiveCredit from './ArchiveCredit';
-import { archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive } from '@/lib/pmqs-archive';
+import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel } from '@/lib/pmqs-archive';
 
 const INK = '#14100d';
 
@@ -19,14 +19,14 @@ export default async function EverySession() {
       </p>
       {groups.map((g) => (
         <details key={g.pm} className="pa-fold">
-          <summary>{g.pm}: {g.count.toLocaleString('en-GB')} {g.count === 1 ? 'session' : 'sessions'}</summary>
+          <summary>{primeMinisterLabel(g.pm)}: {g.count.toLocaleString('en-GB')} {g.count === 1 ? 'session' : 'sessions'}</summary>
           {g.years.map((y) => (
             <details key={y.year} className="pa-fold pa-year">
               <summary>{y.year}: {y.sessions.length} {y.sessions.length === 1 ? 'session' : 'sessions'}</summary>
               <MoreChain className="pa-list" items={y.sessions.map((s) => (
                 <li key={s.date}>
                   <a href={`/pmqs/${s.date}`}>{longDateArchive(s.date)}</a>
-                  {s.prime_minister_as_named && <div>Answered by {s.prime_minister_as_named}</div>}
+                  {answeredBy(s.date) && <div>Answered by {answeredBy(s.date)}</div>}
                 </li>
               ))} />
             </details>

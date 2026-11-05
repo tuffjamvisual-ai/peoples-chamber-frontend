@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import PhoneGroup from '../components/PhoneGroup';
+import MoreChain from '../components/MoreChain';
 import { longDate, primeMinisterOn, type PmqsSession, type PmqsSet } from '@/lib/pmqs';
 
 const INK = '#14100d';
@@ -23,8 +24,7 @@ export default function SessionsArchive({ set }: { set: PmqsSet }) {
       </p>
       {groups.map((g, i) => (
         <PhoneGroup key={g.pm} summary={`${g.pm}: ${g.sessions.length} ${g.sessions.length === 1 ? 'session' : 'sessions'}`} open={i === 0}>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '15px' }}>
-            {g.sessions.map((s) => (
+          <MoreChain phoneOnly style={{ fontSize: '15px' }} items={g.sessions.map((s) => (
               <li key={s.date} style={{ padding: '10px 0', borderBottom: '1px solid rgba(20,16,13,0.25)', lineHeight: 1.6 }}>
                 <Link href={`/pmqs/${s.date}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{longDate(s.date)}</Link>
                 <div>
@@ -32,8 +32,7 @@ export default function SessionsArchive({ set }: { set: PmqsSet }) {
                 </div>
                 {s.opposition && <div>{s.deputisingFor ? 'For the Opposition' : 'Leader of the Opposition'}: {s.opposition.name}</div>}
               </li>
-            ))}
-          </ul>
+            ))} />
         </PhoneGroup>
       ))}
     </section>

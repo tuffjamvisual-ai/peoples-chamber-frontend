@@ -4,7 +4,9 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { longDate, pmqsExchanges, pmqsSet } from '@/lib/pmqs';
-import { archiveSessionOn } from '@/lib/pmqs-archive';
+import { answeredBy, archiveSessionOn } from '@/lib/pmqs-archive';
+import MoreChain, { openingCount, textHeightAt375 } from '../../components/MoreChain';
+import OpenHashTarget from '../../components/OpenHashTarget';
 import ArchiveSessionView from './ArchiveSessionView';
 
 // One session of Prime Minister's Questions (owner, 5 Nov 2026): rendered on first request and refreshed every six hours,
@@ -33,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ date: str
     if (!old) return { title: "Prime Minister's Questions", robots: { index: false, follow: true } };
     return {
       title: `Prime Minister's Questions, ${longDate(date)}`,
-      description: `Every question and answer at Prime Minister's Questions on ${longDate(date)}${old.prime_minister_as_named ? `, answered by ${old.prime_minister_as_named}` : ''}, with a link to the official record.`,
+      description: `Every question and answer at Prime Minister's Questions on ${longDate(date)}${answeredBy(date) ? `, answered by ${answeredBy(date)}` : ''}, with a link to the official record.`,
       alternates: { canonical: `/pmqs/${date}` },
     };
   }
@@ -74,8 +76,8 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
           ? ' questions. Where the Speaker stepped in and no answer was given, the Speaker\u2019s words are shown. The Speaker\u2019s other interventions, shouted asides and points of order are left out'
           : ' questions. The Speaker\u2019s interventions, shouted asides and points of order are left out'}{session.hansardUrl ? <>: <a href={session.hansardUrl} rel="noopener" style={link}>read the full record in Hansard</a></> : ''}.
       </p>
-      <ol style={{ listStyle: 'none', margin: 0, padding: 0, color: INK }}>
-        {exchanges.map((e) => (
+      <OpenHashTarget />
+      <MoreChain ordered phoneOnly style={{ color: INK }} first={openingCount(exchanges.map((e) => 120 + textHeightAt375(e.question) + e.answers.reduce((px, a) => px + textHeightAt375(a), 0) + (e.speaker.length ? 150 : 0)))} items={exchanges.map((e) => (
           <li key={e.id} id={`q-${e.id}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
             <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}><Link href={`/mps/${e.asker.id}`} style={link}>{e.asker.name}</Link></p>
             <p style={body}>{e.question}</p>
@@ -98,8 +100,7 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
             )}
             {e.hansardUrl && <p style={{ fontSize: '15px', margin: 0 }}><a href={e.hansardUrl} rel="noopener" style={link}>Official Hansard record</a></p>}
           </li>
-        ))}
-      </ol>
+        ))} />
     </OpenGovShell>
   );
 }

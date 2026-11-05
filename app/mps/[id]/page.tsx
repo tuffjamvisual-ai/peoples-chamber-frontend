@@ -1,4 +1,5 @@
 import { pmqsSet } from '@/lib/pmqs';
+import { memberArchiveCount } from '@/lib/pmqs-archive';
 import { updatedDate } from '@/lib/record-dates';
 import { cache } from 'react';
 import { metaDescription } from '@/lib/meta-description';
@@ -172,6 +173,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // Reports mentioning this MP (23 Oct 2026; up to 10 from 24 Oct 2026): every published piece whose relatedMemberIds
 // include the MP, newest first, from the editorial registry at build time (no database query, lib/mp-reports.ts). Up to
 // ten are shown, with a link to the full list at /mps/<id>/reports if there are more.
+// Every contribution at PMQs: current questions and the archive's questions and answers. A failed read counts as none.
+async function pmqsContributions(memberId: number): Promise<number> {
+  const [current, archive] = await Promise.all([
+    withTimeout(pmqsSet(), 7000).then((set) => set.byMember[memberId]?.length ?? 0).catch(() => 0),
+    withTimeout(memberArchiveCount(memberId), 7000).catch(() => 0),
+  ]);
+  return current + archive;
+}
+
 async function reportsFor(memberId: number, mpName: string): Promise<MpReports | null> {
   const all = await mpReportItems(memberId);
   if (all.length === 0) return null;
@@ -285,7 +295,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       const related = formerReports.length ? [{ href: `/mps/${memberId}/reports`, label: `Reports on ${m.mp.name} (${formerReports.length})` }] : [];
       // A former MP now in the Lords links to their peer page, which links back (owner, 3 Nov 2026).
       if (peer && peerHasPage(peer)) related.unshift({ href: `/lords/${memberId}`, label: `${peer.name_display} in the House of Lords` });
-      const pmqsAsked = await withTimeout(pmqsSet(), 7000).then((s) => s.byMember[memberId]?.length ?? 0).catch(() => 0);
+      const pmqsAsked = await pmqsContributions(memberId);
       if (pmqsAsked) related.push({ href: `/mps/${memberId}/pmqs`, label: `Questions at PMQs (${pmqsAsked})` });
       return <FormerMpProfile mp={m.mp} conductFindings={findings ?? []} related={related} />;
     }
@@ -500,8 +510,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const { data: contributionsData } = await pContribs;
   const contributions = contributionsData || [];
   const writtenQuestions = await pQuestions;
-  // Questions at PMQs (owner, 5 Nov 2026), from the cached set; on a read error the line is left out.
-  const pmqsQuestions = await withTimeout(pmqsSet(), 7000).then((s) => s.byMember[memberId]?.length ?? 0).catch(() => 0);
+  // Questions at PMQs (owner, 5 Nov 2026), current and archive; on a read error that part counts as none.
+  const pmqsQuestions = await pmqsContributions(memberId);
 
   const edmsRes = await pEdms;
   // "Last updated" under each profile section whose table lib/data-freshness.ts tracks (owner, 1 Nov 2026): the newest

@@ -2,6 +2,7 @@
 // with four wrong member ids corrected (corrections_to_source in the data file). The file is kept as prepared; the one
 // name Parliament spells differently is corrected here.
 import Link from 'next/link';
+import MoreChain from '../components/MoreChain';
 import data from '@/lib/data/pmqs-attendance-2026-11-04.json';
 
 const INK = '#14100d';
@@ -58,6 +59,7 @@ export default function PmqsAttendance() {
       </table>
 
       <h3 style={h3}>The {data.missed_dates.length} sessions the Prime Minister missed</h3>
+      <div className="pc-wide">
       <table style={table}>
         <thead>
           <tr>
@@ -85,6 +87,21 @@ export default function PmqsAttendance() {
           ))}
         </tbody>
       </table>
+
+      </div>
+      {/* Phones: the same rows as a list, 8 as the page opens to keep it within the limit, then 25 at a time, in native folds, so it works without JavaScript (owner, 5 Nov 2026). */}
+      <div className="pc-narrow">
+        <MoreChain first={8} style={{ fontSize: '15px', lineHeight: 1.6 }} items={data.missed_dates.map((m) => (
+          <li key={m.date} style={{ padding: '10px 0', ...rowLine }}>
+            <strong>{longDate(HANSARD_DATE[m.date]?.date ?? m.date)}</strong>
+            {HANSARD_DATE[m.date] && <div>{HANSARD_DATE[m.date].note}</div>}
+            <div>Prime Minister: {m.prime_minister}</div>
+            <div>Reason: {m.reason}</div>
+            <div>Deputised by: <Link href={`/mps/${m.deputy_member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{m.deputy}</Link></div>
+            {m.opposition_member && <div>Opposition member: {SPELLING[m.opposition_member] ?? m.opposition_member}</div>}
+          </li>
+        ))} />
+      </div>
 
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '20px 0 0' }}>{data.source.note_1}.</p>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '12px 0 0' }}>

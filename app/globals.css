@@ -182,6 +182,18 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .pa-year > summary { font-size: 15px; }
 .mc-more > summary { justify-content: center; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }
 .mc-more[open] > summary { display: none; }
+.pc-d { display: none; }
+.pc-b { display: contents; }
+@media (max-width: 639.98px) {
+  .pc-d { display: block; }
+  .pc-b { display: block; }
+  .pc-d:not([open]) + .pc-b { display: none; }
+  .pc-d[open] > summary { display: none; }
+  .pc-d > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; cursor: pointer; list-style: none; }
+  .pc-d > summary::-webkit-details-marker { display: none; }
+  .pc-wide { display: none; }
+}
+@media (min-width: 640px) { .pc-narrow { display: none; } }
 .pa-list li { padding: 10px 0; border-bottom: 1px solid rgba(20,16,13,0.25); font-size: 15px; line-height: 1.6; }
 .pa-list a { color: #7a1612; text-decoration: underline; font-weight: bold; }
 /* ShareButton.tsx: phones only, and nothing without JavaScript. */
