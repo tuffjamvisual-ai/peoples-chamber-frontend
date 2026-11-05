@@ -172,6 +172,18 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   }
 }
 .og-phone-more { display: none; }
+/* The PMQs archive: folds and Show more with no JavaScript (MoreChain.tsx). Every width. */
+.pa-fold > summary, .mc-more > summary { display: flex; align-items: center; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; list-style: none; }
+.pa-fold > summary::-webkit-details-marker, .mc-more > summary::-webkit-details-marker { display: none; }
+.pa-fold > summary::before { content: "+"; flex: none; width: 20px; color: #7a1612; }
+.pa-fold[open] > summary::before { content: "\2212"; }
+.pa-fold { border-top: 1px solid rgba(20,16,13,0.25); }
+.pa-year { margin-left: 12px; }
+.pa-year > summary { font-size: 15px; }
+.mc-more > summary { justify-content: center; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }
+.mc-more[open] > summary { display: none; }
+.pa-list li { padding: 10px 0; border-bottom: 1px solid rgba(20,16,13,0.25); font-size: 15px; line-height: 1.6; }
+.pa-list a { color: #7a1612; text-decoration: underline; font-weight: bold; }
 /* ShareButton.tsx: phones only, and nothing without JavaScript. */
 .art-share { display: none; }
 @media (max-width: 639.98px) {

@@ -43,6 +43,11 @@
 /search
 /polls
 /pmqs
+# The PMQs archive (owner, 5 Nov 2026): one session from each of three decades and an MP with archive data.
+/pmqs/1961-12-07
+/pmqs/1991-11-05
+/pmqs/2015-03-18
+/mps/185/pmqs
 # Exact pages over 9,000px at 375px on 5 Nov 2026 (owner: warn at 9,000px, fail at 10,000px; pages grow as data grows).
 /parties/labour/money
 /council-tax

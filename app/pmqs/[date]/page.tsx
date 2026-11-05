@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { longDate, pmqsExchanges, pmqsSet } from '@/lib/pmqs';
+import { archiveSessionOn } from '@/lib/pmqs-archive';
+import ArchiveSessionView from './ArchiveSessionView';
 
 // One session of Prime Minister's Questions (owner, 5 Nov 2026): rendered on first request and refreshed every six hours,
 // because Hansard can correct a session for about two weeks.
@@ -26,7 +28,15 @@ async function sessionFor(date: string) {
 export async function generateMetadata({ params }: { params: Promise<{ date: string }> }): Promise<Metadata> {
   const { date } = await params;
   const session = await sessionFor(date);
-  if (!session) return { title: "Prime Minister's Questions", robots: { index: false, follow: true } };
+  if (!session) {
+    const old = /^\d{4}-\d{2}-\d{2}$/.test(date) ? await archiveSessionOn(date) : null;
+    if (!old) return { title: "Prime Minister's Questions", robots: { index: false, follow: true } };
+    return {
+      title: `Prime Minister's Questions, ${longDate(date)}`,
+      description: `Every question and answer at Prime Minister's Questions on ${longDate(date)}${old.prime_minister_as_named ? `, answered by ${old.prime_minister_as_named}` : ''}, with a link to the official record.`,
+      alternates: { canonical: `/pmqs/${date}` },
+    };
+  }
   return {
     title: `Prime Minister's Questions, ${longDate(date)}`,
     description: `Every question and answer at Prime Minister's Questions on ${longDate(date)}, answered by ${session.answeredBy.name}, with links to the official Hansard record.`,
@@ -37,7 +47,11 @@ export async function generateMetadata({ params }: { params: Promise<{ date: str
 export default async function PmqsSessionPage({ params }: { params: Promise<{ date: string }> }) {
   const { date } = await params;
   const session = await sessionFor(date);
-  if (!session) notFound();
+  if (!session) {
+    const old = /^\d{4}-\d{2}-\d{2}$/.test(date) ? await archiveSessionOn(date) : null;
+    if (!old) notFound();
+    return <ArchiveSessionView session={old} />;
+  }
   const exchanges = await pmqsExchanges(session);
   const speakerStandsIn = exchanges.some((e) => e.speaker.length > 0);
   return (

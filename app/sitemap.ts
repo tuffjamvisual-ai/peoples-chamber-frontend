@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { departments } from '@/lib/departments';
 import { allEditorials } from '@/lib/editorials-source';
 import { pmqsSet } from '@/lib/pmqs';
+import { archiveSessions } from '@/lib/pmqs-archive';
 import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
@@ -161,6 +162,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Every session of Prime Minister's Questions we hold.
   const pmqsEntries: MetadataRoute.Sitemap = await pmqsSet().then((set) => set.sessions.map((p) => ({ url: `${SITE}/pmqs/${p.date}`, ...dated(newest(p.date)), changeFrequency: 'monthly' as const, priority: 0.5 }))).catch(() => []);
+
+  // Every session in the PMQs archive, 1961 to 2024: dated by the session, which does not change.
+  const pmqsArchiveEntries: MetadataRoute.Sitemap = (await archiveSessions()).map((p) => ({ url: `${SITE}/pmqs/${p.date}`, lastModified: new Date(`${p.date}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 }));
 
   // Every published editorial in the database
   // so new pieces are picked up automatically (no hardcoded slug list).
@@ -450,6 +454,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...editorialEntries,
     ...dbBriefingEntries,
     ...pmqsEntries,
+    ...pmqsArchiveEntries,
     ...partyEntries,
     ...billEntries,
     ...billSessionEntries,

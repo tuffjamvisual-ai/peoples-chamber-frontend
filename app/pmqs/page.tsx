@@ -3,11 +3,12 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import PmqsAttendance from './PmqsAttendance';
 import SessionsArchive from './SessionsArchive';
+import EverySession from './EverySession';
 import { pmqsSet } from '@/lib/pmqs';
 
 export const metadata: Metadata = {
   title: { absolute: "Prime Minister's Questions: every session and attendance" },
-  description: "Prime Minister's Questions: every session since July 2024, and the Prime Minister's attendance since 1979.",
+  description: "Prime Minister's Questions: every session since 1961, and the Prime Minister's attendance since 1979.",
   alternates: { canonical: '/pmqs' },
 };
 
@@ -22,6 +23,7 @@ export default async function PmqsPage() {
         Prime Minister&rsquo;s Questions
       </h1>
       <SessionsArchive set={set} />
+      <EverySession />
       <PmqsAttendance />
     </OpenGovShell>
   );
