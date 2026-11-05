@@ -14,7 +14,7 @@ export default function OpenHashTarget() {
       let opened = false;
       for (let e: Element | null = target.parentElement; e; e = e.parentElement) {
         if (e instanceof HTMLDetailsElement && !e.open) { e.open = true; opened = true; }
-        const fold = e.classList.contains('pc-b') ? e.previousElementSibling : null;
+        const fold = e.classList.contains('pc-b') || e.classList.contains('rf-b') ? e.previousElementSibling : null;
         if (fold instanceof HTMLDetailsElement && !fold.open) { fold.open = true; opened = true; }
       }
       if (opened) target.scrollIntoView();

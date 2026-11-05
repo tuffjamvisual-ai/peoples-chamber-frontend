@@ -182,6 +182,22 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .pa-year > summary { font-size: 15px; }
 .mc-more > summary { justify-content: center; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }
 .mc-more[open] > summary { display: none; }
+.rf-d { display: none; }
+.rf-b, .rf-h { display: contents; }
+@media (max-width: 639.98px) {
+  .rf-h { display: none; }
+  .rf-d { display: block; border-top: 1px solid rgba(20,16,13,0.25); }
+  .rf-b { display: block; }
+  .rf-d:not([open]) + .rf-b { display: none; }
+  .rf-d > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 0; font-size: 18px; font-weight: bold; line-height: 1.3; cursor: pointer; list-style: none; }
+  .rf-d > summary::-webkit-details-marker { display: none; }
+  .ng-page .rf-d > summary::after { content: "Show"; position: static; transform: none; height: auto; min-width: 0; flex: none; font-size: 15px; font-weight: normal; text-decoration: underline; }
+  .ng-page .rf-d[open] > summary::after { content: "Hide"; }
+  .rf-more { border-top: 0; }
+  .rf-more > summary { justify-content: center; margin: 12px 0 20px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }
+  .ng-page .rf-more > summary::after { content: none; }
+  .rf-more[open] > summary { display: none; }
+}
 .pc-d { display: none; }
 .pc-b { display: contents; }
 @media (max-width: 639.98px) {

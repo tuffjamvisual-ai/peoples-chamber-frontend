@@ -161,6 +161,7 @@ async function linksFrom(parent: string, re: RegExp): Promise<string[]> {
   add('/pmqs/[date]', '/pmqs/1991-11-05', 'archive session, 1991');
   add('/pmqs/[date]', '/pmqs/2015-03-18', 'archive session, 2015');
   add('/mps/[id]/pmqs', '/mps/185/pmqs', 'with archive data');
+  for (const u of ['se9k4m2xq7', 'bg9k4mxw2q', 'mi5k7qxw9n', 'hx7n4qw2mk', 'whr8acs2gf']) add('/editorials/[slug]', `/editorials/${u}`, 'one of the 5 tallest reports');
   for (const s of SECTION_PAGES) add('/sections/[slug]', `/sections/${s.slug}`, 'every section page (few of them)');
   for (const s of ['ministers-meetings', 'appgs', 'hospitality', 'revolving-door', 'donations', 'contracts']) add('/transparency/[section]', `/transparency/${s}`, 'every section (few of them)');
   const mid = topics[Math.floor(topics.length / 2)].slug;

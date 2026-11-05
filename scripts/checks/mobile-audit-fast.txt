@@ -48,6 +48,12 @@
 /pmqs/1991-11-05
 /pmqs/2015-03-18
 /mps/185/pmqs
+# The 5 tallest reports at 375px on 5 Nov 2026, also measured with JavaScript off (owner, 5 Nov 2026).
+/editorials/se9k4m2xq7
+/editorials/bg9k4mxw2q
+/editorials/mi5k7qxw9n
+/editorials/hx7n4qw2mk
+/editorials/whr8acs2gf
 # Exact pages over 9,000px at 375px on 5 Nov 2026 (owner: warn at 9,000px, fail at 10,000px; pages grow as data grows).
 /parties/labour/money
 /council-tax

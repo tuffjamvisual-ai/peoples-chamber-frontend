@@ -7,7 +7,7 @@
 //            once it has loaded (owner, 5 Nov 2026: 10,000px at most as a page first opens), tall lists of any kind are cut
 //            to about 6,000px, then 3,000px, then 1,500px, and then its sections fold under their headings.
 // What it leaves alone (owner, 5 Nov 2026): the long page shortening runs once per page, when the page has loaded, and never
-// on a page with its own folds (PhoneFolds, .pf-list). Nothing inside a fold or a <details> is cut, folded or given a button,
+// on a page with its own folds (PhoneFolds, .pf-list; a report, [data-own-folds], is folded on the server, lib/editorials/phone-folds.ts). Nothing inside a fold or a <details> is cut, folded or given a button,
 // a list marked data-own-more has its own Show more (PhoneMore.tsx), and once the reader has opened something no list
 // gets a new limit. So a press can never shorten what is on the page, or hide what comes after it.
 // Back and Forward (owner, 5 Nov 2026): the scroll position and any heading folds left open are kept in sessionStorage
@@ -162,7 +162,7 @@ function returning(){
 function shorten(){
   if(done===path||document.readyState!=='complete')return;
   done=path;
-  if(opened||document.querySelector('.pf-list'))return;
+  if(opened||document.querySelector('.pf-list,[data-own-folds]'))return;
   tall();folds();
 }
 window.__ogPhone=function(buttons){

@@ -49,6 +49,30 @@ function parseCsv(text) {
   return rows;
 }
 
+// Every published report and briefing, from the site's own sitemap, so a new one is measured from the day it appears
+// (owner, 5 Nov 2026: all of them, not a sample). A missing or unreadable sitemap stops the audit rather than skip them.
+async function reportPages(base) {
+  const res = await fetch(`${base}/sitemap.xml`);
+  if (!res.ok) throw new Error(`sitemap: HTTP ${res.status}`);
+  const paths = [...(await res.text()).matchAll(/<loc>[^<]*?(\/(editorials|briefings)\/[^/<]+)<\/loc>/g)];
+  if (!paths.length) throw new Error('sitemap: no reports or briefings found');
+  return paths.map((m) => ({ route: `/${m[2]}/[slug]`, url: m[1], why: 'every report and briefing' }));
+}
+
+// A report's height at 375px with JavaScript off (owner, 5 Nov 2026), read from a full page image: scripts cannot run.
+const isReport = (url) => /^\/(editorials|briefings)\/[^/]+$/.test(url);
+async function noJsHeight(browser, base, url) {
+  const ctx = await browser.newContext({ viewport: { width: 375, height: HEIGHT }, deviceScaleFactor: 1, isMobile: true, hasTouch: true, javaScriptEnabled: false });
+  try {
+    const page = await ctx.newPage();
+    await page.route('**/*', (route) => (blocked(route.request().url()) ? route.abort() : route.continue()));
+    await page.goto(base + url, { waitUntil: 'domcontentloaded', timeout: 180000 });
+    return (await page.screenshot({ fullPage: true })).readUInt32BE(20);
+  } finally {
+    await ctx.close();
+  }
+}
+
 function choosePages() {
   const all = parseCsv(fs.readFileSync(path.join(HERE, 'mobile-audit-pages.csv'), 'utf8'));
   if (!FAST) return LIMIT ? all.slice(0, LIMIT) : all;
@@ -239,6 +263,7 @@ function problems(row) {
       if (m.duplicate_link_sets) add('g', `same links twice: ${m.duplicate_link_sets_eg.join('; ')}`, m.duplicate_link_sets);
     }
     if (row.width === 375 && m.page_height > MAX_HEIGHT) add('h', `page height ${m.page_height}px (banner ${state})`);
+    if (state === 'showing' && row.no_js_height > MAX_HEIGHT) add('h', `page height ${row.no_js_height}px with JavaScript off`);
     if (m.h1_y === null) add('d', `no h1 (banner ${state})`);
     else if (m.h1_y >= HEIGHT) add('d', `h1 at ${m.h1_y}px, below the first screen (banner ${state})`);
     if (m.first_content_y === null) add('d', `no first content found (banner ${state})`);
@@ -251,7 +276,7 @@ function problems(row) {
 
 // Pages at 375px over the warning height but not over the limit, tallest first.
 function nearLimit(rows) {
-  return rows.filter((r) => r.width === 375).map((r) => ({ url: r.url, height: Math.max(r.showing?.page_height ?? 0, r.dismissed?.page_height ?? 0) }))
+  return rows.filter((r) => r.width === 375).map((r) => ({ url: r.url, height: Math.max(r.showing?.page_height ?? 0, r.dismissed?.page_height ?? 0, r.no_js_height ?? 0) }))
     .filter((x) => x.height > WARN_HEIGHT && x.height <= MAX_HEIGHT).sort((a, b) => b.height - a.height);
 }
 function printNear(near) {
@@ -265,8 +290,8 @@ const flat = (v) => (Array.isArray(v) ? v.join(' | ') : v);
 
 function writeCsv(rows) {
   const keys = ['horizontal_scroll', 'too_wide', 'too_wide_eg', 'cut_off', 'cut_off_eg', 'under_44', 'under_44_eg', 'under_15', 'under_15_eg', 'h1_y', 'h1_text', 'first_content_y', 'first_content_eg', 'tall_media', 'tall_media_eg', 'link_rows_before_content', 'duplicate_link_sets', 'duplicate_link_sets_eg', 'page_height'];
-  const head = ['route', 'url', 'final_url', 'why', 'width', 'status', 'load_ms', 'banner', ...keys.map((k) => `showing_${k}`), ...keys.map((k) => `dismissed_${k}`), 'console_errors', 'failed_requests', 'problem_checks', 'error'];
-  const lines = rows.map((r) => [r.route, r.url, r.final_url, r.why, r.width, r.status, r.load_ms, r.banner, ...keys.map((k) => flat(r.showing?.[k])), ...keys.map((k) => flat(r.dismissed?.[k])), flat(r.console_errors), flat(r.failed_requests), [...new Set(problems(r).map((p) => p.check))].sort().join(''), r.error].map(csvCell).join(','));
+  const head = ['route', 'url', 'final_url', 'why', 'width', 'status', 'load_ms', 'banner', 'no_js_page_height', ...keys.map((k) => `showing_${k}`), ...keys.map((k) => `dismissed_${k}`), 'console_errors', 'failed_requests', 'problem_checks', 'error'];
+  const lines = rows.map((r) => [r.route, r.url, r.final_url, r.why, r.width, r.status, r.load_ms, r.banner, r.no_js_height ?? '', ...keys.map((k) => flat(r.showing?.[k])), ...keys.map((k) => flat(r.dismissed?.[k])), flat(r.console_errors), flat(r.failed_requests), [...new Set(problems(r).map((p) => p.check))].sort().join(''), r.error].map(csvCell).join(','));
   fs.writeFileSync(path.join(OUT, 'results.csv'), [head.join(','), ...lines].join('\n') + '\n');
 }
 
@@ -330,6 +355,12 @@ async function startServer() {
 async function main() {
   const server = await startServer();
   const pages = choosePages();
+  if (!FAST && !LIMIT) {
+    const seen = new Set(pages.map((p) => p.url));
+    const reports = await reportPages(server.base);
+    for (const p of reports) if (!seen.has(p.url)) pages.push(p);
+    console.log(`${reports.length} reports and briefings from the sitemap, all measured`);
+  }
   fs.mkdirSync(path.join(OUT, 'shots'), { recursive: true });
   const shotDir = FAST || argv.includes('--no-shots') ? null : path.join(OUT, 'shots');
   const browser = await ENGINE.launch();
@@ -343,6 +374,14 @@ async function main() {
       rows.push(row);
       done++;
       if (done % 25 === 0 || done === jobs.length) console.log(`${done} of ${jobs.length}`);
+    }
+  }));
+  const reportRows = rows.filter((r) => r.width === 375 && isReport(r.url));
+  let nextReport = 0;
+  await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
+    while (nextReport < reportRows.length) {
+      const r = reportRows[nextReport++];
+      r.no_js_height = await noJsHeight(browser, server.base, r.url).catch(() => null);
     }
   }));
   await browser.close();

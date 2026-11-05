@@ -217,3 +217,8 @@ route,example_url,why_chosen
 "/pmqs/[date]","/pmqs/2015-03-18","archive session, 2015"
 "/mps/[id]/pmqs","/mps/185/pmqs","with archive data"
 "/search","/search?q=nhs","a common search"
+"/editorials/[slug]","/editorials/se9k4m2xq7","one of the 5 tallest reports"
+"/editorials/[slug]","/editorials/bg9k4mxw2q","one of the 5 tallest reports"
+"/editorials/[slug]","/editorials/mi5k7qxw9n","one of the 5 tallest reports"
+"/editorials/[slug]","/editorials/hx7n4qw2mk","one of the 5 tallest reports"
+"/editorials/[slug]","/editorials/whr8acs2gf","one of the 5 tallest reports"

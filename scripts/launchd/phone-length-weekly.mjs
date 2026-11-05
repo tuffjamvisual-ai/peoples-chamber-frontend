@@ -1,6 +1,7 @@
 // The weekly phone length check (owner, 5 Nov 2026): pages grow as data grows, with no push to catch them. Sundays at 13:15,
 // after the database backup (12:00), this builds what is on main in a temporary folder on GoliathSSD, measures every page
-// type in scripts/checks/mobile-audit-pages.csv at 375px as each page first opens, writes
+// type in scripts/checks/mobile-audit-pages.csv and every report and briefing (from the sitemap, also with JavaScript off)
+// at 375px as each page first opens, writes
 // "Claude outputs/phone-length/<date>.csv" and lists any page over 9,000px (warn) or 10,000px (the limit) in
 // "Claude outputs/phone-length/<date>-over-9000.txt" and in run.log. No page is changed and nothing is pushed.
 //
@@ -87,7 +88,7 @@ try {
   try { node(['scripts/checks/mobile-audit.mjs', '--base', base, '--widths', '375', '--no-shots', '--out', auditOut]); } catch (e) { if (!fs.existsSync(`${auditOut}/results.csv`)) throw e; }
 
   const R = parseCsv(fs.readFileSync(`${auditOut}/results.csv`, 'utf8')), h = R[0], ix = (k) => h.indexOf(k);
-  const rows = R.slice(1).filter((r) => r.length > 1).map((r) => ({ route: r[ix('route')], url: r[ix('url')], status: r[ix('status')], height: Number(r[ix('showing_page_height')]) || 0 })).sort((a, b) => b.height - a.height);
+  const rows = R.slice(1).filter((r) => r.length > 1).map((r) => ({ route: r[ix('route')], url: r[ix('url')], status: r[ix('status')], height: Math.max(Number(r[ix('showing_page_height')]) || 0, Number(r[ix('no_js_page_height')]) || 0) })).sort((a, b) => b.height - a.height);
   const verdict = (x) => (x.height > LIMIT ? 'over limit' : x.height > WARN ? 'warn' : '');
   fs.writeFileSync(`${OUT}/${today}.csv`, `route,url,status,height_px,result\n${rows.map((x) => [x.route, x.url, x.status, x.height, verdict(x)].map(cell).join(',')).join('\n')}\n`);
   const near = rows.filter((x) => x.height > WARN);

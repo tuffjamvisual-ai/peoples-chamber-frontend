@@ -20,6 +20,9 @@ import type { Block, EditorialEntry } from '@/lib/editorials/types';
 import ContentBadge from './ContentBadge';
 import ShareButton from './ShareButton';
 import { readingLabel } from '@/lib/reading-time';
+import { standfirstRepeatsOpening } from '@/lib/editorials/standfirst';
+import { phonePlan, type Chain } from '@/lib/editorials/phone-folds';
+import OpenHashTarget from './OpenHashTarget';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -68,15 +71,8 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(24px, 3.4vw, 40px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '20px' }}>
             {piece.headline}
           </h1>
-          {/* Phones (under 640px, owner, 4 Nov 2026): the main finding first, the list summary as a standfirst. */}
-          {piece.summary?.trim() && (
-            <>
-              <style dangerouslySetInnerHTML={{ __html: '.art-summary { display: none; } @media (max-width: 639.98px) { .art-summary { display: block; margin: 12px 0 0; font-weight: 600; color: #14100d; } }' }} />
-              <p className="art-summary">{piece.summary}</p>
-            </>
-          )}
-          {/* The stored standfirst, at every width (owner, 5 Nov 2026): it had dropped off the page on 10 Aug 2026. */}
-          {piece.standfirst?.trim() && (
+          {/* The stored standfirst, at every width, unless it repeats the opening paragraph (owner, 5 Nov 2026). */}
+          {piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body) && (
             <p style={{ fontSize: '18px', lineHeight: 1.5, margin: '12px 0 0', color: INK }}>{piece.standfirst}</p>
           )}
           {basePath === '/editorials' && <ShareButton title={piece.headline} />}
@@ -98,10 +94,8 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
         </header>
 
-        <article style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
-          {piece.body.map((block, i) => (
-            <Fragment key={`b${i}`}>{renderBlock(block, i)}</Fragment>
-          ))}
+        <article data-own-folds="" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
+          <ReportBody body={piece.body} />
           {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
           {piece.updateNote && piece.updateNote.length > 0 && (
             <section aria-labelledby="article-updates" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
@@ -168,6 +162,41 @@ function withLinks(text: string): React.ReactNode {
   }
   if (last < text.length) out.push(text.slice(last));
   return out;
+}
+
+// The body as it reads from 640px up, with folds that only show under 640px on a long report (lib/editorials/phone-folds.ts).
+function ReportBody({ body }: { body: Block[] }) {
+  const plan = phonePlan(body);
+  if (!plan) return <>{body.map((block, i) => <Fragment key={`b${i}`}>{renderBlock(block, i)}</Fragment>)}</>;
+  let at = 0; // keeps each block's index as it is in the body
+  const run = (blocks: Block[]) => blocks.map((block) => { const i = at++; return <Fragment key={`b${i}`}>{renderBlock(block, i)}</Fragment>; });
+  const rest = (c: Chain): ReactNode => (
+    <>
+      {run(c.blocks)}
+      {c.next && (
+        <>
+          <details className="rf-d rf-more"><summary>Continue reading</summary></details>
+          <div className="rf-b">{rest(c.next)}</div>
+        </>
+      )}
+    </>
+  );
+  return (
+    <>
+      <OpenHashTarget />
+      {rest(plan.lead)}
+      {plan.sections.map((s) => {
+        const i = at++;
+        return (
+          <Fragment key={`s${i}`}>
+            <div className="rf-h">{renderBlock(s.heading, i)}</div>
+            <details className="rf-d" open={s.open}><summary>{s.heading.type === 'heading' ? s.heading.text : ''}</summary></details>
+            <div className="rf-b">{rest(s.chain)}</div>
+          </Fragment>
+        );
+      })}
+    </>
+  );
 }
 
 function renderBlock(block: Block, i: number): React.ReactNode {
