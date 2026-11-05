@@ -17,7 +17,7 @@ const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 
 export const metadata: Metadata = {
-  title: 'Ministerial directions: when ministers overrule their officials on spending',
+  title: { absolute: 'Ministerial directions: ministers overruling officials' },
   description: 'Every ministerial direction published on GOV.UK since 2015: what was directed, by which minister and department, when, and the letters themselves.',
   alternates: { canonical: '/transparency/ministerial-directions' },
 };

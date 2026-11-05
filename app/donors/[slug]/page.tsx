@@ -4,6 +4,7 @@
 // you search by recipient. It does NOT let you navigate from the donor
 // out. This page does.
 
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { cache } from 'react';
@@ -164,7 +165,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const main = await mainSpellingFor(slug);
   return {
     ...(main ? { robots: { index: false, follow: true } } : {}),
-    title: `${name}: every UK political donation recorded by the Electoral Commission`,
+    title: namedTitle(name, (n) => [`${n}: every UK political donation recorded`, `${n}: UK political donations`, `${n}: donations`, n]),
     description: `Where ${name}'s money goes in UK politics: every party, MP, constituency association and All-Party Parliamentary Group they have given to or funded, with totals.`,
     alternates: { canonical: `/donors/${slug}` },
   };

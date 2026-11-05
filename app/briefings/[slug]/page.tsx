@@ -8,7 +8,7 @@
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
-import { TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
+import { namedTitle } from '@/lib/seo-title';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
@@ -51,10 +51,10 @@ async function getDbBriefing(slug: string): Promise<BriefingRow | null> {
 }
 
 
-// Search title (owner's approval, 24 Oct 2026), the same rule as reports: a headline that would take the full title past
-// 60 characters with the " | opengovt" suffix is used on its own; shorter ones keep the suffix (lib/seo-title.ts).
+// Search title, the same rule as reports (owner, 5 Nov 2026): 60 characters or fewer, a long headline cut at a natural
+// break (lib/seo-title.ts namedTitle). The page itself keeps the headline in full.
 function searchTitle(headline: string): Metadata['title'] {
-  return headline.length + TITLE_SUFFIX.length > TITLE_MAX ? { absolute: headline } : headline;
+  return namedTitle(headline, (n) => [n]);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

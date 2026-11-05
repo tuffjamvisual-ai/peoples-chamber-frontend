@@ -30,7 +30,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Double dip: UK MPs paid both as employment income AND as political donations',
+  title: { absolute: 'Double dip: UK MPs paid as income and as donations' },
   description:
     'Cross reference: every UK MP whose Register of Interests employment and earnings entry names an entity that also appears on the Electoral Commission donations register as a donor to that same MP. Double dip pattern, surfaced.',
   alternates: { canonical: '/donations/double-dip' },

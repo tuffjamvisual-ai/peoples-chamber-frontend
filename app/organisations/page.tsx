@@ -14,7 +14,7 @@ import { cachedOrganisationList, searchOrganisations, normaliseCompanyNumber, ty
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Organisations: donations, contracts, grants and lobbying',
+  title: { absolute: 'Organisations: donations, contracts, grants and lobbying' },
   description: PAGE_DESCRIPTIONS['/organisations'],
   alternates: { canonical: '/organisations' },
 };

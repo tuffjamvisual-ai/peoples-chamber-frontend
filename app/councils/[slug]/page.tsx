@@ -4,7 +4,7 @@
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
-import { titleWithin } from '@/lib/seo-title';
+import { namedTitle } from '@/lib/seo-title';
 import RelatedLine from '../../components/RelatedLine';
 import { councilRelated } from '@/lib/related-links';
 import { administrationLabel, seatsLine, seatName, type CouncilComposition } from '@/lib/council-composition';
@@ -191,8 +191,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const who = data.political_control ? ` Run by ${data.political_control === 'No overall control' ? 'no single party (no overall control)' : data.political_control}.` : '';
   const pop = data.population ? ` Population ${Number(data.population).toLocaleString('en-GB')}.` : '';
   return {
-    // Owner's brief, 3 Nov 2026: "<Council name>: spending, services and ratings" (lib/seo-title.ts titleWithin).
-    title: titleWithin(`${data.name}: spending, services and ratings`),
+    // Owner's brief, 3 Nov 2026: "<Council name>: spending, services and ratings", shorter for a long name (5 Nov 2026).
+    title: namedTitle(data.name, (n) => [`${n}: spending, services and ratings`, `${n}: spending and services`, `${n}: spending`, n]),
     description: metaDescription(`${data.name}, ${data.type_label.toLowerCase()} in ${data.country} (ONS code ${data.gss_code}).${who}${pop} Spending, services and how the area compares.`),
     alternates: { canonical: `/councils/${slug}` },
   };

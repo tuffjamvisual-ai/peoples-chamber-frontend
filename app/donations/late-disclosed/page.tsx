@@ -25,7 +25,7 @@ import { donorPageSlug } from '@/lib/donor-slug';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Political donations disclosed late: when UK parties told the EC after the deadline',
+  title: { absolute: 'UK political donations disclosed after the deadline' },
   description:
     'Political donations declared to the Electoral Commission more than 90 days after acceptance, ranked by disclosure delay. UK parties are required to report large donations within 30 days; this page surfaces the gap.',
   alternates: { canonical: '/donations/late-disclosed' },

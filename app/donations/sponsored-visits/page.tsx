@@ -28,7 +28,7 @@ import { readAll } from '@/lib/read-all';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Who paid for UK MPs\' trips: foreign governments, think tanks, lobby groups',
+  title: { absolute: "Who paid for UK MPs' trips: governments and lobby groups" },
   description:
     'Every sponsored visit declared to the Electoral Commission as a donation in kind. Lists foreign governments that paid, think tank invitations, and trips by ‘Friends of’ groups, grouped by sponsor and by recipient MP.',
   alternates: { canonical: '/donations/sponsored-visits' },

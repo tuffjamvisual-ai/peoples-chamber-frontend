@@ -1,3 +1,4 @@
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -53,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const row = await getRow(n)
   if (!row) return { title: 'Coverage' }
   return {
-    title: `${row.source_title}, via ${row.source_outlet}`,
+    title: namedTitle(row.source_title, (n) => [`${n}, via ${row.source_outlet}`, n]),
     description: row.commentary || row.source_excerpt || `${row.source_outlet} coverage with opengovt commentary.`,
     alternates: { canonical: `/coverage/${row.id}` },
   }

@@ -8,7 +8,7 @@ export const revalidate = 600;
 export function generateStaticParams() { return []; }
 
 export const metadata: Metadata = {
-  title: "UK Parliament Bills Tracker, Live Stages, Votes & Acts",
+  title: { absolute: 'UK Parliament Bills Tracker, Live Stages, Votes & Acts' },
   alternates: { canonical: '/bills' },
 };
 

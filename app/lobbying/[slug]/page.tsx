@@ -1,6 +1,7 @@
 // /lobbying/[slug] — one organisation: every published meeting with a minister, and every
 // consultant lobbying firm that named it as a client. Data from lib/lobbying.ts.
 
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const org = await getOrgBySlug(slug);
   if (!org) return { title: 'Organisation not found' };
   return {
-    title: `${org.name}: meetings with UK ministers and lobbying firms`,
+    title: namedTitle(org.name, (n) => [`${n}: meetings with UK ministers and lobbying firms`, `${n}: meetings with UK ministers`, `${n}: lobbying`, n]),
     description: `Every published meeting between ${org.name} and UK government ministers${org.lobbying_firms > 0 ? ', and the consultant lobbying firms that act for it' : ''}, from GOV.UK transparency returns and the Registrar of Consultant Lobbyists.`,
     alternates: { canonical: `/lobbying/${org.slug}` },
   };

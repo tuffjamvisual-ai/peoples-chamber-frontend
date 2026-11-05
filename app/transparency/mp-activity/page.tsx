@@ -31,7 +31,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const { view, party, q, page } = readParams(await searchParams)
   const isDefault = view === DEFAULT_VIEW && !party && !q && page === 1
   return {
-    title: 'MP Activity: Most Active and Fewest Commons Contributions',
+    title: { absolute: 'MP Activity: Most Active and Fewest Commons Contributions' },
     description: 'Every current MP ranked by how often they have spoken in Parliament this term, and how many words, taken from the official Hansard record.',
     alternates: { canonical: '/transparency/mp-activity' },
     // Search engines index the main ranking only, and still follow the links on every other view.

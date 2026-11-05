@@ -23,7 +23,7 @@ import PhoneTable from '../components/PhoneTable';
 export const revalidate = 21600;
 
 export const metadata: Metadata = {
-  title: 'Sewage spills by council, constituency and water company',
+  title: { absolute: 'Sewage spills by council, constituency and water company' },
   description:
     'How long storm overflows spilled sewage in every council area and constituency in England, Scotland and Northern Ireland, from Environment Agency, Scottish Water and NI Water monitoring data.',
   alternates: { canonical: '/sewage' },

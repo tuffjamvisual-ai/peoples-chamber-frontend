@@ -11,7 +11,7 @@ import { displayMpName } from '@/lib/mp-name';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "UK MPs, Voting Records, Earnings & Registered Interests",
+  title: { absolute: 'UK MPs, Voting Records, Earnings & Registered Interests' },
   description:
     "Profiles of all 650 UK MPs: voting records, expenses, registered interests and contact details. Search by name, party or constituency.",
   alternates: { canonical: '/mps' },

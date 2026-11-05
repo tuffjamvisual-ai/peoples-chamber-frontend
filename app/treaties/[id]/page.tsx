@@ -1,3 +1,4 @@
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const t = await getTreaty(id);
   if (!t) return {};
   return {
-    title: t.title.length > 70 ? `${t.title.slice(0, 67).trimEnd()}...` : t.title,
+    title: namedTitle(t.title, (n) => [n], t.command_paper ? `Treaty laid before Parliament, ${t.command_paper}` : undefined),
     description: `${t.command_paper ? `${t.command_paper}: ` : ''}treaty laid before Parliament on ${t.laid_date || 'a date not given'} by ${t.lead_department || 'the government'}, with its scrutiny deadline and committee work.`.slice(0, 155),
     alternates: { canonical: `/treaties/${id}` },
   };

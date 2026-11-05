@@ -1,3 +1,4 @@
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!d) return {};
   const { row } = d;
   return {
-    title: `${row.report_title}: recommendation ${row.rec_number}`,
+    title: namedTitle(row.report_title, (n) => [`${n}: recommendation ${row.rec_number}`, `${n}: rec ${row.rec_number}`], `Public Accounts Committee: recommendation ${row.rec_number}`),
     description: `Committee of Public Accounts recommendation ${row.rec_number} in report ${row.report_number} of the ${sessionWords(row.session)}, and what the government has said about it in Treasury Minutes.`,
     alternates: { canonical: `/recommendations/${row.session}/${row.report_number}/${row.rec_number}` },
   };

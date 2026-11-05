@@ -8,7 +8,7 @@
 // itself rebuilds hourly, so an error message never stays longer than that. Large bills: up to INLINE_TEXT_BUDGET of
 // the text is in the page, the rest loads a part at a time (BillTextGroups), so the page stays under 2 MB.
 import type { Metadata } from 'next'
-import { TITLE_SUFFIX } from '@/lib/seo-title'
+import { namedTitle } from '@/lib/seo-title'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -118,8 +118,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (error && error.code !== 'PGRST116') throw new Error(`full bill metadata: ${error.message}`)
   if (!bill || bill.hidden_reason) return {}
   return {
-    // The site's suffix is added here: the root title template does not reach below a layout that sets its own title.
-    title: `Full text: ${bill.title}${TITLE_SUFFIX}`,
+    title: namedTitle(bill.title, (n) => [`${n}: full text`, n]),
     description: `The full text of the ${bill.title}, with a contents list of its clauses, and every document Parliament has published for it.`,
     alternates: { canonical: `/bills/${billId}/full` },
   }

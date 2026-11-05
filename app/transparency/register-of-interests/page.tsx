@@ -65,7 +65,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const sp = await searchParams;
   const filtered = !!(one(sp.q) || one(sp.mp) || one(sp.cat) || one(sp.from) || one(sp.to) || (one(sp.page) && one(sp.page) !== '1'));
   return {
-    title: "Register of Members' Financial Interests: Search Every MP",
+    title: { absolute: "Register of Members' Financial Interests: Search Every MP" },
     description:
       "Search the Register of Members' Financial Interests: gifts, hospitality, employment, overseas visits, property and shareholdings declared by every UK MP. Filter by MP, category and date. Separate from Electoral Commission political donations.",
     alternates: { canonical: '/transparency/register-of-interests' },

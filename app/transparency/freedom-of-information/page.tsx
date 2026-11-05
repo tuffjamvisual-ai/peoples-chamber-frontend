@@ -11,7 +11,7 @@ import FoiTable, { type FoiTableRow } from './FoiTable';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Freedom of Information Requests by Government Department',
+  title: { absolute: 'Freedom of Information Requests by Government Department' },
   description:
     'How many Freedom of Information requests each UK government department and body received in the latest quarter, how many were answered within 20 working days, and how many were granted or withheld.',
   alternates: { canonical: '/transparency/freedom-of-information' },

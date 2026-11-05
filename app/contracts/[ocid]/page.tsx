@@ -13,6 +13,7 @@
 // notices give each change a new contract id, so a change joins the contract whose latest value equals the
 // change's old value, for the same supplier; one that matches nothing is shown as its own contract.
 
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { unstable_cache } from 'next/cache';
@@ -154,7 +155,7 @@ export async function generateMetadata({ params }: { params: Promise<{ ocid: str
   if (!OCID_RE.test(ocid)) return {};
   const notices = await loadNotices(ocid);
   const title = [...notices].reverse().find((n) => n.title)?.title;
-  return title ? { title: `${title}: contract history`, alternates: { canonical: `/contracts/${ocid}` } } : {};
+  return title ? { title: namedTitle(title, (n) => [`${n}: contract history`, n], `Contract history: ${[...notices].reverse().find((n) => n.buyer_name)?.buyer_name ?? 'public procurement'}`), alternates: { canonical: `/contracts/${ocid}` } } : {};
 }
 
 export default async function ContractHistoryPage({ params }: { params: Promise<{ ocid: string }> }) {

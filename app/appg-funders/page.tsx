@@ -17,7 +17,7 @@ import { storedSpellings } from '@/lib/donor-registry';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'APPG Funders: every organisation paying for All-Party Parliamentary Group access',
+  title: { absolute: 'APPG funders: who pays for All-Party Parliamentary Groups' },
   description:
     'Index of every organisation funding one or more UK All-Party Parliamentary Groups, ranked by groups funded. Reveals which corporations and charities buy formal Westminster access via APPG sponsorship.',
   alternates: { canonical: '/appg-funders' },

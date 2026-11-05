@@ -1,6 +1,7 @@
 // /councils/[slug]/sewage: every storm overflow in a council's area with its spills, moved off the council page's
 // Sewage tab, which now shows the summary and the 15 longest-spilling overflows and links here (owner's approval,
 // 21 Oct 2026).
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const d = await getSubpageCouncil(slug);
   if (!d) return { title: 'Sewage spills' };
   return {
-    title: `Sewage spills in ${d.c.name}: every storm overflow`,
+    title: namedTitle(d.c.name, (n) => [`Sewage spills in ${n}: every storm overflow`, `Sewage spills in ${n}`, `${n}: sewage`]),
     description: `Every storm overflow in ${d.c.name}: how many times and for how many hours it spilled sewage, which water company runs it and whether its monitor was working.`,
     alternates: { canonical: `/councils/${slug}/sewage` },
   };

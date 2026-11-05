@@ -1,3 +1,4 @@
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -75,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/committees/[id] committees: ${dataErr2.message}`);
   if (!data) return { title: 'Committee' };
   return {
-    title: `${data.name}: UK Parliament`,
+    title: namedTitle(data.name, (n) => [`${n}: UK Parliament`, n]),
     description: `Current members of the ${data.name}, sourced from UK Parliament.`,
     alternates: { canonical: `/committees/${id}` },
   };

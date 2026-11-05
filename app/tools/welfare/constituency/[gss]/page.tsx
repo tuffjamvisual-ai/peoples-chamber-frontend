@@ -1,3 +1,4 @@
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../../../../components/OpenGovShell'
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ gss: stri
   const name = data?.constituency || null
   if (!name) return { title: 'Constituency not found' }
   return {
-    title: `${name}: Welfare Spending`,
+    title: namedTitle(name, (n) => [`${n}: Welfare Spending`, `${n}: welfare`, n]),
     description: `Universal Credit, Housing Benefit, PIP, DLA, Carer's Allowance and ESA spending and caseloads for ${name}.`,
     alternates: { canonical: `/tools/welfare/constituency/${gssCode}` },
   }

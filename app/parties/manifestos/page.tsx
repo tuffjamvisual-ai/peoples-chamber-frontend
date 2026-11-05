@@ -27,7 +27,7 @@ const SERIF = 'var(--font-special-elite), monospace';
 const MONO = 'var(--font-special-elite), monospace';
 
 export const metadata: Metadata = {
-  title: "UK Party Manifestos 2024, Side by Side Policy Comparison",
+  title: { absolute: 'UK Party Manifestos 2024, Side by Side Policy Comparison' },
   description:
     "Compare the 2024 General Election manifestos of Labour, Conservative, Reform, Lib Dem, SNP, Green and 9 other parties across 11 policy themes.",
   alternates: { canonical: '/parties/manifestos' },

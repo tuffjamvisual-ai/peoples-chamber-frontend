@@ -8,6 +8,7 @@
 // to find that one firm operates 6 different lobby groups requires
 // reading 600 separate pages.
 
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
 import Link from 'next/link';
@@ -80,7 +81,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const name = await findCanonicalName(slug);
   if (!name) return { title: 'Secretariat' };
   return {
-    title: `${name}: every All-Party Parliamentary Group operated by this secretariat`,
+    title: namedTitle(name, (n) => [`${n}: every All-Party Parliamentary Group it runs`, `${n}: All-Party Groups it runs`, `${n}: APPG secretariat`, n]),
     description: metaDescription(`${name} runs the secretariat for APPGs in Westminster: every group, the MPs officering them and the funders paying the firm.`),
     alternates: { canonical: `/secretariats/${slug}` },
   };

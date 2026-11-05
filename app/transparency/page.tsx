@@ -9,7 +9,7 @@ import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: "UK Government Transparency, Lobbying, Donations, Hospitality, Contracts",
+  title: { absolute: 'UK Government Transparency: Lobbying, Donations, Contracts' },
   description:
     "UK government transparency data: ministerial meetings, hospitality declarations, political donations, public contracts, revolving door and more, drawn from public registers.",
   alternates: { canonical: '/transparency' },

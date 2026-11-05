@@ -18,7 +18,7 @@ import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Money & Power · UK political money tracked across every register',
+  title: { absolute: 'Money & Power: UK political money across every register' },
   description:
     'Transparency across registers: UK MPs paid twice from the same source, government contractors who donate, MP travel paid for by foreign governments, APPG funders and lobby firms. The patterns hidden in plain sight across the EC, gov.uk and Register of Interests, in one place.',
   alternates: { canonical: '/money' },

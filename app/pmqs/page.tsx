@@ -6,7 +6,7 @@ import SessionsArchive from './SessionsArchive';
 import { pmqsSet } from '@/lib/pmqs';
 
 export const metadata: Metadata = {
-  title: "Prime Minister's Questions: every session and attendance",
+  title: { absolute: "Prime Minister's Questions: every session and attendance" },
   description: "Prime Minister's Questions: every session since July 2024, and the Prime Minister's attendance since 1979.",
   alternates: { canonical: '/pmqs' },
 };

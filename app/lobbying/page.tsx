@@ -14,7 +14,7 @@ import { getRankings, getSummary, getFirmsForQuarter, quarterLabel, fmtDate, typ
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Lobbying: who meets UK ministers and who pays lobbyists',
+  title: { absolute: 'Lobbying: who meets UK ministers and who pays lobbyists' },
   description:
     "Which companies, trade bodies, unions and charities meet UK government ministers most often, from the government's own published meeting records, and which consultant lobbying firms act for which clients, from the Registrar of Consultant Lobbyists.",
   alternates: { canonical: '/lobbying' },

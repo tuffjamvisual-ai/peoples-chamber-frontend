@@ -6,7 +6,7 @@ import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
 
 export const metadata: Metadata = {
-  title: "MP Expenses Refused or Repaid, IPSA Rejections, Late Submissions & Repayments",
+  title: 'MP expenses refused or repaid: IPSA rejections',
   description:
     "Expense claims IPSA refused and amounts repaid by serving MPs, by year, by MP and by IPSA's reason.",
   alternates: { canonical: '/expenses/refused' },

@@ -7,6 +7,7 @@
 // party's unit, and national headquarters units ("Central Party") list each party's national accounts. See
 // lib/association-units.ts.
 
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -36,19 +37,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (view.kind === 'chooser') {
     return view.national
       ? {
-          title: `${view.unitName} accounts by party: national party donations`,
+          title: namedTitle(view.unitName, (n) => [`${n} accounts by party: national party donations`, `${n}: national party donations`, n]),
           description: `Donations declared to each party's national accounts (${view.unitName}), by party. These are national party accounts, not constituency associations.`,
           alternates: { canonical: `/donations/constituencies/${slug}` },
         }
       : {
-          title: `${view.unitName}: local party accounts by party`,
+          title: namedTitle(view.unitName, (n) => [`${n}: local party accounts by party`, `${n}: local party accounts`, n]),
           description: `${view.parties.length} parties have an accounting unit named ${view.unitName}. Choose a party to see its declared donations.`,
           alternates: { canonical: `/donations/constituencies/${slug}` },
         };
   }
   const name = view.unitName;
   return {
-    title: `${name}: declared donations to this UK constituency association`,
+    title: namedTitle(name, (n) => [`${n}: declared donations to this UK constituency association`, `${n}: UK constituency association donations`, `${n}: declared donations`, n]),
     description: `Every Electoral Commission donation declared to ${name}, ranked by donor.`,
     alternates: { canonical: `/donations/constituencies/${slug}` },
   };

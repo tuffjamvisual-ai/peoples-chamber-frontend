@@ -21,7 +21,7 @@ import { readAll } from '@/lib/read-all';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Political donations routed through trusts: who funds UK politics via trusts',
+  title: 'UK political donations routed through trusts',
   description:
     'Political donations to UK parties and parliamentary recipients channelled through a trust rather than a named individual. Aggregated by trust, with the trust creator and recipient on every row.',
   alternates: { canonical: '/donations/trust-funded' },

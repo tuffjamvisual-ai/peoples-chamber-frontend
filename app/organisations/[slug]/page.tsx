@@ -3,6 +3,7 @@
 // registry's checked spellings. Nothing by name alone. Summary figures from organisation_index (migration 2026-10-27c),
 // the latest five records of each from the source tables (lib/organisations.ts). Rendered on demand, cached a day.
 
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -32,10 +33,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!org) return { title: 'Organisation not found' };
   const held = [org.donations && 'donations', (org.contracts || org.framework_places) && 'contracts', org.grants && 'grants', org.meetings && 'meetings with ministers', org.lobbying_quarters && 'lobbying'].filter(Boolean) as string[];
   const heldText = held.length > 1 ? `${held.slice(0, -1).join(', ')} and ${held[held.length - 1]}` : held[0] || 'public records';
-  const title = `${org.name}: ${heldText}`;
   const description = `${orgSummaryLine(org)} Matched by Companies House number and the checked lobbying list, never by name alone.`.slice(0, 300);
   return {
-    title: title.length > 60 ? `${org.name.length > 45 ? `${org.name.slice(0, 42).trimEnd()}...` : org.name}: public records` : title,
+    title: namedTitle(org.name, (n) => [`${n}: ${heldText}`, `${n}: public records`, n]),
     description,
     alternates: { canonical: `/organisations/${org.slug}` },
     openGraph: { title: org.name, description, url: `${SITE}/organisations/${org.slug}`, type: 'website' },

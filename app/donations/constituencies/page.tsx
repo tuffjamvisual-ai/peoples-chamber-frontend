@@ -26,7 +26,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'UK political donations by constituency: which local associations get bankrolled',
+  title: { absolute: 'UK political donations by constituency association' },
   description:
     'Ranks every UK constituency association by total declared donations received. Reveals which seats are propped up by big local donors, big national donors, or money passed down from party head office.',
   alternates: { canonical: '/donations/constituencies' },

@@ -2,6 +2,7 @@
 // table (rating, end date and whole-life cost for each March) and the department's commentary for each year.
 // project_key is the file's project ID (e.g. DFT_0141_2223-Q1), or 'no-id:<DEPT>:<name>' for the 2 rows without one.
 
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { project } = await fetchMajorProject(key).catch(() => ({ project: null }));
   if (!project) return { title: 'Major project not found', robots: { index: false, follow: false } };
   return {
-    title: `${project.name}: major project history`,
+    title: namedTitle(project.name, (n) => [`${n}: major project history`, `${n}: major project`, n]),
     description: `${project.name} (${deptLabel(project.latest.department_code)}) in the Government Major Projects Portfolio: delivery confidence rating, end date and whole life cost in each annual report since March 2024, and the department's commentary.`,
     alternates: { canonical: projectHref(project.key) },
   };

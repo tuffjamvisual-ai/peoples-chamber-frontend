@@ -21,7 +21,7 @@ import { readAll } from '@/lib/read-all';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Impermissible political donations: money UK parties had to give back',
+  title: { absolute: 'Impermissible political donations UK parties gave back' },
   description:
     'Political donations declared to the Electoral Commission and subsequently found impermissible under UK law. Lists every returned donation with the reason and the recipient party.',
   alternates: { canonical: '/donations/impermissible' },

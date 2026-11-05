@@ -22,7 +22,7 @@ const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 
 export const metadata: Metadata = {
-  title: "Major projects: the government's biggest projects, year by year",
+  title: { absolute: "Major projects: the government's biggest, year by year" },
   description: 'Every project in the Government Major Projects Portfolio since March 2024: its delivery confidence rating, end date and whole life cost in each annual report, and what the department said.',
   alternates: { canonical: '/transparency/major-projects' },
 };

@@ -21,7 +21,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'UK government contractors who donate to UK political parties',
+  title: { absolute: 'UK government contractors who donate to UK political parties' },
   description:
     'Companies that appear in both the UK government contracts records and the Electoral Commission donations register, ranked by total political donations.',
   alternates: { canonical: '/donations/government-contractors' },

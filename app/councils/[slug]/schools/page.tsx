@@ -1,5 +1,6 @@
 // /councils/[slug]/schools: every state-funded school in a council's area with its latest Ofsted inspection, moved off
 // the council page's Schools tab, which now shows the summary and links here (owner's approval, 21 Oct 2026).
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const d = await getSubpageCouncil(slug);
   if (!d) return { title: 'Schools' };
   return {
-    title: `Schools in ${d.c.name}: every Ofsted inspection`,
+    title: namedTitle(d.c.name, (n) => [`Schools in ${n}: every Ofsted inspection`, `Schools in ${n}: Ofsted`, `Schools in ${n}`, `${n}: schools`]),
     description: `Every state funded school in ${d.c.name} with its latest Ofsted inspection, report card grades and any school in a category of concern.`,
     alternates: { canonical: `/councils/${slug}/schools` },
   };
