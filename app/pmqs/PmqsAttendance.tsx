@@ -9,6 +9,8 @@ const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const SPELLING: Record<string, string> = { 'Gillian Shepherd': 'Gillian Shephard' };
+// Where Hansard records a different date from the Library's file: Hansard's date, with a note.
+const HANSARD_DATE: Record<string, { date: string; note: string }> = { '2026-07-07': { date: '2026-07-08', note: 'Commons Library lists 7 July' } };
 
 const CREDIT = "Source: House of Commons Library, Attendance of the Prime Minister at Prime Minister's Questions since 1979 (SN04401), updated 4 November 2026. Member ids checked against Parliament's Members API by opengovt.";
 
@@ -69,7 +71,10 @@ export default function PmqsAttendance() {
         <tbody>
           {data.missed_dates.map((m) => (
             <tr key={m.date} style={rowLine}>
-              <td style={{ ...td, whiteSpace: 'nowrap' }}>{longDate(m.date)}</td>
+              <td style={{ ...td, whiteSpace: 'nowrap' }}>
+                {longDate(HANSARD_DATE[m.date]?.date ?? m.date)}
+                {HANSARD_DATE[m.date] && <div style={{ whiteSpace: 'normal' }}>{HANSARD_DATE[m.date].note}</div>}
+              </td>
               <td style={td}>{m.prime_minister}</td>
               <td style={td}>{m.reason}</td>
               <td style={td}>

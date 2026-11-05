@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabase';
 import { sanitizeHtml as sanitize } from '@/lib/html-sanitize';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 import { metaDescription } from '@/lib/meta-description'
 import { shortDate, fitTitle } from '@/lib/seo-title'
 import { normaliseParty } from '@/lib/party-helpers'
@@ -78,7 +77,7 @@ async function getDebate(guid: string): Promise<Debate | null> {
   // null, so a Hansard outage was published, and cached for a day, as a 404.
   if (res.status === 404 || res.status === 400) return null;
   if (!res.ok) throw new Error(`Hansard debate ${guid}: HTTP ${res.status}`);
-  return await jsonWithoutEmDashes<Debate>(res);
+  return (await res.json()) as Debate;   // Hansard word for word (owner, 5 Nov 2026)
 }
 
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&#?\w+;/g, ' ').replace(/\s+/g, ' ').trim();

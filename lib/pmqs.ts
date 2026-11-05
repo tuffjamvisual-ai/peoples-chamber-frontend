@@ -51,7 +51,7 @@ function isExchangeRow(r: Row): boolean {
   if (/\bSpeaker\b/.test(clean(r.attributed_to))) return false;
   const t = clean(r.contribution_text);
   if (!t || t.startsWith(MARKER)) return false;
-  if (/^rose:?$/i.test(t)) return false;
+  if (/^rose\W*$/i.test(t)) return false;
   return !/^(indicated (dissent|assent)|On a point of order)/i.test(t);
 }
 

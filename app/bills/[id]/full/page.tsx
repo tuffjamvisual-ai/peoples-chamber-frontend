@@ -14,7 +14,6 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import OpenGovShell from '../../../components/OpenGovShell'
 import BackLink from '../../../components/BackLink';
-import { withoutEmDashes } from '@/lib/no-em-dash'
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 import { getBillPublications, getBillText, latestText, actLink, inlineGroupCount, type ApiPublication as TextPublication, type TocEntry } from '@/lib/bill-text';
 import BillTextGroups from './BillTextGroups';
@@ -289,7 +288,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                             <div style={{ flex: '1 1 260px', minWidth: 0 }}>
                               <a href={publicationHref(p, bill.parliament_id)} target="_blank" rel="noopener noreferrer" className="focus-ring"
                                 style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.5, color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', overflowWrap: 'anywhere' }}>
-                                {withoutEmDashes(p.title || '(untitled publication)')}
+                                {p.title || '(untitled publication)'}
                                 <span className="sr-only"> (opens on Parliament&rsquo;s website)</span>
                               </a>
                               {p.house && p.house !== 'Unassigned' && (

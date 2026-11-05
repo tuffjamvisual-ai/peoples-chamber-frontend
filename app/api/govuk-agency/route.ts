@@ -34,11 +34,13 @@ export async function GET(request: Request) {
 
     // Fallback to GOV.UK API
     const res = await fetch(`https://www.gov.uk/api/content/government/organisations/${slug}`, { next: { revalidate: 3600 } });
+    // Names and labels under the dash rule; GOV.UK's description and body word for word (owner, 5 Nov 2026).
+    const raw = await res.clone().json();
     const data = await jsonWithoutEmDashes<any>(res);
 
     const name = data.title || '';
-    const description = data.description || '';
-    const body = data.details?.body?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || '';
+    const description = raw.description || '';
+    const body = raw.details?.body?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || '';
     const acronym = data.details?.acronym || '';
 
     const ministers = (data.links?.ordered_ministers || []).map((m: any) => {

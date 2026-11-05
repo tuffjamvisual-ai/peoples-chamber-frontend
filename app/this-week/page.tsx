@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink'
-import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 
 // Reflects the current week's Commons business on a 10-minute ISR window, so
 // visitors are served from cache rather than triggering two live Parliament API
@@ -52,7 +51,7 @@ async function getCommonsBills() {
     // rebuilds every 10 minutes, with the divisions below as fresh as before.
     const res = await fetch('https://bills-api.parliament.uk/api/v1/Bills?SortOrder=DateUpdatedDescending', { next: { revalidate: 3600 } })
     if (!res.ok) return [] as BillItem[]
-    const j = await jsonWithoutEmDashes<{ items?: BillItem[] }>(res)
+    const j = (await res.json()) as { items?: BillItem[] }   // Parliament's titles word for word (owner, 5 Nov 2026)
     const items: BillItem[] = (j.items || []).filter((b: BillItem) => !b.isAct && !b.billWithdrawn)
     const { start, end } = weekRange()
     // Bills with a COMMONS stage sitting from today to six days ahead.
@@ -77,7 +76,7 @@ async function getRecentDivisions() {
     const to = new Date().toISOString().slice(0, 10)
     const res = await fetch(`https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.startDate=${from}&queryParameters.endDate=${to}&queryParameters.take=12`, { next: { revalidate: 600 } })
     if (!res.ok) return [] as Division[]
-    return await jsonWithoutEmDashes<Division[]>(res)
+    return (await res.json()) as Division[]
   } catch {
     return [] as Division[]
   }
