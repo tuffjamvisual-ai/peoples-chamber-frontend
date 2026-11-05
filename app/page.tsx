@@ -66,6 +66,9 @@ export const metadata: Metadata = {
   },
 };
 
+// The report held as the homepage lead, whatever the daily rotation would put there. Empty: the lead rotates with the rest.
+const HOMEPAGE_LEAD_SLUG: string = 'q1yfr4lome';
+
 // Days since 1 Jan 1970 (UTC): the homepage's featured pieces rotate on it. A function outside the component, so the
 // render reads the clock through one named call (react-hooks/purity).
 function todayIndex(): number {
@@ -98,6 +101,14 @@ export default async function HomePage() {
     rngSeed = (rngSeed * 1664525 + 1013904223) & 0x7fffffff;
     const pick = rngSeed % (idx + 1);
     [shuffled[idx], shuffled[pick]] = [shuffled[pick], shuffled[idx]];
+  }
+  // A chosen report can hold the lead (owner, 5 Nov 2026): it swaps places with whichever report the rotation put first, so
+  // every other position stays as the rotation set it. Clear HOMEPAGE_LEAD_SLUG to go back to rotating the lead too.
+  const leadAt = shuffled.findIndex((e) => e.slug === HOMEPAGE_LEAD_SLUG);
+  if (leadAt > 0) [shuffled[0], shuffled[leadAt]] = [shuffled[leadAt], shuffled[0]];
+  else if (leadAt < 0) {
+    const lead = investigations.find((e) => e.slug === HOMEPAGE_LEAD_SLUG);
+    if (lead) shuffled[0] = lead;
   }
   const [slot1, slot2, slot3, slot4] = shuffled;
   // For slot 1's lede: body[0] text if it's a plain paragraph (stored in the editorials index as lede).
