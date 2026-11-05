@@ -139,7 +139,8 @@ export default async function HomePage() {
                 .og-main, .og-rail { display: contents !important; }
                 .og-main > * { order: 3; }
                 .og-main > form, .og-main > form + * { order: 1; }
-                .og-main > .og-intro-line { order: 2; }
+                .og-main > .og-intro-line { order: 2; padding-top: 0 !important; }
+                .og-main > form + * { margin-bottom: 12px !important; }
                 .og-rail > * { order: 7; }
                 .og-rail > .og-brief { order: 4; }
                 .og-main > section[aria-label="Latest from Whitehall"] { order: 5; }

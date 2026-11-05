@@ -23,7 +23,6 @@ export const metadata: Metadata = {
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
-const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
 function fmtMoney(n: number): string {
@@ -31,6 +30,8 @@ function fmtMoney(n: number): string {
 }
 
 type DonorAgg = { donor_name: string; total: number; count: number; recipients: number };
+// A row the Electoral Commission marks as public money. Newer rows carry it only in donor_type (donor_status is empty).
+const isPublicFund = (r: { donor_status: string | null; donor_type: string | null }) => r.donor_status === 'Public Fund' || r.donor_type === 'Public Fund';
 
 export default async function DonorsIndex() {
   // Pull top donors. Postgrest doesn't have a SUM aggregate via the rest
@@ -40,7 +41,7 @@ export default async function DonorsIndex() {
   // at a time, and a failed read throws so the last good version of the page stays up.
   const PAGE = 1000;
   const BATCH = 8;
-  type Row = { donor_name: string | null; amount: number | string | null; recipient_name: string | null };
+  type Row = { donor_name: string | null; donor_status: string | null; donor_type: string | null; amount: number | string | null; recipient_name: string | null };
   const { count, error: countErr } = await supabase
     .from('political_donations')
     .select('id', { count: 'exact', head: true })
@@ -54,7 +55,7 @@ export default async function DonorsIndex() {
         const from = (first + k) * PAGE;
         return supabase
           .from('political_donations')
-          .select('donor_name, amount, recipient_name')
+          .select('donor_name, donor_status, donor_type, amount, recipient_name')
           .not('donor_name', 'is', null)
           .order('id', { ascending: true })
           .range(from, from + PAGE - 1);
@@ -67,20 +68,26 @@ export default async function DonorsIndex() {
   }
   if (rows.length < (count ?? 0)) throw new Error(`/donors read ${rows.length} of ${count} donation rows`);
 
-  const agg = new Map<string, DonorAgg & { recipients_set: Set<string> }>();
+  const agg = new Map<string, DonorAgg & { recipients_set: Set<string>; publicRows: number }>();
   for (const r of rows) {
     const name = (r.donor_name || '').trim();
     if (!name || /^anonymous$/i.test(name)) continue;
-    const ex = agg.get(name) ?? { donor_name: name, total: 0, count: 0, recipients: 0, recipients_set: new Set<string>() };
+    const ex = agg.get(name) ?? { donor_name: name, total: 0, count: 0, recipients: 0, recipients_set: new Set<string>(), publicRows: 0 };
     ex.total += Number(r.amount) || 0;
     ex.count += 1;
+    if (isPublicFund(r)) ex.publicRows += 1;
     if (r.recipient_name) ex.recipients_set.add(r.recipient_name);
     agg.set(name, ex);
   }
-  const top = Array.from(agg.values())
-    .map((a) => ({ donor_name: a.donor_name, total: a.total, count: a.count, recipients: a.recipients_set.size }))
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 200);
+  // Public funds are not private donors (owner, 5 Nov 2026): a name most of whose records are Public Fund leaves the
+  // ranking, so one mistyped record cannot move a private donor. The section lists those big enough to have ranked.
+  const everyone = Array.from(agg.values())
+    .map((a) => ({ donor_name: a.donor_name, total: a.total, count: a.count, recipients: a.recipients_set.size, isPublic: a.publicRows * 2 > a.count }))
+    .sort((a, b) => b.total - a.total);
+  const top = everyone.filter((d) => !d.isPublic).slice(0, 200);
+  const publicAll = everyone.filter((d) => d.isPublic);
+  const publicListed = everyone.slice(0, 200).filter((d) => d.isPublic);
+  const publicOthers = publicAll.length - publicListed.length;
 
   return (
     <OpenGovShell pageStamp="Donors">
@@ -131,9 +138,23 @@ export default async function DonorsIndex() {
       </table>
       <PhoneMore selector="#donors-list" total={top.length} />
 
-<div style={{ marginTop: '20px', padding: '12px 14px', background: CREAM, fontSize: '15px' }}>
-        <strong>Heads up.</strong> Some names here, such as the House of Commons, the House of Lords, the Scottish Parliament and the Electoral Commission, are sources of public funds, not private donors. Short Money and Cranborne Money support opposition parties in Parliament, and Policy Development Grants come from the Electoral Commission. The Electoral Commission reports them alongside donations.
-      </div>
+<section aria-labelledby="public-funding" style={{ marginTop: '32px', borderTop: `2px solid ${INK}`, paddingTop: '16px', fontFamily: 'var(--font-special-elite), monospace' }}>
+        <h2 id="public-funding" style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px' }}>Public funding (not private donors)</h2>
+        <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
+          Short Money and similar public funding for parties, which the Electoral Commission reports alongside donations.
+        </p>
+        <ul data-own-more style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '15px' }}>
+          {publicListed.map((d) => (
+            <li key={d.donor_name} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', columnGap: '12px', padding: '4px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+              {donorPageSlug(d.donor_name)
+                ? <Link href={`/donors/${donorPageSlug(d.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{d.donor_name}</Link>
+                : <span>{d.donor_name}</span>}
+              <span style={{ marginLeft: 'auto' }}>{fmtMoney(d.total)}</span>
+            </li>
+          ))}
+        </ul>
+        {publicOthers > 0 && <p style={{ fontSize: '15px', margin: '12px 0 0' }}>Plus {publicOthers} smaller entries under other names.</p>}
+      </section>
     </OpenGovShell>
   );
 }

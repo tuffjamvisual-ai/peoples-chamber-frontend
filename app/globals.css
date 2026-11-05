@@ -189,6 +189,10 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .ng-page table[data-pt-table="cards"] [data-pt="rank"], .ng-page table[data-pt-table="cards"] [data-pt="rank"] + [data-pt="title"] { display: inline !important; font-weight: bold; font-size: 17px; }
   .ng-page table[data-pt-table="cards"] [data-pt="rank"] { margin-right: 6px; }
   .ng-page table[data-pt-table="cards"] [data-pt="rank"]::before { content: none !important; }
+  /* Every line of a table card in one font and style (owner, 5 Nov 2026); only the title line stays bold and larger. */
+  .ng-page :is(table.pt-cards, table[data-pt-table="cards"]) > :is(tbody, tfoot) > tr > :is(td, th), .ng-page :is(table.pt-cards, table[data-pt-table="cards"]) > :is(tbody, tfoot) > tr > :is(td, th) * { font-family: var(--font-special-elite), monospace !important; font-style: normal !important; }
+  .ng-page :is(table.pt-cards, table[data-pt-table="cards"]) > :is(tbody, tfoot) > tr > :is(td, th):not(.pt-card-title, [data-pt="title"], [data-pt="rank"]), .ng-page :is(table.pt-cards, table[data-pt-table="cards"]) > :is(tbody, tfoot) > tr > :is(td, th):not(.pt-card-title, [data-pt="title"], [data-pt="rank"]) * { font-weight: 400 !important; font-size: 15px !important; }
+  .ng-page :is(table.pt-cards, table[data-pt-table="cards"]) :is(.pt-card-title, [data-pt="title"]) > :not(:first-child), .ng-page :is(table.pt-cards, table[data-pt-table="cards"]) :is(.pt-card-title, [data-pt="title"]) > :not(:first-child) * { font-weight: 400 !important; font-size: 15px !important; }
   .ng-page :has(> table[data-pt-table="cards"]) { margin-left: 0 !important; margin-right: 0 !important; overflow: visible !important; max-width: 100% !important; }
   .ng-page .pt-box { overflow: visible !important; }
   .pca-sj-row { grid-template-columns: auto minmax(0, 1fr) !important; }

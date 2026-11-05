@@ -180,8 +180,8 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare }: { 
           .council-tabs nav button { white-space:normal; }
         }
         @media (max-width: 639.98px) {
-          .council-tabs nav { flex-wrap: wrap; overflow: visible; -webkit-mask-image: none !important; mask-image: none !important; }
-          .council-tabs nav button { white-space: normal; flex: 1 1 auto; transform: none !important; }
+          .council-tabs nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; -webkit-mask-image: none !important; mask-image: none !important; }
+          .council-tabs nav button { white-space: normal; width: 100%; min-width: 0; padding: 10px 8px !important; letter-spacing: 0.02em !important; overflow-wrap: anywhere; transform: none !important; }
         }
         ${hideEmptyCss}
       `}</style>
