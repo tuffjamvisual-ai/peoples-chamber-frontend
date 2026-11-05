@@ -7,7 +7,6 @@ export default function ArchiveCredit() {
   return (
     <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '20px 0 0', color: '#14100d' }}>
       Contains Parliamentary information licensed under the <a href={OPEN_PARLIAMENT_LICENCE_URL} rel="noopener" style={link}>Open Parliament Licence v3.0</a>.
-      {' '}Historic text processed by <a href="https://www.theyworkforyou.com/" rel="noopener" style={link}>TheyWorkForYou</a> (<a href="https://www.mysociety.org/" rel="noopener" style={link}>mySociety</a>).
     </p>
   );
 }
