@@ -2,7 +2,6 @@ import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import MoreChain, { openingCount, textHeightAt375 } from '../../components/MoreChain';
 import OpenHashTarget from '../../components/OpenHashTarget';
-import ArchiveCredit from '../ArchiveCredit';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { answeredBy, archiveExchanges, longDateArchive, officialRecord, type ArchiveContribution, type ArchiveExchange, type ArchiveSession } from '@/lib/pmqs-archive';
 
@@ -59,7 +58,6 @@ export default async function ArchiveSessionView({ session }: { session: Archive
           </li>
         ))} />
       </div>
-      <ArchiveCredit />
     </OpenGovShell>
   );
 }

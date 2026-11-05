@@ -1,5 +1,4 @@
 import MoreChain from '../components/MoreChain';
-import ArchiveCredit from './ArchiveCredit';
 import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel, type ListedSession } from '@/lib/pmqs-archive';
 import type { PmqsSet } from '@/lib/pmqs';
 
@@ -63,7 +62,6 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
           ))}
         </tbody>
       </table>
-      <ArchiveCredit />
     </section>
   );
 }

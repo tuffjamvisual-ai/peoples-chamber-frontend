@@ -9,7 +9,6 @@ import { displayMpName } from '@/lib/mp-name';
 import { longDate, pmqsSet } from '@/lib/pmqs';
 import { longDateArchive, memberArchive, type MemberContribution } from '@/lib/pmqs-archive';
 import MoreChain from '../../../components/MoreChain';
-import ArchiveCredit from '../../../pmqs/ArchiveCredit';
 
 // Every question an MP has asked at Prime Minister's Questions since July 2024 (owner, 5 Nov 2026), newest first, then
 // their questions and answers in the archive, 1961 to 2024, by year.
@@ -88,7 +87,6 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
               ))} />
             </details>
           ))}
-          <ArchiveCredit />
         </section>
       )}
     </OpenGovShell>
