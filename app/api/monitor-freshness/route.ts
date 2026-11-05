@@ -12,6 +12,7 @@ import { loadCursor } from '@/lib/sync-budget';
 import { SPAD_MANUAL_CHECKS_ROUTE } from '@/lib/spad-background-sync';
 import { annualReportStillUnread } from '@/lib/spad-background';
 import { FAILURES_PREFIX, FLAG_AFTER_RUNS, type ItemFailure } from '@/lib/sync-item-failures';
+import { checkWrittenAnswers } from '@/lib/written-answers-check';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -291,6 +292,14 @@ async function GET_impl(req: Request) {
       }
     }
   }
+  // Written answers against Parliament's count, last 7 days (owner, 5 Nov 2026); a failed read is noted in the JSON, not alerted.
+  const writtenAnswers = await checkWrittenAnswers(supabaseAdmin);
+  for (const d of writtenAnswers.short) {
+    emailAlerts.push({
+      label: `Written answers ${d.date}`, page: '/api/sync-parliament-archive', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
+      reason: `we hold ${d.ours.toLocaleString('en-GB')} questions answered that day, Parliament lists ${d.parliament.toLocaleString('en-GB')}: more than 2 per cent short`,
+    });
+  }
   // Blue Badges (owner, 28 Oct 2026): DfT publishes once a year, the figures for 31 March of year Y in the winter of Y
   // to Y+1 (2025's on 19 March 2026). From 1 April of Y+2 with only Y held, the next release is late: a warning line
   // daily until /api/sync-blue-badges loads it.
@@ -448,6 +457,7 @@ async function GET_impl(req: Request) {
     refreshFailures,
     cycles,
     failingItems,
+    writtenAnswers,
     blueBadges,
     childrenInCare,
     roadCondition,
