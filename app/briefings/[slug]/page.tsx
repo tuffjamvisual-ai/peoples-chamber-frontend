@@ -8,7 +8,7 @@
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
-import { namedTitle } from '@/lib/seo-title';
+import { titleWithin } from '@/lib/seo-title';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
@@ -51,10 +51,10 @@ async function getDbBriefing(slug: string): Promise<BriefingRow | null> {
 }
 
 
-// Search title, the same rule as reports (owner, 5 Nov 2026): 60 characters or fewer, a long headline cut at a natural
-// break (lib/seo-title.ts namedTitle). The page itself keeps the headline in full.
+// Search title, the same rule as reports (owner, 5 Nov 2026): the full headline, never shortened, with the site's name
+// when that fits in 60 characters.
 function searchTitle(headline: string): Metadata['title'] {
-  return namedTitle(headline, (n) => [n]);
+  return titleWithin(headline);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

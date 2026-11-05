@@ -4,7 +4,7 @@
 // does not fit with "how MPs voted", those words go, then the date, rather than leaving a fragment of the name.
 //
 // Votes on one bill on one day (New Clause 1, New Clause 2 and so on) would share a title, so the day's first vote keeps
-// it and the others name what was voted on, or the division's own number when that is shared too.
+// it and the others name what was voted on, or the division's own number, "(vote 215)", so no two votes share a title.
 import { cleanNameForms, endsOnLinkWord, naturalCut, shortDate, TITLE_MAX } from './seo-title';
 
 const tidy = (s: string) => s.replace(/\s+/g, ' ').trim();
@@ -35,9 +35,13 @@ function splitMotion(motion: string): { name: string; part: string } {
   return { name: motion, part: '' };
 }
 
-function titleFor(motion: string, number: number, dateOnly: string, day: string, used: Set<string>): string {
+function titleFor(motion: string, number: number, dateOnly: string, day: string, used: Set<string>, usedNames: Set<string>): string {
   const { name, part } = splitMotion(tidy(motion));
   const forms = cleanNameForms(name);
+  // A later vote on a name already used that day goes straight to what was voted on: "[Lords]" is not a difference.
+  const key = forms[forms.length - 1].toLowerCase();
+  const nameTaken = usedNames.has(key);
+  usedNames.add(key);
   const fits = (t: string) => t.length <= TITLE_MAX;
   const free = (t: string) => fits(t) && !used.has(t);
   const how = (n: string) => `${n}: how MPs voted, ${day}`;
@@ -49,35 +53,32 @@ function titleFor(motion: string, number: number, dateOnly: string, day: string,
     ...[naturalCut(forms[forms.length - 1], TITLE_MAX - how('').length)].filter((c): c is string => !!c).map(how),
     ...[naturalCut(forms[forms.length - 1], TITLE_MAX - dated('').length)].filter((c): c is string => !!c).map(dated),
   ];
-  // Shorter dates next, which keep the name whole; then, for votes sharing a title, what was voted on or the number.
-  const year = dateOnly.slice(0, 4);
-  const monthYear = day.replace(/^\d+ /, '');
+  // For votes sharing a title, what was voted on; failing that the division's number, which keeps every title unique
+  // (owner, 5 Nov 2026) even if it takes the title over 60 characters.
   const what = part ? shortPart(part) : '';
+  const year = dateOnly.slice(0, 4);
+  const vote = `(vote ${number})`;
+  const shortest = forms[forms.length - 1];
   const candidates = [
-    ...usual,
+    ...(nameTaken ? [] : usual),
     ...(what ? forms.map((n) => `${n}: ${what}, ${day}`) : []),
-    ...forms.map((n) => `${n}, ${monthYear}`),
-    ...forms.map((n) => `${n}, ${year}`),
-    ...(what ? forms.map((n) => `${n}: ${what}, ${year}`) : []),
-    ...forms.map((n) => `${n}: Division ${number}, ${year}`),
-    ...forms.map((n) => `${n}: Division ${number}`),
-    '',
+    ...forms.map((n) => `${n}, ${year} ${vote}`),
+    ...forms.map((n) => `${n} ${vote}`),
   ];
-  const found = candidates.slice(0, -1).find(free);
+  const found = candidates.find(free);
   if (found) return found;
-  // Every wording that keeps the name is taken or too long. A name that fits on its own stays, even if another vote shares
-  // the title; a name over 60 characters with no natural break is kept whole, never cut (the job's report lists them).
-  const bare = [...forms.map((n) => `${n}, ${monthYear}`), ...forms.map((n) => `${n}, ${year}`), ...forms].find(fits);
-  return bare ?? forms[forms.length - 1];
+  // Nothing fits in 60 characters. A name with no natural break is kept whole, never cut: with its date, and its number
+  // if another vote that day already has that title.
+  return used.has(dated(shortest)) ? `${dated(shortest)} ${vote}` : dated(shortest);
 }
 
 // motion and number: this vote. sameDay: every vote that day, this one included.
 export function divisionSeoTitle(motion: string, number: number, dateOnly: string, sameDay: { number: number; motion: string }[]): string {
   const day = shortDate(dateOnly) ?? dateOnly;
   const votes = [...sameDay.filter((v) => v.number !== number), { number, motion }].sort((a, b) => a.number - b.number);
-  const used = new Set<string>();
+  const used = new Set<string>(), usedNames = new Set<string>();
   for (const v of votes) {
-    const title = titleFor(v.motion, v.number, dateOnly, day, used);
+    const title = titleFor(v.motion, v.number, dateOnly, day, used, usedNames);
     used.add(title);
     if (v.number === number) return title;
   }

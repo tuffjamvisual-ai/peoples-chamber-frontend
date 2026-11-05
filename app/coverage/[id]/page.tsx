@@ -47,6 +47,9 @@ async function getRow(id: number): Promise<CoverageRow | null> {
   return data
 }
 
+// The site's old name is still held in uk_political_news.source_outlet: it shows as opengovt (owner, 5 Nov 2026).
+const outletName = (outlet: string) => (/^(the )?people['\u2019]?s chamber$/i.test(outlet.trim()) ? 'opengovt' : outlet);
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const n = parseInt(id, 10)
@@ -54,8 +57,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const row = await getRow(n)
   if (!row) return { title: 'Coverage' }
   return {
-    title: namedTitle(row.source_title, (n) => [`${n}, via ${row.source_outlet}`, n]),
-    description: row.commentary || row.source_excerpt || `${row.source_outlet} coverage with opengovt commentary.`,
+    // "via opengovt" already names the site, so the title then goes without the " | opengovt" suffix.
+    title: (() => { const t = namedTitle(row.source_title, (n) => [`${n}, via ${outletName(row.source_outlet)}`, n]); return typeof t === 'string' && t.endsWith('via opengovt') ? { absolute: t } : t; })(),
+    description: row.commentary || row.source_excerpt || `${outletName(row.source_outlet)} coverage with opengovt commentary.`,
     alternates: { canonical: `/coverage/${row.id}` },
   }
 }
@@ -83,7 +87,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
       <article>
         <header className="mb-6 pb-6 border-b border-[#14100d]/20">
           <p className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold text-[#14100d]">
-            {row.source_outlet}{dateLabel ? ` · ${dateLabel}` : ''}
+            {outletName(row.source_outlet)}{dateLabel ? ` · ${dateLabel}` : ''}
           </p>
           <h1
             className="text-3xl sm:text-4xl font-bold leading-[1.1] tracking-tight text-[#14100d]"
@@ -100,7 +104,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
           </p>
         )}
 
-        {/* People's Chamber commentary — our editorial */}
+        {/* opengovt commentary: our editorial */}
         {row.commentary && (
           <section
             className="my-8 p-6 border-l-4"
@@ -132,7 +136,8 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
           className="inline-block mt-4 px-6 py-3 text-[15px] font-bold uppercase tracking-[0.15em] hover:opacity-90 transition-opacity"
           style={{ background: ACCENT, color: '#f4ecd8' }}
         >
-          Read full story at {new URL(row.source_url).hostname.replace(/^www\./, '')} →
+          {/* The address on these rows is still the site's old name: the link stays, the old name does not show (owner, 5 Nov 2026). */}
+          {outletName(row.source_outlet) === 'opengovt' ? 'Read the full story' : `Read full story at ${new URL(row.source_url).hostname.replace(/^www\./, '')}`} →
         </a>
 
         <footer
@@ -140,7 +145,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
           style={{ borderTop: `1px solid ${INK}33` }}
         >
           Headline and standfirst quoted under fair dealing for news reporting (CDPA s.30(2)). The full
-          story remains the property of {row.source_outlet}; click through to read it.
+          story remains the property of {outletName(row.source_outlet)}; click through to read it.
         </footer>
       </article>
     </OpenGovShell>

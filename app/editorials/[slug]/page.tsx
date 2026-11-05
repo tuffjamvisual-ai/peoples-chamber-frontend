@@ -4,7 +4,7 @@
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
-import { namedTitle } from '@/lib/seo-title';
+import { titleWithin } from '@/lib/seo-title';
 import { notFound, permanentRedirect } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
 import { editorialRelated, namedMps } from '@/lib/related-links';
@@ -36,8 +36,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     // Search title (owner's approval, 24 Oct 2026): a headline that would take the full title past 60 characters with
     // the " | opengovt" suffix is used on its own; shorter ones keep the suffix (lib/seo-title.ts).
-    // 60 characters or fewer, a long headline cut at a natural break (owner, 5 Nov 2026); the page keeps it in full.
-    title: namedTitle(piece.headline, (n) => [n]),
+    // The full headline, never shortened (owner, 5 Nov 2026), with the site's name when that fits in 60 characters.
+    title: titleWithin(piece.headline),
     description,
     alternates: { canonical },
     // Per-article OG/Twitter, each with the piece's own image.

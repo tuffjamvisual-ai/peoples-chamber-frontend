@@ -1,4 +1,5 @@
-import { namedTitle } from '@/lib/seo-title';
+import { namedTitle, titleWithin } from '@/lib/seo-title';
+import { treatyPlainName, treatySeoTitle } from '@/lib/treaty-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -15,8 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!isApiId(id)) return {};
   const t = await getTreaty(id);
   if (!t) return {};
+  const treaty = treatySeoTitle(t.title, t.signed_date || t.laid_date);
   return {
-    title: namedTitle(t.title, (n) => [n], t.command_paper ? `Treaty laid before Parliament, ${t.command_paper}` : undefined),
+    // The parties and subject where the official title gives them (owner, 5 Nov 2026), else the title cut at a natural break.
+    title: treaty ? titleWithin(treaty) : namedTitle(treatyPlainName(t.title), (n) => [n], t.command_paper ? `Treaty laid before Parliament, ${t.command_paper}` : undefined),
     description: `${t.command_paper ? `${t.command_paper}: ` : ''}treaty laid before Parliament on ${t.laid_date || 'a date not given'} by ${t.lead_department || 'the government'}, with its scrutiny deadline and committee work.`.slice(0, 155),
     alternates: { canonical: `/treaties/${id}` },
   };
