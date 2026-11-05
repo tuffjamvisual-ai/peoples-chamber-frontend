@@ -43,3 +43,16 @@
 /search
 /polls
 /pmqs
+# Exact pages over 9,000px at 375px on 5 Nov 2026 (owner: warn at 9,000px, fail at 10,000px; pages grow as data grows).
+/parties/labour/money
+/council-tax
+/polls/archive
+/donations/impermissible
+/donations/trust-funded
+/transparency/revolving-door
+/transparency/register-of-interests
+/parties/green/money
+/divisions/pw-2019-01-15-293-commons
+/councils/blue-badges
+/divisions/pw-2022-12-12-123-commons
+/donations/leadership-contests

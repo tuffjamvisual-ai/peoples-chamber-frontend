@@ -9,13 +9,14 @@
 //   e) images or figures taller than 400px
 //   f) more than 6 rows of links or buttons before the first real content
 //   g) the same set of links twice on the page
-//   h) page height over 10,000px as it first opens (owner, 5 Nov 2026)
+//   h) page height over 10,000px at 375px as it first opens (owner, 5 Nov 2026); over 9,000px is a warning, not a failure
 //   i) console errors and failed requests
 //
 //   npm run audit:mobile                                       full run; starts next start on a spare port (needs a build)
 //   node scripts/checks/mobile-audit.mjs --base <url>          against a server already running
 //   node scripts/checks/mobile-audit.mjs --fast                375px, the page types in mobile-audit-fast.txt, checks a, b,
-//                                                              c and h; exit 1 if any fails (the pre-push check)
+//                                                              c and h; exit 1 if any fails (the pre-push check). Pages over
+//                                                              9,000px are listed as warnings and do not fail it
 //   --out <dir> (default "Claude outputs/mobile-audit"), --limit <n> (first n pages, to try it)
 //   --engine webkit, --widths 375[,414], --no-shots (mobile-audit-deep.mjs runs it this way in Safari's engine)
 //
@@ -37,6 +38,7 @@ const WIDTHS = FAST ? [375] : opt('widths') ? opt('widths').split(',').map(Numbe
 const HEIGHT = 812;
 const CONCURRENCY = Number(opt('concurrency') ?? 4);
 const HERE = path.dirname(new URL(import.meta.url).pathname);
+const WARN_HEIGHT = 9000, MAX_HEIGHT = 10000; // owner, 5 Nov 2026: warn, then fail, at 375px as the page first opens
 
 function parseCsv(text) {
   const rows = [];
@@ -52,7 +54,8 @@ function choosePages() {
   if (!FAST) return LIMIT ? all.slice(0, LIMIT) : all;
   // One page per type: the typical example, which the list gives first for each route.
   const types = fs.readFileSync(path.join(HERE, 'mobile-audit-fast.txt'), 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
-  return types.map((t) => all.find((p) => p.route === t)).filter(Boolean);
+  // A line is a route (its typical example) or one exact page, for pages near the height limit.
+  return [...new Set(types.map((t) => all.find((p) => p.route === t) ?? all.find((p) => p.url === t)).filter(Boolean))];
 }
 
 // Runs in the page. Returns every measure for the page as it now is.
@@ -235,7 +238,7 @@ function problems(row) {
       if (m.link_rows_before_content > 6) add('f', `${m.link_rows_before_content} rows of links before the first content`);
       if (m.duplicate_link_sets) add('g', `same links twice: ${m.duplicate_link_sets_eg.join('; ')}`, m.duplicate_link_sets);
     }
-    if (m.page_height > 10000) add('h', `page height ${m.page_height}px (banner ${state})`);
+    if (row.width === 375 && m.page_height > MAX_HEIGHT) add('h', `page height ${m.page_height}px (banner ${state})`);
     if (m.h1_y === null) add('d', `no h1 (banner ${state})`);
     else if (m.h1_y >= HEIGHT) add('d', `h1 at ${m.h1_y}px, below the first screen (banner ${state})`);
     if (m.first_content_y === null) add('d', `no first content found (banner ${state})`);
@@ -244,6 +247,17 @@ function problems(row) {
   if (row.console_errors?.length) add('i', `${row.console_errors.length} console error(s): ${row.console_errors.slice(0, 2).join('; ')}`, row.console_errors.length);
   if (row.failed_requests?.length) add('i', `${row.failed_requests.length} failed request(s): ${row.failed_requests.slice(0, 3).join('; ')}`, row.failed_requests.length);
   return out;
+}
+
+// Pages at 375px over the warning height but not over the limit, tallest first.
+function nearLimit(rows) {
+  return rows.filter((r) => r.width === 375).map((r) => ({ url: r.url, height: Math.max(r.showing?.page_height ?? 0, r.dismissed?.page_height ?? 0) }))
+    .filter((x) => x.height > WARN_HEIGHT && x.height <= MAX_HEIGHT).sort((a, b) => b.height - a.height);
+}
+function printNear(near) {
+  if (!near.length) return;
+  console.log(`warning: ${near.length} page(s) over ${WARN_HEIGHT.toLocaleString('en-GB')}px at 375px (the limit is ${MAX_HEIGHT.toLocaleString('en-GB')}px)`);
+  for (const x of near) console.log(`  ${x.height} ${x.url}`);
 }
 
 const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
@@ -285,7 +299,7 @@ function totals(rows, pages) {
   return t;
 }
 
-const CHECK_NAMES = { a: 'sideways scroll, too wide or cut off', b: 'targets under 44px', c: 'text under 15px', d: 'heading or first content too low', e: 'images over 400px', f: 'over 6 rows of links before content', g: 'same links twice', h: 'page over 15,000px', i: 'errors and failed requests' };
+const CHECK_NAMES = { a: 'sideways scroll, too wide or cut off', b: 'targets under 44px', c: 'text under 15px', d: 'heading or first content too low', e: 'images over 400px', f: 'over 6 rows of links before content', g: 'same links twice', h: 'page over 10,000px at 375px', i: 'errors and failed requests' };
 
 function writeHtml(rows, pages, t, meta) {
   const summary = Object.entries(t).map(([c, v]) => `<li><b>${c}</b> ${esc(CHECK_NAMES[c])}: ${v.pages} of ${pages.length} pages</li>`).join('');
@@ -340,6 +354,7 @@ async function main() {
     fs.writeFileSync(path.join(OUT, 'fast-results.json'), JSON.stringify(bad.map(({ r, found }) => ({ url: r.url, found })), null, 1));
     console.log(`fast audit: ${rows.length} pages at 375px, ${bad.length} failing checks a, b, c or h`);
     for (const { r, found } of bad) console.log(`  ${r.url}: ${[...new Set(found.map((f) => f.text))].slice(0, 3).join(' / ').slice(0, 220)}`);
+    printNear(nearLimit(rows));
     process.exit(bad.length ? 1 : 0);
   }
 
@@ -347,9 +362,12 @@ async function main() {
   const summaries = pageSummaries(rows);
   const t = totals(rows, summaries);
   const types = new Set(pages.map((p) => p.route)).size;
-  writeHtml(rows, summaries, t, `${types} page types, ${summaries.length} pages, at ${WIDTHS.join(', ')}px wide and ${HEIGHT}px tall, cookie banner showing and dismissed. Worst first.`);
-  fs.writeFileSync(path.join(OUT, 'summary.json'), JSON.stringify({ page_types: types, pages: summaries.length, rows: rows.length, totals: t, worst: summaries.slice(0, 20).map((p) => ({ url: p.url, route: p.route, checks: [...p.checks].sort().join(''), problems: p.count, list: p.found.map((f) => `${f.check} ${f.text}`.slice(0, 200)) })) }, null, 1));
+  writeHtml(rows, summaries, t, `${types} page types, ${summaries.length} pages, at ${WIDTHS.join(', ')}px wide and ${HEIGHT}px tall, cookie banner showing and dismissed. Worst first. ${nearLimit(rows).length} page(s) over ${WARN_HEIGHT.toLocaleString('en-GB')}px at 375px, the warning line.`);
+  fs.writeFileSync(path.join(OUT, 'summary.json'), JSON.stringify({ page_types: types, pages: summaries.length, rows: rows.length, totals: t, near_height_limit: nearLimit(rows), worst: summaries.slice(0, 20).map((p) => ({ url: p.url, route: p.route, checks: [...p.checks].sort().join(''), problems: p.count, list: p.found.map((f) => `${f.check} ${f.text}`.slice(0, 200)) })) }, null, 1));
   console.log(JSON.stringify({ page_types: types, pages: summaries.length, totals: t }));
+  printNear(nearLimit(rows));
+  // Over the limit fails the full audit too. mobile-audit-deep.mjs passes --engine and reads the results itself; to it a non zero exit means the audit crashed.
+  if (t.h?.pages && !opt('engine')) process.exitCode = 1;
   console.log(path.resolve(OUT, 'index.html'));
 }
 

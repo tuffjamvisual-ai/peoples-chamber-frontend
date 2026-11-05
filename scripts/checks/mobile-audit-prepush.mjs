@@ -1,5 +1,5 @@
-// The pre-push check (owner, 4 Nov 2026): refuses a push if the fast mobile audit (375px, the 40 most visited page types,
-// checks a, b, c and h: nothing over 10,000px) or the two reader journeys (owner, 5 Nov 2026: every fold of an MP page, Show more until done on
+// The pre-push check (owner, 4 Nov 2026): refuses a push if the fast mobile audit (375px, the page types and pages in
+// mobile-audit-fast.txt, checks a, b, c and h: nothing over 10,000px; over 9,000px is printed as a warning) or the two reader journeys (owner, 5 Nov 2026: every fold of an MP page, Show more until done on
 // /donors, in Chromium) fail on the commit being pushed. Run by scripts/git-hooks/pre-push; git passes the refs on stdin.
 // It builds that commit in a temporary worktree, so the working tree and any running server are left alone, and takes
 // several minutes. It only runs when a pushed commit changes what pages render (app, lib, public, next.config), and once

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Weekly phone length check (owner, 5 Nov 2026): Sundays at 13:15 local time, after the database backup
+  (uk.opengovt.weekly-backup, 12:00). Runs scripts/launchd/phone-length-weekly.mjs: builds main in a temporary folder on
+  GoliathSSD, measures every page type at 375px and writes "Claude outputs/phone-length/<date>.csv" and
+  <date>-over-9000.txt. Skips cleanly if the drive is missing. Log: "Claude outputs/phone-length/run.log".
+  Install: cp scripts/launchd/opengovt.phone-length.plist ~/Library/LaunchAgents/ &&
+           launchctl load ~/Library/LaunchAgents/opengovt.phone-length.plist
+  Remove:  launchctl unload ~/Library/LaunchAgents/opengovt.phone-length.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>opengovt.phone-length</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/node</string>
+    <string>/Users/johnnybot/peoples-chamber-frontend/scripts/launchd/phone-length-weekly.mjs</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/johnnybot/peoples-chamber-frontend</string>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Weekday</key>
+    <integer>0</integer>
+    <key>Hour</key>
+    <integer>13</integer>
+    <key>Minute</key>
+    <integer>15</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/johnnybot/opengovt-backup/phone-length.launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/johnnybot/opengovt-backup/phone-length.launchd.err.log</string>
+  <key>RunAtLoad</key>
+  <false/>
+  <key>LowPriorityIO</key>
+  <true/>
+  <key>Nice</key>
+  <integer>10</integer>
+</dict>
+</plist>
