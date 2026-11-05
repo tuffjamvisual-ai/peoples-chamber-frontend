@@ -71,6 +71,7 @@ const EXACT_COLUMNS: Record<string, string[]> = {
   debates: ['title', 'summary'],
   lords_divisions: ['motion_text'],
   early_day_motions: ['title', 'motion_text'],
+  early_day_motion_signatures: ['early_day_motions'],   // the joined motion on MP pages
   parliament_written_questions: ['question_text', 'answer_text', 'answer_html'],
   bill: ['title', 'long_title', 'description'],
   bill_in_session: ['title'],
@@ -112,8 +113,8 @@ const EXACT_COLUMNS: Record<string, string[]> = {
   organisation_company_pages: ['variants'],
   government_grants: ['recipient_name', 'funder_name', 'scheme_title', 'title'],
   government_grant_schemes: ['description', 'title', 'funder_name'],
-  person_cache: ['biography', 'description', 'current_roles', 'past_roles'],
-  agency_cache: ['description', 'body', 'name'],
+  person_cache: ['biography', 'description', 'current_roles', 'past_roles', 'name', 'full_name'],
+  agency_cache: ['description', 'body', 'name', 'ministers', 'board_members', 'parent_orgs', 'featured_docs'],
   dept_agencies: ['name'],
   political_donations: ['purpose_of_visit', 'explanatory_notes', 'donor_name', 'trust_name', 'trust_creator_name', 'accounting_unit_name', 'campaigning_name'],
   party_names: ['published_name'],
@@ -166,8 +167,3 @@ export const fetchWithoutEmDashes: typeof fetch = async (input, init) => {
   headers.delete('content-encoding');
   return new Response(cleaned, { status: res.status, statusText: res.statusText, headers });
 };
-
-/** res.json() for live official APIs shown on the page (Hansard, Bills, GOV.UK), with the rule applied. */
-export async function jsonWithoutEmDashes<T = unknown>(res: Response): Promise<T> {
-  return JSON.parse(withoutEmDashes(await res.text())) as T;
-}

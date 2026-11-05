@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { govukSlugs } from '@/lib/govuk-slugs';
 import { pageDb, GOVUK_DEPT_TAG } from '@/lib/page-reads';
-import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 
 export const revalidate = 3600;
 
@@ -82,7 +81,7 @@ async function fetchGovukJson(govukSlug: string) {
       { next: { revalidate: 3600 } },
     );
     if (!res.ok) return null;
-    return await jsonWithoutEmDashes<any>(res);
+    return await res.json();   // GOV.UK's names and titles word for word (owner, 5 Nov 2026)
   } catch {
     return null;
   }
