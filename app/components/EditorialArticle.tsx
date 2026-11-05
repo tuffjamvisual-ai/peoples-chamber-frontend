@@ -75,6 +75,10 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               <p className="art-summary">{piece.summary}</p>
             </>
           )}
+          {/* The stored standfirst, at every width (owner, 5 Nov 2026): it had dropped off the page on 10 Aug 2026. */}
+          {piece.standfirst?.trim() && (
+            <p style={{ fontSize: '18px', lineHeight: 1.5, margin: '12px 0 0', color: INK }}>{piece.standfirst}</p>
+          )}
           {basePath === '/editorials' && <ShareButton title={piece.headline} />}
           <div style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             By {piece.authorByline}
