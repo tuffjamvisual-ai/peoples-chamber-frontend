@@ -17,13 +17,14 @@
 //   node scripts/checks/mobile-audit.mjs --fast                375px, the page types in mobile-audit-fast.txt, checks a, b
 //                                                              and c; exit 1 if any fails (the pre-push check)
 //   --out <dir> (default "Claude outputs/mobile-audit"), --limit <n> (first n pages, to try it)
+//   --engine webkit, --widths 375[,414], --no-shots (mobile-audit-deep.mjs runs it this way in Safari's engine)
 //
 // Requests to opengovt.uk, analytics and Next.js link prefetches are blocked and not counted: a local run must not fetch
 // the live site, and prefetches would render hundreds of other pages against the production database.
 import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
-import { chromium } from 'playwright';
+import { chromium, webkit } from 'playwright';
 import sharp from 'sharp';
 
 const argv = process.argv.slice(2);
@@ -31,7 +32,8 @@ const opt = (n) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 
 const FAST = argv.includes('--fast');
 const OUT = opt('out') ?? 'Claude outputs/mobile-audit';
 const LIMIT = opt('limit') ? Number(opt('limit')) : null;
-const WIDTHS = FAST ? [375] : [360, 375, 414];
+const ENGINE = opt('engine') === 'webkit' ? webkit : chromium;
+const WIDTHS = FAST ? [375] : opt('widths') ? opt('widths').split(',').map(Number) : [360, 375, 414];
 const HEIGHT = 812;
 const CONCURRENCY = Number(opt('concurrency') ?? 4);
 const HERE = path.dirname(new URL(import.meta.url).pathname);
@@ -315,8 +317,8 @@ async function main() {
   const server = await startServer();
   const pages = choosePages();
   fs.mkdirSync(path.join(OUT, 'shots'), { recursive: true });
-  const shotDir = FAST ? null : path.join(OUT, 'shots');
-  const browser = await chromium.launch();
+  const shotDir = FAST || argv.includes('--no-shots') ? null : path.join(OUT, 'shots');
+  const browser = await ENGINE.launch();
   const jobs = pages.flatMap((p) => WIDTHS.map((w) => ({ p, w })));
   const rows = [];
   let next = 0, done = 0;
