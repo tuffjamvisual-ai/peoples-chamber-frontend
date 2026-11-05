@@ -1958,9 +1958,9 @@ export default function MagazineProfileSections({
                               {inlineFacts && <div className="mp-col-inline">{inlineFacts}</div>}
                             </td>
                             <td className="mp-col-wide" style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.count > 0 ? r.count : 'n/a'}</td>
-                            <td className="mp-col-wide" style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.hours > 0 ? r.hours.toLocaleString('en-GB') : ', '}</td>
+                            <td className="mp-col-wide" style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.hours > 0 ? r.hours.toLocaleString('en-GB') : null}</td>
                             <td className="mp-col-wide" style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                              {hourly !== null ? fmtMoney(hourly) : ', '}
+                              {hourly !== null ? fmtMoney(hourly) : null}
                             </td>
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{r.count > 0 ? fmtMoney(r.total) : <span style={{ fontWeight: 'normal' }}>Not disclosed</span>}</td>
                           </tr>
@@ -2245,8 +2245,8 @@ export default function MagazineProfileSections({
                           )}
                         </td>
                         <td className="mp-col-wide" style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{d.count}</td>
-                        <td className="mp-col-wide" style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{firstLabel ?? ', '}</td>
-                        <td className="mp-col-wide" style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{lastLabel ?? ', '}</td>
+                        <td className="mp-col-wide" style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{firstLabel}</td>
+                        <td className="mp-col-wide" style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{lastLabel}</td>
                         <td style={{ padding: '5px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
                       </tr>
                     );
@@ -2333,7 +2333,7 @@ export default function MagazineProfileSections({
                       .slice(0, 200)
                       .map((d) => {
                       const date = d.accepted_date || d.received_date || d.reported_date;
-                      const dateText = date ? new Date(date).toLocaleDateString('en-GB') : ', ';
+                      const dateText = date ? new Date(date).toLocaleDateString('en-GB') : '';
                       const crn = (d.company_registration_number || '').trim();
                       const donorRunning = cumulativeById.get(d.id) ?? null;
                       const donorRow = byDonor.get((d.donor_name || '(anonymous)').trim() || '(anonymous)');
@@ -2343,8 +2343,8 @@ export default function MagazineProfileSections({
                           <summary style={{ cursor: 'pointer', display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap', fontSize: '15px' }}>
                             <span style={{ fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{dateText}</span>
                             <span style={{ fontWeight: 'bold' }}>{d.donor_name || '(anonymous)'}</span>
-                            <span style={{ fontSize: '15px' }}>{d.donor_type || ', '}</span>
-                            <span style={{ fontSize: '15px' }}>· {d.nature || ', '}</span>
+                            {d.donor_type && <span style={{ fontSize: '15px' }}>{d.donor_type}</span>}
+                            {d.nature && <span style={{ fontSize: '15px' }}>· {d.nature}</span>}
                             <span style={{ marginLeft: 'auto', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(Number(d.amount) || 0)}</span>
                             {isRepeat && donorRunning != null && (
                               <span style={{ fontFamily: 'monospace', fontSize: '15px', whiteSpace: 'nowrap' }}>
@@ -2432,7 +2432,7 @@ export default function MagazineProfileSections({
                           <tr key={o.name} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
                             <td style={{ padding: '4px 4px' }}>{o.name}</td>
                             <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{o.count}</td>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{o.latest ? new Date(o.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{o.latest ? new Date(o.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : null}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -2445,8 +2445,8 @@ export default function MagazineProfileSections({
                     <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: 1.55 }}>
                       {meetings.slice(0, 300).map((m) => (
                         <li key={m.id} style={{ padding: '5px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                          <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{m.meeting_date ? new Date(m.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ', '}</span>
-                          {' · '}{m.organisation || '(unspecified)'}
+                          {m.meeting_date && <><span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{new Date(m.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>{' · '}</>}
+                          {m.organisation || '(unspecified)'}
                           {m.purpose && <div style={{ fontSize: '15px', marginLeft: '8px' }}>{m.purpose}</div>}
                         </li>
                       ))}
@@ -2480,8 +2480,8 @@ export default function MagazineProfileSections({
                           <tr key={d.name} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
                             <td style={{ padding: '4px 4px' }}>{d.name}</td>
                             <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{d.count}</td>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.latest ? new Date(d.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</td>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{d.total > 0 ? fmtMoney(d.total) : ', '}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.latest ? new Date(d.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : null}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{d.total > 0 ? fmtMoney(d.total) : null}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -2540,8 +2540,8 @@ export default function MagazineProfileSections({
                     <ul style={{ listStyle: 'none', padding: '6px 0 0 0' }}>
                       {refused.slice(0, 50).map((c, i) => (
                         <li key={c.claim_number ?? `r-${i}`} style={{ padding: '4px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                          <span style={{ fontFamily: 'monospace' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : ', '}</span>
-                          {' · '}{c.category || '?'}
+                          {c.claim_date && <><span style={{ fontFamily: 'monospace' }}>{new Date(c.claim_date).toLocaleDateString('en-GB')}</span>{' · '}</>}
+                          {c.category || '?'}
                           {(c.short_description || c.cost_type) && <> · {c.short_description || c.cost_type}</>}
                           {', '}<strong>{fmtMoney(Number(c.amount_not_paid))}</strong>
                           {c.reason_if_not_paid && <span > · {c.reason_if_not_paid}</span>}
@@ -2557,8 +2557,8 @@ export default function MagazineProfileSections({
                     <ul style={{ listStyle: 'none', padding: '6px 0 0 0' }}>
                       {repaid.slice(0, 50).map((c, i) => (
                         <li key={c.claim_number ?? `p-${i}`} style={{ padding: '4px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                          <span style={{ fontFamily: 'monospace' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : ', '}</span>
-                          {' · '}{c.category || '?'}
+                          {c.claim_date && <><span style={{ fontFamily: 'monospace' }}>{new Date(c.claim_date).toLocaleDateString('en-GB')}</span>{' · '}</>}
+                          {c.category || '?'}
                           {(c.short_description || c.cost_type) && <> · {c.short_description || c.cost_type}</>}
                           {', repaid '}<strong>{fmtMoney(Number(c.amount_repaid))}</strong>
                         </li>
@@ -2925,19 +2925,19 @@ function ActivityTile({ label, value, sub, href, hrefLabel, external }: { label:
 
 
 function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
-  const fmt = (v: unknown) => (v === null || v === undefined || v === '' ? ', ' : String(v));
-  const fmtBool = (v: boolean | null | undefined) => (v === true ? 'Yes' : v === false ? 'No' : ', ');
+  const fmt = (v: unknown) => (v === null || v === undefined || v === '' ? null : String(v));
+  const fmtBool = (v: boolean | null | undefined) => (v === true ? 'Yes' : v === false ? 'No' : null);
   const fmtMoneyOpt = (v: number | string | null | undefined) => {
     const n = Number(v);
-    return Number.isFinite(n) && n > 0 ? '£' + n.toLocaleString('en-GB') : ', ';
+    return Number.isFinite(n) && n > 0 ? '£' + n.toLocaleString('en-GB') : null;
   };
-  const fmtDate = (v: string | null | undefined) => (v ? new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ', ');
-  const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  const fmtDate = (v: string | null | undefined) => (v ? new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : null);
+  const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (value === null ? null : (
     <>
       <dt style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '2px 8px 2px 0' }}>{label}</dt>
       <dd style={{ fontSize: '15px', margin: 0, padding: '2px 0', wordBreak: 'break-word' }}>{value}</dd>
     </>
-  );
+  ));
   const trustUsed = !!(d.trust_name || d.trust_creator_name || d.trust_creator_status || d.trust_created_date);
   return (
     <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(140px, max-content) 1fr', gap: '2px 16px', margin: '8px 0 4px 8px', padding: '8px 12px', background: 'rgba(20,16,13,0.04)', border: '1px solid rgba(20,16,13,0.1)' }}>
