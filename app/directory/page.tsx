@@ -78,7 +78,7 @@ export default function DirectoryPage() {
                 <span className="dir-mark" aria-hidden="true">▾</span>
               </button>
             </h2>
-            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            <ul data-own-more style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {groups.get(l)!.map((e) => (
                 <li key={`${e.name}|${e.href}`} className="dir-entry" data-entry={`${e.name} ${e.desc}`.toLowerCase()} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '9px 0' }}>
                   <Link href={e.href} style={{ fontSize: '17px', fontWeight: 'bold', color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', overflowWrap: 'anywhere' }}>{e.name}</Link>

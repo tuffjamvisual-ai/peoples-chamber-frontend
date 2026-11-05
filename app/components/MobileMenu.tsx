@@ -114,7 +114,13 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
         <Link href="/search" className="og-mbar-btn" aria-label="Search">
           <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5 21 21" /></svg>
         </Link>
-        <button ref={buttonRef} type="button" className="og-mbar-btn" aria-label="Menu" aria-expanded={open} aria-controls={PANEL_ID} onClick={openMenu}>
+        {/* Without JavaScript the menu cannot open: the same button is a link to the full list of pages (globals.css hides the real one). */}
+        <noscript>
+          <a href="/directory" className="og-mbar-btn" aria-label="Menu">
+            <svg width="26" height="24" viewBox="0 0 26 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M3 6h20M3 12h20M3 18h20" /></svg>
+          </a>
+        </noscript>
+        <button ref={buttonRef} type="button" className="og-mbar-btn og-mbar-js" aria-label="Menu" aria-expanded={open} aria-controls={PANEL_ID} onClick={openMenu}>
           <svg width="26" height="24" viewBox="0 0 26 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M3 6h20M3 12h20M3 18h20" /></svg>
         </button>
       </div>

@@ -1,5 +1,6 @@
 // The pre-push check (owner, 4 Nov 2026): refuses a push if the fast mobile audit (375px, the 40 most visited page types,
-// checks a, b and c) fails on the commit being pushed. Run by scripts/git-hooks/pre-push; git passes the refs on stdin.
+// checks a, b and c) or the two reader journeys (owner, 5 Nov 2026: every fold of an MP page, Show more until done on
+// /donors, in Chromium) fail on the commit being pushed. Run by scripts/git-hooks/pre-push; git passes the refs on stdin.
 // It builds that commit in a temporary worktree, so the working tree and any running server are left alone, and takes
 // several minutes. It only runs when a pushed commit changes what pages render (app, lib, public, next.config), and once
 // per commit: pushing the same commit to main after work does not run it again.
@@ -45,10 +46,11 @@ try {
   for (let i = 0; i < 60; i++) { try { await fetch(`${base}/support`); break; } catch { await new Promise((r) => setTimeout(r, 1000)); } }
   try {
     run('node', ['scripts/checks/mobile-audit.mjs', '--fast', '--base', base, '--out', path.join(os.tmpdir(), 'opengovt-audit-fast')], { cwd: wt, env });
+    run('node', ['scripts/checks/mobile-audit-deep.mjs', '--base', base, '--section', 'journeys', '--engines', 'chromium', '--journeys', 'e,g', '--out', path.join(os.tmpdir(), 'opengovt-audit-journeys')], { cwd: wt, env });
     code = 0;
     fs.writeFileSync(passedFile, sha);
   } catch {
-    console.error('Push refused: the fast mobile audit failed (checks a, b or c above). Fix them, commit and push again.');
+    console.error('Push refused: the fast mobile audit (checks a, b or c) or a reader journey (e, g) failed, above. Fix them, commit and push again.');
   }
 } catch (e) {
   console.error(`Push refused: the mobile audit could not run: ${e.message.split('\n')[0]}`);

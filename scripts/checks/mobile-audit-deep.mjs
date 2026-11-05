@@ -5,6 +5,7 @@
 //   npm i --no-save @axe-core/playwright; node node_modules/playwright/cli.js install webkit     (once)
 //   node scripts/checks/mobile-audit-deep.mjs --base http://localhost:3100 [--section webkit,journeys,edge,nojs,lighthouse,axe,focus,report]
 //   --out <dir> (default "Claude outputs/mobile-audit-deep")
+//   --engines chromium, --journeys e,g   only those; a failed step exits with status 1 (the push check runs it this way)
 import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
@@ -15,6 +16,8 @@ const argv = process.argv.slice(2);
 const opt = (n) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : null; };
 const BASE = opt('base') ?? 'http://localhost:3100';
 const OUT = opt('out') ?? 'Claude outputs/mobile-audit-deep';
+const ONLY_JOURNEYS = opt('journeys')?.split(',') ?? null;
+const ENGINES = opt('engines')?.split(',') ?? ['chromium', 'webkit'];
 const SECTIONS = (opt('section') ?? 'webkit,journeys,edge,nojs,lighthouse,axe,focus,report').split(',');
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 const SHOTS = path.join(OUT, 'shots');
@@ -85,6 +88,7 @@ async function journeys(engineName, engine) {
   const browser = await engine.launch();
   const out = [];
   const journey = async (id, title, fn) => {
+    if (ONLY_JOURNEYS && !ONLY_JOURNEYS.includes(id)) return;
     const ctx = await browser.newContext({ viewport: { width: 375, height: 812 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
     const page = await ctx.newPage();
     await guard(page);
@@ -107,7 +111,7 @@ async function journeys(engineName, engine) {
     await step('open homepage', async () => { await open(p, '/'); await dismiss(p); });
     await step('enter SW1A 0AA in the local search', async () => { const i = p.getByPlaceholder('Postcode, town or council'); await i.fill('SW1A 0AA'); await i.press('Enter'); await urlIs(p, /your-area\?/, 'no area page'); await p.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {}); return p.url().replace(BASE, ''); });
     await step('follow to the MP page', async () => { const l = p.locator('a[href^="/mps/"]:visible').first(); must(await l.count(), 'no MP link on the page'); const t = await l.innerText(); await l.click(); await urlIs(p, /\/mps\/\d+/, 'no MP page'); return t; });
-    await step('open Registered interests', async () => { const f = p.getByRole('button', { name: /Registered interests/ }).first(); await f.click(); must((await f.getAttribute('aria-expanded')) === 'true', 'fold did not open'); must(await p.locator('#fold-interests').isVisible(), 'fold body not visible'); });
+    await step('open Registered interests', async () => { const f = p.locator('.pf-btn', { hasText: 'Registered interests' }).first(); await f.click(); await p.waitForTimeout(120); must(await p.locator('[data-fold="interests"] > .pf-d[open]').count(), 'fold did not open'); must(await p.locator('#fold-interests').isVisible(), 'fold body not visible'); });
   });
   const searchTo = async (p, step, term, name, slug) => {
     await step(`search ${term}`, async () => { await open(p, '/search'); await dismiss(p); const i = p.locator('input[aria-label="Search the site"]'); await i.fill(term); await i.press('Enter'); await urlIs(p, new RegExp(`q=${term}`), 'no results page'); await p.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {}); });
@@ -133,11 +137,11 @@ async function journeys(engineName, engine) {
   await journey('e', 'MP page: every fold, Back returns page and scroll', async (p, step) => {
     let y = 0, count = 0;
     await step('open /mps/4874', async () => { await open(p, '/mps/4874'); await dismiss(p); });
-    await step('open every fold', async () => { const b = p.locator('.pf-btn'); count = await b.count(); for (let i = 0; i < count; i++) { await b.nth(i).click(); await p.waitForTimeout(120); must((await b.nth(i).getAttribute('aria-expanded')) === 'true', `fold ${i + 1} did not open`); } return `${count} folds`; });
+    await step('open every fold', async () => { const b = p.locator('.pf-btn'); count = await b.count(); must(count > 1, 'no folds'); for (let i = 0; i < count; i++) { must(await b.nth(i).isVisible(), `fold ${i + 1} of ${count} cannot be reached`); await b.nth(i).click(); await p.waitForTimeout(120); must(await p.locator('.pf-d').nth(i).evaluate((d) => d.open), `fold ${i + 1} did not open`); } await p.waitForTimeout(600); const after = await p.evaluate(() => ({ cut: document.querySelectorAll('.pf-list .og-phone-more, .pf-list [data-pm-hide], .pf-list [data-pt-fold], .pf-list [data-pt-fold-hide]').length, nested: document.querySelectorAll('button button, summary button, button a, a button').length })); must(!after.cut, `${after.cut} items cut or folded inside the folds`); must(!after.nested, `${after.nested} controls inside a control`); return `${count} folds`; });
     await step('scroll down and follow a link', async () => { const l = p.locator('#fold-voting a[href^="/"]:visible, #fold-interests a[href^="/"]:visible, .pf-body a[href^="/"]:visible').first(); await l.scrollIntoViewIfNeeded(); await p.waitForTimeout(200); y = await p.evaluate(() => window.scrollY); await l.click(); await p.waitForURL((u) => !u.pathname.endsWith('/mps/4874'), { timeout: 40000 }); return `from scroll ${Math.round(y)}, to ${p.url().replace(BASE, '')}`; });
     await step('Back returns the page', async () => { await p.goBack({ waitUntil: 'domcontentloaded' }); await p.waitForTimeout(1500); must(p.url().endsWith('/mps/4874'), `at ${p.url()}`); });
     await step('Back returns the scroll position', async () => { const now = await p.evaluate(() => window.scrollY); must(Math.abs(now - y) < 300, `was ${Math.round(y)}, now ${Math.round(now)}`); return `was ${Math.round(y)}, now ${Math.round(now)}`; });
-    await step('folds are still open after Back', async () => { const open2 = await p.locator('.pf-btn[aria-expanded="true"]').count(); must(open2 === count, `${open2} of ${count} open`); });
+    await step('folds are still open after Back', async () => { const open2 = await p.locator('.pf-d[open]').count(); must(open2 === count, `${open2} of ${count} open`); });
   });
   await journey('f', '/organisations: Contracts filter, page 2, Back keeps the filter', async (p, step) => {
     await step('open /organisations', async () => { await open(p, '/organisations'); await dismiss(p); });
@@ -147,7 +151,7 @@ async function journeys(engineName, engine) {
   });
   await journey('g', 'A long list: Show more until done', async (p, step) => {
     await step('open /donors', async () => { await open(p, '/donors'); await dismiss(p); });
-    await step('Show more until done', async () => { let clicks = 0; const seen = []; const b = p.locator('.og-phone-more:visible'); while (await b.count() && clicks < 30) { await b.first().click(); await p.waitForTimeout(500); clicks++; seen.push(await p.locator('#donors-list > tr:visible').count()); } const rows = seen[seen.length - 1]; must(rows === 200, `${rows} rows after ${clicks} presses`); must(clicks <= 7, `200 rows took ${clicks} presses, not 7; rows after each: ${seen.join(' ')}`); return `${clicks} presses, ${rows} rows`; });
+    await step('Show more until done', async () => { let clicks = 0; const seen = []; const b = p.locator('.og-phone-more:visible'); must((await p.locator('#donors-list > tr:visible').count()) === 25, 'does not start at 25 rows'); while (await b.count() && clicks < 30) { must((await b.count()) === 1, `${await b.count()} Show more buttons`); await b.first().click(); await p.waitForTimeout(500); clicks++; seen.push(await p.locator('#donors-list > tr:visible').count()); } const rows = seen[seen.length - 1]; must(rows === 200, `${rows} rows after ${clicks} presses`); must(clicks === 7 && seen.every((n, i) => n === 50 + i * 25), `200 rows took ${clicks} presses, not 7; rows after each: ${seen.join(' ')}`); return `${clicks} presses, ${rows} rows`; });
   });
   await journey('h', 'Tables as cards: every label matches its column', async (p, step) => {
     for (const u of ['/donations/foreign', '/earnings', '/transparency/special-advisers', '/parties/labour/money', '/councils/kent/schools']) {
@@ -177,23 +181,29 @@ async function journeys(engineName, engine) {
   });
   await journey('j', 'Bill page signed out: the ballot leads to sign in', async (p, step) => {
     await step('open /bills/4035', async () => { await open(p, '/bills/4035'); await dismiss(p); await p.waitForTimeout(800); });
-    await step('tap Aye', async () => { await p.getByRole('button', { name: /Vote Aye/ }).first().click(); await urlIs(p, /\/login\?mode=signup/, 'not sent to sign in'); return p.url().replace(BASE, ''); });
+    await step('tap Aye', async () => { await p.getByRole('button', { name: /^Aye/ }).first().click(); await urlIs(p, /\/login\?mode=signup/, 'not sent to sign in'); return p.url().replace(BASE, ''); });
     await step('nothing written', async () => { must(!p.__writes, `${p.__writes} write(s) attempted`); });
   });
   await journey('k', '/newsletter: invalid email shows an error, stop before sending', async (p, step) => {
-    // The form has no check of its own: the server refuses a bad address. The stub answers as the route does (status 400).
+    // The form checks the address itself, in the route's words, so no request should be sent.
     let posts = 0;
     await p.route('**/api/newsletter/subscribe', (r) => { posts++; return r.fulfill({ status: 400, contentType: 'application/json', body: JSON.stringify({ error: 'Please enter a valid email address.' }) }); });
     await step('open /newsletter', async () => { await open(p, '/newsletter'); await dismiss(p); });
-    await step('invalid email', async () => { const i = p.locator('input[type=email]:visible').first(); await i.fill('not-an-email'); await p.locator('form:has(input[type=email]) button[type=submit]:visible').first().click(); await p.waitForTimeout(500); const alert = p.locator('form:has(input[type=email]) [role=alert]'); const shown = await alert.count() ? (await alert.first().innerText()) : ''; must(shown, 'no error shown'); return `${shown.slice(0, 70)} (from the stubbed server answer; ${posts} request sent, no check in the browser)`; });
+    await step('invalid email', async () => { const i = p.locator('input[type=email]:visible').first(); await i.fill('not-an-email'); await p.locator('form:has(input[type=email]) button[type=submit]:visible').first().click(); await p.waitForTimeout(500); const alert = p.locator('form:has(input[type=email]) [role=alert]'); const shown = await alert.count() ? (await alert.first().innerText()) : ''; must(shown === 'Please enter a valid email address.', `error reads: ${shown || 'nothing'}`); must(posts === 0, `${posts} request sent`); return `${shown} (no request sent)`; });
   });
   await browser.close();
   return out;
 }
 async function sectionJourneys() {
-  const rows = [...await journeys('chromium', chromium), ...await journeys('webkit', webkit)];
+  const rows = [];
+  if (ENGINES.includes('chromium')) rows.push(...await journeys('chromium', chromium));
+  if (ENGINES.includes('webkit')) rows.push(...await journeys('webkit', webkit));
   writeCsv('journeys.csv', rows);
   saveJson('journeys.json', rows);
+  if (ONLY_JOURNEYS) {
+    for (const r of rows) console.log(`${r.result} ${r.engine} ${r.journey}${r.step} ${r.name}${r.detail ? `: ${r.detail}` : ''}`);
+    if (!rows.length || rows.some((r) => r.result !== 'pass')) process.exitCode = 1;
+  }
 }
 
 // ---- 3. Edge conditions ------------------------------------------------------------------------------------------------
@@ -260,7 +270,7 @@ async function sectionNojs() {
   const rows = [];
   await pool(pages, 3, async (p) => {
     const row = { route: p.route, url: p.url };
-    const read = () => { const b = document.body; const menu = document.getElementById('og-menu-panel'); const main = document.querySelector('.dossier-content') || b; const clean = main.cloneNode(true); const openable = [...main.querySelectorAll('details:not([open])')].filter((d) => !d.parentElement.closest('details:not([open])')).reduce((n, d) => n + (d.textContent || '').length, 0); clean.querySelectorAll('script, style, noscript').forEach((x) => x.remove()); return { h1: document.querySelector('h1')?.textContent?.trim().slice(0, 50) ?? '', text: (b.innerText || '').length, rows: [...document.querySelectorAll('tbody tr, ol li, ul li, article')].filter((e) => !menu?.contains(e)).length, shownText: (main.innerText || '').length + openable, allText: (clean.textContent || '').length, folds: document.querySelectorAll('.pf-btn').length, picker: !!document.querySelector('.dept-pick select'), menuPanel: !!menu, loading: /Loading[…. ]/.test(b.innerText || ''), hscroll: Math.max(0, document.documentElement.scrollWidth - window.innerWidth), hiddenByCss: document.querySelectorAll('[data-pm-hide]').length }; };
+    const read = () => { const b = document.body; const menu = document.getElementById('og-menu-panel'); const main = document.querySelector('.dossier-content') || b; const clean = main.cloneNode(true); const openable = [...main.querySelectorAll('details:not([open])')].filter((d) => !d.parentElement.closest('details:not([open])')).reduce((n, d) => n + (d.textContent || '').length + (d.matches('.pf-d') ? (d.nextElementSibling?.textContent || '').length : 0), 0); clean.querySelectorAll('script, style, noscript').forEach((x) => x.remove()); return { h1: document.querySelector('h1')?.textContent?.trim().slice(0, 50) ?? '', text: (b.innerText || '').length, rows: [...document.querySelectorAll('tbody tr, ol li, ul li, article')].filter((e) => !menu?.contains(e)).length, shownText: (main.innerText || '').length + openable, allText: (clean.textContent || '').length, folds: document.querySelectorAll('button.pf-btn').length, picker: !!document.querySelector('.dept-pick select')?.offsetParent, menuPanel: !!menu || !!document.querySelector('.og-mbar a[href="/directory"]'), loading: /Loading[…. ]/.test(b.innerText || ''), hscroll: Math.max(0, document.documentElement.scrollWidth - window.innerWidth), hiddenByCss: document.querySelectorAll('[data-pm-hide]').length }; };
     try {
       const off = await browser.newContext({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, javaScriptEnabled: false });
       const pg = await off.newPage(); await guard(pg);

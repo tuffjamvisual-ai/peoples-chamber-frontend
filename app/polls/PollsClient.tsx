@@ -190,6 +190,7 @@ export default function PollsClient() {
           }}
         />
         <select
+          aria-label="Sort polls"
           value={sort}
           onChange={(e) => setSort(e.target.value as SortOption)}
           style={{
@@ -220,6 +221,7 @@ export default function PollsClient() {
         <>
           <div
             id="polls-list"
+            data-own-more
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',

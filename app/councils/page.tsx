@@ -150,6 +150,7 @@ export default async function CouncilsIndex() {
                         {items[0].type_label}{items.length > 1 ? 's' : ''} · {items.length}
                       </div>
                       <ul
+                        data-own-more
                         id={`councils-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}
                         style={{
                           listStyle: 'none',

@@ -3,13 +3,20 @@
 //   tables   a table with more than 3 columns, or that does not fit, becomes one card per row: the first column is the
 //            title and the rest are "label: value" lines in the same order, labels read from the table's own header.
 //   links    a link alone in its paragraph is a 44px tap target like any other (lib/globals.css [data-pt-tap]).
-//   lists    a list of more than 25 items shows 25, then a Show more button adds 25. If the page is still over 15,000px,
-//            tall lists of any kind are cut to about 6,000px and then its sections fold under their headings.
+//   lists    a list of more than 25 items shows 25, then a Show more button adds 25. If the page is still over 15,000px
+//            once it has loaded, tall lists of any kind are cut to about 6,000px and then its sections fold under their
+//            headings.
+// What it leaves alone (owner, 5 Nov 2026): the long page shortening runs once per page, when the page has loaded, and never
+// on a page with its own folds (PhoneFolds, .pf-list). Nothing inside a fold or a <details> is cut, folded or given a button,
+// a list marked data-own-more has its own Show more (PhoneMore.tsx), and once the reader has opened something no list
+// gets a new limit. So a press can never shorten what is on the page, or hide what comes after it.
+// Back and Forward (owner, 5 Nov 2026): the scroll position and any heading folds left open are kept in sessionStorage
+// when a link is followed, and put back on the way back, as content arrives. window.__ogBack tells PhoneFolds it is a return.
 // Only data-* attributes change on the page's own elements, which React leaves alone. The first run is inline, right after
 // the page, so tables are cards before they are painted; PhoneEnhance.tsx adds the buttons once the page is hydrated and
 // repeats the work when a page changes. Styles are in globals.css.
 export const PHONE_ENHANCE_JS = `(function(){
-var LIMIT=25,MAXH=15000,CAP=6000,user=false,extra=[],RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
+var LIMIT=25,MAXH=15000,CAP=6000,opened=false,done=null,wait=0,here=location.href,path=location.pathname,extra=[],OWN='nav,.og-menu-panel,.og-mbar,footer,details,.pf-list,[data-own-more]',BACK='og-phone-back:',RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
 function pageHeight(){return document.documentElement.scrollHeight}
 function narrow(){return window.innerWidth<640}
 function text(e){return (e.textContent||'').replace(/[\\u25B2\\u25BC\\u25B4\\u25BE]/g,'').replace(/\\s+/g,' ').trim()}
@@ -66,7 +73,7 @@ function lists(buttons){
   var found=[].slice.call(document.querySelectorAll('.ng-page ul,.ng-page ol,.ng-page tbody')).concat(extra);
   found.forEach(function(list){
     if(list.children.length<=LIMIT&&!list.__ptButton&&!list.__ptTag)return;
-    if(list.closest('nav,.og-menu-panel,.og-mbar,footer,details:not([open])'))return;
+    if(list.closest(OWN)||(opened&&!list.__ptLimit))return;
     var after=list.tagName==='TBODY'?list.parentElement:list;
     var next=after.nextElementSibling;
     if(next&&next.classList.contains('og-phone-more')&&!list.__ptButton)return;
@@ -81,7 +88,7 @@ function lists(buttons){
     if(!buttons)return;
     if(!b||!b.isConnected){
       b=document.createElement('button');b.type='button';b.className='og-phone-more';
-      b.addEventListener('click',function(){user=true;list.__ptLimit+=LIMIT;lists(true)});
+      b.addEventListener('click',function(){list.__ptLimit+=LIMIT;lists(true)});
       if(list.__ptTag)shown[list.__ptLimit-1].after(b);else after.parentNode.insertBefore(b,after.nextSibling);
       list.__ptButton=b;
     }
@@ -89,11 +96,11 @@ function lists(buttons){
   });
 }
 function tall(){
-  if(user||pageHeight()<=MAXH)return;
+  if(pageHeight()<=MAXH)return;
   var all=[].slice.call(document.querySelectorAll('.ng-page .dossier-content, .ng-page .dossier-content *')).reverse();
   for(var i=0;i<all.length&&pageHeight()>MAXH;i++){
     var e=all[i];
-    if(e.__ptCapped||e.closest('nav,footer,details:not([open]),.og-menu-panel')||e.getBoundingClientRect().height<=CAP)continue;
+    if(e.__ptCapped||e.closest(OWN)||e.getBoundingClientRect().height<=CAP)continue;
     var tags={},kids=[].filter.call(e.children,function(c){return c.getBoundingClientRect().height>0&&!c.hasAttribute('data-pm-hide')});
     kids.forEach(function(c){tags[c.tagName]=(tags[c.tagName]||0)+1});
     var tag=Object.keys(tags).filter(function(t){return !/^(P|H[1-6]|SPAN|A|BR|BUTTON|NAV|FOOTER)$/.test(t)}).sort(function(x,y){return tags[y]-tags[x]})[0];
@@ -109,8 +116,8 @@ function tall(){
 }
 function folds(){
   ['h2','h3'].forEach(function(level){
-    if(user||pageHeight()<=MAXH)return;
-    var hs=[].filter.call(document.querySelectorAll('.ng-page .dossier-content '+level),function(h){return h.getBoundingClientRect().height>0&&!h.closest('nav,footer,table,details:not([open])')});
+    if(pageHeight()<=MAXH)return;
+    var hs=[].filter.call(document.querySelectorAll('.ng-page .dossier-content '+level),function(h){return h.getBoundingClientRect().height>0&&!h.closest('table,'+OWN)&&!h.querySelector('a,button,summary')});
     if(hs.length<3)return;
     var stop=level==='h2'?/^(H1|H2|FOOTER|NAV)$/:/^(H1|H2|H3|FOOTER|NAV)$/;
     hs.forEach(function(h,idx){
@@ -118,16 +125,61 @@ function folds(){
       var items=[],s=h.nextElementSibling;
       while(s&&!stop.test(s.tagName)){items.push(s);s=s.nextElementSibling}
       if(!items.length)return;
-      var open=idx===0;
+      var open=idx===0,saved=window.__ogBack===address()&&readBack();
+      if(saved&&saved.f)open=saved.f.indexOf(h.textContent)>=0;
       var set=function(o){h.setAttribute('aria-expanded',o?'true':'false');items.forEach(function(c){if(o)c.removeAttribute('data-pt-fold-hide');else c.setAttribute('data-pt-fold-hide','1')})};
       h.setAttribute('data-pt-fold','1');h.setAttribute('role','button');h.setAttribute('tabindex','0');
-      var toggle=function(){user=true;open=!open;set(open)};
+      var toggle=function(){opened=true;open=!open;set(open)};
       h.addEventListener('click',toggle);
       h.addEventListener('keydown',function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();toggle()}});
       set(open);
     });
   });
 }
-window.__ogPhone=function(buttons){if(!narrow())return;tables();links();lists(!!buttons);if(buttons){tall();folds()}};
+function address(){return location.pathname+location.search}
+function readBack(){try{return JSON.parse(sessionStorage.getItem(BACK+address())||'null')}catch(e){return null}}
+function saveBack(){
+  if(!narrow())return;
+  try{sessionStorage.setItem(BACK+address(),JSON.stringify({y:window.scrollY,f:[].map.call(document.querySelectorAll('[data-pt-fold][aria-expanded="true"]'),function(h){return h.textContent})}))}catch(e){}
+}
+function returning(){
+  if(!narrow())return;
+  window.__ogBack=address();
+  var saved=readBack(),tries=0,calm=0;
+  if(!saved||!saved.y)return;
+  // Content arrives after a return (folds opening, panels loading), so the place is set again until it holds. A touch
+  // or a wheel means the reader has moved on, and it stops.
+  var stop=function(){clearInterval(timer);window.removeEventListener('touchstart',stop);window.removeEventListener('wheel',stop)};
+  var timer=setInterval(function(){
+    tries++;
+    if(Math.abs(window.scrollY-saved.y)>4)window.scrollTo(0,saved.y);
+    calm=Math.abs(window.scrollY-saved.y)<=4?calm+1:0;
+    if(calm>=6||tries>=30)stop();
+  },120);
+  window.addEventListener('touchstart',stop,{passive:true});window.addEventListener('wheel',stop,{passive:true});
+}
+function shorten(){
+  if(done===path||document.readyState!=='complete')return;
+  done=path;
+  if(opened||document.querySelector('.pf-list'))return;
+  tall();folds();
+}
+window.__ogPhone=function(buttons){
+  if(location.href!==here){
+    here=location.href;
+    if(location.pathname!==path){path=location.pathname;opened=false;clearTimeout(wait);wait=setTimeout(function(){wait=0;if(narrow())shorten()},1000)}
+  }
+  if(!narrow())return;
+  tables();links();lists(!!buttons);
+  if(buttons&&!wait)shorten();
+};
+document.addEventListener('click',function(e){
+  var t=e.target.closest&&e.target.closest('summary,[aria-expanded],[data-pt-fold]');
+  if(t&&!t.closest('nav,.og-menu-panel,.og-mbar,footer'))opened=true;
+  if(e.target.closest&&e.target.closest('a[href]')){saveBack();window.__ogBack=null}
+},true);
+window.addEventListener('pagehide',saveBack);
+window.addEventListener('popstate',function(){if(location.href!==here)returning()});
+try{var nav=performance.getEntriesByType('navigation')[0];if(nav&&nav.type==='back_forward')returning()}catch(e){}
 window.__ogPhone(false);
 })();`;

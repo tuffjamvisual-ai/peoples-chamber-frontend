@@ -111,7 +111,7 @@ export default async function DonorsIndex() {
             <th style={{ padding: '8px 6px', textAlign: 'right' }}>Lifetime total</th>
           </tr>
         </thead>
-        <tbody id="donors-list">
+        <tbody id="donors-list" data-own-more>
           {top.map((d, i) => (
             <tr key={d.donor_name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
               <td data-label="#" style={{ padding: '6px' }}>{i + 1}</td>

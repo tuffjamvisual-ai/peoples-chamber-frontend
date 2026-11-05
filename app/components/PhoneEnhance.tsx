@@ -5,7 +5,7 @@
 import { useEffect } from 'react';
 
 declare global {
-  interface Window { __ogPhone?: (buttons?: boolean) => void }
+  interface Window { __ogPhone?: (buttons?: boolean) => void; __ogBack?: string }
 }
 
 export default function PhoneEnhance() {
@@ -19,7 +19,8 @@ export default function PhoneEnhance() {
     });
     observer.observe(document.body, { childList: true, subtree: true });
     window.addEventListener('resize', soon);
-    return () => { clearTimeout(timer); observer.disconnect(); window.removeEventListener('resize', soon); };
+    window.addEventListener('load', run);
+    return () => { clearTimeout(timer); observer.disconnect(); window.removeEventListener('resize', soon); window.removeEventListener('load', run); };
   }, []);
   return null;
 }

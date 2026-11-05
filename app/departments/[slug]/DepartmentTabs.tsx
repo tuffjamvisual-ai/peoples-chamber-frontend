@@ -87,6 +87,8 @@ export default function DepartmentTabs({
           page width rather than a quarter-width grid column. */}
       <style>{`@media (min-width: 1024px){ .pca-dept-tabs { grid-template-columns: 200px minmax(0, 1fr) !important; gap: 28px !important; } }
         .dept-pick { display: none; }
+        html:not(.og-js) .pca-dept-tabs aside { display: none !important; }
+        html:not(.og-js) .dept-slot { display: block !important; }
         @media (max-width: 639.98px) {
           .pca-dept-tabs { gap: 4px !important; }
           .pca-dept-tabs aside nav { display: none !important; }
@@ -139,7 +141,7 @@ export default function DepartmentTabs({
 
       <div className="py-6 sm:py-8" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', minWidth: 0 }}>
         {tabs.map((t) => (
-          <div key={t.id} style={{ display: t.id === active ? 'block' : 'none' }}>
+          <div key={t.id} className="dept-slot" style={{ display: t.id === active ? 'block' : 'none' }}>
             {slots[t.id]}
           </div>
         ))}

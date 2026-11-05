@@ -142,7 +142,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
 
   return (
     <>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', alignItems: 'baseline' }}>
+      <div className="reports-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', alignItems: 'baseline' }}>
         <input aria-label="Search reports" type="search" placeholder="Search reports…" value={state.q}
           onChange={(e) => update({ q: e.target.value })} style={{ ...field, flex: '1 1 280px', maxWidth: '420px' }} />
         <select className="reports-topic-select" aria-label="Topic" value={state.topic} onChange={(e) => update({ topic: e.target.value })} style={{ ...field, cursor: 'pointer' }}>
@@ -174,6 +174,9 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
       {/* Inline styles cannot hold a media query: the grid's columns live in this class. */}
       <style>{`
         .reports-topics { display: none; }
+        html:not(.og-js) .reports-card { display: flex !important; }
+        html:not(.og-js) .reports-month { display: block !important; }
+        html:not(.og-js) .reports-pager, html:not(.og-js) .reports-filters { display: none !important; }
         @media (max-width: 639.98px) {
           .reports-topics { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; padding-bottom: 6px; }
           .reports-topic-select { display: none; }
@@ -185,7 +188,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
         {months.map((m, mi) => {
           const shown = m.idx.some((i) => visible[i]);
           return (
-            <section key={m.key} hidden={!shown} style={{ display: shown ? 'block' : 'none' }}>
+            <section key={m.key} className="reports-month" style={{ display: shown ? 'block' : 'none' }}>
               <h2 style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 'bold', color: INK, borderBottom: `1px solid ${INK_HAIRLINE}`, padding: mi === firstShownMonth ? '0 0 8px' : '28px 0 8px', margin: 0 }}>
                 {m.label}
               </h2>
@@ -196,8 +199,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
                     <Link
                       key={e.href}
                       href={e.href}
-                      className="no-hover-scale"
-                      hidden={!visible[i]}
+                      className="no-hover-scale reports-card"
                       style={{ display: visible[i] ? 'flex' : 'none', flexDirection: 'column', height: '100%', padding: '22px 0', borderBottom: `1px solid ${HAIRLINE}`, textDecoration: 'none', color: INK }}
                     >
                       {/* The type, then the piece's own kicker when it says something the type does not. */}
@@ -223,7 +225,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
       </div>
 
       {totalPages > 1 && (
-        <nav aria-label="Reports pages" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '24px', fontFamily: MONO, fontSize: '15px', color: INK }}>
+        <nav className="reports-pager" aria-label="Reports pages" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '16px', marginTop: '24px', fontFamily: MONO, fontSize: '15px', color: INK }}>
           <button type="button" onClick={() => goTo(page - 1)} disabled={page <= 1} style={pageBtn(page <= 1)}>Previous</button>
           <span>page {page} of {totalPages}</span>
           <button type="button" onClick={() => goTo(page + 1)} disabled={page >= totalPages} style={pageBtn(page >= totalPages)}>Next</button>

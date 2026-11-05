@@ -25,11 +25,14 @@ function formatAmount(v: unknown): string | null {
   return `£${Math.round(n).toLocaleString('en-GB')}`
 }
 
+// Spelled out, not toLocaleDateString: Safari writes "Sep" where the server writes "Sept" and the browser's time zone can
+// change the day, either of which made the page differ from the server's (React error 418 on three pages, 5 Nov 2026).
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 function formatUkDate(iso: unknown): string | null {
   if (typeof iso !== 'string' || !iso) return null
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return null
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
 }
 
 const TITLE_KEYS = [
@@ -122,7 +125,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
         </p>
       ) : section === 'revolving-door' ? (
         <>
-          <ul id="revolving-list" className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
+          <ul id="revolving-list" data-own-more className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const personName = (row.person_name as string) || '(unknown)'
               const previousRole = row.previous_role as string | null
@@ -197,7 +200,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               const description = (row.description as string | null)?.replace(/\s*\|\s*/g, ' · ') || null
               const rawValue = row.value as string | number | null
               const valueFmt = rawValue !== null && String(rawValue).trim() !== '' && Number.isFinite(Number(rawValue))
-                ? `£${Number(rawValue).toLocaleString()}`
+                ? `£${Number(rawValue).toLocaleString('en-GB')}`
                 : (rawValue ? String(rawValue) : null)
               const date = formatUkDate(row.hospitality_date)
               return (

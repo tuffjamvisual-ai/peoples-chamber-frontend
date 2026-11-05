@@ -149,6 +149,8 @@ export default function RootLayout({
         {/* Cookie consent (29 Oct 2026): marks a visitor who has already chosen, before the first paint, so the
          * banner is hidden by CSS and never moves the page (lib/cookie-consent.ts). */}
         <script dangerouslySetInnerHTML={{ __html: CONSENT_HEAD_SCRIPT }} />
+        {/* JavaScript is on: html.og-js. Rules that hide content behind a control name it, so without JavaScript nothing is lost. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('og-js')" }} />
         {/* RSS feed discovery — Reader apps, GSC and aggregators read this. */}
         <link
           rel="alternate"
