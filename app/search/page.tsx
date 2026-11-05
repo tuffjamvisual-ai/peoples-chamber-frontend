@@ -5,6 +5,7 @@ import SearchInput from './SearchInput';
 import SignupNote from './SignupNote';
 import SaveSearchButton from './SaveSearchButton';
 import SearchTracker from './SearchTracker';
+import PhoneMore from '../components/PhoneMore';
 import { SEARCH_NOTE_JS } from '@/lib/search-note';
 import { searchContent, searchCouncils, searchPeers, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult, type PeerSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
@@ -357,9 +358,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <h3 id="search-mps" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             MPs · {mps.length}
           </h3>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul id="results-mps" data-own-more style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {mps.map((r) => <ResultRow key={r.url} r={r} />)}
           </ul>
+          <PhoneMore selector="#results-mps" total={mps.length} step={10} />
         </section>
       )}
 
@@ -368,9 +370,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <h3 id="search-peers" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Members of the House of Lords · {peers.length}
           </h3>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul id="results-peers" data-own-more style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {peers.map((p) => <PeerRow key={p.memberId} p={p} />)}
           </ul>
+          <PhoneMore selector="#results-peers" total={peers.length} step={10} />
         </section>
       )}
 
@@ -379,9 +382,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <h3 id="search-councils" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Councils · {councils.length}
           </h3>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul id="results-councils" data-own-more style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {councils.map((c) => <CouncilRow key={c.slug} c={c} />)}
           </ul>
+          <PhoneMore selector="#results-councils" total={councils.length} step={10} />
         </section>
       )}
 
@@ -390,9 +394,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <h3 id="search-orgs" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Organisations · {orgMatches.length.toLocaleString('en-GB')}
           </h3>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul id="results-orgs" data-own-more style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {orgs.map((o) => <OrgRow key={o.slug} o={o} />)}
           </ul>
+          <PhoneMore selector="#results-orgs" total={orgs.length} step={10} />
           {orgMatches.length > orgs.length && (
             <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
               <Link href={`/organisations?q=${encodeURIComponent(q)}`} style={{ color: ACCENT }}>All organisations matching &ldquo;{q}&rdquo;</Link>
@@ -406,9 +411,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <h3 id="search-donors" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Donor names (as registered with the Electoral Commission) · {(donorSearch.more ? donorSearch.totalNames : linkedDonors.length).toLocaleString('en-GB')}
           </h3>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul id="results-donors" data-own-more style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {donors.map((d) => <DonorRow key={d.slug} d={d} />)}
           </ul>
+          <PhoneMore selector="#results-donors" total={donors.length} step={10} />
           {(linkedDonors.length > donors.length || donorSearch.more) && (
             <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
               <Link href={`/donors?q=${encodeURIComponent(q)}`} style={{ color: ACCENT }}>All donor names matching &ldquo;{q}&rdquo;</Link>
@@ -424,9 +430,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
             {allResults.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+ results` : `${results.length} result${results.length === 1 ? '' : 's'}`}
             {type !== 'all' && ` · ${type === 'editorial' || type === 'briefing' ? 'Reports' : TYPE_META[type]?.label ?? type} only`}
           </p>
-          <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ol id="results-all" data-own-more style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {results.map((r, i) => <ResultRow key={i} r={r} />)}
           </ol>
+          <PhoneMore selector="#results-all" total={results.length} step={10} />
         </section>
       )}
 

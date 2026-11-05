@@ -172,6 +172,18 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   }
 }
 .og-phone-more { display: none; }
+/* PhoneGroup.tsx: from 640px up the fold line is not there and its content sits as if nothing wrapped it. */
+.pg-d { display: none; }
+.pg-b { display: contents; }
+@media (max-width: 639.98px) {
+  .pg-d { display: block; }
+  .pg-d > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; list-style: none; border-bottom: 1px solid rgba(20, 16, 13, 0.25); }
+  .pg-d > summary::-webkit-details-marker { display: none; }
+  .ng-page .pg-d > summary::after { content: "Show"; position: static; transform: none; height: auto; min-width: 0; flex: none; font-size: 15px; font-weight: normal; text-decoration: underline; color: #7a1612; }
+  .ng-page .pg-d[open] > summary::after { content: "Hide"; }
+  .pg-b { display: block; }
+  .pg-d:not([open]) + .pg-b { display: none; }
+}
 @media (max-width: 639.98px) {
   /* The shared phone table (lib/phone-enhance.ts): one card per row, the first column as the title, then "label: value". */
   .ng-page table[data-pt-table="cards"] { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; overflow: visible !important; border: 0 !important; table-layout: auto !important; }
@@ -207,7 +219,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .ng-page [data-pt-fold] { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; cursor: pointer; }
   .ng-page [data-pt-fold]::after { content: '+'; flex: none; font-size: 20px; color: #7a1612; }
   .ng-page [data-pt-fold][aria-expanded="true"]::after { content: '\2212'; }
-  .ng-page [data-pt-fold-hide] { display: none !important; }
+  .ng-page [data-pt-fold-hide], .ng-page table[data-pt-table="cards"][data-pt-fold-hide] { display: none !important; }
   .ng-page .pt-box::before { content: none !important; display: none !important; }
   .ng-page [data-pm-hide] { display: none !important; }
   .og-back { text-transform: none !important; letter-spacing: normal !important; font-size: 18px !important; }

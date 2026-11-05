@@ -15,6 +15,7 @@ import BackLink from '../components/BackLink';
 import SectionLinks from '../components/SectionLinks';
 import CouncilSearch from '../components/CouncilSearch';
 import PhoneMore from '../components/PhoneMore';
+import PhoneGroup from '../components/PhoneGroup';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import ArticleEndSignup from '../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
@@ -131,7 +132,7 @@ export default async function CouncilsIndex() {
         </p>}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
-          {COUNTRY_ORDER.filter((c) => grouped[c]).map((country) => {
+          {COUNTRY_ORDER.filter((c) => grouped[c]).map((country, countryIndex) => {
             const byType = grouped[country];
             const countryTotal = Object.values(byType).reduce((a, b) => a + b.length, 0);
             return (
@@ -142,6 +143,8 @@ export default async function CouncilsIndex() {
                 <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '20px' }}>
                   {countryTotal} principal authorities
                 </div>
+                {/* Phones: the first nation open, the others folded (the 10,000px rule). */}
+                <PhoneGroup summary={`${country}: ${countryTotal} authorities`} open={countryIndex === 0}>
                 {TYPE_ORDER.filter((t) => byType[t]).map((type) => {
                   const items = byType[type];
                   return (
@@ -184,6 +187,7 @@ export default async function CouncilsIndex() {
                     </div>
                   );
                 })}
+                </PhoneGroup>
               </section>
             );
           })}

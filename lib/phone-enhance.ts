@@ -3,9 +3,9 @@
 //   tables   a table with more than 3 columns, or that does not fit, becomes one card per row: the first column is the
 //            title and the rest are "label: value" lines in the same order, labels read from the table's own header.
 //   links    a link alone in its paragraph is a 44px tap target like any other (lib/globals.css [data-pt-tap]).
-//   lists    a list of more than 25 items shows 25, then a Show more button adds 25. If the page is still over 15,000px
-//            once it has loaded, tall lists of any kind are cut to about 6,000px and then its sections fold under their
-//            headings.
+//   lists    a list of more than 25 items shows 25, then a Show more button adds 25. If the page is still over 9,800px
+//            once it has loaded (owner, 5 Nov 2026: 10,000px at most as a page first opens), tall lists of any kind are cut
+//            to about 6,000px, then 3,000px, then 1,500px, and then its sections fold under their headings.
 // What it leaves alone (owner, 5 Nov 2026): the long page shortening runs once per page, when the page has loaded, and never
 // on a page with its own folds (PhoneFolds, .pf-list). Nothing inside a fold or a <details> is cut, folded or given a button,
 // a list marked data-own-more has its own Show more (PhoneMore.tsx), and once the reader has opened something no list
@@ -16,7 +16,7 @@
 // the page, so tables are cards before they are painted; PhoneEnhance.tsx adds the buttons once the page is hydrated and
 // repeats the work when a page changes. Styles are in globals.css.
 export const PHONE_ENHANCE_JS = `(function(){
-var LIMIT=25,MAXH=15000,CAP=6000,opened=false,done=null,wait=0,here=location.href,path=location.pathname,extra=[],OWN='nav,.og-menu-panel,.og-mbar,footer,details,.pf-list,[data-own-more]',BACK='og-phone-back:',RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
+var LIMIT=25,MAXH=9800,CAPS=[6000,3000,1500],opened=false,done=null,wait=0,here=location.href,path=location.pathname,extra=[],OWN='nav,.og-menu-panel,.og-mbar,footer,details,.pf-list,[data-own-more]',BACK='og-phone-back:',RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
 function pageHeight(){return document.documentElement.scrollHeight}
 function narrow(){return window.innerWidth<640}
 function text(e){return (e.textContent||'').replace(/[\\u25B2\\u25BC\\u25B4\\u25BE]/g,'').replace(/\\s+/g,' ').trim()}
@@ -89,28 +89,29 @@ function lists(buttons){
     if(!b||!b.isConnected){
       b=document.createElement('button');b.type='button';b.className='og-phone-more';
       b.addEventListener('click',function(){list.__ptLimit+=LIMIT;lists(true)});
-      if(list.__ptTag)shown[list.__ptLimit-1].after(b);else after.parentNode.insertBefore(b,after.nextSibling);
+      if(list.__ptTag&&list.tagName!=='TBODY')shown[list.__ptLimit-1].after(b);else after.parentNode.insertBefore(b,after.nextSibling);
       list.__ptButton=b;
     }
     b.textContent='Show more ('+left.toLocaleString('en-GB')+' left)';
   });
 }
-function tall(){
+function tall(){CAPS.forEach(function(cap){tallTo(cap)})}
+function tallTo(cap){
   if(pageHeight()<=MAXH)return;
   var all=[].slice.call(document.querySelectorAll('.ng-page .dossier-content, .ng-page .dossier-content *')).reverse();
   for(var i=0;i<all.length&&pageHeight()>MAXH;i++){
     var e=all[i];
-    if(e.__ptCapped||e.closest(OWN)||e.getBoundingClientRect().height<=CAP)continue;
+    if(e.closest(OWN)||e.getBoundingClientRect().height<=cap)continue;
     var tags={},kids=[].filter.call(e.children,function(c){return c.getBoundingClientRect().height>0&&!c.hasAttribute('data-pm-hide')});
     kids.forEach(function(c){tags[c.tagName]=(tags[c.tagName]||0)+1});
-    var tag=Object.keys(tags).filter(function(t){return !/^(P|H[1-6]|SPAN|A|BR|BUTTON|NAV|FOOTER)$/.test(t)}).sort(function(x,y){return tags[y]-tags[x]})[0];
+    var tag=Object.keys(tags).filter(function(t){return !/^(P|H[1-6]|SPAN|BR|BUTTON|NAV|FOOTER)$/.test(t)}).sort(function(x,y){return tags[y]-tags[x]})[0];
     if(!tag||tags[tag]<6)continue;
     var items=kids.filter(function(c){return c.tagName===tag}),sum=0,n=0;
     items.forEach(function(c){sum+=c.getBoundingClientRect().height});
-    if(sum<e.getBoundingClientRect().height*0.6)continue;
-    var run=0;for(n=0;n<items.length;n++){run+=items[n].getBoundingClientRect().height;if(run>CAP&&n>=4)break}
+    if(sum<e.getBoundingClientRect().height*0.6||(tag==='A'&&sum/items.length<150))continue;
+    var run=0;for(n=0;n<items.length;n++){run+=items[n].getBoundingClientRect().height;if(run>cap&&n>=4)break}
     if(n>=items.length)continue;
-    e.__ptCapped=true;e.__ptLimit=n;e.__ptTag=tag;if(extra.indexOf(e)<0)extra.push(e);
+    e.__ptLimit=n;e.__ptTag=tag;if(extra.indexOf(e)<0)extra.push(e);
     lists(true);
   }
 }

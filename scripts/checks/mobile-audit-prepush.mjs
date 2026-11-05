@@ -1,5 +1,5 @@
 // The pre-push check (owner, 4 Nov 2026): refuses a push if the fast mobile audit (375px, the 40 most visited page types,
-// checks a, b and c) or the two reader journeys (owner, 5 Nov 2026: every fold of an MP page, Show more until done on
+// checks a, b, c and h: nothing over 10,000px) or the two reader journeys (owner, 5 Nov 2026: every fold of an MP page, Show more until done on
 // /donors, in Chromium) fail on the commit being pushed. Run by scripts/git-hooks/pre-push; git passes the refs on stdin.
 // It builds that commit in a temporary worktree, so the working tree and any running server are left alone, and takes
 // several minutes. It only runs when a pushed commit changes what pages render (app, lib, public, next.config), and once
@@ -49,7 +49,7 @@ try {
     code = 0;
     fs.writeFileSync(passedFile, sha);
   } catch {
-    console.error('Push refused: the fast mobile audit (checks a, b or c) or a reader journey (e, g) failed, above. Fix them, commit and push again.');
+    console.error('Push refused: the fast mobile audit (checks a, b, c or h) or a reader journey (e, g) failed, above. Fix them, commit and push again.');
   }
 } catch (e) {
   console.error(`Push refused: the mobile audit could not run: ${e.message.split('\n')[0]}`);

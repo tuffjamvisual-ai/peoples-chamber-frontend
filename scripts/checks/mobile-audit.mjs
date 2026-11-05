@@ -9,13 +9,13 @@
 //   e) images or figures taller than 400px
 //   f) more than 6 rows of links or buttons before the first real content
 //   g) the same set of links twice on the page
-//   h) page height over 15,000px
+//   h) page height over 10,000px as it first opens (owner, 5 Nov 2026)
 //   i) console errors and failed requests
 //
 //   npm run audit:mobile                                       full run; starts next start on a spare port (needs a build)
 //   node scripts/checks/mobile-audit.mjs --base <url>          against a server already running
-//   node scripts/checks/mobile-audit.mjs --fast                375px, the page types in mobile-audit-fast.txt, checks a, b
-//                                                              and c; exit 1 if any fails (the pre-push check)
+//   node scripts/checks/mobile-audit.mjs --fast                375px, the page types in mobile-audit-fast.txt, checks a, b,
+//                                                              c and h; exit 1 if any fails (the pre-push check)
 //   --out <dir> (default "Claude outputs/mobile-audit"), --limit <n> (first n pages, to try it)
 //   --engine webkit, --widths 375[,414], --no-shots (mobile-audit-deep.mjs runs it this way in Safari's engine)
 //
@@ -234,8 +234,8 @@ function problems(row) {
       if (m.tall_media) add('e', `${m.tall_media} image(s) over 400px: ${m.tall_media_eg.join('; ')}`, m.tall_media);
       if (m.link_rows_before_content > 6) add('f', `${m.link_rows_before_content} rows of links before the first content`);
       if (m.duplicate_link_sets) add('g', `same links twice: ${m.duplicate_link_sets_eg.join('; ')}`, m.duplicate_link_sets);
-      if (m.page_height > 15000) add('h', `page height ${m.page_height}px`);
     }
+    if (m.page_height > 10000) add('h', `page height ${m.page_height}px (banner ${state})`);
     if (m.h1_y === null) add('d', `no h1 (banner ${state})`);
     else if (m.h1_y >= HEIGHT) add('d', `h1 at ${m.h1_y}px, below the first screen (banner ${state})`);
     if (m.first_content_y === null) add('d', `no first content found (banner ${state})`);
@@ -336,9 +336,9 @@ async function main() {
   rows.sort((a, b) => a.url.localeCompare(b.url) || a.width - b.width);
 
   if (FAST) {
-    const bad = rows.map((r) => ({ r, found: problems(r).filter((p) => ['a', 'b', 'c'].includes(p.check) || /did not load/.test(p.text)) })).filter((x) => x.found.length);
+    const bad = rows.map((r) => ({ r, found: problems(r).filter((p) => ['a', 'b', 'c', 'h'].includes(p.check) || /did not load/.test(p.text)) })).filter((x) => x.found.length);
     fs.writeFileSync(path.join(OUT, 'fast-results.json'), JSON.stringify(bad.map(({ r, found }) => ({ url: r.url, found })), null, 1));
-    console.log(`fast audit: ${rows.length} pages at 375px, ${bad.length} failing checks a, b or c`);
+    console.log(`fast audit: ${rows.length} pages at 375px, ${bad.length} failing checks a, b, c or h`);
     for (const { r, found } of bad) console.log(`  ${r.url}: ${[...new Set(found.map((f) => f.text))].slice(0, 3).join(' / ').slice(0, 220)}`);
     process.exit(bad.length ? 1 : 0);
   }

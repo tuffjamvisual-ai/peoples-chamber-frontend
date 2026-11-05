@@ -38,7 +38,7 @@ const clean = (s: string | null) => (s ?? '').trim();
 const printedName = (a: string | null) => clean(a).replace(/\s*\(.*$/, '');
 
 // The Prime Minister in office on a date, from the Commons Library's table.
-function primeMinisterOn(date: string): string | null {
+export function primeMinisterOn(date: string): string | null {
   const r = attendance.attendance.find((p) => p.in_office_from <= date && (!p.in_office_to || date < p.in_office_to));
   return r?.prime_minister ?? null;
 }

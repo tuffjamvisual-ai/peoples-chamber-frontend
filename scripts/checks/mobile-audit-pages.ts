@@ -22,7 +22,7 @@ const EXCLUDED: Record<string, string> = {
   '/newspaper-101': 'test', '/newspaper-112': 'test', '/newspaper-blank': 'test', '/newspaper-demo': 'test', '/newspaper-new1': 'test',
   '/newspaper-preview': 'test', '/preview': 'test', '/preview-2': 'test', '/preview-3': 'test', '/preview-4': 'test', '/preview-5': 'test',
   '/preview-footer': 'test', '/preview-home2': 'test', '/preview-home2/[id]': 'test', '/template': 'test', '/unite-kingdom': 'test',
-  '/login': 'noindex', '/reset-password': 'noindex', '/preferences': 'noindex', '/feedback': 'noindex', '/search': 'noindex', '/tools/welfare/search': 'noindex',
+  '/login': 'noindex', '/reset-password': 'noindex', '/preferences': 'noindex', '/feedback': 'noindex', '/tools/welfare/search': 'noindex',
   '/councils/league-table': 'noindex', '/your-tax-pound': 'noindex (hidden)', '/budget-trade-offs': 'noindex (hidden)', '/news/[slug]': 'noindex',
   '/mps/[id]/questions': 'noindex', '/mps/[id]/reports': 'noindex', '/lords/[id]/questions': 'noindex', '/editorials/[slug]/sources': 'noindex',
   '/briefings/[slug]/sources': 'noindex', '/councils/[slug]/panel/[tab]': 'noindex',
@@ -153,6 +153,9 @@ async function linksFrom(parent: string, re: RegExp): Promise<string[]> {
   fromList('/departments/[slug]', await linksFrom('/departments', /^\/departments\/[^/]+$/), '/departments');
   fromList('/programmes/[slug]', await linksFrom('/programmes', /^\/programmes\/[^/]+$/), '/programmes');
   fromList('/donations/constituencies/[slug]', await linksFrom('/donations/constituencies', /^\/donations\/constituencies\/[^/]+$/), '/donations/constituencies');
+  add('/search', '/search?q=nhs', 'a common search');
+  add('/pmqs/[date]', '/pmqs/2026-10-28', 'a typical session');
+  add('/mps/[id]/pmqs', '/mps/4597/pmqs', 'the Leader of the Opposition, most questions');
   for (const s of SECTION_PAGES) add('/sections/[slug]', `/sections/${s.slug}`, 'every section page (few of them)');
   for (const s of ['ministers-meetings', 'appgs', 'hospitality', 'revolving-door', 'donations', 'contracts']) add('/transparency/[section]', `/transparency/${s}`, 'every section (few of them)');
   const mid = topics[Math.floor(topics.length / 2)].slug;

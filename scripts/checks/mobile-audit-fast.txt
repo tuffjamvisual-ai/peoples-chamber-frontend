@@ -1,5 +1,5 @@
 # The 40 most visited page types (Vercel Web Analytics page views, 14 days to 4 Nov 2026), audited before a push.
-# Pages left out of the audit as noindex (/login, /search, /news/[slug]) are not counted.
+# Pages left out of the audit as noindex (/login, /news/[slug]) are not counted. /search, /polls and /pmqs were added for the 10,000px rule (owner, 5 Nov 2026).
 /mps/[id]
 /editorials/[slug]
 /
@@ -40,3 +40,6 @@
 /donors
 /laws
 /second-jobs
+/search
+/polls
+/pmqs

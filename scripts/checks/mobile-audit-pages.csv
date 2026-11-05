@@ -209,3 +209,7 @@ route,example_url,why_chosen
 "/topics/[slug]","/topics/culture-media-and-sport","last topic"
 "/topics/[slug]/bills","/topics/culture-media-and-sport/bills","last topic"
 "/topics/[slug]/bills/page/[page]","/topics/housing/bills/page/2","second page of the first topic"
+"/pmqs","/pmqs","the only page of this route"
+"/pmqs/[date]","/pmqs/2026-10-28","a typical session"
+"/mps/[id]/pmqs","/mps/4597/pmqs","the Leader of the Opposition, most questions"
+"/search","/search?q=nhs","a common search"
