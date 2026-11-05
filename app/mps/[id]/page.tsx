@@ -1,3 +1,4 @@
+import { pmqsSet } from '@/lib/pmqs';
 import { updatedDate } from '@/lib/record-dates';
 import { cache } from 'react';
 import { metaDescription } from '@/lib/meta-description';
@@ -284,6 +285,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       const related = formerReports.length ? [{ href: `/mps/${memberId}/reports`, label: `Reports on ${m.mp.name} (${formerReports.length})` }] : [];
       // A former MP now in the Lords links to their peer page, which links back (owner, 3 Nov 2026).
       if (peer && peerHasPage(peer)) related.unshift({ href: `/lords/${memberId}`, label: `${peer.name_display} in the House of Lords` });
+      const pmqsAsked = await withTimeout(pmqsSet(), 7000).then((s) => s.byMember[memberId]?.length ?? 0).catch(() => 0);
+      if (pmqsAsked) related.push({ href: `/mps/${memberId}/pmqs`, label: `Questions at PMQs (${pmqsAsked})` });
       return <FormerMpProfile mp={m.mp} conductFindings={findings ?? []} related={related} />;
     }
     // A member who only sat in the Lords: their peer page (owner, 3 Nov 2026), or Parliament's profile if they have none.
@@ -497,6 +500,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const { data: contributionsData } = await pContribs;
   const contributions = contributionsData || [];
   const writtenQuestions = await pQuestions;
+  // Questions at PMQs (owner, 5 Nov 2026), from the cached set; on a read error the line is left out.
+  const pmqsQuestions = await withTimeout(pmqsSet(), 7000).then((s) => s.byMember[memberId]?.length ?? 0).catch(() => 0);
 
   const edmsRes = await pEdms;
   // "Last updated" under each profile section whose table lib/data-freshness.ts tracks (owner, 1 Nov 2026): the newest
@@ -785,6 +790,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         spadAdvisers: spadAdvisers ? { ...spadAdvisers, ministerName: fullName, gender: mp.gender ?? null } : null,
         contributions,
         writtenQuestions,
+        pmqsQuestions,
         conductFindings: conductRes.data || [],
         staffInterests: staffInterestsRes.data || [],
         activity: activityRes.data || null,

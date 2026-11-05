@@ -313,6 +313,7 @@ interface Props {
   contributions?: Contribution[];
   /** Commons written questions (lib/mp-written-questions.ts): count, first date and the newest five; null when unread. */
   writtenQuestions?: QuestionsSummary | null;
+  pmqsQuestions?: number;
   /** Votes against most of their party (is_rebellion, from the party on the day of the
       vote): since the July 2024 election, the aye/no votes cast in that time, and across
       all the votes we hold. Same rule as the party whip page. */
@@ -566,6 +567,7 @@ export default function MagazineProfileSections({
   activity = null,
   contributions = [],
   writtenQuestions = null,
+  pmqsQuestions = 0,
   rebellions = { sinceElection: 0, votesSinceElection: 0, allVotes: 0 },
   partyWhipSlug = null,
   bio,
@@ -606,7 +608,7 @@ export default function MagazineProfileSections({
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
-    house: contributions.length > 0 || (writtenQuestions?.total ?? 0) > 0,
+    house: contributions.length > 0 || (writtenQuestions?.total ?? 0) > 0 || pmqsQuestions > 0,
     petitions: petitionsAvailable,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
     interests: interests.length > 0 || staffInterests.length > 0 || formerInterests.length > 0,
@@ -1301,6 +1303,12 @@ export default function MagazineProfileSections({
                 );
               })}
             </ul>
+            {pmqsQuestions > 0 && (
+              <p style={{ fontSize: '15px', margin: '16px 0 0', color: '#14100d' }}>
+                <strong>Questions at PMQs: {pmqsQuestions.toLocaleString('en-GB')}</strong>{' '}
+                <Link href={`/mps/${memberId}/pmqs`} style={{ ...inkLink, fontWeight: 'bold' }}>See {pmqsQuestions === 1 ? 'the question' : 'them all'}</Link>
+              </p>
+            )}
             {writtenQuestions && writtenQuestions.total > 0 && (
               <WrittenQuestionsSummary summary={writtenQuestions} allHref={`/mps/${memberId}/questions`} style={{ marginTop: contributions.length > 0 ? '26px' : 0 }} />
             )}

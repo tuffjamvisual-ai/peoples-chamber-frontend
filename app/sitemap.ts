@@ -3,6 +3,7 @@ import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 import { departments } from '@/lib/departments';
 import { allEditorials } from '@/lib/editorials-source';
+import { pmqsSet } from '@/lib/pmqs';
 import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
@@ -72,6 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}`, changeFrequency: 'daily', priority: 1.0 },
     { url: `${SITE}/bills`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/mps`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/pmqs`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITE}/lords`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/departments`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/transparency`, changeFrequency: 'daily', priority: 0.8 },
@@ -149,6 +151,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'weekly',
     priority: 0.6,
   }));
+
+  // Every session of Prime Minister's Questions we hold.
+  const pmqsEntries: MetadataRoute.Sitemap = await pmqsSet().then((set) => set.sessions.map((p) => ({ url: `${SITE}/pmqs/${p.date}`, changeFrequency: 'monthly' as const, priority: 0.5 }))).catch(() => []);
 
   // Every published editorial in the database
   // so new pieces are picked up automatically (no hardcoded slug list).
@@ -387,6 +392,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...transparencyEntries,
     ...deptEntries,
     ...editorialEntries,
+    ...pmqsEntries,
     ...partyEntries,
     ...billEntries,
     ...billSessionEntries,

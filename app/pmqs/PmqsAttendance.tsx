@@ -1,0 +1,90 @@
+// PMQs attendance since 1979: the House of Commons Library's Table 1 and missed dates (SN04401, updated 4 November 2026),
+// with four wrong member ids corrected (corrections_to_source in the data file). The file is kept as prepared; the one
+// name Parliament spells differently is corrected here.
+import Link from 'next/link';
+import data from '@/lib/data/pmqs-attendance-2026-11-04.json';
+
+const INK = '#14100d';
+const ACCENT = '#7a1612';
+const HAIRLINE = 'rgba(20,16,13,0.25)';
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const SPELLING: Record<string, string> = { 'Gillian Shepherd': 'Gillian Shephard' };
+
+const CREDIT = "Source: House of Commons Library, Attendance of the Prime Minister at Prime Minister's Questions since 1979 (SN04401), updated 4 November 2026. Member ids checked against Parliament's Members API by opengovt.";
+
+function longDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+}
+
+const th = { padding: '8px 6px', textAlign: 'left' as const, borderBottom: `2px solid ${INK}` };
+const thNum = { ...th, textAlign: 'right' as const };
+const td = { padding: '6px', verticalAlign: 'top' as const };
+const tdNum = { ...td, textAlign: 'right' as const };
+const rowLine = { borderBottom: `1px solid ${HAIRLINE}` };
+const table = { width: '100%', borderCollapse: 'collapse' as const, fontSize: '15px' };
+const h2 = { fontSize: 'clamp(22px, 2.6vw, 30px)', fontWeight: 'bold', margin: '0 0 12px' };
+const h3 = { fontSize: '18px', fontWeight: 'bold', margin: '28px 0 10px' };
+
+export default function PmqsAttendance() {
+  return (
+    <section aria-labelledby="pmqs-attendance" style={{ color: INK }}>
+      <h2 id="pmqs-attendance" style={h2}>PMQs attendance since 1979</h2>
+
+      <h3 style={h3}>Attendance by Prime Minister</h3>
+      <table style={table}>
+        <thead>
+          <tr>
+            <th style={th}>Prime Minister</th>
+            <th style={thNum}>Sessions</th>
+            <th style={thNum}>Attended</th>
+            <th style={thNum}>Missed</th>
+            <th style={thNum}>Per cent missed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.attendance.map((r) => (
+            <tr key={r.prime_minister} style={rowLine}>
+              <td style={td}>{r.prime_minister}</td>
+              <td style={tdNum}>{r.sessions.toLocaleString('en-GB')}</td>
+              <td style={tdNum}>{r.attended.toLocaleString('en-GB')}</td>
+              <td style={tdNum}>{r.missed}</td>
+              <td style={tdNum}>{r.per_cent_missed.toFixed(1)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h3 style={h3}>The {data.missed_dates.length} sessions the Prime Minister missed</h3>
+      <table style={table}>
+        <thead>
+          <tr>
+            <th style={th}>Date</th>
+            <th style={th}>Prime Minister</th>
+            <th style={th}>Reason</th>
+            <th style={th}>Deputised by</th>
+            <th style={th}>Opposition member</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.missed_dates.map((m) => (
+            <tr key={m.date} style={rowLine}>
+              <td style={{ ...td, whiteSpace: 'nowrap' }}>{longDate(m.date)}</td>
+              <td style={td}>{m.prime_minister}</td>
+              <td style={td}>{m.reason}</td>
+              <td style={td}>
+                <Link href={`/mps/${m.deputy_member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{m.deputy}</Link>
+              </td>
+              <td style={td}>{m.opposition_member ? (SPELLING[m.opposition_member] ?? m.opposition_member) : null}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '20px 0 0' }}>{data.source.note_1}.</p>
+      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '12px 0 0' }}>
+        <a href={data.source.url} rel="noopener" style={{ color: ACCENT, textDecoration: 'underline' }}>{CREDIT}</a>
+      </p>
+    </section>
+  );
+}
