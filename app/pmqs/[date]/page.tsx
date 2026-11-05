@@ -39,6 +39,7 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
   const session = await sessionFor(date);
   if (!session) notFound();
   const exchanges = await pmqsExchanges(session);
+  const speakerStandsIn = exchanges.some((e) => e.speaker.length > 0);
   return (
     <OpenGovShell pageStamp="PMQs">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: "Prime Minister's Questions", path: '/pmqs' }, { name: longDate(date), path: `/pmqs/${date}` }])} />
@@ -55,7 +56,9 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
         </p>
       )}
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 24px', color: INK }}>
-        {exchanges.length} questions. The Speaker&rsquo;s interventions, shouted asides and points of order are left out{session.hansardUrl ? <>: <a href={session.hansardUrl} rel="noopener" style={link}>read the full record in Hansard</a></> : ''}.
+        {exchanges.length}{speakerStandsIn
+          ? ' questions. Where the Speaker stepped in and no answer was given, the Speaker\u2019s words are shown. The Speaker\u2019s other interventions, shouted asides and points of order are left out'
+          : ' questions. The Speaker\u2019s interventions, shouted asides and points of order are left out'}{session.hansardUrl ? <>: <a href={session.hansardUrl} rel="noopener" style={link}>read the full record in Hansard</a></> : ''}.
       </p>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0, color: INK }}>
         {exchanges.map((e) => (
@@ -66,6 +69,17 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
               <div style={{ margin: '10px 0 8px', paddingLeft: '12px', borderLeft: `3px solid ${ACCENT}` }}>
                 <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>{session.answeredBy.name}</p>
                 {e.answers.map((a, i) => <p key={i} style={body}>{a}</p>)}
+              </div>
+            )}
+            {e.speaker.length > 0 && (
+              <div style={{ margin: '10px 0 8px', paddingLeft: '12px', borderLeft: `3px solid ${ACCENT}` }}>
+                <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>The Speaker</p>
+                {e.speaker.map((w, i) => (
+                  <div key={i}>
+                    <p style={body}>{w.text}</p>
+                    {w.url && <p style={{ fontSize: '15px', margin: '0 0 8px' }}><a href={w.url} rel="noopener" style={link}>The Speaker&rsquo;s words in Hansard</a></p>}
+                  </div>
+                ))}
               </div>
             )}
             {e.hansardUrl && <p style={{ fontSize: '15px', margin: 0 }}><a href={e.hansardUrl} rel="noopener" style={link}>Official Hansard record</a></p>}

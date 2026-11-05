@@ -2,7 +2,8 @@
 // sync fills. A session is the section Hansard opens with "The Prime Minister was asked": normally a "Prime Minister"
 // heading and the sections under it; for a day or so after a sitting it can still sit inside "Oral Answers to Questions",
 // and then it runs from that line on. Who answered is whoever spoke most in the session. The Speaker, shouted asides
-// and points of order are not exchanges: the Hansard link has the full record.
+// and points of order are not exchanges: the Hansard link has the full record. One exception (owner, 5 Nov 2026): where a
+// question got no answer because the Speaker stepped in, the Speaker's words stand in that place.
 import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -30,8 +31,9 @@ export type PmqsSession = {
 };
 export type MemberQuestion = { date: string; extId: string; text: string };
 export type PmqsSet = { sessions: PmqsSession[]; byMember: Record<number, MemberQuestion[]> };
-type RawExchange = { row: Row; parts: string[]; answers: string[] };
-export type Exchange = { id: string; asker: Person; question: string; answers: string[]; hansardUrl: string | null };
+type RawExchange = { row: Row; last: Row; parts: string[]; answers: string[] };
+export type SpeakerWords = { text: string; url: string | null };
+export type Exchange = { id: string; asker: Person; question: string; answers: string[]; speaker: SpeakerWords[]; hansardUrl: string | null };
 
 const COLS = 'ext_id, member_id, attributed_to, contribution_text, url, debate_ext_id, item_order';
 const clean = (s: string | null) => (s ?? '').trim();
@@ -197,9 +199,22 @@ function exchangesOf(rows: Row[], answerer: number): RawExchange[] {
     if (i > lastAnswer && pointOfOrder >= 0 && cutoff < 0) return;
     if (isHeckle(text)) return;
     const last = out[out.length - 1];
-    if (last && last.row.member_id === r.member_id && last.answers.length === 0) { last.parts.push(text); return; }
-    out.push({ row: r, parts: [text], answers: [] });
+    if (last && last.row.member_id === r.member_id && last.answers.length === 0) { last.parts.push(text); last.last = r; return; }
+    out.push({ row: r, last: r, parts: [text], answers: [] });
   });
+  return out;
+}
+
+// What the Speaker said straight after a question that got no answer, up to the next member speaking or a point of order.
+// A bare "I call ..." only moves the session on, so it does not count.
+function speakerInPlaceOfAnswer(rows: Row[], e: RawExchange): SpeakerWords[] {
+  if (e.answers.length > 0) return [];
+  const out: SpeakerWords[] = [];
+  for (const r of rows.slice(rows.indexOf(e.last) + 1)) {
+    const text = clean(r.contribution_text);
+    if (isExchangeRow(r) || /^On a point of order/i.test(text)) break;
+    if (/^(Mr|Madam) Speaker\b/.test(clean(r.attributed_to)) && !/^I call\b/.test(text)) out.push({ text, url: r.url });
+  }
   return out;
 }
 
@@ -212,6 +227,7 @@ export async function pmqsExchanges(session: PmqsSession): Promise<Exchange[]> {
     asker: { id: e.row.member_id!, name: names.get(e.row.member_id!) ?? printedName(e.row.attributed_to) },
     question: e.parts.join('\n'),
     answers: e.answers,
+    speaker: speakerInPlaceOfAnswer(rows, e),
     hansardUrl: e.row.url,
   }));
 }
