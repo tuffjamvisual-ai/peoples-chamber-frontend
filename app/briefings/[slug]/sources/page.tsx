@@ -17,7 +17,7 @@ const INK = '#14100d';
 const MONO = 'var(--font-special-elite), monospace';
 
 async function getDbBriefing(slug: string): Promise<{ headline: string; sources: string[] } | null> {
-  const { data, error } = await supabaseAdmin.from('briefings').select('headline, sources').eq('slug', slug).maybeSingle();
+  const { data, error } = await supabaseAdmin.from('briefings').select('headline, sources').eq('slug', slug).eq('is_published', true).not('published_at', 'is', null).maybeSingle();
   if (error && error.code !== 'PGRST116') throw new Error(`/briefings/[slug]/sources briefings: ${error.message}`);
   if (!data) return null;
   const sources = Array.isArray(data.sources) ? (data.sources as unknown[]).filter((s): s is string => typeof s === 'string') : [];

@@ -60,6 +60,7 @@ export default async function ReportsPage() {
     .from('briefings')
     .select('slug, headline, summary, body, published_at, created_at')
     .eq('is_published', true)
+    .not('published_at', 'is', null)
     .order('published_at', { ascending: false });
   // A failed read throws, so the last good version of the page stays up.
   if (dbErr && dbErr.code !== 'PGRST116') throw new Error(`/reports briefings: ${dbErr.message}`);

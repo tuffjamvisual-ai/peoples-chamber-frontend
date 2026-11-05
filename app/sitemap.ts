@@ -174,6 +174,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
+  // Published daily briefings from the briefings table (owner, 5 Nov 2026), those not already listed above. Their lastmod is
+  // the publish date: the table holds no facts last checked date. A failed read leaves them out.
+  const editorialSlugs = new Set((await allEditorials()).map((e) => e.slug));
+  const dbBriefings = await fetchAllRows<{ slug: string; published_at: string | null }>(
+    'briefings',
+    'slug, published_at',
+    (q) => q.eq('is_published', true).not('published_at', 'is', null).order('slug'),
+  ).catch(() => [] as { slug: string; published_at: string | null }[]);
+  const dbBriefingEntries: MetadataRoute.Sitemap = dbBriefings.filter((b) => !editorialSlugs.has(b.slug)).map((b) => ({
+    url: `${SITE}/briefings/${b.slug}`,
+    ...dated(newest(b.published_at)),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }));
+
   // Guard: abort the build if either materialized view is stale or unexpectedly small.
   // sitemap_refresh_state is RLS-protected; anon reads via SECURITY DEFINER function.
   const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
@@ -433,6 +448,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...transparencyEntries,
     ...deptEntries,
     ...editorialEntries,
+    ...dbBriefingEntries,
     ...pmqsEntries,
     ...partyEntries,
     ...billEntries,

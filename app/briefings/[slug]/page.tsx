@@ -1,9 +1,7 @@
 // Briefing article route. Two sources, checked in order:
 //   1. File-based editorial registry (hand-written pieces flagged kind:'briefing')
 //      -> rendered with the shared EditorialArticle renderer.
-//   2. The DB `briefings` table (cron-generated). Read via the service-role client
-//      so unpublished DRAFTS are viewable by direct link for review; drafts show a
-//      banner and are noindex, only is_published rows are indexable + listed.
+//   2. The DB `briefings` table (cron-generated), published rows with a publish date only.
 // Anything matching neither 404s.
 
 import type { Metadata } from 'next';
@@ -40,11 +38,14 @@ interface BriefingRow {
   created_at: string;
 }
 
+// Published rows only (owner, 5 Nov 2026): a draft, or a row with no publish date, is a real 404 with nothing of it in the response.
 async function getDbBriefing(slug: string): Promise<BriefingRow | null> {
   const { data, error: dataErr } = await supabaseAdmin
     .from('briefings')
     .select('slug, headline, body, sources, is_published, published_at, created_at')
     .eq('slug', slug)
+    .eq('is_published', true)
+    .not('published_at', 'is', null)
     .maybeSingle();
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/briefings/[slug] briefings: ${dataErr.message}`);
   return (data as BriefingRow) ?? null;
@@ -73,7 +74,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: searchTitle(b.headline),
       description: metaDescription(b.body),
       alternates: { canonical: `/briefings/${slug}` },
-      ...(b.is_published ? {} : { robots: { index: false, follow: false } }),
     };
   }
   return { title: 'Briefing' };
@@ -88,7 +88,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
     return <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/briefings" />;
   }
 
-  // 2. DB briefing (cron-generated). Drafts render for review; published render normally.
+  // 2. DB briefing (cron-generated), published only.
   const b = await getDbBriefing(slug);
   if (!b) notFound();
 
@@ -104,11 +104,6 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
 
-      {!b.is_published && (
-        <div style={{ margin: '0 0 20px', padding: '10px 14px', border: `1px solid ${ACCENT}`, background: 'rgba(122,22,18,0.06)', fontFamily: MONO, fontSize: '15px', color: ACCENT }}>
-          DRAFT: automatically generated, pending review. Not public, not listed, not indexed. Verify every claim before publishing.
-        </div>
-      )}
 
       <header style={{ marginBottom: '24px' }}>
         <div style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, fontWeight: 'bold', marginBottom: '10px' }}>

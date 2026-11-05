@@ -75,7 +75,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       .order('created_at', { ascending: false })
       .limit(1),
     // Published database briefings, matched to the topic below by its words (Reports, 23 Oct 2026).
-    supabase.from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true),
+    supabase.from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true).not('published_at', 'is', null),
   ]);
 
   // A failed read throws (owner's approval, 21 Oct 2026): six topic pages were once built with no bills when this

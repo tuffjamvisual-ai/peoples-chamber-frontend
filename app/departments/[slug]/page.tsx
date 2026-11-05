@@ -102,7 +102,7 @@ export default async function DepartmentPage({ params }: PageProps) {
           .contains('related_dept_slugs', [slug])
           .order('published_at', { ascending: false }),
         deptTopics.length
-          ? pageDb().from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true)
+          ? pageDb().from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true).not('published_at', 'is', null)
           : Promise.resolve({ data: [], error: null }),
       ]);
       if (edRes.error && edRes.error.code !== 'PGRST116') throw new Error(`/departments/[slug] editorials: ${edRes.error.message}`);

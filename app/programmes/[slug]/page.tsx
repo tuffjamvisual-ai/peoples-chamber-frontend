@@ -1,12 +1,9 @@
 // Policy programme display page.
 // Uses getProgramme/getTimeline from lib/programmes (supabaseAdmin — bypasses
-// RLS) so is_live=false rows are reachable for editorial review, matching the
-// same pattern as app/briefings/[slug]/page.tsx. A "NOT LIVE" banner +
-// robots:noindex gate the pre-publish state. notFound() fires only when the
-// slug matches no row at all.
+// RLS). A row with is_live=false is a real 404 with nothing of it in the response (owner, 5 Nov 2026), as are drafts on
+// app/briefings/[slug]/page.tsx.
 //
-// ISR: force-dynamic — draft previews must be immediately visible after a row
-// is inserted; ISR caching would serve stale draft state.
+// force-dynamic: a programme going live or being withdrawn shows straight away.
 //
 // Current figure: deriveCurrentFigure() from lib/programmes — shared with the
 // index page, no copy-paste.
@@ -47,12 +44,11 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await params;
   const prog = await getProgramme(slug);
-  if (!prog) return { title: 'Programme' };
+  if (!prog || !prog.is_live) return { title: 'Programme' };
   return {
     title: prog.name,
     description: prog.summary?.slice(0, 155) ?? `Track progress on ${prog.name}.`,
     alternates: { canonical: `/programmes/${slug}` },
-    ...(prog.is_live ? {} : { robots: { index: false, follow: false } }),
   };
 }
 
@@ -61,9 +57,9 @@ export default async function ProgrammePage(
 ) {
   const { slug } = await params;
   const prog: ProgrammeRow | null = await getProgramme(slug);
-  if (!prog) notFound();
+  if (!prog || !prog.is_live) notFound();
 
-  const timeline: TimelineRow[] = await getTimeline(prog.id, !prog.is_live);
+  const timeline: TimelineRow[] = await getTimeline(prog.id, false);
   const currentEntry = deriveCurrentFigure(timeline);
 
   const deptMetas = departments.filter((d) => prog.dept_slugs.includes(d.slug));
@@ -84,16 +80,6 @@ export default async function ProgrammePage(
         }}
       />
 
-      {!prog.is_live && (
-        <div style={{
-          margin: '0 0 20px', padding: '10px 14px',
-          border: `1px solid ${ACCENT}`,
-          background: 'rgba(122,22,18,0.06)',
-          fontFamily: MONO, fontSize: '15px', color: ACCENT,
-        }}>
-          NOT LIVE: pending review. Not public, not listed, not indexed.
-        </div>
-      )}
 
       <header style={{ marginBottom: '28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>

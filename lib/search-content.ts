@@ -161,6 +161,7 @@ async function queryBriefings(
     .select('slug, headline, published_at')
     .textSearch('search_vec', q, { type: tsType, config: 'english' })
     .eq('is_published', true)
+    .not('published_at', 'is', null)
     .order('published_at', { ascending: false })
     .limit(limit);
 

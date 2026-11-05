@@ -4,8 +4,8 @@
 //                        nested programme_timeline join so the current figure
 //                        is derived in a single round trip. Used by the index page.
 //
-// getProgramme()       — supabaseAdmin, bypasses RLS so is_live=false draft
-//                        rows are reachable for editorial review. Used by [slug].
+// getProgramme()       — supabaseAdmin, bypasses RLS and returns any row: the [slug] page
+//                        answers 404 for is_live=false (owner, 5 Nov 2026).
 //
 // getTimeline()        — supabaseAdmin, showAll=true returns every entry
 //                        (for draft preview); showAll=false returns only
