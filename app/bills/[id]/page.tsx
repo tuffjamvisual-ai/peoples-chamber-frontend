@@ -113,6 +113,14 @@ type Stage = {
   sortOrder: number
 }
 
+// A party colour light enough that the badge's pale words fall under 4.5 to 1: dark words instead, on phones (globals.css).
+function lightBadge(colour: unknown): boolean {
+  const hex = colour ? String(colour).replace('#', '') : '7697a2';
+  if (!/^[0-9a-f]{6}$/i.test(hex)) return false;
+  const [r, g, b] = [0, 2, 4].map((n) => { const c = parseInt(hex.slice(n, n + 2), 16) / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 0.13;
+}
+
 export default async function BillDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const billId = parseInt(id, 10)
@@ -570,7 +578,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               <div style={{ fontFamily: SERIF, fontSize: '18px', fontWeight: 'bold', lineHeight: 1.25 }}>{bill.sponsor_name}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
                 {bill.sponsor_party && (
-                  <span style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '2px 8px', color: '#ebe5d8', background: bill.sponsor_party_colour ? `#${String(bill.sponsor_party_colour).replace('#', '')}` : '#7697a2' }}>
+                  <span className={lightBadge(bill.sponsor_party_colour) ? 'og-ink-on-light' : undefined} style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '2px 8px', color: '#ebe5d8', background: bill.sponsor_party_colour ? `#${String(bill.sponsor_party_colour).replace('#', '')}` : '#7697a2' }}>
                     {bill.sponsor_party}
                   </span>
                 )}

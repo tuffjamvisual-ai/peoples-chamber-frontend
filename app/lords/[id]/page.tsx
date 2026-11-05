@@ -219,7 +219,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
         {p.thumbnail_url && (
           // Parliament's official thumbnail, served by Parliament (attributed in the site footer, as on MP pages).
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={p.thumbnail_url} alt={p.name_display} width={120} height={120} loading="eager"
+          <img src={p.thumbnail_url} alt={p.name_display} width={120} height={120} loading="eager" fetchPriority="high"
             style={{ width: '120px', height: '120px', objectFit: 'cover', border: `1px solid rgba(20,16,13,0.25)`, background: '#d6cdb8' }} />
         )}
         <div style={{ flex: '1 1 260px', minWidth: 0 }}>

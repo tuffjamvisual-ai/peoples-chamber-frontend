@@ -191,10 +191,6 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .ng-page table[data-pt-table="cards"] [data-pt="rank"]::before { content: none !important; }
   .ng-page :has(> table[data-pt-table="cards"]) { margin-left: 0 !important; margin-right: 0 !important; overflow: visible !important; max-width: 100% !important; }
   .ng-page .pt-box { overflow: visible !important; }
-  /* Rows that were one line and did not fit: they wrap. */
-  .pca-row, .pca-row > a { flex-wrap: wrap !important; }
-  .pca-row [data-pca-leader] { display: none !important; }
-  .pca-row span { white-space: normal !important; }
   .pca-sj-row { grid-template-columns: auto minmax(0, 1fr) !important; }
   .si-row, .si-val { flex-wrap: wrap; white-space: normal !important; }
   .ng-page [style*="minmax(360px"] { grid-template-columns: minmax(0, 1fr) !important; }
@@ -212,11 +208,55 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .ng-page [data-pm-hide] { display: none !important; }
   .og-back { text-transform: none !important; letter-spacing: normal !important; font-size: 18px !important; }
   .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
-  /* The small round help button: a 44px box, with the ring drawn at its old size in the middle. */
-  .og-help-i { position: relative; width: 44px !important; height: 44px !important; margin: -12px; border-color: transparent !important; }
-  .og-help-i::before { content: ''; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; box-sizing: border-box; border: 1.5px solid #14100d; border-radius: 50%; transform: translate(-50%, -50%); }
   /* A link alone in its paragraph, a tap target like any other. */
   .ng-page a.og-tap, .ng-page a[data-pt-tap] { display: inline-block; min-height: 44px; align-content: center; }
+}
+
+/* Without JavaScript the menu button is a link to /directory (MobileMenu.tsx). */
+html:not(.og-js) .og-mbar-js { display: none !important; }
+
+/* ---- Phones (owner, 5 Nov 2026). Under 640px, and a phone on its side (a touch screen under 500px tall, whatever its
+   width, so never a desktop window). */
+@media (max-width: 639.98px), (max-height: 499.98px) and (orientation: landscape) and (pointer: coarse) {
+  /* iPhone zooms in on any field under 16px. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea { font-size: 16px !important; }
+  /* Safari ignores height on a native dropdown: its own look off, and an arrow drawn in. An inline background keeps its colour. */
+  select { -webkit-appearance: none; appearance: none; min-height: 44px; border: 1px solid #14100d; border-radius: 0; color: #14100d; padding-right: 30px !important; box-sizing: border-box; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2314100d' stroke-width='2'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 10px center !important; background-size: 12px 8px !important; }
+  /* A visible ring on every field and control reached by keyboard or tap. */
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible, summary:focus-visible, [role="button"]:focus-visible { outline: 3px solid #7a1612 !important; outline-offset: 2px; }
+  /* The arrow inside the homepage searches: 44px wide and tall, the text stops short of it. */
+  .og-search-go { right: 0 !important; width: 44px; min-height: 44px; padding: 0 !important; }
+  .og-search-input { padding-right: 48px !important; }
+  /* The small round help button, a 44px box. */
+  .og-help-i { position: relative; width: 44px !important; height: 44px !important; margin: -12px; border-color: transparent !important; }
+  .og-help-i::before { content: ''; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; box-sizing: border-box; border: 1.5px solid #14100d; border-radius: 50%; transform: translate(-50%, -50%); }
+  /* A short column heading link in a table. */
+  .ng-page th a { display: inline-block; min-width: 44px; min-height: 44px; align-content: center; }
+  /* Rows that were one line and did not fit: they wrap. */
+  .pca-row, .pca-row > a { flex-wrap: wrap !important; }
+  .pca-row [data-pca-leader] { display: none !important; }
+  .pca-row span { white-space: normal !important; }
+}
+@media (max-width: 639.98px) {
+  /* Nothing is wider than its box, at any text size. */
+  .ng-page input:not([type="checkbox"]):not([type="radio"]), .ng-page select, .ng-page textarea { max-width: 100% !important; min-width: 0 !important; }
+  .ng-page form label { max-width: 100%; min-width: 0; }
+  .ng-page button { max-width: 100%; overflow-wrap: break-word; }
+  .ng-page a { max-width: 100%; overflow-wrap: break-word; }
+  /* A grid column with a fixed minimum wider than a small phone. */
+  .ng-page [style*="minmax(320px"], .ng-page [style*="minmax(280px"], .ng-page [style*="minmax(260px"] { grid-template-columns: minmax(0, 1fr) !important; }
+  /* Black ink rule on phones: faded and pale words reach 4.5 to 1 on the paper. Wider screens are on the desktop backlog. */
+  .ng-page [class*="text-[#14100d]/"] { color: #14100d !important; }
+  .ng-page [style^="color:rgba(20,16,13"], .ng-page [style*=";color:rgba(20,16,13"], .ng-page [style^="color: rgba(20, 16, 13"], .ng-page [style*="; color: rgba(20, 16, 13"] { color: #14100d !important; }
+  .ng-page [style^="color:#a85f00"], .ng-page [style*=";color:#a85f00"], .ng-page [style^="color: rgb(168, 95, 0)"], .ng-page [style*="; color: rgb(168, 95, 0)"] { color: #6e3f00 !important; }
+  .ng-page [style^="color:#a64030"], .ng-page [style*=";color:#a64030"], .ng-page [style^="color: rgb(166, 64, 48)"], .ng-page [style*="; color: rgb(166, 64, 48)"] { color: #862e20 !important; }
+  .ng-page [style^="color:#7a5c12"], .ng-page [style*=";color:#7a5c12"], .ng-page [style^="color: rgb(122, 92, 18)"], .ng-page [style*="; color: rgb(122, 92, 18)"] { color: #5a430a !important; }
+  .ng-page [style^="color:#2f6b2f"], .ng-page [style*=";color:#2f6b2f"], .ng-page [style^="color: rgb(47, 107, 47)"], .ng-page [style*="; color: rgb(47, 107, 47)"] { color: #1f5020 !important; }
+  .ng-page [style^="color:#2f6b3a"], .ng-page [style*=";color:#2f6b3a"], .ng-page [style^="color: rgb(47, 107, 58)"], .ng-page [style*="; color: rgb(47, 107, 58)"] { color: #1f5028 !important; }
+  .ng-page [style^="color:#7a4a16"], .ng-page [style*=";color:#7a4a16"], .ng-page [style^="color: rgb(122, 74, 22)"], .ng-page [style*="; color: rgb(122, 74, 22)"] { color: #5e380f !important; }
+  .ng-page [style^="color:#4a8a3a"], .ng-page [style*=";color:#4a8a3a"], .ng-page [style^="color: rgb(74, 138, 58)"], .ng-page [style*="; color: rgb(74, 138, 58)"] { color: #255019 !important; }
+  .ng-page [style^="color:#005b8a"], .ng-page [style*=";color:#005b8a"] { color: #00405f !important; }
+  .ng-page .og-ink-on-light { color: #14100d !important; }
 }
 
 /* ---- Phones under 480px (owner, 3 Nov 2026; GOV.UK Design System approach). Nothing here applies from 480px up. ----

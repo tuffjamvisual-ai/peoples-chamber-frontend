@@ -138,6 +138,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
           />
           <button
             type="submit"
+            className="og-search-go"
             aria-label="Find your area"
             disabled={busy}
             style={{

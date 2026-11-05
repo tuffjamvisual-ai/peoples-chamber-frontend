@@ -156,7 +156,7 @@ export default function MpDossier({
             </div>
           )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="pca-paperclip" src="/paperclip.webp" alt="" aria-hidden style={{ position: 'absolute', top: '-30px', right: '-5px', width: '65px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
+          <img className="pca-paperclip" src="/paperclip.webp" loading="lazy" alt="" aria-hidden style={{ position: 'absolute', top: '-30px', right: '-5px', width: '65px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
           {RESIGNED_MEMBER_IDS.has(memberId) && (
             <div
               className="mp-resigned-stamp"

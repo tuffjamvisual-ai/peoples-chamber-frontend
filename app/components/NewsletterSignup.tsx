@@ -23,6 +23,13 @@ export default function NewsletterSignup({ source = 'homepage', minFontPx = 15 }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
+    // The address is checked here too, in the route's words, so a typing slip needs no request.
+    const input = (e.currentTarget as HTMLFormElement).querySelector<HTMLInputElement>('input[type=email]')
+    if (input && !input.checkValidity()) {
+      setState('error')
+      setMessage('Please enter a valid email address.')
+      return
+    }
     setState('sending')
     setMessage('')
     try {

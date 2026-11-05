@@ -102,7 +102,7 @@ export default function FollowButton({ kind, targetKey, label, variant = 'inline
     return (
       <>
         <button type="button" className="mp-follow-chip" onClick={onClick} aria-pressed={following}
-          aria-label={following ? `Following ${label}. Unfollow` : `Follow ${label}`} title={following ? 'You get a weekly email when this MP changes. Click to unfollow.' : undefined} style={chip}>
+          aria-label={following ? `Following: ${label}. Unfollow` : `Follow this MP: ${label}`} title={following ? 'You get a weekly email when this MP changes. Click to unfollow.' : undefined} style={chip}>
           {following ? '✓ Following' : 'Follow this MP'}
         </button>
         {panel}
@@ -126,7 +126,7 @@ export default function FollowButton({ kind, targetKey, label, variant = 'inline
     <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 16px' }}>
       {state?.following ? (
         <>
-          <button type="button" onClick={unfollow} disabled={busy} aria-pressed="true" aria-label={`Unfollow ${label}`} style={quietStyle}>Following. Unfollow</button>
+          <button type="button" onClick={unfollow} disabled={busy} aria-pressed="true" aria-label={`Following. Unfollow ${label}`} style={quietStyle}>Following. Unfollow</button>
           <span style={{ marginLeft: '10px' }}>You get a weekly email when something changes. <Link href="/preferences" style={{ color: ACCENT }}>Preferences</Link></span>
         </>
       ) : (

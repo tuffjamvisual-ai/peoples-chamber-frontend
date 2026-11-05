@@ -134,7 +134,6 @@ function BallotRow({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label={`Vote ${label}`}
       style={{
         display: 'flex',
         alignItems: 'center',

@@ -176,6 +176,7 @@ export default async function HomePage() {
                   />
                   <button
                     type="submit"
+                    className="og-search-go"
                     aria-label="Search"
                     style={{
                       position: 'absolute',

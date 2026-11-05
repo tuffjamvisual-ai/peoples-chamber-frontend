@@ -133,7 +133,7 @@ export default function Pagination({
         }}
       >
         {currentPage > 1 ? (
-          <Link href={href(currentPage - 1)} style={baseLinkStyle} aria-label="Previous page">
+          <Link href={href(currentPage - 1)} style={baseLinkStyle} aria-label="Prev: previous page">
             &larr; Prev
           </Link>
         ) : (

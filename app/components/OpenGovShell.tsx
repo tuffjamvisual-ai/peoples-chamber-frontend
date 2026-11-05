@@ -56,8 +56,11 @@ export default function OpenGovShell({
         <div className="og-header" style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448', containerType: 'inline-size' }}>
           {/* Phones (25 Oct 2026, report 43): sizes says 60vw below 640px so a 3x phone takes the 800px file (72 KB) and
               a 2x phone the 600px one (16 KB), not the full 1086px file (128 KB); still about twice the shown width. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* Under 480px the picture is hidden (opengov-shell.css) but a hidden img still downloads: an empty one takes its place there. */}
+          <picture>
+          <source media="(max-width: 479px)" srcSet="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" />
           <img className="og-header-img" src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="(max-width: 640px) 60vw, min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
+          </picture>
 
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
             <AccountTab />
