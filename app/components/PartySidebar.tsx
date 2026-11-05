@@ -49,7 +49,9 @@ export default function PartySidebar({
       `}</style>
 
       <aside>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0' }}>
+        {/* Under 640px (owner, 4 Nov 2026) the tabs wrap into rows instead of stacking. */}
+        <style>{'@media (max-width: 639.98px) { .party-tabs { flex-direction: row !important; flex-wrap: wrap; } .party-tabs > * { flex: 1 1 auto; transform: none !important; } }'}</style>
+        <nav className="party-tabs" style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0' }}>
           {items.map((item) => {
             const on = item.key === active;
             return (

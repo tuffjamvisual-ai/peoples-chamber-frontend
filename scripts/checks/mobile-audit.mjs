@@ -114,11 +114,17 @@ function measure() {
   // d) heading and first real content
   const h1 = [...document.querySelectorAll('h1')].find(visible);
   const after = (e) => !h1 || (h1.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING);
-  const content = [...document.querySelectorAll('p, li, tr, article, [class*="card"]')].find((e) => {
-    if (!visible(e) || chrome(e) || !after(e) || e.closest('nav')) return false;
+  // MP figure tiles and folded section buttons are content, not navigation (owner, 4 Nov 2026), as are a form and a block
+  // of text of any tag. The highest one on the screen counts, as a phone layout can reorder the page.
+  const isContent = (e) => {
+    if (!visible(e) || chrome(e) || !after(e) || (e.closest('nav') && !e.matches('.mp-headline-tile, .pf-btn'))) return false;
     const text = (e.textContent || '').trim();
+    if (e.matches('div, span, dd')) return text.length >= 20 && !e.querySelector('div, p, ul, ol, table, section, article, a, button');
+    if (e.tagName === 'FORM') return true;
     return e.tagName === 'P' ? text.length >= 20 : text.length > 0;
-  });
+  };
+  const content = [...document.querySelectorAll('p, li, tr, article, form, div, span, dd, [class*="card"], .mp-headline-tile, .pf-btn')].filter(isContent)
+    .reduce((best, e) => (!best || e.getBoundingClientRect().top < best.getBoundingClientRect().top ? e : best), null);
 
   // e) tall images and figures
   const tall = [...document.querySelectorAll('img, figure, picture')].filter((e) => visible(e) && e.getBoundingClientRect().height > 400);

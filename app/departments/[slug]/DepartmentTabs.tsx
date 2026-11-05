@@ -85,12 +85,26 @@ export default function DepartmentTabs({
     <div ref={containerRef} className="pca-dept-tabs" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
       {/* Fixed-width sidebar so the content column uses the full remaining
           page width rather than a quarter-width grid column. */}
-      <style>{`@media (min-width: 1024px){ .pca-dept-tabs { grid-template-columns: 200px minmax(0, 1fr) !important; gap: 28px !important; } }`}</style>
+      <style>{`@media (min-width: 1024px){ .pca-dept-tabs { grid-template-columns: 200px minmax(0, 1fr) !important; gap: 28px !important; } }
+        .dept-pick { display: none; }
+        @media (max-width: 639.98px) {
+          .pca-dept-tabs { gap: 4px !important; }
+          .pca-dept-tabs aside nav { display: none !important; }
+          .dept-pick { display: block; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; }
+          .dept-pick select { display: block; width: 100%; min-height: 48px; margin-top: 4px; padding: 6px 10px; box-sizing: border-box; font: inherit; font-weight: normal; font-size: 16px; color: #14100d; background: #f4e8d4; border: 1px solid #14100d; }
+        }`}</style>
       <aside>
         <div
           ref={stickyRef}
           style={{ transform: `translateY(${offset}px)`, willChange: 'transform' }}
         >
+          {/* Under 640px (owner, 4 Nov 2026): one picker in place of the stack of section buttons. */}
+          <label className="dept-pick">
+            Section
+            <select value={active} onChange={(e) => choose(e.target.value)}>
+              {tabs.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+            </select>
+          </label>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
             {tabs.map((t) => {
               const isActive = t.id === active;

@@ -40,7 +40,7 @@ export default function BackLink({ fallbackHref, label, className, style }: Prop
     <a
       href={fallbackHref}
       onClick={handleClick}
-      className={className}
+      className={`og-back${className ? ` ${className}` : ''}`}
       style={{ ...style, fontFamily: "var(--font-special-elite), 'Courier New', monospace", fontSize: 'clamp(18px, 2.2vw, 28px)' }}
     >
       {label}

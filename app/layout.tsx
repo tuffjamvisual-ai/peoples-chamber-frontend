@@ -1,3 +1,5 @@
+import PhoneEnhance from './components/PhoneEnhance';
+import { PHONE_ENHANCE_JS } from '@/lib/phone-enhance';
 import type { Metadata } from "next";
 import { Bebas_Neue } from "next/font/google";
 import { buildSiteGraph, serialiseJsonLd } from '@/lib/JsonLd';
@@ -166,6 +168,9 @@ export default function RootLayout({
           {children}
           {/* Newsletter strip hidden (owner, 31 Oct 2026); the component is kept in app/components/NewsletterStrip.tsx to bring back later. */}
         </AuthProvider>
+        {/* Phones under 640px: tables as cards, lone links as tap targets, long lists shortened (lib/phone-enhance.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: PHONE_ENHANCE_JS }} />
+        <PhoneEnhance />
         {/* Floating jump-to-bottom arrow on every page (styled like the Claude chat app's). */}
         <FloatingScrollDownButton />
         <Analytics />

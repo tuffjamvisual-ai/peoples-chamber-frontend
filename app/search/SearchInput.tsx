@@ -67,69 +67,8 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
     navigate('', defaultType, dept, defaultSort);
   }
 
-  return (
-    <div style={{ marginBottom: '32px' }}>
-      {/* A visible Search button (23 Oct 2026), styled as the council search's. */}
-      <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '14px' }}>
-        <div style={{ position: 'relative', flex: '1 1 auto', minWidth: 0 }}>
-        <input
-          aria-label="Search the site"
-          type="text"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search a minister, department, policy, vote or government announcement"
-          autoFocus
-          style={{
-            width: '100%',
-            padding: '13px 48px 13px 16px',
-            fontFamily: MONO,
-            fontSize: '16px',
-            color: INK,
-            background: CREAM,
-            border: `1px solid ${HAIRLINE}`,
-            outline: 'none',
-            boxSizing: 'border-box',
-            transform: 'rotate(-0.1deg)',
-          }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = INK; }}
-          onBlur={(e) => { e.currentTarget.style.borderColor = HAIRLINE; }}
-        />
-        {q && (
-          <>
-          {/* Phones (under 640px, owner, 4 Nov 2026): a 44px box at the end of the field; the mark stays the same size. */}
-          <style dangerouslySetInnerHTML={{ __html: '@media (max-width: 639.98px) { .og-search-clear { width: 44px; height: 44px; right: 0 !important; padding: 0 !important; display: inline-flex; align-items: center; justify-content: center; } }' }} />
-          <button
-            type="button"
-            onClick={handleClear}
-            aria-label="Clear search"
-            className="og-search-clear"
-            style={{
-              position: 'absolute',
-              right: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#14100d',
-              fontSize: '18px',
-              lineHeight: 1,
-              padding: '4px',
-            }}
-          >
-            ✕
-          </button>
-          </>
-        )}
-        </div>
-        <button
-          type="submit"
-          style={{ flex: '0 0 auto', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: 'pointer' }}
-        >
-          Search
-        </button>
-      </form>
-
+  const filters = (
+    <>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>
         {TYPE_CHIPS.map((chip) => {
           const active = defaultType === chip.value;
@@ -215,6 +154,79 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
           </button>
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <div style={{ marginBottom: '32px' }}>
+      {/* A visible Search button (23 Oct 2026), styled as the council search's. */}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '14px' }}>
+        <div style={{ position: 'relative', flex: '1 1 auto', minWidth: 0 }}>
+        <input
+          aria-label="Search the site"
+          type="text"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search a minister, department, policy, vote or government announcement"
+          autoFocus
+          style={{
+            width: '100%',
+            padding: '13px 48px 13px 16px',
+            fontFamily: MONO,
+            fontSize: '16px',
+            color: INK,
+            background: CREAM,
+            border: `1px solid ${HAIRLINE}`,
+            outline: 'none',
+            boxSizing: 'border-box',
+            transform: 'rotate(-0.1deg)',
+          }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = INK; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = HAIRLINE; }}
+        />
+        {q && (
+          <>
+          {/* Phones (under 640px, owner, 4 Nov 2026): a 44px box at the end of the field; the mark stays the same size. */}
+          <style dangerouslySetInnerHTML={{ __html: '@media (max-width: 639.98px) { .og-search-clear { width: 44px; height: 44px; right: 0 !important; padding: 0 !important; display: inline-flex; align-items: center; justify-content: center; } }' }} />
+          <button
+            type="button"
+            onClick={handleClear}
+            aria-label="Clear search"
+            className="og-search-clear"
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#14100d',
+              fontSize: '18px',
+              lineHeight: 1,
+              padding: '4px',
+            }}
+          >
+            ✕
+          </button>
+          </>
+        )}
+        </div>
+        <button
+          type="submit"
+          style={{ flex: '0 0 auto', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: 'pointer' }}
+        >
+          Search
+        </button>
+      </form>
+
+      {/* Under 640px (owner, 4 Nov 2026): the filters fold into one control naming the current one; from 640px up, as before. */}
+      <style>{`.srch-fold { display: none; } @media (max-width: 639.98px) { .srch-wide { display: none; } .srch-fold { display: block; } .srch-fold summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-fold summary::-webkit-details-marker { display: none; } .srch-fold[open] summary { margin-bottom: 10px; } .srch-fold[open] .srch-mark { transform: rotate(180deg); } }`}</style>
+      <details className="srch-fold">
+        <summary>Filter: {TYPE_CHIPS.find((c) => c.value === defaultType)?.label ?? 'All'}<span className="srch-mark" aria-hidden>▾</span></summary>
+        {filters}
+      </details>
+      <div className="srch-wide">{filters}</div>
     </div>
   );
 }

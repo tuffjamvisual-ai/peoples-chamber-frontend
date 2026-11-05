@@ -33,9 +33,19 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
   return (
     <>
       {/* Department head — title shown under the name (sos.role), so no separate label. */}
-      <section className=" pb-8 mb-8">
-        <div className="flex flex-wrap items-center gap-8" style={{ minWidth: 0 }}>
+      {/* Under 640px (owner, 4 Nov 2026): the photo small beside the name, as on MP pages. The page's zoom is 1.18, so 61px shows at 72px. */}
+      <style>{`@media (max-width: 639.98px) {
+        .dept-head-row { flex-wrap: nowrap !important; gap: 12px !important; align-items: flex-start !important; }
+        .dept-polaroid { width: 61px !important; padding: 0 !important; margin: 0 !important; transform: none !important; box-shadow: none !important; }
+        .dept-polaroid > img:first-child, .dept-polaroid > div[aria-hidden] { width: 61px !important; height: 61px !important; font-size: 28px !important; }
+        .dept-polaroid > img[aria-hidden] { display: none !important; }
+        .dept-polaroid > [role="img"] { width: 60px !important; height: 60px !important; bottom: -14px !important; right: -6px !important; }
+        .dept-head-sec { padding-bottom: 8px !important; margin-bottom: 12px !important; }
+      }`}</style>
+      <section className=" pb-8 mb-8 dept-head-sec">
+        <div className="flex flex-wrap items-center gap-8 dept-head-row" style={{ minWidth: 0 }}>
           <div
+            className="dept-polaroid"
             style={{
               position: 'relative',
               background: '#ebe5d8',

@@ -179,6 +179,10 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare }: { 
           .council-tabs nav { flex-direction:column; overflow:visible; border-bottom:none; padding:8px; -webkit-mask-image:none !important; mask-image:none !important; }
           .council-tabs nav button { white-space:normal; }
         }
+        @media (max-width: 639.98px) {
+          .council-tabs nav { flex-wrap: wrap; overflow: visible; -webkit-mask-image: none !important; mask-image: none !important; }
+          .council-tabs nav button { white-space: normal; flex: 1 1 auto; transform: none !important; }
+        }
         ${hideEmptyCss}
       `}</style>
       <aside>

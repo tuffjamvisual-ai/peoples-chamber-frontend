@@ -67,9 +67,9 @@ export default async function ServiceIndicator({ services }: { services: string[
         {rows.map((r, i) => {
           const t = TREND[r.trend] || TREND.flat;
           return (
-            <div key={r.service + i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px', padding: '15px 18px', borderTop: i ? `1px solid ${HAIRLINE}` : 'none', borderLeft: `4px solid ${t.fg}` }}>
+            <div key={r.service + i} className="si-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px', padding: '15px 18px', borderTop: i ? `1px solid ${HAIRLINE}` : 'none', borderLeft: `4px solid ${t.fg}` }}>
               <span style={{ fontSize: '16px', color: INK }}>{r.label} <span >({fmtPeriod(r.period)})</span></span>
-              <span style={{ display: 'flex', alignItems: 'baseline', gap: '12px', whiteSpace: 'nowrap' }}>
+              <span className="si-val" style={{ display: 'flex', alignItems: 'baseline', gap: '12px', whiteSpace: 'nowrap' }}>
                 <strong style={{ fontSize: '23px', color: INK }}>{fmt(r.value, r.unit)}</strong>
                 <span style={{ fontSize: '15px', fontWeight: 'bold', color: t.fg }}>{t.mark} {t.label}</span>
               </span>

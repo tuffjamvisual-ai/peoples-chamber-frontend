@@ -175,7 +175,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
       <style>{`
         .reports-topics { display: none; }
         @media (max-width: 639.98px) {
-          .reports-topics { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+          .reports-topics { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; padding-bottom: 6px; }
           .reports-topic-select { display: none; }
         }
         .reports-month-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; row-gap: 0; align-items: stretch; }

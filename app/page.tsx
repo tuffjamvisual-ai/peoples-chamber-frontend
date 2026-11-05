@@ -121,6 +121,19 @@ export default async function HomePage() {
   return (
     <>
       <OpenGovShell pageStamp="Front Page" brandAsHeading>
+              {/* Under 640px (owner, 4 Nov 2026): the two searches first, the first sentence of the introduction, the reports
+                  together, then Latest from Whitehall, then the rest of the rail. From 640px up, as before. */}
+              <style>{`@media (max-width: 639.98px) {
+                .og-lead { display: flex !important; flex-direction: column; }
+                .og-main, .og-rail { display: contents !important; }
+                .og-main > * { order: 3; }
+                .og-main > form, .og-main > form + * { order: 1; }
+                .og-main > .og-intro-line { order: 2; }
+                .og-rail > * { order: 7; }
+                .og-rail > .og-brief { order: 4; }
+                .og-main > section[aria-label="Latest from Whitehall"] { order: 5; }
+                .og-intro-line .og-intro-s ~ .og-intro-s, .og-intro-line .og-intro-br { display: none !important; }
+              }`}</style>
               <div className="og-lead">
             <div className="og-main">
               <p className="og-intro-line" style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: 'clamp(16px, 1.9vw, 22px)', letterSpacing: '0.01em', color: '#14100d', marginBottom: '18px', lineHeight: 1.45 }}>

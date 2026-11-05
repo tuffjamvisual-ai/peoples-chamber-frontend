@@ -173,12 +173,50 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 }
 .og-phone-more { display: none; }
 @media (max-width: 639.98px) {
+  /* The shared phone table (lib/phone-enhance.ts): one card per row, the first column as the title, then "label: value". */
+  .ng-page table[data-pt-table="cards"] { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; overflow: visible !important; border: 0 !important; table-layout: auto !important; }
+  .ng-page table[data-pt-table="cards"] > thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ng-page table[data-pt-table="cards"][data-pt-sort] > thead { position: static; display: block; width: 100%; height: auto; overflow: visible; clip: auto; white-space: normal; margin-bottom: 6px; }
+  .ng-page table[data-pt-table="cards"][data-pt-sort] > thead > tr { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .ng-page table[data-pt-table="cards"][data-pt-sort] > thead > tr > * { display: none; padding: 0 !important; border: 0 !important; width: auto !important; min-width: 0 !important; }
+  .ng-page table[data-pt-table="cards"][data-pt-sort] > thead > tr > [data-pt="ctrl"] { display: block; }
+  .ng-page table[data-pt-table="cards"] > :is(tbody, tfoot) { display: block; width: 100%; }
+  .ng-page table[data-pt-table="cards"] > :is(tbody, tfoot) > tr { display: block; height: auto !important; padding: 10px 0; border-bottom: 1px solid rgba(20, 16, 13, 0.25); }
+  .ng-page table[data-pt-table="cards"] > :is(tbody, tfoot) > tr[data-pt="head"], .ng-page table[data-pt-table="cards"] [data-pt="hide"], .ng-page table[data-pt-table="cards"] [data-pt="empty"] { display: none !important; }
+  .ng-page table[data-pt-table="cards"] > :is(tbody, tfoot) > tr > :is(td, th) { display: block; position: static !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; padding: 2px 0 !important; border: 0 !important; background: none; text-align: left !important; white-space: normal !important; overflow-wrap: anywhere; box-shadow: none !important; }
+  .ng-page table[data-pt-table="cards"] td[data-label]:not([data-label=""])::before, .ng-page table[data-pt-table="cards"] th[data-label]:not([data-label=""])::before { content: attr(data-label) ": "; font-weight: bold; text-transform: none; letter-spacing: normal; font-size: inherit; flex: none; }
+  .ng-page table[data-pt-table="cards"] [data-pt="title"] { font-weight: bold; font-size: 17px; }
+  .ng-page table[data-pt-table="cards"] [data-pt="rank"], .ng-page table[data-pt-table="cards"] [data-pt="rank"] + [data-pt="title"] { display: inline !important; font-weight: bold; font-size: 17px; }
+  .ng-page table[data-pt-table="cards"] [data-pt="rank"] { margin-right: 6px; }
+  .ng-page table[data-pt-table="cards"] [data-pt="rank"]::before { content: none !important; }
+  .ng-page :has(> table[data-pt-table="cards"]) { margin-left: 0 !important; margin-right: 0 !important; overflow: visible !important; max-width: 100% !important; }
+  .ng-page .pt-box { overflow: visible !important; }
+  /* Rows that were one line and did not fit: they wrap. */
+  .pca-row, .pca-row > a { flex-wrap: wrap !important; }
+  .pca-row [data-pca-leader] { display: none !important; }
+  .pca-row span { white-space: normal !important; }
+  .pca-sj-row { grid-template-columns: auto minmax(0, 1fr) !important; }
+  .si-row, .si-val { flex-wrap: wrap; white-space: normal !important; }
+  .ng-page [style*="minmax(360px"] { grid-template-columns: minmax(0, 1fr) !important; }
+  .ppl-aside { margin-left: 0 !important; margin-top: 12px !important; min-width: 0; }
+  /* The browser's monospace default is 13px. */
+  .ng-page [style*="font-family:monospace"]:not([style*="font-size"]) { font-size: 15px; }
+  /* A checkbox or radio is a 44px tall box; the mark it draws stays small and centred. */
+  .ng-page input[type="checkbox"], .ng-page input[type="radio"] { height: 44px !important; width: 24px !important; min-height: 44px; margin-top: 0 !important; margin-bottom: 0 !important; flex: none; }
+  /* A folded heading on a very long page (lib/phone-enhance.ts). */
+  .ng-page [data-pt-fold] { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; cursor: pointer; }
+  .ng-page [data-pt-fold]::after { content: '+'; flex: none; font-size: 20px; color: #7a1612; }
+  .ng-page [data-pt-fold][aria-expanded="true"]::after { content: '\2212'; }
+  .ng-page [data-pt-fold-hide] { display: none !important; }
+  .ng-page .pt-box::before { content: none !important; display: none !important; }
+  .ng-page [data-pm-hide] { display: none !important; }
+  .og-back { text-transform: none !important; letter-spacing: normal !important; font-size: 18px !important; }
   .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
   /* The small round help button: a 44px box, with the ring drawn at its old size in the middle. */
   .og-help-i { position: relative; width: 44px !important; height: 44px !important; margin: -12px; border-color: transparent !important; }
   .og-help-i::before { content: ''; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; box-sizing: border-box; border: 1.5px solid #14100d; border-radius: 50%; transform: translate(-50%, -50%); }
   /* A link alone in its paragraph, a tap target like any other. */
-  .ng-page a.og-tap { display: inline-block; min-height: 44px; align-content: center; }
+  .ng-page a.og-tap, .ng-page a[data-pt-tap] { display: inline-block; min-height: 44px; align-content: center; }
 }
 
 /* ---- Phones under 480px (owner, 3 Nov 2026; GOV.UK Design System approach). Nothing here applies from 480px up. ----
