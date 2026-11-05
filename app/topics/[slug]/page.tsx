@@ -99,7 +99,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
 
   const dept = topic.departmentSlugs.length ? departments.find((d) => d.slug === topic.departmentSlugs[0]) : undefined;
   // Newest first (topic hubs now list every piece on the subject, 16 Oct 2026).
-  // Reports on the topic: investigations and file briefings from editorialSlugs, plus published database
+  // Reports on the topic: investigations and file briefings by topic_positions, plus published database
   // briefings whose headline and summary match the topic's words (owner's approval, 23 Oct 2026).
   const set = await editorialSet();
   const relatedEditorials = [

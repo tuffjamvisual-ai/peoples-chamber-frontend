@@ -1,6 +1,6 @@
 import { billSummary } from '@/lib/bill-summary';
 // /feed.xml, RSS 2.0: The latest Open Govt investigations, plus the 50 most recently updated MP profiles and bill stages.
-// Investigations come from the lib/editorials registry (the 20 newest by publishedAt; briefings are left out, as they
+// Investigations come from the editorials table (the 20 newest by publishedAt; briefings are left out, as they
 // do not appear elsewhere in the feed); MPs and bills from the mps and bill tables. Every item is sorted by date,
 // newest first, and rendered as one <item> block.
 //

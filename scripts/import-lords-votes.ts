@@ -4,7 +4,7 @@
 // app/api/sync-lords-votes/route.ts. Safe to re-run: every write is an
 // upsert keyed on the API's own ids.
 //
-// Run with tsx (same as scripts/sync-editorials-to-db.ts):
+// Run with tsx:
 //   npx tsx scripts/import-lords-votes.ts --dry-run   # fetch + match only, no writes
 //   npx tsx scripts/import-lords-votes.ts             # full backfill, writes to DB
 //

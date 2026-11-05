@@ -5,7 +5,7 @@
 // Sources, all static (no database reads):
 //   - piece.explore: hand-picked links for this piece (shown first)
 //   - lib/topics.ts: topics that list this piece contribute their data pages and topic page
-//   - lib/editorials: up to three more pieces of the same kind on the same subject, then
+//   - the editorials table: up to three more pieces of the same kind on the same subject, then
 //     the newest under a separate "Latest" heading (lib/editorials/subjects.ts)
 // Added 15 Oct 2026 after analytics showed most search visitors read one page and left.
 

@@ -13,8 +13,7 @@ import type { EditorialEntry } from '@/lib/editorials/types';
 import JsonLd, { buildEditorialArticle, buildBreadcrumbs } from '@/lib/JsonLd';
 
 export const revalidate = 86400;
-// Every investigation is built at build time (25 Oct 2026, report 43): the pieces live in the code (lib/editorials), so
-// building them costs no database time, and visitors no longer wait for a render after each deploy (the first visit
+// Every investigation is built at build time (25 Oct 2026, report 43), so visitors no longer wait for a render after each deploy (the first visit
 // to each piece used to render it, p95 about 1 s). Briefings are left out: they redirect to /briefings/[slug].
 export async function generateStaticParams() {
   return (await editorialSlugsFor('investigation')).map((slug) => ({ slug }));

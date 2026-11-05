@@ -302,10 +302,10 @@ async function startServer() {
   const base = opt('base');
   if (base) return { base, stop: () => {} };
   const port = Number(opt('port') ?? 3199);
-  if (!fs.existsSync('.next/BUILD_ID')) throw new Error('no build: run EDITORIALS_FROM_DB=1 npx next build first, not npm run build (its prebuild writes to the database)');
+  if (!fs.existsSync('.next/BUILD_ID')) throw new Error('no build: run npx next build first');
   // Pages rendered by an earlier server reference script chunks a new build no longer has.
   if (fs.existsSync('.next/server/route-cache')) fs.rmSync('.next/server/route-cache', { recursive: true, force: true });
-  const child = spawn('npx', ['next', 'start', '-p', String(port)], { env: { ...process.env, EDITORIALS_FROM_DB: '1', RECOMMENDATIONS_PUBLIC: '1' }, stdio: 'ignore', detached: true });
+  const child = spawn('npx', ['next', 'start', '-p', String(port)], { env: { ...process.env, RECOMMENDATIONS_PUBLIC: '1' }, stdio: 'ignore', detached: true });
   const url = `http://localhost:${port}`;
   for (let i = 0; i < 60; i++) {
     try { await fetch(`${url}/support`); return { base: url, stop: () => { try { process.kill(-child.pid); } catch { /* already gone */ } } }; } catch { await new Promise((r) => setTimeout(r, 1000)); }

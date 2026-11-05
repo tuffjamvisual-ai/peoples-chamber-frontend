@@ -1,5 +1,5 @@
-// Publish one editorial straight to the database, the master copy since EDITORIALS_FROM_DB=1 (owner, 29 Oct 2026,
-// "go stage C"). No copying into lib/editorials and no deploy.
+// Publish one editorial straight to the database, the only copy (owner, 29 Oct 2026, "go stage C"; Stage D, 5 Nov 2026).
+// No deploy.
 //
 //   npx tsx scripts/publish-editorial.ts <draft.ts> [--topic <slug>]... [--allow <name>]... [--rehearse | --apply]
 //
@@ -29,7 +29,7 @@ import { pathToFileURL } from 'node:url';
 import type { EditorialEntry } from '../lib/editorials/types';
 import { topics } from '../lib/topics';
 import { departments } from '../lib/departments/index';
-import { rowFor, canon, SQL_TYPES, dollarTag, type Placement } from './sync-editorials-to-db';
+import { rowFor, canon, SQL_TYPES, dollarTag, type Placement } from './editorial-row';
 
 config({ path: '.env.local', quiet: true });
 

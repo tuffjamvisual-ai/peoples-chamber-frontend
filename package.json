@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npx tsx scripts/sync-editorials-to-db.ts && npx tsx scripts/checks/json-ld-check.ts",
+    "prebuild": "npx tsx scripts/checks/json-ld-check.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

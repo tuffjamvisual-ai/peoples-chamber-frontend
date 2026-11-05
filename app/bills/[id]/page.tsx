@@ -613,8 +613,8 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         </section>
       )}
 
-      {/* Investigations about this bill (owner's approval, 29 Oct 2026): pieces in the code registry that list it in
-          relatedBillIds, newest first. Read from the code, so no database query; shown only when one matches. */}
+      {/* Investigations about this bill (owner's approval, 29 Oct 2026): published pieces that list it in
+          relatedBillIds, newest first; shown only when one matches. */}
       {(() => {
         const pieces = [...billPieces]
           .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));

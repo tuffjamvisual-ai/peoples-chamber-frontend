@@ -10,7 +10,7 @@ import { editorialSet, type EditorialSet, type EditorialListEntry } from '@/lib/
 import { govPath, normTitle } from '@/lib/editorial-release-keys';
 
 type Index = { byPath: Map<string, Set<string>>; byTitle: Map<string, Set<string>> };
-// One index per editorial set (lib/editorials-source.ts), so a switch to the database copy builds its own.
+// One index per editorial set (lib/editorials-source.ts).
 const cache = new WeakMap<EditorialSet, Index>();
 
 function build(set: EditorialSet): Index {

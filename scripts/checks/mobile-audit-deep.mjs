@@ -1,6 +1,6 @@
 // Deep phone audit (owner, 5 Nov 2026), beyond layout: two browser engines, reader journeys, edge conditions, JavaScript
 // off, Lighthouse and axe. Audit only, against a local production build (npx next build, then next start with
-// EDITORIALS_FROM_DB=1 RECOMMENDATIONS_PUBLIC=1). Nothing is ever written: every non GET request to the site is answered
+// RECOMMENDATIONS_PUBLIC=1). Nothing is ever written: every non GET request to the site is answered
 // here and counted, and requests to the live site and analytics are blocked.
 //   npm i --no-save @axe-core/playwright; node node_modules/playwright/cli.js install webkit     (once)
 //   node scripts/checks/mobile-audit-deep.mjs --base http://localhost:3100 [--section webkit,journeys,edge,nojs,lighthouse,axe,focus,report]

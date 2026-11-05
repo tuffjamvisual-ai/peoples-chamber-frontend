@@ -1,29 +1,22 @@
-// The single way the site gets editorials (owner's approval, 29 Oct 2026, "go stage B"). Behind a switch:
-//   EDITORIALS_FROM_DB unset (the default, and production until it is switched): exactly the code registry
-//     (lib/editorials, in its order) and the topics' editorialSlugs (lib/topics.ts), as before.
-//   EDITORIALS_FROM_DB=1: the editorials table, read with the server key (server only), rebuilt into EditorialEntry
-//     objects the same way as scripts/checks/editorials-db-roundtrip.ts, unpublished rows left out, in registry_order;
-//     topic lists from topic_positions. Reads go through unstable_cache for a week under the 'editorials' tag (one piece
-//     by slug also under 'editorial:<slug>'), deduplicated within a render by React cache, and refreshed by
-//     node scripts/revalidate.js --tag editorials after a publish (scripts/publish-editorial.ts does it).
-//     MP and bill pages read only the pieces linked to them (cache Stage 2a, owner, 30 Oct 2026), under
-//     'editorial-links:mp:<id>' and 'editorial-links:bill:<id>' and not 'editorials', so a publish rebuilds only the MP
-//     and bill pages the piece names, before or after the change. Nothing here reads cookies, headers or no-store, so
-//     every route renders in the same mode as with the switch off.
-// Every consumer orders pieces exactly as it did from the code, so switching gives the same pages
-// (scripts/checks/editorials-source-compare.ts).
+// The single way the site gets editorials (owner's approval, 29 Oct 2026, "go stage B"). The editorials table is the
+// only copy (Stage D, owner, 5 Nov 2026): read with the server key (server only), rebuilt into EditorialEntry objects,
+// unpublished rows left out, in registry_order; topic lists from topic_positions. Reads go through unstable_cache for a
+// week under the 'editorials' tag (one piece by slug also under 'editorial:<slug>'), deduplicated within a render by
+// React cache, and refreshed by node scripts/revalidate.js --tag editorials after a publish (scripts/publish-editorial.ts
+// does it). MP and bill pages read only the pieces linked to them (cache Stage 2a, owner, 30 Oct 2026), under
+// 'editorial-links:mp:<id>' and 'editorial-links:bill:<id>' and not 'editorials', so a publish rebuilds only the MP and
+// bill pages the piece names, before or after the change. Nothing here reads cookies, headers or no-store.
+// If the database cannot be read, a read throws: a page already built keeps being served, and any other shows
+// app/error.tsx.
 import 'server-only';
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
-import { editorials as registry } from '@/lib/editorials';
 import { topics } from '@/lib/topics';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { entryWords } from '@/lib/reading-time';
 import { releaseKeysOf } from '@/lib/editorial-release-keys';
 import { councilSlugsOf } from '@/lib/editorials/council-slugs';
-
-export const EDITORIALS_FROM_DB = process.env.EDITORIALS_FROM_DB === '1';
 
 type Row = Record<string, unknown>;
 
@@ -57,7 +50,7 @@ const COLUMNS = 'slug, headline, standfirst, summary, published_at, author_bylin
 function client() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
     auth: { persistSession: false },
-    // Plain fetch: the code copy is used as written (quoted official titles keep their dashes), so the database copy is too.
+    // Plain fetch: rows are used as written (quoted official titles keep their dashes).
   });
 }
 
@@ -75,7 +68,7 @@ function fromRow(r: Row): EditorialEntry {
   for (const [field, col] of [['relatedDeptSlugs', 'related_dept_slugs'], ['relatedMemberIds', 'related_member_ids'], ['relatedBillIds', 'related_bill_ids'], ['relatedCouncilSlugs', 'related_council_slugs']]) {
     if (Array.isArray(r[col]) && (r[col] as unknown[]).length > 0) e[field] = r[col];
   }
-  // Keys in the order the code objects are written in, so serialised output (JSON-LD) is the same.
+  // Keys in a fixed order, so serialised output (JSON-LD) stays the same.
   return e as unknown as EditorialEntry;
 }
 
@@ -96,16 +89,6 @@ function toListEntry(e: EditorialEntry): EditorialListEntry {
 }
 
 const bySlugOf = (list: EditorialListEntry[]) => Object.fromEntries(list.map((e) => [e.slug, e]));
-
-// From the code: the registry in its order and the topics' editorialSlugs, built once.
-let codeSet: EditorialSet | null = null;
-function fromCode(): EditorialSet {
-  if (!codeSet) {
-    const list = Object.values(registry).map(toListEntry);
-    codeSet = { list, bySlug: bySlugOf(list), topicSlugs: Object.fromEntries(topics.map((t) => [t.slug, t.editorialSlugs])) };
-  }
-  return codeSet;
-}
 
 async function readIndex(): Promise<IndexEntry[]> {
   const { data, error } = await client().from('editorials').select(COLUMNS).eq('unpublished', false).order('registry_order', { ascending: true, nullsFirst: false }).range(0, 4999);
@@ -154,7 +137,7 @@ const oneFromDatabase = cache((slug: string) =>
 
 // Every published piece (index entries, no body), its lookup by slug, and the topics' lists.
 export async function editorialSet(): Promise<EditorialSet> {
-  return EDITORIALS_FROM_DB ? fromDatabase() : fromCode();
+  return fromDatabase();
 }
 
 export async function allEditorials(): Promise<EditorialListEntry[]> {
@@ -167,9 +150,7 @@ export async function editorialsBySlug(): Promise<Record<string, EditorialListEn
 
 // One piece by slug (undefined if there is none or it is unpublished); `kind` narrows it.
 export async function getEditorial(slug: string, kind?: 'briefing' | 'investigation'): Promise<EditorialEntry | undefined> {
-  let piece: EditorialEntry | undefined;
-  if (!EDITORIALS_FROM_DB) piece = registry[slug];
-  else piece = (await oneFromDatabase(slug)) ?? undefined;
+  const piece = (await oneFromDatabase(slug)) ?? undefined;
   if (!piece || !kind) return piece;
   return (kind === 'briefing') === (piece.kind === 'briefing') ? piece : undefined;
 }
@@ -179,7 +160,7 @@ export async function editorialSlugsFor(kind?: 'briefing' | 'investigation'): Pr
   return (await allEditorials()).filter((e) => !kind || (kind === 'briefing') === (e.kind === 'briefing')).map((e) => e.slug);
 }
 
-// A topic's editorial slugs in its order (from the code these may include slugs not published; callers look them up).
+// A topic's editorial slugs in its order.
 export async function topicEditorialSlugs(topicSlug: string): Promise<string[]> {
   return (await editorialSet()).topicSlugs[topicSlug] ?? [];
 }
@@ -207,8 +188,7 @@ const linkedFromDatabase = cache((kind: 'mp' | 'bill', id: number) =>
   unstable_cache(() => readLinked(kind, id), ['editorials-source-links', kind, String(id)], { tags: [editorialLinksTag(kind, id)], revalidate: WEEK })());
 
 export async function editorialsForMember(memberId: number): Promise<EditorialEntry[]> {
-  if (EDITORIALS_FROM_DB) return linkedFromDatabase('mp', memberId);
-  return Object.values(registry).filter((e) => (e.relatedMemberIds ?? []).includes(memberId));
+  return linkedFromDatabase('mp', memberId);
 }
 
 export async function editorialsForDepartment(deptSlug: string): Promise<EditorialListEntry[]> {
@@ -216,8 +196,7 @@ export async function editorialsForDepartment(deptSlug: string): Promise<Editori
 }
 
 export async function editorialsForBill(billId: number): Promise<EditorialEntry[]> {
-  if (EDITORIALS_FROM_DB) return linkedFromDatabase('bill', billId);
-  return Object.values(registry).filter((e) => (e.relatedBillIds ?? []).includes(billId));
+  return linkedFromDatabase('bill', billId);
 }
 
 // The newest n pieces by publishedAt, ties in registry order (a stable sort), optionally filtered.

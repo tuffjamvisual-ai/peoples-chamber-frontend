@@ -1,6 +1,6 @@
-// Editorial article shape. One file per piece in lib/editorials/<slug>.ts,
-// registered in lib/editorials/index.ts. Each editorial is hand-authored;
-// the page renderer at app/editorials/[slug] reads from this seed.
+// Editorial article shape. Each piece is a row in the editorials table, published with scripts/publish-editorial.ts.
+// Each editorial is hand-authored;
+// the page renderer at app/editorials/[slug] reads the row through lib/editorials-source.ts.
 
 export type EditorialEntry = {
   slug: string;

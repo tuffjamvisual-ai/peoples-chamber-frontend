@@ -37,8 +37,7 @@ try {
   run('git', ['worktree', 'add', '-q', '--detach', wt, sha]);
   run('cp', [process.platform === 'darwin' ? '-cR' : '-R', 'node_modules', path.join(wt, 'node_modules')]);
   fs.copyFileSync('.env.local', path.join(wt, '.env.local'));
-  const env = { ...process.env, EDITORIALS_FROM_DB: '1', RECOMMENDATIONS_PUBLIC: '1' };
-  // npx next build, not npm run build: the prebuild step writes to the database.
+  const env = { ...process.env, RECOMMENDATIONS_PUBLIC: '1' };
   execFileSync('npx', ['next', 'build'], { cwd: wt, env, stdio: ['ignore', 'ignore', 'inherit'] });
   const port = 3198;
   server = spawn('npx', ['next', 'start', '-p', String(port)], { cwd: wt, env, stdio: 'ignore', detached: true });

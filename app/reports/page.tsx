@@ -42,7 +42,7 @@ function typeOf(e: EditorialListEntry): ReportType {
 }
 
 export default async function ReportsPage() {
-  // Topics, as the topic pages assign them: investigations and file briefings by each topic's editorialSlugs, and
+  // Topics, as the topic pages assign them: investigations and file briefings by each topic's topic_positions, and
   // published database briefings by the topic's words on headline and summary.
   const set = await editorialSet();
   const fileItems: Item[] = set.list.map((e) => ({

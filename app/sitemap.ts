@@ -150,7 +150,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  // Every editorial registered in lib/editorials, driven off the registry
+  // Every published editorial in the database
   // so new pieces are picked up automatically (no hardcoded slug list).
   // Briefings live at /briefings/<slug> (their /editorials/ address only redirects there).
   const editorialEntries: MetadataRoute.Sitemap = (await allEditorials()).map((e) => ({

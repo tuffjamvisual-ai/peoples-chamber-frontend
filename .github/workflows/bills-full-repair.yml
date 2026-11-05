@@ -51,7 +51,6 @@ jobs:
     env:
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
-      EDITORIALS_FROM_DB: '1'
       RECOMMENDATIONS_PUBLIC: '1'
     steps:
       - uses: actions/checkout@v4
