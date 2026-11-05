@@ -134,6 +134,7 @@ export default async function Land101Page({
               key={h.cls}
               className="land101-hotspot"
               href={h.href}
+              rel={h.href === '/login' ? 'nofollow' : undefined}
               aria-label={h.label}
               style={{
                 left: `${h.left}%`,

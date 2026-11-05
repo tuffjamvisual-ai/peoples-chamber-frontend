@@ -29,7 +29,7 @@ export default function SignupNote({ q, returnTo }: { q: string; returnTo: strin
     <div id={SEARCH_NOTE_ID} className="og-snote" suppressHydrationWarning role="note">
       <span>
         {SEARCH_NOTE_TEXT}{' '}
-        <Link href={`/login?mode=signup&returnTo=${encodeURIComponent(returnTo)}`} className="no-hover-scale" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sign up</Link>
+        <Link rel="nofollow" href={`/login?mode=signup&returnTo=${encodeURIComponent(returnTo)}`} className="no-hover-scale" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sign up</Link>
       </span>
       <button type="button" onClick={dismiss} aria-label="Dismiss" className="og-snote-x">×</button>
     </div>

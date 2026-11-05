@@ -79,7 +79,7 @@ export default function AccountPage() {
       ) : !user ? (
         <div style={{ fontSize: '16px', lineHeight: 1.8, color: INK }}>
           <p>You need to be logged in to see your account and voting history.</p>
-          <a href="/login" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '8px', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: ACCENT, textDecoration: 'underline' }}>
+          <a rel="nofollow" href="/login" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '8px', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: ACCENT, textDecoration: 'underline' }}>
             Log in or create an account →
           </a>
         </div>

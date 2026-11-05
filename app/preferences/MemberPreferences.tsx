@@ -57,7 +57,7 @@ export default function MemberPreferences() {
     return (
       <div style={p}>
         <p style={p}>Sign in to see what you follow, your saved searches and your weekly email.</p>
-        <Link href="/login?returnTo=%2Fpreferences" style={{ color: ACCENT }}>Log in or create an account</Link>
+        <Link rel="nofollow" href="/login?returnTo=%2Fpreferences" style={{ color: ACCENT }}>Log in or create an account</Link>
       </div>
     );
   }

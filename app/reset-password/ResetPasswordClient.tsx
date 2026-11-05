@@ -38,7 +38,7 @@ export default function ResetPasswordClient({ token }: { token: string }) {
       <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'var(--font-special-elite), monospace', color: INK }}>
         <p style={{ fontSize: '15px' }}>
           This reset link is invalid.{' '}
-          <a href="/login" style={{ color: ACCENT, textDecoration: 'underline' }}>Return to sign in</a>
+          <a rel="nofollow" href="/login" style={{ color: ACCENT, textDecoration: 'underline' }}>Return to sign in</a>
           {' '}and use Forgot password to request a new one.
         </p>
       </div>

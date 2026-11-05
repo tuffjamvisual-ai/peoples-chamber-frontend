@@ -40,6 +40,7 @@ export default function MagazineNav() {
         <Link
           key={href}
           href={href}
+          rel={href === '/login' ? 'nofollow' : undefined}
           aria-label={label}
           style={{
             position: 'absolute',

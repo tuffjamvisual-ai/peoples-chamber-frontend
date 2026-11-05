@@ -57,7 +57,7 @@ export default function MobileNav() {
           </button>
           <nav className="mobile-nav-links">
             {NAV_ITEMS.map(({ href, label }) => (
-              <Link key={href} href={href} onClick={() => setOpen(false)}>
+              <Link key={href} href={href} rel={href === '/login' ? 'nofollow' : undefined} onClick={() => setOpen(false)}>
                 {label}
               </Link>
             ))}

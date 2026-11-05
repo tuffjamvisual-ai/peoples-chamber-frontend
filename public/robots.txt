@@ -12,6 +12,8 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /internal/
+Disallow: /login
+Disallow: /account
 # Press release pages are noindex copies of GOV.UK and Commons committee pages (owner, 29 Oct 2026).
 Disallow: /news/
 

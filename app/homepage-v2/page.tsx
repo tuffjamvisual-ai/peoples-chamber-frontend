@@ -88,7 +88,7 @@ export default function HomepageV2() {
           <ul className="np-nav">
             {NAV.map((item) => (
               <li key={item.label}>
-                <a href={item.href}>{item.label}</a>
+                <a href={item.href} rel={item.href === '/login' ? 'nofollow' : undefined}>{item.label}</a>
                 {item.children && (
                   <ul className="np-sub">
                     {item.children.map((c) => (

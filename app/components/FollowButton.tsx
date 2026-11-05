@@ -116,7 +116,7 @@ export default function FollowButton({ kind, targetKey, label, variant = 'inline
     const here = typeof window !== 'undefined' ? window.location.pathname : '/';
     return (
       <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 16px' }}>
-        <Link href={`/login?mode=signup&returnTo=${encodeURIComponent(here)}`} className="no-hover-scale" style={quietStyle}>Follow</Link>
+        <Link rel="nofollow" href={`/login?mode=signup&returnTo=${encodeURIComponent(here)}`} className="no-hover-scale" style={quietStyle}>Follow</Link>
         <span style={{ marginLeft: '10px' }}>Sign up free for a weekly email when this changes.</span>
       </div>
     );

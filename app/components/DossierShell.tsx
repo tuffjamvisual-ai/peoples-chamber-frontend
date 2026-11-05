@@ -268,7 +268,7 @@ export default function DossierShell({
                   href={h.href}
                   aria-label={h.label}
                   className="no-hover-scale"
-                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : h.href === '/login' ? { rel: 'nofollow' } : {})}
                   style={{
                     position: 'absolute',
                     left: `${h.xPct}%`,

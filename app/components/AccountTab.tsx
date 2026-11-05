@@ -20,14 +20,14 @@ export default function AccountTab() {
     // The page the visitor is on goes with them (25 Oct 2026, report 70), so signing in, or confirming a new account's
     // email, brings them back here. Not from the account pages themselves.
     const here = pathname && !/^\/(login|signup|reset-password|account)(\/|$)/.test(pathname) && pathname !== '/' ? pathname : null;
-    return <Link href={here ? `/login?returnTo=${encodeURIComponent(here)}` : '/login'}>Log in<span className="ng-tab-signup"> / Sign up</span></Link>;
+    return <Link rel="nofollow" href={here ? `/login?returnTo=${encodeURIComponent(here)}` : '/login'}>Log in<span className="ng-tab-signup"> / Sign up</span></Link>;
   }
 
   return (
     <>
-      <Link href="/account">My Account</Link>
+      <Link rel="nofollow" href="/account">My Account</Link>
       <span aria-hidden style={SEP} />
-      <a href="/login" onClick={(e) => { e.preventDefault(); logout(); }}>Log out</a>
+      <a rel="nofollow" href="/login" onClick={(e) => { e.preventDefault(); logout(); }}>Log out</a>
     </>
   );
 }

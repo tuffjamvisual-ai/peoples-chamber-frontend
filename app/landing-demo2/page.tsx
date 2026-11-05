@@ -77,8 +77,8 @@ export default function LandingDemo2() {
 
           {/* Account / sign-up, top-right of the folder. */}
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
-            <a href="/login">Account / Info</a>
-            <a href="/login">Sign up / Log in</a>
+            <a rel="nofollow" href="/login">Account / Info</a>
+            <a rel="nofollow" href="/login">Sign up / Log in</a>
           </div>
 
           <div style={{ position: 'absolute', top: '5%', left: '5%', width: '90%', textAlign: 'left', zIndex: 5, pointerEvents: 'none', transform: 'rotate(-2.5deg)' }}>

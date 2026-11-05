@@ -39,6 +39,7 @@ export default function BackLink({ fallbackHref, label, className, style }: Prop
   return (
     <a
       href={fallbackHref}
+      rel={/^\/(login|account)(\?|$)/.test(fallbackHref) ? 'nofollow' : undefined}
       onClick={handleClick}
       className={`og-back${className ? ` ${className}` : ''}`}
       style={{ ...style, fontFamily: "var(--font-special-elite), 'Courier New', monospace", fontSize: 'clamp(18px, 2.2vw, 28px)' }}

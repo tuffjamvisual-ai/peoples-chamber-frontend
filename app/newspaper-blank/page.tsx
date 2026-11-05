@@ -123,6 +123,7 @@ export default async function NewspaperBlank({
             key={spot.label}
             className="hotspot"
             href={spot.href}
+            rel={spot.href === '/login' ? 'nofollow' : undefined}
             aria-label={spot.label}
             style={{ left: spot.left, top: spot.top, width: spot.width, height: spot.height }}
           />

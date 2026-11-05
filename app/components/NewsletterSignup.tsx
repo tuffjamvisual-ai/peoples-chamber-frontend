@@ -55,7 +55,7 @@ export default function NewsletterSignup({ source = 'homepage', minFontPx = 15 }
         <p style={{ margin: '0 0 8px', fontSize: '15px', lineHeight: 1.5 }}>We have sent a link to {email}. Click it to confirm, and you will get the first issue.</p>
         <p style={{ margin: 0, fontSize: px(14), lineHeight: 1.5 }}>
           Want to vote on bills and compare your choices with your MP&rsquo;s?{' '}
-          <a href="/login?mode=signup" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Create a free account &rarr;</a>
+          <a rel="nofollow" href="/login?mode=signup" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Create a free account &rarr;</a>
         </p>
       </div>
     )
