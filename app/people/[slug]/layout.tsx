@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { metaDescription } from '@/lib/meta-description'
 import { fitTitle } from '@/lib/seo-title'
+import { bareName, resolvePersonName, sameLetters } from '@/lib/person-name'
 
 type FirstRole = { title?: string | null; organisation?: string | null }
 
@@ -16,18 +17,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // written; "at <organisation>" is left out when the title already names it.
   const { data, error } = await supabase.from('person_cache').select('name, current_roles').eq('slug', slug).maybeSingle()
   if (error && error.code !== 'PGRST116') throw new Error(`/people/[slug] metadata: ${error.message}`)
-  const name = (data?.name as string | null)?.replace(/\s+/g, ' ').trim() || niceName
+  const stored = (data?.name as string | null)?.replace(/\s+/g, ' ').trim()
+  const name = stored ? (await resolvePersonName(stored)).name : niceName
+  // The address has no punctuation: the person's own spelling keeps a hyphen or apostrophe it cannot show (owner, 5 Nov 2026).
+  const plainName = stored && sameLetters(stored, niceName) ? bareName(name) : niceName
   const role = ((data?.current_roles as FirstRole[] | null) || [])[0]
   const roleTitle = role?.title?.replace(/\s+/g, ' ').trim()
   const org = role?.organisation?.replace(/\s+/g, ' ').trim()
   const description = roleTitle
     ? metaDescription(`${name}, ${roleTitle}${org && !roleTitle.toLowerCase().includes(org.toLowerCase()) ? ` at ${org}` : ''}: current roles, declared interests and career.`)
-    : `${niceName}, current roles, financial interests and political career on opengovt.`
+    : `${plainName}, current roles, financial interests and political career on opengovt.`
   // Title (owner's approval, 24 Oct 2026): the name with the first current role, or with its organisation, within 60
   // characters with the suffix (lib/seo-title.ts); otherwise the name alone, as before.
   const title = roleTitle
-    ? fitTitle(`${name}, ${roleTitle}`, ...(org ? [`${name}, ${org}`] : []), niceName)
-    : niceName
+    ? fitTitle(`${name}, ${roleTitle}`, ...(org ? [`${name}, ${org}`] : []), plainName)
+    : plainName
   return {
     title,
     description,

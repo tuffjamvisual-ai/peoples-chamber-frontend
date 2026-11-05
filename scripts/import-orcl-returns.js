@@ -33,6 +33,7 @@ const path = require('path');
 const XLSX = require('xlsx');
 const { createClient } = require('@supabase/supabase-js');
 const { normaliseName, stripBrackets } = require('./lib/lobby-names');
+const { decodeCsv } = require('./lib/decode-csv');
 
 const WRITE = process.argv.includes('--write');
 const FROM = (process.argv.find((a) => a.startsWith('--from=')) || '').slice(7) || null;
@@ -173,7 +174,7 @@ async function filesFromWeb() {
     try {
       if (f.local && !fs.existsSync(f.local)) throw new Error(`not saved in the folder yet (${f.local})`);
       const buf = f.local ? fs.readFileSync(f.local) : await get(f.url, true);
-      wb = /\.csv$/i.test(f.url) ? XLSX.read(buf.toString('utf8'), { type: 'string', raw: true }) : XLSX.read(buf, { type: 'buffer' });
+      wb = /\.csv$/i.test(f.url) ? XLSX.read(decodeCsv(buf), { type: 'string', raw: true }) : XLSX.read(buf, { type: 'buffer' });
     } catch (e) { problems.push(`${name}: could not read (${e.message})`); continue; }
     const withHeader = [];
     for (const sn of wb.SheetNames) {

@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
 import type { ScsBand } from '@/lib/civil-service-salaries';
+import { resolvePersonName } from '@/lib/person-name';
 import BackLink from '../../components/BackLink';
 export const revalidate = 21600;
 
@@ -180,17 +181,10 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
 
   // Official photographs are shown only for MPs (owner's instruction, 18 Oct 2026); the
   // site's caricatures always stay. Civil servants, board members and other officials
-  // without a caricature show no picture. A sitting MP is matched by name.
-  const norm = (n: string) => n.toLowerCase().replace(/^(the\s+)?(rt\.?\s+hon\.?\s+|right honourable\s+)?(sir\s+|dame\s+|dr\.?\s+|mr\.?\s+|mrs\.?\s+|ms\.?\s+)*/, '').replace(/\s+(kc|mp|cbe|obe|mbe)$/g, '').replace(/[^a-z ]/g, '').trim();
-  let isMp = false;
-  if (person?.name) {
-    const target = norm(person.name);
-    const last = target.split(' ').pop() || target;
-    const { data: mpRows, error: mpRowsErr } = await supabase.from('mps').select('name, display_name').eq('current_member', true).ilike('name', `%${last}%`).limit(50);
-    if (mpRowsErr && mpRowsErr.code !== 'PGRST116') throw new Error(`/people/[slug] mps: ${mpRowsErr.message}`);
-    isMp = ((mpRows ?? []) as { name: string | null; display_name: string | null }[])
-      .some((m) => norm(m.name || '') === target || norm(m.display_name || '') === target);
-  }
+  // without a caricature show no picture. A sitting MP is matched by name (lib/person-name.ts).
+  const resolved = person?.name ? await resolvePersonName(person.name) : null;
+  const isMp = !!resolved?.isMp;
+  if (person && resolved) person.name = resolved.name;
 
   // Prefix "The Rt Hon" if gov.uk flagged them PC and the rendered
   // name doesn't already carry the honorific.

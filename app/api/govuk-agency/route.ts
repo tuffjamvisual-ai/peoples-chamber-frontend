@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
+import { hyphenatePersonName } from '@/lib/no-em-dash';
 import { supabase } from '@/lib/supabase';
 
 export const revalidate = 3600;
@@ -44,7 +45,7 @@ export async function GET(request: Request) {
     const ministers = (data.links?.ordered_ministers || []).map((m: any) => {
       const currentRole = m.links?.role_appointments?.find((r: any) => r.details?.current);
       return {
-        name: m.title,
+        name: hyphenatePersonName(m.title || ''),
         role: currentRole?.links?.role?.[0]?.title || '',
         slug: m.base_path?.replace('/government/people/', '') || '',
       };
@@ -53,7 +54,7 @@ export async function GET(request: Request) {
     const boardMembers = (data.links?.ordered_board_members || []).map((m: any) => {
       const currentRole = m.links?.role_appointments?.find((r: any) => r.details?.current);
       return {
-        name: m.title,
+        name: hyphenatePersonName(m.title || ''),
         role: currentRole?.links?.role?.[0]?.title || '',
         slug: m.base_path?.replace('/government/people/', '') || '',
       };

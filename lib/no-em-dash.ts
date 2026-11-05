@@ -123,6 +123,23 @@ const EXACT_COLUMNS: Record<string, string[]> = {
   mp_expenses_detail: ['short_description', 'details'],
 };
 
+// People's names (owner, 5 Nov 2026): as published, except that a dash with no space either side, between two letters,
+// is a hyphen ("Thomas–Symonds" on GOV.UK, "Thomas-Symonds" at Parliament). lib/person-name.ts adds Parliament's spelling.
+export const hyphenatePersonName = (name: string) => name.replace(/(\p{L})[\u2013\u2014](?=\p{L})/gu, '$1-');
+const PERSON_COLUMNS: Record<string, string[]> = { person_cache: ['name', 'full_name'] };
+const PERSON_LISTS: Record<string, string[]> = { agency_cache: ['ministers', 'board_members'] };   // lists of { name, ... }
+
+function hyphenatePeople(row: unknown, table: string): unknown {
+  if (!row || typeof row !== 'object') return row;
+  const out = { ...(row as Record<string, unknown>) };
+  for (const c of PERSON_COLUMNS[table] ?? []) if (typeof out[c] === 'string') out[c] = hyphenatePersonName(out[c] as string);
+  for (const c of PERSON_LISTS[table] ?? []) {
+    const list = out[c];
+    if (Array.isArray(list)) out[c] = list.map((p) => (p && typeof p.name === 'string' ? { ...p, name: hyphenatePersonName(p.name) } : p));
+  }
+  return out;
+}
+
 const tableOf = (input: Parameters<typeof fetch>[0]): string | null => {
   const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
   return url.match(/\/rest\/v1\/((?:rpc\/)?[a-z0-9_]+)(?:[?#]|$)/)?.[1] ?? null;
@@ -145,7 +162,8 @@ export function applyDashRule(body: string, table: string | null): string {
   if (!ANY_DASH.test(body)) return body;
   try {
     const data: unknown = JSON.parse(body);
-    return JSON.stringify(Array.isArray(data) ? data.map((r) => ruleExceptExact(r, exact)) : ruleExceptExact(data, exact));
+    const one = (r: unknown) => hyphenatePeople(ruleExceptExact(r, exact), table as string);
+    return JSON.stringify(Array.isArray(data) ? data.map(one) : one(data));
   } catch {
     return body;   // not row data (an error message): nothing to clean
   }

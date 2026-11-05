@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { govukSlugs } from '@/lib/govuk-slugs';
+import { hyphenatePersonName } from '@/lib/no-em-dash';
 import { pageDb, GOVUK_DEPT_TAG } from '@/lib/page-reads';
 
 export const revalidate = 3600;
@@ -221,7 +222,7 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
     const ministers: GovukDeptMinister[] = ((links?.ordered_ministers as Array<{ title: string; base_path?: string; web_url: string; links?: { role_appointments?: Array<{ details?: { current?: boolean }; links?: { role?: Array<{ title: string }> } }> } }>) || []).map((m, i) => {
       const currentRole = m.links?.role_appointments?.find((r) => r.details?.current);
       return {
-        name: m.title,
+        name: hyphenatePersonName(m.title),
         photo: '',
         role: currentRole?.links?.role?.[0]?.title || '',
         slug: m.base_path?.replace('/government/people/', '') || '',
@@ -233,7 +234,7 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
     const boardMembers = ((links?.ordered_board_members as Array<{ title: string; base_path?: string; web_url: string; links?: { role_appointments?: Array<{ details?: { current?: boolean }; links?: { role?: Array<{ title: string }> } }> } }>) || []).map((m) => {
       const currentRole = m.links?.role_appointments?.find((r) => r.details?.current);
       return {
-        name: m.title,
+        name: hyphenatePersonName(m.title),
         photo: '',
         role: currentRole?.links?.role?.[0]?.title || '',
         slug: m.base_path?.replace('/government/people/', '') || '',
