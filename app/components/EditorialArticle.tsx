@@ -17,6 +17,7 @@ import KeyStat from './KeyStat';
 import DataBlock from './DataBlock';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
 import ContentBadge from './ContentBadge';
+import ShareButton from './ShareButton';
 import { readingLabel } from '@/lib/reading-time';
 
 const INK = '#14100d';
@@ -54,7 +55,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
         </figure>
       )}
 
-      <div style={{ fontFamily: 'var(--font-special-elite), monospace', width: '100%' }}>
+      <div {...(basePath === '/editorials' ? { 'data-report-page': '' } : {})} style={{ fontFamily: 'var(--font-special-elite), monospace', width: '100%' }}>
         <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
           <ContentBadge kind={piece.kind} opinion={piece.opinion} />
           {piece.kicker && (
@@ -72,6 +73,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               <p className="art-summary">{piece.summary}</p>
             </>
           )}
+          {basePath === '/editorials' && <ShareButton title={piece.headline} />}
           <div style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             By {piece.authorByline}
           </div>

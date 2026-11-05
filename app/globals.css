@@ -172,6 +172,15 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   }
 }
 .og-phone-more { display: none; }
+/* ShareButton.tsx: phones only, and nothing without JavaScript. */
+.art-share { display: none; }
+@media (max-width: 639.98px) {
+  html.og-js .art-share { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+  .art-share button { min-height: 44px; padding: 8px 18px; border: 1px solid #14100d; border-radius: 0; background: transparent; color: #14100d; font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer; }
+  .art-share [role="status"]:not(:empty) { font-size: 15px; color: #14100d; }
+  /* Report pages: 16px at the sides (owner, 5 Nov 2026). */
+  .ng-page .dossier-content:has([data-report-page]) { padding-left: 16px !important; padding-right: 16px !important; }
+}
 /* PhoneGroup.tsx: from 640px up the fold line is not there and its content sits as if nothing wrapped it. */
 .pg-d { display: none; }
 .pg-b { display: contents; }
