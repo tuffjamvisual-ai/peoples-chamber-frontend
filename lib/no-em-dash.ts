@@ -1,7 +1,7 @@
 // Site rule (owner, 16 Oct 2026): no em or en dashes in opengovt's own wording. Text read from the database is passed
 // through this on its way to the page, so labels and names stay consistent. The stored original is never changed.
-// Official text we quote word for word is left exactly as published (owner, 5 Nov 2026): the columns in EXACT_COLUMNS
-// below, and the live official sources read with plain res.json().
+// Official text we quote word for word, and official names, are left exactly as published (owner, 5 Nov 2026): the
+// columns in EXACT_COLUMNS below, and the live official sources read with plain res.json().
 //
 //   "word — word"   -> "word, word"     (a comma reads closest to a dash)
 //   "word, — word"  -> "word, word"     (no doubled punctuation)
@@ -60,8 +60,10 @@ async function fetchRetryingReadsInBuild(input: Parameters<typeof fetch>[0], ini
   return fetch(input, init);
 }
 
-// Official text quoted word for word (owner, 5 Nov 2026): these columns reach the page exactly as published. Names and
-// identifiers stay under the rule, because links and lookups are built from them.
+// Official text quoted word for word and official names (owner, 5 Nov 2026): these columns reach the page exactly as
+// published. Links and lookups read the same exact value: slugs ignore punctuation, so they come out the same, and a
+// lookup by name now finds the stored row. A slug would only change for a name with an em dash between two numbers,
+// and no stored name has one. "rpc/<function>" is a read function's result.
 const EXACT_COLUMNS: Record<string, string[]> = {
   // Parliament
   hansard_contributions: ['contribution_text', 'value_html', 'debate_title', 'attributed_to'],
@@ -71,10 +73,18 @@ const EXACT_COLUMNS: Record<string, string[]> = {
   early_day_motions: ['title', 'motion_text'],
   parliament_written_questions: ['question_text', 'answer_text', 'answer_html'],
   bill: ['title', 'long_title', 'description'],
+  bill_in_session: ['title'],
+  bill_topic_listing_stored: ['title'],
+  'rpc/topic_bills': ['title'],
+  'rpc/topic_bills_page': ['title'],
+  committees: ['name'],
+  committee_proceedings: ['title'],
+  peers: ['committee_memberships'],
   statutory_instruments: ['title'],
   treaties: ['title'],
   petitions: ['action', 'background', 'additional_details', 'government_response_summary'],
   pac_reports: ['title'],
+  pac_source_documents: ['title'],
   pac_recommendations: ['conclusion_text', 'recommendation_text'],
   pac_recommendation_events: ['response_text', 'revised_target_text', 'progress_text'],
   pac_recommendation_status: ['report_title', 'latest_target_text'],
@@ -82,25 +92,39 @@ const EXACT_COLUMNS: Record<string, string[]> = {
   peer_registered_interests: ['interest_text'],
   mp_interests: ['summary', 'detail'],
   mp_staff_interests: ['description'],
-  appgs: ['purpose'],
+  appgs: ['purpose', 'secretariat'],
   // Government and regulators
-  press_releases: ['title', 'description', 'body'],
-  ministers_meetings: ['purpose'],
-  lobby_meeting_mentions: ['purpose'],
+  press_releases: ['title', 'description', 'body', 'organisation'],
+  'rpc/related_press_releases': ['title', 'organisation'],
+  ministers_meetings: ['purpose', 'organisation'],
+  lobby_meeting_mentions: ['purpose', 'raw_name'],
+  lobby_orgs: ['name'],
+  lobby_org_rankings: ['name'],
+  orcl_client_returns: ['client_name', 'firm_name'],
   revolving_door: ['conditions', 'description'],
-  major_projects: ['cost_narrative', 'schedule_narrative', 'rating_narrative', 'evaluation_plan'],
-  government_contracts: ['title', 'description'],
-  contract_notices: ['title', 'change_description', 'change_reason'],
-  government_grant_schemes: ['description'],
+  major_projects: ['cost_narrative', 'schedule_narrative', 'rating_narrative', 'evaluation_plan', 'name'],
+  government_contracts: ['title', 'description', 'supplier'],
+  government_contracts_counted: ['title', 'description', 'supplier'],
+  contract_notices: ['title', 'change_description', 'change_reason', 'buyer_name', 'suppliers'],
+  contract_awards: ['title', 'buyer_name', 'supplier', 'supplier_key'],
+  organisation_contracts: ['title', 'supplier'],
+  organisation_index: ['name', 'name_variants'],
+  organisation_company_pages: ['variants'],
+  government_grants: ['recipient_name', 'funder_name', 'scheme_title', 'title'],
+  government_grant_schemes: ['description', 'title', 'funder_name'],
   person_cache: ['biography', 'description', 'current_roles', 'past_roles'],
-  agency_cache: ['description', 'body'],
-  political_donations: ['purpose_of_visit', 'explanatory_notes'],
+  agency_cache: ['description', 'body', 'name'],
+  dept_agencies: ['name'],
+  political_donations: ['purpose_of_visit', 'explanatory_notes', 'donor_name', 'trust_name', 'trust_creator_name', 'accounting_unit_name', 'campaigning_name'],
+  party_names: ['published_name'],
+  council_election_candidates: ['party_published'],
+  sewage_overflows: ['site_name', 'site_name_operator'],
   mp_expenses_detail: ['short_description', 'details'],
 };
 
 const tableOf = (input: Parameters<typeof fetch>[0]): string | null => {
   const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-  return url.match(/\/rest\/v1\/([a-z0-9_]+)(?:[?#]|$)/)?.[1] ?? null;
+  return url.match(/\/rest\/v1\/((?:rpc\/)?[a-z0-9_]+)(?:[?#]|$)/)?.[1] ?? null;
 };
 
 // One row with the rule applied to every value except the exact columns.
