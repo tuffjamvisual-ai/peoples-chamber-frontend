@@ -6,6 +6,7 @@ import { buildRepresentations, fetchHistory } from '@/lib/commons-representation
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
+import { colourForParty, type ApiParty } from '@/lib/party-fields';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -38,21 +39,6 @@ const SEARCH = 'https://members-api.parliament.uk/api/Members/Search?House=1&IsC
 const MEMBER = 'https://members-api.parliament.uk/api/Members';
 const UA = 'PeoplesChamber-RosterSync/1.0';
 
-const PARTY_COLOURS: Record<string, string> = {
-  'Labour': '#E4003B',
-  'Labour (Co-op)': '#E4003B',
-  'Conservative': '#0087DC',
-  'Liberal Democrat': '#FAA61A',
-  'Scottish National Party': '#FDF38E',
-  'Green Party': '#6AB023',
-  'Plaid Cymru': '#005B54',
-  'Democratic Unionist Party': '#D46A4C',
-  'Sinn Féin': '#326760',
-  'Social Democratic and Labour Party': '#2AA82C',
-  'Alliance': '#F6CB2F',
-  'Reform UK': '#12B6CF',
-  'Independent': '#808080',
-};
 
 type ApiMember = { id: number; value: Record<string, unknown> };
 
@@ -93,7 +79,7 @@ async function buildRecord(memberId: number) {
     display_name: v.nameDisplayAs,
     list_as: v.nameListAs,
     party: lp.name || null,
-    party_colour: PARTY_COLOURS[lp.name as string] || '#808080',
+    party_colour: colourForParty(lp as ApiParty),
     party_abbreviation: lp.abbreviation || null,
     constituency: hm.membershipFrom || null,
     constituency_id: hm.membershipFromId ?? null,

@@ -19,7 +19,7 @@ export default function ConstituencyPetitions({ top, gss }: { top: MpPetitionsTo
         ))}
       </ol>
       {top.checkedOn && <p style={{ fontSize: '15px', margin: '8px 0 0' }}>Counts as checked on {petitionDate(top.checkedOn)}.</p>}
-      <p style={{ fontSize: '15px', margin: '4px 0 0' }}><Link href={`/petitions?constituency=${gss}`} prefetch={false} style={{ display: 'inline-block', padding: '10px 0', color: INK }}>More petitions in this constituency</Link></p>
+      <p style={{ fontSize: '15px', margin: '4px 0 0' }}><Link href={`/petitions?constituency=${gss}`} prefetch={false} style={{ display: 'inline-block', padding: '10px 0', color: INK, textDecoration: 'underline' }}>More petitions in this constituency</Link></p>
     </section>
   );
 }

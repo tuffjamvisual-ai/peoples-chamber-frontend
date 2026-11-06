@@ -8,15 +8,14 @@ import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 import { normaliseParty } from '@/lib/party-helpers';
 import { noteChanged } from '@/lib/refresh-count';
+import { partyUpdate, type ApiParty } from '@/lib/party-fields';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-// Keeps mps.party in step with the official UK Parliament Members API so that
-// defections / party changes are caught automatically. Compares each current
-// MP's stored party against the API's latestParty, NORMALISED for naming style
-// (so "Labour (Co-op)" vs "Labour", "&" vs "and" etc. are not treated as
-// changes), and updates + revalidates only the MPs whose party has genuinely
-// changed. Runs nightly via vercel.json crons.
+// Keeps mps.party, party_abbreviation and party_colour in step with the official UK Parliament Members API (lib/party-fields.ts),
+// comparing the full label, "(Co-op)" included (owner, 6 Nov 2026: comparing without it left two MPs on the wrong label, and
+// abbreviations and colours were never updated). Only a real change of party flags the biography for review; norm() below tells
+// the two apart. Updates and revalidates only the MPs that changed. Runs nightly via vercel.json crons.
 
 const SEARCH = 'https://members-api.parliament.uk/api/Members/Search?House=1&IsCurrentMember=true';
 const MEMBER = 'https://members-api.parliament.uk/api/Members';
@@ -33,8 +32,8 @@ const norm = (s: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-async function fetchAllParties(): Promise<Map<number, string>> {
-  const map = new Map<number, string>();
+async function fetchAllParties(): Promise<Map<number, ApiParty>> {
+  const map = new Map<number, ApiParty>();
   let skip = 0;
   let total = Infinity;
   while (skip < total) {
@@ -46,19 +45,19 @@ async function fetchAllParties(): Promise<Map<number, string>> {
     total = json.totalResults || 0;
     for (const it of json.items || []) {
       const v = it.value;
-      if (v?.id != null) map.set(v.id, v.latestParty?.name || '');
+      if (v?.id != null) map.set(v.id, v.latestParty ?? {});
     }
     skip += 20;
   }
   return map;
 }
 
-async function fetchOneParty(id: number): Promise<string | null> {
+async function fetchOneParty(id: number): Promise<ApiParty | null> {
   try {
     const res = await politeFetch(`${MEMBER}/${id}`, { headers: { 'User-Agent': UA, accept: 'application/json' } });
     if (!res.ok) return null;
     const v = (await res.json())?.value;
-    return v?.latestParty?.name ?? null;
+    return v?.latestParty ?? null;
   } catch (e) {
     if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
     return null;
@@ -86,11 +85,11 @@ async function GET_impl(req: Request) {
 
   const { data: mps, error } = await supabase
     .from('mps')
-    .select('member_id, display_name, party')
+    .select('member_id, display_name, party, party_abbreviation')
     .eq('current_member', true);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  let apiParties: Map<number, string>;
+  let apiParties: Map<number, ApiParty>;
   try {
     apiParties = await fetchAllParties();
   } catch (e) {
@@ -118,13 +117,15 @@ async function GET_impl(req: Request) {
     checked++;
 
     const dbParty = ((m.party as string) || '').trim();
-    if (apiParty && norm(dbParty) !== norm(apiParty)) {
-      if (dry) { changes.push({ member_id: id, name: (m.display_name as string) || '', from: dbParty, to: apiParty }); continue; }
-      const { error: upErr } = await supabase.from('mps').update({ party: apiParty }).eq('member_id', id);
+    const update = partyUpdate({ party: dbParty, party_abbreviation: (m.party_abbreviation as string | null) ?? null }, apiParty);
+    if (update) {
+      const to = update.party;
+      if (dry) { changes.push({ member_id: id, name: (m.display_name as string) || '', from: dbParty, to }); continue; }
+      const { error: upErr } = await supabase.from('mps').update(update).eq('member_id', id);
       if (!upErr) {
-        changes.push({ member_id: id, name: (m.display_name as string) || '', from: dbParty, to: apiParty });
-        // The written biography may now describe the wrong party.
-        await flagBioReview(supabase, id, `Party changed from ${dbParty || 'unknown'} to ${apiParty} (${ukDate(null)})`);
+        changes.push({ member_id: id, name: (m.display_name as string) || '', from: dbParty, to });
+        // The written biography may now describe the wrong party; a change of label or abbreviation alone does not.
+        if (norm(dbParty) !== norm(to)) await flagBioReview(supabase, id, `Party changed from ${dbParty || 'unknown'} to ${to} (${ukDate(null)})`);
       }
     }
   }

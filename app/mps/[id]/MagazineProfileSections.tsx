@@ -1362,7 +1362,7 @@ export default function MagazineProfileSections({
                       {list.map((p) => (
                         <li key={p.petitionId} style={{ padding: '12px 0', borderBottom: inkDivider }}>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                            <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{p.title}</a>
+                            <a href={`/petitions/${p.petitionId}`} style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{p.title}</a>
                             <span style={chip}>{p.state === 'open' ? 'Open' : 'Closed'}</span>
                             {p.governmentResponseAt && <span style={chip}>Government responded {fmtDate(p.governmentResponseAt)}</span>}
                             {p.debatedOn && <span style={chip}>Debated {fmtDate(p.debatedOn)}</span>}

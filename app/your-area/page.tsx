@@ -363,7 +363,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
         <ol key="l" style={{ margin: '0 0 6px', paddingLeft: '20px' }}>
           {petitions.map((p) => (
             <li key={p.petition_id} style={{ ...para, marginBottom: '6px' }}>
-              <a href={p.petitions!.url} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{p.petitions!.action}</a>
+              <a href={`/petitions/${p.petition_id}`} style={{ color: INK }}>{p.petitions!.action}</a>
               <br />{n0(p.signature_count)} signatures here · {p.petitions!.state === 'open' ? 'open' : 'closed'}
             </li>
           ))}

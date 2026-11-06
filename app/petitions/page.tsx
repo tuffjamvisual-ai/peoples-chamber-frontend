@@ -103,7 +103,7 @@ export default async function PetitionsPage({ searchParams }: { searchParams: Pr
 
       <p role="status" style={{ fontSize: '15px', color: INK, margin: '0 0 8px' }}>
         {n0(rows.length)} {rows.length === 1 ? 'petition' : 'petitions'}{place ? ', most signed first' : ', newest first'}
-        {filtered(s) && <> · <Link href="/petitions" prefetch={false} style={{ display: 'inline-block', padding: '12px 0', color: INK }}>Clear filters</Link></>}
+        {filtered(s) && <> · <Link href="/petitions" prefetch={false} style={{ display: 'inline-block', padding: '12px 0', color: INK, textDecoration: 'underline' }}>Clear filters</Link></>}
       </p>
 
       {rows.length === 0 ? <p style={{ fontSize: '16px', color: INK, margin: '16px 0' }}>No petitions match.</p> : <MoreChain items={items} step={25} />}

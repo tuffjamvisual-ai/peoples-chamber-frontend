@@ -6,6 +6,7 @@ import { allEditorials } from '@/lib/editorials-source';
 import { pmqsSet } from '@/lib/pmqs';
 import { archiveSessions } from '@/lib/pmqs-archive';
 import { allPetitions } from '@/lib/petition-pages';
+import { allConstituencies } from '@/lib/constituency-pages';
 import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
@@ -166,6 +167,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Every session in the PMQs archive, 1961 to 2024: dated by the session, which does not change.
   const pmqsArchiveEntries: MetadataRoute.Sitemap = (await archiveSessions()).map((p) => ({ url: `${SITE}/pmqs/${p.date}`, lastModified: new Date(`${p.date}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 }));
+
+  // Every constituency page: dated by the seat's latest election or change of MP.
+  const seatRows = await allConstituencies().catch(() => []);
+  const constituencyEntries: MetadataRoute.Sitemap = seatRows.length ? [{ url: `${SITE}/constituencies`, ...dated(newest(...seatRows.map((c) => c.last_change))), changeFrequency: 'monthly' as const, priority: 0.6 }, ...seatRows.map((c) => ({ url: `${SITE}/constituencies/${c.slug}`, ...dated(newest(c.last_change)), changeFrequency: 'monthly' as const, priority: 0.5 }))] : [];
 
   // Every petition page: dated by its last change (the count or any other field, synced_at) or its response, whichever is later.
   const petitionRows = await allPetitions().catch(() => []);
@@ -462,6 +467,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...pmqsEntries,
     ...pmqsArchiveEntries,
     ...petitionEntries,
+    ...constituencyEntries,
     ...partyEntries,
     ...billEntries,
     ...billSessionEntries,

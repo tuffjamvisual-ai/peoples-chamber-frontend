@@ -71,3 +71,7 @@
 /petitions
 /petitions/700143
 /petitions/750050
+# Constituencies (owner, 6 Nov 2026): the list, the seat with the most candidates and a seat with a changed MP.
+/constituencies
+/constituencies/clacton
+/constituencies/arbroath-and-broughty-ferry

@@ -225,3 +225,6 @@ route,example_url,why_chosen
 "/petitions","/petitions","the only page of this route"
 "/petitions/[id]","/petitions/700143","most signed, with a debate"
 "/petitions/[id]","/petitions/750050","with the Petitions Committee note, no debate"
+"/constituencies","/constituencies","the only page of this route"
+"/constituencies/[slug]","/constituencies/clacton","most candidates, 34 at the byelection"
+"/constituencies/[slug]","/constituencies/arbroath-and-broughty-ferry","changed MP at a byelection"

@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 const h2: CSSProperties = { fontSize: '22px', fontWeight: 'bold', color: INK, margin: '28px 0 8px' };
 const para: CSSProperties = { fontSize: '16px', lineHeight: 1.65, color: INK, margin: '0 0 12px', whiteSpace: 'pre-line', overflowWrap: 'anywhere' };
-const link: CSSProperties = { display: 'inline-block', padding: '10px 0', color: INK, overflowWrap: 'anywhere' };
+const link: CSSProperties = { display: 'inline-block', padding: '10px 0', color: INK, textDecoration: 'underline', overflowWrap: 'anywhere' };
 
 // Text as written: its blank lines make paragraphs, its line breaks stay, and a web address in it can be followed.
 function AsWritten({ text }: { text: string }) {
@@ -45,7 +45,7 @@ function AsWritten({ text }: { text: string }) {
       {text.split(/\r?\n\s*\r?\n/).map((block, i) => (
         <p key={i} style={para}>
           {block.split(/(https?:\/\/[^\s<>]+)/g).map((part, j): ReactNode => (/^https?:\/\//.test(part)
-            ? <a key={j} href={part} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{part}</a>
+            ? <a key={j} href={part} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{part}</a>
             : part.replace(/\r/g, '')))}
         </p>
       ))}
@@ -107,7 +107,7 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
           </p>
           {revised && (
             <p style={para}>
-              Parliament&rsquo;s record of the response is on the <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>official petition</a>.
+              Parliament&rsquo;s record of the response is on the <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>official petition</a>.
             </p>
           )}
           {p.government_response_summary && <div style={{ fontWeight: 'bold' }}><AsWritten text={p.government_response_summary} /></div>}
