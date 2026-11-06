@@ -55,7 +55,7 @@ export default function DebateSummary({ date, house, location, speakers, words, 
       {speakers.length > 0 && (
         <section aria-labelledby="debate-speakers" style={box}>
           <h2 id="debate-speakers" style={h2}>Who spoke</h2>
-          <NoJsFold id="speakers-fold" label={`${speakers.length} ${speakers.length === 1 ? 'speaker' : 'speakers'}`}>
+          <NoJsFold id="speakers-fold" always={speakers.length > 5} label={`${speakers.length} ${speakers.length === 1 ? 'speaker' : 'speakers'}`}>
           <NoJsPager id="who-spoke" count={speakers.length} rows="> li" size={25}>
 <ul style={{ listStyle: 'none', padding: 0, margin: 0, columnWidth: '20em', columnGap: '28px' }}>
             {speakers.map((s) => (
@@ -74,7 +74,7 @@ export default function DebateSummary({ date, house, location, speakers, words, 
       {votes.map((v) => (
         <section key={v.slug} aria-label={`The vote: ${v.title}`} style={box}>
           <h2 style={h2}>The vote</h2>
-          <NoJsFold id={`vote-fold-${v.slug}`} label={v.title}>
+          <NoJsFold id={`vote-fold-${v.slug}`} always={votes.length > 1} label={v.title}>
           <p style={{ margin: '0 0 6px', fontWeight: 'bold' }}>{v.title}</p>
           <p style={{ margin: '0 0 10px' }}>
             Ayes {v.ayes.toLocaleString()}, Noes {v.noes.toLocaleString()}: {v.ayes > v.noes ? 'passed' : v.ayes < v.noes ? 'not passed' : 'tied'}.{' '}

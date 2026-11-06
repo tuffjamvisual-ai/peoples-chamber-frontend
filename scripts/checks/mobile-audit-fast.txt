@@ -86,3 +86,6 @@
 # Historic votes and register (owner, 6 Nov 2026): one archive division and one MP with register history.
 /divisions/pw-2013-02-05-151-commons
 /mps/206
+# The longest debate by contributions, and the tallest, one speech of about 147,000px (owner, 6 Nov 2026).
+/debates/CEAC32EB-971E-4A0D-BD3A-80A92B6DC230
+/debates/2E73E779-90FC-4597-9B0C-E50391655AFD

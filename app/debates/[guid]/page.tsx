@@ -1,4 +1,5 @@
 import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem, pagesByHeight } from '@/app/components/NoJsPager';
+import ScreenMore from '@/app/components/ScreenMore';
 import { splitAnswer } from '@/lib/answer-html';
 import { Fragment, cache } from 'react';
 import ReadNext from '../../components/ReadNext';
@@ -25,7 +26,7 @@ import DebateSummary, { type Speaker, type VoteSummary } from './DebateSummary'
 // per-debate traffic. Speaker names link to their on-site MP profile where we
 // hold one, and the previous/next debate links stay on site.
 export const revalidate = 86400;
-const SPEECH_OPENS = 4000;
+const SPEECH_OPENS = 2000;
 
 export async function generateStaticParams() {
   const { data, error } = await supabase
@@ -258,8 +259,9 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
 
   // Only link speakers we actually hold an MP profile for, so no link 404s.
   const memberIds = [...new Set(groups.map((g) => g.memberId).filter((x): x is number => x != null))];
-  // Screens of speeches on phones with JavaScript off: about 0.7px a character at 375px, plus the speaker's line.
-  const debateScreens = pagesByHeight(groups.map((g) => Math.min(g.html.length, SPEECH_OPENS) * 0.7 + 90), 4000);
+  // Screens of speeches on phones: 25 at most, fewer where they are long (about 0.7px a character at 375px, plus the speaker's line). With JavaScript on,
+  // Show more adds a screen; with it off, Next and Previous move between them.
+  const debateScreens = pagesByHeight(groups.map((g) => Math.min(g.html.length, SPEECH_OPENS) * 0.7 + 90), 4000, 25);
   const linkable = new Set<number>();
   // The same one read as before, now with each MP's name, party and constituency for "Who spoke" (owner, 31 Oct 2026).
   const mpInfo = new Map<number, { name: string | null; party: string | null; constituency: string | null }>();
@@ -400,16 +402,17 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
                 </div>
               )}
               {(() => {
-                // A very long speech (one runs to 147,000px on a phone): its start, then a fold, on phones with JavaScript off.
+                // A long speech (one runs to 147,000px on a phone): its opening, then a fold, on phones.
                 const { first, rest } = g.html.length > SPEECH_OPENS ? splitAnswer(g.html, SPEECH_OPENS) : { first: g.html, rest: null };
                 const speech = (html: string, part?: string) => <div className={`pca-hansard${part ? ` ${part}` : ''}`} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.8, color: INK }} dangerouslySetInnerHTML={{ __html: html }} />;
                 return rest
-                  ? <>{first && speech(first, 'pca-first')}<NoJsFold id={`speech-${i}`} label="Continue reading">{speech(rest)}</NoJsFold></>
+                  ? <>{first && speech(first, 'pca-first')}<NoJsFold id={`speech-${i}`} always label="Continue reading">{speech(rest)}</NoJsFold></>
                   : speech(g.html);
               })()}
             </div>
             </Fragment>
           ))}
+          <ScreenMore id="debate-rows" sizes={debateScreens} />
           <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} />
           </>
         )}

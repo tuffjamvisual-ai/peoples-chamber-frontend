@@ -50,6 +50,7 @@ const QUERIES: Record<string, string> = {
   council: `SELECT slug key, coalesce(population,0) m FROM councils`,
   educationCouncil: `SELECT slug key, coalesce(population,0) m FROM councils WHERE gss_code LIKE 'E%' AND type <> 'district'`,
   coverage: `SELECT id::text key, length(coalesce(commentary,'')) m FROM uk_political_news WHERE is_published`,
+  debate_longest: `SELECT debate_ext_id key, count(*) m FROM hansard_contributions WHERE removed_at IS NULL GROUP BY 1`,
   debate: `SELECT hansard_ext_id key, length(coalesce(summary,'')) m FROM debates WHERE sitting_date > date '2025-01-01'`,
   division: `SELECT to_char(division_date,'YYYY-MM-DD')||'|'||division_number key, coalesce(aye_count,0)+coalesce(no_count,0) m FROM commons_division_totals`,
   donor: `SELECT donor_name key, count(*) m FROM political_donations WHERE donor_name IS NOT NULL GROUP BY donor_name`,
@@ -127,6 +128,8 @@ async function linksFrom(parent: string, re: RegExp): Promise<string[]> {
   fromDb('/councils/[slug]/sewage', 'council', (k) => `/councils/${k}/sewage`);
   fromDb('/coverage/[id]', 'coverage', (k) => `/coverage/${k}`);
   fromDb('/debates/[guid]', 'debate', (k) => `/debates/${k}`);
+  // The 10 longest debates by contribution count (owner, 6 Nov 2026), not a sample.
+  for (const r of data.debate_longest.slice(0, 10)) add('/debates/[guid]', `/debates/${r.key.toUpperCase()}`, `one of the 10 longest, ${r.m} contributions`);
   fromDb('/divisions/[slug]', 'division', (k) => { const [d, n] = k.split('|'); return `/divisions/pw-${d}-${n}-commons`; });
   fromList('/divisions/year/[year]', ['/divisions/year/2024', '/divisions/year/2019', '/divisions/year/2016'], 'the years on /divisions');
   fromDb('/donors/[slug]', 'donor', (k) => { const s = donorPageSlug(k); return s ? `/donors/${s}` : null; });

@@ -15,11 +15,11 @@ import { cloneElement, type ReactElement, type ReactNode } from 'react';
 export const njpItem = (id: string) => `njp-i-${id}`;
 
 // How many rows fit on each screen, from each row's height, so that long rows get fewer companions.
-export function pagesByHeight(heights: number[], room: number): number[] {
+export function pagesByHeight(heights: number[], room: number, most = Infinity): number[] {
   const sizes: number[] = [];
   let px = 0, n = 0;
   for (const h of heights) {
-    if (n > 0 && px + h > room) { sizes.push(n); px = 0; n = 0; }
+    if (n > 0 && (px + h > room || n >= most)) { sizes.push(n); px = 0; n = 0; }
     px += h; n++;
   }
   if (n > 0) sizes.push(n);
@@ -74,12 +74,12 @@ export function NoJsPagerLinks({ id, count, size = 25, sizes }: { id: string; co
 }
 
 // A long section as a native fold, for phones with JavaScript off only; otherwise the section shows as it always has. No wrapper: everything between
-// the fold and its hidden end marker is hidden while it is closed. id as above.
-export function NoJsFold({ id, label, open = false, children }: { id: string; label: ReactNode; open?: boolean; children: ReactNode }) {
+// the fold and its hidden end marker is hidden while it is closed. id as above. With `always` it folds on phones with JavaScript on as well.
+export function NoJsFold({ id, label, open = false, always = false, children }: { id: string; label: ReactNode; open?: boolean; always?: boolean; children: ReactNode }) {
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `@media (max-width:639.98px){html:not(.og-js) #${id}:not([open]) ~ *:not(#${id}-end):not(#${id}-end ~ *){display:none!important}}` }} />
-      <details id={id} className="njf" open={open}><summary>{label}</summary></details>
+      <style dangerouslySetInnerHTML={{ __html: `@media (max-width:639.98px){${always ? 'html' : 'html:not(.og-js)'} #${id}:not([open]) ~ *:not(#${id}-end):not(#${id}-end ~ *){display:none!important}}` }} />
+      <details id={id} className={always ? 'njf njf-on' : 'njf'} open={open}><summary>{label}</summary></details>
       {children}
       <i id={`${id}-end`} className="njp-a" />
     </>

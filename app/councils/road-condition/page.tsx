@@ -110,7 +110,7 @@ export default async function RoadConditionPage() {
           return (
             <section key={t.key} style={section}>
               <h2 style={h2}>{t.label}</h2>
-              <NoJsPager id={`rc-${t.key}`} count={(ranked).length} rows="> tbody > tr" size={8}>
+              <NoJsPager id={`rc-${t.key}`} count={(ranked).length} rows="> tbody > tr" size={5}>
               <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
                 <thead>
                   <tr>
