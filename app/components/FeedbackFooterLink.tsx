@@ -7,5 +7,5 @@ import { usePathname } from 'next/navigation';
 export default function FeedbackFooterLink({ style, className }: { style?: React.CSSProperties; className?: string }) {
   const path = usePathname() || '';
   const href = path && path !== '/feedback' && path.length <= 200 ? `/feedback?from=${encodeURIComponent(path)}` : '/feedback';
-  return <a href={href} style={style} className={className}>Feedback</a>;
+  return <a href={href} rel="nofollow" style={style} className={className}>Feedback</a>;
 }

@@ -15,6 +15,8 @@ Disallow: /internal/
 Disallow: /preview/
 Disallow: /login
 Disallow: /account
+# The footer links to /feedback?from=<page> on every page, so bots were reading it once per page (owner, 6 Nov 2026).
+Disallow: /feedback
 # Press release pages are noindex copies of GOV.UK and Commons committee pages (owner, 29 Oct 2026).
 Disallow: /news/
 
