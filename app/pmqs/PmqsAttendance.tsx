@@ -2,8 +2,8 @@
 // with four wrong member ids corrected (corrections_to_source in the data file). The file is kept as prepared; the one
 // name Parliament spells differently is corrected here.
 import Link from 'next/link';
-import NoJsPager from '@/app/components/NoJsPager';
-import MoreChain from '../components/MoreChain';
+import NoJsPager, { njpItem } from '@/app/components/NoJsPager';
+import PagedList from '../components/PagedList';
 import data from '@/lib/data/pmqs-attendance-2026-11-04.json';
 
 const INK = '#14100d';
@@ -61,7 +61,9 @@ export default function PmqsAttendance() {
       </table>
       </NoJsPager>
 
-      <h3 style={h3}>The {data.missed_dates.length} sessions the Prime Minister missed</h3>
+      {/* A native fold, closed, at every width (owner, 6 Nov 2026). */}
+      <details className="pa-fold" style={{ marginTop: '28px' }}>
+      <summary>The {data.missed_dates.length} sessions the Prime Minister missed</summary>
       <div className="pc-wide">
       <table style={table}>
         <thead>
@@ -92,19 +94,22 @@ export default function PmqsAttendance() {
       </table>
 
       </div>
-      {/* Phones: the same rows as a list, 8 as the page opens to keep it within the limit, then 25 at a time, in native folds, so it works without JavaScript (owner, 5 Nov 2026). */}
+      {/* Phones: the same rows as a list, 25 at a time. */}
       <div className="pc-narrow">
-        <MoreChain first={8} style={{ fontSize: '15px', lineHeight: 1.6 }} items={data.missed_dates.map((m) => (
-          <li key={m.date} style={{ padding: '10px 0', ...rowLine }}>
-            <strong>{longDate(HANSARD_DATE[m.date]?.date ?? m.date)}</strong>
-            {HANSARD_DATE[m.date] && <div>{HANSARD_DATE[m.date].note}</div>}
-            <div>Prime Minister: {m.prime_minister}</div>
-            <div>Reason: {m.reason}</div>
-            <div>Deputised by: <Link href={`/mps/${m.deputy_member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{m.deputy}</Link></div>
-            {m.opposition_member && <div>Opposition member: {SPELLING[m.opposition_member] ?? m.opposition_member}</div>}
-          </li>
-        ))} />
+        <PagedList id="pmqs-missed" count={data.missed_dates.length} style={{ fontSize: '15px', lineHeight: 1.6 }}>
+          {data.missed_dates.map((m) => (
+            <li key={m.date} className={njpItem('pmqs-missed')} style={{ padding: '10px 0', ...rowLine }}>
+              <strong>{longDate(HANSARD_DATE[m.date]?.date ?? m.date)}</strong>
+              {HANSARD_DATE[m.date] && <div>{HANSARD_DATE[m.date].note}</div>}
+              <div>Prime Minister: {m.prime_minister}</div>
+              <div>Reason: {m.reason}</div>
+              <div>Deputised by: <Link href={`/mps/${m.deputy_member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{m.deputy}</Link></div>
+              {m.opposition_member && <div>Opposition member: {SPELLING[m.opposition_member] ?? m.opposition_member}</div>}
+            </li>
+          ))}
+        </PagedList>
       </div>
+      </details>
 
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '20px 0 0' }}>{data.source.note_1}.</p>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '12px 0 0' }}>
