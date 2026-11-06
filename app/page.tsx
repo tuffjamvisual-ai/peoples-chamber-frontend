@@ -8,6 +8,7 @@ import ContinueToArticle from './components/ContinueToArticle';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
 import AreaSearch from './components/AreaSearch';
+import HomeRecord from './components/HomeRecord';
 import NewsletterSignup from './components/NewsletterSignup';
 import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
 import { loadLatestWhitehall } from '@/lib/press-releases-latest';
@@ -140,6 +141,7 @@ export default async function HomePage() {
                 .og-main > * { order: 3; }
                 .og-main > form, .og-main > form + * { order: 1; }
                 .og-main > .og-intro-line { order: 2; padding-top: 0 !important; }
+                .og-main > .og-record { order: 2; }
                 .og-main > form + * { margin-bottom: 12px !important; }
                 .og-rail > * { order: 7; }
                 .og-rail > .og-brief { order: 4; }
@@ -199,6 +201,8 @@ export default async function HomePage() {
               </form>
 
               <AreaSearch tight label="Search local authorities" placeholder="Postcode, town or council" />
+
+              <HomeRecord />
 
               <a className="og-block" href={`/editorials/${slot1.slug}`}>
                 <div className="og-head">{slot1.headline}</div>
