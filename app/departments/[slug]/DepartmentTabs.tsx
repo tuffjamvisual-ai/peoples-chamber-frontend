@@ -11,7 +11,7 @@
 // so we use the same JS translateY trick as the landing-page MP folder.
 
 import { pageview } from '@vercel/analytics';
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 // The dept page wraps DepartmentTabs in <div style={{ zoom: 1.18 }}>.
@@ -87,12 +87,16 @@ export default function DepartmentTabs({
           page width rather than a quarter-width grid column. */}
       <style>{`@media (min-width: 1024px){ .pca-dept-tabs { grid-template-columns: 200px minmax(0, 1fr) !important; gap: 28px !important; } }
         .dept-pick { display: none; }
+        .dept-fold { display: none; }
         html:not(.og-js) .pca-dept-tabs aside { display: none !important; }
         html:not(.og-js) .dept-slot { display: block !important; }
         @media (max-width: 639.98px) {
           .pca-dept-tabs { gap: 4px !important; }
           .pca-dept-tabs aside nav { display: none !important; }
           .dept-pick { display: block; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; }
+          html:not(.og-js) .dept-fold { display: block; border-top: 1px solid rgba(20,16,13,0.25); }
+          html:not(.og-js) .dept-fold:not([open]) + .dept-slot { display: none !important; }
+          .dept-fold > summary { display: flex; align-items: center; min-height: 44px; padding: 8px 0; font-family: var(--font-special-elite), monospace; font-size: 16px; font-weight: bold; color: #14100d; cursor: pointer; }
           .dept-pick select { display: block; width: 100%; min-height: 48px; margin-top: 4px; padding: 6px 10px; box-sizing: border-box; font: inherit; font-weight: normal; font-size: 16px; color: #14100d; background: #f4e8d4; border: 1px solid #14100d; }
         }`}</style>
       <aside>
@@ -140,10 +144,15 @@ export default function DepartmentTabs({
       </aside>
 
       <div className="py-6 sm:py-8" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', minWidth: 0 }}>
-        {tabs.map((t) => (
-          <div key={t.id} className="dept-slot" style={{ display: t.id === active ? 'block' : 'none' }}>
-            {slots[t.id]}
-          </div>
+        {/* JavaScript off, under 640px (owner, 6 Nov 2026): every section would show at once, up to 57,781px, so each is a native fold, the
+            first open. With JavaScript on, or from 640px up, the folds do not show and the sections work as before. */}
+        {tabs.map((t, i) => (
+          <Fragment key={t.id}>
+            <details className="dept-fold" open={i === 0}><summary>{t.label}</summary></details>
+            <div className="dept-slot" style={{ display: t.id === active ? 'block' : 'none' }}>
+              {slots[t.id]}
+            </div>
+          </Fragment>
         ))}
       </div>
     </div>

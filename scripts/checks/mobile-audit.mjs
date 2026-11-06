@@ -59,7 +59,8 @@ async function reportPages(base) {
   return paths.map((m) => ({ route: `/${m[2]}/[slug]`, url: m[1], why: 'every report and briefing' }));
 }
 
-// A report's height at 375px with JavaScript off (owner, 5 Nov 2026), read from a full page image: scripts cannot run.
+// A page's height at 375px with JavaScript off (owner, 5 Nov 2026; every page in the full audit since 6 Nov), read from a full page image:
+// scripts cannot run. The fast audit before a push still measures only reports this way.
 const isReport = (url) => /^\/(editorials|briefings)\/[^/]+$/.test(url);
 async function noJsHeight(browser, base, url) {
   const ctx = await browser.newContext({ viewport: { width: 375, height: HEIGHT }, deviceScaleFactor: 1, isMobile: true, hasTouch: true, javaScriptEnabled: false });
@@ -376,7 +377,7 @@ async function main() {
       if (done % 25 === 0 || done === jobs.length) console.log(`${done} of ${jobs.length}`);
     }
   }));
-  const reportRows = rows.filter((r) => r.width === 375 && isReport(r.url));
+  const reportRows = rows.filter((r) => r.width === 375 && (!FAST || isReport(r.url)));
   let nextReport = 0;
   await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
     while (nextReport < reportRows.length) {

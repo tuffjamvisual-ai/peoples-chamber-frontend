@@ -1,8 +1,8 @@
 // Parliament's answering departments (owner, backlog item 15c, 6 Nov 2026): one page per Parliament id. Names as Parliament gives them,
 // tidied: id 220 has a trailing space, and id 88 appears as "Attorney General" and "Attorney General's Office". page is the site's
-// /departments/<slug>. nowPartOf and previously link reorganised departments: Parliament's last questions to 214, 216 and 217 were
-// tabled on 14 July 2026, and 220 and 10 carry on from them.
-export type QuestionDepartment = { id: number; name: string; slug: string; page?: string; nowPartOf?: number[]; previously?: number[] };
+// /departments/<slug>. nowPartOf, functionsMovedTo and previously link reorganised departments: Parliament's last questions to 214, 216 and
+// 217 were tabled on 14 July 2026. The Machinery of Government statement HLWS298 (21 July 2026) moved 216's functions to 220, 10 and 53.
+export type QuestionDepartment = { id: number; name: string; slug: string; page?: string; nowPartOf?: number[]; functionsMovedTo?: number[]; previously?: number[]; source?: { label: string; url: string } };
 
 export const QUESTION_DEPARTMENTS: QuestionDepartment[] = [
   { id: 17, name: 'Department of Health and Social Care', slug: 'health-and-social-care', page: 'health' },
@@ -19,7 +19,7 @@ export const QUESTION_DEPARTMENTS: QuestionDepartment[] = [
   { id: 215, name: 'Department for Energy Security and Net Zero', slug: 'energy-security-and-net-zero', page: 'energy' },
   { id: 214, name: 'Department for Business and Trade', slug: 'business-and-trade', nowPartOf: [220] },
   { id: 54, name: 'Ministry of Justice', slug: 'justice', page: 'justice' },
-  { id: 216, name: 'Department for Science, Innovation and Technology', slug: 'science-innovation-and-technology', nowPartOf: [220, 10] },
+  { id: 216, name: 'Department for Science, Innovation and Technology', slug: 'science-innovation-and-technology', functionsMovedTo: [220, 10, 53], source: { label: 'Machinery of Government statement, HLWS298, 21 July 2026', url: 'https://questions-statements.parliament.uk/written-statements/detail/2026-07-21/hlws298' } },
   { id: 217, name: 'Department for Culture, Media and Sport', slug: 'culture-media-and-sport', nowPartOf: [10] },
   { id: 220, name: 'Department for Business, Innovation, Science and Trade', slug: 'business-innovation-science-and-trade', page: 'business-trade', previously: [214, 216] },
   { id: 21, name: 'Northern Ireland Office', slug: 'northern-ireland-office', page: 'northern-ireland-office' },

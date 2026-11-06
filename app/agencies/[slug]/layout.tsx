@@ -1,4 +1,4 @@
-import { namedTitle } from '@/lib/seo-title';
+import { wholeNameTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!agency || !agency.name) return { title: 'Agency' };
   const title = agency.acronym ? `${agency.name} (${agency.acronym})` : agency.name;
   return {
-    title: namedTitle(title, (n) => [n]),
+    title: wholeNameTitle(title),
     description: `${agency.name}, UK government agency profile: ministers, board, parent department and recent activity.`,
     alternates: { canonical: `/agencies/${slug}` },
   };

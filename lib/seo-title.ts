@@ -16,6 +16,17 @@ export function fitTitle(...candidates: string[]): string {
   return candidates[candidates.length - 1];
 }
 
+// A title for a committee or public body (owner, 6 Nov 2026): cutting at a natural break can leave a name unclear, as "Speaker's Committee"
+// for two different committees. So the first shape that fits with the name whole, and otherwise the whole name alone, even over 60.
+export function wholeNameTitle(name: string, shapes: (n: string) => string[] = () => []): string | { absolute: string } {
+  const whole = squeeze(name);
+  for (const shape of shapes(whole)) {
+    if (shape.length + TITLE_SUFFIX.length <= TITLE_MAX) return shape;
+    if (shape.length <= TITLE_MAX) return { absolute: shape };
+  }
+  return titleWithin(whole);
+}
+
 // A title for text written by someone else, where stopping at a natural break can change what it says (owner's petition brief,
 // 6 Nov 2026: "Do not stop transgender people from receiving care" for "... in mainstream hospital wards"). Whole if it fits;
 // otherwise the most whole words that fit, not ending on a linking word, and an ellipsis to say there is more.

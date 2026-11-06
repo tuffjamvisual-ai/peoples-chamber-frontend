@@ -1,4 +1,4 @@
-import { namedTitle } from '@/lib/seo-title';
+import { wholeNameTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -76,7 +76,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/committees/[id] committees: ${dataErr2.message}`);
   if (!data) return { title: 'Committee' };
   return {
-    title: namedTitle(data.name, (n) => [`${n}: UK Parliament`, n]),
+    // A sub-committee is clear without its parent's long name, and then fits.
+    title: wholeNameTitle(data.name.replace(/^.+ (Sub-Committee on )/, '$1'), (n) => [`${n}: UK Parliament`]),
     description: `Current members of the ${data.name}, sourced from UK Parliament.`,
     alternates: { canonical: `/committees/${id}` },
   };

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
-import { namedTitle } from '@/lib/seo-title';
+import { wholeNameTitle } from '@/lib/seo-title';
 import { departmentById, departmentBySlug } from '@/lib/question-departments';
 import { QUESTION_PAGE_SIZE, questionDepartmentStats, questionPeople, searchQuestions } from '@/lib/question-pages';
 import QuestionItems from '../../QuestionItems';
@@ -22,7 +22,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   if (!d) return { title: 'Written questions', robots: { index: false, follow: true } };
   const { before } = await searchParams;
   return {
-    title: namedTitle(d.name, (n) => [`Written questions: ${n}`, `${n}: questions`, n], 'Written questions by department'),
+    title: wholeNameTitle(d.name, (n) => [`Written questions: ${n}`, `${n}: questions`]),
     description: `Written questions answered by ${d.name} this Parliament, newest first, with counts and average days to answer.`.slice(0, 160),
     alternates: { canonical: `/questions/department/${d.slug}` },
     ...(before ? { robots: { index: false, follow: true } } : {}),
@@ -45,6 +45,7 @@ export default async function DepartmentQuestions({ params, searchParams }: { pa
   const related = (ids: number[] | undefined) => (ids ?? []).map(departmentById).filter((x): x is NonNullable<typeof x> => !!x);
   const now = related(d.nowPartOf);
   const was = related(d.previously);
+  const moved = related(d.functionsMovedTo);
 
   return (
     <OpenGovShell pageStamp="Questions">
@@ -58,6 +59,8 @@ export default async function DepartmentQuestions({ params, searchParams }: { pa
       </dl>
       <p style={{ fontSize: '15px', color: INK, margin: '0 0 10px' }}>This Parliament. Withdrawn questions are not counted.</p>
       {now.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Now part of</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{now.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
+      {moved.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Functions moved to</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{moved.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
+      {d.source && <p style={{ margin: '0 0 8px' }}><a href={d.source.url} target="_blank" rel="noopener noreferrer" style={{ ...link, fontSize: '15px' }}>{d.source.label}</a></p>}
       {was.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Previously</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{was.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
       {d.page && <p style={{ margin: '4px 0 12px' }}><Link href={`/departments/${d.page}`} prefetch={false} style={link}>The department&rsquo;s page</Link></p>}
       {rows.length === 0 ? <p style={{ fontSize: '16px', color: INK }}>No questions.</p> : (
