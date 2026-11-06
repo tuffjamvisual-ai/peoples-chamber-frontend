@@ -5,7 +5,8 @@ import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 import { EDM_API, EDM_PARLIAMENT_START, fetchEdmJson, listEdmsResumable, buildEdmRows, writeEdm, type EdmListEntry, type EdmListPages } from '@/lib/edms';
-import { noteChanged } from '@/lib/refresh-count';
+import { noteChanged, revalidatePath, revalidateTag } from '@/lib/refresh-count';
+import { EDMS_TAG } from '@/lib/edm-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -68,10 +69,11 @@ async function GET_impl(req: Request) {
   // changed. ?dry=1 (local tests only) reads and compares but writes nothing.
   const dry = isDryRun(req);
   const changedMps = new Set<number>();
+  const changedMotions = new Set<number>();   // their /edms/<id> pages, and the lists, are refreshed
   const SHOWN = ['title', 'uin_with_suffix', 'date_tabled', 'signature_count', 'status', 'is_prayer', 'amendment_to_motion_id'] as const;
   async function noteChangedMps(id: number, built: ReturnType<typeof buildEdmRows>) {
     const [{ data: oldEdm }, { data: oldSigs }] = await Promise.all([
-      supabase.from('early_day_motions').select(`primary_sponsor_id, ${SHOWN.join(', ')}`).eq('id', id).maybeSingle(),
+      supabase.from('early_day_motions').select(`primary_sponsor_id, motion_text, statutory_instrument_title, ${SHOWN.join(', ')}`).eq('id', id).maybeSingle(),
       supabase.from('early_day_motion_signatures').select('member_id, sponsoring_order, signed_at, is_withdrawn, withdrawn_at').eq('edm_id', id),
     ]);
     const before = new Map(((oldSigs ?? []) as { member_id: number }[]).map((r) => [r.member_id, r]));
@@ -79,6 +81,7 @@ async function GET_impl(req: Request) {
     const e = built.edm as Record<string, unknown>;
     const old = oldEdm as Record<string, unknown> | null;
     const motionChanged = !old || SHOWN.some((k) => !sameValue(old[k], e[k])) || old.primary_sponsor_id !== e.primary_sponsor_id;
+    if (motionChanged || !sameValue(old?.motion_text, e.motion_text) || !sameValue(old?.statutory_instrument_title, e.statutory_instrument_title)) changedMotions.add(id);
     if (motionChanged) {
       for (const m of [...before.keys(), ...after.keys()]) changedMps.add(m);
       for (const m of [old?.primary_sponsor_id, e.primary_sponsor_id]) if (typeof m === 'number') changedMps.add(m);
@@ -87,7 +90,7 @@ async function GET_impl(req: Request) {
     for (const m of new Set([...before.keys(), ...after.keys()])) {
       const a = before.get(m) as Record<string, unknown> | undefined;
       const b = after.get(m) as unknown as Record<string, unknown> | undefined;
-      if (!a || !b || ['sponsoring_order', 'signed_at', 'is_withdrawn', 'withdrawn_at'].some((k) => !sameTime(a[k], b[k]))) changedMps.add(m);
+      if (!a || !b || ['sponsoring_order', 'signed_at', 'is_withdrawn', 'withdrawn_at'].some((k) => !sameTime(a[k], b[k]))) { changedMps.add(m); changedMotions.add(id); }
     }
   }
   // Timestamps come back from the database in its own format: compared as instants.
@@ -187,6 +190,10 @@ async function GET_impl(req: Request) {
   const failuresSaved = dry ? false : await failing.save();
   noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
+  if (!dry && changedMotions.size) {
+    revalidateTag(EDMS_TAG, 'max');
+    for (const id of changedMotions) revalidatePath(`/edms/${id}`);
+  }
 
   const body = {
     ok: failures.length === 0 && listed.complete,

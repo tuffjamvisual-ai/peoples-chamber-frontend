@@ -70,8 +70,8 @@ const EXACT_COLUMNS: Record<string, string[]> = {
   hansard_debates: ['title', 'prev_title', 'next_title'],
   debates: ['title', 'summary'],
   lords_divisions: ['motion_text'],
-  early_day_motions: ['title', 'motion_text'],
-  early_day_motion_signatures: ['early_day_motions'],   // the joined motion on MP pages
+  early_day_motions: ['title', 'motion_text', 'statutory_instrument_title'],
+  early_day_motion_signatures: ['early_day_motions', 'member_name', 'party'],   // the joined motion on MP pages
   parliament_written_questions: ['question_text', 'answer_text', 'answer_html'],
   bill: ['title', 'long_title', 'description'],
   bill_in_session: ['title'],

@@ -4,6 +4,7 @@
 import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { supabaseAdminRead as db } from '@/lib/supabase-admin';
+import { memberEdmIds } from '@/lib/edm-pages';
 
 export type SeatListRow = { ons_code: string; slug: string; name: string; nation: string; region: string | null; last_change: string };
 
@@ -31,7 +32,7 @@ export type Seat = SeatListRow & {
 export type Byelection = { election_id: number; election_date: string; electorate: number; valid_votes: number; invalid_votes: number; turnout_pct: number; majority: number; result_summary: string; url: string };
 export type Candidate = { election_id: number; election_kind: string; position: number; given_name: string | null; family_name: string; party: string; adjunct_party: string | null; votes: number; share_pct: number };
 export type MpTerm = { member_id: number; name: string; start_date: string; end_date: string | null; end_reason: string | null; has_page: boolean };
-export type CurrentMp = { member_id: number; name: string; party: string | null; questions: number };
+export type CurrentMp = { member_id: number; name: string; party: string | null; questions: number; motions: number };
 
 export async function getSeat(slug: string): Promise<Seat | null> {
   const { data, error } = await db.from('constituencies').select('*').eq('slug', slug).maybeSingle();
@@ -58,7 +59,8 @@ export async function seatDetail(ons: string) {
   if (row) {
     const { count, error: qErr } = await db.from('parliament_written_questions').select('id', { count: 'exact', head: true }).eq('asking_member_id', row.member_id).eq('house', 'Commons');
     if (qErr) throw new Error(`constituency ${ons} questions: ${qErr.message}`);
-    current = { member_id: row.member_id, name: row.display_name || row.name, party: row.party, questions: count ?? 0 };
+    const motions = await memberEdmIds(row.member_id);
+    current = { member_id: row.member_id, name: row.display_name || row.name, party: row.party, questions: count ?? 0, motions: motions.tabled.length + motions.signed.length };
   }
   return {
     candidates: (results.data ?? []) as Candidate[],

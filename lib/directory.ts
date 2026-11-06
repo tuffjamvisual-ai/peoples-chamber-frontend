@@ -52,6 +52,7 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Unite the Kingdom', href: '/unite-kingdom', desc: 'The march Westminster does not want to understand.' },
   { name: 'All Topics', href: '/topics', desc: 'Every policy area in one place: its department, votes, bills and the MPs who scrutinise it.' },
   { name: 'Constituencies', href: '/constituencies', desc: 'All 650 constituencies by nation and region: the MP, the 2024 result, byelections, petitions and councils.' },
+  { name: 'Early Day Motions', href: '/edms', desc: 'Every early day motion this Parliament: the text as tabled, sponsors, signatures and amendments.' },
   { name: 'Petitions', href: '/petitions', desc: 'Every petition this Parliament that reached 10,000 signatures: the government response, any debate and signatures by constituency.' },
   { name: 'Parliament Section', href: '/sections/parliament', desc: 'Everything on MPs, bills, votes, parties and departments in one list.' },
   { name: 'Local Section', href: '/sections/local', desc: 'Councils and sewage spills in your area, in one list.' },

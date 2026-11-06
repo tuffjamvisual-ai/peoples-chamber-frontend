@@ -100,7 +100,6 @@ export default async function ConstituenciesPage({ searchParams }: { searchParam
           </details>
         );
       })}
-      <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '28px 0 0' }}>Election results: House of Commons Library, Open Parliament Licence.</p>
       <PetitionCredit />
     </OpenGovShell>
   );

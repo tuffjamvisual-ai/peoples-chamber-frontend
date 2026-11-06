@@ -228,3 +228,6 @@ route,example_url,why_chosen
 "/constituencies","/constituencies","the only page of this route"
 "/constituencies/[slug]","/constituencies/clacton","most candidates, 34 at the byelection"
 "/constituencies/[slug]","/constituencies/arbroath-and-broughty-ferry","changed MP at a byelection"
+"/edms","/edms","the only page of this route"
+"/edms/[id]","/edms/65938","most signatures"
+"/edms/[id]","/edms/62415","a long list with a withdrawn signature"

@@ -89,6 +89,7 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             <li><Link href={`/mps/${current.member_id}#voting`} prefetch={false} style={link}>Latest votes</Link></li>
             {current.questions > 0 && <li><Link href={`/mps/${current.member_id}/questions`} prefetch={false} style={link}>Written questions</Link></li>}
+            {current.motions > 0 && <li><Link href={`/edms?member=${current.member_id}`} prefetch={false} style={link}>Early day motions</Link></li>}
           </ul>
         </>
       )}
@@ -122,7 +123,6 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
         {allCouncils.map((c) => <li key={c.slug}><Link href={`/councils/${c.slug}`} prefetch={false} style={link}>{c.name}</Link></li>)}
       </ul>
 
-      <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '28px 0 0' }}>Election results: House of Commons Library, Open Parliament Licence.</p>
       <PetitionCredit />
     </OpenGovShell>
   );

@@ -38,6 +38,8 @@ import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import ConstituencyPetitions from './ConstituencyPetitions';
+import MpEdmsSection from './MpEdmsSection';
+import { latestEdmsForMp, type MpEdmsTop } from '@/lib/edm-pages';
 import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-pages';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
@@ -463,6 +465,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     ? withTimeout(topPetitionsInConstituency(constituencyGss), 5000).catch(() => null)
     : Promise.resolve(null);
 
+  // Their seat's page, for the link in the page heading (owner, 6 Nov 2026), and the latest motions, in the HTML for JavaScript off.
+  const pSeatSlug: Promise<string | null> = constituencyGss && mp.current_member !== false
+    ? withTimeout(Promise.resolve(supabase.from('constituencies').select('slug').eq('ons_code', constituencyGss).maybeSingle()), 5000).then((r) => (r.data?.slug as string | undefined) ?? null).catch(() => null)
+    : Promise.resolve(null);
+  const pEdmsTop: Promise<MpEdmsTop | null> = withTimeout(latestEdmsForMp(memberId), 5000).catch(() => null);
+
   // Early Day Motions this MP started (primary sponsor) and signed
   // (sponsoring_order > 1, i.e. every signature except the primary
   // sponsor's own; withdrawn signatures excluded). Counts come from
@@ -571,6 +579,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
 
   const petitionsAvailable = await pPetitions;
   const petitionsTop = await pPetitionsTop;
+  const [seatSlug, edmsTop] = await Promise.all([pSeatSlug, pEdmsTop]);
 
   // APPGs (All-Party Parliamentary Groups) this MP is officer of, with
   // each group's registered funders. Sourced from mySociety/appg-
@@ -775,6 +784,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       memberId={memberId}
       fullName={fullName}
       constituency={mp.constituency ?? null}
+      constituencySlug={seatSlug}
       formerMember={mp.current_member === false}
       servedFromYear={mp.start_date ? new Date(mp.start_date).getFullYear() : null}
       servedToYear={mp.end_date ? new Date(mp.end_date).getFullYear() : null}
@@ -847,6 +857,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       }}
       footer={
         <>
+        {edmsTop && (edmsTop.tabled.length > 0 || edmsTop.signed.length > 0) && <MpEdmsSection top={edmsTop} memberId={memberId} />}
         {petitionsTop && petitionsTop.petitions.length > 0 && constituencyGss && <ConstituencyPetitions top={petitionsTop} gss={constituencyGss} />}
         {/* Newsletter sign-up at the end of the profile, for readers who are not signed in (report 81). */}
         <ArticleEndSignup source="data-mp-profile" line={DATA_SIGNUP_LINE} />

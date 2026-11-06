@@ -75,3 +75,7 @@
 /constituencies
 /constituencies/clacton
 /constituencies/arbroath-and-broughty-ferry
+# Early day motions (owner, 6 Nov 2026): the list, the most signed motion and a long motion text with many signatures.
+/edms
+/edms/65938
+/edms/62415

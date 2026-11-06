@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import MagazineProfileSections from './MagazineProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
@@ -26,6 +27,8 @@ interface MpDossierProps {
   memberId: number;
   fullName: string;
   constituency: string | null;
+  /** The seat's /constituencies page, for a current MP. */
+  constituencySlug?: string | null;
   /** True when the MP has left the Commons (mps.current_member = false). The
       heading then reads "Former MP for X (2015–2026)" instead of "MP for X". */
   formerMember?: boolean;
@@ -51,6 +54,7 @@ export default function MpDossier({
   memberId,
   fullName,
   constituency,
+  constituencySlug,
   formerMember = false,
   servedFromYear = null,
   servedToYear = null,
@@ -107,6 +111,7 @@ export default function MpDossier({
           .pca-mp-bio h1 { font-size: 24px !important; margin: 0 !important; }
           .pca-mp-party { order: 2; }
           .pca-mp-constituency { order: 3; margin: 0 !important; }
+          .pca-mp-constituency a { display: inline-flex; align-items: center; min-height: 44px; }
           .mp-back-link { min-height: 44px; }
         }
       `}</style>
@@ -195,7 +200,9 @@ export default function MpDossier({
             <div className="pca-mp-constituency" style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '3%' }}>
               {formerMember
                 ? `Former MP for ${constituency}${servedFromYear && servedToYear ? ` (${servedFromYear} to ${servedToYear})` : ''}`
-                : `MP for ${constituency}`}
+                : constituencySlug
+                  ? <>MP for <Link href={`/constituencies/${constituencySlug}`} prefetch={false} style={{ color: 'inherit', textDecoration: 'underline' }}>{constituency}</Link></>
+                  : `MP for ${constituency}`}
             </div>
           )}
           {partyDisplay && (
