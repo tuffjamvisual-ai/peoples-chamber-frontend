@@ -1,4 +1,4 @@
--- NOT APPLIED. Prepared 6 Nov 2026; waiting for the owner's yes.
+-- Applied to production on 6 Nov 2026 at 10:03:58 GMT, on the owner's yes.
 -- An index on parliament_written_questions(date_answered). Today every read by answered date scans the whole table (37,125
 -- pages): the freshness check's 7 days and the weekly pass's 90. CONCURRENTLY, so reads and writes carry on during the build.
 --
