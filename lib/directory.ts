@@ -92,6 +92,7 @@ const ALSO_KNOWN_AS: [string, string][] = [
   ['Hansard Debates', '/debates'],
   ['Outside Earnings', '/second-jobs'],
   ['MP Interests', '/transparency/register-of-interests'],
+  ['Register History', '/register-history'],
   ['SpAds', '/transparency/special-advisers'],
   ['Polls', '/polls'],
   ['Investigations', '/reports'],

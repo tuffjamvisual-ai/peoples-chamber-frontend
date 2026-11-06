@@ -26,6 +26,8 @@ import RelatedLinks from '../../components/RelatedLinks';
 import { displayMpName } from '@/lib/mp-name';
 import { divisionHref, divisionNeighbours, yearHref } from '@/lib/division-links';
 import { fetchDivisionVotes, divisionTally, isRebel, type Vote as DivisionVote } from '@/lib/division-votes';
+import { ARCHIVE_LAST_DATE, archiveDate, archiveDivision, archiveNeighbours, archiveTitle } from '@/lib/historic-archive';
+import ArchiveDivisionPage from './ArchiveDivision';
 
 export const revalidate = 86400;  // divisions don't change after the vote happens
 
@@ -118,6 +120,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!m) return { title: 'Division' };
   const dateOnly = m[1];
   const divisionNumber = parseInt(m[2], 10);
+
+  // A division from the archive (lib/historic-archive.ts): its own title and a description without a stated result, because its title names the subject and
+  // not always what was voted on.
+  if (dateOnly <= ARCHIVE_LAST_DATE) {
+    const d = await archiveDivision(dateOnly, divisionNumber);
+    if (!d) return { title: 'Division' };
+    const motion = archiveTitle(d);
+    const { sameDay } = await archiveNeighbours(dateOnly, divisionNumber);
+    const counts = d.count_note ? '' : `Ayes ${d.ayes_shown}, Noes ${d.noes_shown}: `;
+    return {
+      title: titleWithin(divisionSeoTitle(motion, divisionNumber, dateOnly, [{ number: divisionNumber, motion }, ...sameDay.map((v) => ({ number: v.number, motion: v.title }))])),
+      description: metaDescription(`${counts}${motion}, Commons Division ${divisionNumber} on ${archiveDate(dateOnly)}. See how every MP voted.`),
+      alternates: { canonical: `/divisions/${fullSlug(dateOnly, divisionNumber)}` },
+    };
+  }
 
   const { data: row, error: rowErr } = await supabase
     .from('mp_division_votes')
@@ -241,6 +258,11 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   if (slug !== fullSlug(m[1], parseInt(m[2], 10))) permanentRedirect(`/divisions/${fullSlug(m[1], parseInt(m[2], 10))}`);
   const dateOnly = m[1];
   const divisionNumber = parseInt(m[2], 10);
+  if (dateOnly <= ARCHIVE_LAST_DATE) {
+    const d = await archiveDivision(dateOnly, divisionNumber);
+    if (!d) notFound();
+    return <ArchiveDivisionPage d={d} />;
+  }
   // The votes around this one, for the "More votes" links (owner, 31 Oct 2026); read alongside the rest.
   const neighboursP = divisionNeighbours(dateOnly, divisionNumber);
   neighboursP.catch(() => {}); // a 404 below leaves it unawaited; when awaited, its error still throws

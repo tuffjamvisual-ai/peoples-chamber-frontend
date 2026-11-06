@@ -163,6 +163,13 @@ async function linksFrom(parent: string, re: RegExp): Promise<string[]> {
   add('/mps/[id]/pmqs', '/mps/185/pmqs', 'with archive data');
   add('/questions/department/[slug]', '/questions/department/science-innovation-and-technology', 'a reorganised department');
   add('/questions/[id]', '/questions/1951193', 'a corrected answer with its original');
+  add('/divisions/[slug]', '/divisions/pw-2013-02-05-151-commons', 'archive division, 2013, a long list of names');
+  add('/divisions/[slug]', '/divisions/pw-2008-05-14-183-commons', 'archive division whose printed record is inconsistent');
+  add('/mps/[id]', '/mps/206', 'current MP with the longest register history of any current MP');
+  add('/mps/[id]', '/mps/4160', 'former MP with archive votes and register history under a Lords record');
+  add('/mps/[id]/votes-from-hansard/[year]', '/mps/325/votes-from-hansard/2012', 'the member with most archive votes');
+  add('/mps/[id]/votes-from-hansard/[year]', '/mps/4160/votes-from-hansard/2006', 'a former MP under a Lords record');
+  add('/mps/[id]/votes-from-hansard/[year]', '/mps/1571/votes-from-hansard/2015', 'one with few votes in the year');
   add('/edms/[id]', '/edms/65938', 'most signatures');
   add('/edms/[id]', '/edms/62415', 'a long list with a withdrawn signature');
   add('/constituencies/[slug]', '/constituencies/clacton', 'most candidates, 34 at the byelection');

@@ -83,3 +83,6 @@
 /questions
 /questions/department/science-innovation-and-technology
 /questions/1951193
+# Historic votes and register (owner, 6 Nov 2026): one archive division and one MP with register history.
+/divisions/pw-2013-02-05-151-commons
+/mps/206

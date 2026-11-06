@@ -151,6 +151,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // The section pages the header links to (report 60).
     ...SECTION_PAGES.map((s) => ({ url: `${SITE}/sections/${s.slug}`, changeFrequency: 'monthly' as const, priority: 0.7 })),
     { url: `${SITE}/divisions`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${SITE}/register-history`, changeFrequency: 'yearly', priority: 0.5 },
   ];
 
   const transparencyEntries: MetadataRoute.Sitemap = transparencySections.map((s) => ({
@@ -380,6 +381,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const y = Number(String(d.division_date_only).slice(0, 4));
     perYear.set(y, (perYear.get(y) ?? 0) + 1);
     if (d.division_date_only > (newestInYear.get(y) ?? '')) newestInYear.set(y, d.division_date_only);
+  }
+  // The archive's year pages too (11 Oct 2004 to 8 Mar 2016). Its 2,908 division pages are not listed: they are reached from these, pending the owner's decision.
+  const archiveDivisions = await fetchAllRows<{ division_date: string }>('historic_commons_divisions', 'division_date', (q) => q.order('division_date', { ascending: true }).order('division_number', { ascending: true }));
+  for (const d of archiveDivisions) {
+    const y = Number(String(d.division_date).slice(0, 4));
+    perYear.set(y, (perYear.get(y) ?? 0) + 1);
+    if (d.division_date > (newestInYear.get(y) ?? '')) newestInYear.set(y, d.division_date);
   }
   const thisYear = new Date().getUTCFullYear();
   const divisionYearEntries: MetadataRoute.Sitemap = [...perYear.entries()].sort((a, b) => a[0] - b[0]).flatMap(([y, n]) =>

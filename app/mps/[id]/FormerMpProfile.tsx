@@ -10,6 +10,7 @@ import RelatedLine from '../../components/RelatedLine';
 import type { RelatedLink } from '@/lib/related-links';
 import { parliamentMemberUrl, seatYears, type FormerMp } from '@/lib/former-mps';
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
+import HistoricRecord from './HistoricRecord';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -67,6 +68,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
       </section>
 
       <StandardsFindings findings={conductFindings} />
+      <HistoricRecord memberId={mp.memberId} />
       {/* The compact Related line at the end (owner's brief, 3 Nov 2026): reports that name them, when there are any. */}
       <RelatedLine links={related} />
     </OpenGovShell>

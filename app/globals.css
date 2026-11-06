@@ -191,10 +191,12 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .mc-more[open] > summary { display: none; }
 /* Long lists and sections on phones with JavaScript off (app/components/NoJsPager.tsx). Nothing here changes any other view. */
 .njp-a, .njp-nav, .njf { display: none; }
+@media (max-width: 639.98px) { .arch-tap { display: flex; align-items: center; min-height: 44px; } }
+@media (min-width: 640px) { .arch-row { padding: 4px 0; } }
 @media (max-width: 639.98px) {
-  html:not(.og-js) .njp-a { display: block; height: 0; }
-  html:not(.og-js) .njp-nav { justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0 14px; font-size: 15px; color: #14100d; }
-  html:not(.og-js) .njp-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; color: #14100d; font-weight: bold; text-decoration: none; }
+  html:not(.og-js) .njp-a, .njp-a.njp-on { display: block; height: 0; }
+  html:not(.og-js) .njp-nav, .njp-nav.njp-on { justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0 14px; font-size: 15px; color: #14100d; }
+  html:not(.og-js) .njp-nav a, .njp-nav.njp-on a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; color: #14100d; font-weight: bold; text-decoration: none; }
   html:not(.og-js) .njf { display: block; border-top: 1px solid rgba(20,16,13,0.25); }
   html:not(.og-js) .njf > summary { display: flex; align-items: center; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; color: #14100d; cursor: pointer; }
 }

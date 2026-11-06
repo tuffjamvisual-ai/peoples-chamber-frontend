@@ -22,7 +22,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const pageNum = Math.max(1, parseInt((await searchParams).page || '1', 10) || 1);
   return {
     title: 'Commons Divisions',
-    description: 'Every recorded vote in the House of Commons since March 2016, newest first, with how the House divided on each.',
+    description: 'Recorded votes in the House of Commons back to October 2004, with how the House divided on each.',
     alternates: { canonical: pageNum > 1 ? `/divisions?page=${pageNum}` : '/divisions' },
   };
 }
@@ -82,7 +82,7 @@ export default async function DivisionsIndexPage({
           Commons Divisions
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK }}>
-          Every recorded vote in the House of Commons since March 2016, newest first. Open any division to see how every MP voted.
+          Every recorded vote in the House of Commons since March 2016, newest first. Open any division to see how every MP voted. Votes from October 2004 to March 2016 are on the year pages.
         </p>
       </header>
 

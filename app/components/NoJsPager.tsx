@@ -11,6 +11,7 @@ import { cloneElement, type ReactElement, type ReactNode } from 'react';
 //   rows   the path from the list to the rows: "> tbody > tr", "> li", "> *"
 //   items  instead of a list: the rows are siblings of this pager, each with className `njp-i-<id>` (njpItem), and `children` is left out
 //   sizes  rows on each screen, where they vary in height (debate speeches): replaces `size`, and is what pagesByHeight returns
+//   always pages on phones with JavaScript on as well, for a list the phone script leaves alone, such as one inside a fold
 export const njpItem = (id: string) => `njp-i-${id}`;
 
 // How many rows fit on each screen, from each row's height, so that long rows get fewer companions.
@@ -25,13 +26,13 @@ export function pagesByHeight(heights: number[], room: number): number[] {
   return sizes;
 }
 
-export default function NoJsPager({ id, count, rows, size = 25, sizes, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; children?: ReactElement<{ className?: string }> }) {
+export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; children?: ReactElement<{ className?: string }> }) {
   const split = sizes ?? Array.from({ length: Math.ceil(count / size) }, () => size);
   if (split.length <= 1) return <>{children}</>;
   const pages = split.length;
   const nums = Array.from({ length: pages }, (_, i) => i + 1);
   const upTo = (k: number) => split.slice(0, k).reduce((a, b) => a + b, 0);   // rows on screens 1 to k
-  const on = 'html:not(.og-js)';
+  const on = always ? 'html' : 'html:not(.og-js)';
   const list = `njp-l-${id}`;
   const item = njpItem(id);
   const row = rows ? `.${list} ${rows}` : `.${item}`;
@@ -47,17 +48,17 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, children 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `@media (max-width:639.98px){${css}}` }} />
-      {nums.map((k) => <i key={k} id={`${id}-p${k}`} className="njp-a" />)}
+      {nums.map((k) => <i key={k} id={`${id}-p${k}`} className={always ? 'njp-a njp-on' : 'njp-a'} />)}
       {children ? cloneElement(children, { className: [children.props.className, list].filter(Boolean).join(' ') }) : null}
-      {children && nums.map((k) => <PagerNav key={k} id={id} k={k} pages={pages} />)}
+      {children && nums.map((k) => <PagerNav key={k} id={id} k={k} pages={pages} always={always} />)}
     </>
   );
 }
 
-function PagerNav({ id, k, pages }: { id: string; k: number; pages: number }) {
+function PagerNav({ id, k, pages, always = false }: { id: string; k: number; pages: number; always?: boolean }) {
   return (
     // A div, not a nav: the phone script's section folds stop at a NAV.
-    <div role="navigation" className={`njp-nav njp-n-${id}-${k}`} aria-label="Pages">
+    <div role="navigation" className={`njp-nav${always ? ' njp-on' : ''} njp-n-${id}-${k}`} aria-label="Pages">
       {k > 1 ? <a href={`#${id}-p${k - 1}`}>Previous</a> : <span />}
       <span>Page {k} of {pages}</span>
       {k < pages ? <a href={`#${id}-p${k + 1}`}>Next</a> : <span />}

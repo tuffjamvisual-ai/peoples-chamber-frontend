@@ -7,6 +7,7 @@ import BackLink from '../../../components/BackLink';
 import Pagination from '../../../components/Pagination';
 import { divisionHref, divisionYears, yearCount, yearDivisions, yearHref } from '@/lib/division-links';
 import DivisionYearLinks from '../../DivisionYearLinks';
+import { ARCHIVE_LAST_YEAR, ARCHIVE_NOTE } from '@/lib/historic-archive';
 
 // /divisions/year/<yyyy> (owner, 31 Oct 2026): every Commons division in one year, newest first, 100 a page, as plain
 // links, so each division page is two clicks from /divisions (Search Console: most division pages were found only in
@@ -71,6 +72,7 @@ export default async function DivisionYearPage({ params, searchParams }: { param
           Every recorded vote in the House of Commons in {year}, newest first. Open any vote to see how every MP voted.{' '}
           <Link href="/divisions" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>All divisions</Link>
         </p>
+        {year <= ARCHIVE_LAST_YEAR && <p style={{ fontSize: '15px', lineHeight: 1.6, maxWidth: '720px', color: INK, marginTop: '10px' }}>{ARCHIVE_NOTE}</p>}
       </header>
 
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px' }}>

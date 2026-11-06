@@ -33,7 +33,7 @@ export const NAV: NavItem[] = [
     { group: 'Parliament', label: 'Commons Debates', href: '/debates', desc: 'Every debate held in the House of Commons this Parliament, by date and section.' },
     { group: 'Parliament', label: 'Early Day Motions', href: '/edms', desc: 'Every early day motion tabled in the House of Commons this Parliament, with its text, sponsors, signatures and amendments.' },
     { group: 'Parliament', label: 'Petitions', href: '/petitions', desc: 'Every UK Parliament petition this Parliament with 10,000 signatures or more: the government response, any debate, and signatures by constituency.' },
-    { group: 'Parliament', label: 'Divisions', href: '/divisions', desc: 'Every recorded vote in the House of Commons since March 2016, with how the House divided.' },
+    { group: 'Parliament', label: 'Divisions', href: '/divisions', desc: 'Recorded votes in the House of Commons back to October 2004, with how the House divided.' },
     { group: 'Parliament', label: 'Press Releases', href: '/transparency/press-releases', desc: 'UK Government department press releases from 2007 to today, plus Commons select committee reports.' },
     { group: 'Parliament', label: 'Laws', href: '/laws', desc: 'Acts of the UK Parliament that have received Royal Assent, with original sponsor and stage history.' },
     { group: 'Parliament', label: 'Laws Made Without a Vote', href: '/laws/made-without-a-vote', desc: PAGE_DESCRIPTIONS['/laws/made-without-a-vote'] },

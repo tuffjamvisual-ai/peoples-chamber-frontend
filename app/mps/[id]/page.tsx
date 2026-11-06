@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { lookupMember, parliamentMemberUrl } from '@/lib/former-mps';
 import FormerMpProfile from './FormerMpProfile';
+import HistoricRecord from './HistoricRecord';
 import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
 import { getPeer } from '@/lib/lords';
@@ -859,6 +860,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         <>
         {edmsTop && (edmsTop.tabled.length > 0 || edmsTop.signed.length > 0) && <MpEdmsSection top={edmsTop} memberId={memberId} />}
         {petitionsTop && petitionsTop.petitions.length > 0 && constituencyGss && <ConstituencyPetitions top={petitionsTop} gss={constituencyGss} />}
+        <HistoricRecord memberId={memberId} />
         {/* Newsletter sign-up at the end of the profile, for readers who are not signed in (report 81). */}
         <ArticleEndSignup source="data-mp-profile" line={DATA_SIGNUP_LINE} />
         {/* The compact Related line, last of the visible content (owner's brief, 3 Nov 2026; lib/related-links.ts). */}

@@ -5,6 +5,7 @@
 // Every read uses an index: commons_divisions_fts and commons_division_totals on (date, number), mp_division_votes on
 // bill_id. No full-table reads.
 import { supabase } from '@/lib/supabase';
+import { ARCHIVE_FIRST_YEAR, ARCHIVE_LAST_YEAR, archiveYearCount, archiveYearRows } from './historic-archive';
 
 export type DivisionRef = { date: string; number: number; title: string };
 export type YearDivision = DivisionRef & { ayes: number | null; noes: number | null };
@@ -22,6 +23,10 @@ const ref = (r: { division_date_only: string; division_number: number; division_
 // The years that have divisions, oldest first: the first and last division's years, then every year between that has
 // at least one (one indexed count per year, 11 years today).
 export async function divisionYears(): Promise<number[]> {
+  return [...new Set([...Array.from({ length: ARCHIVE_LAST_YEAR - ARCHIVE_FIRST_YEAR + 1 }, (_, i) => ARCHIVE_FIRST_YEAR + i), ...(await currentYears())])].sort((a, b) => a - b);
+}
+
+async function currentYears(): Promise<number[]> {
   const [first, last] = await Promise.all([
     supabase.from('commons_divisions_fts').select('division_date_only').order('division_date_only', { ascending: true }).limit(1).maybeSingle(),
     supabase.from('commons_divisions_fts').select('division_date_only').order('division_date_only', { ascending: false }).limit(1).maybeSingle(),
@@ -31,12 +36,17 @@ export async function divisionYears(): Promise<number[]> {
   const from = Number(String(first.data.division_date_only).slice(0, 4));
   const to = Number(String(last.data.division_date_only).slice(0, 4));
   const years = Array.from({ length: to - from + 1 }, (_, i) => from + i);
-  const counts = await Promise.all(years.map((y) => yearCount(y)));
+  const counts = await Promise.all(years.map((y) => currentYearCount(y)));
   return years.filter((_, i) => counts[i] > 0);
 }
 
 // How many divisions a year has (one indexed count).
 export async function yearCount(year: number): Promise<number> {
+  const [current, archive] = await Promise.all([currentYearCount(year), archiveYearCount(year)]);
+  return current + archive;
+}
+
+async function currentYearCount(year: number): Promise<number> {
   const { count, error } = await supabase.from('commons_divisions_fts').select('division_number', { count: 'exact', head: true })
     .gte('division_date_only', `${year}-01-01`).lte('division_date_only', `${year}-12-31`);
   if (error) throw new Error(`division count ${year}: ${error.message}`);
@@ -45,7 +55,21 @@ export async function yearCount(year: number): Promise<number> {
 
 // One page of a year's divisions, newest first, with their Aye and No totals (commons_division_totals, the figures the
 // division page shows).
+// The current divisions come first in 2016, the one year with both: the archive ends on 8 March 2016, the day before they start.
 export async function yearDivisions(year: number, page: number, perPage: number): Promise<{ rows: YearDivision[]; total: number }> {
+  const from = (page - 1) * perPage;
+  if (year <= ARCHIVE_LAST_YEAR) {
+    const [current, archive] = await Promise.all([currentYearCount(year), archiveYearCount(year)]);
+    const newer = from < current ? (await currentYearDivisions(year, page, perPage)).rows : [];
+    const skip = Math.max(0, from - current);
+    const room = perPage - newer.length;
+    const older = room > 0 && archive > skip ? await archiveYearRows(year, skip, skip + room - 1) : [];
+    return { rows: [...newer, ...older], total: current + archive };
+  }
+  return currentYearDivisions(year, page, perPage);
+}
+
+async function currentYearDivisions(year: number, page: number, perPage: number): Promise<{ rows: YearDivision[]; total: number }> {
   const from = (page - 1) * perPage;
   const { data, count, error } = await supabase.from('commons_divisions_fts')
     .select('division_date_only, division_number, division_title', { count: 'exact' })
@@ -56,7 +80,7 @@ export async function yearDivisions(year: number, page: number, perPage: number)
   if (error && error.code !== 'PGRST103') throw new Error(`divisions in ${year}: ${error.message}`);
   const rows = ((data ?? []) as { division_date_only: string; division_number: number; division_title: string | null }[]).map(ref);
   // Past the last page there are no rows and no count: count the year on its own, so the page can show the last page.
-  if (!rows.length) return { rows: [], total: count ?? (await yearCount(year)) };
+  if (!rows.length) return { rows: [], total: count ?? (await currentYearCount(year)) };
   const newest = rows[0].date, oldest = rows[rows.length - 1].date;
   const { data: totals, error: tErr } = await supabase.from('commons_division_totals')
     .select('division_date, division_number, aye_count, no_count')

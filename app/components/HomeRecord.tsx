@@ -20,6 +20,8 @@ export default async function HomeRecord() {
       <Link href="/edms" prefetch={false} style={link}>every early day motion</Link>, and{' '}
       <Link href="/mps" prefetch={false} style={link}>every MP&rsquo;s votes, questions and interests</Link>.
     </span>,
+    <Link key="votes" href="/divisions/year/2004" prefetch={false} style={link}>Commons votes back to October 2004</Link>,
+    <Link key="register" href="/register-history" prefetch={false} style={link}>Register of Members&rsquo; Financial Interests back to 2000</Link>,
     <Link key="questions" href="/questions" prefetch={false} style={link}>Every written question and answer this Parliament, including corrected answers and what they first said.</Link>,
   ];
   return (
