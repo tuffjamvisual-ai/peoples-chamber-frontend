@@ -1,3 +1,4 @@
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import LastUpdated from '../../components/LastUpdated';
 import Link from 'next/link';
@@ -286,6 +287,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
       )}
 
       {/* Result cards */}
+      <NoJsPager id="roi-rows" count={interests.length} rows="> *" size={10}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {interests.map((row) => {
           const mp = mpsById.get(row.member_id);
@@ -316,6 +318,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
           );
         })}
       </div>
+      </NoJsPager>
 
       {totalPages > 1 && (
         <Pagination

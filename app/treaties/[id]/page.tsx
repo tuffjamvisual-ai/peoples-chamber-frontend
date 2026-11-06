@@ -1,3 +1,4 @@
+import NoJsPager from '@/app/components/NoJsPager';
 import { namedTitle, titleWithin } from '@/lib/seo-title';
 import { treatyPlainName, treatySeoTitle } from '@/lib/treaty-title';
 import type { Metadata } from 'next';
@@ -65,6 +66,7 @@ export default async function TreatyPage({ params }: { params: Promise<{ id: str
       <section aria-labelledby="treaty-committees" style={{ marginBottom: '24px' }}>
         <h2 id="treaty-committees" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', margin: '0 0 8px' }}>Committee work</h2>
         {t.committee_reports?.length ? (
+          <NoJsPager id="treaty-ul" count={(t.committee_reports).length} rows="> li" size={25}>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {t.committee_reports.map((c, i) => (
               <li key={i} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '8px 0', fontSize: '15px', lineHeight: 1.5 }}>
@@ -73,12 +75,14 @@ export default async function TreatyPage({ params }: { params: Promise<{ id: str
               </li>
             ))}
           </ul>
+          </NoJsPager>
         ) : <p style={{ fontSize: '15px' }}>No committee has reported on this treaty.</p>}
       </section>
 
       <section aria-labelledby="treaty-timeline">
         <h2 id="treaty-timeline" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', margin: '0 0 8px' }}>Its path through Parliament</h2>
         {t.timeline?.length ? (
+          <NoJsPager id="treaty-ol" count={(t.timeline).length} rows="> li" size={25}>
           <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {t.timeline.map((s, i) => (
               <li key={i} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '8px 0', fontSize: '15px', lineHeight: 1.5 }}>
@@ -87,6 +91,7 @@ export default async function TreatyPage({ params }: { params: Promise<{ id: str
               </li>
             ))}
           </ol>
+          </NoJsPager>
         ) : <p style={{ fontSize: '15px' }}>The timeline for this treaty has not been read yet. It is added within a few days.</p>}
       </section>
 

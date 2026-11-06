@@ -6,6 +6,7 @@
 // narrowed. Each adviser with official background has a button that opens a panel under their row: declared
 // interests word for word (recusals first), the ministers they advised in each yearly list, and ACOBA advice, every
 // item linked to its source.
+import NoJsPager from '@/app/components/NoJsPager';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import PhoneTable from '../../components/PhoneTable';
@@ -157,6 +158,7 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
       </>)}
       <div ref={rootRef} style={{ containerType: 'inline-size' }}>
       <PhoneTable>
+        <NoJsPager id={`spad-${idPrefix}`} count={(shown).length} rows="> tbody > tr" size={25}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK }}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}` }}>
@@ -210,6 +212,7 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
             })}
           </tbody>
         </table>
+        </NoJsPager>
       </PhoneTable>
       </div>
     </>

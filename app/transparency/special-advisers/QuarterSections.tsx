@@ -3,6 +3,7 @@
 // The quarterly returns on /transparency/special-advisers, one quarter at a time (owner, 28 Oct 2026: every quarter is
 // kept from April to June 2026 on). The page's HTML holds every quarter; the latest is shown first, and the selector
 // switches between them in the browser.
+import NoJsPager from '@/app/components/NoJsPager';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
@@ -123,6 +124,7 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
       {gifts.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={sectionH2}>Gifts</h2>
+          <NoJsPager id="q-gifts" count={(gifts).length} rows="> tbody > tr" size={25}>
           <table style={tableStyle}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -149,12 +151,14 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
               ))}
             </tbody>
           </table>
+          </NoJsPager>
         </section>
       )}
 
       {hosps.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={sectionH2}>Hospitality</h2>
+          <NoJsPager id="q-hosp" count={(hosps).length} rows="> tbody > tr" size={25}>
           <table style={tableStyle}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -179,12 +183,14 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
               ))}
             </tbody>
           </table>
+          </NoJsPager>
         </section>
       )}
 
       {meets.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={sectionH2}>Meetings with senior media figures</h2>
+          <NoJsPager id="q-meets" count={(meets).length} rows="> tbody > tr" size={25}>
           <table style={tableStyle}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -209,6 +215,7 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
               ))}
             </tbody>
           </table>
+          </NoJsPager>
         </section>
       )}
 

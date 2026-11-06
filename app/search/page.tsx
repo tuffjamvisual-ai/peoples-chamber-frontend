@@ -1,3 +1,4 @@
+import NoJsPager from '@/app/components/NoJsPager';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
@@ -430,9 +431,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
             {allResults.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+ results` : `${results.length} result${results.length === 1 ? '' : 's'}`}
             {type !== 'all' && ` · ${type === 'editorial' || type === 'briefing' ? 'Reports' : TYPE_META[type]?.label ?? type} only`}
           </p>
+          <NoJsPager id="results-rows" count={(results).length} rows="> li" size={25}>
           <ol id="results-all" data-own-more style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {results.map((r, i) => <ResultRow key={i} r={r} />)}
           </ol>
+          </NoJsPager>
           <PhoneMore selector="#results-all" total={results.length} step={10} />
         </section>
       )}

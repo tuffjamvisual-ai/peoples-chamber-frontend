@@ -2,6 +2,7 @@
 // Reads ministerial_directions (migration 2026-10-20a), loaded by scripts/import-ministerial-directions.js.
 // Grouped by year given (publication year where the letter shows no date), newest first.
 
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -79,6 +80,8 @@ export default async function MinisterialDirectionsPage() {
           <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 10px' }}>
             {y} · {byYear.get(y)!.length}
           </h2>
+          <NoJsFold id={`mf-${y}`} label={`${byYear.get(y)!.length} directions`} open={y === years[0]}>
+          <NoJsPager id={`md-${y}`} count={(byYear.get(y)!).length} rows="> li" size={15}>
           <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {byYear.get(y)!.map((d) => (
               <li key={d.slug} style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, padding: '12px 0' }}>
@@ -96,6 +99,8 @@ export default async function MinisterialDirectionsPage() {
               </li>
             ))}
           </ol>
+          </NoJsPager>
+          </NoJsFold>
         </section>
       ))}
 

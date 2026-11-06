@@ -13,6 +13,7 @@
 // notices give each change a new contract id, so a change joins the contract whose latest value equals the
 // change's old value, for the same supplier; one that matches nothing is shown as its own contract.
 
+import NoJsPager, { NoJsPagerLinks, njpItem } from '@/app/components/NoJsPager';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -191,10 +192,11 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
         )}
       </header>
 
+      <NoJsPager id="contract-histories" count={histories.length} size={10} />
       {histories.map((h) => {
         const latestValue = h.changes.length ? h.changes[h.changes.length - 1].newValue : null;
         return (
-          <section key={h.key} style={{ marginBottom: '28px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '18px' }}>
+          <section key={h.key} className={njpItem('contract-histories')} style={{ marginBottom: '28px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '18px' }}>
             <h2 style={sectionH2}>{h.title || title}{h.suppliers.length ? ` · ${h.suppliers.length > 3 ? `${h.suppliers.length} suppliers` : h.suppliers.join(', ')}` : ''}</h2>
             {h.awarded && (
               h.awarded.type === 'framework_maximum'
@@ -206,6 +208,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
             {h.changes.length > 0 && (
               <>
                 <h3 style={h3}>Changes</h3>
+                <NoJsPager id={`ch-${h.key}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(h.changes).length} rows="> li" size={25}>
                 <ul style={list}>
                   {h.changes.map((c) => (
                     <li key={c.url} style={{ marginBottom: '8px' }}>
@@ -219,6 +222,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
                     </li>
                   ))}
                 </ul>
+                </NoJsPager>
                 {latestValue != null && <p style={figure}><strong>Latest published value: {gbp(latestValue)}</strong></p>}
               </>
             )}
@@ -235,6 +239,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
           </section>
         );
       })}
+      <NoJsPagerLinks id="contract-histories" count={histories.length} size={10} />
 
       <section style={{ marginBottom: '24px' }}>
         <h2 style={sectionH2}>Performance</h2>
@@ -245,6 +250,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
 
       <section style={{ marginBottom: '24px' }}>
         <h2 style={sectionH2}>Every notice</h2>
+        <NoJsPager id="contract-notices" count={(timeline).length} rows="> li" size={25}>
         <ul style={list}>
           {timeline.map((n) => (
             <li key={n.release_id} style={{ marginBottom: '6px' }}>
@@ -253,6 +259,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
             </li>
           ))}
         </ul>
+        </NoJsPager>
       </section>
 
       <p style={{ fontSize: '15px' }}>Source: Find a Tender, each line linked to its notice. Values are as each notice published them and are never added together.</p>

@@ -1,6 +1,7 @@
 // /organisations/[slug]/[dataset]: every donation, contract or grant linked to one organisation by Companies House
 // number (report 71), newest first, all on one page (the longest list is 53 records). Meetings and lobbying are listed in full on /lobbying/<slug>.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -65,6 +66,7 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
         </p>
       </header>
 
+      <NoJsPager id="org-rows" count={(shown as unknown[]).length} rows="> li" size={25}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0, borderTop: `1px solid ${HAIRLINE}`, fontFamily: FONT }}>
         {dataset === 'donations' && (shown as Awaited<ReturnType<typeof getOrgDonations>>).map((d) => (
           <li key={d.id} style={item}>
@@ -93,6 +95,7 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
           </li>
         ))}
       </ol>
+      </NoJsPager>
 
       <p style={{ ...para, marginTop: '24px' }}><Link href={`/organisations/${org.slug}`} style={{ color: ACCENT }}>Back to {org.name}</Link></p>
     </OpenGovShell>

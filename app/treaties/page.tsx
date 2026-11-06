@@ -1,3 +1,4 @@
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
@@ -52,6 +53,7 @@ export default async function TreatiesPage({ searchParams }: { searchParams: Pro
       <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 12px' }}>{total.toLocaleString('en-GB')} treaties{pages > 1 ? `, page ${page} of ${pages}` : ''}</p>
       {rows.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px' }}>No treaties found.</p>}
 
+      <NoJsPager id="treaties-rows" count={(rows).length} rows="> li" size={20}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {rows.map((t) => (
           <li key={t.api_id} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' }}>
@@ -68,6 +70,7 @@ export default async function TreatiesPage({ searchParams }: { searchParams: Pro
           </li>
         ))}
       </ol>
+      </NoJsPager>
 
       {pages > 1 && (
         <nav aria-label="Pagination" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '28px', fontFamily: MONO, fontSize: '15px' }}>

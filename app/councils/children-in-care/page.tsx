@@ -3,6 +3,7 @@
 // explainer of what "looked after" means, from DfE's release. Compared with England only. Data:
 // council_children_in_care (migration 2026-10-28g), wording in lib/children-in-care.ts.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
@@ -106,6 +107,7 @@ export default async function ChildrenInCarePage() {
 
         <section style={section}>
           <h2 style={h2}>Rate per 10,000 children</h2>
+          <NoJsPager id="cic-a" count={(byRate).length} rows="> tbody > tr" size={15}>
           <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
             <thead>
               <tr>
@@ -126,11 +128,13 @@ export default async function ChildrenInCarePage() {
               ))}
             </tbody>
           </table>
+          </NoJsPager>
           <p style={{ ...para, marginTop: '10px' }}>Children looked after at {asAt(latest)}. England: {rateText(eng)}.</p>
         </section>
 
         <section style={section}>
           <h2 style={h2}>Change on the year</h2>
+          <NoJsPager id="cic-b" count={(byChange).length} rows="> tbody > tr" size={15}>
           <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
             <thead>
               <tr>
@@ -154,6 +158,7 @@ export default async function ChildrenInCarePage() {
               })}
             </tbody>
           </table>
+          </NoJsPager>
           <p style={{ ...para, marginTop: '10px' }}>England: {pctChangeText(change(eng, engPrev))}. A small council&rsquo;s percentage can move a lot with a few children.</p>
         </section>
 

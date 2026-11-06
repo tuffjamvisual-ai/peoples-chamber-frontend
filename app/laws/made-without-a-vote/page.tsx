@@ -1,3 +1,4 @@
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -101,6 +102,7 @@ export default async function MadeWithoutAVotePage({ searchParams }: { searchPar
       </p>
       {rows.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px' }}>No instruments match these filters.</p>}
 
+      <NoJsPager id="mwv-rows" count={(rows).length} rows="> li" size={25}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {rows.map((r) => (
           <li key={r.api_id} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' }}>
@@ -124,6 +126,7 @@ export default async function MadeWithoutAVotePage({ searchParams }: { searchPar
           </li>
         ))}
       </ol>
+      </NoJsPager>
 
       {pages > 1 && (
         <nav aria-label="Pagination" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '28px', fontFamily: MONO, fontSize: '15px' }}>

@@ -1,5 +1,6 @@
 'use client'
 
+import NoJsPager from '@/app/components/NoJsPager';
 import Link from 'next/link'
 import { useMemo } from 'react'
 import PhoneMore from '../../components/PhoneMore'
@@ -125,6 +126,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
         </p>
       ) : section === 'revolving-door' ? (
         <>
+          <NoJsPager id="tr-revolving" count={(rows).length} rows="> li" size={25}>
           <ul id="revolving-list" data-own-more className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const personName = (row.person_name as string) || '(unknown)'
@@ -157,10 +159,12 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
+          </NoJsPager>
           <PhoneMore selector="#revolving-list" total={rows.length} />
         </>
       ) : section === 'ministers-meetings' ? (
         <>
+          <NoJsPager id="tr-meetings" count={(rows).length} rows="> li" size={25}>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const minister = (row.minister_name as string) || '(unknown minister)'
@@ -189,9 +193,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
+          </NoJsPager>
         </>
       ) : section === 'hospitality' ? (
         <>
+          <NoJsPager id="tr-hospitality" count={(rows).length} rows="> li" size={25}>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const minister = (row.minister_name as string) || '(unknown minister)'
@@ -227,8 +233,10 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
+          </NoJsPager>
         </>
       ) : section === 'donations' ? (
+        <NoJsPager id="tr-donations" count={(rows).length} rows="> li" size={25}>
         <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
           {rows.map((row, i) => {
             const recipient = (row.recipient_name as string) || '(unknown recipient)'
@@ -367,8 +375,10 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             )
           })}
         </ul>
+        </NoJsPager>
       ) : section === 'contracts' ? (
         <>
+          <NoJsPager id="tr-contracts" count={(rows).length} rows="> li" size={15}>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const title       = (row.title as string | null) || '(untitled)'
@@ -431,9 +441,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
+          </NoJsPager>
         </>
       ) : (
         <>
+          <NoJsPager id="tr-appgs" count={(rows).length} rows="> li" size={10}>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const { key: titleKey, value: titleValue } = pickTitle(row)
@@ -466,6 +478,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
+          </NoJsPager>
         </>
       )}
     </>

@@ -8,6 +8,7 @@
 //     quarterly tables, from /api/sync-spad-transparency, weekly). Every quarter is kept from April to June 2026
 //     on; QuarterSections shows one at a time with a selector, the latest first.
 
+import { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -180,6 +181,7 @@ export default async function SpecialAdvisersPage() {
             Declared interests are published by each department, not by the adviser. Every special adviser declares their interests to the permanent secretary of their department, who decides which are relevant enough to publish and how any conflict is managed, for example by a recusal: the adviser stays out of the matters named. The Cabinet Office publishes its advisers&rsquo; interests separately each year; most other departments print them inside their annual report and accounts. Each entry below is quoted word for word and linked to the document it comes from.
           </p>
           {!known && <SpadRosterTable rows={appointments} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="a" />}
+          <NoJsFold id="spf-posts" label="Each Cabinet post and its advisers">
           {known && (
             <>
               <h3 style={groupH3}>Each Cabinet post, with today&rsquo;s minister</h3>
@@ -212,6 +214,7 @@ export default async function SpecialAdvisersPage() {
               </p>
             </>
           )}
+          </NoJsFold>
 
           {formerRows.length > 0 && (
             <details style={{ margin: '8px 0 0' }}>
@@ -227,7 +230,9 @@ export default async function SpecialAdvisersPage() {
       )}
 
       <h2 style={{ ...sectionH2, fontSize: '22px', color: ACCENT }}>Quarterly declarations</h2>
+      <NoJsFold id="spf-quarters" label="Declared gifts, hospitality and media meetings, by quarter">
       <QuarterSections quarters={quarters} roster={roster} gifts={gifts} hosps={hosps} meets={meets} deptSlugs={deptSlugs} />
+      </NoJsFold>
 
       <SeeAlso links={[
         { href: '/transparency/revolving-door', label: 'Revolving Door', note: 'Former ministers and officials taking outside jobs, and the conditions attached' },

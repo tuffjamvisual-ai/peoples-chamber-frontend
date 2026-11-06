@@ -9,6 +9,7 @@
 // loaded (the one English-return overflow in Wales would otherwise appear as a
 // misleading partial count).
 
+import NoJsPager from '@/app/components/NoJsPager';
 import { getAreaTotals, latestYears, getCouncilOverflows, getCouncilRefs, rankByHours, countyTotals, isCoveredCode, nationOfCode, fmtInt, fmtHours, ordinal } from '@/lib/sewage';
 import type { Overflow, AreaTotal } from '@/lib/sewage';
 import type { CSSProperties } from 'react';
@@ -88,6 +89,7 @@ export default async function CouncilSewageSection({
 
   const overflowTable = (rows: Overflow[]) => (
     <div style={{ overflowX: 'auto', marginBottom: '12px' }}>
+      <NoJsPager id="sew-rows" count={(rows).length} rows="> tbody > tr" size={25}>
       <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%', minWidth: '520px' }}>
         <thead>
           <tr>
@@ -115,6 +117,7 @@ export default async function CouncilSewageSection({
           ))}
         </tbody>
       </table>
+      </NoJsPager>
     </div>
   );
 

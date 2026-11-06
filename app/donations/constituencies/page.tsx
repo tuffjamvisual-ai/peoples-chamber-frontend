@@ -12,6 +12,7 @@
 // The EC's official search has no pivot for accounting_unit_name.
 // This page assembles it.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
@@ -155,6 +156,7 @@ export default async function ConstituencyDonationsPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Top 200 constituency associations by total received</h2>
+        <NoJsPager id="dcs-rows" count={(constituencies).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -188,6 +190,7 @@ export default async function ConstituencyDonationsPage() {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
 </OpenGovShell>

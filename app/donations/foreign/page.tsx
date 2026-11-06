@@ -14,6 +14,7 @@
 // abroad. That is not the same as illegal foreign interference. The
 // pattern remains politically interesting.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
@@ -107,6 +108,7 @@ export default async function ForeignDonationsPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By country · {countries.length}</h2>
+        <NoJsPager id="foreig-0" count={(countries).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -133,10 +135,12 @@ export default async function ForeignDonationsPage() {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
       <section>
         <h2 style={sectionH2}>Largest single donations from foreign addresses</h2>
+        <NoJsPager id="foreig-1" count={(topSingle).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -163,6 +167,7 @@ export default async function ForeignDonationsPage() {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
 </OpenGovShell>

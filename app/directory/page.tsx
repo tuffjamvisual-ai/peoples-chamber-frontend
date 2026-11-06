@@ -1,6 +1,7 @@
 // /directory: everything on Open Govt, A to Z (owner, 27 Oct 2026). The whole list is in the page's HTML, so it works
 // without JavaScript and search engines read it; DirectoryFilter only narrows what is already there, in the browser.
 // The entries come from lib/directory.ts; scripts/checks/directory-coverage.ts lists any reader facing page missing.
+import { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
@@ -78,6 +79,7 @@ export default function DirectoryPage() {
                 <span className="dir-mark" aria-hidden="true">▾</span>
               </button>
             </h2>
+            <NoJsFold id={`df-${l === '#' ? 'other' : l}`} label={`${groups.get(l)!.length} ${groups.get(l)!.length === 1 ? 'page' : 'pages'}`}>
             <ul data-own-more style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {groups.get(l)!.map((e) => (
                 <li key={`${e.name}|${e.href}`} className="dir-entry" data-entry={`${e.name} ${e.desc}`.toLowerCase()} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '9px 0' }}>
@@ -86,6 +88,7 @@ export default function DirectoryPage() {
                 </li>
               ))}
             </ul>
+            </NoJsFold>
             <PhoneMore selector={`#directory-list:not(.pm-all) section[data-letter="${l}"] > ul`} total={groups.get(l)!.length} />
           </section>
         ))}

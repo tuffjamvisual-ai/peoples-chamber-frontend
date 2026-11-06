@@ -10,6 +10,7 @@
 // Liberal Club); others are modern opaque vehicles. The page makes
 // no editorial claim about which is which — it just surfaces them.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -100,6 +101,7 @@ export default async function TrustFundedPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Trusts by lifetime giving · {ranked.length}</h2>
+        <NoJsPager id="trustf-0" count={(ranked).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -130,10 +132,12 @@ export default async function TrustFundedPage() {
             })}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
       <section>
         <h2 style={sectionH2}>Most recent trust donations</h2>
+        <NoJsPager id="trustf-1" count={(recent).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -158,6 +162,7 @@ export default async function TrustFundedPage() {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
 </OpenGovShell>

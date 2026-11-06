@@ -7,6 +7,7 @@
 // thin — political_control, leader, budget etc. will land in
 // follow-up phases. The listing is the foundation.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import LastUpdated from '../components/LastUpdated';
 import { supabase } from '@/lib/supabase';
@@ -152,6 +153,7 @@ export default async function CouncilsIndex() {
                       <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '8px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
                         {items[0].type_label}{items.length > 1 ? 's' : ''} · {items.length}
                       </div>
+                      <NoJsPager id={`njp-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, "-")} count={(items).length} rows="> li" size={25}>
                       <ul
                         data-own-more
                         id={`councils-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}
@@ -183,6 +185,7 @@ export default async function CouncilsIndex() {
                           </li>
                         ))}
                       </ul>
+                      </NoJsPager>
                       <PhoneMore selector={`#${`councils-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}`} total={items.length} />
                     </div>
                   );

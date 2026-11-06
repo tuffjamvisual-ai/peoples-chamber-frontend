@@ -1,5 +1,6 @@
 'use client'
 
+import NoJsPager from '@/app/components/NoJsPager';
 import { billSummary } from '@/lib/bill-summary';
 
 import { useState, useMemo, useEffect } from 'react'
@@ -122,6 +123,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
         </div>
       ) : (
         <>
+          <NoJsPager id="laws-rows" count={paginated.length} rows="> *" size={10}>
           <div
             style={{
               display: 'grid',
@@ -138,6 +140,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
               />
             ))}
           </div>
+          </NoJsPager>
 
           {totalPages > 1 && (
             <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl={pathname} />

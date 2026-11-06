@@ -1,3 +1,4 @@
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -76,6 +77,7 @@ export default async function DivisionYearPage({ params, searchParams }: { param
         Showing {first.toLocaleString()} to {(first + rows.length - 1).toLocaleString()} of {total.toLocaleString()} votes in {year}
       </p>
 
+      <NoJsPager id="dy-rows" count={(rows).length} rows="> li" size={25}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {rows.map((d) => (
           <li key={`${d.date}-${d.number}`} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '10px 0' }}>
@@ -87,6 +89,7 @@ export default async function DivisionYearPage({ params, searchParams }: { param
           </li>
         ))}
       </ol>
+      </NoJsPager>
 
       <Pagination currentPage={page} totalPages={totalPages} baseUrl={`/divisions/year/${year}`} />
 

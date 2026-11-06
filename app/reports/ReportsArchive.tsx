@@ -1,5 +1,6 @@
 'use client';
 
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import ContinueToArticle from '../components/ContinueToArticle';
@@ -164,6 +165,8 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
               <h2 style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 'bold', color: INK, borderBottom: `1px solid ${INK_HAIRLINE}`, padding: mi === firstShownMonth ? '0 0 8px' : '28px 0 8px', margin: 0 }}>
                 {m.label}
               </h2>
+              <NoJsFold id={`rf-${m.key}`} label={`${m.idx.length} ${m.idx.length === 1 ? 'report' : 'reports'}`} open={mi === 0}>
+              <NoJsPager id={`rm-${m.key}`} count={m.idx.length} rows="> a" size={12}>
               <div className="reports-month-grid">
                 {m.idx.map((i) => {
                   const e = items[i];
@@ -190,6 +193,8 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
                   );
                 })}
               </div>
+              </NoJsPager>
+              </NoJsFold>
             </section>
           );
         })}

@@ -10,6 +10,7 @@
 // direct-bank-transfer donations where permissibility couldn't be
 // verified inside the 30-day statutory window.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -122,6 +123,7 @@ export default async function ImpermissiblePage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By reason</h2>
+        <NoJsPager id="imperm-0" count={(reasonsRanked).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -140,10 +142,12 @@ export default async function ImpermissiblePage() {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Recipients caught accepting impermissible most often</h2>
+        <NoJsPager id="imperm-1" count={(recipientRanked).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -164,10 +168,12 @@ export default async function ImpermissiblePage() {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
       <section>
         <h2 style={sectionH2}>Largest impermissible donations</h2>
+        <NoJsPager id="imperm-2" count={(largest).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -194,6 +200,7 @@ export default async function ImpermissiblePage() {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
 </OpenGovShell>

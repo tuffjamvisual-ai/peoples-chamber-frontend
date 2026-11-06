@@ -4,6 +4,7 @@
 // shows 50 at a time, so the page stays small. /recommendations?department=<department page slug> opens it filtered
 // to every body on that department's page (the department tab's link); ?department=<body key> opens it filtered to
 // that body (a cross referenced body's "Also" link), with the body's note when it has one.
+import NoJsPager from '@/app/components/NoJsPager';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
@@ -149,7 +150,8 @@ export default function RecommendationList({ reports, rows, departmentOptions, s
         </label>
       </div>
       {note && <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 12px', maxWidth: '46em' }}>{note}</p>}
-      <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+      <NoJsPager id="rec-rows" count={shown.length} rows="> li" size={25}>
+<ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {shown.map(([key, rec, , words]) => {
           const r = reports[key];
           return (
@@ -166,6 +168,7 @@ export default function RecommendationList({ reports, rows, departmentOptions, s
           );
         })}
       </ol>
+</NoJsPager>
       {matching.length === 0 && <p style={{ fontSize: '16px', color: INK }}>No recommendations match these filters.</p>}
       {matching.length > limit && (
         <button type="button" onClick={() => setLimit(limit + PAGE)} style={{ marginTop: '14px', fontSize: '16px', color: INK, background: 'transparent', border: '1px solid rgba(20,16,13,0.4)', padding: '8px 14px', cursor: 'pointer' }}>

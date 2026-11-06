@@ -4,6 +4,7 @@
 // left out of the rankings and listed with DfT's warning. England is DfT's figure as published. Data:
 // council_road_condition (migration 2026-10-28g), wording in lib/road-condition.ts.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
@@ -109,6 +110,7 @@ export default async function RoadConditionPage() {
           return (
             <section key={t.key} style={section}>
               <h2 style={h2}>{t.label}</h2>
+              <NoJsPager id={`rc-${t.key}`} count={(ranked).length} rows="> tbody > tr" size={8}>
               <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
                 <thead>
                   <tr>
@@ -132,6 +134,7 @@ export default async function RoadConditionPage() {
                   })}
                 </tbody>
               </table>
+              </NoJsPager>
               <p style={{ ...para, marginTop: '10px' }}>
                 Lowest share of red road first, {fye(latest)}; change in percentage points on {fye(prevYear)}. England: {valueText(eng, t.field)}.
                 {t.key === 'u' ? ' Councils survey unclassified roads in different ways, so DfT advises caution comparing them.' : ''}

@@ -4,6 +4,7 @@
 // assessed by the council, from DfT's table notes, and England's lost and stolen badges (the only lost and stolen
 // figures DfT now publishes). Data: council_blue_badges (migration 2026-10-28d), wording in lib/blue-badges.ts.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
@@ -130,6 +131,7 @@ export default async function BlueBadgesPage() {
         <section style={section}>
           <h2 style={h2}>Share of residents holding a badge</h2>
           {/* Phones (under 768px): one card per council (phone-table.css .pt-cards); four columns did not fit 320px. */}
+            <NoJsPager id="bb-a" count={(byShare).length} rows="> tbody > tr" size={15}>
             <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
               <thead>
                 <tr>
@@ -150,12 +152,14 @@ export default async function BlueBadgesPage() {
                 ))}
               </tbody>
             </table>
+            </NoJsPager>
           <p style={{ ...para, marginTop: '10px' }}>Badges held at {asAt(latest)}. England: {shareText(eng)}.</p>
         </section>
 
         <section style={section}>
           <h2 style={h2}>Change on the year</h2>
           {/* Phones: one card per council, as above. */}
+            <NoJsPager id="bb-b" count={(byChange).length} rows="> tbody > tr" size={15}>
             <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
               <thead>
                 <tr>
@@ -179,6 +183,7 @@ export default async function BlueBadgesPage() {
                 })}
               </tbody>
             </table>
+            </NoJsPager>
           <p style={{ ...para, marginTop: '10px' }}>England: {pctChangeText(eng ? change(eng, engPrev) : null)}.</p>
         </section>
 

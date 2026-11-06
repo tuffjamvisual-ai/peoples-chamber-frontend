@@ -1,6 +1,7 @@
 // /organisations: every organisation page (report 71), searchable by name, other spellings or Companies House number.
 // Read from organisation_index (migration 2026-10-27c) through the hour cached list in lib/organisations.ts.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -130,6 +131,7 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
       {!q && list.length === 0 && <p style={{ fontFamily: FONT, fontSize: '15px' }}>No organisation has this connection.</p>}
       {q && list.length === 0 && <p style={{ fontFamily: FONT, fontSize: '15px' }}>No organisation page matches. Try a shorter name, or a donor search on <Link href={`/search?q=${encodeURIComponent(q)}`} style={{ color: ACCENT }}>the site search</Link>.</p>}
 
+      <NoJsPager id="orgs-rows" count={(shown).length} rows="> li" size={25}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0, borderTop: `1px solid ${HAIRLINE}` }}>
         {shown.map((r) => (
           <li key={r.slug} style={{ padding: '10px 0', borderBottom: `1px solid ${HAIRLINE}` }}>
@@ -142,6 +144,7 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
           </li>
         ))}
       </ol>
+      </NoJsPager>
 
       {pages > 1 && (
         <nav aria-label="Pagination" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px', marginTop: '24px', fontFamily: FONT, fontSize: '15px' }}>

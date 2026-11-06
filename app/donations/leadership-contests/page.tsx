@@ -7,6 +7,7 @@
 // official EC search interface doesn't pivot by this column. This
 // page assembles each contest into a single league table.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -131,6 +132,7 @@ export default async function LeadershipContestsPage() {
             <h2 style={sectionH2}>
               {c.contest} <span style={{ fontSize: '15px', marginLeft: '8px' }}>{c.count} donations · &pound;{Math.round(c.total).toLocaleString()}</span>
             </h2>
+            <NoJsPager id={`lc-${c.contest}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(candidates).length} rows="> tbody > tr" size={15}>
             <table style={tableStyle}>
               <thead>
                 <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -158,12 +160,14 @@ export default async function LeadershipContestsPage() {
                 ))}
               </tbody>
             </table>
+            </NoJsPager>
           </section>
         );
       })}
 
       <section>
         <h2 style={sectionH2}>Largest single leadership / mayoral donations</h2>
+        <NoJsPager id="leader-0" count={(top30).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -190,6 +194,7 @@ export default async function LeadershipContestsPage() {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
 </OpenGovShell>

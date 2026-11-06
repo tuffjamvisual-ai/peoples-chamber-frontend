@@ -1,5 +1,6 @@
 'use client';
 
+import NoJsPager from '@/app/components/NoJsPager';
 import Link from 'next/link';
 import { useMemo, useState, type CSSProperties } from 'react';
 import type { PeerListRow } from '@/lib/lords';
@@ -44,6 +45,7 @@ export default function LordsIndex({ peers }: { peers: PeerListRow[] }) {
         </div>
       </div>
       <p aria-live="polite" style={{ fontSize: '15px', margin: '0 0 8px' }}>{shown.length.toLocaleString('en-GB')} member{shown.length === 1 ? '' : 's'}</p>
+      <NoJsPager id="lords-list" count={(shown).length} rows="> li" size={25}>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
         {shown.map((p) => (
           <li key={p.member_id} style={{ padding: '7px 0', borderBottom: '1px dashed rgba(20,16,13,0.2)', display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
@@ -56,6 +58,7 @@ export default function LordsIndex({ peers }: { peers: PeerListRow[] }) {
           </li>
         ))}
       </ul>
+      </NoJsPager>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 // Inverted view of the Electoral Commission register; navigates by
 // donor instead of by recipient.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -108,6 +109,7 @@ export default async function DonorsIndex() {
       <DonorSearch />
 
       {/* Phones (under 768px, report 47): one card per donor (phone-table.css .pt-cards), five columns did not fit. */}
+      <NoJsPager id="donors-rows" count={(top).length} rows="> tbody > tr" size={25}>
       <table className="pt-cards" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -136,6 +138,7 @@ export default async function DonorsIndex() {
           ))}
         </tbody>
       </table>
+      </NoJsPager>
       <PhoneMore selector="#donors-list" total={top.length} />
 
 <section aria-labelledby="public-funding" style={{ marginTop: '32px', borderTop: `2px solid ${INK}`, paddingTop: '16px', fontFamily: 'var(--font-special-elite), monospace' }}>
@@ -143,6 +146,7 @@ export default async function DonorsIndex() {
         <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
           Money from public bodies, recorded by the Electoral Commission alongside donations: parliamentary funding for opposition parties (Short Money and its equivalents in the Lords and devolved parliaments), Electoral Commission policy development grants, and other public payments such as HMRC and council payments. These are not private donors.
         </p>
+        <NoJsPager id="donors-other" count={(publicListed).length} rows="> li" size={25}>
         <ul data-own-more style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '15px' }}>
           {publicListed.map((d) => (
             <li key={d.donor_name} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', columnGap: '12px', padding: '4px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
@@ -153,6 +157,7 @@ export default async function DonorsIndex() {
             </li>
           ))}
         </ul>
+        </NoJsPager>
         {publicOthers > 0 && <p style={{ fontSize: '15px', margin: '12px 0 0' }}>Plus {publicOthers} smaller entries under other names.</p>}
       </section>
     </OpenGovShell>

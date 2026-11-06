@@ -1,6 +1,7 @@
 // /bills/sessions/[id]: every bill in one parliamentary session, Acts, withdrawn and defeated bills included, grouped
 // by what became of it in that session (lib/parliament-sessions.ts sessionBillGroup). A bill carried over appears in
 // each session it sat in. [id] is Parliament's session ID (e.g. 39 = 2024-26).
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -86,6 +87,7 @@ export default async function BillSessionPage({ params }: Props) {
             {g.heading} <span style={{ fontWeight: 'normal', color: INK }}>({groups.get(g.key)!.length.toLocaleString()})</span>
           </h2>
           <p style={{ fontSize: '15px', marginBottom: '8px' }}>{g.note}</p>
+          <NoJsPager id={`bs-${g.key}`} count={(groups.get(g.key)!).length} rows="> li" size={25}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {groups.get(g.key)!.map((b) => {
               const meta = [
@@ -105,6 +107,7 @@ export default async function BillSessionPage({ params }: Props) {
               );
             })}
           </ul>
+          </NoJsPager>
         </section>
       ))}
 

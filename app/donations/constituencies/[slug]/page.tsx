@@ -7,6 +7,7 @@
 // party's unit, and national headquarters units ("Central Party") list each party's national accounts. See
 // lib/association-units.ts.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -148,6 +149,7 @@ export default async function AssociationPage({ params }: PageProps) {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Donor league · {donorRows.length}</h2>
+        <NoJsPager id="dc-a" count={(donorRows).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -174,6 +176,7 @@ export default async function AssociationPage({ params }: PageProps) {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
 </OpenGovShell>
@@ -203,6 +206,7 @@ function UnitChooser({ view }: { view: Extract<AssociationView, { kind: 'chooser
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By party · {view.parties.length}</h2>
+        <NoJsPager id="dc-b" count={(view.parties).length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -223,6 +227,7 @@ function UnitChooser({ view }: { view: Extract<AssociationView, { kind: 'chooser
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
     </OpenGovShell>
   );

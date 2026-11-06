@@ -1,3 +1,4 @@
+import NoJsPager from '@/app/components/NoJsPager';
 import { divisionSeoTitle } from '@/lib/division-title';
 import { titleWithin } from '@/lib/seo-title';
 import { billSummary as officialBillSummary } from '@/lib/bill-summary';
@@ -407,6 +408,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           <p style={{ fontSize: '15px', marginBottom: '12px' }}>
             Walking through both the Aye and No lobbies is a recorded form of deliberate abstention.
           </p>
+          <NoJsPager id="div-both" count={(boths).length} rows="> li" size={25}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
             {boths.map((v) => (
               <li key={v.member_id} style={{ padding: '4px 0' }}>
@@ -417,6 +419,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
               </li>
             ))}
           </ul>
+          </NoJsPager>
         </section>
       )}
 
@@ -498,6 +501,7 @@ function VoteColumn({
             <strong>{g.party}</strong>
             <span >({g.rows.length})</span>
           </div>
+          <NoJsPager id={`dv-${heading.split(" ")[1]}-${g.party}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(g.rows).length} rows="> li" size={25}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
             {g.rows.map((v) => (
               <li key={v.member_id} style={{ padding: '4px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
@@ -513,6 +517,7 @@ function VoteColumn({
               </li>
             ))}
           </ul>
+          </NoJsPager>
         </div>
       ))}
     </div>

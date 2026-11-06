@@ -1,6 +1,7 @@
 // /lobbying/[slug] — one organisation: every published meeting with a minister, and every
 // consultant lobbying firm that named it as a client. Data from lib/lobbying.ts.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -89,6 +90,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
                 .lbo-date { white-space: normal; font-weight: 700; }
               }
             `}</style>
+            <NoJsPager id="lobby-rows" count={(meetings).length} rows="> tbody > tr" size={25}>
             <table className="lbo-table">
               <thead><tr><th>Date</th><th>Minister</th><th>Purpose, as published</th></tr></thead>
               <tbody>
@@ -101,6 +103,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
                 ))}
               </tbody>
             </table>
+            </NoJsPager>
           </>
         )}
 
@@ -108,6 +111,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
         {lobbying.length === 0 ? (
           <p style={para}>Not named as a client of a consultant lobbying firm on the Register of Consultant Lobbyists in the quarters we hold. Lobbying done by an organisation&apos;s own staff does not have to be registered.</p>
         ) : (
+          <NoJsPager id="lobby-list" count={(lobbying).length} rows="> li" size={25}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: `1px solid ${INK_HAIRLINE}`, maxWidth: '46em' }}>
             {lobbying.map((f) => (
               <li key={f.firm} style={{ padding: '10px 2px', borderBottom: `1px solid ${INK_HAIRLINE}`, color: INK }}>
@@ -117,6 +121,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
               </li>
             ))}
           </ul>
+          </NoJsPager>
         )}
 
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontSize: '15px', color: INK, lineHeight: 1.7, maxWidth: '46em' }}>

@@ -4,6 +4,7 @@
 // you search by recipient. It does NOT let you navigate from the donor
 // out. This page does.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -539,6 +540,7 @@ export default async function DonorPage({ params }: PageProps) {
 
       <section style={{ marginBottom: '28px' }}>
         <h2 style={sectionH2}>How the money was split</h2>
+        <NoJsPager id="slug-0" count={(typeRows).length} rows="> tbody > tr" size={10}>
         <table style={tableStyle}>
           <thead>
             <tr style={headerRow}>
@@ -557,6 +559,7 @@ export default async function DonorPage({ params }: PageProps) {
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </section>
 
       {/* What followed (owner, 1 Nov 2026): records only, matched by Companies House number; no commentary. */}
@@ -580,7 +583,8 @@ export default async function DonorPage({ params }: PageProps) {
           {[{ label: null as string | null, rows: followedDated }, { label: 'Date not published', rows: followedUndated }].filter((g) => g.rows.length > 0).map((g) => (
             <div key={g.label ?? 'dated'}>
               {g.label && <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '14px 0 4px' }}>{g.label}</h3>}
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              <NoJsPager id={`followed-${g.label ? "undated" : "dated"}`} count={g.rows.length} rows="> li" size={10}>
+<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {g.rows.map((r) => (
                   <li key={r.key} style={{ padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, overflowWrap: 'anywhere' }}>
                     {r.date && <span style={{ fontFamily: 'monospace', whiteSpace: 'nowrap', marginRight: '8px' }}>{fmtLongDay(r.date)}</span>}
@@ -589,6 +593,7 @@ export default async function DonorPage({ params }: PageProps) {
                   </li>
                 ))}
               </ul>
+</NoJsPager>
             </div>
           ))}
           {followed && followed.orgs.length > 0 && (
@@ -605,6 +610,7 @@ export default async function DonorPage({ params }: PageProps) {
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${WARN}` }}>
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also funds {appgsFunded.length} APPG{appgsFunded.length === 1 ? '' : 's'}</h2>
           <p style={{ fontSize: '15px', marginBottom: '12px' }}>This donor pays the secretariat of these All-Party Parliamentary Groups. Officers of these groups are MPs running a lobby this donor underwrites.</p>
+          <NoJsPager id="donor-appgs" count={(appgsFunded).length} rows="> li" size={10}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
             {appgsFunded.map((a) => (
               <li key={a.slug} style={{ padding: '4px 0' }}>
@@ -613,6 +619,7 @@ export default async function DonorPage({ params }: PageProps) {
               </li>
             ))}
           </ul>
+          </NoJsPager>
         </section>
       )}
 
@@ -621,6 +628,7 @@ export default async function DonorPage({ params }: PageProps) {
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>{matchedContracts.length === 0 ? `On ${matchedFrameworks.length} UK public framework${matchedFrameworks.length === 1 ? '' : 's'}` : `Also holds ${matchedContracts.length} UK public contract${matchedContracts.length === 1 ? '' : 's'}`}{matchedContracts.length === 0 ? '' : unpublishedValues === matchedContracts.length ? ' · values not published' : ` · ${fmtMoney(totalContractValue)}${unpublishedValues ? ` (value not published for ${unpublishedValues})` : ''}`}{matchedFrameworks.length && matchedContracts.length ? ` · on ${matchedFrameworks.length} framework${matchedFrameworks.length === 1 ? '' : 's'}` : ''}</h2>
           <p style={{ fontSize: '15px', marginBottom: '12px' }}>This donor&rsquo;s Companies House number also appears for a supplier on Find a Tender, the government&rsquo;s register of public contracts. Contracts are matched by that number only, never by name; no causal link is implied between the donations on this page and the contracts below.{matchedContracts.length > 0 ? ' Public bodies awarding the work:' : ''}</p>
           {matchedContracts.length > 0 && (
+          <NoJsPager id="slug-1" count={(contractDeptRows).length} rows="> tbody > tr" size={10}>
           <table style={{ ...tableStyle, marginBottom: '8px' }}>
             <thead>
               <tr style={headerRow}>
@@ -645,12 +653,14 @@ export default async function DonorPage({ params }: PageProps) {
               ))}
             </tbody>
           </table>
+          </NoJsPager>
           )}
           {matchedFrameworks.length > 0 && (
             <p style={{ fontSize: '15px', marginBottom: '8px' }}>A framework&rsquo;s value is the most that every supplier on it could be paid: potential value, not spending. Framework values are listed below but are not added to the contract value.</p>
           )}
           <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '17px', fontWeight: 'bold', margin: '16px 0 8px' }}>Each contract{contractRecords.length > 50 ? ` · newest 50 of ${contractRecords.length}` : ''}</h3>
           <div style={{ overflowX: 'auto', marginBottom: '10px' }}>
+            <NoJsPager id="slug-2" count={(contractRecords.slice(0, 50)).length} rows="> tbody > tr" size={10}>
             <table style={{ ...tableStyle, minWidth: '560px' }}>
               <thead>
                 <tr style={headerRow}>
@@ -686,6 +696,7 @@ export default async function DonorPage({ params }: PageProps) {
                 ))}
               </tbody>
             </table>
+            </NoJsPager>
           </div>
           <Link href="/donations/government-contractors" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>See every contractor that also donates &rarr;</Link>
         </section>
@@ -693,6 +704,7 @@ export default async function DonorPage({ params }: PageProps) {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Recipients · top {Math.min(recipientRows.length, 50)}</h2>
+        <NoJsPager id="slug-3" count={(recipientRows.slice(0, 50)).length} rows="> tbody > tr" size={10}>
         <table style={tableStyle}>
           <thead>
             <tr style={headerRow}>
@@ -722,6 +734,7 @@ export default async function DonorPage({ params }: PageProps) {
             })}
           </tbody>
         </table>
+        </NoJsPager>
         {recipientRows.length > 50 && (
           <p style={{ fontSize: '15px', marginTop: '8px' }}>Showing top 50 of {recipientRows.length}.</p>
         )}
@@ -733,6 +746,7 @@ export default async function DonorPage({ params }: PageProps) {
         <h2 style={sectionH2}>Each donation{donations.length > 100 ? ` · newest 100 of ${donations.length}` : ''}</h2>
         {/* Phones (report 47): the date column stays put while the other columns scroll, with a hint when more are out of view. */}
         <PhoneTable sticky={1}>
+<NoJsPager id="donor-each" count={(donations.slice(0, 100)).length} rows="> tbody > tr" size={10}>
           <table style={{ ...tableStyle, minWidth: '600px' }}>
             <thead>
               <tr style={headerRow}>
@@ -770,6 +784,7 @@ export default async function DonorPage({ params }: PageProps) {
               })}
             </tbody>
           </table>
+          </NoJsPager>
         </PhoneTable>
       </section>
 

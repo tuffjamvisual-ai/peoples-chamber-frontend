@@ -1,3 +1,5 @@
+import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem, pagesByHeight } from '@/app/components/NoJsPager';
+import { splitAnswer } from '@/lib/answer-html';
 import { Fragment, cache } from 'react';
 import ReadNext from '../../components/ReadNext';
 import { debateReadNext } from '@/lib/read-next';
@@ -23,6 +25,7 @@ import DebateSummary, { type Speaker, type VoteSummary } from './DebateSummary'
 // per-debate traffic. Speaker names link to their on-site MP profile where we
 // hold one, and the previous/next debate links stay on site.
 export const revalidate = 86400;
+const SPEECH_OPENS = 4000;
 
 export async function generateStaticParams() {
   const { data, error } = await supabase
@@ -255,6 +258,8 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
 
   // Only link speakers we actually hold an MP profile for, so no link 404s.
   const memberIds = [...new Set(groups.map((g) => g.memberId).filter((x): x is number => x != null))];
+  // Screens of speeches on phones with JavaScript off: about 0.7px a character at 375px, plus the speaker's line.
+  const debateScreens = pagesByHeight(groups.map((g) => Math.min(g.html.length, SPEECH_OPENS) * 0.7 + 90), 4000);
   const linkable = new Set<number>();
   // The same one read as before, now with each MP's name, party and constituency for "Who spoke" (owner, 31 Oct 2026).
   const mpInfo = new Map<number, { name: string | null; party: string | null; constituency: string | null }>();
@@ -371,9 +376,12 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         {groups.length === 0 ? (
           <p style={{ fontFamily: MONO, fontSize: '15px' }}>No transcript text is available for this debate.</p>
         ) : (
-          groups.map((g, i) => (
+          <>
+          <NoJsPager id="debate-rows" count={groups.length} sizes={debateScreens} />
+          {groups.map((g, i) => (
             <Fragment key={i}>
             <div
+              className={njpItem('debate-rows')}
               style={{
                 marginBottom: '30px',
                 paddingLeft: g.speaker ? '16px' : 0,
@@ -391,14 +399,19 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
                   )}
                 </div>
               )}
-              <div
-                className="pca-hansard"
-                style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.8, color: INK }}
-                dangerouslySetInnerHTML={{ __html: g.html }}
-              />
+              {(() => {
+                // A very long speech (one runs to 147,000px on a phone): its start, then a fold, on phones with JavaScript off.
+                const { first, rest } = g.html.length > SPEECH_OPENS ? splitAnswer(g.html, SPEECH_OPENS) : { first: g.html, rest: null };
+                const speech = (html: string, part?: string) => <div className={`pca-hansard${part ? ` ${part}` : ''}`} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.8, color: INK }} dangerouslySetInnerHTML={{ __html: html }} />;
+                return rest
+                  ? <>{first && speech(first, 'pca-first')}<NoJsFold id={`speech-${i}`} label="Continue reading">{speech(rest)}</NoJsFold></>
+                  : speech(g.html);
+              })()}
             </div>
             </Fragment>
-          ))
+          ))}
+          <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} />
+          </>
         )}
         {groups.length > 0 && <ReadNext links={readNext} />}
       </div>
@@ -418,7 +431,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         ) : <span />}
       </nav>
 
-      <style>{`.pca-hansard p { margin: 0 0 12px 0; } .pca-hansard p:last-child { margin-bottom: 0; } .pca-hansard em { font-style: italic; }`}</style>
+      <style>{`.pca-hansard p { margin: 0 0 12px 0; } .pca-hansard p:last-child { margin-bottom: 0; } .pca-hansard.pca-first p:last-child { margin-bottom: 12px; } .pca-hansard em { font-style: italic; }`}</style>
     </OpenGovShell>
   );
 }
