@@ -1,5 +1,5 @@
 // Pages to refresh when the archive sync writes a new or changed written answer (owner, 6 Nov 2026). Only the member who
-// asked: the pages list questions by asking member. An MP has /mps/<id> and /mps/<id>/questions, a peer /lords/<id>.
+// asked: the pages list questions by asking member. An MP has /mps/<id> and /mps/<id>/questions, a peer /lords/<id> and /lords/<id>/questions.
 export type AnswerRow = { id: number; house: string | null; asking_member_id: number | null };
 
 export function answerPaths(rows: AnswerRow[]): { members: number; paths: string[] } {
@@ -9,7 +9,7 @@ export function answerPaths(rows: AnswerRow[]): { members: number; paths: string
     const id = r.asking_member_id;
     if (!id || !Number.isInteger(id) || id <= 0) continue;
     if (r.house === 'Commons') { paths.add(`/mps/${id}`); paths.add(`/mps/${id}/questions`); }
-    else if (r.house === 'Lords') paths.add(`/lords/${id}`);
+    else if (r.house === 'Lords') { paths.add(`/lords/${id}`); paths.add(`/lords/${id}/questions`); }
     else continue;
     members.add(`${r.house}:${id}`);
   }
