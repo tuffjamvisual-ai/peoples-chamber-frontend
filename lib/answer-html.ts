@@ -6,6 +6,7 @@ export function answerHtml(html: string | null | undefined): string {
     .replace(/<(script|style|iframe|object|embed)\b[^>]*\/?>/gi, '')
     .replace(/\s(on[a-z]+|style|width|height)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
     // Tables stay as published: the phone script (lib/phone-enhance.ts) would otherwise rebuild them as cards. They scroll inside themselves.
+    .replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, (t) => (t.replace(/<[^>]*>|&nbsp;|\s/gi, '') ? t : t.replace(/^<table\b/i, '<table data-empty-table="1"')))
     .replace(/<table\b/gi, '<table data-pt-table="keep"')
     .replace(/<a\b([^>]*)>/gi, (_, attrs: string) => {
       const href = attrs.match(/href\s*=\s*("[^"]*"|'[^']*')/i)?.[1];

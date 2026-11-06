@@ -1,3 +1,4 @@
+import { shortMonthYear } from '@/lib/short-date';
 // Staff with outside interests (owner's brief, 3 Nov 2026): the entries in the House of Commons register of interests
 // of MPs' staff that name this MP, from mp_staff_interests (scripts/sync-staff-register.js).
 // Shown on the Interests tab. Each line: job title · type · organisation · dates. Never a staff name (the register
@@ -24,7 +25,7 @@ const TYPE_LABEL: Record<StaffInterest['category'], string> = { employment: 'Emp
 const ORDER: Record<StaffInterest['category'], number> = { employment: 0, gift: 1, visit: 2 };
 
 // Parliament's dates carry no time zone: read the date part only, so the month never shifts.
-const monthYear = (d: string) => new Date(`${d.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+const monthYear = (d: string) => shortMonthYear(`${d.slice(0, 10)}T12:00:00Z`);
 
 function dates(s: StaffInterest): string | null {
   const from = s.start_date ? monthYear(s.start_date) : null;

@@ -32,8 +32,8 @@ export default function RegisterHistoryPage() {
         362 editions from 10 November 2000 to 4 March 2024: 112,929 entries as published, on each member&rsquo;s page under &ldquo;Register history&rdquo;. Choose a letter of the surname to find an MP. Editions before 2004 are few, only 1 or 2 a year. <Link href="/transparency/register-of-interests" prefetch={false} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>The current register</Link>.
       </p>
       {[...letters.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([letter, members]) => (
-        <details key={letter} style={{ borderTop: `1px solid ${HAIRLINE}` }}>
-          <summary style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '8px 0', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', color: INK }}>{letter} ({members.length})</summary>
+        <details key={letter} className="pa-fold">
+          <summary>{letter} ({members.length})</summary>
           <NoJsPager id={`rl-${letter.charCodeAt(0)}`} always count={members.length} rows="> li" size={50}>
             <ul style={{ listStyle: 'none', margin: '0 0 12px', padding: 0 }}>
               {members.map(([id, name, entries]) => (

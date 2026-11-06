@@ -241,7 +241,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
                   <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}% of {r.totalVotes} votes</span>
                 </div>
                 {shown.length > 0 && (
-                  <div style={{ fontSize: '15px', marginTop: '5px', lineHeight: 1.55 }}>
+                  <p style={{ fontSize: '15px', margin: '5px 0 0', lineHeight: 1.55 }}>
                     {shown.map((k, j) => (
                       <span key={k.key}>
                         <Link href={`/divisions/pw-${k.date}-${k.num}-commons`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '2px' }}>{k.title || `Division ${k.num} (${k.date})`}</Link>
@@ -254,7 +254,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
                         <Link href={`/mps/${r.memberId}#voting`} style={{ color: ACCENT, textDecoration: 'underline' }}>+{moreCount} more</Link>
                       </>
                     )}
-                  </div>
+                  </p>
                 )}
               </div>
             );

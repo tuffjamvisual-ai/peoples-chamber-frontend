@@ -42,9 +42,9 @@ export default function DebateSummary({ date, house, location, speakers, words, 
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {date && <li>Date: {date}</li>}
           {(house || location) && <li>Where: {[house ? `House of ${house}` : null, location].filter(Boolean).join(', ')}</li>}
-          {ministers.length === 1 && <li>Responding minister: {ministers[0].office!} ({name(ministers[0])})</li>}
+          {ministers.length === 1 && <li><p style={{ margin: 0 }}>Responding minister: {ministers[0].office!} ({name(ministers[0])})</p></li>}
           {ministers.length > 1 && (
-            <li>Ministers who spoke: {ministers.map((m, i) => <span key={m.key}>{i > 0 && '; '}{m.office!} ({name(m)})</span>)}</li>
+            <li><p style={{ margin: 0 }}>Ministers who spoke: {ministers.map((m, i) => <span key={m.key}>{i > 0 && '; '}{m.office!} ({name(m)})</span>)}</p></li>
           )}
           <li>MPs who spoke: {speakers.length.toLocaleString()}</li>
           {parties.length > 0 && <li>Speakers by party: {parties.map(([p, n]) => `${p} ${n}`).join(', ')}</li>}

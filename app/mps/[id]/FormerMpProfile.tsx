@@ -60,7 +60,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
           {mp.name} is no longer an MP.{mp.sitsInLords ? ' They now sit in the House of Lords.' : ''} opengovt keeps full profiles for current MPs; this page records the seats held and the dates served.
         </p>
         <p style={line}>
-          <Link href="/mps" style={{ color: INK, textDecoration: 'underline' }}>Find your current MP</Link>.
+          <Link href="/mps" className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Find your current MP</Link>.
         </p>
         <p style={line}>
           Source: <a href={parliamentMemberUrl(mp.memberId)} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>UK Parliament, {mp.name}: career</a> (Members API).

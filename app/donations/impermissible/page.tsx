@@ -173,7 +173,7 @@ export default async function ImpermissiblePage() {
 
       <section>
         <h2 style={sectionH2}>Largest impermissible donations</h2>
-        <NoJsPager id="imperm-2" count={(largest).length} rows="> tbody > tr" size={25}>
+        <NoJsPager id="imperm-2" count={(largest).length} rows="> tbody > tr" size={25} cards={[null, 'Recipient', 'Returned', 'Amount', 'Reason']} title={1}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -195,7 +195,7 @@ export default async function ImpermissiblePage() {
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
                 <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px' }}>{r.returned_date || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
-                <td style={{ padding: '6px', fontSize: '15px', maxWidth: '320px' }}>{r.impermissibility_reason}</td>
+                <td style={{ padding: '6px', fontSize: '15px', maxWidth: '320px' }}>{r.impermissibility_reason}{(r.impermissibility_reason ?? '').length >= 250 && !/[.!?)]\s*$/.test(r.impermissibility_reason ?? '') ? '…' : ''}</td>
               </tr>
             ))}
           </tbody>

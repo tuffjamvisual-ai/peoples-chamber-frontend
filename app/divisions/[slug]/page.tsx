@@ -523,7 +523,7 @@ function VoteColumn({
             <strong>{g.party}</strong>
             <span >({g.rows.length})</span>
           </div>
-          <NoJsPager id={`dv-${heading.split(" ")[1]}-${g.party}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(g.rows).length} rows="> li" size={25}>
+          <NoJsPager id={`dv-${heading.split(" ")[1]}-${g.party}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(g.rows).length} rows="> li" size={15}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
             {g.rows.map((v) => (
               <li key={v.member_id} style={{ padding: '4px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>

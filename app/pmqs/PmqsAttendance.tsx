@@ -2,6 +2,7 @@
 // with four wrong member ids corrected (corrections_to_source in the data file). The file is kept as prepared; the one
 // name Parliament spells differently is corrected here.
 import Link from 'next/link';
+import NoJsPager from '@/app/components/NoJsPager';
 import MoreChain from '../components/MoreChain';
 import data from '@/lib/data/pmqs-attendance-2026-11-04.json';
 
@@ -35,6 +36,7 @@ export default function PmqsAttendance() {
       <h2 id="pmqs-attendance" style={h2}>PMQs attendance since 1979</h2>
 
       <h3 style={h3}>Attendance by Prime Minister</h3>
+      <NoJsPager id="pmqs-pms" count={data.attendance.length} rows="> tbody > tr" size={25} cards={[null, 'Sessions', 'Attended', 'Missed', 'Per cent missed']} title={1}>
       <table style={table}>
         <thead>
           <tr>
@@ -57,6 +59,7 @@ export default function PmqsAttendance() {
           ))}
         </tbody>
       </table>
+      </NoJsPager>
 
       <h3 style={h3}>The {data.missed_dates.length} sessions the Prime Minister missed</h3>
       <div className="pc-wide">

@@ -1,5 +1,6 @@
 'use client'
 
+import { shortDayMonthYear } from '@/lib/short-date';
 import NoJsPager from '@/app/components/NoJsPager';
 import { billSummary } from '@/lib/bill-summary';
 
@@ -197,11 +198,7 @@ function LawCard({ law, tilt }: { law: Law; tilt: number }) {
     : '#7697a2'
 
   const date = law.last_update
-    ? new Date(law.last_update).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      })
+    ? shortDayMonthYear(law.last_update)
     : null
 
   return (

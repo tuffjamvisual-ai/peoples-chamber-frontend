@@ -1,5 +1,6 @@
 'use client';
 
+import { shortDayMonthYear, shortMonthYear } from '@/lib/short-date';
 import { pageview } from '@vercel/analytics';
 import { billSummary } from '@/lib/bill-summary';
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
@@ -2204,8 +2205,8 @@ export default function MagazineProfileSections({
                     const donorSlug = donorPageSlug(d.name);
                     // Month and year of the first and latest donation, computed once and used by both the First and
                     // Latest cells and the phone line under the donor, so the two can never differ (owner, 31 Oct 2026).
-                    const firstLabel = d.first ? new Date(d.first).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : null;
-                    const lastLabel = d.last ? new Date(d.last).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : null;
+                    const firstLabel = d.first ? shortMonthYear(d.first) : null;
+                    const lastLabel = d.last ? shortMonthYear(d.last) : null;
                     return (
                       <tr key={d.name} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
                         <td style={{ padding: '5px 4px' }}>
@@ -2298,7 +2299,7 @@ export default function MagazineProfileSections({
                           </div>
                           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
                             {s.votes.slice(0, 20).map((v) => {
-                              const dateText = v.division_date ? new Date(v.division_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+                              const dateText = v.division_date ? shortDayMonthYear(v.division_date) : '';
                               const voteColour = v.vote_type === 'aye' ? '#4a8a3a' : v.vote_type === 'no' ? '#a64030' : 'rgba(20,16,13,0.6)';
                               const slug = v.division_date_only && v.division_number != null
                                 ? `pw-${v.division_date_only}-${v.division_number}-commons`
@@ -2446,7 +2447,7 @@ export default function MagazineProfileSections({
                           <tr key={o.name} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
                             <td style={{ padding: '4px 4px' }}>{o.name}</td>
                             <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{o.count}</td>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{o.latest ? new Date(o.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : null}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{o.latest ? shortMonthYear(o.latest) : null}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -2459,7 +2460,7 @@ export default function MagazineProfileSections({
                     <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: 1.55 }}>
                       {meetings.slice(0, 300).map((m) => (
                         <li key={m.id} style={{ padding: '5px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                          {m.meeting_date && <><span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{new Date(m.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>{' · '}</>}
+                          {m.meeting_date && <><span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{shortDayMonthYear(m.meeting_date)}</span>{' · '}</>}
                           {m.organisation || '(unspecified)'}
                           {m.purpose && <div style={{ fontSize: '15px', marginLeft: '8px' }}>{m.purpose}</div>}
                         </li>
@@ -2494,7 +2495,7 @@ export default function MagazineProfileSections({
                           <tr key={d.name} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
                             <td style={{ padding: '4px 4px' }}>{d.name}</td>
                             <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{d.count}</td>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.latest ? new Date(d.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : null}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.latest ? shortMonthYear(d.latest) : null}</td>
                             <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{d.total > 0 ? fmtMoney(d.total) : null}</td>
                           </tr>
                         ))}
@@ -2945,7 +2946,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? '£' + n.toLocaleString('en-GB') : null;
   };
-  const fmtDate = (v: string | null | undefined) => (v ? new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : null);
+  const fmtDate = (v: string | null | undefined) => (v ? shortDayMonthYear(v) : null);
   const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (value === null ? null : (
     <>
       <dt style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '2px 8px 2px 0' }}>{label}</dt>

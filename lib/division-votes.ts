@@ -3,12 +3,14 @@
 // calculation, never two that could differ. The division page's own behaviour is unchanged.
 import { supabase } from '@/lib/supabase';
 import { normaliseParty, partyColourForMember } from '@/lib/party-helpers';
+import formerNames from '@/lib/data/former-mp-names.json';
 
 export type VoteRow = {
   member_id: number;
   vote_type: 'aye' | 'no' | 'both' | string;
   is_teller: boolean | null;
   is_rebellion: boolean | null;
+  party: string | null;
   bill_id: number | null;
   division_title: string | null;
   division_date: string;
@@ -34,7 +36,7 @@ export type PartyGroup = { party: string; partyColour: string; rows: Vote[] };
 export async function fetchDivisionVotes(dateOnly: string, divisionNumber: number, label: string): Promise<{ voteRows: VoteRow[]; votes: Vote[]; totals: Totals } | null> {
   const { data: voteRows, error: voteErr } = await supabase
     .from('mp_division_votes')
-    .select('member_id, vote_type, is_teller, is_rebellion, bill_id, division_title, division_date, division_id')
+    .select('member_id, vote_type, is_teller, is_rebellion, party, bill_id, division_title, division_date, division_id')
     .eq('division_date_only', dateOnly)
     .eq('division_number', divisionNumber);
   if (voteErr) throw new Error(`division ${label}: ${voteErr.message}`);
@@ -57,6 +59,13 @@ export async function fetchDivisionVotes(dateOnly: string, divisionNumber: numbe
     .in('member_id', memberIds);
   if (mpRowsErr && mpRowsErr.code !== 'PGRST116') throw new Error(`${label} mps: ${mpRowsErr.message}`);
   const mpById = new Map<number, MpRow>((mpRows ?? []).map((m) => [m.member_id, m as MpRow]));
+  // Former MPs are not in the mps table (owner, 6 Nov 2026: "Member 8" under "Independent" was Theresa May). Their name comes from Parliament's record
+  // (scripts/build-former-mp-names.py) and their party is the one stored with the vote.
+  for (const v of voteRows as VoteRow[]) {
+    if (mpById.has(v.member_id)) continue;
+    const name = (formerNames as Record<string, string>)[String(v.member_id)] ?? null;
+    if (name) mpById.set(v.member_id, { member_id: v.member_id, display_name: name, name, party: v.party ?? 'Party not listed', party_colour: null, constituency: null, photo_url: null });
+  }
 
   return { voteRows: voteRows as VoteRow[], votes: (voteRows as VoteRow[]).map((v) => ({ ...v, mp: mpById.get(v.member_id) ?? null })), totals: totalsRow as Totals };
 }
@@ -65,7 +74,7 @@ export async function fetchDivisionVotes(dateOnly: string, divisionNumber: numbe
 export function groupByParty(rows: Vote[]): PartyGroup[] {
   const groups = new Map<string, Vote[]>();
   for (const v of rows) {
-    const p = normaliseParty(v.mp?.party) || v.mp?.party || 'Unknown';
+    const p = (v.mp ? normaliseParty(v.mp.party) : v.party ? normaliseParty(v.party) : 'Party not listed');
     if (!groups.has(p)) groups.set(p, []);
     groups.get(p)!.push(v);
   }

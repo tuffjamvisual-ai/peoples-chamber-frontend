@@ -5,6 +5,7 @@
 // only (Political Bio, Current Roles, Past Roles, Interests). Tabs
 // without data are hidden via the same has[id] pattern.
 
+import { shortDayMonthYear, shortMonthYear } from '@/lib/short-date';
 import { useEffect, useState } from 'react';
 import { SCS_BAND_LABEL, SCS_BAND_RANGE, type ScsBand } from '@/lib/civil-service-salaries';
 
@@ -73,7 +74,7 @@ const sectionH2: React.CSSProperties = {
 const fmtDate = (s?: string | null) =>
   s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 const fmtMonthYear = (s?: string | null) =>
-  s ? new Date(s).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '';
+  s ? shortMonthYear(s) : '';
 
 export default function PeopleProfileSections({ paragraphs, currentRoles, pastRoles, interests, finance, salary }: Props) {
   const has: Record<SectionId, boolean> = {

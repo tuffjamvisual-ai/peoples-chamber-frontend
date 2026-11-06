@@ -4,7 +4,7 @@
 // left out of the rankings and listed with DfT's warning. England is DfT's figure as published. Data:
 // council_road_condition (migration 2026-10-28g), wording in lib/road-condition.ts.
 
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
@@ -94,9 +94,11 @@ export default async function RoadConditionPage() {
         </p>
 
         <section style={section}>
-          <h2 style={h2}>What the figures mean</h2>
+          <h2 className="rc-h2" style={h2}>What the figures mean</h2>
+          <NoJsFold id="rc-mean" always open label="What the figures mean">
           {EXPLAINER.map((p) => <p key={p.slice(0, 20)} style={para}>{p}</p>)}
           <p style={para}>This is from the notes to DfT&rsquo;s <a href={SOURCE_PAGE} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>road condition data tables</a>.</p>
+        </NoJsFold>
         </section>
 
         {ROAD_TYPES.map((t) => {
@@ -109,8 +111,9 @@ export default async function RoadConditionPage() {
           const none = list.filter((r) => value(r.cur, t.field) == null).sort((a, b) => a.name.localeCompare(b.name));
           return (
             <section key={t.key} style={section}>
-              <h2 style={h2}>{t.label}</h2>
-              <NoJsPager id={`rc-${t.key}`} count={(ranked).length} rows="> tbody > tr" size={5}>
+              <h2 className="rc-h2" style={h2}>{t.label}</h2>
+              <NoJsFold id={`rc-f-${t.key}`} always label={t.label}>
+              <NoJsPager id={`rc-${t.key}`} count={(ranked).length} rows="> tbody > tr" size={25}>
               <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
                 <thead>
                   <tr>
@@ -151,12 +154,14 @@ export default async function RoadConditionPage() {
                   No figure ({none.length}): {none.map((r) => `${r.name}, ${valueText(r.cur, t.field)}`).join('; ')}.
                 </p>
               )}
+            </NoJsFold>
             </section>
           );
         })}
 
         <section style={section}>
-          <h2 style={h2}>About these figures</h2>
+          <h2 className="rc-h2" style={h2}>About these figures</h2>
+          <NoJsFold id="rc-about" always label="About these figures">
           <p style={para}>
             Figures are collected from highway authorities each year, and councils can revise the year before, so earlier years may change (DfT). Where DfT gives no figure it uses shorthand: {Object.values(SYMBOL_MEANING).join('; ')}.
           </p>
@@ -164,6 +169,7 @@ export default async function RoadConditionPage() {
             Source: <a href={SOURCE_PAGE} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{SOURCE_LABEL}</a> (RDC0120, RDC0122, RDC0130, RDC0321).{' '}
             <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
           </p>
+        </NoJsFold>
         </section>
       </article>
       <LastUpdated sourceKey="road_condition" />

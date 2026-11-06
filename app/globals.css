@@ -191,6 +191,9 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .mc-more[open] > summary { display: none; }
 /* Long lists and sections on phones with JavaScript off (app/components/NoJsPager.tsx). Nothing here changes any other view. */
 .njp-a, .njp-nav, .njf { display: none; }
+.njf > summary::-webkit-details-marker { display: none; }
+.njf > summary::before { content: "+"; flex: none; width: 20px; color: #7a1612; }
+.njf[open] > summary::before { content: "\2212"; }
 @media (max-width: 639.98px) { .arch-tap { display: flex; align-items: center; min-height: 44px; } }
 @media (min-width: 640px) { .arch-row { padding: 4px 0; } }
 @media (max-width: 639.98px) {
@@ -292,6 +295,18 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .og-back { text-transform: none !important; letter-spacing: normal !important; font-size: 18px !important; }
   .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
   html:not(.og-js) .og-phone-more { display: none; }
+  .rc-h2 { display: none; }
+  /* Footer licence link, a 44px target at every phone width (owner, 6 Nov 2026). */
+  .og-footer-licence { display: inline-flex; align-items: center; min-height: 44px; }
+  /* Stacked rows with JavaScript off (NoJsPager's cards), so every column shows with no sideways scroll. */
+  html:not(.og-js) table.njc { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; overflow: visible !important; }
+  html:not(.og-js) table.njc > thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  html:not(.og-js) table.njc > tbody, html:not(.og-js) table.njc > tfoot { display: block; width: 100%; }
+  html:not(.og-js) table.njc > tbody > tr { display: block; padding: 10px 0; }
+  html:not(.og-js) table.njc > tbody > tr > :is(td, th) { display: block; position: static !important; width: auto !important; min-width: 0 !important; max-width: none !important; padding: 2px 0 !important; text-align: left !important; white-space: normal !important; overflow-wrap: anywhere; background: none !important; box-shadow: none !important; border: 0 !important; }
+  /* Answers as published: numbers stay whole, cells a little tighter so most tables fit; a very wide one scrolls inside itself. An empty table takes no room. */
+  .wq-html td, .wq-html th { overflow-wrap: normal; padding: 4px 2px; }
+  .wq-html table[data-empty-table] { display: none; }
   /* A link alone in its paragraph, a tap target like any other. */
   .ng-page a.og-tap, .ng-page a[data-pt-tap] { display: inline-block; min-height: 44px; align-content: center; }
 }

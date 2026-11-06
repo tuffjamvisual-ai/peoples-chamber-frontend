@@ -12,6 +12,8 @@ import { cloneElement, type ReactElement, type ReactNode } from 'react';
 //   items  instead of a list: the rows are siblings of this pager, each with className `njp-i-<id>` (njpItem), and `children` is left out
 //   sizes  rows on each screen, where they vary in height (debate speeches): replaces `size`, and is what pagesByHeight returns
 //   always pages on phones with JavaScript on as well, for a list the phone script leaves alone, such as one inside a fold
+//   cards  a table as stacked rows on phones with JavaScript off, as the phone script makes it with JavaScript on: the label of each column, null for none
+//   title  which column (from 1) is the row's bold title in those stacked rows
 export const njpItem = (id: string) => `njp-i-${id}`;
 
 // How many rows fit on each screen, from each row's height, so that long rows get fewer companions.
@@ -26,9 +28,12 @@ export function pagesByHeight(heights: number[], room: number, most = Infinity):
   return sizes;
 }
 
-export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; children?: ReactElement<{ className?: string }> }) {
+export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, cards, title, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; cards?: (string | null)[]; title?: number; children?: ReactElement<{ className?: string }> }) {
   const split = sizes ?? Array.from({ length: Math.ceil(count / size) }, () => size);
-  if (split.length <= 1) return <>{children}</>;
+  const cardCss = cards ? `@media (max-width:639.98px){${cards.map((label, i) => (label ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${i + 1})::before{content:${JSON.stringify(`${label}: `)};font-weight:bold}` : '')).join('')}${title ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${title}){font-weight:bold;font-size:16px}` : ''}}` : '';
+  const cardClass = cards ? `njc njc-${id}` : '';
+  const cardStyle = cards ? <style dangerouslySetInnerHTML={{ __html: cardCss }} /> : null;
+  if (split.length <= 1) return <>{cardStyle}{children && cards ? cloneElement(children, { className: [children.props.className, cardClass].filter(Boolean).join(' ') }) : children}</>;
   const pages = split.length;
   const nums = Array.from({ length: pages }, (_, i) => i + 1);
   const upTo = (k: number) => split.slice(0, k).reduce((a, b) => a + b, 0);   // rows on screens 1 to k
@@ -47,9 +52,10 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
   ].join('');
   return (
     <>
+      {cardStyle}
       <style dangerouslySetInnerHTML={{ __html: `@media (max-width:639.98px){${css}}` }} />
       {nums.map((k) => <i key={k} id={`${id}-p${k}`} className={always ? 'njp-a njp-on' : 'njp-a'} />)}
-      {children ? cloneElement(children, { className: [children.props.className, list].filter(Boolean).join(' ') }) : null}
+      {children ? cloneElement(children, { className: [children.props.className, list, cardClass].filter(Boolean).join(' ') }) : null}
       {children && nums.map((k) => <PagerNav key={k} id={id} k={k} pages={pages} always={always} />)}
     </>
   );

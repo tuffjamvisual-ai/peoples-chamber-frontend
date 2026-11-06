@@ -17,7 +17,7 @@ function Name({ c }: { c: ArchiveContribution }) {
   if (!c.name) return null;
   return (
     <p style={nameLine}>
-      {!c.href ? c.name : c.site === 'opengovt' ? <Link href={c.href} style={link}>{c.name}</Link> : <a href={c.href} rel="noopener" style={link}>{c.name}</a>}
+      {!c.href ? c.name : c.site === 'opengovt' ? <Link href={c.href} className="og-tap" style={link}>{c.name}</Link> : <a href={c.href} rel="noopener" className="og-tap" style={link}>{c.name}</a>}
       {c.site === 'parliament' && <span style={{ fontWeight: 'normal' }}> (on parliament.uk)</span>}
     </p>
   );

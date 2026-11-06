@@ -10,6 +10,7 @@
 // the address (?table=…&sort=…&council=…&constituency=…#your-area). Only the
 // area codes go in the link, never the postcode itself.
 
+import NoJsPager from '@/app/components/NoJsPager';
 import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
 import PhoneTable from '../components/PhoneTable';
@@ -293,6 +294,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
           </table>
         </PhoneTable>
         </div>
+        <NoJsPager id="sew-league" count={visible.length} rows="> li" size={25}>
         <ol className="sew-cards" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
           {visible.map((r, i) => (
             <li key={r.code} className="sew-card">
@@ -312,6 +314,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
             </li>
           ))}
         </ol>
+        </NoJsPager>
         {rows.length > FIRST && (
           <button type="button" onClick={() => setShowAll((v) => !v)} style={{ ...btn(false), marginTop: '12px' }}>
             {showAll ? `Show the first ${FIRST}` : `Show all ${fmtInt(rows.length)}`}

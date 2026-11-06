@@ -10,7 +10,7 @@
 // Liberal Club); others are modern opaque vehicles. The page makes
 // no editorial claim about which is which — it just surfaces them.
 
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -101,7 +101,7 @@ export default async function TrustFundedPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Trusts by lifetime giving · {ranked.length}</h2>
-        <NoJsPager id="trustf-0" count={(ranked).length} rows="> tbody > tr" size={25}>
+        <NoJsPager id="trustf-0" count={(ranked).length} rows="> tbody > tr" size={25} cards={[null, null, 'Creator', 'Recipient(s)', 'Donations', 'Lifetime total']} title={2}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -137,7 +137,8 @@ export default async function TrustFundedPage() {
 
       <section>
         <h2 style={sectionH2}>Most recent trust donations</h2>
-        <NoJsPager id="trustf-1" count={(recent).length} rows="> tbody > tr" size={25}>
+        <NoJsFold id="trustf-recent" label="Show the most recent donations">
+        <NoJsPager id="trustf-1" count={(recent).length} rows="> tbody > tr" size={25} cards={[null, 'Recipient', 'Accepted', 'Amount']} title={1}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -163,6 +164,7 @@ export default async function TrustFundedPage() {
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
       </section>
 
 </OpenGovShell>

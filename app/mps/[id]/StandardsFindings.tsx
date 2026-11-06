@@ -1,3 +1,4 @@
+import { shortMonthYear } from '@/lib/short-date';
 // Standards findings (House of Commons Committee on Standards reports naming this member), from mp_conduct_findings
 // (app/api/sync-standards-committee). Shown on a full profile's Background tab (MagazineProfileSections) and on the
 // basic former-MP page (FormerMpProfile), so a former member's findings appear too (owner's brief, 3 Nov 2026).
@@ -36,7 +37,7 @@ const showPenalty = (f: { penalty: string | null; outcome: string | null }) =>
   !!f.penalty && f.penalty.trim() !== '' && f.penalty.trim().toLowerCase() !== 'none' && f.outcome !== 'not_upheld';
 
 // Parliament's dates carry no time zone: read the date part only, so the month never shifts.
-const monthYear = (d: string) => new Date(`${d.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+const monthYear = (d: string) => shortMonthYear(`${d.slice(0, 10)}T12:00:00Z`);
 
 export default function StandardsFindings({ findings, headingStyle }: { findings: ConductFinding[]; headingStyle?: React.CSSProperties }) {
   if (findings.length === 0) return null;

@@ -149,7 +149,7 @@ export default async function AssociationPage({ params }: PageProps) {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Donor league · {donorRows.length}</h2>
-        <NoJsPager id="dc-a" count={(donorRows).length} rows="> tbody > tr" size={25}>
+        <NoJsPager id="dc-a" count={(donorRows).length} rows="> tbody > tr" size={25} cards={[null, null, 'Donations', 'Total given', 'First to last']} title={2}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>

@@ -1,3 +1,4 @@
+import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import { cache } from 'react';
@@ -42,6 +43,7 @@ function Result({ heading, date, url, summary, figures, candidates }: { heading:
     <>
       <h2 style={h2}>{heading}</h2>
       <p style={para}>{petitionDate(date)}. {summary}.</p>
+      <NoJsPager id={`cand-${candidates[0]?.election_id ?? heading.replace(/[^a-zA-Z0-9]+/g, '-')}`} count={candidates.length} rows="> li" size={25}>
       <ol style={{ listStyle: 'none', margin: '0 0 12px', padding: 0 }}>
         {candidates.map((c) => (
           <li key={`${c.election_id}-${c.position}`} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', borderBottom: LINE, color: INK }}>
@@ -56,6 +58,7 @@ function Result({ heading, date, url, summary, figures, candidates }: { heading:
           </li>
         ))}
       </ol>
+      </NoJsPager>
       <dl style={{ margin: '0 0 8px', fontSize: '16px', color: INK }}>
         {([['Majority', n0(figures.majority)], ['Turnout', pct(figures.turnout)], ['Electorate', n0(figures.electorate)], ['Valid votes', n0(figures.valid)], ['Rejected ballots', n0(figures.invalid)]] as [string, string][]).map(([k, v]) => (
           <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '4px 0' }}><dt style={{ fontWeight: 'bold' }}>{k}</dt><dd style={{ margin: 0 }}>{v}</dd></div>

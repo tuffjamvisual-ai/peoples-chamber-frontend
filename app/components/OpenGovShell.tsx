@@ -105,7 +105,7 @@ export default function OpenGovShell({
               {/* The Open Parliament Licence attribution on every page (owner, 31 Oct 2026), above the independence line. */}
               <p style={{ margin: '0 0 14px', color: '#14100d', lineHeight: 1.65, maxWidth: '82ch' }}>
                 Contains Parliamentary information licensed under the{' '}
-                <a href={OPEN_PARLIAMENT_LICENCE_URL} rel="noopener" style={{ color: '#7a1612' }}>Open Parliament Licence v3.0</a>.
+                <a href={OPEN_PARLIAMENT_LICENCE_URL} rel="noopener" className="og-footer-licence" style={{ color: '#7a1612' }}>Open Parliament Licence v3.0</a>.
               </p>
               <p style={{ margin: '0 0 14px', color: '#14100d', lineHeight: 1.65, maxWidth: '82ch' }}>
                 opengovt is independent and is not affiliated with GOV.UK, the UK Government, Parliament, any government department, local authority, public body or official public service.

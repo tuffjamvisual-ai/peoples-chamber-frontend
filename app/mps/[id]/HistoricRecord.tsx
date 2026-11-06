@@ -26,7 +26,7 @@ export default async function HistoricRecord({ memberId }: { memberId: number })
             {votes.latest.map((v) => (
               <li key={v.division_external_id} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
                 <Link href={divisionHref(v.division_date, v.division_number)} prefetch={false} style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '6px 0', fontSize: '15px', lineHeight: 1.4, color: INK, textDecoration: 'none' }}>
-                  <span><strong>{v.side === 'aye' ? 'Aye' : 'No'}{v.is_teller ? ' (teller)' : ''}</strong>, {v.title}, {archiveDate(v.division_date)}</span>
+                  <span><strong>{v.side === 'aye' ? 'Aye' : 'No'}{v.is_teller ? ' (teller)' : ''}</strong>, {v.title}, {archiveDate(v.division_date)}, Division {v.division_number}</span>
                 </Link>
               </li>
             ))}
@@ -63,8 +63,8 @@ const blockHeight = (b: RegisterBlock) => b.lines.reduce((px, l) => px + (Math.c
 
 function Category({ category, id }: { category: RegisterCategory; id: string }) {
   return (
-    <details style={{ borderTop: `1px solid ${HAIRLINE}` }}>
-      <summary style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '8px 0', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', color: INK }}>
+    <details className="pa-fold">
+      <summary>
         {category.label} ({category.entries.toLocaleString('en-GB')})
       </summary>
       <NoJsPager id={id} always count={category.blocks.length} rows="> li" sizes={pagesByHeight(category.blocks.map(blockHeight), 4000)}>

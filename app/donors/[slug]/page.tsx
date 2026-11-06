@@ -436,7 +436,7 @@ export default async function DonorPage({ params }: PageProps) {
           {donations[0].donor_type && (
             <span style={{ fontSize: '15px', padding: '3px 8px', border: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>{donations[0].donor_type}</span>
           )}
-          {sector && (
+          {sector && sector.label.toLowerCase() !== (donations[0].donor_type ?? '').toLowerCase() && (
             <span style={{ fontSize: '15px', padding: '3px 8px', border: `1px solid ${sector.colour}`, color: sector.colour }}>{sector.label}</span>
           )}
           {crn && (
@@ -457,9 +457,9 @@ export default async function DonorPage({ params }: PageProps) {
       )}
 
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
-        <Tile label="Total given under this registered name" value={fmtMoney(total)} sub={`${donations.length} donations`} accent={ACCENT} />
-        <Tile label="Recipients" value={String(recipientRows.length)} sub="distinct entities" accent={INK_SOFT} />
-        <Tile label="Period" value={firstDate && lastDate ? `${(new Date(firstDate)).getFullYear()}, ${(new Date(lastDate)).getFullYear()}` : ''} sub="first to last accepted" accent={INK_SOFT} />
+        <Tile label="Total given under this registered name" value={fmtMoney(total)} sub={`${donations.length.toLocaleString('en-GB')} ${donations.length === 1 ? 'donation' : 'donations'}`} accent={ACCENT} />
+        <Tile label="Recipients" value={recipientRows.length.toLocaleString('en-GB')} sub="distinct entities" accent={INK_SOFT} />
+        <Tile label="Period" value={firstDate && lastDate ? (new Date(firstDate).getFullYear() === new Date(lastDate).getFullYear() ? String(new Date(firstDate).getFullYear()) : `${new Date(firstDate).getFullYear()} to ${new Date(lastDate).getFullYear()}`) : ''} sub="first to last accepted" accent={INK_SOFT} />
         {flaggedReturned + flaggedImpermissible + flaggedConcealment > 0 && (
           <Tile label="Flagged" value={String(flaggedReturned + flaggedImpermissible + flaggedConcealment)} sub={`${flaggedReturned} returned · ${flaggedImpermissible} impermissible · ${flaggedConcealment} concealment`} accent={DANGER} />
         )}
@@ -553,7 +553,7 @@ export default async function DonorPage({ params }: PageProps) {
             {typeRows.map((r) => (
               <tr key={r.type} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ ...td, textAlign: 'left' }}>{r.type}</td>
-                <td style={td}>{r.count}</td>
+                <td style={td}>{r.count.toLocaleString('en-GB')}</td>
                 <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
               </tr>
             ))}
@@ -599,7 +599,7 @@ export default async function DonorPage({ params }: PageProps) {
           {followed && followed.orgs.length > 0 && (
             <p style={{ margin: '10px 0 0' }}>
               {followed.orgs.map((o, i) => (
-                <span key={o.slug}>{i > 0 && ' · '}<Link href={`/organisations/${o.slug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>See the full organisation record{followed.orgs.length > 1 ? ` (${o.name})` : ''}</Link></span>
+                <span key={o.slug}>{i > 0 && ' · '}<Link href={`/organisations/${o.slug}`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline' }}>See the full organisation record{followed.orgs.length > 1 ? ` (${o.name})` : ''}</Link></span>
               ))}
             </p>
           )}
@@ -628,7 +628,7 @@ export default async function DonorPage({ params }: PageProps) {
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>{matchedContracts.length === 0 ? `On ${matchedFrameworks.length} UK public framework${matchedFrameworks.length === 1 ? '' : 's'}` : `Also holds ${matchedContracts.length} UK public contract${matchedContracts.length === 1 ? '' : 's'}`}{matchedContracts.length === 0 ? '' : unpublishedValues === matchedContracts.length ? ' · values not published' : ` · ${fmtMoney(totalContractValue)}${unpublishedValues ? ` (value not published for ${unpublishedValues})` : ''}`}{matchedFrameworks.length && matchedContracts.length ? ` · on ${matchedFrameworks.length} framework${matchedFrameworks.length === 1 ? '' : 's'}` : ''}</h2>
           <p style={{ fontSize: '15px', marginBottom: '12px' }}>This donor&rsquo;s Companies House number also appears for a supplier on Find a Tender, the government&rsquo;s register of public contracts. Contracts are matched by that number only, never by name; no causal link is implied between the donations on this page and the contracts below.{matchedContracts.length > 0 ? ' Public bodies awarding the work:' : ''}</p>
           {matchedContracts.length > 0 && (
-          <NoJsPager id="slug-1" count={(contractDeptRows).length} rows="> tbody > tr" size={10}>
+          <NoJsPager id="slug-1" count={(contractDeptRows).length} rows="> tbody > tr" size={10} cards={[null, 'Contracts', 'Total value']} title={1}>
           <table style={{ ...tableStyle, marginBottom: '8px' }}>
             <thead>
               <tr style={headerRow}>
@@ -645,7 +645,7 @@ export default async function DonorPage({ params }: PageProps) {
                       ? <Link href={`/departments/${r.dept}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.name}</Link>
                       : r.name}
                   </td>
-                  <td style={td}>{r.count}</td>
+                  <td style={td}>{r.count.toLocaleString('en-GB')}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>
                     {r.unpublished === r.count ? 'Not published' : `${fmtMoney(r.total)}${r.unpublished ? ` + ${r.unpublished} unpublished` : ''}`}
                   </td>
@@ -660,7 +660,7 @@ export default async function DonorPage({ params }: PageProps) {
           )}
           <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '17px', fontWeight: 'bold', margin: '16px 0 8px' }}>Each contract{contractRecords.length > 50 ? ` · newest 50 of ${contractRecords.length}` : ''}</h3>
           <div style={{ overflowX: 'auto', marginBottom: '10px' }}>
-            <NoJsPager id="slug-2" count={(contractRecords.slice(0, 50)).length} rows="> tbody > tr" size={10}>
+            <NoJsPager id="slug-2" count={(contractRecords.slice(0, 50)).length} rows="> tbody > tr" size={10} cards={[null, 'Buyer', 'Awarded', 'Value']} title={1}>
             <table style={{ ...tableStyle, minWidth: '560px' }}>
               <thead>
                 <tr style={headerRow}>
@@ -704,7 +704,7 @@ export default async function DonorPage({ params }: PageProps) {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Recipients · top {Math.min(recipientRows.length, 50)}</h2>
-        <NoJsPager id="slug-3" count={(recipientRows.slice(0, 50)).length} rows="> tbody > tr" size={10}>
+        <NoJsPager id="slug-3" count={(recipientRows.slice(0, 50)).length} rows="> tbody > tr" size={10} cards={[null, 'Type', 'Donations', 'Total']} title={1}>
         <table style={tableStyle}>
           <thead>
             <tr style={headerRow}>
@@ -727,7 +727,7 @@ export default async function DonorPage({ params }: PageProps) {
                     )}
                   </td>
                   <td style={{ ...td, textAlign: 'left', fontSize: '15px' }}>{r.type || ''}</td>
-                  <td style={td}>{r.count}</td>
+                  <td style={td}>{r.count.toLocaleString('en-GB')}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
                 </tr>
               );
@@ -736,17 +736,17 @@ export default async function DonorPage({ params }: PageProps) {
         </table>
         </NoJsPager>
         {recipientRows.length > 50 && (
-          <p style={{ fontSize: '15px', marginTop: '8px' }}>Showing top 50 of {recipientRows.length}.</p>
+          <p style={{ fontSize: '15px', marginTop: '8px' }}>Showing top 50 of {recipientRows.length.toLocaleString('en-GB')}.</p>
         )}
       </section>
 
       {/* Record-level list (audit reassessment, 16 Oct 2026): every donation, newest first, with
           its Electoral Commission reference, so a reader can check the original entry. */}
       <section style={{ marginBottom: '32px' }}>
-        <h2 style={sectionH2}>Each donation{donations.length > 100 ? ` · newest 100 of ${donations.length}` : ''}</h2>
+        <h2 style={sectionH2}>Each donation{donations.length > 100 ? ` · newest 100 of ${donations.length.toLocaleString('en-GB')}` : ''}</h2>
         {/* Phones (report 47): the date column stays put while the other columns scroll, with a hint when more are out of view. */}
         <PhoneTable sticky={1}>
-<NoJsPager id="donor-each" count={(donations.slice(0, 100)).length} rows="> tbody > tr" size={10}>
+<NoJsPager id="donor-each" count={(donations.slice(0, 100)).length} rows="> tbody > tr" size={10} cards={[null, 'Recipient', 'Type', 'Amount', 'EC reference']} title={1}>
           <table style={{ ...tableStyle, minWidth: '600px' }}>
             <thead>
               <tr style={headerRow}>

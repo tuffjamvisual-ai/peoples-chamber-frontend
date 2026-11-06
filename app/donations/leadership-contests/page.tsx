@@ -7,7 +7,7 @@
 // official EC search interface doesn't pivot by this column. This
 // page assembles each contest into a single league table.
 
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -125,14 +125,15 @@ export default async function LeadershipContestsPage() {
         </p>
       </header>
 
-      {orderedContests.map((c) => {
+      {orderedContests.map((c, contestIndex) => {
         const candidates = Array.from(c.candidates.values()).sort((a, b) => b.total - a.total);
         return (
           <section key={c.contest} style={{ marginBottom: '32px' }}>
             <h2 style={sectionH2}>
               {c.contest} <span style={{ fontSize: '15px', marginLeft: '8px' }}>{c.count} donations · &pound;{Math.round(c.total).toLocaleString()}</span>
             </h2>
-            <NoJsPager id={`lc-${c.contest}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(candidates).length} rows="> tbody > tr" size={15}>
+            <NoJsFold id={`lcf-${contestIndex}`} open={contestIndex === 0} label={`${candidates.length.toLocaleString('en-GB')} candidates`}>
+            <NoJsPager id={`lc-${c.contest}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(candidates).length} rows="> tbody > tr" cards={[null, 'Year', 'Donations', 'Total raised', 'Largest donor']} title={1} size={15}>
             <table style={tableStyle}>
               <thead>
                 <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -161,13 +162,14 @@ export default async function LeadershipContestsPage() {
               </tbody>
             </table>
             </NoJsPager>
+            </NoJsFold>
           </section>
         );
       })}
 
       <section>
         <h2 style={sectionH2}>Largest single leadership / mayoral donations</h2>
-        <NoJsPager id="leader-0" count={(top30).length} rows="> tbody > tr" size={15}>
+        <NoJsPager id="leader-0" count={(top30).length} rows="> tbody > tr" size={15} cards={[null, 'To', 'For', 'Accepted', 'Amount']} title={1}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
