@@ -8,6 +8,8 @@ import { archiveSessions } from '@/lib/pmqs-archive';
 import { allPetitions } from '@/lib/petition-pages';
 import { allConstituencies } from '@/lib/constituency-pages';
 import { edmSitemapRows } from '@/lib/edm-pages';
+import { questionDepartmentStats } from '@/lib/question-pages';
+import { QUESTION_DEPARTMENTS } from '@/lib/question-departments';
 import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
@@ -168,6 +170,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Every session in the PMQs archive, 1961 to 2024: dated by the session, which does not change.
   const pmqsArchiveEntries: MetadataRoute.Sitemap = (await archiveSessions()).map((p) => ({ url: `${SITE}/pmqs/${p.date}`, lastModified: new Date(`${p.date}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 }));
+
+  // /questions and each department's page, dated by the latest answer. Individual questions are not listed (owner, 6 Nov 2026).
+  const questionStats = await questionDepartmentStats().catch(() => []);
+  const questionEntries: MetadataRoute.Sitemap = questionStats.length ? [
+    { url: `${SITE}/questions`, ...dated(newest(...questionStats.map((r) => r.latest_answer))), changeFrequency: 'daily' as const, priority: 0.6 },
+    ...QUESTION_DEPARTMENTS.map((d) => ({ url: `${SITE}/questions/department/${d.slug}`, ...dated(newest(questionStats.find((r) => r.answering_body_id === d.id)?.latest_answer)), changeFrequency: 'weekly' as const, priority: 0.5 })),
+  ] : [];
 
   // /edms and each motion with 10 or more signatures, dated by its latest signature. Others stay indexable by link.
   const motionRows = await edmSitemapRows().catch(() => []);
@@ -474,6 +483,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...petitionEntries,
     ...constituencyEntries,
     ...motionEntries,
+    ...questionEntries,
     ...partyEntries,
     ...billEntries,
     ...billSessionEntries,

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import { questionUrl, type QuestionsSummary } from '@/lib/mp-written-questions';
+import type { QuestionsSummary } from '@/lib/mp-written-questions';
 
 // "Written questions: N since <date>", the newest five and a link to them all (owner, 3 Nov 2026). Shared by the MP
 // profile's In the House tab and the peer pages (/lords/[id]); `allHref` is /mps/<id>/questions or /lords/<id>/questions.
@@ -20,14 +20,13 @@ export default function WrittenQuestionsSummary({ summary, allHref, style }: { s
       </p>
       <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 8px' }}>
         {summary.recent.map((q) => {
-          const href = questionUrl(q);
           const title = (q.heading || `Written question ${q.uin}`).trim();
           return (
             <li key={q.id} style={{ padding: '7px 0', borderBottom: inkDivider, fontSize: '15px' }}>
               <span style={{ fontFamily: 'var(--font-special-elite), monospace', whiteSpace: 'nowrap' }}>{q.date_tabled ? fmt(q.date_tabled) : ''}</span>
               {q.answering_body && <span> · {q.answering_body}</span>}
               <div>
-                {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold' }}>{title}</a> : <strong>{title}</strong>}
+                <a href={`/questions/${q.id}`} style={{ ...inkLink, fontWeight: 'bold' }}>{title}</a>
               </div>
             </li>
           );

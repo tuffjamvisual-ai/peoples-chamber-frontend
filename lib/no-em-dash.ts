@@ -72,7 +72,7 @@ const EXACT_COLUMNS: Record<string, string[]> = {
   lords_divisions: ['motion_text'],
   early_day_motions: ['title', 'motion_text', 'statutory_instrument_title'],
   early_day_motion_signatures: ['early_day_motions', 'member_name', 'party'],   // the joined motion on MP pages
-  parliament_written_questions: ['question_text', 'answer_text', 'answer_html'],
+  parliament_written_questions: ['question_text', 'answer_text', 'answer_html', 'original_answer_html', 'heading', 'answering_body', 'attachments'],
   bill: ['title', 'long_title', 'description'],
   bill_in_session: ['title'],
   bill_topic_listing_stored: ['title'],

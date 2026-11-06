@@ -161,6 +161,8 @@ async function linksFrom(parent: string, re: RegExp): Promise<string[]> {
   add('/pmqs/[date]', '/pmqs/1991-11-05', 'archive session, 1991');
   add('/pmqs/[date]', '/pmqs/2015-03-18', 'archive session, 2015');
   add('/mps/[id]/pmqs', '/mps/185/pmqs', 'with archive data');
+  add('/questions/department/[slug]', '/questions/department/science-innovation-and-technology', 'a reorganised department');
+  add('/questions/[id]', '/questions/1951193', 'a corrected answer with its original');
   add('/edms/[id]', '/edms/65938', 'most signatures');
   add('/edms/[id]', '/edms/62415', 'a long list with a withdrawn signature');
   add('/constituencies/[slug]', '/constituencies/clacton', 'most candidates, 34 at the byelection');

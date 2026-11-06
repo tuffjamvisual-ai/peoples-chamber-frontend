@@ -79,3 +79,7 @@
 /edms
 /edms/65938
 /edms/62415
+# Written questions (owner, 6 Nov 2026): the search page, a reorganised department and a corrected answer with its original.
+/questions
+/questions/department/science-innovation-and-technology
+/questions/1951193

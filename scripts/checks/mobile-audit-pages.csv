@@ -231,3 +231,6 @@ route,example_url,why_chosen
 "/edms","/edms","the only page of this route"
 "/edms/[id]","/edms/65938","most signatures"
 "/edms/[id]","/edms/62415","a long list with a withdrawn signature"
+"/questions","/questions","the only page of this route"
+"/questions/department/[slug]","/questions/department/science-innovation-and-technology","a reorganised department"
+"/questions/[id]","/questions/1951193","a corrected answer with its original"

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type CSSProperties } from 'react';
-import { questionUrl, QUESTIONS_PER_PAGE, type WrittenQuestion } from '@/lib/mp-written-questions';
+import { QUESTIONS_PER_PAGE, type WrittenQuestion } from '@/lib/mp-written-questions';
 
 // The list on /mps/[id]/questions (owner, 3 Nov 2026): page 1 of all questions comes from the cached page; other pages
 // and a department filter are read from /api/mps/[id]/questions (or /api/lords/[id]/questions on peer pages).
@@ -64,7 +64,6 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
 
       <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', opacity: status === 'loading' ? 0.5 : 1 }}>
         {rows.map((q) => {
-          const href = questionUrl(q);
           const title = (q.heading || `Written question ${q.uin}`).trim();
           return (
             <li key={q.id} style={{ padding: '9px 0', borderBottom: divider }}>
@@ -72,7 +71,7 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
                 <span style={{ fontFamily: MONO, whiteSpace: 'nowrap' }}>{fmt(q.date_tabled)}</span>
                 {q.answering_body && <span> · {q.answering_body}</span>}
               </div>
-              <div>{href ? <a href={href} target="_blank" rel="noopener noreferrer" style={link}>{title}</a> : <strong>{title}</strong>}</div>
+              <div><a href={`/questions/${q.id}`} style={link}>{title}</a></div>
               <div>{q.is_withdrawn ? 'Withdrawn' : q.date_answered ? `Answered ${fmt(q.date_answered)}` : 'Awaiting answer'}</div>
             </li>
           );

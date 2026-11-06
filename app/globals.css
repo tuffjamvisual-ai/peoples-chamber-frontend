@@ -178,6 +178,13 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .pa-fold > summary::before { content: "+"; flex: none; width: 20px; color: #7a1612; }
 .pa-fold[open] > summary::before { content: "\2212"; }
 .pa-fold { border-top: 1px solid rgba(20,16,13,0.25); }
+/* Written answers as published: wide tables scroll inside themselves, not the page (owner, 6 Nov 2026). */
+.wq-html { font-size: 16px; line-height: 1.65; color: #14100d; overflow-wrap: anywhere; }
+.wq-html p { margin: 0 0 12px; }
+.wq-html a { color: #14100d; text-decoration: underline; }
+.wq-html table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0 0 12px; font-size: 15px; }
+.wq-html td, .wq-html th { padding: 4px 8px; border: 1px solid rgba(20,16,13,0.35); }
+.wq-html img { max-width: 100%; height: auto; }
 .pa-year { margin-left: 12px; }
 .pa-year > summary { font-size: 15px; }
 .mc-more > summary { justify-content: center; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }

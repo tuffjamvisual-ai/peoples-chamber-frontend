@@ -13,13 +13,15 @@ export function answerPaths(rows: AnswerRow[]): { members: number; paths: string
     else continue;
     members.add(`${r.house}:${id}`);
   }
+  // Each question's own page too (/questions/<id>).
+  for (const r of rows) paths.add(`/questions/${r.id}`);
   return { members: members.size, paths: [...paths] };
 }
 
-type Stored = { date_answered: string | null; answer_html: string | null; is_withdrawn: boolean | null; heading: string | null; answering_body: string | null };
+type Stored = { date_answered: string | null; answer_html: string | null; is_withdrawn: boolean | null; heading: string | null; answering_body: string | null; date_holding_answer: string | null; date_answer_corrected: string | null };
 
 // Whether a question just read holds an answer we did not have. A new question with no answer yet is not one.
 export function answerChanged(next: Record<string, unknown>, held: Stored | undefined): boolean {
   if (!held) return !!(next.date_answered || next.answer_html);
-  return (['date_answered', 'answer_html', 'is_withdrawn', 'heading', 'answering_body'] as const).some((k) => (held[k] ?? null) !== (next[k] ?? null));
+  return (['date_answered', 'answer_html', 'is_withdrawn', 'heading', 'answering_body', 'date_holding_answer', 'date_answer_corrected'] as const).some((k) => (held[k] ?? null) !== (next[k] ?? null));
 }

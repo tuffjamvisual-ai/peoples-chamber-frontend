@@ -26,6 +26,7 @@
 //   answered   Every half hour: newly answered and corrected questions, whatever day they were tabled (runAnswered).
 //   weekly     Sundays, 07:00 to 11:00 UTC, clear of the database backup (12:00), phone length (13:15) and archive copy
 //              (14:17): the last 90 days of answers against Parliament's lists, a day at a time (runWeekly).
+//   unanswered Daily: the unanswered list, for new holding answers and withdrawals (runUnanswered).
 //   refresh    At the end of every run, the pages of members whose answers changed in it (refreshAnswerPages).
 // The cursor (parliament_archive_sync_state.cursor) is the current date and position in it, saved with every batch of
 // rows, so a run that stops part way loses nothing. Rows are upserted by primary key, so a batch read twice is never
@@ -50,6 +51,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { noteChanged, revalidatePath } from '@/lib/refresh-count';
 import { answerChanged, answerPaths, type AnswerRow } from '@/lib/written-answers-refresh';
+import { htmlToText, questionRow, type WQ } from '@/lib/written-question-row';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 270;
@@ -72,6 +74,8 @@ const MONTHLY_SAMPLE = 20;
 const ANSWERED_EVERY_MS = 30 * 60 * 1000;               // newly answered questions: every half hour, a few list pages
 const ANSWERED_PHASE_MS = 60_000;
 const ANSWERED_FIRST_FROM = '2026-11-02';               // where the pass starts if it has never finished
+const UNANSWERED_EVERY_MS = 20 * 60 * 60 * 1000;         // "daily", with slack for the 10 minute schedule
+const UNANSWERED_PHASE_MS = 60_000;
 const WEEKLY_EVERY_MS = 6 * 24 * 60 * 60 * 1000;
 const WEEKLY_PHASE_MS = 120_000;
 const WEEKLY_DAYS = 90;
@@ -96,23 +100,6 @@ const day = (d: Date) => d.toISOString().slice(0, 10);
 const addDays = (iso: string, n: number) => { const d = new Date(`${iso}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return day(d); };
 // Hansard ids come in either case; hansard_debates and new rows keep them in upper case, as the page links them.
 const up = (id: string | null | undefined) => (id ?? '').trim().toUpperCase() || null;
-
-// Plain text from Hansard and answer HTML: paragraphs kept as blank lines, tags dropped, entities decoded.
-const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', ndash: '–', mdash: '—', hellip: '…', pound: '£' };
-export function htmlToText(html: string | null | undefined): string {
-  if (!html) return '';
-  return html
-    .replace(/<\s*br\s*\/?>/gi, '\n')
-    .replace(/<\/\s*(p|div|li|h[1-6]|tr)\s*>/gi, '\n\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
-    .replace(/&([a-z]+);/gi, (m, n) => ENTITIES[n.toLowerCase()] ?? m)
-    .replace(/[ \t ]+/g, ' ')
-    .replace(/ *\n */g, '\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
 
 type State = { source: string; cursor: Record<string, unknown> | null; rows_done: number | null; last_run_at: string | null; last_error: string | null; finished_at: string | null };
 type Row = Record<string, unknown>;
@@ -241,7 +228,7 @@ class Run {
   // Questions, noting first which of them carry a new or changed answer, so only those members' pages are refreshed.
   async saveQuestions(rows: Row[]) {
     if (!rows.length) return;
-    const { data, error } = await this.db.from('parliament_written_questions').select('id, date_answered, answer_html, is_withdrawn, heading, answering_body').in('id', rows.map((r) => r.id));
+    const { data, error } = await this.db.from('parliament_written_questions').select('id, date_answered, answer_html, is_withdrawn, heading, answering_body, date_holding_answer, date_answer_corrected').in('id', rows.map((r) => r.id));
     if (error) throw new Error(`stored questions read: ${error.message}`);
     const held = new Map(((data ?? []) as HeldAnswer[]).map((r) => [r.id, r]));
     const kept = await this.upsert('parliament_written_questions', 'id', rows, 'questions', laterAnswer);
@@ -638,22 +625,9 @@ type QCursor = { date: string; skip?: number; ids?: number[]; next?: number };
 // The questions top up (owner, 4 Nov 2026) keeps its place in cursor.top_up: three days can hold over 1,000 questions and a
 // run reads about 300, so starting again from the oldest day each time never reached the newest (3 Nov was missed). A top
 // up in progress carries on at the next run, every 10 minutes, and top_up is removed when it finishes.
-type WQ = { id: number; uin: string; house: string; dateTabled: string | null; dateAnswered: string | null; askingMemberId: number | null; answeringMemberId: number | null; answeringBodyId: number | null; answeringBodyName: string | null; heading: string | null; questionText: string | null; answerText: string | null; isWithdrawn: boolean | null };
 const PAGE = 100;
 // Questions: the copy with the latest date_answered, or else the last one seen.
 const laterAnswer = (a: Record<string, unknown>, b: Record<string, unknown>) => String(a.date_answered ?? '') >= String(b.date_answered ?? '');
-
-function questionRow(q: WQ): Record<string, unknown> {
-  const tabled = q.dateTabled ? q.dateTabled.slice(0, 10) : null;
-  return {
-    id: q.id, uin: q.uin, house: q.house, date_tabled: tabled, date_answered: q.dateAnswered ? q.dateAnswered.slice(0, 10) : null,
-    asking_member_id: q.askingMemberId, answering_member_id: q.answeringMemberId, answering_body_id: q.answeringBodyId,
-    answering_body: q.answeringBodyName, heading: q.heading, question_text: htmlToText(q.questionText),
-    answer_text: q.answerText ? htmlToText(q.answerText) : null, answer_html: q.answerText, is_withdrawn: q.isWithdrawn,
-    url: tabled ? `https://questions-statements.parliament.uk/written-questions/detail/${tabled}/${q.uin}` : null,
-    fetched_at: new Date().toISOString(),
-  };
-}
 
 // onlyMissing (local tests only, ?missing_only=1): ids already stored are not fetched again (owner, 3 Nov 2026: the
 // recovery of questions skipped before the fix, scripts/recover-written-question-days.js).
@@ -714,8 +688,8 @@ async function runQuestions(run: Run, s: State, from: string, until: string, top
 // by answered date and then by corrected date; a question is read in full only if we do not hold that answer, so a pass
 // costs a few list pages plus the new answers. Keeps its place in cursor.answered, like the top up.
 type ACursor = { from: string; stage: 'answered' | 'corrected'; skip: number; ids?: number[]; next?: number; total?: number };
-type ListedQ = { id: number; dateAnswered: string | null; dateAnswerCorrected: string | null; answerText?: string | null; isWithdrawn?: boolean | null; heading?: string | null; answeringBodyName?: string | null };
-type HeldAnswer = { id: number; date_answered: string | null; answer_html: string | null; is_withdrawn: boolean | null; heading: string | null; answering_body: string | null };
+type ListedQ = { id: number; dateAnswered: string | null; dateAnswerCorrected: string | null; answerText?: string | null; isWithdrawn?: boolean | null; heading?: string | null; answeringBodyName?: string | null; dateHoldingAnswer?: string | null };
+type HeldAnswer = { id: number; date_answered: string | null; answer_html: string | null; is_withdrawn: boolean | null; heading: string | null; answering_body: string | null; date_holding_answer: string | null; date_answer_corrected: string | null };
 
 async function runAnswered(run: Run, s: State, firstFrom: string | null) {
   const base = run.rows;
@@ -782,6 +756,8 @@ function listEntryDiffers(q: ListedQ, h: HeldAnswer | undefined) {
   if (!h) return true;
   if ((h.date_answered ?? null) !== (q.dateAnswered ? q.dateAnswered.slice(0, 10) : null)) return true;
   if (!!h.is_withdrawn !== !!q.isWithdrawn) return true;
+  if ((h.date_holding_answer ?? null) !== (q.dateHoldingAnswer ? q.dateHoldingAnswer.slice(0, 10) : null)) return true;
+  if ((h.date_answer_corrected ?? null) !== (q.dateAnswerCorrected ? q.dateAnswerCorrected.slice(0, 10) : null)) return true;
   if ((h.heading ?? null) !== (q.heading ?? null) || (h.answering_body ?? null) !== (q.answeringBodyName ?? null)) return true;
   const listed = q.answerText ?? '';
   const cut = listed.endsWith('...');
@@ -803,7 +779,7 @@ async function runWeekly(run: Run, s: State, firstFrom: string | null, today: st
       if (!cur.ids) {
         const page = await run.getJson<{ totalResults: number; results: { value: ListedQ }[] }>(`${QUESTIONS}/questions?answeredWhenFrom=${cur.date}&answeredWhenTo=${cur.date}&includeWithdrawn=true&take=${PAGE}&skip=${cur.skip}`);
         const listed = page.results.map((r) => r.value);
-        const { data, error } = listed.length ? await run.db.from('parliament_written_questions').select('id, date_answered, answer_html, is_withdrawn, heading, answering_body').in('id', listed.map((q) => q.id)) : { data: [], error: null };
+        const { data, error } = listed.length ? await run.db.from('parliament_written_questions').select('id, date_answered, answer_html, is_withdrawn, heading, answering_body, date_holding_answer, date_answer_corrected').in('id', listed.map((q) => q.id)) : { data: [], error: null };
         if (error) throw new Error(`stored answers read: ${error.message}`);
         const held = new Map(((data ?? []) as HeldAnswer[]).map((r) => [r.id, r]));
         const ids = listed.filter((q) => listEntryDiffers(q, held.get(q.id))).map((q) => q.id);
@@ -849,6 +825,62 @@ async function runWeekly(run: Run, s: State, firstFrom: string | null, today: st
   }
 }
 
+// Once a day (owner, 6 Nov 2026): the unanswered list, withdrawn questions included, about 42 pages. A holding answer or a withdrawal comes
+// while a question has no answer, so neither the half hourly pass, which lists answers, nor the 3 day top up sees it. Reads in full only a
+// question whose holding date or withdrawal differs from what we hold, or that we do not hold. Keeps its place in cursor.unanswered.
+type UCursor = { window: number; skip: number; ids?: number[]; next?: number; total?: number };
+// By date, because the API fails on deep pages of this list: the last three months, then everything older. About 40 pages.
+function unansweredWindows(today: string): string[] {
+  const cuts = [addDays(today, -30), addDays(today, -60), addDays(today, -90)];
+  return [`tabledWhenFrom=${cuts[0]}`, `tabledWhenFrom=${cuts[1]}&tabledWhenTo=${addDays(cuts[0], -1)}`, `tabledWhenFrom=${cuts[2]}&tabledWhenTo=${addDays(cuts[1], -1)}`, `tabledWhenFrom=${START}&tabledWhenTo=${addDays(cuts[2], -1)}`];
+}
+async function runUnanswered(run: Run, s: State, today: string) {
+  const windows = unansweredWindows(today);
+  const base = run.rows;
+  const rowsDone = () => (s.rows_done ?? 0) + run.rows - base;
+  const startedAt = new Date().toISOString();
+  let cur: UCursor = (s.cursor?.unanswered as UCursor | undefined) || { window: 0, skip: 0 };
+  const save = async () => { await run.saveState({ ...s, cursor: { ...(s.cursor ?? {}), unanswered: cur }, rows_done: rowsDone(), last_error: null }, false); };
+  const batch: Record<string, unknown>[] = [];
+  const flush = () => run.saveQuestions(batch.splice(0));
+  try {
+    for (;;) {
+      if (!cur.ids) {
+        const page = await run.getJson<{ totalResults: number; results: { value: ListedQ }[] }>(`${QUESTIONS}/questions?answered=Unanswered&${windows[cur.window]}&includeWithdrawn=true&take=${PAGE}&skip=${cur.skip}`);
+        const listed = page.results.map((r) => r.value);
+        const { data, error } = listed.length ? await run.db.from('parliament_written_questions').select('id, date_holding_answer, is_withdrawn').in('id', listed.map((q) => q.id)) : { data: [], error: null };
+        if (error) throw new Error(`stored holding answers read: ${error.message}`);
+        const held = new Map(((data ?? []) as { id: number; date_holding_answer: string | null; is_withdrawn: boolean | null }[]).map((r) => [r.id, r]));
+        const stale = (q: ListedQ) => {
+          const h = held.get(q.id);
+          return !h || !!h.is_withdrawn !== !!q.isWithdrawn || (h.date_holding_answer ?? null) !== (q.dateHoldingAnswer ? q.dateHoldingAnswer.slice(0, 10) : null);
+        };
+        cur = { ...cur, ids: listed.filter(stale).map((q) => q.id), next: 0, total: page.totalResults };
+      }
+      while ((cur.next ?? 0) < (cur.ids ?? []).length) {
+        batch.push(questionRow((await run.getJson<{ value: WQ }>(`${QUESTIONS}/questions/${(cur.ids ?? [])[cur.next ?? 0]}`)).value));
+        cur.next = (cur.next ?? 0) + 1;
+        if (batch.length >= 20) { await flush(); await save(); }
+      }
+      await flush();
+      const nextSkip = cur.skip + PAGE;
+      if (nextSkip < (cur.total ?? 0)) cur = { window: cur.window, skip: nextSkip };
+      else if (cur.window + 1 < windows.length) cur = { window: cur.window + 1, skip: 0 };
+      else break;
+      await save();
+    }
+    const rest = { ...(s.cursor ?? {}) };
+    delete rest.unanswered;
+    await run.saveState({ ...s, cursor: { ...rest, unanswered_ok_at: startedAt }, rows_done: rowsDone(), last_error: null }, false);
+    return 'done';
+  } catch (e) {
+    if (e instanceof StopRun || e instanceof SourceRefused) await flush();
+    if (e instanceof StopRun) { await save(); return 'partial'; }
+    if (e instanceof SourceRefused) { await run.saveState({ ...s, cursor: { ...(s.cursor ?? {}), unanswered: cur }, rows_done: rowsDone(), last_error: `${e.message} at ${new Date().toISOString()}` }, false); return 'refused'; }
+    throw e;
+  }
+}
+
 const inWeeklyWindow = (now: Date) => now.getUTCDay() === 0 && now.getUTCHours() >= 7 && now.getUTCHours() < 11;
 
 // The pages of members whose answers changed in this run, all sent together at its end.
@@ -876,6 +908,7 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise
 //   ?source=speeches|questions|debates&date=YYYY-MM-DD fetches that one day (as a top up, so no cursor is touched);
 //   ?source=answered&date=YYYY-MM-DD reads every answer and correction from that date, as the half hourly pass does;
 //   ?source=weekly&date=YYYY-MM-DD checks every answered day from that date, as the Sunday pass does;
+//   ?source=unanswered&date=YYYY-MM-DD checks the unanswered list, as the daily pass does (the date is not used);
 //   &pretend_changed=1 counts every question read as changed, and refreshes the pages of this local server even if dry;
 //   with source=debates, &only=GUID,GUID stores just those debates with their parents and children;
 //   ?source=refetch&guid=GUID re-fetches one stored id; ?budget_ms shortens the run;
@@ -892,7 +925,7 @@ function testOptions(req: Request) {
   const missingOnly = u.searchParams.get('missing_only') === '1';
   const pretendChanged = u.searchParams.get('pretend_changed') === '1';
   if (source === 'refetch' && guid && /^[0-9A-Fa-f-]{36}$/.test(guid)) return { source, date: '', guid: up(guid)!, only: null, dry, budgetMs, missingOnly: false, pretendChanged: false };
-  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || (source !== 'speeches' && source !== 'questions' && source !== 'debates' && source !== 'answered' && source !== 'weekly')) return null;
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || (source !== 'speeches' && source !== 'questions' && source !== 'debates' && source !== 'answered' && source !== 'weekly' && source !== 'unanswered')) return null;
   const only = u.searchParams.get('only');
   return { date, source, guid: null, only: only ? new Set(only.split(',').map((g) => up(g)!).filter(Boolean)) : null, dry, budgetMs, missingOnly, pretendChanged };
 }
@@ -921,8 +954,8 @@ async function GET_impl(req: Request) {
     if (test) {
       if (test.source === 'refetch') results.refetch = await runRefetch(run, test.guid!);
       else {
-        const s = await run.state(test.source === 'debates' ? 'speeches' : test.source === 'answered' || test.source === 'weekly' ? 'questions' : test.source);
-        results[test.source] = test.source === 'weekly' ? await runWeekly(run, s, test.date, today) : test.source === 'answered' ? await runAnswered(run, s, test.date) : test.source === 'questions'
+        const s = await run.state(test.source === 'debates' ? 'speeches' : test.source === 'answered' || test.source === 'weekly' || test.source === 'unanswered' ? 'questions' : test.source);
+        results[test.source] = test.source === 'unanswered' ? await runUnanswered(run, s, today) : test.source === 'weekly' ? await runWeekly(run, s, test.date, today) : test.source === 'answered' ? await runAnswered(run, s, test.date) : test.source === 'questions'
           ? await runQuestions(run, s, test.date, test.date, true, test.missingOnly && !test.dry)
           : await runDays(run, s, test.date, test.date, true, test.only ?? undefined);
       }
@@ -956,6 +989,10 @@ async function GET_impl(req: Request) {
         const beforeWeekly = await run.state('questions');
         if (beforeWeekly.finished_at && inWeeklyWindow(new Date()) && run.timeLeft() > RESERVE_MS * 2 && (beforeWeekly.cursor?.weekly || due(beforeWeekly, WEEKLY_EVERY_MS, beforeWeekly.cursor?.weekly_ok_at ?? '1970-01-01'))) {
           results.weekly = await run.phase(WEEKLY_PHASE_MS, () => runWeekly(run, beforeWeekly, null, today));
+        }
+        const beforeUnanswered = await run.state('questions');
+        if (beforeUnanswered.finished_at && run.timeLeft() > RESERVE_MS * 2 && (beforeUnanswered.cursor?.unanswered || due(beforeUnanswered, UNANSWERED_EVERY_MS, beforeUnanswered.cursor?.unanswered_ok_at ?? '1970-01-01'))) {
+          results.unanswered = await run.phase(UNANSWERED_PHASE_MS, () => runUnanswered(run, beforeUnanswered, today));
         }
         const q = await run.state('questions');
         const qTopUpDue = !!q.cursor?.top_up || due(q, TOP_UP_EVERY_MS);
