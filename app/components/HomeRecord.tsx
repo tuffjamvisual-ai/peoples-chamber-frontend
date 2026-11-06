@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { archiveSessions } from '@/lib/pmqs-archive';
 import { pmqsSet } from '@/lib/pmqs';
+import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 
 const INK = '#14100d';
 const para = { fontSize: '16px', lineHeight: 1.6, color: INK, margin: 0 };
@@ -10,10 +11,16 @@ const link = { color: INK, textDecoration: 'underline' };
 // as /pmqs counts it: the current sessions and the archive. If that read fails the sentence goes without the count, and the page still shows.
 export default async function HomeRecord() {
   const sessions = await Promise.all([pmqsSet(), archiveSessions()]).then(([set, archive]) => set.sessions.length + archive.length).catch(() => null);
+  const before = await preFixedSummary().catch(() => null);
   const items = [
     <Link key="pmqs" href="/pmqs" prefetch={false} style={link}>
       Every Prime Minister&rsquo;s Questions since October 1961{sessions ? `: ${sessions.toLocaleString('en-GB')} sessions,` : ','} from Macmillan to Burnham, with every question and answer as Hansard recorded it.
     </Link>,
+    ...(before ? [
+      <Link key="pre1961" href="/pmqs#before-fixed-pmqs" prefetch={false} style={link}>
+        Questions to the Prime Minister from 1945 to 1961: {before.questions.toLocaleString('en-GB')} questions on {before.days.toLocaleString('en-GB')} days, before PMQs had a fixed time.
+      </Link>,
+    ] : []),
     <Link key="petitions" href="/petitions" prefetch={false} style={link}>Every petition this Parliament that reached 10,000 signatures, with the government&rsquo;s full response.</Link>,
     <span key="seats">
       <Link href="/constituencies" prefetch={false} style={link}>Every constituency&rsquo;s 2024 result and byelections</Link>,{' '}

@@ -1,4 +1,5 @@
 import MoreChain from '../components/MoreChain';
+import PreFixedQuestions from './PreFixedQuestions';
 import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel, type ListedSession } from '@/lib/pmqs-archive';
 import type { PmqsSet } from '@/lib/pmqs';
 
@@ -41,6 +42,7 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
           ))}
         </details>
       ))}
+      <PreFixedQuestions />
       <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '28px 0 10px' }}>Our count against the Commons Library</h3>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
         <thead>

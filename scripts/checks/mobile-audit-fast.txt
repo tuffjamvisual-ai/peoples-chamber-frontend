@@ -47,6 +47,12 @@
 /pmqs/1961-12-07
 /pmqs/1991-11-05
 /pmqs/2015-03-18
+# Questions to the Prime Minister, 1945 to 1961 (owner, 6 Nov 2026): the notes page, the days with the most text and the most contributions, the experiment, and a date not confirmed.
+/pmqs/1945-to-1961
+/pmqs/1945-to-1961/1949-04-26
+/pmqs/1945-to-1961/1960-02-18
+/pmqs/1945-to-1961/1961-07-18
+/pmqs/1945-to-1961/1946-03-11
 /mps/185/pmqs
 # The 5 tallest reports at 375px on 5 Nov 2026, also measured with JavaScript off (owner, 5 Nov 2026).
 /editorials/se9k4m2xq7

@@ -165,6 +165,11 @@ async function linksFrom(parent: string, re: RegExp): Promise<string[]> {
   add('/pmqs/[date]', '/pmqs/1961-12-07', 'archive session, 1961');
   add('/pmqs/[date]', '/pmqs/1991-11-05', 'archive session, 1991');
   add('/pmqs/[date]', '/pmqs/2015-03-18', 'archive session, 2015');
+  add('/pmqs/1945-to-1961', '/pmqs/1945-to-1961', 'the only page of this route');
+  add('/pmqs/1945-to-1961/[date]', '/pmqs/1945-to-1961/1949-04-26', 'the most text in a day');
+  add('/pmqs/1945-to-1961/[date]', '/pmqs/1945-to-1961/1960-02-18', 'the most contributions in a day');
+  add('/pmqs/1945-to-1961/[date]', '/pmqs/1945-to-1961/1961-07-18', 'the 3.15 p.m. experiment');
+  add('/pmqs/1945-to-1961/[date]', '/pmqs/1945-to-1961/1946-03-11', 'a date not confirmed on Historic Hansard');
   add('/mps/[id]/pmqs', '/mps/185/pmqs', 'with archive data');
   add('/mps/[id]/pmqs', '/mps/4128/pmqs', 'a former MP');
   add('/mps/[id]/pmqs', '/mps/8/pmqs', 'a former Prime Minister, answers apart from questions');
