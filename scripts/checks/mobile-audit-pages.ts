@@ -133,6 +133,8 @@ async function linksFrom(parent: string, re: RegExp): Promise<string[]> {
   fromDb('/divisions/[slug]', 'division', (k) => { const [d, n] = k.split('|'); return `/divisions/pw-${d}-${n}-commons`; });
   fromList('/divisions/year/[year]', ['/divisions/year/2024', '/divisions/year/2019', '/divisions/year/2016'], 'the years on /divisions');
   fromDb('/donors/[slug]', 'donor', (k) => { const s = donorPageSlug(k); return s ? `/donors/${s}` : null; });
+  add('/donors/[slug]', '/donors/unison', 'second most donation rows, 1,704');
+  add('/donors/[slug]', '/donors/unite-the-union', 'third most donation rows, 1,038');
   fromDb('/editorials/[slug]', 'editorial', (k) => `/editorials/${k}`);
   fromDb('/lobbying/[slug]', 'lobby', (k) => `/lobbying/${k}`);
   fromDb('/organisations/[slug]', 'org', (k) => `/organisations/${k}`);
