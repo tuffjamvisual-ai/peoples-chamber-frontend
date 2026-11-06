@@ -130,11 +130,15 @@ export function buildPetitionRows(json: any): { petition: Record<string, unknown
     response_threshold_reached_at: a.response_threshold_reached_at || null,
     government_response_at: a.government_response_at || null,
     government_response_summary: gr?.summary || null,
+    government_response_details: gr?.details || null,
+    government_response_on: toDateOnly(gr?.responded_on),
     debate_threshold_reached_at: a.debate_threshold_reached_at || null,
     scheduled_debate_date: toDateOnly(a.scheduled_debate_date),
     debated_on: toDateOnly(debate?.debated_on),
     debate_transcript_url: debate?.transcript_url || null,
     debate_video_url: debate?.video_url || null,
+    debate_overview: debate?.overview || null,
+    debate_outcome_at: a.debate_outcome_at || null,
     departments: Array.isArray(a.departments) ? a.departments : [],
     topics: Array.isArray(a.topics) ? a.topics : [],
     url: `${PETITIONS_BASE}/petitions/${id}`,
@@ -186,9 +190,15 @@ export async function writePetitionRows(
 // row changed. `dry` compares but writes nothing.
 const SHOWN = ['action', 'state', 'signature_count', 'constituency_count', 'opened_at', 'closed_at', 'government_response_at', 'debated_on', 'url'] as const;
 const CONST_COLS = ['constituency_name', 'signature_count', 'rank_in_petition', 'share_of_petition_pct'] as const;
+// Stored jsonb comes back with its keys in Postgres's order, not the source's, so departments compare with keys sorted. Without
+// this every petition with a department looked changed on every read (found 6 Nov 2026).
+const sortKeys = (v: unknown): unknown =>
+  v && typeof v === 'object' && !Array.isArray(v)
+    ? Object.fromEntries(Object.keys(v as object).sort().map((k) => [k, sortKeys((v as Record<string, unknown>)[k])]))
+    : Array.isArray(v) ? v.map(sortKeys) : v;
 const canon = (v: unknown): unknown =>
   typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v) ? new Date(/(Z|[+-]\d{2}:?\d{2})$/i.test(v) ? v : `${v}Z`).toISOString()
-    : typeof v === 'number' ? Number(v) : v == null ? null : Array.isArray(v) ? JSON.stringify(v) : v;
+    : typeof v === 'number' ? Number(v) : v == null ? null : Array.isArray(v) ? JSON.stringify(v.map(sortKeys)) : v;
 const same = (a: Record<string, unknown>, b: Record<string, unknown>, cols: readonly string[]) => cols.every((c) => canon(a[c]) === canon(b[c]));
 
 export async function writePetitionChanges(

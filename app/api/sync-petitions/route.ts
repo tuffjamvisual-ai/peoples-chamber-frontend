@@ -9,30 +9,27 @@ import {
   PETITIONS_BASE,
 } from '@/lib/petitions';
 import { isPoliteStop } from '@/lib/sync-budget';
-import { revalidateTag } from '@/lib/refresh-count';
+import { revalidatePath, revalidateTag } from '@/lib/refresh-count';
 import { isDryRun } from '@/lib/mp-refresh';
 import { MP_PETITIONS_TAG } from '@/lib/mp-petitions';
+import { PETITIONS_TAG } from '@/lib/petition-tags';
 import { noteChanged } from '@/lib/refresh-count';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-// Daily: keep the petitions tables current (initial load is done once by
-// scripts/import-petitions.js). Each run:
-//   1. Reads the OPEN list from the most-signed down and refreshes every
-//      open petition at/above the 10,000 threshold — this also picks up any
-//      petition that newly crossed the threshold since the last run.
-//   2. Refreshes, one final time, any petition stored as 'open' that is no
-//      longer on the open list (it has closed since the last run), so its
-//      final signature counts are captured. After that it is stored as
-//      closed and never fetched again — closed petitions can't gain
-//      signatures.
-// Time-budgeted: stops starting new fetches after TIME_BUDGET_MS so the
-// route always returns cleanly (and records its heartbeat) inside
-// maxDuration; anything left over is picked up by the next run.
+// Daily: keep the petitions tables current, one request a second (owner, 6 Nov 2026). The source's two lists are read from
+// the most signed down to the 10,000 threshold, then each petition's own JSON:
+//   1. every open petition, and any listed that we do not hold, so a petition crossing 10,000 gets a row, and so a page;
+//   2. any stored as open that has left the open list, for its final figures;
+//   3. then closed petitions, oldest checked first, while time is left (about 110 a day, each about every 3 days). Closed
+//      petitions still change: on 6 Nov 2026 seven responses, four debates and five debate dates had been missed by a sync
+//      that stopped reading a petition once it closed.
+// checked_at records every read, so it dates the count on the page and picks the next closed petitions. Other columns are
+// written only when they change. Time-budgeted: stops starting new fetches after TIME_BUDGET_MS so the route always returns
+// cleanly (and records its heartbeat) inside maxDuration. ?all=1 (local tests and backfills only) reads all of them.
 
-const CONCURRENCY = 3;
-const DELAY_MS = 250;
+const GAP_MS = 1000;
 const TIME_BUDGET_MS = 240_000;
 
 async function GET_impl(req: Request) {
@@ -51,62 +48,94 @@ async function GET_impl(req: Request) {
   const changedGss = new Set<string>();
   let rowsChanged = 0;
 
+  const readAll = process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('all') === '1';
+  const budgetMs = readAll ? 3_600_000 : TIME_BUDGET_MS;
+
   let openIds: number[];
+  let closedIds: number[];
   try {
-    openIds = await collectPetitionIdsAtThreshold('open', DELAY_MS);
+    openIds = await collectPetitionIdsAtThreshold('open', GAP_MS);
+    await new Promise((r) => setTimeout(r, GAP_MS));
+    closedIds = await collectPetitionIdsAtThreshold('closed', GAP_MS);
+    await new Promise((r) => setTimeout(r, GAP_MS));
   } catch (e) {
     if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: 'list_fetch_failed', message: (e as Error).message }, { status: 502 });
   }
 
-  const { data: storedOpen, error: storedErr } = await supabase
+  const { data: storedRows, error: storedErr } = await supabase
     .from('petitions')
-    .select('id')
-    .eq('state', 'open');
+    .select('id, state, checked_at')
+    .order('checked_at', { ascending: true, nullsFirst: true })
+    .order('id', { ascending: true })
+    .limit(5000);
   if (storedErr) {
     return NextResponse.json({ error: 'db', message: storedErr.message }, { status: 500 });
   }
+  const stored = (storedRows ?? []) as { id: number; state: string; checked_at: string | null }[];
+  const held = new Set(stored.map((r) => Number(r.id)));
   const openSet = new Set(openIds);
-  const closedSinceLastRun = (storedOpen ?? [])
-    .map((r) => r.id as number)
-    .filter((id) => !openSet.has(id));
-
-  const queue = [...new Set([...closedSinceLastRun, ...openIds])];
+  const closedSinceLastRun = stored.filter((r) => r.state === 'open' && !openSet.has(Number(r.id))).map((r) => Number(r.id));
+  const newlyClosed = closedIds.filter((id) => !held.has(id));
+  // These must be read this run; the closed rotation below takes whatever time is left.
+  const must = [...new Set([...closedSinceLastRun, ...newlyClosed, ...openIds])];
+  const mustSet = new Set(must);
+  const rotation = stored.filter((r) => !mustSet.has(Number(r.id))).map((r) => Number(r.id));
+  const queue = [...must, ...rotation];
   const total = queue.length;
   let processed = 0;
   let constituencyRows = 0;
   let skippedForTime = 0;
   const failures: { id: number; error: string }[] = [];
+  const checked: number[] = [];
+  const changedIds: number[] = [];
 
-  async function worker() {
-    while (queue.length > 0) {
-      if (Date.now() - started > TIME_BUDGET_MS) {
-        skippedForTime += queue.length;
-        queue.length = 0;
-        return;
+  // Saved even if a 429 stops the run, so those read are not read again first next time.
+  const saveChecked = async () => {
+    if (dry || !checked.length) return;
+    const ids = checked.splice(0);
+    const at = new Date().toISOString();
+    for (let i = 0; i < ids.length; i += 200) {
+      const { error } = await supabase.from('petitions').update({ checked_at: at }).in('id', ids.slice(i, i + 200));
+      if (error) throw new Error(`checked_at: ${error.message}`);
+    }
+  };
+
+  try {
+    for (const id of queue) {
+      if (Date.now() - started > budgetMs) {
+        skippedForTime = Math.max(0, must.length - queue.indexOf(id));
+        break;
       }
-      const id = queue.shift() as number;
       try {
         const json = await fetchPetitionJson(`${PETITIONS_BASE}/petitions/${id}.json`);
         const built = buildPetitionRows(json);
         const res = await writePetitionChanges(supabase, built, dry);
         for (const g of res.changedGss) changedGss.add(g);
         rowsChanged += res.written;
+        if (res.written > 0) changedIds.push(id);
         constituencyRows += built.constRows.length;
+        checked.push(id);
         processed++;
       } catch (e) {
         if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
         failures.push({ id, error: (e as Error).message });
       }
-      await new Promise((r) => setTimeout(r, DELAY_MS));
+      await new Promise((r) => setTimeout(r, GAP_MS));
     }
+  } finally {
+    await saveChecked();
   }
-  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
   noteChanged(dry ? 0 : rowsChanged);
   // After every run that checked petitions, not only when a count changed: the tab shows the date of the last check.
   const refreshed = !dry && processed > 0;
   if (refreshed) revalidateTag(MP_PETITIONS_TAG, 'max');
+  // The list after any change; only the pages of petitions that changed. MP pages keep their dated top 5 (lib/petition-pages.ts).
+  if (!dry && changedIds.length) {
+    revalidateTag(PETITIONS_TAG, 'max');
+    for (const id of changedIds) revalidatePath(`/petitions/${id}`);
+  }
   const body = {
     ok: failures.length === 0,
     rows_changed: rowsChanged,
@@ -114,7 +143,10 @@ async function GET_impl(req: Request) {
     tab_refreshed: refreshed,
     ...(dry ? { dry_run: true } : {}),
     open_at_threshold: openIds.length,
+    closed_at_threshold: closedIds.length,
     closed_since_last_run: closedSinceLastRun.length,
+    new_closed: newlyClosed.length,
+    pages_refreshed: dry ? 0 : changedIds.length,
     total_queued: total,
     rows_written: processed,
     constituency_rows: constituencyRows,

@@ -51,6 +51,7 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Transparency', href: '/transparency', desc: 'Ministers’ meetings, hospitality, donations, contracts and the revolving door, from public registers.' },
   { name: 'Unite the Kingdom', href: '/unite-kingdom', desc: 'The march Westminster does not want to understand.' },
   { name: 'All Topics', href: '/topics', desc: 'Every policy area in one place: its department, votes, bills and the MPs who scrutinise it.' },
+  { name: 'Petitions', href: '/petitions', desc: 'Every petition this Parliament that reached 10,000 signatures: the government response, any debate and signatures by constituency.' },
   { name: 'Parliament Section', href: '/sections/parliament', desc: 'Everything on MPs, bills, votes, parties and departments in one list.' },
   { name: 'Local Section', href: '/sections/local', desc: 'Councils and sewage spills in your area, in one list.' },
   { name: 'Accountability Section', href: '/sections/accountability', desc: 'Registers of interests, expenses, lobbying, donations and contracts, in one list.' },

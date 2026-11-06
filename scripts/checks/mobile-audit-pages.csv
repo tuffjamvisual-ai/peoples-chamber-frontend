@@ -222,3 +222,6 @@ route,example_url,why_chosen
 "/editorials/[slug]","/editorials/mi5k7qxw9n","one of the 5 tallest reports"
 "/editorials/[slug]","/editorials/hx7n4qw2mk","one of the 5 tallest reports"
 "/editorials/[slug]","/editorials/whr8acs2gf","one of the 5 tallest reports"
+"/petitions","/petitions","the only page of this route"
+"/petitions/[id]","/petitions/700143","most signed, with a debate"
+"/petitions/[id]","/petitions/750050","with the Petitions Committee note, no debate"

@@ -37,6 +37,8 @@ import { storedSpellings } from '@/lib/donor-registry';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
+import ConstituencyPetitions from './ConstituencyPetitions';
+import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-pages';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -455,6 +457,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       ).then((r) => (r.data ?? []).length > 0).catch(() => false)
     : Promise.resolve(false);
 
+  // "Petitions in this constituency", in the page's HTML so it shows with JavaScript off: the top 5, dated, because the page
+  // keeps for a week (owner, 6 Nov 2026). A failed read leaves the section out.
+  const pPetitionsTop: Promise<MpPetitionsTop | null> = constituencyGss
+    ? withTimeout(topPetitionsInConstituency(constituencyGss), 5000).catch(() => null)
+    : Promise.resolve(null);
+
   // Early Day Motions this MP started (primary sponsor) and signed
   // (sponsoring_order > 1, i.e. every signature except the primary
   // sponsor's own; withdrawn signatures excluded). Counts come from
@@ -562,6 +570,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   };
 
   const petitionsAvailable = await pPetitions;
+  const petitionsTop = await pPetitionsTop;
 
   // APPGs (All-Party Parliamentary Groups) this MP is officer of, with
   // each group's registered funders. Sourced from mySociety/appg-
@@ -838,6 +847,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       }}
       footer={
         <>
+        {petitionsTop && petitionsTop.petitions.length > 0 && constituencyGss && <ConstituencyPetitions top={petitionsTop} gss={constituencyGss} />}
         {/* Newsletter sign-up at the end of the profile, for readers who are not signed in (report 81). */}
         <ArticleEndSignup source="data-mp-profile" line={DATA_SIGNUP_LINE} />
         {/* The compact Related line, last of the visible content (owner's brief, 3 Nov 2026; lib/related-links.ts). */}

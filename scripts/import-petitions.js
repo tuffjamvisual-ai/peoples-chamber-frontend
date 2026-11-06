@@ -33,8 +33,8 @@ const { createClient } = require('@supabase/supabase-js');
 
 const PETITION_SIGNATURE_THRESHOLD = 10000;
 const BASE = 'https://petition.parliament.uk';
-const CONCURRENCY = 3;          // parallel detail fetches
-const DELAY_MS = 250;           // pause after each detail fetch, per worker
+const CONCURRENCY = 1;          // one request a second (owner, 6 Nov 2026)
+const DELAY_MS = 1000;          // pause after each request
 const MAX_LIST_PAGES = 1000;    // guard against a runaway pagination loop
 const DRY_RUN = process.argv.includes('--dry-run');
 
@@ -152,11 +152,15 @@ function buildRows(json) {
     response_threshold_reached_at: a.response_threshold_reached_at || null,
     government_response_at: a.government_response_at || null,
     government_response_summary: gr?.summary || null,
+    government_response_details: gr?.details || null,
+    government_response_on: toDateOnly(gr?.responded_on),
     debate_threshold_reached_at: a.debate_threshold_reached_at || null,
     scheduled_debate_date: toDateOnly(a.scheduled_debate_date),
     debated_on: toDateOnly(debate?.debated_on),
     debate_transcript_url: debate?.transcript_url || null,
     debate_video_url: debate?.video_url || null,
+    debate_overview: debate?.overview || null,
+    debate_outcome_at: a.debate_outcome_at || null,
     departments: Array.isArray(a.departments) ? a.departments : [],
     topics: Array.isArray(a.topics) ? a.topics : [],
     url: `${BASE}/petitions/${id}`,

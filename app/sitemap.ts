@@ -5,6 +5,7 @@ import { departments } from '@/lib/departments';
 import { allEditorials } from '@/lib/editorials-source';
 import { pmqsSet } from '@/lib/pmqs';
 import { archiveSessions } from '@/lib/pmqs-archive';
+import { allPetitions } from '@/lib/petition-pages';
 import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
@@ -165,6 +166,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Every session in the PMQs archive, 1961 to 2024: dated by the session, which does not change.
   const pmqsArchiveEntries: MetadataRoute.Sitemap = (await archiveSessions()).map((p) => ({ url: `${SITE}/pmqs/${p.date}`, lastModified: new Date(`${p.date}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 }));
+
+  // Every petition page: dated by its last change (the count or any other field, synced_at) or its response, whichever is later.
+  const petitionRows = await allPetitions().catch(() => []);
+  const petitionPageEntries: MetadataRoute.Sitemap = petitionRows.map((p) => ({ url: `${SITE}/petitions/${p.id}`, ...dated(newest(p.synced_at, p.government_response_on)), changeFrequency: 'weekly' as const, priority: 0.5 }));
+  const petitionEntries: MetadataRoute.Sitemap = petitionRows.length ? [{ url: `${SITE}/petitions`, ...dated(newest(...petitionRows.flatMap((p) => [p.synced_at, p.government_response_on]))), changeFrequency: 'daily' as const, priority: 0.6 }, ...petitionPageEntries] : [];
 
   // Every published editorial in the database
   // so new pieces are picked up automatically (no hardcoded slug list).
@@ -455,6 +461,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...dbBriefingEntries,
     ...pmqsEntries,
     ...pmqsArchiveEntries,
+    ...petitionEntries,
     ...partyEntries,
     ...billEntries,
     ...billSessionEntries,

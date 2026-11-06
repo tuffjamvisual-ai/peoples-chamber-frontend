@@ -16,6 +16,21 @@ export function fitTitle(...candidates: string[]): string {
   return candidates[candidates.length - 1];
 }
 
+// A title for text written by someone else, where stopping at a natural break can change what it says (owner's petition brief,
+// 6 Nov 2026: "Do not stop transgender people from receiving care" for "... in mainstream hospital wards"). Whole if it fits;
+// otherwise the most whole words that fit, not ending on a linking word, and an ellipsis to say there is more.
+export function markedCutTitle(text: string, shapes: (t: string) => string[]): string | { absolute: string } {
+  const fitted = (t: string) => (t.length + TITLE_SUFFIX.length <= TITLE_MAX ? t : t.length <= TITLE_MAX ? { absolute: t } : null);
+  const whole = squeeze(text);
+  for (const shape of shapes(whole)) { const f = fitted(shape); if (f) return f; }
+  const words = whole.split(' ');
+  for (let n = words.length - 1; n > 0; n--) {
+    const cut = words.slice(0, n).join(' ').replace(/[\s,;:&.-]+$/, '');
+    if (cut.length + 1 <= TITLE_MAX && !endsOnLinkWord(cut)) return { absolute: `${cut}\u2026` };
+  }
+  return { absolute: `${whole.slice(0, TITLE_MAX - 1)}\u2026` };
+}
+
 // Shortening a name by natural breaks only (owner, 5 Nov 2026): never mid word and never mid phrase. A bracket is dropped
 // whole and the words after it stay, so "Draft Strikes (Minimum Service Levels) (England) Regulations 2024" is "Draft
 // Strikes Regulations 2024" and never "Draft Strikes". The number of a bill, "(No. 2)", is kept: it tells two bills apart.

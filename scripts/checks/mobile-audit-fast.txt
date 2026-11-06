@@ -67,3 +67,7 @@
 /councils/blue-badges
 /divisions/pw-2022-12-12-123-commons
 /donations/leadership-contests
+# Petitions (owner, 6 Nov 2026): the list, the most signed petition and the one with the Petitions Committee's note.
+/petitions
+/petitions/700143
+/petitions/750050
