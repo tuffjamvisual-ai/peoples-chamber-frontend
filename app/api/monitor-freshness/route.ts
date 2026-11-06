@@ -36,8 +36,8 @@ const MEMBERS_REVIEW_AT = 300;
 // Info   = sources with no automated sync yet, or a configured route not yet
 //          instrumented — reported, never alerted.
 //
-// Disk = the database size check (lib/database-size.ts): emails once a day while
-//          disk use is over 5 GB (warning) or 7 GB (urgent) of the 8 GB disk.
+// Disk = the database disk check (lib/database-size.ts): emails once a day while use is over
+//          85 per cent of the current disk, and once whenever the disk has grown.
 // Sewage = storm overflow figures are loaded by hand once a year: checks the
 //          data.gov.uk page for an Environment Agency annual return newer than
 //          the year in sewage_overflows and emails daily until it is imported.
@@ -358,8 +358,8 @@ async function GET_impl(req: Request) {
     : { sent: false, reason: healedRoutes.size ? 'self_healed' : 'nothing_stale' };
 
   // Database disk check: reported every run, emailed only when over a threshold.
-  const { size: databaseSize, error: databaseSizeError } = await getDatabaseSize();
-  const databaseSizeEmail = dry ? { sent: false, reason: 'dry run' } : databaseSize && databaseSize.level !== 'ok'
+  const { size: databaseSize, error: databaseSizeError } = await getDatabaseSize(dry);
+  const databaseSizeEmail = dry ? { sent: false, reason: 'dry run' } : databaseSize && (databaseSize.level !== 'ok' || databaseSize.grew)
     ? await sendDatabaseSizeAlert(databaseSize)
     : { sent: false, reason: databaseSize ? 'below_threshold' : 'size_unavailable' };
 

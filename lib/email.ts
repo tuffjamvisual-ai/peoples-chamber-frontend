@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import type { DatabaseSize } from '@/lib/database-size';
+import { databaseSizeMessage, type DatabaseSize } from '@/lib/database-size';
 import { VERIFY_TOKEN_TTL_DAYS } from '@/lib/auth-constants';
 
 export interface BioReviewFlag {
@@ -225,33 +225,18 @@ export async function sendFreshnessAlert(stale: StaleSource[]) {
   });
 }
 
-// Database disk warning — fired by /api/monitor-freshness when disk use (database
-// + WAL) passes WARNING_GB or URGENT_GB (lib/database-size.ts). Repeats once a day
-// while it stays over. Same recipient as the freshness alert. Inert until
-// RESEND_API_KEY is set. Never throws.
+// Database disk warning: fired by /api/monitor-freshness when use passes 85 per cent of the current disk, or the disk has grown since the last run
+// (lib/database-size.ts). The first repeats once a day while it stays over. Same recipient as the freshness alert. Inert until RESEND_API_KEY is set. Never throws.
 export async function sendDatabaseSizeAlert(size: DatabaseSize) {
   const key = process.env.RESEND_API_KEY;
   if (!key) return { sent: false, reason: 'no_api_key' };
-  if (size.level === 'ok') return { sent: false, reason: 'below_threshold' };
+  if (size.level === 'ok' && !size.grew) return { sent: false, reason: 'below_threshold' };
   const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
 
-  const urgent = size.level === 'urgent';
-  const gb = (n: number) => `${n.toFixed(2)} GB`;
-  const headline = urgent
-    ? `URGENT: database disk at ${gb(size.usedGb)} of ${gb(size.limitGb)}`
-    : `Database disk at ${gb(size.usedGb)} of ${gb(size.limitGb)}`;
-  const lines = [
-    `Disk used: ${gb(size.usedGb)} of ${gb(size.limitGb)} (${size.usedPct}%).`,
-    `Database: ${gb(size.databaseGb)}. WAL: ${size.walGb == null ? 'could not be read' : gb(size.walGb)}.`,
-    `Supabase switches the project to read-only at ${gb(size.readOnlyAtGb)}, when every sync stops saving data.`,
-    `Room left before that: ${gb(Math.max(0, size.headroomGb))}.`,
-    urgent
-      ? 'Action needed now: free up space or raise the disk limit in Supabase.'
-      : 'No action needed yet, but plan to free up space or raise the disk limit.',
-  ];
+  const { headline, lines } = databaseSizeMessage(size);
   const text = `${headline}\n\n${lines.join('\n')}\n`;
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
-      <p style="margin:0 0 12px;font-weight:bold;color:${urgent ? '#7a1612' : '#14100d'}">${headline}</p>
+      <p style="margin:0 0 12px;font-weight:bold;color:#7a1612">${headline}</p>
       <ul style="margin:0;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
     </div>`;
 
