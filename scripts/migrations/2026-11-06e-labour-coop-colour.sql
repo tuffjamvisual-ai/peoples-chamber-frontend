@@ -1,4 +1,4 @@
--- NOT APPLIED. Prepared 6 Nov 2026; waiting for the owner's yes.
+-- Applied to production on 6 Nov 2026 at 12:08:49 GMT, on the owner's yes: 42 rows.
 -- 42 current Labour (Co-op) MPs have the colour grey (#808080) where the other Labour (Co-op) MP and every Labour MP have the
 -- site's Labour red (#E4003B). MP pages already override this, but /second-jobs and others read the stored colour. Colour only.
 -- All or none. Backup: "Claude outputs/backups/mps-party-fields-before-2026-11-06e.csv". Undo: 2026-11-06e-labour-coop-colour-UNDO.sql
