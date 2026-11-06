@@ -188,6 +188,17 @@ function measure() {
     cut_off: cut.length, cut_off_eg: cut.slice(0, 3),
     under_44: small.length, under_44_eg: small.slice(0, 5).map((e) => `${label(e)} ${Math.round(e.getBoundingClientRect().height)}px`),
     under_15: tiny.size, under_15_eg: [...tiny.entries()].slice(0, 5).map(([e, s]) => `${label(e)} ${s}px`),
+    member_placeholder: (() => {
+      // "Member 8" where a name should be (owner, 6 Nov 2026), in any text on the page, shown or folded.
+      const found = [];
+      const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      while (w.nextNode()) {
+        if (['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(w.currentNode.parentElement?.tagName)) continue;
+        const m = w.currentNode.nodeValue.match(/\bMember \d+\b/);
+        if (m) found.push(m[0]);
+      }
+      return found;
+    })(),
     h1_y: h1Y, h1_text: h1 ? (h1.textContent || '').trim().slice(0, 60) : null,
     first_content_y: contentY, first_content_eg: content ? label(content) : null,
     tall_media: tall.length, tall_media_eg: tall.slice(0, 3).map((e) => `${label(e)} ${Math.round(e.getBoundingClientRect().height)}px`),
@@ -265,6 +276,7 @@ function problems(row) {
     }
     if (row.width === 375 && m.page_height > MAX_HEIGHT) add('h', `page height ${m.page_height}px (banner ${state})`);
     if (state === 'showing' && row.no_js_height > MAX_HEIGHT) add('h', `page height ${row.no_js_height}px with JavaScript off`);
+    if (m.member_placeholder?.length) add('m', `"Member <number>" where a name should be: ${[...new Set(m.member_placeholder)].slice(0, 5).join(', ')}`, m.member_placeholder.length);
     if (m.h1_y === null) add('d', `no h1 (banner ${state})`);
     else if (m.h1_y >= HEIGHT) add('d', `h1 at ${m.h1_y}px, below the first screen (banner ${state})`);
     if (m.first_content_y === null) add('d', `no first content found (banner ${state})`);
@@ -390,9 +402,9 @@ async function main() {
   rows.sort((a, b) => a.url.localeCompare(b.url) || a.width - b.width);
 
   if (FAST) {
-    const bad = rows.map((r) => ({ r, found: problems(r).filter((p) => ['a', 'b', 'c', 'h'].includes(p.check) || /did not load/.test(p.text)) })).filter((x) => x.found.length);
+    const bad = rows.map((r) => ({ r, found: problems(r).filter((p) => ['a', 'b', 'c', 'h', 'm'].includes(p.check) || /did not load/.test(p.text)) })).filter((x) => x.found.length);
     fs.writeFileSync(path.join(OUT, 'fast-results.json'), JSON.stringify(bad.map(({ r, found }) => ({ url: r.url, found })), null, 1));
-    console.log(`fast audit: ${rows.length} pages at 375px, ${bad.length} failing checks a, b, c or h`);
+    console.log(`fast audit: ${rows.length} pages at 375px, ${bad.length} failing checks a, b, c, h or m`);
     for (const { r, found } of bad) console.log(`  ${r.url}: ${[...new Set(found.map((f) => f.text))].slice(0, 3).join(' / ').slice(0, 220)}`);
     printNear(nearLimit(rows));
     process.exit(bad.length ? 1 : 0);

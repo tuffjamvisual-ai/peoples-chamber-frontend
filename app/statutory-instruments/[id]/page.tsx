@@ -1,6 +1,7 @@
 // Server component — renders statutory instrument metadata + Commons division
 // vote breakdown. Dossier template (matches /bills/[id], /laws, /transparency).
 
+import formerNames from '@/lib/data/former-mp-names.json'
 import { namedTitle } from '@/lib/seo-title';
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
@@ -49,6 +50,7 @@ type VoteRow = {
   vote_type: string
   member_id: number
   is_rebellion: boolean | null
+  party: string | null   // the party stored with the vote (owner, 6 Nov 2026), never today's
   mps: { display_name: string; party: string | null; constituency: string | null; photo_url: string | null } | null
 }
 
@@ -79,7 +81,7 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
   // instead of failing the whole query.
   const { data: voteRows, error: voteRowsErr } = await supabase
     .from('mp_division_votes')
-    .select('vote_type, member_id, is_rebellion')
+    .select('vote_type, member_id, is_rebellion, party')
     .eq('division_id', divisionId)
     .order('vote_type')
   if (voteRowsErr && voteRowsErr.code !== 'PGRST116') throw new Error(`/statutory-instruments/[id] mp_division_votes: ${voteRowsErr.message}`);
@@ -99,6 +101,7 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
     vote_type: v.vote_type,
     member_id: v.member_id,
     is_rebellion: v.is_rebellion,
+    party: v.party,
     mps: mpById.get(v.member_id) ?? null,
   }))
   const ayes = votes.filter((v) => v.vote_type === 'aye')
@@ -224,9 +227,9 @@ function VoteColumn({ heading, rows, accent }: { heading: string; rows: VoteRow[
         {rows.map((v) => (
           <li key={v.member_id} style={{ padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
             <Link href={`/mps/${v.member_id}`} style={{ color: INK, textDecoration: 'none' }}>
-              <strong>{displayMpName(v.mps?.display_name) ?? `Member ${v.member_id}`}</strong>
-              {v.mps?.party && (
-                <span style={{ fontSize: '15px' }}> · {v.mps.party}</span>
+              <strong>{displayMpName(v.mps?.display_name) ?? (formerNames as Record<string, string>)[String(v.member_id)] ?? `Member ${v.member_id}`}</strong>
+              {v.party?.trim() && (
+                <span style={{ fontSize: '15px' }}> · {v.party}</span>
               )}
               {v.mps?.constituency && (
                 <div style={{ fontSize: '15px' }}>{v.mps.constituency}</div>

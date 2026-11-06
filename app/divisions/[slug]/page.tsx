@@ -436,7 +436,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
               <li key={v.member_id} style={{ padding: '4px 0' }}>
                 <MpVoteLink vote={v}>
                   {displayMpName(v.mp?.display_name ?? v.mp?.name) ?? `Member ${v.member_id}`}
-                  {v.mp?.party && <span > · {normaliseParty(v.mp.party) || v.mp.party}</span>}
+                  {v.party?.trim() && <span > · {normaliseParty(v.party)}</span>}
                 </MpVoteLink>
               </li>
             ))}

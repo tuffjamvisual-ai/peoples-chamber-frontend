@@ -64,17 +64,20 @@ export async function fetchDivisionVotes(dateOnly: string, divisionNumber: numbe
   for (const v of voteRows as VoteRow[]) {
     if (mpById.has(v.member_id)) continue;
     const name = (formerNames as Record<string, string>)[String(v.member_id)] ?? null;
-    if (name) mpById.set(v.member_id, { member_id: v.member_id, display_name: name, name, party: v.party ?? 'Party not listed', party_colour: null, constituency: null, photo_url: null });
+    if (name) mpById.set(v.member_id, { member_id: v.member_id, display_name: name, name, party: v.party ?? PARTY_NOT_LISTED, party_colour: null, constituency: null, photo_url: null });
   }
 
   return { voteRows: voteRows as VoteRow[], votes: (voteRows as VoteRow[]).map((v) => ({ ...v, mp: mpById.get(v.member_id) ?? null })), totals: totalsRow as Totals };
 }
 
+export const PARTY_NOT_LISTED = 'Party not listed';
+
 // Party ordering: largest delegation in THIS division first.
 export function groupByParty(rows: Vote[]): PartyGroup[] {
   const groups = new Map<string, Vote[]>();
   for (const v of rows) {
-    const p = (v.mp ? normaliseParty(v.mp.party) : v.party ? normaliseParty(v.party) : 'Party not listed');
+    // The party stored with the vote, for every member, sitting or former (owner, 6 Nov 2026): never today's party, which put 2019 votes under "Reform UK".
+    const p = v.party?.trim() ? normaliseParty(v.party) : PARTY_NOT_LISTED;
     if (!groups.has(p)) groups.set(p, []);
     groups.get(p)!.push(v);
   }
@@ -82,7 +85,8 @@ export function groupByParty(rows: Vote[]): PartyGroup[] {
     .sort((a, b) => b[1].length - a[1].length)
     .map(([party, rs]) => ({
       party,
-      partyColour: partyColourForMember(rs[0].mp?.party ?? null, rs[0].mp?.party_colour ?? null),
+      // The colour stored for a member now in that party, where the party has no set colour.
+      partyColour: partyColourForMember(party, rs.find((r) => r.mp && normaliseParty(r.mp.party) === party)?.mp?.party_colour ?? null),
       rows: rs.sort((x, y) => (x.mp?.display_name || x.mp?.name || '').localeCompare(y.mp?.display_name || y.mp?.name || '')),
     }));
 }
