@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { departments } from '@/lib/departments';
 import DepartmentMasthead from './DepartmentMasthead';
 import { departmentForPage } from '@/lib/question-departments';
+import TookOnNote from '../../components/TookOnNote';
 import DepartmentStaff from './DepartmentStaff';
 import DepartmentTabs from './DepartmentTabs';
 import { BudgetSlot, AgenciesSlot, ContactSlot, ReleasesSlot, InvestigationsSlot, ProgrammesSlot, type PressReleaseItem, type InvestigationItem, type ProgrammeItem } from './DepartmentSlots';
@@ -355,6 +356,7 @@ export default async function DepartmentPage({ params }: PageProps) {
           }
           budget={null}
         />
+        <TookOnNote department={departmentForPage(dept.slug)} />
         {departmentForPage(dept.slug) && (
           <p style={{ margin: '0 0 12px', fontSize: '15px' }}>
             <a href={`/questions/department/${departmentForPage(dept.slug)!.slug}`} style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', color: '#14100d', textDecoration: 'underline' }}>Written questions to this department</a>

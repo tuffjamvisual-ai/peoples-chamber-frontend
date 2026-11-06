@@ -7,6 +7,7 @@ import { wholeNameTitle } from '@/lib/seo-title';
 import { departmentById, departmentBySlug } from '@/lib/question-departments';
 import { QUESTION_PAGE_SIZE, questionDepartmentStats, questionPeople, searchQuestions } from '@/lib/question-pages';
 import QuestionItems from '../../QuestionItems';
+import TookOnNote from '../../../components/TookOnNote';
 
 // One answering department (owner, 6 Nov 2026), one page per Parliament id, with links between reorganised departments. Newest first,
 // 25 at a time. Counts leave out withdrawn questions. Days to answer run from the date tabled to the date answered.
@@ -58,6 +59,7 @@ export default async function DepartmentQuestions({ params, searchParams }: { pa
         ))}
       </dl>
       <p style={{ fontSize: '15px', color: INK, margin: '0 0 10px' }}>This Parliament. Withdrawn questions are not counted.</p>
+      <TookOnNote department={d} />
       {now.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Now part of</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{now.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
       {moved.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Functions moved to</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{moved.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
       {d.source && <p style={{ margin: '0 0 8px' }}><a href={d.source.url} target="_blank" rel="noopener noreferrer" style={{ ...link, fontSize: '15px' }}>{d.source.label}</a></p>}
