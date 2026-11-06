@@ -254,3 +254,5 @@ route,example_url,why_chosen
 "/debates/[guid]","/debates/DBE9C141-29E1-4666-B0D1-CF616C409D66","one of the 10 longest, 744 contributions"
 "/donors/[slug]","/donors/unison","second most donation rows, 1,704"
 "/donors/[slug]","/donors/unite-the-union","third most donation rows, 1,038"
+"/mps/[id]/pmqs","/mps/4128/pmqs","a former MP"
+"/mps/[id]/pmqs","/mps/8/pmqs","a former Prime Minister, answers apart from questions"

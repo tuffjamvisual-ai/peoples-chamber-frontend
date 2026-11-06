@@ -81,6 +81,15 @@ export const lookupMember = cache(async (memberId: number): Promise<MemberLookup
   return h && h.id === memberId ? build(h) : { kind: 'unknown' };
 });
 
+// A member's name where their History record has no Commons service, as with some who spoke in the Commons long ago (James Callaghan). Null if Parliament has no one.
+export const memberName = cache(async (memberId: number): Promise<string | null> => {
+  const res = await fetch(`${MEMBERS_API}/${memberId}`, { headers: UA, next: { revalidate: 30 * 86400 } });
+  if (res.status === 404 || res.status === 400) return null;
+  if (!res.ok) throw new Error(`Members API ${memberId}: HTTP ${res.status}`);
+  const json = (await res.json()) as { value?: { nameDisplayAs?: string } };
+  return json?.value?.nameDisplayAs?.replace(/^(?:Mr|Mrs|Miss|Ms) /, '') ?? null;
+});
+
 // "2010 to 2019", or "since 2024" for a seat still held (a member we do not list as current).
 export function seatYears(s: FormerSeat): string {
   const from = year(s.from);

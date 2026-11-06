@@ -7,6 +7,7 @@ import { timedClient } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
 import attendance from '@/lib/data/pmqs-attendance-2026-11-04.json';
 import answerers from '@/lib/data/pmqs-archive-answerers.json';
+import { idsFor } from '@/lib/historic-archive';
 
 // Same value as PMQS_TAG in lib/pmqs.ts, which is not imported here so that this file stays free of its reads.
 const db = () => timedClient(30 * 86400, ['pmqs']);
@@ -159,19 +160,42 @@ export const archiveExchanges = cache(async (date: string): Promise<ArchiveExcha
   return out;
 });
 
-// How many of those there are: the MP profile's "Questions at PMQs" count.
+// What someone's rows are (owner, 6 Nov 2026): on a day they answered the session, their words are answers, as Prime Minister or standing in for one; on any
+// other day they are questions. So a former Prime Minister's count is not read as questions they asked.
 const NOT_FROM_THE_CHAIR = 'attributed_to.is.null,attributed_to.not.ilike.*speaker*';
-export const memberArchiveCount = cache(async (memberId: number): Promise<number> => {
-  const { count, error } = await db().from('pmqs_archive_exchanges').select('date', { count: 'exact', head: true }).eq('member_id', memberId).or(NOT_FROM_THE_CHAIR);
-  if (error) throw new Error(`pmqs_archive_exchanges count: ${error.message}`);
-  return count ?? 0;
+export type ArchiveRole = 'asked' | 'prime_minister' | 'standing_in';
+export function archiveRole(memberIds: number[], date: string): ArchiveRole {
+  const answerer = Number(ANSWERER_ON[date]);
+  if (!memberIds.includes(answerer)) return 'asked';
+  return memberIds.includes(PM_MEMBER[archivePrimeMinisterOn(date)]) ? 'prime_minister' : 'standing_in';
+}
+export type ArchiveCounts = Record<ArchiveRole, number>;
+
+// The MP profile's counts. Most people answered no session, so one count does; for those who did, their answer days are counted in batches.
+export const memberArchiveCounts = cache(async (memberId: number): Promise<ArchiveCounts> => {
+  const ids = idsFor(memberId);
+  const count = async (dates?: string[]) => {
+    let q = db().from('pmqs_archive_exchanges').select('date', { count: 'exact', head: true }).in('member_id', ids).or(NOT_FROM_THE_CHAIR);
+    if (dates) q = q.in('date', dates);
+    const { count: n, error } = await q;
+    if (error) throw new Error(`pmqs_archive_exchanges count: ${error.message}`);
+    return n ?? 0;
+  };
+  const days = Object.keys(ANSWERER_ON).filter((d) => ids.includes(Number(ANSWERER_ON[d])));
+  const inBatches = async (dates: string[]) => (await Promise.all(Array.from({ length: Math.ceil(dates.length / 200) }, (_, i) => count(dates.slice(i * 200, i * 200 + 200))))).reduce((a, b) => a + b, 0);
+  const [total, prime_minister, standing_in] = await Promise.all([
+    count(),
+    inBatches(days.filter((d) => archiveRole(ids, d) === 'prime_minister')),
+    inBatches(days.filter((d) => archiveRole(ids, d) === 'standing_in')),
+  ]);
+  return { asked: total - prime_minister - standing_in, prime_minister, standing_in };
 });
 
 // An MP's own questions and answers in the archive, newest first. The Speaker's remarks from the chair are not theirs.
 export const memberArchive = cache(async (memberId: number): Promise<MemberContribution[]> => {
   const rows = await readAll<Row>(() => db().from('pmqs_archive_exchanges'), {
     columns: 'date, item_order, attributed_to, contribution_text',
-    filter: (q) => q.eq('member_id', memberId).or(NOT_FROM_THE_CHAIR),
+    filter: (q) => q.in('member_id', idsFor(memberId)).or(NOT_FROM_THE_CHAIR),
     orderBy: [{ column: 'date', ascending: false }, { column: 'item_order' }],
     label: 'pmqs_archive_exchanges member',
   });

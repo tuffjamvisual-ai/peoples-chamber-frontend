@@ -16,7 +16,7 @@ export const ARCHIVE_NOTE = "This archive starts on 11 October 2004. 69 later di
 const COMMONS_ID_OF: Record<number, number> = {
   4150: 511, 3748: 212, 3786: 222, 4211: 110, 4154: 137, 4158: 612, 4148: 587, 4162: 293, 4149: 653, 4170: 30, 4151: 378, 4160: 1450,
 };
-const idsFor = (memberId: number) => (COMMONS_ID_OF[memberId] ? [memberId, COMMONS_ID_OF[memberId]] : [memberId]);
+export const idsFor = (memberId: number) => (COMMONS_ID_OF[memberId] ? [memberId, COMMONS_ID_OF[memberId]] : [memberId]);
 // Where a name in the archive links. Every member with a Commons record has a page at /mps/<id> (lib/former-mps.ts).
 export const archiveProfileHref = (r: { member_id: number | null; profile_link_id: number | null }) => {
   const id = r.profile_link_id ?? r.member_id;

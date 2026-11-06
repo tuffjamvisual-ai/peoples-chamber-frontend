@@ -1,5 +1,6 @@
 import { pmqsSet } from '@/lib/pmqs';
-import { memberArchiveCount } from '@/lib/pmqs-archive';
+import { memberArchiveCounts } from '@/lib/pmqs-archive';
+import { pmqsLinks, type PmqsCounts } from '@/lib/pmqs-counts';
 import { updatedDate } from '@/lib/record-dates';
 import { cache } from 'react';
 import { metaDescription } from '@/lib/meta-description';
@@ -178,13 +179,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // Reports mentioning this MP (23 Oct 2026; up to 10 from 24 Oct 2026): every published piece whose relatedMemberIds
 // include the MP, newest first, from the editorial registry at build time (no database query, lib/mp-reports.ts). Up to
 // ten are shown, with a link to the full list at /mps/<id>/reports if there are more.
-// Every contribution at PMQs: current questions and the archive's questions and answers. A failed read counts as none.
-async function pmqsContributions(memberId: number): Promise<number> {
+// Someone's part at PMQs, current sessions and the archive: questions asked, answers as Prime Minister and answers standing in for one, counted apart. A failed
+// read counts as none.
+async function pmqsContributions(memberId: number): Promise<PmqsCounts> {
   const [current, archive] = await Promise.all([
-    withTimeout(pmqsSet(), 7000).then((set) => set.byMember[memberId]?.length ?? 0).catch(() => 0),
-    withTimeout(memberArchiveCount(memberId), 7000).catch(() => 0),
+    withTimeout(pmqsSet(), 7000).then((set) => {
+      const answered = set.sessions.filter((s) => s.answeredBy.id === memberId);
+      const sum = (rows: typeof answered) => rows.reduce((n, s) => n + s.questions, 0);
+      return { asked: set.byMember[memberId]?.length ?? 0, prime_minister: sum(answered.filter((s) => !s.deputisingFor)), standing_in: sum(answered.filter((s) => s.deputisingFor)) };
+    }).catch(() => ({ asked: 0, prime_minister: 0, standing_in: 0 })),
+    withTimeout(memberArchiveCounts(memberId), 7000).catch(() => ({ asked: 0, prime_minister: 0, standing_in: 0 })),
   ]);
-  return current + archive;
+  return { asked: current.asked + archive.asked, prime_minister: current.prime_minister + archive.prime_minister, standing_in: current.standing_in + archive.standing_in };
 }
 
 async function reportsFor(memberId: number, mpName: string): Promise<MpReports | null> {
@@ -300,8 +306,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       const related = formerReports.length ? [{ href: `/mps/${memberId}/reports`, label: `Reports on ${m.mp.name} (${formerReports.length})` }] : [];
       // A former MP now in the Lords links to their peer page, which links back (owner, 3 Nov 2026).
       if (peer && peerHasPage(peer)) related.unshift({ href: `/lords/${memberId}`, label: `${peer.name_display} in the House of Lords` });
-      const pmqsAsked = await pmqsContributions(memberId);
-      if (pmqsAsked) related.push({ href: `/mps/${memberId}/pmqs`, label: `Questions at PMQs (${pmqsAsked})` });
+      related.push(...pmqsLinks(memberId, await pmqsContributions(memberId)));
       return <FormerMpProfile mp={m.mp} conductFindings={findings ?? []} related={related} />;
     }
     // A member who only sat in the Lords: their peer page (owner, 3 Nov 2026), or Parliament's profile if they have none.
