@@ -204,7 +204,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pmqsEntries: MetadataRoute.Sitemap = await pmqsSet().then((set) => set.sessions.map((p) => ({ url: `${SITE}/pmqs/${p.date}`, ...dated(newest(p.date)), changeFrequency: 'monthly' as const, priority: 0.5 }))).catch(() => []);
 
   // Every session in the PMQs archive, 1961 to 2024: the later of the archive's load and the last change to any of its rows (owner, 7 Nov 2026).
-  const changedExchanges = await fetchAllRows<{ date: string; item_order: number; changed_at: string }>('pmqs_archive_exchanges', 'date, item_order, changed_at', (q) => q.not('changed_at', 'is', null).order('date').order('item_order'));
+  // pmqs_archive_exchanges has no index on changed_at, so this read walks the whole table; on a busy build it can pass the
+  // 8 s statement timeout (deploy of 60966e0b failed so, 7 Nov 2026). A failed read leaves those days at the archive's load
+  // date rather than failing the sitemap and the build.
+  const changedExchanges = await fetchAllRows<{ date: string; item_order: number; changed_at: string }>('pmqs_archive_exchanges', 'date, item_order, changed_at', (q) => q.not('changed_at', 'is', null).order('date').order('item_order'))
+    .catch((e) => { console.error(`[sitemap] pmqs_archive_exchanges changed_at: ${e instanceof Error ? e.message : e}`); return [] as { date: string; item_order: number; changed_at: string }[]; });
   const pmqsDayChanged = new Map<string, string>();
   for (const r of changedExchanges) if (Date.parse(r.changed_at) > Date.parse(pmqsDayChanged.get(r.date) ?? '1970-01-01')) pmqsDayChanged.set(r.date, r.changed_at);
   const pmqsArchiveDays = (await archiveSessions()).map((p) => loadedOrChanged(PMQS_ARCHIVE_LOADED, pmqsDayChanged.get(p.date)));
