@@ -82,8 +82,13 @@ function BackgroundPanel({ name, bg }: { name: string; bg: SpadBackground }) {
   );
 }
 
-export default function SpadRosterTable({ rows, background = {}, ministerInfo = {}, asAtLabel = '31 March 2026', idPrefix = 'a', compact = false }: {
+// An adviser's row id from their name: "Tim Bliss" is tim-bliss (letters and digits only, joined by single hyphens).
+export const adviserAnchor = (name: string) => name.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+export default function SpadRosterTable({ rows, background = {}, ministerInfo = {}, asAtLabel = '31 March 2026', idPrefix = 'a', compact = false, anchorNames = [] }: {
   rows: SpadRow[]; background?: Record<string, SpadBackground>; ministerInfo?: Record<string, SpadMinisterInfo>; asAtLabel?: string; idPrefix?: string;
+  // Advisers whose row here carries their name as an id (#tim-bliss): the page gives each adviser one such row.
+  anchorNames?: string[];
   compact?: boolean; // one minister's few advisers: no filters or sort
 }) {
   // The minister as we show them: the list's name, or the Members API's where the list gives none.
@@ -170,7 +175,8 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
             </tr>
           </thead>
           <tbody>
-            {shown.map((r) => {
+            {(() => { const used = new Set<string>(); return shown.map((r) => {
+              const anchor = anchorNames.includes(r.adviser_name) && !used.has(r.adviser_name) && !!used.add(r.adviser_name) ? adviserAnchor(r.adviser_name) : undefined;
               const name = shownName(r);
               const gone = left(r);
               const bg = background[r.adviser_name];
@@ -182,14 +188,14 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
               return (
                 <Fragment key={k}>
                   <tr style={{ borderBottom: isOpen ? 0 : `1px solid ${HAIRLINE}` }}>
-                    <td style={{ ...td, fontWeight: 'bold', minWidth: '9em' }}>
+                    <th scope="row" id={anchor} style={{ ...td, fontWeight: 'bold', minWidth: '9em', textAlign: 'left', scrollMarginTop: '16px' }}>
                       {r.adviser_name}
                       {hasMore && (
                         <button type="button" aria-expanded={isOpen} aria-controls={panelId} onClick={() => toggle(k)} style={{ ...marker, display: 'block' }}>
                           {hasInterests ? `Declared interests (${bg!.interests.length})` : 'Background'} {isOpen ? '▴' : '▾'}
                         </button>
                       )}
-                    </td>
+                    </th>
                     <td style={{ ...td, minWidth: '14em' }}>
                       {name && (r.minister_member_id != null
                         ? <Link href={`/mps/${r.minister_member_id}`} style={{ ...linkStyle, fontWeight: 'bold' }}>{name}</Link>
@@ -209,7 +215,7 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
                   )}
                 </Fragment>
               );
-            })}
+            }); })()}
           </tbody>
         </table>
         </NoJsPager>

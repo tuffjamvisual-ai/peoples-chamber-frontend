@@ -131,6 +131,15 @@ export default async function SpecialAdvisersPage() {
     return { post: c, rows, advisersSince };
   });
   const formerRows = known ? appointments.filter((a) => !shownTitles.has(a.minister_title)) : [];
+  // One address per adviser (owner, 7 Nov 2026, L2): their first row on the page, in the order the tables are shown, gets an
+  // id from their name (#tim-bliss), so a search for a name can land on it. An adviser listed twice is anchored once.
+  const anchored = new Set<string>();
+  const anchorsFor = (rows: { adviser_name: string }[]) => rows.map((r) => r.adviser_name).filter((n) => !anchored.has(n) && !!anchored.add(n));
+  const tableAnchors = {
+    all: known ? [] : anchorsFor(appointments),
+    posts: new Map(known ? departments.map((d) => [d.post.minister_title, anchorsFor(d.rows)] as const) : []),
+    former: anchorsFor(formerRows),
+  };
   const info: Record<string, SpadMinisterInfo> = {};
   for (const [title, s] of listedStatus) info[title] = { left_on: shownTitles.has(title) || s.still_in_post ? null : s.left_on, api_name: plainName(s.minister_name) };
   const stillTitles = new Set([...listedStatus.values()].filter((s) => s.still_in_post).map((s) => s.minister_title));
@@ -180,7 +189,7 @@ export default async function SpecialAdvisersPage() {
           <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 14px' }}>
             Declared interests are published by each department, not by the adviser. Every special adviser declares their interests to the permanent secretary of their department, who decides which are relevant enough to publish and how any conflict is managed, for example by a recusal: the adviser stays out of the matters named. The Cabinet Office publishes its advisers&rsquo; interests separately each year; most other departments print them inside their annual report and accounts. Each entry below is quoted word for word and linked to the document it comes from.
           </p>
-          {!known && <SpadRosterTable rows={appointments} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="a" />}
+          {!known && <SpadRosterTable rows={appointments} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="a" anchorNames={tableAnchors.all} />}
           <NoJsFold id="spf-posts" label="Each Cabinet post and its advisers">
           {known && (
             <>
@@ -197,7 +206,7 @@ export default async function SpecialAdvisersPage() {
                   {rows.length > 0 ? (
                     <>
                       <p style={{ fontSize: '15px', margin: '0 0 6px' }}>Their advisers as listed at {longDate(release.as_at)}:</p>
-                      <SpadRosterTable rows={rows} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix={`p${post.post_id ?? 'x'}`} compact />
+                      <SpadRosterTable rows={rows} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix={`p${post.post_id ?? 'x'}`} compact anchorNames={tableAnchors.posts.get(post.minister_title)} />
                     </>
                   ) : (
                     <>
@@ -222,7 +231,7 @@ export default async function SpecialAdvisersPage() {
               <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '6px 0 10px' }}>
                 Special advisers&rsquo; appointments normally end when their minister leaves. Some may have been reappointed; the Cabinet Office has not yet published a new list.
               </p>
-              <SpadRosterTable rows={formerRows} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="c" />
+              <SpadRosterTable rows={formerRows} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="c" anchorNames={tableAnchors.former} />
             </details>
           )}
           <SpadSource slug={release.release_slug} url={release.source_url} />
