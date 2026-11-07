@@ -14,7 +14,7 @@
 // may contain a hyphen (e.g. --allow "Manningham-Buller").
 //
 // Stops before writing if any check fails: slug format (new: 6 to 16 lower case letters or digits); summary 22 words or fewer; headline 70 characters or fewer
-// (a warning above 60); no hyphens or dashes in our wording outside quotations, URLs and --allow names; every
+// (a warning above 60); no hyphens or dashes in our wording outside quotations, link addresses (scripts/style-dash.ts) and --allow names; every
 // relatedMemberIds a current member in mps; every relatedDeptSlugs, relatedBillIds, relatedCouncilSlugs and topic slug real; every
 // evidence URL https; every Open Govt evidence URL pointing at an id that exists.
 //
@@ -29,6 +29,7 @@ import { pathToFileURL } from 'node:url';
 import type { EditorialEntry } from '../lib/editorials/types';
 import { topics } from '../lib/topics';
 import { departments } from '../lib/departments/index';
+import { strayDash } from './style-dash';
 import { rowFor, canon, SQL_TYPES, dollarTag, type Placement } from './editorial-row';
 
 config({ path: '.env.local', quiet: true });
@@ -98,14 +99,6 @@ function ourWording(p: EditorialEntry): [string, string][] {
   return out;
 }
 
-const DASH = /[-‐-―−]/;
-function strayDash(text: string): string | null {
-  let t = text.replace(/https?:\/\/\S+/g, ' ').replace(/"[^"]*"/g, '""').replace(/“[^”]*”/g, '“”');
-  for (const name of allow) t = t.split(name).join(' ');
-  const m = DASH.exec(t);
-  return m ? t.slice(Math.max(0, m.index - 30), m.index + 30) : null;
-}
-
 function evidenceUrls(p: EditorialEntry): string[] {
   const urls: string[] = [];
   for (const r of p.evidence?.recordsReviewed ?? []) {
@@ -138,7 +131,7 @@ async function main() {
   if (chars > 70) problems.push(`headline is ${chars} characters (70 at most)`);
   else if (chars > 60) warnings.push(`headline is ${chars} characters (aim for 60 or fewer)`);
   for (const [where, text] of ourWording(piece)) {
-    const hit = strayDash(text);
+    const hit = strayDash(text, allow);
     if (hit) problems.push(`hyphen or dash in ${where}: "...${hit}..." (rephrase, quote it, or --allow the name)`);
   }
   const urls = evidenceUrls(piece);
