@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTopic, topics } from '@/lib/topics';
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const t = getTopic(slug);
   if (!t) return { title: 'Topic' };
   return {
-    title: `${t.title}: Bills and Acts`,
+    title: titleWithin(`${t.title}: Bills and Acts`),
     description: `Every bill and Act on ${t.title.toLowerCase()} in the UK Parliament, most recently updated first.`,
     alternates: { canonical: `/topics/${slug}/bills` },
   };

@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next'
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions'
 import { supabase } from '@/lib/supabase'
@@ -59,7 +60,7 @@ export async function generateMetadata({ params }: { params: Promise<{ section: 
   const config = SECTIONS[section]
   if (!config) return { title: 'Transparency' }
   return {
-    title: config.title,
+    title: titleWithin(config.title),
     description: PAGE_DESCRIPTIONS[`/transparency/${section}`] ?? `${config.title}: public record data for UK government transparency.`,
     alternates: { canonical: `/transparency/${section}` },
   }

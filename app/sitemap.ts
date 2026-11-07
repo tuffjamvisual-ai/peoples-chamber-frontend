@@ -19,7 +19,6 @@ import { RECOMMENDATIONS_PUBLIC, allStatus, recPath } from '@/lib/pac';
 import { divisionHref, yearHref } from '@/lib/division-links';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import { FORMER_MP_PROFILE_IDS } from '@/lib/former-mp-profile-ids';
-import { divisionLastmod, pmqsDayLastmod } from '@/lib/archive-row-changes';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -68,6 +67,8 @@ function newest(...dates: (string | null | undefined)[]): Date | undefined {
   return d ? new Date(d) : undefined;
 }
 const dated = (d: Date | undefined) => (d ? { lastModified: d } : {});
+// A record's own date (a vote or a sitting) or the day its row was last changed in our database (changed_at), whichever is later. ISO dates compare as text.
+const laterDay = (own: string, changedAt: string | null | undefined) => { const a = own.slice(0, 10), b = changedAt?.slice(0, 10); return b && b > a ? b : a; };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 'lobbyists' removed 2026-06-02. 'companies' removed 2026-06-03.
@@ -172,8 +173,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Every session of Prime Minister's Questions we hold.
   const pmqsEntries: MetadataRoute.Sitemap = await pmqsSet().then((set) => set.sessions.map((p) => ({ url: `${SITE}/pmqs/${p.date}`, ...dated(newest(p.date)), changeFrequency: 'monthly' as const, priority: 0.5 }))).catch(() => []);
 
-  // Every session in the PMQs archive, 1961 to 2024: the later of the sitting and any correction to its rows (owner, 7 Nov 2026).
-  const pmqsArchiveEntries: MetadataRoute.Sitemap = (await archiveSessions()).map((p) => ({ url: `${SITE}/pmqs/${p.date}`, lastModified: pmqsDayLastmod(p.date), changeFrequency: 'yearly' as const, priority: 0.4 }));
+  // Every session in the PMQs archive, 1961 to 2024: the later of the sitting and the last change to any of its rows (owner, 7 Nov 2026).
+  const changedExchanges = await fetchAllRows<{ date: string; item_order: number; changed_at: string }>('pmqs_archive_exchanges', 'date, item_order, changed_at', (q) => q.not('changed_at', 'is', null).order('date').order('item_order'));
+  const pmqsDayChanged = new Map<string, string>();
+  for (const r of changedExchanges) if (r.changed_at > (pmqsDayChanged.get(r.date) ?? '')) pmqsDayChanged.set(r.date, r.changed_at);
+  const pmqsArchiveDays = (await archiveSessions()).map((p) => laterDay(p.date, pmqsDayChanged.get(p.date)));
+  const pmqsArchiveEntries: MetadataRoute.Sitemap = (await archiveSessions()).map((p) => ({ url: `${SITE}/pmqs/${p.date}`, lastModified: new Date(`${laterDay(p.date, pmqsDayChanged.get(p.date))}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 }));
+  // The archive's year folds have no address of their own: they sit on /pmqs, which takes the latest of the sessions it lists.
+  const pmqsPage = staticEntries.find((e) => e.url === `${SITE}/pmqs`);
+  const pmqsNewest = newest(...pmqsArchiveDays, ...pmqsEntries.map((e) => (e.lastModified ? new Date(e.lastModified).toISOString() : null)));
+  if (pmqsPage && pmqsNewest) pmqsPage.lastModified = pmqsNewest;
 
   // /questions and each department's page, dated by the latest answer. Individual questions are not listed (owner, 6 Nov 2026).
   const questionStats = await questionDepartmentStats().catch(() => []);
@@ -387,31 +396,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
   // The year archives (owner, 31 Oct 2026): /divisions/year/<yyyy> and its page 2 onwards (100 divisions a page), so
-  // every division is two clicks from a page in the sitemap. Counted from the division rows read above.
-  const perYear = new Map<number, number>();
-  const newestInYear = new Map<number, string>();
-  for (const d of divisions) if (d.division_date_only) {
-    const y = Number(String(d.division_date_only).slice(0, 4));
-    perYear.set(y, (perYear.get(y) ?? 0) + 1);
-    if (d.division_date_only > (newestInYear.get(y) ?? '')) newestInYear.set(y, d.division_date_only);
-  }
-  // The archive's year pages and its 2,908 division pages (11 Oct 2004 to 8 Mar 2016), each dated by the later of the vote and any correction to its row (owner, 7 Nov 2026).
-  const archiveDivisions = await fetchAllRows<{ external_id: string; division_date: string; division_number: number }>('historic_commons_divisions', 'external_id, division_date, division_number', (q) => q.order('division_date', { ascending: true }).order('division_number', { ascending: true })).catch(() => []);
-  const archiveDivisionEntries: MetadataRoute.Sitemap = archiveDivisions.map((d) => ({ url: `${SITE}${divisionHref(d.division_date, d.division_number)}`, lastModified: divisionLastmod(d.external_id, d.division_date), changeFrequency: 'yearly' as const, priority: 0.4 }));
-  for (const d of archiveDivisions) {
-    const y = Number(String(d.division_date).slice(0, 4));
-    perYear.set(y, (perYear.get(y) ?? 0) + 1);
-    if (d.division_date > (newestInYear.get(y) ?? '')) newestInYear.set(y, d.division_date);
-  }
+  // every division is two clicks from a page in the sitemap. Each page is dated by the latest of the rows it lists (owner, 7 Nov 2026).
+  type YearRow = { date: string; number: number; day: string; archive: boolean };
+  const yearRows = new Map<number, YearRow[]>();
+  const addYearRow = (r: YearRow) => { const y = Number(r.date.slice(0, 4)); yearRows.set(y, [...(yearRows.get(y) ?? []), r]); };
+  for (const d of divisions) if (d.division_date_only) addYearRow({ date: d.division_date_only, number: d.division_number ?? 0, day: d.division_date_only, archive: false });
+  // The archive's 2,908 division pages (11 Oct 2004 to 8 Mar 2016), each dated by the later of the vote and the last change to its row (owner, 7 Nov 2026).
+  const archiveDivisions = await fetchAllRows<{ division_date: string; division_number: number; changed_at: string | null }>('historic_commons_divisions', 'division_date, division_number, changed_at', (q) => q.order('division_date', { ascending: true }).order('division_number', { ascending: true })).catch(() => []);
+  const archiveDivisionEntries: MetadataRoute.Sitemap = archiveDivisions.map((d) => ({ url: `${SITE}${divisionHref(d.division_date, d.division_number)}`, lastModified: new Date(`${laterDay(d.division_date, d.changed_at)}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 }));
+  for (const d of archiveDivisions) addYearRow({ date: d.division_date.slice(0, 10), number: d.division_number, day: laterDay(d.division_date, d.changed_at), archive: true });
   const thisYear = new Date().getUTCFullYear();
-  const divisionYearEntries: MetadataRoute.Sitemap = [...perYear.entries()].sort((a, b) => a[0] - b[0]).flatMap(([y, n]) =>
-    Array.from({ length: Math.ceil(n / 100) }, (_, k) => ({
+  const divisionYearEntries: MetadataRoute.Sitemap = [...yearRows.entries()].sort((a, b) => a[0] - b[0]).flatMap(([y, rows]) => {
+    // The order the year page lists them (lib/division-links.ts yearDivisions): sitting votes newest first, then the archive's newest first.
+    const listed = [...rows].sort((a, b) => Number(a.archive) - Number(b.archive) || b.date.localeCompare(a.date) || b.number - a.number);
+    return Array.from({ length: Math.ceil(listed.length / 100) }, (_, k) => ({
       url: `${SITE}${yearHref(y, k + 1)}`,
-      // The newest division of that year.
-      ...dated(newest(newestInYear.get(y))),
+      ...dated(newest(...listed.slice(k * 100, (k + 1) * 100).map((r) => r.day))),
       changeFrequency: y === thisYear ? ('weekly' as const) : ('yearly' as const),
       priority: 0.5,
-    })));
+    }));
+  });
 
   // Committee profile pages — 29 select committee IDs from lib/committees.ts.
   // Membership changes nightly; weekly changeFrequency matches the sync cadence.

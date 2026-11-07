@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { departments } from '@/lib/departments';
@@ -12,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const dept = departments.find((d) => d.slug === slug);
   if (!dept) return { title: 'Department' };
   return {
-    title: dept.name,
+    title: titleWithin(dept.name),
     description: `${dept.name}, ministers, control zones and what every party says about each topic.`,
     alternates: { canonical: `/departments/${slug}` },
   };

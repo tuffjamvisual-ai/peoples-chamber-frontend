@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const name = Number.isInteger(memberId) ? await getMpName(memberId) : null;
   if (!name) return { title: 'Reports', robots: { index: false, follow: true } };
   return {
-    title: `Reports mentioning ${name}`,
+    title: titleWithin(`Reports mentioning ${name}`),
     description: `Every opengovt report that names ${name}, newest first.`,
     alternates: { canonical: `/mps/${memberId}/reports` },
     robots: { index: false, follow: true },

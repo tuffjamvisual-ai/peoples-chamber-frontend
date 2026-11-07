@@ -1,6 +1,7 @@
 // /briefings/<slug>/sources: the sources of a briefing (added 23 Oct 2026). A file briefing lists its records as on
 // /editorials/<slug>/sources; a database briefing lists its string sources as plain text, as its article page used
 // to. Dynamic like the article; published only (a draft's sources are at /preview/briefings). Never indexed; not in the sitemap.
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const piece = await getEditorial(slug);
   const headline = piece && piece.kind === 'briefing' ? piece.headline : (await getDbBriefing(slug))?.headline;
   return {
-    title: headline ? `Sources: ${headline}` : 'Sources',
+    title: titleWithin(headline ? `Sources: ${headline}` : 'Sources'),
     alternates: { canonical: `/briefings/${slug}/sources` },
     robots: { index: false, follow: true },
   };

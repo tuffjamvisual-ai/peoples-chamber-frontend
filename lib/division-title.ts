@@ -1,11 +1,11 @@
 // Search titles for vote pages (owner, 5 Nov 2026, visibility campaign item 13): 60 characters or fewer, for example
 // "Animal Welfare (Sentience) Bill: how MPs voted, 14 Mar 2022". Only the search title changes; the page's heading keeps
-// the motion in full. A name is only ever shortened at a natural break (lib/seo-title.ts): when the shortest clean name
-// does not fit with "how MPs voted", those words go, then the date, rather than leaving a fragment of the name.
+// the motion in full. A name is never cut (owner, 7 Nov 2026): when it does not fit with "how MPs voted", those words go, then
+// the date. A name over 60 characters on its own stays whole, with its date.
 //
 // Votes on one bill on one day (New Clause 1, New Clause 2 and so on) would share a title, so the day's first vote keeps
 // it and the others name what was voted on, or the division's own number, "(vote 215)", so no two votes share a title.
-import { cleanNameForms, endsOnLinkWord, naturalCut, shortDate, TITLE_MAX } from './seo-title';
+import { endsOnLinkWord, shortDate, TITLE_MAX } from './seo-title';
 
 const tidy = (s: string) => s.replace(/\s+/g, ' ').trim();
 
@@ -37,39 +37,27 @@ function splitMotion(motion: string): { name: string; part: string } {
 
 function titleFor(motion: string, number: number, dateOnly: string, day: string, used: Set<string>, usedNames: Set<string>): string {
   const { name, part } = splitMotion(tidy(motion));
-  const forms = cleanNameForms(name);
   // A later vote on a name already used that day goes straight to what was voted on: "[Lords]" is not a difference.
-  const key = forms[forms.length - 1].toLowerCase();
+  const key = name.replace(/\s*\[(?:Lords|HL)\]/gi, '').toLowerCase();
   const nameTaken = usedNames.has(key);
   usedNames.add(key);
   const fits = (t: string) => t.length <= TITLE_MAX;
   const free = (t: string) => fits(t) && !used.has(t);
-  const how = (n: string) => `${n}: how MPs voted, ${day}`;
-  const dated = (n: string) => `${n}, ${day}`;
-
-  // The name whole or in a clean form, then, only if neither fits at all, the name cut at a natural break.
-  const whole = [...forms.map(how), ...forms.map(dated)];
-  const usual = whole.some(fits) ? whole : [
-    ...[naturalCut(forms[forms.length - 1], TITLE_MAX - how('').length)].filter((c): c is string => !!c).map(how),
-    ...[naturalCut(forms[forms.length - 1], TITLE_MAX - dated('').length)].filter((c): c is string => !!c).map(dated),
-  ];
+  const dated = `${name}, ${day}`;
   // For votes sharing a title, what was voted on; failing that the division's number, which keeps every title unique
   // (owner, 5 Nov 2026) even if it takes the title over 60 characters.
   const what = part ? shortPart(part) : '';
-  const year = dateOnly.slice(0, 4);
   const vote = `(vote ${number})`;
-  const shortest = forms[forms.length - 1];
   const candidates = [
-    ...(nameTaken ? [] : usual),
-    ...(what ? forms.map((n) => `${n}: ${what}, ${day}`) : []),
-    ...forms.map((n) => `${n}, ${year} ${vote}`),
-    ...forms.map((n) => `${n} ${vote}`),
+    ...(nameTaken ? [] : [`${name}: how MPs voted, ${day}`, dated, name]),
+    ...(what ? [`${name}: ${what}, ${day}`] : []),
+    `${name}, ${dateOnly.slice(0, 4)} ${vote}`,
+    `${name} ${vote}`,
   ];
   const found = candidates.find(free);
   if (found) return found;
-  // Nothing fits in 60 characters. A name with no natural break is kept whole, never cut: with its date, and its number
-  // if another vote that day already has that title.
-  return used.has(dated(shortest)) ? `${dated(shortest)} ${vote}` : dated(shortest);
+  // Nothing fits in 60 characters: the name whole, with its date, and its number if another vote that day already has that title.
+  return used.has(dated) ? `${dated} ${vote}` : dated;
 }
 
 // motion and number: this vote. sameDay: every vote that day, this one included.

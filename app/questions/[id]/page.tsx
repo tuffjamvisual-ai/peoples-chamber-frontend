@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const heading = q.heading || `Written question ${q.uin}`;
   return {
     // Natural breaks only, never mid phrase (owner, 6 Nov 2026).
-    title: namedTitle(heading, (n) => [`Written question: ${n}`, n], `Written question ${q.uin}`),
+    title: namedTitle(heading, (n) => [`Written question: ${n}`, n]),
     description: metaDescription(`${q.question_text ?? heading}`),
     alternates: { canonical: `/questions/${q.id}` },
   };

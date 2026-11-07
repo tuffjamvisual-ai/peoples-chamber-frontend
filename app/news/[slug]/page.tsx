@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
@@ -117,7 +118,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   else if (hasReports) description += ', with opengovt’s related reports.'
   else description += deptSlug ? '. Linked to the department’s record on opengovt.' : '.'
   return {
-    title: release.title.replace(/\s+/g, ' ').trim(),
+    title: titleWithin(release.title.replace(/\s+/g, ' ').trim()),
     description: metaDescription(description),
     // The one address the release is linked at (any case or stray character in the address opens the same page).
     alternates: { canonical: `/news/${slug.replace(/[^a-z0-9-]/gi, '').toLowerCase()}` },

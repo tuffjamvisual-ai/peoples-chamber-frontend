@@ -8,6 +8,7 @@
 //
 // Independents and the Speaker get a note instead: there is no party line to measure.
 
+import { titleWithin } from '@/lib/seo-title';
 import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/whip parties: ${partyErr.message}`);
   const name = party?.name || 'Party';
   return {
-    title: `${name}, whip cohesion + rebellions`,
+    title: titleWithin(`${name}, whip cohesion + rebellions`),
     description: `How tightly ${name} MPs vote together in the Commons, and which of its MPs vote against most of the party most often. Every division since the July 2024 election.`,
     alternates: { canonical: `/parties/${slug}/whip` },
   };

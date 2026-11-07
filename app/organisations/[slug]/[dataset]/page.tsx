@@ -1,6 +1,7 @@
 // /organisations/[slug]/[dataset]: every donation, contract or grant linked to one organisation by Companies House
 // number (report 71), newest first, all on one page (the longest list is 53 records). Meetings and lobbying are listed in full on /lobbying/<slug>.
 
+import { titleWithin } from '@/lib/seo-title';
 import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const org = await getOrganisation(slug);
   if (!org) return { title: 'Organisation not found' };
   return {
-    title: `${org.name}: ${TITLES[dataset].toLowerCase()}`.slice(0, 70),
+    title: titleWithin(`${org.name}: ${TITLES[dataset].toLowerCase()}`),
     description: `Every ${TITLES[dataset].toLowerCase().replace(/s$/, '')} record linked to ${org.name} by Companies House number, newest first, with links to the official records.`,
     alternates: { canonical: `/organisations/${org.slug}/${dataset}` },
   };

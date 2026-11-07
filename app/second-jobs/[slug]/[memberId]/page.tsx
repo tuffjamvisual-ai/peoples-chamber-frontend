@@ -3,6 +3,7 @@
 // registered role with payer, start date and itemised payment lines
 // (date + hours + amount + ultimate-payer override).
 
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const item = Number.isFinite(Number(memberId)) ? await loadMember(slug, Number(memberId)) : null;
   const name = displayMpName(item?.mp.display_name || item?.mp.name) || 'MP';
   return {
-    title: `${name}, second jobs`,
+    title: titleWithin(`${name}, second jobs`),
     description: `${name}: declared outside earnings, roles, payers and individual payments from the Register of Members’ Financial Interests.`,
     alternates: { canonical: `/second-jobs/${slug}/${memberId}` },
     // Not indexed when there is no money to show: no one-off payment and no regular pay with a £ figure

@@ -8,6 +8,7 @@
 // Current figure: deriveCurrentFigure() from lib/programmes — shared with the
 // index page, no copy-paste.
 
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getProgramme, getTimeline, type ProgrammeRow, type TimelineRow } from '@/lib/programmes';
@@ -24,7 +25,7 @@ export async function generateMetadata(
   const prog = await getProgramme(slug);
   if (!prog || !prog.is_live) return { title: 'Programme' };
   return {
-    title: prog.name,
+    title: titleWithin(prog.name),
     description: prog.summary?.slice(0, 155) ?? `Track progress on ${prog.name}.`,
     alternates: { canonical: `/programmes/${slug}` },
   };

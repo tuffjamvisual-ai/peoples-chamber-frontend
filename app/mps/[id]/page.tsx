@@ -145,7 +145,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       // Owner's brief, 3 Nov 2026: "<Name>: record and interests" for former MPs.
       title: titleWithin(`${m.mp.name}: record and interests`),
-      description: metaDescription(m.mp.lastSeatOnly ? `${m.mp.name}, former MP${m.mp.party ? `, ${m.mp.party}` : ''}. ${lastSeatLine(m.mp)} From UK Parliament's record.` : `${m.mp.name}${m.mp.party ? `, ${m.mp.party}` : ''}, former MP${seat ? ` for ${seat}` : ''}${years}: seats held, dates served and any Standards findings, from UK Parliament's record.`),
+      description: metaDescription(m.mp.lastSeatOnly ? `${m.mp.name}, former MP${m.mp.party ? `, ${m.mp.party}` : ''}. ${lastSeatLine(m.mp)}` : `${m.mp.name}${m.mp.party ? `, ${m.mp.party}` : ''}, former MP${seat ? ` for ${seat}` : ''}${years}: seats held, dates served and any Standards findings, from UK Parliament's record.`),
       alternates: { canonical: `/mps/${memberId}` },
     };
   }

@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, permanentRedirect, redirect } from 'next/navigation';
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!p || !peerHasPage(p)) return { title: 'House of Lords', robots: { index: false, follow: true } };
   const what = [p.party, p.peerage_type].filter(Boolean).join(', ');
   return {
-    title: `${p.name_display}${p.party ? `, ${p.party}` : ''}`,
+    title: titleWithin(`${p.name_display}${p.party ? `, ${p.party}` : ''}`),
     description: metaDescription(`${p.name_display}${what ? ` (${what})` : ''}, member of the House of Lords${p.start_date ? ` since ${fmt(p.start_date)}` : ''}: posts held, votes and written questions, from Parliament's records.`),
     alternates: { canonical: `/lords/${memberId}` },
   };

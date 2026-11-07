@@ -1,6 +1,7 @@
 // /bills/sessions/[id]: every bill in one parliamentary session, Acts, withdrawn and defeated bills included, grouped
 // by what became of it in that session (lib/parliament-sessions.ts sessionBillGroup). A bill carried over appears in
 // each session it sat in. [id] is Parliament's session ID (e.g. 39 = 2024-26).
+import { titleWithin } from '@/lib/seo-title';
 import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const s = id == null ? null : await getParliamentSession(id);
   if (!s) return { title: 'Session not found' };
   return {
-    title: `Bills in the ${sessionTitle(s)} of UK Parliament`,
+    title: titleWithin(`Bills in the ${sessionTitle(s)} of UK Parliament`),
     description: `All ${s.bills_listed.toLocaleString()} bills in the ${sessionTitle(s)} (${sessionDates(s)}): which became law, which were carried over, withdrawn or ran out of time.`,
     alternates: { canonical: `/bills/sessions/${s.id}` },
   };

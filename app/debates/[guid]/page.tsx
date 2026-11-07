@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem, pagesByHeight } from '@/app/components/NoJsPager';
 import ScreenMore from '@/app/components/ScreenMore';
 import { splitAnswer } from '@/lib/answer-html';
@@ -204,7 +205,7 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   const day = shortDate(ov?.Date);
   const fullTitle = d
     ? fitTitle(...(ov?.House && day ? [`${title}, ${ov.House} debate ${day}`] : []), ...(day ? [`${title}, ${day}`] : []), title)
-    : title;
+    : titleWithin(title);
   // A sitting's header record ("Commons Chamber", "Westminster Hall") only gathers the day's debates, so its page
   // repeats their text: not indexed, its links still followed (owner's decision, 28 Oct 2026).
   const header = !!d && !(d.Items ?? []).some((it) => plain(it.Value || '')) && (d.ChildDebates ?? []).length > 0;

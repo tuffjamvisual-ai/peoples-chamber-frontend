@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const si = await getSi(id)
   if (!si) return {}
   return {
-    title: namedTitle(si.title, (n) => [n], si.si_number ? `Statutory instrument ${si.si_number}` : undefined),
+    title: namedTitle(si.title, (n) => [n]),
     description: `${si.si_number ? `${si.si_number}: ` : ''}${si.procedure || 'Statutory instrument'} laid by ${si.laying_department || 'the government'} on ${si.laid_date || 'a date not given'}, with its path through Parliament.`.slice(0, 155),
     alternates: { canonical: `/statutory-instruments/${id}` },
   }

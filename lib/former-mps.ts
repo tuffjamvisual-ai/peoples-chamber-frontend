@@ -121,10 +121,12 @@ export const memberName = cache(async (memberId: number): Promise<string | null>
   return json?.value?.nameDisplayAs?.replace(/^(?:Mr|Mrs|Miss|Ms) /, '') ?? null;
 });
 
-// "In the Commons 1945 to 1987. Last seat: Cardiff South & Penarth." A record that gives no end year or no start year says only what it has.
+// "Parliament's record gives 1945 to 1987, last seat Cardiff South & Penarth. Earlier seats and breaks in service may not be listed." (owner, 7 Nov 2026:
+// the record often gives one span only.) A record with no end year or no start year says only what it has.
 export function lastSeatLine(mp: FormerMp): string {
-  const span = mp.firstYear && mp.lastYear ? `In the Commons ${mp.firstYear} to ${mp.lastYear}. ` : mp.firstYear ? `In the Commons from ${mp.firstYear}. ` : '';
-  return `${span}Last seat: ${mp.seats[mp.seats.length - 1]?.constituency}.`;
+  const seat = mp.seats[mp.seats.length - 1]?.constituency;
+  const span = mp.firstYear && mp.lastYear ? `${mp.firstYear} to ${mp.lastYear}, ` : mp.firstYear ? `${mp.firstYear} onwards, ` : '';
+  return `Parliament\u2019s record gives ${span}last seat ${seat}. Earlier seats and breaks in service may not be listed.`;
 }
 
 // "2010 to 2019", or "since 2024" for a seat still held (a member we do not list as current).

@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -80,7 +81,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const name = Number.isInteger(memberId) ? await getMpName(memberId) : null;
   if (!name) return { title: "Questions at Prime Minister's Questions", robots: { index: false, follow: true } };
   return {
-    title: `${name}: questions at PMQs`,
+    title: titleWithin(`${name}: questions at PMQs`),
     description: `${name} at Prime Minister's Questions: every question since July 2024, and the archive from 1961 to 2024.`,
     alternates: { canonical: `/mps/${memberId}/pmqs` },
   };

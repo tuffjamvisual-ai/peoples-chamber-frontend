@@ -7,6 +7,7 @@
 //
 // Cross-reference back to /parties (the comparison grid) at the top.
 
+import { titleWithin } from '@/lib/seo-title';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import PartySidebar from '../../components/PartySidebar';
@@ -133,7 +134,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (partyErr2 && partyErr2.code !== 'PGRST116') throw new Error(`/parties/[slug] parties: ${partyErr2.message}`);
   const name = party?.name || 'Party';
   return {
-    title: `${name}, Policies`,
+    title: titleWithin(`${name}, Policies`),
     description: `${name}'s 2024 General Election manifesto positions across 11 themes, with post-election shifts tracked.`,
     alternates: { canonical: `/parties/${slug}` },
   };

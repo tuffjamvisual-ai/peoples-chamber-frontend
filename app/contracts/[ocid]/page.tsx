@@ -156,7 +156,7 @@ export async function generateMetadata({ params }: { params: Promise<{ ocid: str
   if (!OCID_RE.test(ocid)) return {};
   const notices = await loadNotices(ocid);
   const title = [...notices].reverse().find((n) => n.title)?.title;
-  return title ? { title: namedTitle(title, (n) => [`${n}: contract history`, n], `Contract history: ${[...notices].reverse().find((n) => n.buyer_name)?.buyer_name ?? 'public procurement'}`), alternates: { canonical: `/contracts/${ocid}` } } : {};
+  return title ? { title: namedTitle(title, (n) => [`${n}: contract history`, n]), alternates: { canonical: `/contracts/${ocid}` } } : {};
 }
 
 export default async function ContractHistoryPage({ params }: { params: Promise<{ ocid: string }> }) {

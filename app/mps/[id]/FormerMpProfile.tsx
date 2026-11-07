@@ -48,7 +48,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           Time in the House of Commons
         </h2>
-        {lastSeatOnly && lastSeat.from && <p style={line}>In the Commons from {fmtDay(lastSeat.from)}{lastSeat.to ? ` to ${fmtDay(lastSeat.to)}` : ''}.</p>}
+        {lastSeatOnly && lastSeat.from && <p style={line}>Dates in Parliament&rsquo;s record: {fmtDay(lastSeat.from)}{lastSeat.to ? ` to ${fmtDay(lastSeat.to)}` : ' onwards'}.</p>}
         {!lastSeatOnly && mp.seats.length > 0 && <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
           {mp.seats.map((s) => (
             <li key={`${s.constituency}-${s.from}`} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
@@ -61,7 +61,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
         </ul>}
         {mp.seats.length === 0 && <p style={line}>Parliament&rsquo;s record for {mp.name} gives no Commons seat or dates.</p>}
         <p style={line}>
-          {mp.name} is no longer an MP.{mp.sitsInLords ? ' They now sit in the House of Lords.' : ''} opengovt keeps full profiles for current MPs; this page records {lastSeatOnly ? 'their last seat and the dates in Parliament’s record' : 'the seats held and the dates served'}.
+          {mp.name} is no longer an MP.{mp.sitsInLords ? ' They now sit in the House of Lords.' : ''} opengovt keeps full profiles for current MPs; this page {lastSeatOnly ? 'records their last seat and the dates in Parliament’s record' : mp.lastSeatOnly ? 'links to their record at Prime Minister’s Questions' : 'records the seats held and the dates served'}.
         </p>
         <p style={line}>
           <Link href="/mps" className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Find your current MP</Link>.

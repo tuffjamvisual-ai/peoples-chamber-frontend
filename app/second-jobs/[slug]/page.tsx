@@ -3,6 +3,7 @@
 // links through to /second-jobs/[slug]/[memberId] for the full
 // role-by-role detail.
 
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const label = slugToLabel(slug);
   return {
-    title: `${label} MPs with second jobs`,
+    title: titleWithin(`${label} MPs with second jobs`),
     description: `Every ${label} MP with declared outside earnings, click through for each MP's full payment breakdown.`,
     alternates: { canonical: `/second-jobs/${slug}` },
   };

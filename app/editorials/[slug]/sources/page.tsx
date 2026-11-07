@@ -1,5 +1,6 @@
 // /editorials/<slug>/sources: every record an investigation was checked against (added 23 Oct 2026). The article's
 // evidence panel links here as one "Sources (N)" line. Not indexed; not in the sitemap.
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import SourcesPage from '../../../components/SourcesPage';
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const piece = await getEditorial(slug);
   if (!piece || piece.kind === 'briefing') return { title: 'Sources', robots: { index: false, follow: true } };
   return {
-    title: `Sources: ${piece.headline}`,
+    title: titleWithin(`Sources: ${piece.headline}`),
     alternates: { canonical: `/editorials/${slug}/sources` },
     robots: { index: false, follow: true },
   };

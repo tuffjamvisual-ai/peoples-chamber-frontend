@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const t = getTopic(slug);
   if (!t) return { title: 'Topic' };
   return {
-    title: `${t.title}: Policy Topic`,
+    title: titleWithin(`${t.title}: Policy Topic`),
     description: t.blurb.slice(0, 200),
     alternates: { canonical: `/topics/${slug}` },
   };

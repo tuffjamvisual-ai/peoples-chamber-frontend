@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!t) return {};
   const treaty = treatySeoTitle(t.title, t.signed_date || t.laid_date);
   return {
-    // The parties and subject where the official title gives them (owner, 5 Nov 2026), else the title cut at a natural break.
-    title: treaty ? titleWithin(treaty) : namedTitle(treatyPlainName(t.title), (n) => [n], t.command_paper ? `Treaty laid before Parliament, ${t.command_paper}` : undefined),
+    // The parties and subject where the official title gives them (owner, 5 Nov 2026), else the title whole.
+    title: treaty ? titleWithin(treaty) : namedTitle(treatyPlainName(t.title), (n) => [n]),
     description: `${t.command_paper ? `${t.command_paper}: ` : ''}treaty laid before Parliament on ${t.laid_date || 'a date not given'} by ${t.lead_department || 'the government'}, with its scrutiny deadline and committee work.`.slice(0, 155),
     alternates: { canonical: `/treaties/${id}` },
   };

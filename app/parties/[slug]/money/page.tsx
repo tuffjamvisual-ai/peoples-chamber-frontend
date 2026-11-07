@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 // Per-party money dossier — /parties/[slug]/money
 //
@@ -65,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/money parties: ${partyErr.message}`);
   const name = party?.name || 'Party';
   return {
-    title: `${name}, money map`,
+    title: titleWithin(`${name}, money map`),
     description: `Every declared donation to ${name}: by year, by donor type, by sector, by constituency vs HQ. The donor concentration nobody else calculates.`,
     alternates: { canonical: `/parties/${slug}/money` },
   };

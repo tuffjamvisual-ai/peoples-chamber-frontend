@@ -1,6 +1,6 @@
 import { billSummary } from '@/lib/bill-summary';
 import type { Metadata } from 'next';
-import { fitTitle } from '@/lib/seo-title';
+import { fitTitle, titleWithin } from '@/lib/seo-title';
 import { supabase } from '@/lib/supabase';
 
 interface Props {
@@ -88,7 +88,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description = description.slice(0, 197).trimEnd() + '…';
 
   return {
-    title: sessionName ? fitTitle(`${title}, ${sessionName} session`, `${title}, ${sessionName}`) : title,
+    title: sessionName ? fitTitle(`${title}, ${sessionName} session`, `${title}, ${sessionName}`) : titleWithin(title),
     description,
     alternates: { canonical: `/bills/${billId}` },
   };

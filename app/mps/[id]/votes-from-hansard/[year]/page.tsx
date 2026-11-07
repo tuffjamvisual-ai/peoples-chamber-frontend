@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const name = p ? await memberName(p.memberId) : null;
   if (!p || !name) return { title: 'Commons votes' };
   return {
-    title: `${name}: Commons votes in ${p.year}`,
+    title: titleWithin(`${name}: Commons votes in ${p.year}`),
     description: `How ${name} voted in the House of Commons in ${p.year}. ${HANSARD_LABEL}.`,
     alternates: { canonical: `/mps/${p.memberId}/votes-from-hansard/${p.year}` },
   };

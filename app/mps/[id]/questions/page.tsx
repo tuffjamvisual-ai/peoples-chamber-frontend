@@ -1,3 +1,4 @@
+import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const name = Number.isInteger(memberId) ? await getMpName(memberId) : null;
   if (!name) return { title: 'Written questions', robots: { index: false, follow: true } };
   return {
-    title: `Written questions by ${name}`,
+    title: titleWithin(`Written questions by ${name}`),
     description: `Every written question ${name} has asked in the House of Commons, newest first, with links to the official Parliament record.`,
     alternates: { canonical: `/mps/${memberId}/questions` },
   };
