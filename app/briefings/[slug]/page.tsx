@@ -8,7 +8,7 @@
 // /editorials address). No slug is both an editorial and a database briefing (checked 7 Nov 2026).
 
 import type { Metadata } from 'next';
-import { metaDescription } from '@/lib/meta-description';
+import { proseDescription } from '@/lib/meta-description';
 import { titleWithin } from '@/lib/seo-title';
 import { notFound, permanentRedirect } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (piece && piece.kind === 'briefing') {
     return {
       title: searchTitle(piece.headline),
-      description: metaDescription(piece.standfirst),
+      description: proseDescription(piece.standfirst, piece.headline),
       alternates: { canonical: `/briefings/${slug}` },
     };
   }
@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (b) {
     return {
       title: searchTitle(b.headline),
-      description: metaDescription(b.body),
+      description: proseDescription(b.body, b.headline),
       alternates: { canonical: `/briefings/${slug}` },
     };
   }

@@ -5,7 +5,7 @@ import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
-import { metaDescription } from '@/lib/meta-description';
+import { firstThatFits, wholeSentences } from '@/lib/meta-description';
 import OpenGovShell from '../../components/OpenGovShell';
 import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
 import PhoneFolds, { type Fold } from '../../components/PhoneFolds';
@@ -39,6 +39,16 @@ const fmt = (d: string | null | undefined) => (d ? new Date(`${d.slice(0, 10)}T1
 const peer = cache((memberId: number) => getPeer(supabase, memberId));
 const statusLabel = (p: Peer) => (!p.is_current ? `Former member${p.end_date ? `, left ${fmt(p.end_date)}` : ''}` : p.status && p.status !== 'Current Member' ? p.status : null);
 
+// Description in whole sentences (owner, 7 Nov 2026, L6), never cut with an ellipsis: who, party, peerage type and the
+// dates in the Lords from Parliament's record, then what the page lists where that fits.
+function lordsDescription(p: Peer, what: string): string {
+  const who = `${p.name_display}${what ? ` (${what})` : ''}`;
+  const lead = p.is_current
+    ? (p.start_date ? `${who} has been a member of the House of Lords since ${fmt(p.start_date)}.` : `${who} is a member of the House of Lords.`)
+    : (p.start_date && p.end_date ? `${who} was a member of the House of Lords from ${fmt(p.start_date)} to ${fmt(p.end_date)}.` : `${who} is a former member of the House of Lords.`);
+  return wholeSentences([lead, firstThatFits(lead, ["This page lists their posts, votes and written questions from Parliament's records.", 'Their posts, votes and written questions are listed.'])]);
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const memberId = Number(id);
@@ -52,7 +62,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const years = (sameName ?? 0) > 1 && from ? ` (${to ? (to === from ? from : `${from} to ${to}`) : `since ${from}`})` : '';
   return {
     title: titleWithin(`${p.name_display}${years}${p.party ? `, ${p.party}` : ''}`),
-    description: metaDescription(`${p.name_display}${what ? ` (${what})` : ''}, member of the House of Lords${p.start_date ? ` since ${fmt(p.start_date)}` : ''}: posts held, votes and written questions, from Parliament's records.`),
+    description: lordsDescription(p, what),
     alternates: { canonical: `/lords/${memberId}` },
   };
 }

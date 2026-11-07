@@ -29,3 +29,26 @@ export function wholeSentences(sentences: (string | null | undefined | false)[],
   for (const s of parts.slice(1)) if (out.length + 1 + s.length <= max) out += ` ${s}`;
   return out;
 }
+
+// A text split into its sentences, for wholeSentences: a sentence ends at . ! or ? followed by a space or the end, so
+// "6.5 per cent" stays whole (L6, 7 Nov 2026).
+export function sentencesOf(text: string | null | undefined): string[] {
+  const t = String(text ?? '').replace(/\s+/g, ' ').trim();
+  return t ? t.split(/(?<=[.!?]["'”’)]*)\s+/).map((s) => s.trim()).filter(Boolean) : [];
+}
+
+// A sentence from a title or name: the text with a full stop, unless it already ends a sentence.
+export const asSentence = (s: string) => (/[.!?]["'”’)]*$/.test(s.trim()) ? s.trim() : `${s.trim()}.`);
+
+// The first of the sentences that still fits after the text, or null (L6): a fuller sentence where there is room, a
+// shorter one where there is not.
+export function firstThatFits(text: string, options: string[], max = 160): string | null {
+  return options.find((o) => text.length + 1 + o.length <= max) ?? null;
+}
+
+// A piece's own prose as a description (L6): its whole sentences that fit in 160 characters. Where even the first
+// sentence is longer, the headline is used instead, so nothing is cut with an ellipsis.
+export function proseDescription(text: string | null | undefined, headline: string, max = 160): string {
+  const s = sentencesOf(text);
+  return s.length && s[0].length <= max ? wholeSentences(s, max) : wholeSentences([asSentence(headline)], max);
+}

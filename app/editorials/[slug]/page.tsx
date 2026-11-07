@@ -3,7 +3,7 @@
 // suspenders alongside the next.config redirects).
 
 import type { Metadata } from 'next';
-import { metaDescription } from '@/lib/meta-description';
+import { proseDescription } from '@/lib/meta-description';
 import { titleWithin } from '@/lib/seo-title';
 import { notFound, permanentRedirect } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
@@ -28,7 +28,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const SITE_URL = 'https://www.opengovt.uk';
   // Description (owner's approval, 24 Oct 2026): the piece's summary where it has one, else its standfirst; the same
   // text goes to openGraph and twitter.
-  const description = metaDescription(piece.summary?.trim() ? piece.summary : piece.standfirst);
+  // Whole sentences only since L6 (7 Nov 2026), the headline where the first sentence is over 160 characters.
+  const description = proseDescription(piece.summary?.trim() ? piece.summary : piece.standfirst, piece.headline);
   const canonical = `/editorials/${slug}`;
   // Each piece's own share image (./opengraph-image.tsx, 23 Oct 2026). Next.js fills og:image from that file; the
   // same address is given here so twitter:image points to it as well.

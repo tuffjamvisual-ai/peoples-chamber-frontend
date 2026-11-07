@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { markedCutTitle } from '@/lib/seo-title';
-import { metaDescription } from '@/lib/meta-description';
+import { asSentence, wholeSentences } from '@/lib/meta-description';
 import { getPetition, isRevisedResponse, ourDebateGuid, petitionConstituencies, petitionDate, type PetitionConstituency } from '@/lib/petition-pages';
 import { PetitionCredit } from '../PetitionCredit';
 
@@ -29,7 +29,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!p) return { title: 'Petition', robots: { index: false, follow: true } };
   return {
     title: markedCutTitle(p.action, (n) => [`Petition: ${n}`, n]),
-    description: metaDescription(`${p.action}. A UK Parliament petition with ${n0(p.signature_count)} signatures: the government response, any debate and signatures by constituency.`),
+    // Whole sentences (owner, 7 Nov 2026, L6): the petition's own words, its signatures, and the government response and
+    // debate dates the page shows, each sentence kept only where it fits in 160 characters.
+    description: wholeSentences([
+      asSentence(p.action),
+      `This UK Parliament petition has ${n0(p.signature_count)} ${p.signature_count === 1 ? 'signature' : 'signatures'}.`,
+      p.government_response_on && `The government responded on ${petitionDate(p.government_response_on)}.`,
+      p.debated_on && `Parliament debated it on ${petitionDate(p.debated_on)}.`,
+    ]),
     alternates: { canonical: `/petitions/${p.id}` },
   };
 }

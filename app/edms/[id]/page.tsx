@@ -7,9 +7,9 @@ import OpenGovShell from '../../components/OpenGovShell';
 import MoreChain from '../../components/MoreChain';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { namedTitle } from '@/lib/seo-title';
-import { metaDescription } from '@/lib/meta-description';
+import { asSentence, firstThatFits, wholeSentences } from '@/lib/meta-description';
 import { displayMpName } from '@/lib/mp-name';
-import { allEdms, edmDetail, edmState, getEdm, type EdmSignature, type LinkedEdm } from '@/lib/edm-pages';
+import { allEdms, edmDetail, edmState, getEdm, type Edm, type EdmSignature, type LinkedEdm } from '@/lib/edm-pages';
 import { petitionDate } from '@/lib/petition-pages';
 
 // One early day motion (owner, backlog item 15b, 6 Nov 2026): its title and text as tabled, number, date, sponsors, every signature
@@ -27,13 +27,24 @@ const link: CSSProperties = { display: 'inline-flex', alignItems: 'center', minH
 const n0 = (n: number) => n.toLocaleString('en-GB');
 const load = cache(async (raw: string) => (/^\d{1,9}$/.test(raw) ? getEdm(Number(raw)) : null));
 
+// Description in whole sentences (owner, 7 Nov 2026, L6): the motion's title, then its number, date and signatures where
+// they fit, else its signatures alone. A title over 160 characters gives way to the number, date and signatures.
+function edmDescription(m: Edm): string {
+  const sigs = `${n0(m.signature_count)} ${m.signature_count === 1 ? 'signature' : 'signatures'}`;
+  const tabled = petitionDate(m.date_tabled);
+  const fact = `Early day motion ${m.uin_with_suffix}${tabled ? ` was tabled on ${tabled} and` : ''} has ${sigs}.`;
+  const title = asSentence(m.title);
+  if (title.length > 160) return wholeSentences([fact]);
+  return wholeSentences([title, firstThatFits(title, [fact, `It has ${sigs}.`])]);
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const m = await load((await params).id);
   if (!m) return { title: 'Early day motion', robots: { index: false, follow: true } };
   return {
     // The number always stays, so motions with the same title never share one (owner, 7 Nov 2026); the title is never cut.
     title: namedTitle(m.title, (n) => [`EDM ${m.uin_with_suffix}: ${n}`]),
-    description: metaDescription(`${m.title}. Early day motion ${m.uin_with_suffix}, tabled ${petitionDate(m.date_tabled)}, with ${n0(m.signature_count)} signatures.`),
+    description: edmDescription(m),
     alternates: { canonical: `/edms/${m.id}` },
   };
 }
