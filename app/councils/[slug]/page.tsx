@@ -180,6 +180,15 @@ function formatPoundsMillions(valuePounds: number): string {
 // route.ts and app/api/welfare/local-authority/[gss]/route.ts — so it's
 // removed here rather than left as misleading dead code.
 
+// The council's type as a phrase for a sentence, from councils.type_label (owner, 7 Nov 2026, L2): "Lewes District Council
+// is a district council in England". Proper names keep their capital ("London borough"); the Northern Ireland label and
+// the City of London's are worded for a sentence.
+const TYPE_PHRASE: Record<string, string> = {
+  'District Council': 'district council', 'Unitary Authority': 'unitary authority', 'Metropolitan Borough': 'metropolitan borough',
+  'London Borough': 'London borough', 'County Council': 'county council', 'NI Council': 'council', 'Sui Generis': 'local authority',
+};
+const typePhrase = (label: string) => TYPE_PHRASE[label] ?? label.toLowerCase();
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   setPageReadTimer(revalidate);
   const { slug } = await params;
@@ -193,7 +202,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     // Owner's brief, 3 Nov 2026: "<Council name>: spending, services and ratings", shorter for a long name (5 Nov 2026).
     title: namedTitle(data.name, (n) => [`${n}: spending, services and ratings`, `${n}: spending and services`, `${n}: spending`, n]),
-    description: metaDescription(`${data.name}, ${data.type_label.toLowerCase()} in ${data.country} (ONS code ${data.gss_code}).${who}${pop} Spending, services and how the area compares.`),
+    // The code first (owner, 7 Nov 2026, L2): searches for a council's ONS code (E07000063) found this page but not the answer.
+    description: metaDescription(data.gss_code
+      ? `${data.gss_code} is the ONS code for ${data.name}, a ${typePhrase(data.type_label)} in ${data.country}.${who}${pop} Spending, services and how the area compares.`
+      : `${data.name}, a ${typePhrase(data.type_label)} in ${data.country}.${who}${pop} Spending, services and how the area compares.`),
     alternates: { canonical: `/councils/${slug}` },
   };
 }
@@ -371,6 +383,12 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           ]}
           slots={{
             overview: <>
+              {/* Opening sentence (owner, 7 Nov 2026, L2): what the council is and its ONS code, from the council's own row. */}
+              {c.gss_code && (
+                <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 16px', maxWidth: '46em', color: INK }}>
+                  {c.name} (ONS code {c.gss_code}) is a {typePhrase(c.type_label)} in {c.country}.
+                </p>
+              )}
               {c.description && (
                 <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
                   {c.description}
