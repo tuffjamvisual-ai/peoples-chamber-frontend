@@ -158,7 +158,9 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
             <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>{agency.description}</p>
           </header>
 
-          {agency.body && (
+          {/* The second paragraph only when it says something the first does not (owner, 7 Nov 2026, PF1): GOV.UK often gives
+              the same text as both, which showed it twice. Compared with spaces trimmed. */}
+          {agency.body && agency.body.replace(/\s+/g, ' ').trim() !== agency.description.replace(/\s+/g, ' ').trim() && (
             <div className="mb-6 pb-6 border-b border-[#14100d]/20">
               <p className="text-[#14100d] text-[15px] leading-relaxed">{agency.body}</p>
             </div>

@@ -214,10 +214,26 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
 
         {person && (
           <>
+            {/* Phones under 640px (owner, 7 Nov 2026, PF1): the MP profile's phone header, a 72px photo beside the name with no
+                rotation and no negative margins, so nothing is pushed past the screen's edge, and the sections start below the
+                opening without the desktop's upward nudge or zoom. From 640px up nothing changes. */}
+            <style>{`
+              @media (max-width: 639.98px) {
+                .pp-header { flex-direction: row !important; align-items: center !important; gap: 12px !important; margin-bottom: 12px !important; }
+                .pp-photo { margin: 0 !important; padding: 4px !important; transform: none !important; }
+                .pp-photo img, .pp-photo > div { width: 72px !important; height: 72px !important; font-size: 32px !important; }
+                .pp-photo .pp-paperclip { display: none !important; }
+                .pp-name { margin-top: 0 !important; min-width: 0; }
+                .pp-name h1 { font-size: 24px !important; margin: 0 0 4px !important; overflow-wrap: anywhere; }
+                .pp-sections { zoom: 1 !important; }
+                .pp-sections .pp-sections-grid { margin-top: 16px !important; }
+              }
+            `}</style>
             {/* Header — dossier polaroid + name + role */}
-            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
+            <div className="pp-header" style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
               {(isMp || person.caricature) && (
               <div
+                className="pp-photo"
                 style={{
                   position: 'relative',
                   flex: '0 0 auto',
@@ -243,11 +259,11 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                   </div>
                 )}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/paperclip.webp" alt="" aria-hidden style={{ position: 'absolute', top: '-30px', right: '-5px', width: '65px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
+                <img className="pp-paperclip" src="/paperclip.webp" alt="" aria-hidden style={{ position: 'absolute', top: '-30px', right: '-5px', width: '65px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
               </div>
               )}
 
-              <div style={{ flex: '1 1 auto', marginTop: '6%' }}>
+              <div className="pp-name" style={{ flex: '1 1 auto', marginTop: '6%' }}>
                 <h1 style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', textShadow: '1px 1px 0 rgba(0,0,0,0.1)', lineHeight: 1.05, marginTop: 0, marginBottom: '4%' }}>{displayName}</h1>
                 {person.currentRoles[0] && (
                   <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '3%' }}>{person.currentRoles[0].title}</div>
@@ -276,7 +292,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
               </div>
             )}
 
-            <div style={{ zoom: 1.18 }}>
+            <div className="pp-sections" style={{ zoom: 1.18 }}>
               <PeopleProfileSections
                 paragraphs={bioParagraphs}
                 currentRoles={person.currentRoles}

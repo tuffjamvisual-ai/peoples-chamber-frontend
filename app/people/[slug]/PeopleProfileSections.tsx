@@ -117,7 +117,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
   }, {});
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px" style={{ marginTop: '-80px' }}>
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px pp-sections-grid" style={{ marginTop: '-80px' }}>
       <aside className="lg:col-span-1 ppl-aside" style={{ marginLeft: '-13%', marginTop: '48px' }}>
         <div className="lg:sticky lg:top-16">
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>

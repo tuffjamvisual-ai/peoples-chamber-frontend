@@ -13,6 +13,7 @@ import { editorialSet } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { listReadingLabel, textReadingLabel } from '@/lib/reading-time';
 import ContinueToArticle from '../../components/ContinueToArticle';
+import NoJsPager, { NoJsPagerLinks, njpItem } from '@/app/components/NoJsPager';
 
 export const revalidate = 86400;
 
@@ -235,8 +236,12 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {relatedEditorials.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
           <h2 style={sectionH2}>Reports</h2>
+          {/* 10 a screen on phones with JavaScript off (owner, 7 Nov 2026, PF1): each card is tall: its 26 cards made
+              /topics/constitutional-reform 9,813px, and still 9,638px at 25 a screen. The cards are siblings, so each carries the pager's item class and the
+              Previous and Next links follow the last one. */}
+          <NoJsPager id="topic-reports" count={relatedEditorials.length} size={10} />
           {relatedEditorials.map((e) => (
-            <Link key={e.href} href={e.href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
+            <Link key={e.href} href={e.href} className={`no-hover-scale ${njpItem('topic-reports')}`} style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.headline}</div>
               {/* These cards carry no date, so the reading time sits on its own line under the headline. */}
               <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '3px' }}>{e.readingLabel}</div>
@@ -244,6 +249,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
               <ContinueToArticle style={{ marginTop: '4px' }} />
             </Link>
           ))}
+          <NoJsPagerLinks id="topic-reports" count={relatedEditorials.length} size={10} />
         </section>
       )}
 

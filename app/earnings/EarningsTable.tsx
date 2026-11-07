@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import NoJsPager from '@/app/components/NoJsPager'
 import type { EarningsRow } from './page'
 
 type SortKey = 'rank' | 'name' | 'base' | 'ministerial' | 'outside' | 'personal_total' | 'public_spend'
@@ -92,6 +93,10 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
           and polaroid shrunk so the row width fits the dossier folder
           content area on desktop. Vertical scroll is fine (it's a long
           list); horizontal is not. */}
+      {/* Phones with JavaScript off (owner, 7 Nov 2026, PF1): 15 rows a screen with Previous and Next, as stacked rows with
+          each figure labelled, as the phone script shows them with JavaScript on (25 stacked rows came to 9,203px, over the
+          9,000px warning). Nothing changes from 640px up. */}
+      <NoJsPager id="earnings" count={sorted.length} rows="> tbody > tr" cards={[null, null, 'Base', 'Ministerial', 'Outside', 'Total', 'Public spend']} title={2} size={15}>
       <table className="w-full text-[16px] border-collapse">
         <thead>
           <tr className="border-b border-[#14100d]/20 text-left">
@@ -200,6 +205,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
           })}
         </tbody>
       </table>
+      </NoJsPager>
     </div>
   )
 }

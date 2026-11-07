@@ -7,6 +7,7 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { QUESTION_DEPARTMENTS, departmentBySlug } from '@/lib/question-departments';
 import { QUESTION_PAGE_SIZE, questionDepartmentStats, questionPeople, searchQuestions, type QuestionStatus } from '@/lib/question-pages';
 import QuestionItems from './QuestionItems';
+import NoJsPager from '@/app/components/NoJsPager';
 
 // Written questions this Parliament (owner, backlog item 15c, 6 Nov 2026): search by words, MP or peer, department and date, newest first,
 // 25 at a time. A plain form and links, so it all works with JavaScript off. Filter links are nofollow, so crawlers do not read every
@@ -119,11 +120,14 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
       <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: INK, margin: '28px 0 8px' }}>By department</h2>
       <details className="pa-fold">
         <summary>All {QUESTION_DEPARTMENTS.length} departments</summary>
+        {/* 25 a screen on phones with JavaScript off (owner, 7 Nov 2026, PF1). */}
+        <NoJsPager id="question-departments" count={QUESTION_DEPARTMENTS.length} rows="> li">
         <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {[...QUESTION_DEPARTMENTS].sort((a, b) => a.name.localeCompare(b.name)).map((d) => (
             <li key={d.id}><Link href={`/questions/department/${d.slug}`} prefetch={false} style={{ display: 'flex', alignItems: 'center', minHeight: '44px', fontSize: '16px', color: INK, textDecoration: 'underline' }}>{d.name}</Link></li>
           ))}
         </ul>
+        </NoJsPager>
       </details>
     </OpenGovShell>
   );

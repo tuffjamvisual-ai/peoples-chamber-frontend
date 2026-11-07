@@ -21,6 +21,7 @@ import PhoneFolds from '../../components/PhoneFolds';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
 import AppgSource, { appgAmount } from '../../components/AppgSource';
 import StaffInterests, { type StaffInterest } from './StaffInterests';
+import NoJsPager from '@/app/components/NoJsPager';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
 
@@ -1432,7 +1433,9 @@ export default function MagazineProfileSections({
                     <summary style={{ fontSize: '15px', fontWeight: 'bold', color: '#7a1612', cursor: 'pointer' }}>
                       Show {fmtNum(rest.length)} more
                     </summary>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>{rest.map(item)}</ul>
+                    <NoJsPager id={`edms-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`} count={rest.length} rows="> li">
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>{rest.map(item)}</ul>
+                    </NoJsPager>
                   </details>
                 )}
                 {total > entries.length && (
@@ -1541,6 +1544,7 @@ export default function MagazineProfileSections({
                   <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '8px 0' }}>
                     Entries that appeared in the Register of Members&rsquo; Financial Interests published since March 2024 but are no longer listed.
                   </p>
+                  <NoJsPager id="interests-former" count={formerInterests.length} rows="> li">
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: '1.7' }}>
                     {formerInterests.map((i, idx) => (
                       <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
@@ -1550,6 +1554,7 @@ export default function MagazineProfileSections({
                       </li>
                     ))}
                   </ul>
+                  </NoJsPager>
                 </details>
               )}
               <StaffInterests items={staffInterests} employedStaff={staffEmployed} headingStyle={sectionH3} />
@@ -2442,6 +2447,8 @@ export default function MagazineProfileSections({
                     <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
                       Top organisations by meeting count
                     </summary>
+                    {/* Long fold lists page at 25 on phones with JavaScript off (owner, 7 Nov 2026, PF1), as the register history does. */}
+                    <NoJsPager id="diary-orgs" count={Math.min(topOrgs.length, 50)} rows="> tbody > tr">
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', marginTop: '8px' }}>
                       <thead>
                         <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
@@ -2460,11 +2467,13 @@ export default function MagazineProfileSections({
                         ))}
                       </tbody>
                     </table>
+                    </NoJsPager>
                   </details>
                   <details>
                     <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
                       Every meeting chronologically
                     </summary>
+                    <NoJsPager id="diary-meetings" count={Math.min(meetings.length, 300)} rows="> li">
                     <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: 1.55 }}>
                       {meetings.slice(0, 300).map((m) => (
                         <li key={m.id} style={{ padding: '5px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
@@ -2474,6 +2483,7 @@ export default function MagazineProfileSections({
                         </li>
                       ))}
                     </ul>
+                    </NoJsPager>
                     {meetings.length > 300 && <p style={{ padding: '4px 0', fontSize: '15px' }}>Showing first 300 of {meetings.length}.</p>}
                   </details>
                 </section>

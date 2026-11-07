@@ -2,8 +2,7 @@
 // with four wrong member ids corrected (corrections_to_source in the data file). The file is kept as prepared; the one
 // name Parliament spells differently is corrected here.
 import Link from 'next/link';
-import NoJsPager, { njpItem } from '@/app/components/NoJsPager';
-import PagedList from '../components/PagedList';
+import NoJsPager from '@/app/components/NoJsPager';
 import data from '@/lib/data/pmqs-attendance-2026-11-04.json';
 
 const INK = '#14100d';
@@ -94,11 +93,14 @@ export default function PmqsAttendance() {
       </table>
 
       </div>
-      {/* Phones: the same rows as a list, 15 at a time, so the page stays within 10,000px with the fold open (owner, 7 Nov 2026). */}
+      {/* Phones: the same rows as a list, so the page stays within 10,000px with the fold open (owner, 7 Nov 2026): 15 a
+          screen with Previous and Next links, with JavaScript on as well as off (NoJsPager always; PF1, 7 Nov 2026). At 25
+          the open fold measured 11,353px with JavaScript on and 10,864px off, over the limit; at 15 it was 9,400px. */}
       <div className="pc-narrow">
-        <PagedList id="pmqs-missed" count={data.missed_dates.length} size={15} style={{ fontSize: '15px', lineHeight: 1.6 }}>
+        <NoJsPager id="pmqs-missed" always count={data.missed_dates.length} rows="> li" size={15}>
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '15px', lineHeight: 1.6 }}>
           {data.missed_dates.map((m) => (
-            <li key={m.date} className={njpItem('pmqs-missed')} style={{ padding: '10px 0', ...rowLine }}>
+            <li key={m.date} style={{ padding: '10px 0', ...rowLine }}>
               <strong>{longDate(HANSARD_DATE[m.date]?.date ?? m.date)}</strong>
               {HANSARD_DATE[m.date] && <div>{HANSARD_DATE[m.date].note}</div>}
               <div>Prime Minister: {m.prime_minister}</div>
@@ -107,7 +109,8 @@ export default function PmqsAttendance() {
               {m.opposition_member && <div>Opposition member: {SPELLING[m.opposition_member] ?? m.opposition_member}</div>}
             </li>
           ))}
-        </PagedList>
+        </ul>
+        </NoJsPager>
       </div>
       </details>
 
