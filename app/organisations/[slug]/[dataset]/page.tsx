@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       dataset === 'contracts' ? `${org.name} was awarded ${countOf(org.contracts, 'public contract')}${org.contract_value ? ` worth ${money(org.contract_value)}` : ''}.`
         : dataset === 'grants' ? `${org.name} received ${countOf(org.grants, 'government grant')}${org.grant_value ? ` worth ${money(org.grant_value)}` : ''}.`
         : `${org.name} gave ${countOf(org.donations, 'political donation')}${org.donated_accepted ? ` worth ${money(org.donated_accepted)}` : ''}, as accepted.`,
-    ], ['Each record is matched by Companies House number and links to the official record.']),
+    ]),
     alternates: { canonical: `/organisations/${org.slug}/${dataset}` },
   };
 }

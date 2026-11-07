@@ -16,7 +16,7 @@ import { cleanDept, quarterLabel } from '@/lib/lobbying';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
   getOrganisation, orgNameShared, CH_NUMBERS_CHECKED, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
-  findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, type OrgIndexRow,
+  findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, getOrgNameBasisNotices, type OrgIndexRow,
 } from '@/lib/organisations';
 
 export const revalidate = 86400;
@@ -39,8 +39,8 @@ function orgDescription(org: OrgIndexRow): string {
   if (org.donations) facts.push((s) => `${s} gave ${countOf(org.donations, 'political donation')}${org.donated_accepted ? ` worth ${money(org.donated_accepted)}` : ''}, as accepted.`);
   if (org.meetings) facts.push((s) => `${s} had ${countOf(org.meetings, 'meeting')} with ministers.`);
   if (org.lobbying_quarters) facts.push((s) => `${s} was a consultant lobbying client in ${countOf(org.lobbying_quarters, 'quarter')}.`);
-  const tail = 'Records are matched by Companies House number, never by name alone.';
-  return ledBy(org.name, facts.map((f) => f(org.name)), [...facts.slice(1).map((f) => f('It')), tail]);
+  // The matching sentence is left out (owner, 7 Nov 2026, L8): it does not help a searcher, and the page says how records are matched.
+  return ledBy(org.name, facts.map((f) => f(org.name)), facts.slice(1).map((f) => f('It')));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -70,7 +70,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
   const { slug } = await params;
   const org = await getOrganisation(slug);
   if (!org) notFound();
-  const [donations, contracts, grants, registry, heldBack, alsoSee] = await Promise.all([
+  const [donations, contracts, grants, registry, heldBack, alsoSee, byName] = await Promise.all([
     org.donations ? getOrgDonations(org, LATEST) : Promise.resolve([]),
     org.contracts + org.framework_places ? getOrgContracts(org.company_number, LATEST) : Promise.resolve([]),
     org.grants ? getOrgGrants(org, LATEST) : Promise.resolve([]),
@@ -81,6 +81,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
       return 0;
     }) : Promise.resolve(0),
     getOrgAlsoSee(org),
+    getOrgNameBasisNotices(org.company_number),
   ]);
   const typeLabel = org.org_type ? ORG_TYPE_LABEL[org.org_type as OrgType] : 'Company';
 
@@ -230,7 +231,16 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
             Political donations, public contracts and grants are linked to this page by Companies House number only: the
             number the Electoral Commission, Find a Tender or the grant record gives, written the way Companies House writes
             it. Meetings with ministers and consultant lobbying are linked through our checked list of the spellings each
-            organisation is published under. Nothing is linked by name alone, so two organisations with the same name but
+            organisation is published under.
+            {/* A notice linked by the supplier name it prints, because its number exists on no Companies House register
+                (lib/contract-notices.ts; owner, 7 Nov 2026, L8). */}
+            {byName.map((n) => (
+              <span key={n.url}>
+                {' '}{byName.length === 1 ? 'One contract notice' : 'A contract notice'} gave a Companies House number that doesn&rsquo;t exist; it names the
+                supplier as {n.name} and is included on that basis (<a href={n.url} style={{ color: 'inherit', textDecoration: 'underline' }}>the notice on Find a Tender</a>).
+              </span>
+            ))}
+            {' '}{byName.length ? 'Otherwise nothing' : 'Nothing'} is linked by name alone, so two organisations with the same name but
             different numbers have separate pages, and a record that gives no number is not shown here.
           </p>
           <p style={{ ...para, marginBottom: 0 }}>

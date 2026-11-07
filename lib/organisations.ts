@@ -8,6 +8,7 @@ import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { readAll } from '@/lib/read-all';
+import { nameBasisCorrections } from '@/lib/contract-notices';
 import { getOrgMeetings, getOrgLobbying, type OrgMeeting, type OrgLobbying } from '@/lib/lobbying';
 
 export type OrgIndexRow = {
@@ -272,3 +273,22 @@ export function orgSummaryLine(o: Pick<OrgIndexRow, 'name' | 'donations' | 'dona
   const last = parts.pop();
   return `${o.name}: ${parts.length ? `${parts.join(', ')} and ${last}` : last}.`;
 }
+
+// Contract notices linked to this company by the supplier name they print, because the Companies House number they gave
+// exists on no register (lib/contract-notices.ts, basis 'name'; owner, 7 Nov 2026, L8): the name as printed and the
+// notice's address, read from contract_notices. Companies with none cost no read.
+export const getOrgNameBasisNotices = cache(async (companyNumber: string | null): Promise<{ name: string; url: string }[]> => {
+  const list = nameBasisCorrections(companyNumber);
+  if (!list.length) return [];
+  const out: { name: string; url: string }[] = [];
+  for (const c of list) {
+    const { data, error } = await supabase.from('contract_notices').select('source_url, suppliers, published_at').eq('ocid', c.ocid)
+      .order('published_at', { ascending: true });
+    if (error) throw new Error(`organisation name basis notices: ${error.message}`);
+    const row = ((data ?? []) as { source_url: string; suppliers: { name: string; id?: string }[] | null }[])
+      .find((r) => (r.suppliers ?? []).some((s) => s.id === c.corrected && s.name.trim() === c.name));
+    const printed = row?.suppliers?.find((s) => s.id === c.corrected && s.name.trim() === c.name)?.name.trim();
+    if (row && printed && !out.some((o) => o.url === row.source_url)) out.push({ name: printed, url: row.source_url });
+  }
+  return out;
+});

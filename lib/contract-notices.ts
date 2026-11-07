@@ -55,14 +55,23 @@ const noticeUrl = (r: any) => `https://www.find-tender.service.gov.uk/Notice/${e
 // Supplier ids the buyer published without the Companies House prefix (owner's yes, 7 Nov 2026, Claude outputs/org-merge/plan.md):
 // "GB-COH-303675" is not a company, OC303675 is Deloitte LLP. Keyed by notice, published id and supplier name, so only these
 // notices change, and a reload or backfill keeps the corrected ids. Checked on Companies House on 7 Nov 2026.
-const SUPPLIER_ID_CORRECTIONS: Record<string, string> = {
-  'ocds-h6vhtk-050ab7|GB-COH-303675|Deloitte LLP': 'GB-COH-OC303675',
-  'ocds-h6vhtk-05598d|GB-COH-209907|Deloitte LLP': 'GB-COH-OC303675',
-  'ocds-h6vhtk-044de7|GB-COH-390210|Sureserve Energy Services UK': 'GB-COH-SC390210',
-};
+// basis: 'prefix' where the published digits are the company's own number without its letters; 'name' where the published
+// number exists on Companies House under no prefix, so the notice is linked by the supplier name it prints. Organisation
+// pages say so for each 'name' notice (owner, 7 Nov 2026, L8).
+export type SupplierIdCorrection = { ocid: string; published: string; name: string; corrected: string; basis: 'prefix' | 'name' };
+export const SUPPLIER_ID_CORRECTIONS: SupplierIdCorrection[] = [
+  { ocid: 'ocds-h6vhtk-050ab7', published: 'GB-COH-303675', name: 'Deloitte LLP', corrected: 'GB-COH-OC303675', basis: 'prefix' },
+  { ocid: 'ocds-h6vhtk-05598d', published: 'GB-COH-209907', name: 'Deloitte LLP', corrected: 'GB-COH-OC303675', basis: 'name' },
+  { ocid: 'ocds-h6vhtk-044de7', published: 'GB-COH-390210', name: 'Sureserve Energy Services UK', corrected: 'GB-COH-SC390210', basis: 'prefix' },
+];
 export function correctedSupplierId(ocid: string, id: string | undefined, name: string): string | undefined {
-  return (id && SUPPLIER_ID_CORRECTIONS[`${ocid}|${id}|${name.trim()}`]) || id;
+  if (!id) return id;
+  return SUPPLIER_ID_CORRECTIONS.find((c) => c.ocid === ocid && c.published === id && c.name === name.trim())?.corrected ?? id;
 }
+
+// The notices linked to a company by supplier name, because the number they gave exists on no Companies House register.
+export const nameBasisCorrections = (companyNumber: string | null) =>
+  companyNumber ? SUPPLIER_ID_CORRECTIONS.filter((c) => c.basis === 'name' && c.corrected === `GB-COH-${companyNumber}`) : [];
 
 export function noticeRows(r: any): NoticeRow[] {
   const ocid = r?.ocid ? String(r.ocid) : null;

@@ -1,5 +1,5 @@
 import { titleWithin } from '@/lib/seo-title';
-import { ledBy, sentencesOf } from '@/lib/meta-description';
+import { ledBy } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -26,15 +26,16 @@ const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONO = 'var(--font-special-elite), monospace';
 
-// Whole sentences within 160 characters (owner, 7 Nov 2026, L7): the topic's own opening sentence where it fits, else
-// its lead department from the topic's definition and what the page lists.
+// Description from the topic's data only (owner, 7 Nov 2026, L8), never its opening text: the lead department as the page's
+// department list names it, then what the page lists. Whole sentences within 160 characters.
 function topicDescription(t: NonNullable<ReturnType<typeof getTopic>>): string {
-  const s = sentencesOf(t.blurb);
-  const dept = t.deptApiNames[0];
-  const theDept = dept ? (/^(HM|His Majesty)/.test(dept) ? dept : `the ${dept}`) : null;
-  const listed = 'This page lists its bills, Commons votes and the MPs who ask most about it.';
-  if (s[0] && s[0].length <= 160) return ledBy(t.title, [s[0]], [...s.slice(1), listed]);
-  return ledBy(t.title, [theDept && `The lead department for ${t.title.toLowerCase()} is ${theDept}.`], [listed]);
+  const name = t.title.split(' ').map((w) => (/^[A-Z]{2,}$/.test(w) ? w : w.toLowerCase())).join(' ');
+  const dept = t.departmentSlugs.map((s) => departments.find((d) => d.slug === s)?.name).find(Boolean);
+  const theDept = dept ? (/^HM /.test(dept) ? dept : `the ${dept}`) : null;
+  return ledBy(t.title, [
+    theDept && `The lead department for ${name} is ${theDept}.`,
+    `This page lists the bills, Commons votes and MPs who ask most about ${name}.`,
+  ], [theDept && 'This page lists its bills, Commons votes and the MPs who ask most about it.']);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
