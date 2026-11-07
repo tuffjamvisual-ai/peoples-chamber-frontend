@@ -213,6 +213,8 @@ route,example_url,why_chosen
 "/pmqs/[date]","/pmqs/2026-10-28","a typical session"
 "/mps/[id]/pmqs","/mps/4597/pmqs","the Leader of the Opposition, most questions"
 "/pmqs/[date]","/pmqs/1961-12-07","archive session, 1961"
+"/mps/[id]","/mps/769","basic profile from the Members API record: James Callaghan"
+"/mps/[id]","/mps/2565","basic profile with no Commons seat in the record: Harold Macmillan"
 "/pmqs/1945-to-1961","/pmqs/1945-to-1961","the only page of this route"
 "/pmqs/1945-to-1961/[date]","/pmqs/1945-to-1961/1949-04-26","the most text in a day"
 "/pmqs/1945-to-1961/[date]","/pmqs/1945-to-1961/1960-02-18","the most contributions in a day"

@@ -54,6 +54,9 @@
 /pmqs/1945-to-1961/1961-07-18
 /pmqs/1945-to-1961/1946-03-11
 /mps/185/pmqs
+# Basic profiles from Parliament's record (owner, 6 Nov 2026): one with its last seat and dates, one with none.
+/mps/769
+/mps/2565
 # The 5 tallest reports at 375px on 5 Nov 2026, also measured with JavaScript off (owner, 5 Nov 2026).
 /editorials/se9k4m2xq7
 /editorials/bg9k4mxw2q

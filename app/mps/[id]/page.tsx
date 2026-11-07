@@ -6,7 +6,7 @@ import { cache } from 'react';
 import { metaDescription } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { lookupMember, parliamentMemberUrl } from '@/lib/former-mps';
+import { lookupMember, memberRecord, parliamentMemberUrl } from '@/lib/former-mps';
 import FormerMpProfile from './FormerMpProfile';
 import HistoricRecord from './HistoricRecord';
 import { supabase } from '@/lib/supabase';
@@ -135,6 +135,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!mp) {
     // A former MP not in our table (lib/former-mps.ts): a basic page from Parliament's record.
     const m = await lookupMember(memberId);
+    if (m.kind === 'lords_only') {
+      const record = await memberRecord(memberId);
+      if (record) return { title: titleWithin(`${record.name}: record and interests`), description: metaDescription(`${record.name}: their record at Prime Minister's Questions, from Hansard and UK Parliament's record.`), alternates: { canonical: `/mps/${memberId}` } };
+    }
     if (m.kind !== 'former_mp') return { title: 'MP profile' };
     const seat = m.mp.seats[m.mp.seats.length - 1]?.constituency;
     const years = m.mp.firstYear && m.mp.lastYear ? ` (${m.mp.firstYear} to ${m.mp.lastYear})` : '';
@@ -312,7 +316,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     // A member who only sat in the Lords: their peer page (owner, 3 Nov 2026), or Parliament's profile if they have none.
     if (m.kind === 'lords_only') {
       const peer = await getPeer(supabase, memberId).catch(() => null);
-      permanentRedirect(peer && peerHasPage(peer) ? `/lords/${memberId}` : parliamentMemberUrl(memberId));
+      if (peer && peerHasPage(peer)) permanentRedirect(`/lords/${memberId}`);
+      // Parliament records them only in the Lords, but Hansard has them at PMQs (Harold Macmillan): a basic profile (owner, 6 Nov 2026). A failed count is an error, not a redirect that would be kept.
+      const counts = await memberArchiveCounts(memberId);
+      const record = counts.asked + counts.prime_minister + counts.standing_in > 0 ? await memberRecord(memberId) : null;
+      if (record) return <FormerMpProfile mp={record} related={pmqsLinks(memberId, counts)} />;
+      permanentRedirect(parliamentMemberUrl(memberId));
     }
     notFound();
   }

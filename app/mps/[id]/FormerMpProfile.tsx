@@ -46,7 +46,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           Time in the House of Commons
         </h2>
-        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
+        {mp.seats.length > 0 && <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
           {mp.seats.map((s) => (
             <li key={`${s.constituency}-${s.from}`} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
               <strong>{s.constituency}</strong>, {seatYears(s)}
@@ -55,7 +55,8 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
               </span>
             </li>
           ))}
-        </ul>
+        </ul>}
+        {mp.seats.length === 0 && <p style={line}>Parliament&rsquo;s record for {mp.name} gives no Commons seat or dates.</p>}
         <p style={line}>
           {mp.name} is no longer an MP.{mp.sitsInLords ? ' They now sit in the House of Lords.' : ''} opengovt keeps full profiles for current MPs; this page records the seats held and the dates served.
         </p>

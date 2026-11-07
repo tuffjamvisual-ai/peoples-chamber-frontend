@@ -36,7 +36,7 @@ const getMpName = cache(async (memberId: number): Promise<string | null> => {
 const hasProfile = cache(async (memberId: number): Promise<boolean> => {
   const { data, error } = await supabase.from('mps').select('member_id').eq('member_id', memberId).maybeSingle();
   if (error) throw new Error(`/mps/[id]/pmqs mps: ${error.message}`);
-  return !!data || (await lookupMember(memberId)).kind === 'former_mp';
+  return !!data || (await lookupMember(memberId)).kind !== 'unknown';
 });
 
 type AnswerDay = { date: string; answers: number };

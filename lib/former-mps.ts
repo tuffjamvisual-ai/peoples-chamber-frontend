@@ -78,7 +78,35 @@ export const lookupMember = cache(async (memberId: number): Promise<MemberLookup
   if (!res.ok) throw new Error(`Members API History ${memberId}: HTTP ${res.status}`);
   const json = (await res.json()) as { value?: History }[];
   const h = json?.[0]?.value;
-  return h && h.id === memberId ? build(h) : { kind: 'unknown' };
+  const found = h && h.id === memberId ? build(h) : { kind: 'unknown' as const };
+  // Parliament holds no history for some members who did sit in the Commons (James Callaghan). Their record still gives their last seat and its dates.
+  if (found.kind === 'unknown') {
+    const record = await memberRecord(memberId);
+    if (record?.seats.length) return { kind: 'former_mp', mp: record };
+  }
+  return found;
+});
+
+// A member's record alone, for those with no usable history (owner, 6 Nov 2026): their name exactly as Parliament gives it, and their last Commons seat and dates where it has
+// them. Null if Parliament has no one. Seats are empty for a member Parliament records only in the Lords, even if Hansard has them speaking in the Commons (Harold Macmillan).
+export const memberRecord = cache(async (memberId: number): Promise<FormerMp | null> => {
+  const res = await fetch(`${MEMBERS_API}/${memberId}`, { headers: UA, next: { revalidate: 30 * 86400 } });
+  if (res.status === 404 || res.status === 400) return null;
+  if (!res.ok) throw new Error(`Members API ${memberId}: HTTP ${res.status}`);
+  const json = (await res.json()) as { value?: { id: number; nameDisplayAs?: string; latestParty?: { name: string; backgroundColour: string | null } | null; latestHouseMembership?: Membership | null } };
+  const v = json?.value;
+  if (!v?.nameDisplayAs) return null;
+  const last = v.latestHouseMembership?.house === 1 ? v.latestHouseMembership : null;
+  return {
+    memberId,
+    name: v.nameDisplayAs,
+    party: v.latestParty?.name ?? null,
+    partyColour: v.latestParty?.backgroundColour ? `#${v.latestParty.backgroundColour}` : null,
+    seats: last ? [{ constituency: (last.membershipFrom ?? '').trim(), from: last.membershipStartDate ?? '', to: last.membershipEndDate }] : [],
+    firstYear: last ? year(last.membershipStartDate) : null,
+    lastYear: last ? year(last.membershipEndDate) : null,
+    sitsInLords: false,
+  };
 });
 
 // A member's name where their History record has no Commons service, as with some who spoke in the Commons long ago (James Callaghan). Null if Parliament has no one.

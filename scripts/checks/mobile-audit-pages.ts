@@ -170,6 +170,8 @@ async function linksFrom(parent: string, re: RegExp): Promise<string[]> {
   add('/pmqs/1945-to-1961/[date]', '/pmqs/1945-to-1961/1960-02-18', 'the most contributions in a day');
   add('/pmqs/1945-to-1961/[date]', '/pmqs/1945-to-1961/1961-07-18', 'the 3.15 p.m. experiment');
   add('/pmqs/1945-to-1961/[date]', '/pmqs/1945-to-1961/1946-03-11', 'a date not confirmed on Historic Hansard');
+  add('/mps/[id]', '/mps/769', 'basic profile from the Members API record: James Callaghan');
+  add('/mps/[id]', '/mps/2565', 'basic profile with no Commons seat in the record: Harold Macmillan');
   add('/mps/[id]/pmqs', '/mps/185/pmqs', 'with archive data');
   add('/mps/[id]/pmqs', '/mps/4128/pmqs', 'a former MP');
   add('/mps/[id]/pmqs', '/mps/8/pmqs', 'a former Prime Minister, answers apart from questions');
