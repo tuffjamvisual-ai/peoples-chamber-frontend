@@ -44,8 +44,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const p = Number.isInteger(memberId) && memberId > 0 ? await peer(memberId) : null;
   if (!p || !peerHasPage(p)) return { title: 'House of Lords', robots: { index: false, follow: true } };
   const what = [p.party, p.peerage_type].filter(Boolean).join(', ');
+  // A title another member has held too (two Archbishops of Canterbury) adds their years in the Lords from Parliament's data, so no two pages share a title (owner, 7 Nov 2026).
+  const { count: sameName, error: sameErr } = await supabase.from('peers').select('member_id', { count: 'exact', head: true }).eq('name_display', p.name_display);
+  if (sameErr) throw new Error(`/lords/[id] same name: ${sameErr.message}`);
+  const from = p.start_date?.slice(0, 4), to = p.end_date?.slice(0, 4);
+  const years = (sameName ?? 0) > 1 && from ? ` (${to ? (to === from ? from : `${from} to ${to}`) : `since ${from}`})` : '';
   return {
-    title: titleWithin(`${p.name_display}${p.party ? `, ${p.party}` : ''}`),
+    title: titleWithin(`${p.name_display}${years}${p.party ? `, ${p.party}` : ''}`),
     description: metaDescription(`${p.name_display}${what ? ` (${what})` : ''}, member of the House of Lords${p.start_date ? ` since ${fmt(p.start_date)}` : ''}: posts held, votes and written questions, from Parliament's records.`),
     alternates: { canonical: `/lords/${memberId}` },
   };

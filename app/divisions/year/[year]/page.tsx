@@ -34,7 +34,8 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   let page = pageOf(await searchParams);
   if (page > 1) page = Math.min(page, Math.max(1, Math.ceil((await yearCount(year)) / PER_PAGE)));
   return {
-    title: `Commons votes in ${year}`,
+    // Page 2 onwards says which page, so no two pages share a title (owner, 7 Nov 2026).
+    title: page > 1 ? `Commons votes in ${year}, page ${page}` : `Commons votes in ${year}`,
     description: `Every recorded vote in the House of Commons in ${year}, newest first, with the Aye and No totals; open any vote to see how every MP voted.`,
     alternates: { canonical: yearHref(year, page) },
   };

@@ -87,8 +87,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (description.length > 200)
     description = description.slice(0, 197).trimEnd() + '…';
 
+  // Two bills of one name in one session (Data Protection and Digital Information Bill, 2022-23) add the sponsor, as we hold no
+  // bill number from Parliament, so no two pages share a title (owner, 7 Nov 2026).
+  let sponsorTag = '';
+  if (sponsorName && bill.introduced_session_id != null) {
+    const { count: sameName, error: sameErr } = await supabase.from('bill').select('id', { count: 'exact', head: true })
+      .eq('title', bill.title).eq('introduced_session_id', bill.introduced_session_id).is('hidden_reason', null).neq('id', billId);
+    if (sameErr) throw new Error(`/bills/[id] same name: ${sameErr.message}`);
+    if ((sameName ?? 0) > 0) sponsorTag = ` (${sponsorName})`;
+  }
+
   return {
-    title: sessionName ? fitTitle(`${title}, ${sessionName} session`, `${title}, ${sessionName}`) : titleWithin(title),
+    title: sessionName
+      ? (sponsorTag ? titleWithin(`${title}, ${sessionName}${sponsorTag}`) : fitTitle(`${title}, ${sessionName} session`, `${title}, ${sessionName}`))
+      : titleWithin(`${title}${sponsorTag}`),
     description,
     alternates: { canonical: `/bills/${billId}` },
   };

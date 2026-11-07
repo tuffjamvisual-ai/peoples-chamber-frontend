@@ -100,6 +100,19 @@ export const getOrganisation = cache(async (slug: string): Promise<OrgIndexRow |
   return data ? corrected(numbers(data as OrgIndexRow)) : null;
 });
 
+// Companies House numbers checked on find-and-update.company-information.service.gov.uk on 7 Nov 2026, where the name there matches
+// the name we hold, for organisations whose name another page shares. Only these go in a page title. Not confirmed, so left out:
+// 00209907 and 00303675 (Deloitte LLP: no such company; OC303675 is Deloitte LLP), 09223384 (National Grid Electricity
+// Distribution plc, not National Grid), 04570581 (Rethink Trading Ltd).
+export const CH_NUMBERS_CHECKED = new Set(['08971493', 'RS009045', 'OC303675', '01227970', 'BR000105', 'FC002099']);
+
+// Whether another organisation page carries the same name (two companies called Deloitte LLP), so its title adds the Companies House number (owner, 7 Nov 2026).
+export const orgNameShared = cache(async (name: string, slug: string): Promise<boolean> => {
+  const { count, error } = await supabase.from('organisation_index').select('slug', { count: 'exact', head: true }).eq('name', name).neq('slug', slug);
+  if (error) throw new Error(`organisation_index same name ${slug}: ${error.message}`);
+  return (count ?? 0) > 0;
+});
+
 const LIST_COLS = 'slug, kind, name, company_number, name_variants, donations, contracts, framework_places, grants, meetings, lobbying_quarters, datasets';
 
 // Every page, for the index and the sitemap (about 1,800 rows).

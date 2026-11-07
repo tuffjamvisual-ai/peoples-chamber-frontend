@@ -14,7 +14,7 @@ import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
 import { cleanDept, quarterLabel } from '@/lib/lobbying';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
-  getOrganisation, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
+  getOrganisation, orgNameShared, CH_NUMBERS_CHECKED, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
   findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote,
 } from '@/lib/organisations';
 
@@ -33,10 +33,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!org) return { title: 'Organisation not found' };
   const held = [org.donations && 'donations', (org.contracts || org.framework_places) && 'contracts', org.grants && 'grants', org.meetings && 'meetings with ministers', org.lobbying_quarters && 'lobbying'].filter(Boolean) as string[];
   const heldText = held.length > 1 ? `${held.slice(0, -1).join(', ')} and ${held[held.length - 1]}` : held[0] || 'public records';
+  // A number goes in a title only once checked on Companies House against the name (CH_NUMBERS_CHECKED); a number held but not
+  // confirmed leaves the title as it was. With no number held, the type we hold.
+  const tag = org.company_number ? (CH_NUMBERS_CHECKED.has(org.company_number) ? org.company_number : null) : org.org_type || (org.kind === 'registry' ? null : org.kind);
+  const titleName = tag && (await orgNameShared(org.name, org.slug)) ? `${org.name} (${tag})` : org.name;
   const description = `${orgSummaryLine(org)} Matched by Companies House number and the checked lobbying list, never by name alone.`.slice(0, 300);
   return {
-    // Never the name alone, which its lobbying page could share (owner, 7 Nov 2026: titles stay unique).
-    title: namedTitle(org.name, (n) => [`${n}: ${heldText}`, `${n}: public records`, `${n}: ${heldText}`]),
+    // Never the name alone, which its lobbying page could share (owner, 7 Nov 2026: titles stay unique). A name another page
+    // shares adds the Companies House number we hold, or failing that the type we hold: "Deloitte LLP (OC303675): contracts".
+    title: namedTitle(titleName, (n) => [`${n}: ${heldText}`, `${n}: public records`, `${n}: ${heldText}`]),
     description,
     alternates: { canonical: `/organisations/${org.slug}` },
     openGraph: { title: org.name, description, url: `${SITE}/organisations/${org.slug}`, type: 'website' },
