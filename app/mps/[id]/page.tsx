@@ -3,7 +3,7 @@ import { memberArchiveCounts } from '@/lib/pmqs-archive';
 import { pmqsLinks, type PmqsCounts } from '@/lib/pmqs-counts';
 import { updatedDate } from '@/lib/record-dates';
 import { cache } from 'react';
-import { metaDescription } from '@/lib/meta-description';
+import { metaDescription, wholeSentences } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { lastSeatLine, lookupMember, memberRecord, parliamentMemberUrl } from '@/lib/former-mps';
@@ -124,12 +124,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // queries in parallel — each is index-hit and head-only, so the per-MP
   // metadata fetch stays well inside the page's render budget. GSC fix
   // 2026-06-04.
-  const [mp, votesCountRes, interestsCountRes, expensesCountRes] = await Promise.all([
+  const [mp, votesCountRes, interestsCountRes, expensesCountRes, activityRes] = await Promise.all([
     getMp(memberId),
     // Vote counts in one index-only read (mp_vote_counts, migration 2026-10-21b).
     supabase.rpc('mp_vote_counts', { p_member_id: memberId, p_since: PARL_START }),
     supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true),
     supabase.from('mp_expenses_summary').select('id', { count: 'exact', head: true }).eq('member_id', memberId),
+    // The attendance figure the page's headline shows (mp_activity_metrics), for the description (L4).
+    supabase.from('mp_activity_metrics').select('attendance_pct, divisions_total').eq('member_id', memberId).maybeSingle(),
   ]);
 
   if (!mp) {
@@ -169,7 +171,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const listed = lists.length > 1 ? `${lists.slice(0, -1).join(', ')} and ${lists[lists.length - 1]}` : lists[0];
   // No salary in the description (owner, 7 Nov 2026, M1): the ministerial figures held did not match GOV.UK's September 2026
   // table, and the MP salary is a constant in code, not dated data. The L2 salary sentence is withdrawn until both are current.
-  const description = metaDescription(`${who}: ${listed}.`);
+  // Whole sentences within 160 characters, never cut (owner, 7 Nov 2026, L4): who the MP is, the attendance figure exactly as
+  // the page's headline labels it ("Votes attended since July 2024", rounded, per cent), then what the page lists.
+  const act = activityRes.data as { attendance_pct: number | string | null; divisions_total: number | null } | null;
+  const allVotes = Number((votesCountRes.data as { all_votes?: number } | null)?.all_votes) || 0;
+  const attendance = !isFormer && act?.attendance_pct != null && (act.divisions_total ?? 0) > 0 && allVotes > 0
+    ? `Votes attended since July 2024: ${Math.round(Number(act.attendance_pct))} per cent.` : null;
+  const description = wholeSentences([`${who}.`, attendance, `${listed.charAt(0).toUpperCase()}${listed.slice(1)}.`]);
 
   // Title (owner's brief, 3 Nov 2026): "<Name> MP: expenses, votes and interests", or "<Name>: record and interests"
   // for a former MP; with the " | opengovt" suffix when it fits in 60 characters, else on its own (lib/seo-title.ts).

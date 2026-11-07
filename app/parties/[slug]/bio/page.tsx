@@ -16,6 +16,8 @@ import ReadNext from '../../../components/ReadNext';
 import { partyBioNextLinks, partySecondJobs } from '@/lib/party-links';
 import { type EvidencePanelProps } from '../../../components/EvidencePanel';
 import { partyDescription } from '@/lib/page-descriptions';
+import { wholeSentences } from '@/lib/meta-description';
+import { namedTitle } from '@/lib/seo-title';
 
 export const revalidate = 21600;
 
@@ -54,12 +56,17 @@ async function getPartyBio(slug: string): Promise<Party | null> {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data: party, error: partyErr } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  const { data: party, error: partyErr } = await supabase.from('parties').select('name, critique').eq('slug', slug).maybeSingle();
   if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/bio parties: ${partyErr.message}`);
   const name = party?.name || 'Party';
+  // Title and description (owner, 7 Nov 2026, L4): "<Party>: <what the page covers>", the longest that fits in 60
+  // characters; the description leads with the page's own first fact (the first sentence of its verdict text), then the
+  // template sentence, in whole sentences.
+  const firstFact = ((party?.critique as string | null) ?? '').split(/\n\n+/)[0]?.replace(/\s+/g, ' ').trim().match(/^.+?[.!?](?=\s|$)/)?.[0] ?? null;
   return {
-    title: `${name}`,
-    description: partyDescription(name),
+    title: party ? namedTitle(name, (n) => [`${n}: promises, record, donations and MPs`, `${n}: promises, record and donations`, `${n}: record and donations`, n]) : name,
+    // A first sentence over 160 characters would be cut, so the template sentence stands alone instead.
+    description: wholeSentences([firstFact && firstFact.length <= 160 ? firstFact : null, partyDescription(name)]),
     alternates: { canonical: `/parties/${slug}/bio` },
   };
 }

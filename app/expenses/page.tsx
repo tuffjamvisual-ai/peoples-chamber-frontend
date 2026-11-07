@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { cache } from 'react';
+import { wholeSentences } from '@/lib/meta-description';
 import LastUpdated from '../components/LastUpdated';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -12,11 +14,21 @@ import ArticleEndSignup from '../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const y = yearShort(await latestYear());
+  const year = await latestYear();
+  const y = yearShort(year);
+  // Description (owner, 7 Nov 2026, L4): the year, the ten MPs' combined total and their average, as the page shows them.
+  const { top, grandTotal } = await topSpenders(year);
+  const description = top.length
+    ? (() => {
+      const lead = `The ${top.length} MPs with the highest business costs in ${y}: ${fmtMoney(grandTotal)} between them, ${fmtMoney(grandTotal / top.length)} each on average.`;
+      const long = wholeSentences([lead, 'Staffing, office, accommodation and travel, from the Independent Parliamentary Standards Authority (IPSA).']);
+      return long !== lead ? long : wholeSentences([lead, 'Staffing, office, accommodation and travel, from IPSA.']);
+    })()
+    : PAGE_DESCRIPTIONS['/expenses'];
   return {
     // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
     title: `MPs' expenses ${y}: IPSA business costs`,
-    description: PAGE_DESCRIPTIONS['/expenses'],
+    description,
     alternates: { canonical: '/expenses' },
   };
 }
@@ -87,9 +99,9 @@ type MpRow = {
   current_member: boolean | null;
 };
 
-export default async function ExpensesPage() {
-  const YEAR = await latestYear();
-  const YEAR_LABEL = yearLong(YEAR);
+// The year's ten highest business costs among current MPs, and their total (owner, 7 Nov 2026, L4: one read, shared by the
+// page and its description through React's request cache).
+const topSpenders = cache(async (YEAR: string) => {
   // Fetch a few extra rows so we can drop any non-current MPs and still hit 10.
   const { data: expenseRows, error: expenseRowsErr } = await supabase
     .from('mp_expenses_summary')
@@ -122,6 +134,13 @@ export default async function ExpensesPage() {
     .slice(0, 10);
 
   const grandTotal = top.reduce((s, x) => s + (Number(x.row.total_spend) || 0), 0);
+  return { top, grandTotal };
+});
+
+export default async function ExpensesPage() {
+  const YEAR = await latestYear();
+  const YEAR_LABEL = yearLong(YEAR);
+  const { top, grandTotal } = await topSpenders(YEAR);
 
   return (
     <OpenGovShell pageStamp="Expenses">
@@ -155,7 +174,7 @@ export default async function ExpensesPage() {
             textShadow: '1px 1px 0px rgba(0,0,0,0.1)',
           }}
         >
-          Top 10 spenders {YEAR_LABEL}
+          MPs&apos; expenses {YEAR_LABEL}: the ten highest business costs
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginBottom: '20px' }}>
           Ranked by total business costs claimed across staffing, office, accommodation, travel and other categories.{' '}

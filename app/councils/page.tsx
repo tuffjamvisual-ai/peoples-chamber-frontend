@@ -23,12 +23,18 @@ import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
 export const revalidate = 21600;
 
-export const metadata: Metadata = {
-  title: 'Local Government',
-  description:
-    'Every UK principal local authority, county, district, unitary, metropolitan and London boroughs, and Northern Irish councils, 382 in total.',
-  alternates: { canonical: '/councils' },
-};
+// Title and description (owner, 7 Nov 2026, L4): the word "councils" and the number of councils from the data. The page lists
+// them by country and type (no ratings on this page, so none are named).
+export async function generateMetadata(): Promise<Metadata> {
+  const { count, error } = await supabase.from('councils').select('slug', { count: 'exact', head: true });
+  if (error) throw new Error(`/councils count: ${error.message}`);
+  const n = count ?? 0;
+  return {
+    title: n ? `UK councils: all ${n.toLocaleString('en-GB')}, by country and type` : 'UK councils',
+    description: `Every UK principal local authority, county, district, unitary, metropolitan and London boroughs, and Northern Irish councils${n ? `, ${n.toLocaleString('en-GB')} in total` : ''}.`,
+    alternates: { canonical: '/councils' },
+  };
+}
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';

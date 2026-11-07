@@ -2,7 +2,7 @@ import NoJsPager from '@/app/components/NoJsPager';
 import { divisionSeoTitle } from '@/lib/division-title';
 import { titleWithin } from '@/lib/seo-title';
 import { billSummary as officialBillSummary } from '@/lib/bill-summary';
-import { metaDescription } from '@/lib/meta-description';
+import { metaDescription, wholeSentences } from '@/lib/meta-description';
 // Server-rendered division detail page. Slug matches the ParlParse identifier
 // format we already use to identify divisions: pw-YYYY-MM-DD-N-commons.
 //
@@ -197,13 +197,36 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? `${motion.slice(colon + 2)} to the ${stripProceduralSuffix(motion.slice(0, colon))}`
     : motion;
   const result = ayes > noes ? 'passed' : ayes < noes ? 'rejected' : null;
-  // Over 160 characters: first drop " [Lords]" from the bill name (description only, never the title), then the
-  // call to action.
-  const describe = (motionText: string, cta: boolean) =>
-    `Ayes ${ayes}, Noes ${noes}: ${result ? `MPs ${result} ${motionText}` : motionText} on ${dateLabel}.${cta ? ' See how every MP voted.' : ''}`;
-  let description = describe(shortMotion, true);
-  if (description.length > 160) description = describe(shortMotion.replace(/\s*\[Lords\]/g, ''), true);
-  if (description.length > 160) description = metaDescription(describe(shortMotion.replace(/\s*\[Lords\]/g, ''), false));
+  // Description (owner, 7 Nov 2026, L4): what was voted on (with the bill's name where the motion does not hold it), the
+  // result, the margin, then each party's majority side, as whole sentences within 160 characters. A tie has no result
+  // and no margin: the data does not record the casting vote.
+  const subject = (motionText: string) => (showBill && motionText === motion ? `${motionText} (${billName})` : motionText);
+  const margin = result ? `, by ${Math.abs(ayes - noes).toLocaleString('en-GB')} votes` : '';
+  const opening = (motionText: string) =>
+    `Ayes ${ayes}, Noes ${noes}: ${result ? `MPs ${result} ${subject(motionText)}` : subject(motionText)} on ${dateLabel}${margin}.`;
+  // Each party's side, from the same vote rows the page lists (party stored with the vote, tellers left out): parties with
+  // 10 or more MPs voting and a majority one way, largest first. "Most" unless every one of them voted the same way.
+  const { data: partyRows, error: partyErr } = await supabase.from('mp_division_votes').select('party, vote_type, is_teller')
+    .eq('division_date_only', dateOnly).eq('division_number', divisionNumber);
+  if (partyErr) throw new Error(`/divisions/[slug] party sides: ${partyErr.message}`);
+  const sides = new Map<string, { aye: number; no: number }>();
+  for (const v of (partyRows ?? []) as { party: string | null; vote_type: string; is_teller: boolean | null }[]) {
+    if (v.is_teller || !v.party?.trim() || (v.vote_type !== 'aye' && v.vote_type !== 'no')) continue;
+    const p = normaliseParty(v.party);
+    if (!p || /^(independent|speaker)/i.test(p)) continue;
+    const c = sides.get(p) ?? { aye: 0, no: 0 };
+    c[v.vote_type === 'aye' ? 'aye' : 'no']++;
+    sides.set(p, c);
+  }
+  const partySentences = [...sides.entries()]
+    .filter(([, c]) => c.aye + c.no >= 10 && c.aye !== c.no)
+    .sort((a, b) => (b[1].aye + b[1].no) - (a[1].aye + a[1].no))
+    .map(([p, c]) => `${c.aye === 0 || c.no === 0 ? '' : 'Most '}${p} MPs voted ${c.aye > c.no ? 'Aye' : 'No'}.`);
+  // With the bill's name in full, unless dropping " [Lords]" (description only, never the title) lets more of the parties' sides in.
+  const built = [shortMotion, shortMotion.replace(/\s*\[Lords\]/g, '')].map(opening).filter((o) => o.length <= 160)
+    .map((o) => ({ text: wholeSentences([o, ...partySentences, 'See how every MP voted.']), parties: wholeSentences([o, ...partySentences]).length - o.length }));
+  const best = built.reduce<{ text: string; parties: number } | null>((b, c) => (!b || c.parties > b.parties ? c : b), null);
+  const description = best ? best.text : metaDescription(opening(shortMotion.replace(/\s*\[Lords\]/g, '')));
   return {
     title: titleWithin(title),
     description,

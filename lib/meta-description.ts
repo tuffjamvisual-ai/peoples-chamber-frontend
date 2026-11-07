@@ -17,3 +17,15 @@ export function metaDescription(text: string | null | undefined, max = 160): str
   const at = cut.lastIndexOf(' ');
   return `${cut.slice(0, at > max * 0.5 ? at : max - 1).replace(/[,;:\s]+$/, '')}…`;
 }
+
+// A description built from whole sentences only (owner, 7 Nov 2026, L4): the first sentence always, then each later one in
+// order that still fits in max characters; one that does not fit is left out and the next is tried. Nothing is cut with
+// an ellipsis unless the first sentence alone is over max.
+export function wholeSentences(sentences: (string | null | undefined | false)[], max = 160): string {
+  const parts = sentences.filter((s): s is string => !!s && !!s.trim()).map((s) => s.replace(/\s+/g, ' ').trim());
+  if (!parts.length) return '';
+  if (parts[0].length > max) return metaDescription(parts[0], max);
+  let out = parts[0];
+  for (const s of parts.slice(1)) if (out.length + 1 + s.length <= max) out += ` ${s}`;
+  return out;
+}
