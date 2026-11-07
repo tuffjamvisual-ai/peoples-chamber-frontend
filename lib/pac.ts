@@ -74,7 +74,31 @@ async function readAll<T>(table: string, columns: string, order: string, filter?
 const STATUS_COLUMNS = 'recommendation_id, session, report_number, report_title, department, rec_number, status, latest_response, times_target_moved, original_target_month, latest_target_month, latest_target_text, implemented_month, split_into, completed_in_cp_number, not_listed_in_cp_number, not_listed_in_published_on, latest_cp_number, latest_published_on, evidence_title, evidence_url, evidence_delivered_on, review_checked_on, review_outcome, review_note, review_url, target_source_title, target_source_url, target_source_publisher, target_source_dated, target_source_published_on, target_source_quote, review_publisher';
 const EVENT_COLUMNS = 'id, recommendation_id, document_id, page, response, response_text, status, target_text, target_month, original_target_text, original_target_month, revised_target_text, revised_target_month, implemented_text, implemented_month, progress_text';
 
-const cachedStatus = unstable_cache(() => readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id'), ['pac-status-v3'], { tags: ['pac'], revalidate: DAY });
+// The whole view is one slow read (it works out every recommendation), and with an empty cache every page that needs it
+// read it at once: /recommendations failed two production builds on 7 Nov 2026 with "canceling statement due to statement
+// timeout" while other pages loaded the database (owner, AB1). As for written questions (lib/question-pages.ts, AA1):
+// concurrent cache misses on one server share one read, a failed read is tried once more after 3 s, and if that fails
+// too the last good rows this server read are used, if it has any.
+let statusInFlight: Promise<StatusRow[]> | null = null;
+let statusLastGood: StatusRow[] | null = null;
+async function readStatus(): Promise<StatusRow[]> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      statusLastGood = await readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id');
+      return statusLastGood;
+    } catch (e) {
+      if (attempt >= 1) {
+        if (statusLastGood) { console.error(`${e instanceof Error ? e.message : String(e)}; showing the last good recommendations`); return statusLastGood; }
+        throw e;
+      }
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+  }
+}
+const cachedStatus = unstable_cache(() => {
+  statusInFlight ??= readStatus().finally(() => { statusInFlight = null; });
+  return statusInFlight;
+}, ['pac-status-v3'], { tags: ['pac'], revalidate: DAY });
 // The view works out "target passed" when it is read, and that read is cached for up to a day. So the rule is applied
 // again here, at render, against today's date: a target whose period has ended moves out of "target in future"
 // (an October 2026 target on 1 November 2026) without a code change. Pages using this revalidate every 86400 s.

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import OpenGovShell from '../components/OpenGovShell';
+import OpenGovShell from '../../../components/OpenGovShell';
 import { departments } from '@/lib/departments';
-import BackLink from '../components/BackLink';
-import RecommendationList, { type ListRow, type ListReport } from './RecommendationList';
+import BackLink from '../../../components/BackLink';
+import RecommendationList, { type ListRow, type ListReport } from '../../RecommendationList';
 import {
   RECOMMENDATIONS_PUBLIC, allStatus, wording, bodiesFor, departmentWords, departmentSlugs, sessionWords, recPath, documentWords, latestMinutesUsed,
   STATUS_ORDER, STATUS_LABELS, datePart, targetPassed, BODY_NOTES,
@@ -15,6 +15,14 @@ import {
 // the menu links to it under Departments (30 Oct 2026, "go public").
 // Data from lib/pac.ts, cached for a day under the 'pac' tag.
 export const revalidate = 86400;
+// Served at /recommendations through a rewrite in next.config.ts (owner, 7 Nov 2026, AB1). A page at a fixed address is
+// rendered during `next build`, and its read of pac_recommendation_status passed the statement timeout twice on 7 Nov
+// while other pages loaded the database, failing the deployment. As a route with no paths built in advance it renders on
+// its first request and is then cached exactly as before (revalidate a day; the data under the 'pac' tag), like the
+// recommendation pages. Only "all" exists; /recommendations/list/<anything> redirects to /recommendations.
+export function generateStaticParams() {
+  return [];
+}
 
 export const metadata: Metadata = {
   title: 'Public Accounts Committee recommendations',
@@ -26,8 +34,8 @@ const INK = '#14100d';
 const h2: React.CSSProperties = { fontSize: '20px', fontWeight: 'bold', marginTop: '30px', marginBottom: '10px', color: INK };
 const p: React.CSSProperties = { fontSize: '16px', lineHeight: 1.75, color: INK, marginBottom: '14px', maxWidth: '46em' };
 
-export default async function RecommendationsPage() {
-  if (!RECOMMENDATIONS_PUBLIC) notFound();
+export default async function RecommendationsPage({ params }: { params: Promise<{ view: string }> }) {
+  if (!RECOMMENDATIONS_PUBLIC || (await params).view !== 'all') notFound();
   const [rows, w, latestMinutes] = await Promise.all([allStatus(), wording(), latestMinutesUsed()]);
   // The total and every box come from the same rows, so the boxes add up to the total.
   const total = rows.length;

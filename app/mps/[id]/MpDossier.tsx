@@ -42,6 +42,8 @@ interface MpDossierProps {
   partyIsCoop: boolean;
   photoUrl: string | null;
   sections: React.ComponentProps<typeof MagazineProfileSections>;
+  /** The staff interests summary line, built on the server (StaffInterestsLine.tsx). */
+  staffInterestsLine?: string | null;
   /** Optional footer slot rendered inside the dossier folder (e.g. RelatedLinks).
       Pages used to render this OUTSIDE the dossier — that worked fine when
       voting records were 999 items long because the folder always stretched
@@ -66,6 +68,7 @@ export default function MpDossier({
   partyIsCoop,
   photoUrl,
   sections,
+  staffInterestsLine = null,
   footer,
   followable = false,
 }: MpDossierProps) {
@@ -224,7 +227,7 @@ export default function MpDossier({
       {/* Commissioner for Standards cases (owner, 7 Nov 2026, T1): one line, at every width, for a member with any. */}
       <StandardsCasesLine memberId={memberId} />
       {/* Staff interests (owner, 7 Nov 2026, Z2): one line beside the standards line, for an MP with entries in the latest edition. */}
-      <StaffInterestsLine items={sections.staffInterests ?? []} />
+      <StaffInterestsLine text={staffInterestsLine} />
 
       {/* Full interactive profile sections (scaled up via zoom to restore text size). */}
       <div className="pca-sections" style={{ zoom: 1.18 }}>

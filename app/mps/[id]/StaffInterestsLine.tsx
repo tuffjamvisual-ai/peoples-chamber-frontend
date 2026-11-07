@@ -1,4 +1,4 @@
-import type { StaffInterest } from './StaffInterests';
+import { distinctStaff, type StaffInterestRow } from './StaffInterests';
 
 // One summary line near the top of an MP profile (owner, 7 Nov 2026, Z2), beside the standards line: "Staff interests:
 // 4 staff with outside employment, 1 gift or benefit, 2 visits outside the UK (12 October 2026 register)". Counted from
@@ -7,12 +7,12 @@ import type { StaffInterest } from './StaffInterests';
 // one counts on its own). Only the parts that apply; nothing for an MP with none. Links to the Interests tab.
 const day = (d: string) => new Date(`${d.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
-export function staffInterestsText(items: StaffInterest[]): string | null {
+export function staffInterestsText(items: StaffInterestRow[]): string | null {
   const dates = items.map((s) => s.register_date?.slice(0, 10)).filter((d): d is string => !!d);
   if (!items.length || !dates.length) return null;
   const latest = dates.reduce((a, b) => (b > a ? b : a));
-  const staff = (c: StaffInterest['category']) =>
-    new Set(items.filter((s) => s.category === c && s.register_date?.slice(0, 10) === latest).map((s) => s.staff_identifier ?? `row ${s.id}`)).size;
+  const inLatest = items.filter((s) => s.register_date?.slice(0, 10) === latest);
+  const staff = (c: StaffInterestRow['category']) => distinctStaff(inLatest, c);
   const n = (k: number) => k.toLocaleString('en-GB');
   const employment = staff('employment'), gift = staff('gift'), visit = staff('visit');
   const parts = [
@@ -23,8 +23,8 @@ export function staffInterestsText(items: StaffInterest[]): string | null {
   return parts.length ? `Staff interests: ${parts.join(', ')} (${day(latest)} register)` : null;
 }
 
-export default function StaffInterestsLine({ items, style }: { items: StaffInterest[]; style?: React.CSSProperties }) {
-  const text = staffInterestsText(items);
+// Takes the finished text (staffInterestsText, on the server), so no row reaches the component.
+export default function StaffInterestsLine({ text, style }: { text: string | null | undefined; style?: React.CSSProperties }) {
   if (!text) return null;
   return (
     <p style={{ margin: '0 0 12px', fontSize: '15px', lineHeight: 1.5, ...style }}>

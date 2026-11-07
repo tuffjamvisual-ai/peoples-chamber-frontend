@@ -313,6 +313,7 @@ interface Props {
   conductFindings?: ConductFinding[];
   /** Register of interests of MPs' staff entries naming this MP (job titles only), shown on the Interests tab. */
   staffInterests?: StaffInterest[];
+  staffEmployed?: number; // distinct staff with outside employment, counted on the server (AB1)
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
   contributions?: Contribution[];
@@ -569,6 +570,7 @@ export default function MagazineProfileSections({
   spadAdvisers = null,
   conductFindings = [],
   staffInterests = [],
+  staffEmployed = 0,
   activity = null,
   contributions = [],
   writtenQuestions = null,
@@ -1550,7 +1552,7 @@ export default function MagazineProfileSections({
                   </ul>
                 </details>
               )}
-              <StaffInterests items={staffInterests} headingStyle={sectionH3} />
+              <StaffInterests items={staffInterests} employedStaff={staffEmployed} headingStyle={sectionH3} />
             </>
           );
         })()}

@@ -16,8 +16,13 @@ export type StaffInterest = {
   country: string | null;
   start_date: string | null;
   end_date: string | null;
-  staff_identifier: string | null;
 };
+// The row as read on the server (owner, 7 Nov 2026, AB1): Parliament's anonymous staff identifier is used there only, to count
+// each staff member once, and never reaches the page or its data (the Open Parliament Licence does not cover personal data).
+export type StaffInterestRow = StaffInterest & { staff_identifier: string | null };
+// Distinct staff in a category, counted on the server from the rows with their identifier (a row without one counts on its own).
+export const distinctStaff = (rows: StaffInterestRow[], category: StaffInterest['category']) =>
+  new Set(rows.filter((r) => r.category === category).map((r) => r.staff_identifier ?? `row ${r.id}`)).size;
 
 const INK = '#14100d';
 const divider = '1px dashed rgba(20,16,13,0.2)';
@@ -53,13 +58,12 @@ function what(s: StaffInterest): string | null {
   return org;
 }
 
-export default function StaffInterests({ items, headingStyle }: { items: StaffInterest[]; headingStyle?: React.CSSProperties }) {
+export default function StaffInterests({ items, employedStaff, headingStyle }: { items: StaffInterest[]; employedStaff: number; headingStyle?: React.CSSProperties }) {
   if (items.length === 0) return null;
   const sorted = [...items].sort((a, b) => ORDER[a.category] - ORDER[b.category] || (b.start_date || '').localeCompare(a.start_date || ''));
   const registerId = Math.max(...items.map((i) => i.register_id));
   const registerDate = items.find((i) => i.register_id === registerId)?.register_date ?? null;
   const link: React.CSSProperties = { color: INK, textDecoration: 'underline' };
-  const employedStaff = new Set(items.filter((i) => i.category === 'employment').map((i) => i.staff_identifier)).size;
   const gifts = items.filter((i) => i.category === 'gift').length;
   const visits = items.filter((i) => i.category === 'visit').length;
   const counts = [

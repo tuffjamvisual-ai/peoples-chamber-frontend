@@ -191,7 +191,9 @@ const nextConfig: NextConfig = {
       { source: `/organisations/${from}/:dataset(donations|contracts|grants)`, destination: `/organisations/${to}/:dataset`, permanent: true },
       { source: `/organisations/${from}/opengraph-image`, destination: `/organisations/${to}/opengraph-image`, permanent: true },
     ]);
-    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...organisationRedirects, ...mergedReportRedirects, ...billsPageRedirects, ...reportsRedirects, ...sectionRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
+    // The internal address of /recommendations (AB1) is never a page of its own: it redirects to the public address.
+    const recommendationsRedirects = [{ source: '/recommendations/list/:view', destination: '/recommendations', permanent: true }];
+    return [...recommendationsRedirects, ...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...organisationRedirects, ...mergedReportRedirects, ...billsPageRedirects, ...reportsRedirects, ...sectionRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
   },
   images: {
     remotePatterns: [
@@ -212,6 +214,9 @@ const nextConfig: NextConfig = {
     return [
       { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },
       { source: '/ingest/:path*', destination: 'https://eu.i.posthog.com/:path*' },
+      // /recommendations is rendered on its first request, not during the build (owner, 7 Nov 2026, AB1):
+      // app/recommendations/list/[view]/page.tsx.
+      { source: '/recommendations', destination: '/recommendations/list/all' },
     ];
   },
   async headers() {

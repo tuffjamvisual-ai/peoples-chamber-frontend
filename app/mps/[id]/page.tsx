@@ -17,6 +17,8 @@ import { questionsSummary, type QuestionsSummary } from '@/lib/mp-written-questi
 import { getHiddenBillIds } from '@/lib/hidden-bills';
 import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
 import MpDossier from './MpDossier';
+import { staffInterestsText } from './StaffInterestsLine';
+import { distinctStaff, type StaffInterestRow } from './StaffInterests';
 import RelatedLinks from '../../components/RelatedLinks';
 import { mpPay } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
@@ -730,6 +732,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const conductRes = await pConduct;
   const staffInterestsRes = await pStaffInterests;
   if (staffInterestsRes.error) console.error(`/mps/${memberId} mp_staff_interests: ${staffInterestsRes.error.message}`);
+  // Parliament's anonymous staff identifier is used here only, to count each staff member once (AB1): the rows passed on
+  // to the page leave it out, so it is in neither the HTML nor the data sent to the browser.
+  const staffRows = (staffInterestsRes.data ?? []) as StaffInterestRow[];
+  const staffLine = staffInterestsText(staffRows);
+  const staffEmployed = distinctStaff(staffRows, 'employment');
+  const staffForPage = staffRows.map(({ staff_identifier: _omit, ...r }) => r); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const [partySlugRes, partyPeersRes] = await Promise.all([pPartySlug, pPartyPeers]);
 
@@ -824,6 +832,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       partyColour={partyColour}
       partyIsCoop={partyIsCoop}
       photoUrl={mp.photo_url ?? null}
+      staffInterestsLine={staffLine}
       followable
       sections={{
         memberId,
@@ -852,7 +861,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         writtenQuestions,
         pmqsQuestions,
         conductFindings: conductRes.data || [],
-        staffInterests: staffInterestsRes.data || [],
+        staffInterests: staffForPage,
+        staffEmployed,
         activity: activityRes.data || null,
         // Votes against most of their party (is_rebellion, set from the MP's party on the day of the vote; see the
         // 2026-10-15c migration): since the July 2024 election with the votes cast in that time, and across all the
