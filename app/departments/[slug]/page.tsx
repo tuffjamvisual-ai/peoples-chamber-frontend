@@ -29,7 +29,7 @@ import JsonLd, { buildDepartmentOrg } from '@/lib/JsonLd';
 import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { loadDeptPressReleases } from '@/lib/press-releases-latest';
-import { RECOMMENDATIONS_PUBLIC } from '@/lib/pac';
+import { RECOMMENDATIONS_PUBLIC, isBuildPhase, retrySoon } from '@/lib/pac';
 import { getDepartmentRecommendations, RecommendationsSlot } from './RecommendationsSlot';
 import { pageDb, setPageReadTimer } from '@/lib/page-reads';
 interface PageProps {
@@ -265,7 +265,17 @@ export default async function DepartmentPage({ params }: PageProps) {
   // Recommendations tab (29 Oct 2026, "go stage 4"): Committee of Public Accounts recommendations, only when
   // RECOMMENDATIONS_PUBLIC=1 and the department has any open, moved or checked ones (lib/pac.ts, cached under 'pac').
   if (RECOMMENDATIONS_PUBLIC) {
-    const recommendations = await getDepartmentRecommendations(slug);
+    // A failed read during the build leaves the section out and logs it, and the page comes back in 10 minutes rather
+    // than failing the deployment (owner, 7 Nov 2026, AB4). At request time a failure is handled as before (lib/pac.ts:
+    // the shared read, one retry and the server's last good rows, else the error page).
+    let recommendations: Awaited<ReturnType<typeof getDepartmentRecommendations>> = null;
+    try {
+      recommendations = await getDepartmentRecommendations(slug);
+    } catch (e) {
+      if (!isBuildPhase()) throw e;
+      console.error(`/departments/${slug}: built without its recommendations section (${e instanceof Error ? e.message : String(e)}); it is rendered again in 10 minutes`);
+      await retrySoon();
+    }
     if (recommendations) {
       tabs.push({ id: 'recommendations', label: 'Recommendations', rotate: '0.04deg' });
       slots.recommendations = <RecommendationsSlot data={recommendations} />;

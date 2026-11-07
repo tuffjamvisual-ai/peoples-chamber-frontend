@@ -16,7 +16,7 @@ import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
 import { SECTION_PAGES } from '@/lib/site-nav';
 import { projectHref } from '@/lib/major-projects';
-import { RECOMMENDATIONS_PUBLIC, allStatus, recPath } from '@/lib/pac';
+import { RECOMMENDATIONS_PUBLIC, allStatus, recPath, isBuildPhase, retrySoon } from '@/lib/pac';
 import { divisionHref, yearHref } from '@/lib/division-links';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import { FORMER_MP_PROFILE_IDS } from '@/lib/former-mp-profile-ids';
@@ -512,8 +512,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // The recommendations tracker (30 Oct 2026, "go public"), only while RECOMMENDATIONS_PUBLIC is on: /recommendations
   // and every recommendation page (not the filtered list addresses). lastmod is the newest date held for the
   // recommendation: its latest Treasury document, or a later delivery evidence, Open Govt check or target update date
-  // when newer; the list takes the newest of them all. A failed read leaves them out rather than failing the sitemap.
-  const recommendationRows = RECOMMENDATIONS_PUBLIC ? await allStatus().catch(() => []) : [];
+  // when newer; the list takes the newest of them all. A failed read (after the shared read and its retry) uses the last
+  // good list this server read (lib/pac.ts); with none, the addresses are left out and the failure is logged, rather than
+  // failing the sitemap or the build (owner, 7 Nov 2026, AB4).
+  const recommendationRows = RECOMMENDATIONS_PUBLIC ? await allStatus().catch(async (e) => {
+    console.error(`sitemap: recommendation addresses left out (${e instanceof Error ? e.message : String(e)})`);
+    if (isBuildPhase()) await retrySoon(); // built without them: rendered again in 10 minutes
+    return [];
+  }) : [];
   const newestDate = (...dates: (string | null)[]) => dates.filter((d): d is string => !!d).map((d) => d.slice(0, 10)).sort().pop();
   const recommendationEntries: MetadataRoute.Sitemap = recommendationRows.map((r) => {
     const d = newestDate(r.latest_published_on, r.evidence_delivered_on, r.review_checked_on, r.target_source_published_on);

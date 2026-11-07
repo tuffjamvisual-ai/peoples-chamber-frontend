@@ -81,9 +81,13 @@ const EVENT_COLUMNS = 'id, recommendation_id, document_id, page, response, respo
 // too the last good rows this server read are used, if it has any.
 let statusInFlight: Promise<StatusRow[]> | null = null;
 let statusLastGood: StatusRow[] | null = null;
+// PAC_TEST_FAIL_STATUS_READ=1 makes every read of the view fail, so a local test can check what a failed read does (AB4).
+// Set only by that test; never in Vercel or .env.local.
+const forcedFailure = () => process.env.PAC_TEST_FAIL_STATUS_READ === '1';
 async function readStatus(): Promise<StatusRow[]> {
   for (let attempt = 0; ; attempt++) {
     try {
+      if (forcedFailure()) throw new Error('pac: reading pac_recommendation_status: forced failure (PAC_TEST_FAIL_STATUS_READ=1)');
       statusLastGood = await readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id');
       return statusLastGood;
     } catch (e) {
@@ -108,6 +112,16 @@ export function effectiveStatus(r: StatusRow, today = new Date()): StatusKey {
   const afterTarget = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10); // first day after the target month
   return r.review_outcome === 'no_later_evidence' && (r.review_checked_on ?? '') >= afterTarget ? 'target_passed_checked' : 'target_passed_unchecked';
 }
+// During `next build`, a page that could not read the view (after the shared read and its retry) is built without what
+// needs it, and this shortens that page's revalidate to 10 minutes (owner, 7 Nov 2026, AB4): an unstable_cache entry with
+// a shorter revalidate lowers the revalidate of the page being rendered, so the page is rendered again on a request after
+// 10 minutes, with the section once a read succeeds. A page that read the view keeps its own period.
+export const isBuildPhase = () => process.env.NEXT_PHASE === 'phase-production-build';
+const RETRY_SOON = 600;
+export async function retrySoon(): Promise<void> {
+  await unstable_cache(async () => true, ['pac-retry-soon'], { revalidate: RETRY_SOON })();
+}
+
 export async function allStatus(): Promise<StatusRow[]> {
   const today = new Date();
   return (await cachedStatus()).map((r) => ({ ...r, status: effectiveStatus(r, today) }));
