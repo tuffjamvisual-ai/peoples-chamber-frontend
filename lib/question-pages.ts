@@ -14,10 +14,29 @@ const LIST = 'id, uin, house, date_tabled, date_answered, heading, answering_bod
 export type QuestionRow = { id: number; uin: string; house: string; date_tabled: string; date_answered: string | null; heading: string | null; answering_body_id: number | null; asking_member_id: number | null; is_withdrawn: boolean | null; date_holding_answer: string | null; date_answer_corrected: string | null };
 
 export type DepartmentStats = { answering_body_id: number; asked: number; answered: number; average_days: number | null; latest_answer: string | null };
+// written_question_department_stats groups all 194,000 questions (the whole 310 MB table): 1.8 s on average and up to 7.3 s
+// (pg_stat_statements, 7 Nov 2026), against the 8 s statement timeout. With an empty cache (a new server, or the push check's
+// build) every page that needs it ran it at once, and under load one passed 8 s: /questions returned HTTP 500 (owner, AA1).
+// Now one call at a time per server instance, a second try after 3 s, and the last good answer if both fail.
+let statsInFlight: Promise<DepartmentStats[]> | null = null;
+let statsLastGood: DepartmentStats[] | null = null;
+async function readDepartmentStats(): Promise<DepartmentStats[]> {
+  for (let attempt = 0; ; attempt++) {
+    const { data, error } = await db.rpc('written_question_department_stats');
+    if (!error) {
+      statsLastGood = ((data ?? []) as DepartmentStats[]).map((r) => ({ ...r, asked: Number(r.asked), answered: Number(r.answered), average_days: r.average_days == null ? null : Number(r.average_days) }));
+      return statsLastGood;
+    }
+    if (attempt >= 1) {
+      if (statsLastGood) { console.error(`question stats: ${error.message}; showing the last good figures`); return statsLastGood; }
+      throw new Error(`question stats: ${error.message}`);
+    }
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+}
 export const questionDepartmentStats = unstable_cache(async (): Promise<DepartmentStats[]> => {
-  const { data, error } = await db.rpc('written_question_department_stats');
-  if (error) throw new Error(`question stats: ${error.message}`);
-  return ((data ?? []) as DepartmentStats[]).map((r) => ({ ...r, asked: Number(r.asked), answered: Number(r.answered), average_days: r.average_days == null ? null : Number(r.average_days) }));
+  statsInFlight ??= readDepartmentStats().finally(() => { statsInFlight = null; });
+  return statsInFlight;
 }, ['question-department-stats'], { revalidate: 86400 });
 
 export type Person = { id: number; name: string; house: 'Commons' | 'Lords'; href: string | null };

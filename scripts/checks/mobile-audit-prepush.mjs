@@ -29,6 +29,18 @@ if (!todo.length) process.exit(0);
 
 const sha = todo[0];
 const wt = fs.mkdtempSync(path.join(os.tmpdir(), 'opengovt-audit-'));
+// The server's own output, kept so a page that fails shows why (owner, 7 Nov 2026, AA1: /questions returned HTTP 500 twice
+// with nothing recorded). On the SSD when it is mounted, else beside the other audit output. AUDIT_LOG_DIR overrides it.
+const SSD_LOGS = '/Volumes/GoliathSSD/opengovt-work/claude-tmp/push-check-logs';
+const logDir = process.env.AUDIT_LOG_DIR || (fs.existsSync(path.dirname(SSD_LOGS)) ? SSD_LOGS : os.tmpdir());
+fs.mkdirSync(logDir, { recursive: true });
+const serverLog = path.join(logDir, `server-${sha.slice(0, 8)}-${new Date().toISOString().replace(/[:.]/g, '-')}.log`);
+// The error lines of the server log (Next's "⨯" lines, errors, timeouts), never the environment.
+const errorLines = () => {
+  try {
+    return fs.readFileSync(serverLog, 'utf8').split('\n').filter((l) => /⨯|error|timeout|failed|digest/i.test(l)).slice(-40);
+  } catch { return []; }
+};
 const repo = process.cwd();
 const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { stdio: 'inherit', ...opts });
 let server = null, code = 1;
@@ -40,7 +52,8 @@ try {
   const env = { ...process.env, RECOMMENDATIONS_PUBLIC: '1' };
   execFileSync('npx', ['next', 'build'], { cwd: wt, env, stdio: ['ignore', 'ignore', 'inherit'] });
   const port = 3198;
-  server = spawn('npx', ['next', 'start', '-p', String(port)], { cwd: wt, env, stdio: 'ignore', detached: true });
+  const out = fs.openSync(serverLog, 'a');
+  server = spawn('npx', ['next', 'start', '-p', String(port)], { cwd: wt, env, stdio: ['ignore', out, out], detached: true });
   const base = `http://localhost:${port}`;
   for (let i = 0; i < 60; i++) { try { await fetch(`${base}/support`); break; } catch { await new Promise((r) => setTimeout(r, 1000)); } }
   try {
@@ -51,6 +64,8 @@ try {
     fs.writeFileSync(passedFile, sha);
   } catch {
     console.error('Push refused: the fast mobile audit (checks a, b, c or h), a reader journey (e, g) or the sitemap dates check failed, above. Fix them, commit and push again.');
+    const lines = errorLines();
+    console.error(`Server log: ${serverLog}${lines.length ? `; its error lines:\n  ${lines.join('\n  ')}` : ' (no error lines)'}`);
   }
 } catch (e) {
   console.error(`Push refused: the mobile audit could not run: ${e.message.split('\n')[0]}`);
