@@ -188,6 +188,19 @@ function debateAbout(items: DebateItem[]): string | null {
   return null;
 }
 
+// Where the debate was held and who answered for the government (owner, 7 Nov 2026, L2), only from Hansard's own record:
+// the sitting's Location ("Westminster Hall"), else its House ("Commons"), else nothing; and the responding minister when
+// exactly one office spoke, by that office as recorded and the name in its brackets.
+function venueOf(ov: { House?: string; Location?: string } | null | undefined): string | null {
+  return ov?.Location?.trim() || ov?.House?.trim() || null;
+}
+function soleMinister(attributions: string[]): { office: string; name: string } | null {
+  const byOffice = new Map<string, string>();
+  for (const a of attributions) { const office = attributionParts(a).office; if (office && !byOffice.has(office)) byOffice.set(office, speakerName(a)); }
+  return byOffice.size === 1 ? { office: [...byOffice.keys()][0], name: [...byOffice.values()][0] } : null;
+}
+const aOrAn = (word: string) => (/^[aeio]/i.test(word) ? 'An' : 'A');
+
 export async function generateMetadata({ params }: { params: Promise<{ guid: string }> }): Promise<Metadata> {
   const { guid } = await params;
   const d = await getDebate(guid);
@@ -219,7 +232,15 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   const subjects = d && !header && !procedural
     ? subjectSentence(debateSubjectWords(title, allItems(d).filter((it) => it.ItemType !== 'Timestamp').map((it) => plain(it.Value || '')), [...new Set(allItems(d).map((it) => (it.AttributedTo || '').trim()).filter(Boolean))]))
     : '';
-  const description = metaDescription(`${parts.join(', ')}.${subjects ? ` ${subjects}` : ''} Read what was said and who spoke.`);
+  // Description (owner, 7 Nov 2026, L2): what the debate was, where and when, then its subjects and the responding minister,
+  // then who led it. metaDescription keeps whole sentences within 160 characters, so the later ones drop first.
+  const venue = venueOf(ov);
+  const minister = soleMinister(speakers);
+  const opener = [`${venue ? `${venue} debate` : 'Debate'} on ${title}${ov?.Date ? `, ${fmtDate(ov.Date)}` : ''}.`];
+  if (subjects) opener.push(subjects);
+  if (minister) opener.push(`Minister responding: ${minister.name}.`);
+  if (lead) opener.push(`Led by ${lead}${speakers.length > 1 ? `, ${speakers.length} speakers` : ''}.`);
+  const description = metaDescription(d && !header ? `${opener.join(' ')} Read what was said and who spoke.` : `${parts.join(', ')}.${subjects ? ` ${subjects}` : ''} Read what was said and who spoke.`);
   return { title: fullTitle, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` }, ...(header || procedural ? { robots: { index: false, follow: true } } : {}) };
 }
 
@@ -293,6 +314,22 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   const speakers = [...speakerMap.values()];
   const words = wordCount(rawItems);
 
+  // Opening sentence (owner, 7 Nov 2026, L2), in the record's own words: what the debate was, where, when, who answered
+  // and what it covered. Not on a sitting's header record, which only gathers the day's debates.
+  const isHeader = !(debate.Items ?? []).some((it) => plain(it.Value || '')) && (debate.ChildDebates ?? []).length > 0;
+  const opening = isHeader ? null : (() => {
+    const venue = venueOf(ov);
+    const title = ov?.Title?.trim() || 'Debate';
+    const minister = soleMinister(groups.map((g) => g.speaker || '').filter((a) => a && !CHAIR_RE.test(a)));
+    const subjects = debateSubjectWords(title, rawItems.map((it) => plain(it.Value || '')), [...new Set(allDebateItems.map((it) => (it.AttributedTo || '').trim()).filter(Boolean))]);
+    const list = subjects.length === 1 ? subjects[0] : subjects.length ? `${subjects.slice(0, -1).join(', ')} and ${subjects[subjects.length - 1]}` : '';
+    return [
+      `${venue ? `${aOrAn(venue)} ${venue} debate` : 'A debate'} on ${title}${ov?.Date ? `, ${fmtDate(ov.Date)}` : ''}.`,
+      minister ? `${minister.office} (${minister.name}) responded.` : '',
+      list ? `It covered ${list}.` : '',
+    ].filter(Boolean).join(' ');
+  })();
+
   // Divisions held in this debate, linked to our own division pages (populated
   // and validated by the debates sync, so these never 404).
   const drow = await debateRow(guid);
@@ -361,6 +398,10 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           </div>
         )}
       </header>
+
+      {opening && (
+        <p style={{ maxWidth: '46em', margin: '0 auto 20px', fontSize: '16px', lineHeight: 1.7, color: INK }}>{opening}</p>
+      )}
 
       <DebateSummary date={ov?.Date ? fmtDate(ov.Date) : null} house={ov?.House ?? null} location={ov?.Location ?? null} speakers={speakers} words={words} votes={votes} />
 
