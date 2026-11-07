@@ -1,6 +1,7 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { freshnessChanged } from '@/lib/data-freshness';
 import { voteCountsChanged } from '@/lib/mp-page-cache';
+import { allMpDataChanged, mpDataChanged } from '@/lib/mp-cache';
 import { NextResponse } from 'next/server';
 import { indexNowAfter } from '@/lib/indexnow';
 
@@ -20,6 +21,9 @@ const MAX_ITEMS = 300;
 function dataChanged(paths: string[]) {
   freshnessChanged();
   if (paths.some((p) => p.startsWith('/mps'))) voteCountsChanged();
+  // An MP's own cached counts and lists (lib/mp-cache.ts, W2) when their page is named.
+  if (paths.some((p) => p.startsWith('/mps/[') )) allMpDataChanged();
+  mpDataChanged(paths.map((p) => /^\/mps\/(\d+)/.exec(p)?.[1]).filter((id): id is string => !!id).map(Number));
 }
 
 function refused(req: Request): NextResponse | null {

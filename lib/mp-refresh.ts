@@ -3,6 +3,7 @@
 // MP's: at most REFRESH_BATCH paths at a time. When nearly every MP changed at once (a new Commons division changes
 // every voter's counts) the route pattern is sent once instead (refreshAllMps).
 import { voteCountsChanged } from '@/lib/mp-page-cache';
+import { allMpDataChanged, mpDataChanged } from '@/lib/mp-cache';
 import { freshnessChanged } from '@/lib/data-freshness';
 import { indexNowAfter } from '@/lib/indexnow';
 import { revalidatePath } from '@/lib/refresh-count';
@@ -21,7 +22,7 @@ export function refreshMps(memberIds: Iterable<number>, reports = false): MpRefr
     }
   }
   // The shared "last updated" dates and vote counts these pages read (W1) are expired with them.
-  if (ids.length) { freshnessChanged(); voteCountsChanged(); }
+  if (ids.length) { freshnessChanged(); voteCountsChanged(); mpDataChanged(ids); }
   indexNowAfter(ids.flatMap((id) => (reports ? [`/mps/${id}`, `/mps/${id}/reports`] : [`/mps/${id}`])), 'mp-refresh');
   return { mps: ids.length };
 }
@@ -31,6 +32,7 @@ export function refreshAllMps(): MpRefresh {
   revalidatePath('/mps/[id]', 'page');
   freshnessChanged();
   voteCountsChanged();
+  allMpDataChanged();
   return { mps: 0, all: true };
 }
 

@@ -23,6 +23,9 @@ import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helper
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { newestTimestamps } from '@/lib/data-freshness';
 import { latestSpadRelease, voteCounts as readVoteCounts } from '@/lib/mp-page-cache';
+import { mpCached, mpCachedCount } from '@/lib/mp-cache';
+import { DONATIONS_TAG } from '@/lib/page-reads';
+import { createHash } from 'node:crypto';
 import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
 import type { MpReports, MinisterMeeting, MinisterHospitality } from './MagazineProfileSections';
 import { titleWithin } from '@/lib/seo-title';
@@ -123,8 +126,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     getMp(memberId),
     // Vote counts in one index-only read (mp_vote_counts, migration 2026-10-21b).
     readVoteCounts(memberId),
-    supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true),
-    supabase.from('mp_expenses_summary').select('id', { count: 'exact', head: true }).eq('member_id', memberId),
+    // Head counts, which the fetch cache does not keep: per member for an hour (lib/mp-cache.ts, W2).
+    mpCachedCount('interests-count', memberId, () => supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true)),
+    mpCachedCount('expenses-count', memberId, () => supabase.from('mp_expenses_summary').select('id', { count: 'exact', head: true }).eq('member_id', memberId)),
     // The attendance figure the page's headline shows (mp_activity_metrics), for the description (L4).
     supabase.from('mp_activity_metrics').select('attendance_pct, divisions_total').eq('member_id', memberId).maybeSingle(),
   ]);
@@ -197,7 +201,7 @@ async function pmqsContributions(memberId: number): Promise<PmqsCounts> {
       const sum = (rows: typeof answered) => rows.reduce((n, s) => n + s.questions, 0);
       return { asked: set.byMember[memberId]?.length ?? 0, prime_minister: sum(answered.filter((s) => !s.deputisingFor)), standing_in: sum(answered.filter((s) => s.deputisingFor)) };
     }).catch(() => ({ asked: 0, prime_minister: 0, standing_in: 0 })),
-    withTimeout(memberArchiveCounts(memberId), 7000).catch(() => ({ asked: 0, prime_minister: 0, standing_in: 0 })),
+    withTimeout(mpCached('pmqs-archive-counts', memberId, () => memberArchiveCounts(memberId), ['pmqs']), 7000).catch(() => ({ asked: 0, prime_minister: 0, standing_in: 0 })),
   ]);
   return { asked: current.asked + archive.asked, prime_minister: current.prime_minister + archive.prime_minister, standing_in: current.standing_in + archive.standing_in };
 }
@@ -379,7 +383,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // missed "Edward Miliband", "Catherine Smith" and the like, and cut off the oldest meetings of Sarah Jones, Rachel
   // Reeves and Peter Kyle.
   const diaryPart = lastNamePrefilter(lastWord).replace(/[%_,]/g, '');
-  const pMeetingsHosp = withTimeout(Promise.all([
+  // Kept per member for an hour (lib/mp-cache.ts, W2): readAll starts with a head count the fetch cache does not keep.
+  const pMeetingsHosp = withTimeout(mpCached('ministers-diary', memberId, () => Promise.all([
     readAll<MinisterMeeting>(() => supabase.from('ministers_meetings'), {
       columns: 'id, minister_name, minister_dept, meeting_date, organisation, purpose, quarter, enriched_description, source_publication_slug',
       filter: (q) => q.ilike('minister_name', `%${diaryPart}%`).lte('meeting_date', new Date().toISOString().slice(0, 10)),
@@ -392,7 +397,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       orderBy: [{ column: 'hospitality_date', ascending: false }, { column: 'id', ascending: false }],
       label: `/mps/${memberId} ministers_hospitality`,
     }),
-  ]), 7000);
+  ])), 7000);
   const pContribs = Promise.resolve(
     supabase
       .from('mp_contributions')
@@ -403,7 +408,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   );
   // Written questions (owner, 3 Nov 2026): the count, first date and newest five, read alongside the contributions. A
   // failed or slow read shows the tab without them rather than holding up the page.
-  const pQuestions: Promise<QuestionsSummary | null> = withTimeout(questionsSummary(supabase, memberId), 7000).catch((e) => {
+  const pQuestions: Promise<QuestionsSummary | null> = withTimeout(mpCached('written-questions', memberId, () => questionsSummary(supabase, memberId)), 7000).catch((e) => {
     console.error(`/mps/${memberId} written questions:`, e instanceof Error ? e.message : e);
     return null;
   });
@@ -658,28 +663,39 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     const funderDonationByName = new Map<string, { totalAmount: number; donationCount: number }>();
     // A failure of this cross check alone is logged and the page renders without the donation figures, with one line
     // saying so, instead of the whole page failing (29 Oct 2026).
+    // Kept per member for an hour under the MP's tag and the donations tag (W2): the match reads, and the stored spellings
+    // behind them (the full donor name list, about 95 reads, loaded once per server instance), ran on every render.
     if (funderNames.length > 0) try {
-      // Chunk the IN clause — PostgREST gets unhappy past ~200 names.
-      // Every stored spelling of each name, quoted, so donor names saved with leading or trailing spaces match, and
-      // every row via lib/read-all.ts (the old .limit(5000) still stopped at the API's 1,000 rows). 24 Oct 2026, report 37.
-      const chunkSize = 100;
-      for (let i = 0; i < funderNames.length; i += chunkSize) {
-        const spellings = await storedSpellings(funderNames.slice(i, i + chunkSize));
-        const matches = await readAll<{ donor_name: string | null; amount: number | string | null }>(() => supabase.from('political_donations'), {
-          columns: 'id, donor_name, amount',
-          filter: (q) => q.filter('donor_name', 'in', inList(spellings)),
-          orderBy: 'id',
-          label: '/mps/[id] APPG funder donations',
-        });
-        for (const m of matches) {
-          const name = (m.donor_name || '').trim();
-          if (!name) continue;
-          const ex = funderDonationByName.get(name) ?? { totalAmount: 0, donationCount: 0 };
-          ex.totalAmount += Number(m.amount) || 0;
-          ex.donationCount += 1;
-          funderDonationByName.set(name, ex);
+      // The key carries the funder names, so a change in the MP's APPG funders reads afresh.
+      const namesKey = createHash('sha1').update(funderNames.slice().sort().join('|')).digest('hex').slice(0, 16);
+      const totals = await mpCached(`appg-funder-donations:${namesKey}`, memberId, async () => {
+        const out: [string, { totalAmount: number; donationCount: number }][] = [];
+        const byName = new Map<string, { totalAmount: number; donationCount: number }>();
+        // Chunk the IN clause — PostgREST gets unhappy past ~200 names.
+        // Every stored spelling of each name, quoted, so donor names saved with leading or trailing spaces match, and
+        // every row via lib/read-all.ts (the old .limit(5000) still stopped at the API's 1,000 rows). 24 Oct 2026, report 37.
+        const chunkSize = 100;
+        for (let i = 0; i < funderNames.length; i += chunkSize) {
+          const spellings = await storedSpellings(funderNames.slice(i, i + chunkSize));
+          const matches = await readAll<{ donor_name: string | null; amount: number | string | null }>(() => supabase.from('political_donations'), {
+            columns: 'id, donor_name, amount',
+            filter: (q) => q.filter('donor_name', 'in', inList(spellings)),
+            orderBy: 'id',
+            label: '/mps/[id] APPG funder donations',
+          });
+          for (const m of matches) {
+            const name = (m.donor_name || '').trim();
+            if (!name) continue;
+            const ex = byName.get(name) ?? { totalAmount: 0, donationCount: 0 };
+            ex.totalAmount += Number(m.amount) || 0;
+            ex.donationCount += 1;
+            byName.set(name, ex);
+          }
         }
-      }
+        for (const e of byName) out.push(e);
+        return out;
+      }, [DONATIONS_TAG]);
+      for (const [name, t] of totals) funderDonationByName.set(name, t);
     } catch (e) {
       console.error(`/mps/${memberId} APPG funder donations cross check failed:`, e instanceof Error ? e.message : String(e));
       funderDonationByName.clear();
