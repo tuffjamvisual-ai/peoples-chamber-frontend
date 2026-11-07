@@ -124,14 +124,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // queries in parallel — each is index-hit and head-only, so the per-MP
   // metadata fetch stays well inside the page's render budget. GSC fix
   // 2026-06-04.
-  const [mp, votesCountRes, interestsCountRes, expensesCountRes, ministerialBandsRes] = await Promise.all([
+  const [mp, votesCountRes, interestsCountRes, expensesCountRes] = await Promise.all([
     getMp(memberId),
     // Vote counts in one index-only read (mp_vote_counts, migration 2026-10-21b).
     supabase.rpc('mp_vote_counts', { p_member_id: memberId, p_since: PARL_START }),
     supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true),
     supabase.from('mp_expenses_summary').select('id', { count: 'exact', head: true }).eq('member_id', memberId),
-    // The paid ministerial post the page's earnings section shows (the same query and highest band as the page).
-    supabase.from('dept_ministers').select('salary_band').eq('member_id', memberId).not('salary_band', 'is', null),
   ]);
 
   if (!mp) {
@@ -169,18 +167,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if ((expensesCountRes.count ?? 0) > 0) lists.push('expenses');
   lists.push('contributions in Parliament');
   const listed = lists.length > 1 ? `${lists.slice(0, -1).join(', ')} and ${lists[lists.length - 1]}` : lists[0];
-  // A sitting MP with a paid ministerial post (owner, 7 Nov 2026, L2; searches such as "<name> salary"): both salaries as
-  // the page's earnings section shows them (MP_BASE_SALARY_2026 and the highest band's supplement). Without both figures
-  // the description is as before.
-  let band: SalaryBand | null = null;
-  for (const r of (ministerialBandsRes.data ?? []) as { salary_band: SalaryBand | null }[]) {
-    if (r.salary_band && (!band || BAND_RANK[r.salary_band] > BAND_RANK[band])) band = r.salary_band;
-  }
-  const supplement = band ? MINISTERIAL_SUPPLEMENT[band] : 0;
-  const pounds = (n: number) => `£${n.toLocaleString('en-GB')}`;
-  const description = !isFormer && supplement > 0 && MP_BASE_SALARY_2026 > 0
-    ? metaDescription(`${who}: MP salary ${pounds(MP_BASE_SALARY_2026)} plus a ministerial salary of ${pounds(supplement)}. ${listed.charAt(0).toUpperCase()}${listed.slice(1)}.`)
-    : metaDescription(`${who}: ${listed}.`);
+  // No salary in the description (owner, 7 Nov 2026, M1): the ministerial figures held did not match GOV.UK's September 2026
+  // table, and the MP salary is a constant in code, not dated data. The L2 salary sentence is withdrawn until both are current.
+  const description = metaDescription(`${who}: ${listed}.`);
 
   // Title (owner's brief, 3 Nov 2026): "<Name> MP: expenses, votes and interests", or "<Name>: record and interests"
   // for a former MP; with the " | opengovt" suffix when it fits in 60 characters, else on its own (lib/seo-title.ts).
