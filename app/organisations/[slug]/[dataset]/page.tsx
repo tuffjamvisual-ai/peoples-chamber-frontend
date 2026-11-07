@@ -2,6 +2,7 @@
 // number (report 71), newest first, all on one page (the longest list is 53 records). Meetings and lobbying are listed in full on /lobbying/<slug>.
 
 import { titleWithin } from '@/lib/seo-title';
+import { countOf, ledBy } from '@/lib/meta-description';
 import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -33,7 +34,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!org) return { title: 'Organisation not found' };
   return {
     title: titleWithin(`${org.name}: ${TITLES[dataset].toLowerCase()}`),
-    description: `Every ${TITLES[dataset].toLowerCase().replace(/s$/, '')} record linked to ${org.name} by Companies House number, newest first, with links to the official records.`,
+    // Whole sentences within 160 characters (owner, 7 Nov 2026, L7): the organisation's own count and value for this record.
+    description: ledBy(org.name, [
+      dataset === 'contracts' ? `${org.name} was awarded ${countOf(org.contracts, 'public contract')}${org.contract_value ? ` worth ${money(org.contract_value)}` : ''}.`
+        : dataset === 'grants' ? `${org.name} received ${countOf(org.grants, 'government grant')}${org.grant_value ? ` worth ${money(org.grant_value)}` : ''}.`
+        : `${org.name} gave ${countOf(org.donations, 'political donation')}${org.donated_accepted ? ` worth ${money(org.donated_accepted)}` : ''}, as accepted.`,
+    ], ['Each record is matched by Companies House number and links to the official record.']),
     alternates: { canonical: `/organisations/${org.slug}/${dataset}` },
   };
 }

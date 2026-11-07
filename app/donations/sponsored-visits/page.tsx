@@ -31,7 +31,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: "Who paid for UK MPs' trips: governments and lobby groups" },
   description:
-    'Every sponsored visit declared to the Electoral Commission as a donation in kind. Lists foreign governments that paid, think tank invitations, and trips by ‘Friends of’ groups, grouped by sponsor and by recipient MP.',
+    'Every sponsored visit declared as a donation in kind: trips paid for by foreign governments, think tanks and ‘Friends of’ groups, by sponsor and recipient MP.',
   alternates: { canonical: '/donations/sponsored-visits' },
 };
 

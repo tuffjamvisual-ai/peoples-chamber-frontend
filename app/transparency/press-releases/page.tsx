@@ -164,7 +164,7 @@ function ReleaseMonths({ grouped, noun, fallbackOrg }: { grouped: Map<string, Re
 export const metadata: Metadata = {
   title: 'Press Releases',
   description:
-    'The full archive of UK Government department press releases from 2007 to today, plus House of Commons select committee reports. Each entry links through to a full text page.',
+    'The full archive of UK Government department press releases from 2007 to today, and House of Commons select committee reports, each with its full text.',
   alternates: { canonical: '/transparency/press-releases' },
 };
 

@@ -14,7 +14,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: 'UK MPs with Second Jobs, Outside Earnings by Party' },
   description:
-    "Every current UK MP with declared outside earnings from the Register of Members' Financial Interests, grouped by party. Hours worked, total declared, employer named.",
+    "Every current UK MP with declared outside earnings in the Register of Members' Financial Interests, by party, with hours worked, total declared and employer.",
   alternates: { canonical: '/second-jobs' },
 };
 

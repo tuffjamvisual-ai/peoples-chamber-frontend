@@ -27,7 +27,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: 'UK political donations disclosed after the deadline' },
   description:
-    'Political donations declared to the Electoral Commission more than 90 days after acceptance, ranked by disclosure delay. UK parties are required to report large donations within 30 days; this page surfaces the gap.',
+    'Political donations declared to the Electoral Commission more than 90 days after they were accepted, ranked by how late they were disclosed.',
   alternates: { canonical: '/donations/late-disclosed' },
 };
 

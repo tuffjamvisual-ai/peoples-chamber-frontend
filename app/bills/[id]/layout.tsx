@@ -1,6 +1,7 @@
 import { billSummary } from '@/lib/bill-summary';
 import type { Metadata } from 'next';
 import { fitTitle, titleWithin } from '@/lib/seo-title';
+import { asSentence, ledBy, sentencesOf } from '@/lib/meta-description';
 import { supabase } from '@/lib/supabase';
 
 interface Props {
@@ -26,46 +27,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (bill.hidden_reason) return { title: 'Bill not found', robots: { index: false, follow: false } };
   const title = bill.title || bill.long_title || `Bill ${billId}`;
 
-  // First sentence of Parliament's summary, capped at ~130 chars so we have
-  // room for a status fragment + sponsor name. Tackles Soft 404 (each
-  // bill gets a unique snippet) and Duplicate without canonical (same-
-  // titled siblings now diverge because their division / stage /
-  // sponsor differ). GSC 2026-06-04.
-  const summary = billSummary(bill);
-  let lead = '';
-  if (summary) {
-    const period = summary.indexOf('.');
-    lead = period > 0 ? summary.slice(0, period + 1) : summary;
-    if (lead.length > 130) {
-      const cut = lead.slice(0, 127);
-      const back = cut.lastIndexOf(' ');
-      lead = (back > 100 ? cut.slice(0, back) : cut) + '…';
-    }
-  }
-
-  // Status precedence: is_act > withdrawn > defeated > division > stage.
-  // 'Now an Act of Parliament' wins over the division count even when
-  // both are present — the outcome is the headline signal; the vote
-  // count is secondary information available on the page itself.
-  const status = bill.is_act
-    ? 'Now an Act of Parliament.'
-    : bill.bill_withdrawn
-    ? 'Withdrawn before becoming law.'
-    : bill.is_defeated
-    ? 'Defeated.'
-    : bill.commons_division_id != null
-    ? `MPs voted ${bill.commons_ayes ?? 0}-${bill.commons_noes ?? 0}.`
-    : bill.current_stage
-    ? `Currently at ${bill.current_stage}.`
-    : '';
-
   type SponsorList = { items?: { name?: string }[] } | null;
   const sponsorName =
     (bill.sponsors as SponsorList)?.items?.[0]?.name || bill.sponsor_name || '';
 
-  // Session and last stage date (28 Oct 2026, Search Console): bills reintroduced under the same name in another
-  // session (European Union (Referendum) Bill 2014-15, European Union Referendum Bill 2017-19) were read by Google
-  // as copies of each other, so each title names its session and each description its session and dates.
+  // Session (28 Oct 2026, Search Console): bills reintroduced under the same name in another session were read by Google
+  // as copies of each other, so each description names its session.
   let sessionName: string | null = null;
   if (bill.introduced_session_id != null) {
     const { data: sess, error: sessErr } = await supabase.from('parliament_sessions').select('name').eq('id', bill.introduced_session_id).maybeSingle();
@@ -73,19 +40,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     sessionName = (sess?.name as string | null) || null;
   }
   const stageDay = bill.stage_date ? new Date(bill.stage_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : null;
-  const when = [sessionName ? `Introduced in the ${sessionName} session` : null, stageDay ? `last stage ${stageDay}` : null].filter(Boolean).join('; ');
-  const tail = [status, sponsorName ? `Sponsored by ${sponsorName}.` : '', when ? `${when}.` : ''].filter(Boolean).join(' ');
 
-  // The summary's first sentence is shortened first, so the session and dates always fit in 200 characters.
-  let description = [lead, tail].filter(Boolean).join(' ');
-  if (description.length > 200 && lead) {
-    const room = 200 - tail.length - 2;
-    description = room > 40 ? `${lead.slice(0, room).replace(/\s+\S*$/, '')}… ${tail}` : tail;
-  }
-  if (!description)
-    description = `${title}, UK Parliament bill summary, voting record and how the public would vote.`;
-  if (description.length > 200)
-    description = description.slice(0, 197).trimEnd() + '…';
+  // Description in whole sentences within 160 characters (owner, 7 Nov 2026, L7), led by where the bill stands, from
+  // Parliament's record: an Act, withdrawn, defeated, or its latest stage and date. Then its session, the Commons vote,
+  // its sponsor and the first sentence of Parliament's summary, each only where it still fits. The bill's name is never
+  // shortened: a name too long for any lead is given alone.
+  const the = /^the /i.test(title) ? title : `the ${title}`;
+  const The = the.charAt(0).toUpperCase() + the.slice(1);
+  const summaryFirst = sentencesOf(billSummary(bill))[0];
+  const description = ledBy(title, [
+    bill.is_act ? `${The} became an Act of Parliament${bill.current_stage === 'Royal Assent' && stageDay ? ` on ${stageDay}` : ''}.`
+      : bill.bill_withdrawn ? `${The} was withdrawn before becoming law.`
+      : bill.is_defeated ? `${The} was defeated.`
+      : bill.current_stage ? `The latest stage of ${the} was ${bill.current_stage}${stageDay ? `, on ${stageDay}` : ''}.`
+      : null,
+    `${asSentence(The)}`,
+  ], [
+    sessionName && `It was introduced in the ${sessionName} session.`,
+    bill.commons_division_id != null && `In its Commons division, MPs voted ${bill.commons_ayes ?? 0} to ${bill.commons_noes ?? 0}.`,
+    sponsorName && `Its sponsor is ${sponsorName}.`,
+    summaryFirst,
+  ]);
 
   // Two bills of one name in one session (Data Protection and Digital Information Bill, 2022-23) add the sponsor, as we hold no
   // bill number from Parliament, so no two pages share a title (owner, 7 Nov 2026).

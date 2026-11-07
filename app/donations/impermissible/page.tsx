@@ -24,7 +24,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: 'Impermissible political donations UK parties gave back' },
   description:
-    'Political donations declared to the Electoral Commission and subsequently found impermissible under UK law. Lists every returned donation with the reason and the recipient party.',
+    'Political donations declared to the Electoral Commission and later found impermissible under UK law: every returned donation, its reason and recipient party.',
   alternates: { canonical: '/donations/impermissible' },
 };
 

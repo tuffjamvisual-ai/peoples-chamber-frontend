@@ -52,3 +52,17 @@ export function proseDescription(text: string | null | undefined, headline: stri
   const s = sentencesOf(text);
   return s.length && s[0].length <= max ? wholeSentences(s, max) : wholeSentences([asSentence(headline)], max);
 }
+
+// A description led by the page's most useful fact (owner, 7 Nov 2026, L7): the first lead sentence that fits in max,
+// then whichever later sentences still fit. Where no lead fits, the official name as a sentence; where the name alone
+// is over max, the name whole and nothing else, as on division pages. Official names are never shortened.
+export function ledBy(name: string, leads: (string | null | undefined | false)[], rest: (string | null | undefined | false)[] = [], max = 160): string {
+  const lead = leads.find((l): l is string => !!l && l.replace(/\s+/g, ' ').trim().length <= max);
+  if (lead) return wholeSentences([lead, ...rest], max);
+  const n = name.replace(/\s+/g, ' ').trim();
+  const plain = asSentence(n);
+  return plain.length <= max ? wholeSentences([plain, ...rest], max) : n;
+}
+
+// "1 meeting", "2 meetings": a count with its noun, in the house style for numbers.
+export const countOf = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-GB')} ${n === 1 ? one : many}`;

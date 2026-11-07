@@ -3,6 +3,7 @@
 
 import NoJsPager from '@/app/components/NoJsPager';
 import { namedTitle } from '@/lib/seo-title';
+import { countOf, ledBy } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -27,7 +28,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     // Never the name alone, which the organisation's own page could share (owner, 7 Nov 2026: titles stay unique).
     title: namedTitle(org.name, (n) => [`${n}: meetings with UK ministers and lobbying firms`, `${n}: meetings with UK ministers`]),
-    description: `Every published meeting between ${org.name} and UK government ministers${org.lobbying_firms > 0 ? ', and the consultant lobbying firms that act for it' : ''}, from GOV.UK transparency returns and the Registrar of Consultant Lobbyists.`,
+    // Whole sentences within 160 characters (owner, 7 Nov 2026, L7), led by the meeting count, from the organisation's own totals.
+    description: ledBy(org.name, [
+      org.meetings_all > 0 && `${org.name} appears in ${countOf(org.meetings_all, 'published meeting')} with UK government ministers.`,
+      org.meetings_all > 0 && `${org.name} appears in ${countOf(org.meetings_all, 'published ministerial meeting')}.`,
+      org.meetings_all === 0 && org.lobbying_quarters > 0 && `${org.name} was a consultant lobbying client in ${countOf(org.lobbying_quarters, 'quarter')}.`,
+    ], [
+      org.meetings_all > 0 && org.last_meeting && `The latest was on ${fmtDate(org.last_meeting)}.`,
+      org.lobbying_firms > 0 && `It was a client of ${countOf(org.lobbying_firms, 'consultant lobbying firm')}.`,
+      'Sources: GOV.UK transparency returns and the Registrar of Consultant Lobbyists.',
+    ]),
     alternates: { canonical: `/lobbying/${org.slug}` },
   };
 }

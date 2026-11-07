@@ -14,7 +14,7 @@ import {
 
 export const metadata: Metadata = {
   title: { absolute: "MPs' standards cases: Commissioner decisions" },
-  description: 'Decisions published by the Parliamentary Commissioner for Standards: allegations rectified, not upheld and reported to the Committee on Standards, with each decision.',
+  description: 'Decisions published by the Parliamentary Commissioner for Standards: allegations rectified, not upheld or reported to the Committee on Standards.',
   alternates: { canonical: '/standards' },
 };
 

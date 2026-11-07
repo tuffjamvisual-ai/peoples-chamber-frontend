@@ -15,7 +15,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: 'APPG secretariats: lobby firms running All-Party Groups' },
   description:
-    "Every secretariat operating one or more UK All-Party Parliamentary Groups, ranked by the number of groups run. Click through to see the portfolio of lobby groups each firm operates and the MPs officering them.",
+    "Every secretariat running one or more UK All-Party Parliamentary Groups, ranked by the number of groups it runs, with each group and its MP officers.",
   alternates: { canonical: '/secretariats' },
 };
 

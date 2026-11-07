@@ -3,13 +3,14 @@
 // project_key is the file's project ID (e.g. DFT_0141_2223-Q1), or 'no-id:<DEPT>:<name>' for the 2 rows without one.
 
 import { namedTitle } from '@/lib/seo-title';
+import { ledBy } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import { departments } from '@/lib/departments';
-import { fetchMajorProject, deptLabel, projectHref, evaluationLines, REPORT_PAGES } from '@/lib/major-projects';
+import { fetchMajorProject, deptLabel, projectHref, evaluationLines, REPORT_PAGES, longDate, type MajorProject } from '@/lib/major-projects';
 import { MajorProjectMeta, MajorProjectTable } from '../../../components/MajorProjectHistory';
 
 export const revalidate = 86400;
@@ -31,13 +32,31 @@ const keyOf = async (params: Props['params']) => {
   try { return decodeURIComponent(raw); } catch { return raw; }
 };
 
+// Description in whole sentences within 160 characters (owner, 7 Nov 2026, L7), led by the latest report's delivery
+// confidence rating, then whose assessment it is, the whole life cost and the end date, all as the department reported them.
+function projectDescription(project: MajorProject): string {
+  const r = project.latest;
+  const dept = deptLabel(r.department_code).replace(/ \(.*\)$/, '');
+  const rating = r.rating ? r.rating.charAt(0) + r.rating.slice(1).toLowerCase() : null;
+  const a = rating === 'Amber' ? 'an' : 'a';
+  return ledBy(project.name, [
+    rating && `${project.name} (${dept}) had ${a} ${rating} delivery confidence rating in ${r.data_as_at}.`,
+    rating && `${project.name} had ${a} ${rating} delivery confidence rating in ${r.data_as_at}.`,
+    `${project.name} (${dept}) is in the Government Major Projects Portfolio.`,
+  ], [
+    rating && (r.rating_column === 'IPA' ? "The rating is NISTA's independent assessment." : "The rating is the department's own assessment."),
+    r.whole_life_cost_m != null && `Its whole life cost was £${r.whole_life_cost_m.toLocaleString('en-GB', { maximumFractionDigits: 2 })}m${r.price_basis === 'real 2024/25' ? ' in 2024/25 prices' : ', price basis not stated'}.`,
+    r.end_date && `Its end date was ${longDate(r.end_date)}.`,
+  ]);
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const key = await keyOf(params);
   const { project } = await fetchMajorProject(key).catch(() => ({ project: null }));
   if (!project) return { title: 'Major project not found', robots: { index: false, follow: false } };
   return {
     title: namedTitle(project.name, (n) => [`${n}: major project history`, `${n}: major project`, n]),
-    description: `${project.name} (${deptLabel(project.latest.department_code)}) in the Government Major Projects Portfolio: delivery confidence rating, end date and whole life cost in each annual report since March 2024, and the department's commentary.`,
+    description: projectDescription(project),
     alternates: { canonical: projectHref(project.key) },
   };
 }

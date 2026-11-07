@@ -11,7 +11,7 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: { absolute: 'UK Government Transparency: Lobbying, Donations, Contracts' },
   description:
-    "UK government transparency data: ministerial meetings, hospitality declarations, political donations, public contracts, revolving door and more, drawn from public registers.",
+    "UK government transparency data from public registers: ministerial meetings, hospitality, political donations, public contracts and the revolving door.",
   alternates: { canonical: '/transparency' },
 }
 
@@ -21,7 +21,7 @@ const JSONLD_WEBPAGE = {
   '@id': 'https://www.opengovt.uk/transparency#page',
   name: 'Accountability: UK government transparency data',
   description:
-    "UK government transparency data: ministerial meetings, hospitality declarations, political donations, public contracts, revolving door and more, drawn from public registers.",
+    "UK government transparency data from public registers: ministerial meetings, hospitality, political donations, public contracts and the revolving door.",
   isPartOf: { '@id': 'https://www.opengovt.uk/#website' },
   url: 'https://www.opengovt.uk/transparency',
 };

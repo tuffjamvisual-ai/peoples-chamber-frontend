@@ -26,6 +26,17 @@ function intro(label: string) {
   return `Every page in the ${label} section of opengovt.`;
 }
 
+function sectionDescription(label: string, all: (string | null)[]): string {
+  const names = all.filter((x): x is string => !!x);
+  const lead = intro(label);
+  for (let n = names.length; n > 0; n--) {
+    const list = n === 1 ? names[0] : `${names.slice(0, n - 1).join(', ')} and ${names[n - 1]}`;
+    const s = `${n === names.length ? 'It covers' : 'Its pages include'} ${list}.`;
+    if (lead.length + 1 + s.length <= 160) return `${lead} ${s}`;
+  }
+  return lead;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const s = find(slug);
@@ -33,7 +44,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: s.item.label,
     // With more than two groups (Parliament) the groups are named; otherwise every link.
-    description: `${intro(s.item.label)} ${(groups(s.item.children!).length > 2 ? groups(s.item.children!).map((g) => g.title) : s.item.children!.map((c) => c.label)).join(', ')}.`,
+    // Whole sentences within 160 characters (owner, 7 Nov 2026, L7): the section, then as many of its groups or pages as fit.
+    description: sectionDescription(s.item.label, groups(s.item.children!).length > 2 ? groups(s.item.children!).map((g) => g.title) : s.item.children!.map((c) => c.label)),
     alternates: { canonical: `/sections/${slug}` },
   };
 }

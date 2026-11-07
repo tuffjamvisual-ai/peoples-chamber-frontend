@@ -5,7 +5,7 @@ import BackLink from '../../components/BackLink';
 export const metadata: Metadata = {
   title: { absolute: 'How UK Political Donations Work and Why the System Fails' },
   description:
-    "An explainer on the UK political donation system: self declaration, thresholds, intermediaries, permissibility tests, timing, and sanctions. Why the register records what politicians chose to disclose, not what actually happened.",
+    "How the UK political donation system works: self declaration, thresholds, intermediaries, permissibility tests, timing and sanctions.",
   alternates: { canonical: '/explainers/donations' },
 };
 

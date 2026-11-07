@@ -11,7 +11,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: 'Policy Topics',
   description:
-    'Every major policy area in one place: the department behind it, recent Commons votes, bills before Parliament, the MPs scrutinising it most, and how opengovt users have voted.',
+    'Every major policy area in one place: the department behind it, recent Commons votes, bills before Parliament and the MPs scrutinising it most.',
   alternates: { canonical: '/topics' },
 };
 

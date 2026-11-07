@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
   title: 'Special advisers: ministers, pay and declarations',
   description:
-    "Every special adviser in the Cabinet Office's published list, with their minister, pay band and salary band, and the gifts, hospitality and media meetings declared each quarter.",
+    "Every special adviser in the Cabinet Office's published list, with their minister and pay band, and the gifts, hospitality and media meetings they declared.",
   alternates: { canonical: '/transparency/special-advisers' },
 };
 

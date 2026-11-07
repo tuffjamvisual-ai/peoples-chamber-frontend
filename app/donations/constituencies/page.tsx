@@ -29,7 +29,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: 'UK political donations by constituency association' },
   description:
-    'Ranks every UK constituency association by total declared donations received. Reveals which seats are propped up by big local donors, big national donors, or money passed down from party head office.',
+    'Every UK constituency association ranked by the total declared donations it received, from local donors, national donors and party head office.',
   alternates: { canonical: '/donations/constituencies' },
 };
 

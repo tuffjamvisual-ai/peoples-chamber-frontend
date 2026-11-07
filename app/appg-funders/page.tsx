@@ -19,7 +19,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: 'APPG funders: who pays for All-Party Parliamentary Groups' },
   description:
-    'Index of every organisation funding one or more UK All-Party Parliamentary Groups, ranked by groups funded. Reveals which corporations and charities buy formal Westminster access via APPG sponsorship.',
+    'Every organisation funding one or more UK All-Party Parliamentary Groups, ranked by the number of groups it funds.',
   alternates: { canonical: '/appg-funders' },
 };
 

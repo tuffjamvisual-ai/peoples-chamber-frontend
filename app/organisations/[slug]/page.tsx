@@ -4,6 +4,7 @@
 // the latest five records of each from the source tables (lib/organisations.ts). Rendered on demand, cached a day.
 
 import { namedTitle } from '@/lib/seo-title';
+import { countOf, ledBy } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -15,7 +16,7 @@ import { cleanDept, quarterLabel } from '@/lib/lobbying';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
   getOrganisation, orgNameShared, CH_NUMBERS_CHECKED, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
-  findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote,
+  findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, type OrgIndexRow,
 } from '@/lib/organisations';
 
 export const revalidate = 86400;
@@ -27,6 +28,21 @@ const ACCENT = '#7a1612';
 const FONT = 'var(--font-special-elite), monospace';
 const LATEST = 5;
 
+// Description in whole sentences within 160 characters (owner, 7 Nov 2026, L7), led by the largest record the page holds:
+// public contracts, then framework places, grants, donations, meetings and lobbying, each from the organisation's own
+// totals. The first sentence names the organisation in full; one too long for any lead gives the name alone.
+function orgDescription(org: OrgIndexRow): string {
+  const facts: ((s: string) => string)[] = [];
+  if (org.contracts) facts.push((s) => `${s} was awarded ${countOf(org.contracts, 'public contract')}${org.contract_value ? ` worth ${money(org.contract_value)}` : ''}.`);
+  else if (org.framework_places) facts.push((s) => `${s} holds ${countOf(org.framework_places, 'public framework place')}.`);
+  if (org.grants) facts.push((s) => `${s} received ${countOf(org.grants, 'government grant')}${org.grant_value ? ` worth ${money(org.grant_value)}` : ''}.`);
+  if (org.donations) facts.push((s) => `${s} gave ${countOf(org.donations, 'political donation')}${org.donated_accepted ? ` worth ${money(org.donated_accepted)}` : ''}, as accepted.`);
+  if (org.meetings) facts.push((s) => `${s} had ${countOf(org.meetings, 'meeting')} with ministers.`);
+  if (org.lobbying_quarters) facts.push((s) => `${s} was a consultant lobbying client in ${countOf(org.lobbying_quarters, 'quarter')}.`);
+  const tail = 'Records are matched by Companies House number, never by name alone.';
+  return ledBy(org.name, facts.map((f) => f(org.name)), [...facts.slice(1).map((f) => f('It')), tail]);
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const org = await getOrganisation(slug);
@@ -37,7 +53,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // confirmed leaves the title as it was. With no number held, the type we hold.
   const tag = org.company_number ? (CH_NUMBERS_CHECKED.has(org.company_number) ? org.company_number : null) : org.org_type || (org.kind === 'registry' ? null : org.kind);
   const titleName = tag && (await orgNameShared(org.name, org.slug)) ? `${org.name} (${tag})` : org.name;
-  const description = `${orgSummaryLine(org)} Matched by Companies House number and the checked lobbying list, never by name alone.`.slice(0, 300);
+  const description = orgDescription(org);
   return {
     // Never the name alone, which its lobbying page could share (owner, 7 Nov 2026: titles stay unique). A name another page
     // shares adds the Companies House number we hold, or failing that the type we hold: "Deloitte LLP (OC303675): contracts".

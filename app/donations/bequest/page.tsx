@@ -22,7 +22,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: 'Bequests to UK political parties: money left in a will' },
   description:
-    'Every political donation declared as a bequest. Money left to a UK political party in the donor\'s will. Ranked by total, with recipient breakdowns and the largest individual estates.',
+    'Every political donation declared as a bequest, money left to a UK political party in the donor\'s will, ranked by total with the largest estates.',
   alternates: { canonical: '/donations/bequest' },
 };
 

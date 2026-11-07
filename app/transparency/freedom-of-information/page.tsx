@@ -13,7 +13,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: 'Freedom of Information Requests by Government Department' },
   description:
-    'How many Freedom of Information requests each UK government department and body received in the latest quarter, how many were answered within 20 working days, and how many were granted or withheld.',
+    'Freedom of Information requests each UK government department and body received in the latest quarter, and how many were answered within 20 working days.',
   alternates: { canonical: '/transparency/freedom-of-information' },
 };
 

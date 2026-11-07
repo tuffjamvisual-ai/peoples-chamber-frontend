@@ -30,7 +30,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: 'Political donations from abroad: UK money map by country' },
   description:
-    'Every UK political donation declared from outside the United Kingdom, grouped by donor country. Reveals which donors with foreign addresses fund which UK parties and parliamentary recipients.',
+    'Every UK political donation declared from outside the United Kingdom, grouped by donor country, with the parties and parliamentary recipients they funded.',
   alternates: { canonical: '/donations/foreign' },
 };
 

@@ -24,7 +24,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: 'UK political donations routed through trusts',
   description:
-    'Political donations to UK parties and parliamentary recipients channelled through a trust rather than a named individual. Aggregated by trust, with the trust creator and recipient on every row.',
+    'Political donations to UK parties and parliamentary recipients made through a trust, not a named person, grouped by trust with its creator and recipient.',
   alternates: { canonical: '/donations/trust-funded' },
 };
 

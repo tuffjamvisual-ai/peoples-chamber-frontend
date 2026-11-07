@@ -28,14 +28,14 @@ const n0 = (n: number) => n.toLocaleString('en-GB');
 const load = cache(async (raw: string) => (/^\d{1,9}$/.test(raw) ? getEdm(Number(raw)) : null));
 
 // Description in whole sentences (owner, 7 Nov 2026, L6): the motion's title, then its number, date and signatures where
-// they fit, else its signatures alone. A title over 160 characters gives way to the number, date and signatures.
+// they fit, else "This early day motion has n signatures." (owner, 7 Nov 2026, L7). A title over 160 characters gives way to the number, date and signatures.
 function edmDescription(m: Edm): string {
   const sigs = `${n0(m.signature_count)} ${m.signature_count === 1 ? 'signature' : 'signatures'}`;
   const tabled = petitionDate(m.date_tabled);
   const fact = `Early day motion ${m.uin_with_suffix}${tabled ? ` was tabled on ${tabled} and` : ''} has ${sigs}.`;
   const title = asSentence(m.title);
   if (title.length > 160) return wholeSentences([fact]);
-  return wholeSentences([title, firstThatFits(title, [fact, `It has ${sigs}.`])]);
+  return wholeSentences([title, firstThatFits(title, [fact, `This early day motion has ${sigs}.`])]);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {

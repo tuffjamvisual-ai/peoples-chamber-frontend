@@ -11,7 +11,7 @@ export const revalidate = 600;
 export const metadata: Metadata = {
   title: { absolute: 'UK Parliament Bills Tracker, Live Stages, Votes & Acts' },
   description:
-    "The bills going through UK Parliament now: current stage, sponsor, how MPs voted and how opengovt users voted. Every earlier bill, Act and withdrawn bill is in the archive by session.",
+    "The bills going through UK Parliament now, with each bill's current stage, sponsor and how MPs voted. Every earlier bill and Act is in the archive by session.",
   alternates: { canonical: '/bills' },
 };
 
