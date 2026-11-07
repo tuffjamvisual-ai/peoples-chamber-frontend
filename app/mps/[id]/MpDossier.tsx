@@ -126,6 +126,9 @@ export default function MpDossier({
         @media (min-width: 761px) {
           .mp-staff-line { position: relative; top: -56px; }
           .mp-standards-line + .mp-staff-line { top: -112px; }
+          /* PF4 (owner, 7 Nov 2026): a Standards cases line with no Staff interests line after it had the same overlap; it
+             moves up one line the same way. With both lines, the standards line stays where PF3 drew it. */
+          .mp-standards-line:not(:has(+ .mp-staff-line)) { position: relative; top: -56px; }
         }
       `}</style>
 
