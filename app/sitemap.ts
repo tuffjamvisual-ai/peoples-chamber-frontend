@@ -18,6 +18,7 @@ import { projectHref } from '@/lib/major-projects';
 import { RECOMMENDATIONS_PUBLIC, allStatus, recPath } from '@/lib/pac';
 import { divisionHref, yearHref } from '@/lib/division-links';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
+import { FORMER_MP_PROFILE_IDS } from '@/lib/former-mp-profile-ids';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -334,6 +335,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  // The 93 basic former MP profiles (owner, 7 Nov 2026). Dated by the day their wording last changed: their record is otherwise historic.
+  const formerProfileEntries: MetadataRoute.Sitemap = FORMER_MP_PROFILE_IDS.map((id) => ({ url: `${SITE}/mps/${id}`, lastModified: new Date('2026-11-07'), changeFrequency: 'yearly', priority: 0.4 }));
+
   // Members of the House of Lords with a page (owner, 3 Nov 2026): current peers and anyone who has sat since 4 July
   // 2024 (lib/peers.ts peerHasPage). Their questions pages are not listed, like the MPs'.
   const peers = await fetchAllRows<{ member_id: number }>(
@@ -506,6 +510,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...billEntries,
     ...billSessionEntries,
     ...mpEntries,
+    ...formerProfileEntries,
     ...peerEntries,
     ...councilEntries,
     ...divisionEntries,

@@ -8,7 +8,7 @@ import BackLink from '../../components/BackLink';
 import JsonLd, { buildBreadcrumbs, buildMpPerson } from '@/lib/JsonLd';
 import RelatedLine from '../../components/RelatedLine';
 import type { RelatedLink } from '@/lib/related-links';
-import { parliamentMemberUrl, seatYears, type FormerMp } from '@/lib/former-mps';
+import { lastSeatLine, parliamentMemberUrl, seatYears, type FormerMp } from '@/lib/former-mps';
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
 import HistoricRecord from './HistoricRecord';
 
@@ -23,6 +23,8 @@ const fmtDay = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T00:00:00Z`
 
 export default function FormerMpProfile({ mp, conductFindings = [], related = [] }: { mp: FormerMp; conductFindings?: ConductFinding[]; related?: RelatedLink[] }) {
   const lastSeat = mp.seats[mp.seats.length - 1];
+  // Parliament's member record gives the last seat with the whole span of service, so the two are never paired (owner, 7 Nov 2026).
+  const lastSeatOnly = !!mp.lastSeatOnly && !!lastSeat;
   return (
     <OpenGovShell pageStamp="MP Profile">
       {/* Person (owner's brief, 3 Nov 2026): a former member, so name, url and sameAs only (lib/JsonLd.tsx). */}
@@ -32,7 +34,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
       <h1 style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05, margin: '0 0 12px', color: INK, overflowWrap: 'break-word' }}>{mp.name}</h1>
       {lastSeat && (
         <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '8px', color: INK }}>
-          Former MP for {lastSeat.constituency}{mp.firstYear && mp.lastYear ? ` (${mp.firstYear} to ${mp.lastYear})` : ''}
+          {lastSeatOnly ? lastSeatLine(mp) : <>Former MP for {lastSeat.constituency}{mp.firstYear && mp.lastYear ? ` (${mp.firstYear} to ${mp.lastYear})` : ''}</>}
         </div>
       )}
       {mp.party && (
@@ -46,7 +48,8 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           Time in the House of Commons
         </h2>
-        {mp.seats.length > 0 && <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
+        {lastSeatOnly && lastSeat.from && <p style={line}>In the Commons from {fmtDay(lastSeat.from)}{lastSeat.to ? ` to ${fmtDay(lastSeat.to)}` : ''}.</p>}
+        {!lastSeatOnly && mp.seats.length > 0 && <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
           {mp.seats.map((s) => (
             <li key={`${s.constituency}-${s.from}`} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
               <strong>{s.constituency}</strong>, {seatYears(s)}
@@ -58,7 +61,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
         </ul>}
         {mp.seats.length === 0 && <p style={line}>Parliament&rsquo;s record for {mp.name} gives no Commons seat or dates.</p>}
         <p style={line}>
-          {mp.name} is no longer an MP.{mp.sitsInLords ? ' They now sit in the House of Lords.' : ''} opengovt keeps full profiles for current MPs; this page records the seats held and the dates served.
+          {mp.name} is no longer an MP.{mp.sitsInLords ? ' They now sit in the House of Lords.' : ''} opengovt keeps full profiles for current MPs; this page records {lastSeatOnly ? 'their last seat and the dates in Parliament’s record' : 'the seats held and the dates served'}.
         </p>
         <p style={line}>
           <Link href="/mps" className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Find your current MP</Link>.

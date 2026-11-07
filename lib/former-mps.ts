@@ -29,6 +29,8 @@ export type FormerMp = {
   firstYear: number | null;
   lastYear: number | null;
   sitsInLords: boolean;
+  // From the member record alone, which gives only the last seat with the whole span of service: never show that seat with those dates (owner, 7 Nov 2026).
+  lastSeatOnly?: boolean;
 };
 export type MemberLookup = { kind: 'former_mp'; mp: FormerMp } | { kind: 'lords_only' } | { kind: 'unknown' };
 
@@ -106,6 +108,7 @@ export const memberRecord = cache(async (memberId: number): Promise<FormerMp | n
     firstYear: last ? year(last.membershipStartDate) : null,
     lastYear: last ? year(last.membershipEndDate) : null,
     sitsInLords: false,
+    lastSeatOnly: true,
   };
 });
 
@@ -117,6 +120,12 @@ export const memberName = cache(async (memberId: number): Promise<string | null>
   const json = (await res.json()) as { value?: { nameDisplayAs?: string } };
   return json?.value?.nameDisplayAs?.replace(/^(?:Mr|Mrs|Miss|Ms) /, '') ?? null;
 });
+
+// "In the Commons 1945 to 1987. Last seat: Cardiff South & Penarth." A record that gives no end year or no start year says only what it has.
+export function lastSeatLine(mp: FormerMp): string {
+  const span = mp.firstYear && mp.lastYear ? `In the Commons ${mp.firstYear} to ${mp.lastYear}. ` : mp.firstYear ? `In the Commons from ${mp.firstYear}. ` : '';
+  return `${span}Last seat: ${mp.seats[mp.seats.length - 1]?.constituency}.`;
+}
 
 // "2010 to 2019", or "since 2024" for a seat still held (a member we do not list as current).
 export function seatYears(s: FormerSeat): string {
