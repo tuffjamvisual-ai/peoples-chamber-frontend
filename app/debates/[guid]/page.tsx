@@ -200,6 +200,12 @@ function soleMinister(attributions: string[]): { office: string; name: string } 
   return byOffice.size === 1 ? { office: [...byOffice.keys()][0], name: [...byOffice.values()][0] } : null;
 }
 const aOrAn = (word: string) => (/^[aeio]/i.test(word) ? 'An' : 'A');
+// The venue as words (owner, 7 Nov 2026, M1): Hansard's "General Committees" is the group a committee belongs to, so it reads
+// "a debate in a General Committee"; any other venue reads "a Westminster Hall debate".
+const venueWords = (venue: string | null, opening: boolean) =>
+  venue === 'General Committees' ? `${opening ? 'A debate' : 'Debate'} in a General Committee`
+    : venue ? (opening ? `${aOrAn(venue)} ${venue} debate` : `${venue} debate`)
+    : (opening ? 'A debate' : 'Debate');
 
 export async function generateMetadata({ params }: { params: Promise<{ guid: string }> }): Promise<Metadata> {
   const { guid } = await params;
@@ -236,7 +242,7 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   // then who led it. metaDescription keeps whole sentences within 160 characters, so the later ones drop first.
   const venue = venueOf(ov);
   const minister = soleMinister(speakers);
-  const opener = [`${venue ? `${venue} debate` : 'Debate'} on ${title}${ov?.Date ? `, ${fmtDate(ov.Date)}` : ''}.`];
+  const opener = [`${venueWords(venue, false)} on ${title}${ov?.Date ? `, ${fmtDate(ov.Date)}` : ''}.`];
   if (subjects) opener.push(subjects);
   if (minister) opener.push(`Minister responding: ${minister.name}.`);
   if (lead) opener.push(`Led by ${lead}${speakers.length > 1 ? `, ${speakers.length} speakers` : ''}.`);
@@ -324,7 +330,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
     const subjects = debateSubjectWords(title, rawItems.map((it) => plain(it.Value || '')), [...new Set(allDebateItems.map((it) => (it.AttributedTo || '').trim()).filter(Boolean))]);
     const list = subjects.length === 1 ? subjects[0] : subjects.length ? `${subjects.slice(0, -1).join(', ')} and ${subjects[subjects.length - 1]}` : '';
     return [
-      `${venue ? `${aOrAn(venue)} ${venue} debate` : 'A debate'} on ${title}${ov?.Date ? `, ${fmtDate(ov.Date)}` : ''}.`,
+      `${venueWords(venue, true)} on ${title}${ov?.Date ? `, ${fmtDate(ov.Date)}` : ''}.`,
       minister ? `${minister.office} (${minister.name}) responded.` : '',
       list ? `It covered ${list}.` : '',
     ].filter(Boolean).join(' ');
