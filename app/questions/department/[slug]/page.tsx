@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
-import { wholeNameTitle } from '@/lib/seo-title';
+import { namedTitle } from '@/lib/seo-title';
 import { departmentById, departmentBySlug } from '@/lib/question-departments';
 import { QUESTION_PAGE_SIZE, questionDepartmentStats, questionPeople, searchQuestions } from '@/lib/question-pages';
 import QuestionItems from '../../QuestionItems';
@@ -23,7 +23,8 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   if (!d) return { title: 'Written questions', robots: { index: false, follow: true } };
   const { before } = await searchParams;
   return {
-    title: wholeNameTitle(d.name, (n) => [`Written questions: ${n}`, `${n}: questions`]),
+    // Never the name alone, which the department's own page has (owner, 7 Nov 2026: titles stay unique).
+    title: namedTitle(d.name, (n) => [`Written questions: ${n}`, `${n}: questions`]),
     description: `Written questions answered by ${d.name} this Parliament, newest first, with counts and average days to answer.`.slice(0, 160),
     alternates: { canonical: `/questions/department/${d.slug}` },
     ...(before ? { robots: { index: false, follow: true } } : {}),

@@ -25,7 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const org = await getOrgBySlug(slug);
   if (!org) return { title: 'Organisation not found' };
   return {
-    title: namedTitle(org.name, (n) => [`${n}: meetings with UK ministers and lobbying firms`, `${n}: meetings with UK ministers`, `${n}: lobbying`, n]),
+    // Never the name alone, which the organisation's own page could share (owner, 7 Nov 2026: titles stay unique).
+    title: namedTitle(org.name, (n) => [`${n}: meetings with UK ministers and lobbying firms`, `${n}: meetings with UK ministers`]),
     description: `Every published meeting between ${org.name} and UK government ministers${org.lobbying_firms > 0 ? ', and the consultant lobbying firms that act for it' : ''}, from GOV.UK transparency returns and the Registrar of Consultant Lobbyists.`,
     alternates: { canonical: `/lobbying/${org.slug}` },
   };

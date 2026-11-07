@@ -31,8 +31,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const m = await load((await params).id);
   if (!m) return { title: 'Early day motion', robots: { index: false, follow: true } };
   return {
-    // Natural breaks only, never mid phrase (owner, 6 Nov 2026). The number on its own where no clean break fits.
-    title: namedTitle(m.title, (n) => [`EDM ${m.uin_with_suffix}: ${n}`, n]),
+    // The number always stays, so motions with the same title never share one (owner, 7 Nov 2026); the title is never cut.
+    title: namedTitle(m.title, (n) => [`EDM ${m.uin_with_suffix}: ${n}`]),
     description: metaDescription(`${m.title}. Early day motion ${m.uin_with_suffix}, tabled ${petitionDate(m.date_tabled)}, with ${n0(m.signature_count)} signatures.`),
     alternates: { canonical: `/edms/${m.id}` },
   };

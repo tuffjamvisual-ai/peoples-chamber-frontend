@@ -35,7 +35,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const heldText = held.length > 1 ? `${held.slice(0, -1).join(', ')} and ${held[held.length - 1]}` : held[0] || 'public records';
   const description = `${orgSummaryLine(org)} Matched by Companies House number and the checked lobbying list, never by name alone.`.slice(0, 300);
   return {
-    title: namedTitle(org.name, (n) => [`${n}: ${heldText}`, `${n}: public records`, n]),
+    // Never the name alone, which its lobbying page could share (owner, 7 Nov 2026: titles stay unique).
+    title: namedTitle(org.name, (n) => [`${n}: ${heldText}`, `${n}: public records`, `${n}: ${heldText}`]),
     description,
     alternates: { canonical: `/organisations/${org.slug}` },
     openGraph: { title: org.name, description, url: `${SITE}/organisations/${org.slug}`, type: 'website' },
