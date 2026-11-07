@@ -12,7 +12,13 @@
 // Time budget and resume (the pattern of lib/commons-press-releases-sync.ts): the run stops before BUDGET_MS, saves
 // in sync_cursor the steps still to do in this pass, and the next run carries on from there. A record whose timeline
 // is read gets timeline_fetched_at, so it is not read twice in a pass. A stop by the budget returns 200 with
-// partial: true; a database error or an error answer from an API fails (5xx); no answer at all fails (504).
+// partial: true; a database error fails (500).
+// Error answers (owner, 7 Nov 2026, K2; the run of 6 Nov failed with 502 after writing 64 rows): an error answer or a
+// network error from either API is treated like a timeout. That call is skipped and counted with its reason, and the
+// run carries on; a list page skipped is read again by the next run, a timeline next time it is due. The run returns
+// 200 unless every call failed (502 if any answered with an error, 504 if none answered at all). A 429 (the source
+// asking us to stop) is not skipped past: the run stops there like a budget stop and keeps its position. One line per
+// run is logged: calls made, calls skipped with each reason, rows written.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
@@ -61,23 +67,31 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
   const resumed = saved && Array.isArray(saved.pending) && saved.pending.length > 0 && nowDate.getTime() - Date.parse(saved.passStartedAt) < PASS_MAX_AGE_MS ? saved : null;
   const state: Cursor = resumed ? { ...resumed } : { pending: [...STEPS], listSkip: 0, passStartedAt: now };
 
-  const stats = { siListed: 0, siWritten: 0, flagsWritten: 0, treatiesListed: 0, treatiesWritten: 0, siTimelines: 0, treatyTimelines: 0, noAnswer: [] as string[], backlogLeft: null as number | null };
+  const stats = { siListed: 0, siWritten: 0, flagsWritten: 0, treatiesListed: 0, treatiesWritten: 0, siTimelines: 0, treatyTimelines: 0, noAnswer: [] as string[], skipped: [] as { path: string; reason: string }[], backlogLeft: null as number | null };
   let answered = 0;
   let failure: { status: number; error: string } | null = null;
   let stoppedByBudget = false;
+  let rateLimited = false;
 
   // ---- helpers ----
+  const path = (url: string) => url.replace(/^https:\/\/[^/]+/, '');
+  // A step leaves the pass only when it is complete. Each step runs while it is pending, so a list page skipped after an
+  // error answer does not hold back the steps after it (7 Nov 2026, K2).
+  const done = (step: Step) => { state.pending = state.pending.filter((x) => x !== step); };
   const timeout = () => Math.min(API_TIMEOUT_MS, left() - RESERVE_MS);
   async function call<T>(url: string): Promise<T | null | 'budget'> {
-    if (timeout() < 3_000) return 'budget';
+    if (rateLimited || timeout() < 3_000) return 'budget';
     try {
       const r = await api.get<T>(url, timeout());
-      if (r === null) { stats.noAnswer.push(url.replace(/^https:\/\/[^/]+/, '')); return null; }
+      if (r === null) { stats.noAnswer.push(path(url)); stats.skipped.push({ path: path(url), reason: 'timeout' }); return null; }
       answered++;
       return r;
     } catch (e) {
-      failure = { status: 502, error: (e as Error).message };
-      throw e;
+      const last = api.calls[api.calls.length - 1];
+      if (last?.url === url && last.status === 429) { rateLimited = true; return 'budget'; }
+      const reason = typeof last?.status === 'number' && last.url === url ? `HTTP ${last.status}` : `network error: ${(e as Error).message}`;
+      stats.skipped.push({ path: path(url), reason });
+      return null;
     }
   }
   async function upsert(table: string, rows: Record<string, unknown>[]): Promise<boolean> {
@@ -99,7 +113,7 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
 
   try {
     // 1. Newest SI list pages, back to the window start.
-    if (state.pending[0] === 'si-list') {
+    if (state.pending.includes('si-list')) {
       for (let pages = 0; pages < MAX_LIST_PAGES; pages++) {
         const r = await call<ApiList<ApiSi>>(`${SI_API}/StatutoryInstrument?Take=${LIST_PAGE}&Skip=${state.listSkip}`);
         if (r === 'budget') { stoppedByBudget = true; break; }
@@ -122,12 +136,12 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
         stats.siWritten += changed.length;
         state.listSkip += LIST_PAGE;
         const oldest = rows.map((x) => x.laid_date).filter(Boolean).sort()[0];
-        if (items.length < LIST_PAGE || (oldest && oldest < windowStart)) { state.pending.shift(); state.listSkip = 0; break; }
+        if (items.length < LIST_PAGE || (oldest && oldest < windowStart)) { done('si-list'); state.listSkip = 0; break; }
       }
     }
 
     // 2. The API's flag lists over the window (one or two pages each).
-    if (!failure && !stoppedByBudget && state.pending[0] === 'si-flags') {
+    if (!failure && !stoppedByBudget && state.pending.includes('si-flags')) {
       let complete = true;
       for (const [filter, col] of [['MotionToStop', 'prayed_against'], ['ConcernsRaisedByCommittee', 'committee_concerns']] as const) {
         const ids: string[] = [];
@@ -153,11 +167,11 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
         if (failure) break;
         stats.flagsWritten += updates.length;
       }
-      if (complete && !failure) state.pending.shift();
+      if (complete && !failure) done('si-flags');
     }
 
     // 3. Newest treaties.
-    if (!failure && !stoppedByBudget && state.pending[0] === 'treaty-list') {
+    if (!failure && !stoppedByBudget && state.pending.includes('treaty-list')) {
       const r = await call<ApiList<ApiTreaty>>(`${TREATY_API}/Treaty?Take=${TREATY_PAGE}`);
       if (r === 'budget') stoppedByBudget = true;
       else if (r !== null) {
@@ -167,13 +181,13 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
         if (old) {
           const keys = ['title', 'command_paper', 'signed_date', 'laid_date', 'lead_department', 'laying_department', 'scrutiny_concluded', 'conclusion', 'govuk_url'] as const;
           const changed = rows.filter((x) => { const o = old.get(x.api_id); return !o || keys.some((k) => (o[k] ?? null) !== (x[k] ?? null)); });
-          if (!changed.length || (await upsert('treaties', changed))) { stats.treatiesWritten = changed.length; state.pending.shift(); }
+          if (!changed.length || (await upsert('treaties', changed))) { stats.treatiesWritten = changed.length; done('treaty-list'); }
         }
       }
     }
 
     // 4. Timelines, one record at a time, as far as the budget allows.
-    if (!failure && !stoppedByBudget && state.pending[0] === 'timelines') {
+    if (!failure && !stoppedByBudget && state.pending.includes('timelines')) {
       const refreshBefore = new Date(nowDate.getTime() - REFRESH_DAYS * 86400_000).toISOString();
       const queue: { kind: 'si' | 'treaty'; id: string }[] = [];
       const q = async (table: string, build: (b: ReturnType<SupabaseClient['from']>) => PromiseLike<{ data: unknown; error: { message: string } | null }>, kind: 'si' | 'treaty') => {
@@ -216,7 +230,7 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
           stats.treatyTimelines++;
         }
       }
-      if (!failure && !stoppedByBudget) state.pending.shift();
+      if (!failure && !stoppedByBudget) done('timelines');
       const { count } = await supabase.from('statutory_instruments').select('api_id', { count: 'exact', head: true }).is('timeline_fetched_at', null);
       stats.backlogLeft = count ?? null;
     }
@@ -235,12 +249,19 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
   }
 
   const upserted = stats.siWritten + stats.flagsWritten + stats.treatiesWritten + stats.siTimelines + stats.treatyTimelines;
+  const errorAnswers = stats.skipped.filter((x) => x.reason !== 'timeout').length;
+  const allFailed = answered === 0 && api.calls.length > 0 && !rateLimited;
   const body = {
-    ok: !failure, partial: state.pending.length > 0, stoppedByBudget, resumed: !!resumed, passStartedAt: state.passStartedAt,
+    ok: !failure && !allFailed, partial: state.pending.length > 0, stoppedByBudget, rateLimited, resumed: !!resumed, passStartedAt: state.passStartedAt,
     stepsLeft: state.pending, cursorSaved, ...stats, upserted, requests: api.calls.length, durationMs: Date.now() - started, syncedAt: now,
     ...(failure ? { error: (failure as { error: string }).error } : {}),
   };
+  // One line per run, so the runtime log keeps what happened (the response body is not logged anywhere else).
+  const reasons = Object.entries(stats.skipped.reduce<Record<string, number>>((m, x) => ({ ...m, [x.reason]: (m[x.reason] ?? 0) + 1 }), {}))
+    .map(([r, n]) => `${n} ${r}`).join(', ');
+  log(`calls ${api.calls.length}, answered ${answered}, skipped ${stats.skipped.length}${reasons ? ` (${reasons})` : ''}${rateLimited ? ', stopped by a 429' : ''}, rows written ${upserted}`
+    + `${stats.skipped.length ? `; first skipped ${stats.skipped[0].path}` : ''}${state.pending.length ? `; steps left ${state.pending.join(', ')}` : ''}${failure ? `; error ${(failure as { error: string }).error}` : ''}`);
   if (failure) return { status: (failure as { status: number }).status, body };
-  if (answered === 0 && api.calls.length > 0) return { status: 504, body: { ...body, ok: false, error: 'no API answered within the time limit' } };
+  if (allFailed) return { status: errorAnswers ? 502 : 504, body: { ...body, error: errorAnswers ? 'every API call failed' : 'no API answered within the time limit' } };
   return { status: 200, body };
 }
