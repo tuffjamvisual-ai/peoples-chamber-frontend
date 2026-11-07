@@ -16,6 +16,12 @@
 // pac_recommendations by report and rec number) and reads its one status row (about 12 ms), plus the rows of any
 // recommendations it was split into; wording(rows) takes those rows instead of the whole list. effectiveStatus is
 // applied exactly as in allStatus. List and summary pages still use allStatus (one cached whole-view read).
+//
+// 7 Nov 2026 (owner, K1): the one-row read was not 12 ms. The view works out every recommendation before it filters, so a
+// read by id cost as much as the whole list: 2,443 by-id reads averaged 1.0 s (max 7.9 s, pg_stat_statements), and a
+// build failed on the 8 s timeout. Detail pages now take their rows from the cached whole list (allStatus, one view read
+// a day, shared through the data cache) and match the recommendation by session, report and number. Nothing visible
+// changes. See recommendationDetail for why it is not itself wrapped in unstable_cache.
 import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
@@ -96,54 +102,40 @@ export type RecommendationDetail = {
   parts: StatusRow[]; // the status rows of the recommendations this one was split into (for the wording), else none
 };
 
-// Status rows for these recommendation ids, read from the view by id (each about 12 ms) with effectiveStatus applied,
-// as allStatus does for the whole list.
-async function statusRowsById(ids: number[]): Promise<StatusRow[]> {
-  if (!ids.length) return [];
-  const { data, error } = await db().from('pac_recommendation_status').select(STATUS_COLUMNS).in('recommendation_id', ids);
-  if (error) throw new Error(`pac: reading pac_recommendation_status for ${ids.join(', ')}: ${error.message}`);
-  const today = new Date();
-  return ((data ?? []) as unknown as StatusRow[]).map((r) => ({ ...r, status: effectiveStatus(r, today) }));
-}
-
-// The ids of a report's recommendations with these numbers: two indexed reads (pac_reports by session and report
-// number, pac_recommendations by report and rec number).
-async function recommendationIds(session: string, report: number, recs: string[]): Promise<number[]> {
-  const client = db();
-  const rep = await client.from('pac_reports').select('id').eq('session', session).eq('report_number', report).maybeSingle();
-  if (rep.error) throw new Error(`pac: reading pac_reports ${session}/${report}: ${rep.error.message}`);
-  if (!rep.data || !recs.length) return [];
-  const recRows = await client.from('pac_recommendations').select('id').eq('report_id', (rep.data as { id: number }).id).in('rec_number', recs);
-  if (recRows.error) throw new Error(`pac: reading pac_recommendations ${session}/${report}: ${recRows.error.message}`);
-  return ((recRows.data ?? []) as { id: number }[]).map((r) => r.id);
-}
-
-export const recommendationDetail = unstable_cache(async (session: string, report: number, rec: string): Promise<RecommendationDetail | null> => {
-  const [id] = await recommendationIds(session, report, [rec]);
-  if (id === undefined) return null;
-  const [row] = await statusRowsById([id]);
-  // The view lists every recommendation; a row missing here means it is not shown, as before.
-  if (!row || row.session !== session || row.report_number !== report || row.rec_number !== rec) return null;
-  const parts = row.split_into?.length ? await statusRowsById(await recommendationIds(session, report, row.split_into)) : [];
+// One recommendation's own records: its text, its events and the evidence of delivery, cached for a day by id.
+type DetailRecords = Pick<RecommendationDetail, 'conclusion' | 'recommendation' | 'events' | 'evidence'>;
+const detailRecords = unstable_cache(async (id: number): Promise<DetailRecords> => {
   const docs = new Map((await allDocuments()).map((d) => [d.id, d]));
   const client = db();
   const [text, events, evidence] = await Promise.all([
-    client.from('pac_recommendations').select('conclusion_text, recommendation_text').eq('id', row.recommendation_id).maybeSingle(),
-    client.from('pac_recommendation_events').select(EVENT_COLUMNS).eq('recommendation_id', row.recommendation_id),
-    client.from('pac_delivery_evidence').select('id, delivered_on, evidence_title, evidence_url, publisher, note').eq('recommendation_id', row.recommendation_id).order('delivered_on'),
+    client.from('pac_recommendations').select('conclusion_text, recommendation_text').eq('id', id).maybeSingle(),
+    client.from('pac_recommendation_events').select(EVENT_COLUMNS).eq('recommendation_id', id),
+    client.from('pac_delivery_evidence').select('id, delivered_on, evidence_title, evidence_url, publisher, note').eq('recommendation_id', id).order('delivered_on'),
   ]);
-  for (const r of [text, events, evidence]) if (r.error) throw new Error(`pac: reading recommendation ${row.recommendation_id}: ${r.error.message}`);
+  for (const r of [text, events, evidence]) if (r.error) throw new Error(`pac: reading recommendation ${id}: ${r.error.message}`);
   const t = text.data as { conclusion_text: string | null; recommendation_text: string | null } | null;
   return {
-    row,
     conclusion: t?.conclusion_text ?? null,
     recommendation: t?.recommendation_text ?? null,
     events: ((events.data ?? []) as unknown as EventRow[]).map((e) => ({ ...e, document: docs.get(e.document_id)! })).filter((e) => e.document)
       .sort((a, b) => a.document.published_on.localeCompare(b.document.published_on)),
     evidence: (evidence.data ?? []) as Evidence[],
-    parts,
   };
-}, ['pac-recommendation-v5'], { tags: ['pac'], revalidate: DAY });
+}, ['pac-recommendation-records-v1'], { tags: ['pac'], revalidate: DAY });
+
+// A recommendation page's data (7 Nov 2026, K1). Its status row, and the rows of any recommendations it was split into,
+// come from the cached whole list (allStatus), matched by session, report and number. This function is deliberately not
+// wrapped in unstable_cache: Next.js skips the cache for an unstable_cache called inside another one, so the whole list
+// was read from the view afresh for every page. Only its own records are cached by id (detailRecords).
+export async function recommendationDetail(session: string, report: number, rec: string): Promise<RecommendationDetail | null> {
+  const rows = await allStatus();
+  const sameReport = rows.filter((r) => r.session === session && r.report_number === report);
+  // The view lists every recommendation; a row missing here means it is not shown, as before.
+  const row = sameReport.find((r) => r.rec_number === rec);
+  if (!row) return null;
+  const parts = row.split_into?.length ? sameReport.filter((r) => row.split_into!.includes(r.rec_number)) : [];
+  return { row, parts, ...(await detailRecords(row.recommendation_id)) };
+}
 
 // ---------- bodies: one canonical name per body named in pac_reports.department, and its department page (if any).
 // A report can name several bodies. A body's current name is shown; a report filed under an earlier name also shows
