@@ -29,7 +29,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = purpose
     ? (() => {
       const said = purpose.match(/[^.!?]+[.!?]+(?=\s|$)/g)?.map((x) => x.trim()) ?? [purpose];
-      return wholeSentences([said[0], parents.length ? `Parent department: ${parents.join(', ')}.` : null, ...said.slice(1)]);
+      // GOV.UK's purpose in the first person ("We are…", "We…", "Our…") would read as opengovt speaking (owner, 7 Nov 2026,
+      // L5), so it is attributed with GOV.UK's words exact inside the quote marks: "We are X." becomes <name> says it is
+      // "X.", any other first person sentence "In its own words: "…"". Later first person sentences are left out.
+      const firstPerson = (x: string) => /^(We|Our|We're|We’re)\b/.test(x);
+      const lead = /^We are /.test(said[0]) ? `${agency.name} says it is "${said[0].slice('We are '.length)}"`
+        : firstPerson(said[0]) ? `In its own words: "${said[0]}"` : said[0];
+      // An attributed quote over 160 characters would be cut inside its quote marks, so the agency's profile sentence is used.
+      if (lead.length > 160) return `${agency.name}, UK government agency profile: ministers, board, parent department and recent activity.`;
+      return wholeSentences([lead, parents.length ? `Parent department: ${parents.join(', ')}.` : null, ...said.slice(1).filter((x) => !firstPerson(x))]);
     })()
     : `${agency.name}, UK government agency profile: ministers, board, parent department and recent activity.`;
   return {
