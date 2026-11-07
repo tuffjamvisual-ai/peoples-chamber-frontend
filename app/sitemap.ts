@@ -5,6 +5,7 @@ import { departments } from '@/lib/departments';
 import { allEditorials } from '@/lib/editorials-source';
 import { pmqsSet } from '@/lib/pmqs';
 import { archiveSessions } from '@/lib/pmqs-archive';
+import { STANDARDS } from '@/lib/standards-cases';
 import { allPetitions } from '@/lib/petition-pages';
 import { allConstituencies } from '@/lib/constituency-pages';
 import { edmSitemapRows } from '@/lib/edm-pages';
@@ -118,6 +119,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/bills`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/mps`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/pmqs`, changeFrequency: 'monthly', priority: 0.6 },
+    // The Commissioner for Standards cases (T1): dated by the day the lists were collected (lib/data/standards-cases.json).
+    { url: `${SITE}/standards`, lastModified: new Date(`${STANDARDS.collected}T00:00:00Z`), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITE}/lords`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/departments`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/transparency`, changeFrequency: 'daily', priority: 0.8 },

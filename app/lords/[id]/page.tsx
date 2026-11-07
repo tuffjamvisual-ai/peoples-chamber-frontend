@@ -10,6 +10,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
 import PhoneFolds, { type Fold } from '../../components/PhoneFolds';
 import RecordDate from '../../components/RecordDate';
+import StandardsCasesLine from '../../components/StandardsCasesLine';
 import { longDay, updatedDate } from '@/lib/record-dates';
 import { getPeer, peerInterests, peerVoting, lordsDivisionUrl, type Peer } from '@/lib/lords';
 import { peerHasPage, parliamentProfileUrl, parliamentRegisterUrl, type Post } from '@/lib/peers';
@@ -242,6 +243,9 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
           </p>
         </div>
       </header>
+
+      {/* Commissioner for Standards cases (owner, 7 Nov 2026, T1): one line, at every width, for a member with any. */}
+      <StandardsCasesLine memberId={memberId} style={{ marginTop: '12px' }} />
 
       {/* Under 480px each section folds away, as on MP pages; from 480px up they read as before. */}
       <PhoneFolds folds={folds} />

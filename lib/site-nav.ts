@@ -32,6 +32,7 @@ export const NAV: NavItem[] = [
     { group: 'Parliament', label: 'Select Committees', href: '/committees', desc: 'Current membership of the 29 House of Commons select committees, from UK Parliament.' },
     { group: 'Parliament', label: 'Commons Debates', href: '/debates', desc: 'Every debate held in the House of Commons this Parliament, by date and section.' },
     { group: 'Parliament', label: 'Early Day Motions', href: '/edms', desc: 'Every early day motion tabled in the House of Commons this Parliament, with its text, sponsors, signatures and amendments.' },
+    { group: 'Parliament', label: 'Standards Cases', href: '/standards', desc: 'Decisions published by the Parliamentary Commissioner for Standards: allegations rectified, not upheld and reported to the Committee on Standards.' },
     { group: 'Parliament', label: 'Petitions', href: '/petitions', desc: 'Every UK Parliament petition this Parliament with 10,000 signatures or more: the government response, any debate, and signatures by constituency.' },
     { group: 'Parliament', label: 'Divisions', href: '/divisions', desc: 'Recorded votes in the House of Commons back to October 2004, with how the House divided.' },
     { group: 'Parliament', label: 'Press Releases', href: '/transparency/press-releases', desc: 'UK Government department press releases from 2007 to today, plus Commons select committee reports.' },

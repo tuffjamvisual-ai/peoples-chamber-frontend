@@ -2,6 +2,7 @@
 // heading style as a former member's full profile in MpDossier ("Former MP for X (2015 to 2024)"), with every seat
 // held and the dates, from Parliament's Members API. The full Parliament record is linked as the source. Any Standards
 // findings follow (3 Nov 2026).
+import StandardsCasesLine from '../../components/StandardsCasesLine';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
@@ -43,6 +44,8 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
           {mp.party}
         </div>
       )}
+
+      <StandardsCasesLine memberId={mp.memberId} />
 
       <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>

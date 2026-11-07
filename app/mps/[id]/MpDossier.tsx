@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import StandardsCasesLine from '../../components/StandardsCasesLine';
 import Link from 'next/link';
 import MagazineProfileSections from './MagazineProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -216,6 +217,9 @@ export default function MpDossier({
           )}
         </div>
       </div>
+
+      {/* Commissioner for Standards cases (owner, 7 Nov 2026, T1): one line, at every width, for a member with any. */}
+      <StandardsCasesLine memberId={memberId} />
 
       {/* Full interactive profile sections (scaled up via zoom to restore text size). */}
       <div className="pca-sections" style={{ zoom: 1.18 }}>
