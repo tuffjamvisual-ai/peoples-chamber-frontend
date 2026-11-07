@@ -3,11 +3,14 @@
 //      -> rendered with the shared EditorialArticle renderer.
 //   2. The DB `briefings` table (cron-generated), published rows with a publish date only.
 // Anything matching neither 404s.
+// A piece in the registry that is not a briefing (an ordinary editorial) goes permanently to /editorials/<slug> (owner,
+// 7 Nov 2026, K4; Search Console: /briefings/ck8m2wq7x3 and /briefings/rm9x2qk7v4 were 404s, Google chose the
+// /editorials address). No slug is both an editorial and a database briefing (checked 7 Nov 2026).
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
 import { titleWithin } from '@/lib/seo-title';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
 import BriefingArticle, { type BriefingRow } from './BriefingArticle';
 import { getEditorial } from '@/lib/editorials-source';
@@ -43,6 +46,7 @@ function searchTitle(headline: string): Metadata['title'] {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const piece = await getEditorial(slug);
+  if (piece && piece.kind !== 'briefing') permanentRedirect(`/editorials/${slug}`);
   if (piece && piece.kind === 'briefing') {
     return {
       title: searchTitle(piece.headline),
@@ -66,6 +70,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
 
   // 1. File-based briefing.
   const piece = (await getEditorial(slug)) as EditorialEntry | undefined;
+  if (piece && piece.kind !== 'briefing') permanentRedirect(`/editorials/${slug}`);
   if (piece && piece.kind === 'briefing') {
     return <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/briefings" />;
   }
