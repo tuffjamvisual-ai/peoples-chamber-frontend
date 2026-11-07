@@ -2,6 +2,7 @@ import Image from 'next/image';
 import StandardsCasesLine from '../../components/StandardsCasesLine';
 import Link from 'next/link';
 import MagazineProfileSections from './MagazineProfileSections';
+import StaffInterestsLine from './StaffInterestsLine';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
@@ -153,7 +154,9 @@ export default function MpDossier({
               width={260}
               height={260}
               priority
-              sizes="260px"
+              // The width it shows at (owner, 7 Nov 2026, Z2), so phones fetch a small copy: 72px under 640px, 200px to 760px,
+              // 260px above (turned 12 degrees there, so it measures about 308px across). Keep in step with the media rules above.
+              sizes="(max-width: 639.98px) 72px, (max-width: 760px) 200px, 260px"
               style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
             />
           ) : (
@@ -220,6 +223,8 @@ export default function MpDossier({
 
       {/* Commissioner for Standards cases (owner, 7 Nov 2026, T1): one line, at every width, for a member with any. */}
       <StandardsCasesLine memberId={memberId} />
+      {/* Staff interests (owner, 7 Nov 2026, Z2): one line beside the standards line, for an MP with entries in the latest edition. */}
+      <StaffInterestsLine items={sections.staffInterests ?? []} />
 
       {/* Full interactive profile sections (scaled up via zoom to restore text size). */}
       <div className="pca-sections" style={{ zoom: 1.18 }}>
