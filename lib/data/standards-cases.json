@@ -4,7 +4,7 @@
  "licence": "Open Parliament Licence",
  "collected": "2026-11-07",
  "collector": "Cowork (from the Commissioner's published lists, 6 and 7 November 2026)",
- "matching": "Each person linked to a member id through Parliament's Members API: honorifics and post-nominals removed; a link only where exactly one member has that name, now or earlier, and sat in that House during the period (Claude outputs/standards-cases/matches.csv).",
+ "matching": "Each person linked to a member id through Parliament's Members API: honorifics and post-nominals removed, and obvious typos fixed for matching only (the names shown stay as the Commissioner printed them). A link counts where exactly one member with that name, now or earlier, sat in that House at or before the period listed (owner, 7 Nov 2026: a decision is often published after the conduct it covers, so the member may have left by then). Claude outputs/standards-cases/matches.csv.",
  "cases": [
   {
    "outcome": "Rectified",
@@ -1590,9 +1590,9 @@
    "people": [
     {
      "listed": "Ms Laura Pidcock MP",
-     "memberId": null,
-     "house": null,
-     "slug": null
+     "memberId": 4665,
+     "house": "Commons",
+     "slug": "laura-pidcock"
     }
    ]
   },
@@ -2334,9 +2334,9 @@
    "people": [
     {
      "listed": "Andrew Bridgen",
-     "memberId": null,
-     "house": null,
-     "slug": null
+     "memberId": 4133,
+     "house": "Commons",
+     "slug": "andrew-bridgen"
     }
    ]
   },
@@ -2673,9 +2673,9 @@
    "people": [
     {
      "listed": "Mr Stephen Pound MP",
-     "memberId": null,
-     "house": null,
-     "slug": null
+     "memberId": 161,
+     "house": "Commons",
+     "slug": "stephen-pound"
     }
    ]
   },

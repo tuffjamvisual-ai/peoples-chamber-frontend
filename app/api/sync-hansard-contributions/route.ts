@@ -18,8 +18,8 @@ export const maxDuration = 300;
 // NOT to be confused with /api/sync-mp-contributions, which writes the separate
 // mp_contribution_totals (activity aggregates).
 //
-// Upserts on the existing UNIQUE (member_id, debate_website_id) — no dedup
-// problem. MPs are processed stalest-first (RPC mp_contributions_stalest) within
+// Upserts on the existing UNIQUE (member_id, debate_website_id), one row per key
+// in each batch (see the dedupe in syncMp). MPs are processed stalest-first (RPC mp_contributions_stalest) within
 // a time budget, upserting per MP so progress persists if the budget is hit; the
 // remainder is picked up next run.
 //
@@ -113,7 +113,7 @@ async function GET_impl(req: Request) {
     processed++;
     if (items.length) withData++;
 
-    const rows = items.slice(0, 20).map((it: any) => {
+    const listed = items.slice(0, 20).map((it: any) => {
       const v = it.value || {};
       const hansard = (it.links || []).find((l: any) => /hansard/i.test(l.href || ''))?.href || null;
       return {
@@ -135,6 +135,16 @@ async function GET_impl(req: Request) {
       };
     // debate_website_id is the conflict key — a null one can't be deduped, so drop it.
     }).filter((r) => r.debate_website_id != null);
+    // One row per conflict key in a batch (owner, 7 Nov 2026, U1): Parliament's API can give two sittings the same
+    // debateWebsiteId (75C8A826-… is PMQs "Engagements" on both 21 October and 4 November 2026), and an upsert holding a key
+    // twice fails for the whole MP ("ON CONFLICT DO UPDATE command cannot affect row a second time"). The newest sitting is kept.
+    const byKey = new Map<string, (typeof listed)[number]>();
+    for (const r of listed) {
+      const key = String(r.debate_website_id);
+      const had = byKey.get(key);
+      if (!had || (r.sitting_date ?? '') > (had.sitting_date ?? '')) byKey.set(key, r);
+    }
+    const rows = [...byKey.values()];
 
     if (rows.length) {
       const { data: old } = await supabase.from('mp_contributions').select('*').eq('member_id', id).in('debate_website_id', rows.map((r) => r.debate_website_id));

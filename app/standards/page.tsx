@@ -50,11 +50,18 @@ function ListedName({ c }: { c: StandardsCase }) {
   return <>{out}</>;
 }
 
-function CaseItem({ c, showOutcome = false }: { c: StandardsCase; showOutcome?: boolean }) {
+// Each case once on the page, with an id the member blocks point to (c-<its place in the list>).
+const caseId = (c: StandardsCase) => `c-${STANDARDS.cases.indexOf(c) + 1}`;
+// The address of a case: its page of 25 within its period when that is not the first.
+function caseHref(c: StandardsCase): string {
+  const inGroup = STANDARDS.cases.filter((x) => x.outcome === c.outcome && x.period === c.period);
+  const page = Math.floor(inGroup.indexOf(c) / PER_PAGE) + 1;
+  return page > 1 ? `/standards?${OUTCOME_KEY[c.outcome]}-${c.period}=${page}#${caseId(c)}` : `#${caseId(c)}`;
+}
+function CaseItem({ c }: { c: StandardsCase }) {
   return (
-    <li>
+    <li id={caseId(c)}>
       <div style={{ fontWeight: 'bold' }}><ListedName c={c} /></div>
-      {showOutcome && <div>{SECTION_TITLE[c.outcome]}, {c.period}</div>}
       <a href={c.documentUrl} rel="noopener" style={tap}>{readLabel(c)}</a>
     </li>
   );
@@ -88,13 +95,6 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
           for Standards, UK Parliament. Lists collected on 7 November 2026.
         </p>
 
-        {/* One block per matched member, shown only when the address names it (/standards#nigel-farage), with or without JavaScript. */}
-        {members.map((m) => (
-          <section key={m.slug} id={m.slug} className="sc-member" aria-label={`Cases naming ${m.listed}`}>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 6px' }}>{m.listed}</h2>
-            <ul className="sc-list">{m.cases.map((c, i) => <CaseItem key={i} c={c} showOutcome />)}</ul>
-          </section>
-        ))}
 
         {OUTCOMES.map((outcome, si) => {
           const groups = byPeriodNewestFirst(STANDARDS.cases.filter((c) => c.outcome === outcome));
@@ -124,7 +124,7 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
                 return (
                   <details key={g.period} id={key} className="pa-fold" open={(si === 0 && gi === 0) || page > 1}>
                     <summary>{g.period}: {g.items.length} {g.items.length === 1 ? 'case' : 'cases'}</summary>
-                    <ul className="sc-list">{shown.map((c, i) => <CaseItem key={i} c={c} />)}</ul>
+                    <ul className="sc-list">{shown.map((c) => <CaseItem key={caseId(c)} c={c} />)}</ul>
                     {pages > 1 && (
                       <nav className="sc-pager" aria-label={`${SECTION_TITLE[outcome]}, ${g.period}, pages`}>
                         {page > 1 && <Link href={pageHref(page - 1)} prefetch={false} style={tap}>Previous</Link>}
@@ -138,6 +138,15 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
             </section>
           );
         })}
+        {/* One block per matched member, shown only when the address names it (/standards#nigel-farage), with or without JavaScript.
+            It points to the member's cases above rather than repeating them, and sits at the end so that hiding it again moves nothing above it; a browser opens the fold a case sits in when it is
+            linked to, with or without JavaScript. */}
+        {members.map((m) => (
+          <section key={m.slug} id={m.slug} className="sc-member" aria-label={`Cases naming ${m.listed}`}>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 6px' }}>{m.listed}</h2>
+            <ul className="sc-list">{m.cases.map((c) => <li key={caseId(c)}><a href={caseHref(c)} style={tap}>{SECTION_TITLE[c.outcome]}, {c.period}</a></li>)}</ul>
+          </section>
+        ))}
       </div>
     </OpenGovShell>
   );
