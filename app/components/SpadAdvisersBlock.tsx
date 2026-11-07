@@ -45,7 +45,7 @@ export default function SpadAdvisersBlock({ rows, release, interests = {}, leftO
         ))}
       </ul>
       <p style={{ margin: '8px 0 0' }}>
-        <Link href={`/transparency/special-advisers?minister=${memberId}#${SPAD_LIST_ANCHOR}`} style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>All special advisers and their ministers →</Link>
+        <Link href={`/transparency/special-advisers?minister=${memberId}#${SPAD_LIST_ANCHOR}`} className="og-tap" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>All special advisers and their ministers →</Link>
       </p>
       <SpadSource slug={release.release_slug} url={release.source_url} />
     </section>

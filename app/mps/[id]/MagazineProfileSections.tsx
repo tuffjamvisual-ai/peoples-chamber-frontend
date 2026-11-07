@@ -21,7 +21,12 @@ import PhoneFolds from '../../components/PhoneFolds';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
 import AppgSource, { appgAmount } from '../../components/AppgSource';
 import StaffInterests, { type StaffInterest } from './StaffInterests';
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { pagesByHeight } from '@/app/components/NoJsPager';
+
+// MP page folds on phones (owner, 7 Nov 2026, PF2): every long list in a fold pages under 640px, with JavaScript on as well
+// as off (NoJsPager always), so opening any one fold leaves the page at 10,000px or less. Rows of very different lengths
+// (register entries, bill summaries) page by estimated height at 375px: about 36 characters a line of 25px.
+const phoneRowPx = (...texts: (string | null | undefined)[]) => 40 + texts.reduce((px, s) => px + Math.ceil(((s ?? '').length || 1) / 36) * 25, 0);
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
 
@@ -1249,6 +1254,7 @@ export default function MagazineProfileSections({
           <>
             <h2 style={sectionH2}>Bills Sponsored</h2>
             <SectionUpdated date={lastUpdated.bills} />
+            <NoJsPager id="bills-sponsored" always count={sponsoredBills.length} rows="> li" sizes={pagesByHeight(sponsoredBills.map((b) => phoneRowPx(b.title, b.current_stage, billSummary(b))), 1200)}>
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
               {sponsoredBills.map((b) => (
                 <li key={b.id} style={{ padding: '12px 0', borderBottom: inkDivider }}>
@@ -1266,6 +1272,7 @@ export default function MagazineProfileSections({
                 </li>
               ))}
             </ul>
+            </NoJsPager>
           </>
         )}
 
@@ -1284,6 +1291,7 @@ export default function MagazineProfileSections({
                 <span > in the last year</span>
               </p>
             )}
+            <NoJsPager id="house-debates" always count={contributions.length} rows="> li" size={10}>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {contributions.map((c, i) => {
                 const chips: string[] = [];
@@ -1311,6 +1319,7 @@ export default function MagazineProfileSections({
                 );
               })}
             </ul>
+            </NoJsPager>
             {pmqsQuestions.prime_minister + pmqsQuestions.standing_in === 0 && pmqsQuestions.asked > 0 && (
               <p style={{ fontSize: '15px', margin: '16px 0 0', color: '#14100d' }}>
                 <strong>Questions at PMQs: {pmqsQuestions.asked.toLocaleString('en-GB')}</strong>{' '}
@@ -1371,6 +1380,7 @@ export default function MagazineProfileSections({
                   <p style={note}>No petition from this constituency has reached 10,000 signatures yet.</p>
                 ) : (
                   <>
+                    <NoJsPager id="petitions-local" always count={list.length} rows="> li" size={10}>
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                       {list.map((p) => (
                         <li key={p.petitionId} style={{ padding: '12px 0', borderBottom: inkDivider }}>
@@ -1386,6 +1396,7 @@ export default function MagazineProfileSections({
                         </li>
                       ))}
                     </ul>
+                    </NoJsPager>
                     {petitionsAnswer.checkedOn && (
                       <p style={note}>
                         Counts for closed petitions are final. Open petitions are checked daily, most recently on {fmtDate(petitionsAnswer.checkedOn)}. Source: UK Parliament Petitions (petition.parliament.uk).
@@ -1427,13 +1438,15 @@ export default function MagazineProfileSections({
             return (
               <>
                 <h3 style={sectionH3}>{label} · {fmtNum(total)}</h3>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>{open.map(item)}</ul>
+                <NoJsPager id={`edms-open-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`} always count={open.length} rows="> li" size={10}>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>{open.map(item)}</ul>
+                </NoJsPager>
                 {rest.length > 0 && (
                   <details style={{ marginTop: '10px' }}>
                     <summary style={{ fontSize: '15px', fontWeight: 'bold', color: '#7a1612', cursor: 'pointer' }}>
                       Show {fmtNum(rest.length)} more
                     </summary>
-                    <NoJsPager id={`edms-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`} count={rest.length} rows="> li">
+                    <NoJsPager id={`edms-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`} always count={rest.length} rows="> li" size={10}>
                       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>{rest.map(item)}</ul>
                     </NoJsPager>
                   </details>
@@ -1529,9 +1542,11 @@ export default function MagazineProfileSections({
                   <h3 style={{ ...sectionH3, marginTop: '8px' }}>
                     {b.label} <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({b.rows.length})</span>
                   </h3>
+                  <NoJsPager id={`interests-${b.key}`} always count={b.rows.length} rows="> li" sizes={pagesByHeight(b.rows.map((i) => phoneRowPx(i.category_name, i.interest_text, ...(Array.isArray(i.child_interests) ? i.child_interests.map((c) => c.interest) : []))), Math.max(800, Math.floor(3500 / grouped.length)))}>
                   <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
                     {b.rows.map((i, idx) => renderRow(i, idx))}
                   </ul>
+                  </NoJsPager>
                 </section>
               ))}
               {formerInterests.length > 0 && (
@@ -1544,7 +1559,7 @@ export default function MagazineProfileSections({
                   <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '8px 0' }}>
                     Entries that appeared in the Register of Members&rsquo; Financial Interests published since March 2024 but are no longer listed.
                   </p>
-                  <NoJsPager id="interests-former" count={formerInterests.length} rows="> li">
+                  <NoJsPager id="interests-former" always count={formerInterests.length} rows="> li" sizes={pagesByHeight(formerInterests.map((i) => phoneRowPx(i.category_name, i.interest_text, i.last_seen_date)), 1500)}>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: '1.7' }}>
                     {formerInterests.map((i, idx) => (
                       <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
@@ -2102,7 +2117,7 @@ export default function MagazineProfileSections({
                   The UK&rsquo;s political donation system asks politicians to declare who funds them and trusts them to tell the truth. There is no independent audit of what MPs receive. Donations below £500 need not be declared at all. Unincorporated associations and trusts can donate without revealing who provided the money. A company registered at Companies House with entirely foreign ownership and no UK employees is a permissible donor. Fines for non compliance are low enough to be treated as a cost of doing business. No major reform has been implemented since 2000. The register records what politicians chose to disclose, not what actually happened.
                 </p>
                 <p style={{ margin: '10px 0 0 0', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
-                  <Link href="/explainers/donations" style={{ color: '#7a1612', textDecoration: 'underline' }}>
+                  <Link href="/explainers/donations" className="og-tap" style={{ color: '#7a1612', textDecoration: 'underline' }}>
                     Read the full explainer &rarr;
                   </Link>
                 </p>
@@ -2199,6 +2214,7 @@ export default function MagazineProfileSections({
               )}
 
               <h3 style={sectionH3}>By donor</h3>
+              <NoJsPager id="donations-donors" always count={donorRows.length} rows="> tbody > tr" size={15}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', marginBottom: '20px', tableLayout: 'auto' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
@@ -2281,6 +2297,7 @@ export default function MagazineProfileSections({
                   })}
                 </tbody>
               </table>
+              </NoJsPager>
 
               {sectorCrossRef.length > 0 && (() => {
                 const totalByKey = new Map<string, { total: number; donors: Set<string> }>();
@@ -2448,7 +2465,7 @@ export default function MagazineProfileSections({
                       Top organisations by meeting count
                     </summary>
                     {/* Long fold lists page at 25 on phones with JavaScript off (owner, 7 Nov 2026, PF1), as the register history does. */}
-                    <NoJsPager id="diary-orgs" count={Math.min(topOrgs.length, 50)} rows="> tbody > tr">
+                    <NoJsPager id="diary-orgs" always count={Math.min(topOrgs.length, 50)} rows="> tbody > tr">
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', marginTop: '8px' }}>
                       <thead>
                         <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
@@ -2473,7 +2490,7 @@ export default function MagazineProfileSections({
                     <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
                       Every meeting chronologically
                     </summary>
-                    <NoJsPager id="diary-meetings" count={Math.min(meetings.length, 300)} rows="> li">
+                    <NoJsPager id="diary-meetings" always count={Math.min(meetings.length, 300)} rows="> li">
                     <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: 1.55 }}>
                       {meetings.slice(0, 300).map((m) => (
                         <li key={m.id} style={{ padding: '5px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
