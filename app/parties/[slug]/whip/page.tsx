@@ -164,6 +164,9 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
         .select('member_id, division_date_only, division_number, division_title')
         .eq('party', partyName)
         .eq('is_rebellion', true)
+        // A teller counts the votes and is not rebelling (owner, 7 Nov 2026, K3): the same rule as lib/division-votes.ts
+        // isRebel. The stored flag already leaves tellers out (migration 2026-11-01e); this guards against it returning.
+        .not('is_teller', 'is', true)
         .gte('division_date_only', '2024-07-04')
         .in('member_id', topIds)
         .order('division_date_only', { ascending: false })
