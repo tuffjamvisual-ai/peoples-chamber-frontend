@@ -19,6 +19,7 @@ import { RECOMMENDATIONS_PUBLIC, allStatus, recPath } from '@/lib/pac';
 import { divisionHref, yearHref } from '@/lib/division-links';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import { FORMER_MP_PROFILE_IDS } from '@/lib/former-mp-profile-ids';
+import { divisionLastmod, pmqsDayLastmod } from '@/lib/archive-row-changes';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -171,8 +172,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Every session of Prime Minister's Questions we hold.
   const pmqsEntries: MetadataRoute.Sitemap = await pmqsSet().then((set) => set.sessions.map((p) => ({ url: `${SITE}/pmqs/${p.date}`, ...dated(newest(p.date)), changeFrequency: 'monthly' as const, priority: 0.5 }))).catch(() => []);
 
-  // Every session in the PMQs archive, 1961 to 2024: dated by the session, which does not change.
-  const pmqsArchiveEntries: MetadataRoute.Sitemap = (await archiveSessions()).map((p) => ({ url: `${SITE}/pmqs/${p.date}`, lastModified: new Date(`${p.date}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 }));
+  // Every session in the PMQs archive, 1961 to 2024: the later of the sitting and any correction to its rows (owner, 7 Nov 2026).
+  const pmqsArchiveEntries: MetadataRoute.Sitemap = (await archiveSessions()).map((p) => ({ url: `${SITE}/pmqs/${p.date}`, lastModified: pmqsDayLastmod(p.date), changeFrequency: 'yearly' as const, priority: 0.4 }));
 
   // /questions and each department's page, dated by the latest answer. Individual questions are not listed (owner, 6 Nov 2026).
   const questionStats = await questionDepartmentStats().catch(() => []);
@@ -394,9 +395,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     perYear.set(y, (perYear.get(y) ?? 0) + 1);
     if (d.division_date_only > (newestInYear.get(y) ?? '')) newestInYear.set(y, d.division_date_only);
   }
-  // The archive's year pages and its 2,908 division pages (11 Oct 2004 to 8 Mar 2016), each dated by the vote, which does not change (owner, 7 Nov 2026).
-  const archiveDivisions = await fetchAllRows<{ division_date: string; division_number: number }>('historic_commons_divisions', 'division_date, division_number', (q) => q.order('division_date', { ascending: true }).order('division_number', { ascending: true })).catch(() => []);
-  const archiveDivisionEntries: MetadataRoute.Sitemap = archiveDivisions.map((d) => ({ url: `${SITE}${divisionHref(d.division_date, d.division_number)}`, lastModified: new Date(`${d.division_date.slice(0, 10)}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 }));
+  // The archive's year pages and its 2,908 division pages (11 Oct 2004 to 8 Mar 2016), each dated by the later of the vote and any correction to its row (owner, 7 Nov 2026).
+  const archiveDivisions = await fetchAllRows<{ external_id: string; division_date: string; division_number: number }>('historic_commons_divisions', 'external_id, division_date, division_number', (q) => q.order('division_date', { ascending: true }).order('division_number', { ascending: true })).catch(() => []);
+  const archiveDivisionEntries: MetadataRoute.Sitemap = archiveDivisions.map((d) => ({ url: `${SITE}${divisionHref(d.division_date, d.division_number)}`, lastModified: divisionLastmod(d.external_id, d.division_date), changeFrequency: 'yearly' as const, priority: 0.4 }));
   for (const d of archiveDivisions) {
     const y = Number(String(d.division_date).slice(0, 4));
     perYear.set(y, (perYear.get(y) ?? 0) + 1);
