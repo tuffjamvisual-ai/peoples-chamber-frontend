@@ -13,8 +13,7 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
   DATASETS, getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, grantNavUrl, findTenderUrl, money, fmtDay, buyerLabel,
-  type Dataset,
-} from '@/lib/organisations';
+  type Dataset, getOrgNameBasisNotices } from '@/lib/organisations';
 
 export const revalidate = 86400;
 export function generateStaticParams() { return []; }
@@ -54,6 +53,8 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
     : dataset === 'contracts' ? await getOrgContracts(org.company_number)
     : await getOrgGrants(org);
   if (rows.length === 0) notFound();
+  // Contract notices linked by the supplier name they print, as on the organisation's page (owner, 7 Nov 2026, M2).
+  const byName = dataset === 'contracts' ? await getOrgNameBasisNotices(org.company_number) : [];
   const shown = rows;
 
   return (
@@ -68,6 +69,12 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
         <h1 style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 'bold', lineHeight: 1.2, margin: '0 0 8px', overflowWrap: 'anywhere' }}>{org.name}: {TITLES[dataset].toLowerCase()}</h1>
         <p style={para}>
           {rows.length.toLocaleString('en-GB')} record{rows.length === 1 ? '' : 's'} linked by Companies House number {org.company_number}, newest first.
+          {byName.map((x) => (
+            <span key={x.url}>
+              {' '}{byName.length === 1 ? 'One contract notice' : 'A contract notice'} gave a Companies House number that doesn&rsquo;t exist; it names the
+              supplier as {x.name} and is included on that basis (<a href={x.url} style={{ color: 'inherit', textDecoration: 'underline' }}>the notice on Find a Tender</a>).
+            </span>
+          ))}
           {dataset === 'contracts' && ' Framework values are maximums, not spending.'}
           {dataset === 'donations' && ' Returned, forfeited or deferred donations are marked and are not counted in the totals.'}
         </p>

@@ -1,6 +1,7 @@
 const link = { color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' };
 
-// The credit the licence asks for, word for word (load plan, 6 Nov 2026), at the foot of every page or section showing historic register data.
+// The credit the licence asks for, word for word (load plan, 6 Nov 2026), at the foot of /register-history. Removed from MP pages
+// on the owner's request (7 Nov 2026, M2).
 export default function RegisterCredit() {
   return (
     <p style={{ fontSize: '15px', lineHeight: 1.6, color: '#14100d', margin: '14px 0 0', maxWidth: '46em' }}>

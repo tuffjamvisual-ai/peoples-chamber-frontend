@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import NoJsPager, { pagesByHeight } from '@/app/components/NoJsPager';
-import RegisterCredit from '@/app/components/RegisterCredit';
 import { divisionHref } from '@/lib/division-links';
 import { ARCHIVE_NOTE, HANSARD_LABEL, archiveDate, memberVoteSummary, registerHistory, type RegisterBlock, type RegisterCategory } from '@/lib/historic-archive';
 
@@ -50,7 +49,6 @@ export default async function HistoricRecord({ memberId }: { memberId: number })
             {register.entries.toLocaleString('en-GB')} entries in the Register of Members&rsquo; Financial Interests, from the editions of {archiveDate(register.firstEdition)} to {archiveDate(register.lastEdition)}, as published and in the order published. Listed as {register.names.join(', ')}. Editions before 2004 are few, only 1 or 2 a year. For the current register, see the interests on this page.
           </p>
           {register.categories.map((c, i) => <Category key={c.key} category={c} id={`rh-${i + 1}`} />)}
-          <RegisterCredit />
         </section>
       )}
     </>
