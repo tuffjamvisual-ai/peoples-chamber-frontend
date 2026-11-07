@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { indexNowAfter } from '@/lib/indexnow';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { revalidatePath, revalidateTag, noteChanged } from '@/lib/refresh-count';
 import { PRESS_RELEASES_LATEST_TAG } from '@/lib/press-releases-latest';
@@ -63,6 +64,7 @@ async function GET_impl(req: Request) {
 
     let upserted = 0;
     let pagesRefreshed = 0;
+    const changedNews: string[] = [];
     let added = 0;
     // Releases already stored, so a changed one can have its page refreshed (owner's approval, 29 Oct 2026, cache
     // Stage 1). A new release's own page renders on its first visit, but the lists of the latest releases (the front
@@ -124,7 +126,7 @@ async function GET_impl(req: Request) {
         if (!old) added++;
         if (old && (old.title !== record.title || old.description !== record.description || (body && old.body !== body))) {
           const p = newsPath(govUrl);
-          if (p) { revalidatePath(p); pagesRefreshed++; }
+          if (p) { revalidatePath(p); pagesRefreshed++; changedNews.push(p); }
         }
       } else { writeErrors++; lastWriteError = error.message; }
     }
@@ -133,6 +135,7 @@ async function GET_impl(req: Request) {
     noteChanged(added + pagesRefreshed);
     let latestRefreshed = false;
     if (added > 0) { revalidateTag(PRESS_RELEASES_LATEST_TAG, 'max'); revalidatePath('/'); latestRefreshed = true; }
+    indexNowAfter([...changedNews, ...(added > 0 ? ['/'] : [])], 'sync-press-releases');
     const failuresSaved = await failing.save();
     if (writeErrors > 0 && upserted === 0) {
       return NextResponse.json({ ok: false, error: `press_releases upsert failed: ${lastWriteError}`, upserted }, { status: 500 });

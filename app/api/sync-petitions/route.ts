@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { indexNowAfter } from '@/lib/indexnow';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import {
@@ -135,6 +136,7 @@ async function GET_impl(req: Request) {
   if (!dry && changedIds.length) {
     revalidateTag(PETITIONS_TAG, 'max');
     for (const id of changedIds) revalidatePath(`/petitions/${id}`);
+    indexNowAfter([...changedIds].map((id) => `/petitions/${id}`), 'sync-petitions');
   }
   const body = {
     ok: failures.length === 0,

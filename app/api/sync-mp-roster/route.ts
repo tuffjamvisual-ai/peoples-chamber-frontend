@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { indexNowAfter } from '@/lib/indexnow';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { revalidatePath, noteChanged } from '@/lib/refresh-count';
 import { flagBioReview, ukDate } from '@/lib/bio-review';
@@ -204,7 +205,7 @@ async function fillProfileGaps(supabase: SupabaseClient, dryRun = false) {
     const { error } = await supabase.from('mp_biography').upsert(row, { onConflict: 'member_id', ignoreDuplicates: true });
     if (!error) {
       biographyCreated.push(id);
-      { noteChanged(1); revalidatePath(`/mps/${id}`); }
+      { noteChanged(1); revalidatePath(`/mps/${id}`); indexNowAfter([`/mps/${id}`], 'sync-mp-roster'); }
       await flagBioReview(supabase, id, `New MP with no written biography yet (row created ${ukDate(null)})`);
     }
   }
@@ -219,7 +220,7 @@ async function fillProfileGaps(supabase: SupabaseClient, dryRun = false) {
     const { error } = await supabase.from('mp_contact').insert(row);
     if (!error) {
       contactCreated.push(id);
-      { noteChanged(1); revalidatePath(`/mps/${id}`); }
+      { noteChanged(1); revalidatePath(`/mps/${id}`); indexNowAfter([`/mps/${id}`], 'sync-mp-roster'); }
     }
   }
 
@@ -303,7 +304,7 @@ async function GET_impl(req: Request) {
     const { error: upErr } = await supabase.from('mps').upsert(record, { onConflict: 'member_id' });
     if (!upErr) {
       added.push({ member_id: id, name: record.display_name as string });
-      { noteChanged(1); revalidatePath(`/mps/${id}`); }
+      { noteChanged(1); revalidatePath(`/mps/${id}`); indexNowAfter([`/mps/${id}`], 'sync-mp-roster'); }
     }
   }
 
@@ -336,7 +337,7 @@ async function GET_impl(req: Request) {
         .eq('member_id', id);
       if (!rErr) {
         retired.push(id);
-        { noteChanged(1); revalidatePath(`/mps/${id}`); }
+        { noteChanged(1); revalidatePath(`/mps/${id}`); indexNowAfter([`/mps/${id}`], 'sync-mp-roster'); }
         await flagBioReview(supabase, id, `Left the Commons (${ukDate(today)})`);
       }
     }

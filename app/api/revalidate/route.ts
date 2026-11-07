@@ -1,5 +1,6 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
+import { indexNowAfter } from '@/lib/indexnow';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +34,7 @@ export async function GET(req: Request) {
   const path = new URL(req.url).searchParams.get('path');
   if (!validPath(path)) return NextResponse.json({ error: "missing or invalid 'path' query param" }, { status: 400 });
   refreshPath(path);
+  indexNowAfter([path], 'revalidate');
   return NextResponse.json({ revalidated: true, path, pattern: isPattern(path), at: new Date().toISOString() });
 }
 
@@ -52,6 +54,8 @@ export async function POST(req: Request) {
   const bad = [...paths.filter((p) => !validPath(p)), ...tags.filter((t) => !validTag(t))];
   if (bad.length) return NextResponse.json({ error: 'invalid paths or tags', invalid: bad.slice(0, 10) }, { status: 400 });
   for (const p of paths as string[]) refreshPath(p);
+  // The exact pages refreshed (route patterns and tags name no single address) go to IndexNow (lib/indexnow.ts).
+  indexNowAfter(paths as string[], 'revalidate');
   // 'max': the tagged entries are marked stale and refreshed on their next visit (the Next.js 16 form of revalidateTag).
   for (const t of tags as string[]) revalidateTag(t, 'max');
   return NextResponse.json({ revalidated: true, paths, tags, at: new Date().toISOString() });

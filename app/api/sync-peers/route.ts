@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { indexNowAfter } from '@/lib/indexnow';
 import { createClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
@@ -92,6 +93,7 @@ async function GET_impl(req: Request) {
   if (!dry) {
     for (const id of changedPages) { revalidatePath(`/lords/${id}`); revalidatePath(`/lords/${id}/questions`); }
     if (listChanged) revalidatePath('/lords');
+    indexNowAfter([...[...changedPages].flatMap((id) => [`/lords/${id}`, `/lords/${id}/questions`]), ...(listChanged ? ['/lords'] : [])], 'sync-peers');
   }
   return NextResponse.json({ ok: true, ...out, rows_written: dry ? 0 : changedPages.size, refreshed_pages: dry ? 0 : changedPages.size, list_refreshed: !dry && listChanged, syncedAt: new Date().toISOString() });
 }

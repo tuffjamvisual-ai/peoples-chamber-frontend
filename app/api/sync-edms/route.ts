@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { indexNowAfter } from '@/lib/indexnow';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
@@ -193,6 +194,7 @@ async function GET_impl(req: Request) {
   if (!dry && changedMotions.size) {
     revalidateTag(EDMS_TAG, 'max');
     for (const id of changedMotions) revalidatePath(`/edms/${id}`);
+    indexNowAfter([...changedMotions].map((id) => `/edms/${id}`), 'sync-edms');
   }
 
   const body = {

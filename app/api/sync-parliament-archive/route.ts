@@ -46,6 +46,7 @@
 // and the run ends cleanly (the next run tries again); nothing is retried in a loop. New requests stop at 80 per cent
 // of maxDuration.
 
+import { indexNowAfter } from '@/lib/indexnow';
 import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
@@ -890,6 +891,7 @@ function refreshAnswerPages(run: Run) {
   if (send) {
     noteChanged(run.answerChanges.length);
     for (const p of paths) revalidatePath(p);
+    if (!run.dry) indexNowAfter(paths, 'sync-parliament-archive');
   }
   return { rows: run.answerChanges.length, members, paths: paths.length, sent: send };
 }

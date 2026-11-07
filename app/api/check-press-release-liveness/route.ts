@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { indexNowAfter } from '@/lib/indexnow';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
@@ -132,6 +133,8 @@ async function GET_impl(req: Request) {
   // Refresh only the release pages this run changed (owner's approval, 29 Oct 2026, cache Stage 1).
   changedPaths.delete(null);
   for (const p of changedPaths) if (p) revalidatePath(p);
+  // A release GOV.UK has withdrawn or moved: its page changed, which IndexNow asks to hear about too.
+  indexNowAfter([...changedPaths].filter((p): p is string => !!p), 'press-release-liveness');
   const failuresSaved = await failing.save();
   if (dbErrors > 0) {
     return NextResponse.json({ ok: false, error: `press_releases update failed ${dbErrors} times: ${lastDbError}`, count: checked }, { status: 500 });
