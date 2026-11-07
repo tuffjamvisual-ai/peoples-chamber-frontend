@@ -52,6 +52,18 @@ export function oldValueFromText(desc: string | null): number | null {
 // 2026 was the release's own id.
 const noticeUrl = (r: any) => `https://www.find-tender.service.gov.uk/Notice/${encodeURIComponent(String(r.id))}`;
 
+// Supplier ids the buyer published without the Companies House prefix (owner's yes, 7 Nov 2026, Claude outputs/org-merge/plan.md):
+// "GB-COH-303675" is not a company, OC303675 is Deloitte LLP. Keyed by notice, published id and supplier name, so only these
+// notices change, and a reload or backfill keeps the corrected ids. Checked on Companies House on 7 Nov 2026.
+const SUPPLIER_ID_CORRECTIONS: Record<string, string> = {
+  'ocds-h6vhtk-050ab7|GB-COH-303675|Deloitte LLP': 'GB-COH-OC303675',
+  'ocds-h6vhtk-05598d|GB-COH-209907|Deloitte LLP': 'GB-COH-OC303675',
+  'ocds-h6vhtk-044de7|GB-COH-390210|Sureserve Energy Services UK': 'GB-COH-SC390210',
+};
+export function correctedSupplierId(ocid: string, id: string | undefined, name: string): string | undefined {
+  return (id && SUPPLIER_ID_CORRECTIONS[`${ocid}|${id}|${name.trim()}`]) || id;
+}
+
 export function noticeRows(r: any): NoticeRow[] {
   const ocid = r?.ocid ? String(r.ocid) : null;
   if (!ocid || !r.id || !r.date) return [];
@@ -75,7 +87,7 @@ export function noticeRows(r: any): NoticeRow[] {
   const out: NoticeRow[] = [];
   const awards: any[] = r.awards || [];
   const contracts: any[] = r.contracts || [];
-  const supplierList = (a: any) => (a?.suppliers || []).filter((s: any) => s?.name).map((s: any) => ({ name: String(s.name), id: s.id ? String(s.id) : undefined }));
+  const supplierList = (a: any) => (a?.suppliers || []).filter((s: any) => s?.name).map((s: any) => { const name = String(s.name), id = s.id ? String(s.id) : undefined; return { name, id: correctedSupplierId(ocid, id, name) }; });
 
   for (const c of contracts) {
     const a = awards.find((x) => x.id != null && String(x.id) === String(c.awardID));

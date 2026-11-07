@@ -179,6 +179,12 @@ const nextConfig: NextConfig = {
       ['refuge-01412276', 'refuge'],
       ['safelives-05203237', 'safelives'],
       ['suzy-lamplugh-trust-02417823', 'suzy-lamplugh-trust'],
+      // Numbers a buyer published without their Companies House prefix (owner's yes, 7 Nov 2026; the supplier ids are
+      // corrected in lib/contract-notices.ts and the database): 303675 and 209907 are Deloitte LLP, OC303675; 390210 is
+      // Sureserve Energy Services UK Limited, SC390210.
+      ['deloitte-llp-00303675', 'deloitte-llp'],
+      ['deloitte-llp-00209907', 'deloitte-llp'],
+      ['sureserve-energy-services-uk', 'sureserve-energy-services-uk-limited'],
     ];
     const organisationRedirects = mergedOrganisations.flatMap(([from, to]) => [
       { source: `/organisations/${from}`, destination: `/organisations/${to}`, permanent: true },
