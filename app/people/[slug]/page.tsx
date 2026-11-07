@@ -14,6 +14,7 @@ import PeopleProfileSections, { type Role, type Interest, type PeerFinance } fro
 import OpenGovShell from '../../components/OpenGovShell';
 import type { ScsBand } from '@/lib/civil-service-salaries';
 import { resolvePersonName } from '@/lib/person-name';
+import Link from 'next/link';
 import BackLink from '../../components/BackLink';
 export const revalidate = 21600;
 
@@ -251,6 +252,21 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                     polaroid into the folder edge. */}
               </div>
             </div>
+
+            {/* Opening (owner, 7 Nov 2026, L2): "[Name] is [role]." from the page's own record (person_cache, the first
+                current role as shown above, official title exact), and, for a sitting MP, a link to their MP page. */}
+            {(person.currentRoles[0]?.title || resolved?.memberId) && (
+              <div style={{ maxWidth: '46em', fontSize: '16px', lineHeight: 1.7, marginBottom: '4%' }}>
+                {person.currentRoles[0]?.title && (
+                  <p style={{ margin: '0 0 8px' }}>{person.name} is {person.currentRoles[0].title.replace(/\s+/g, ' ').trim()}.</p>
+                )}
+                {resolved?.memberId && (
+                  <p style={{ margin: 0 }}>
+                    <Link href={`/mps/${resolved.memberId}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '10px 0' }}>Salary, expenses and votes as an MP</Link>
+                  </p>
+                )}
+              </div>
+            )}
 
             <div style={{ zoom: 1.18 }}>
               <PeopleProfileSections

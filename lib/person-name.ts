@@ -18,17 +18,18 @@ export const sameLetters = (a: string, b: string) => personNameKey(a).replace(/ 
 // The GOV.UK name with its titles kept and the name itself as Parliament spells it. A sitting MP is matched by the name
 // without punctuation; the database is searched on the last piece of the surname ("Symonds", "Neill"), as words joined
 // by a hyphen or apostrophe would not be found whole.
-export const resolvePersonName = cache(async (raw: string): Promise<{ name: string; isMp: boolean }> => {
+// memberId (owner, 7 Nov 2026, L2): the matched MP's id, so a profile can link to their MP page.
+export const resolvePersonName = cache(async (raw: string): Promise<{ name: string; isMp: boolean; memberId?: number }> => {
   const name = hyphenatePersonName(raw);
   const target = personNameKey(name);
   const last = bareName(name).toLowerCase().split(/[^a-z]+/).filter(Boolean).pop();
   if (!target || !last) return { name, isMp: false };
-  const { data, error } = await supabase.from('mps').select('name, display_name').eq('current_member', true).ilike('name', `%${last}%`).limit(50);
+  const { data, error } = await supabase.from('mps').select('member_id, name, display_name').eq('current_member', true).ilike('name', `%${last}%`).limit(50);
   if (error && error.code !== 'PGRST116') throw new Error(`person name ${last}: ${error.message}`);
-  const mp = ((data ?? []) as { name: string | null; display_name: string | null }[])
+  const mp = ((data ?? []) as { member_id: number; name: string | null; display_name: string | null }[])
     .find((m) => personNameKey(m.name || '') === target || personNameKey(m.display_name || '') === target);
   if (!mp) return { name, isMp: false };
   const parliament = bareName(mp.display_name || mp.name || '');
   const own = bareName(name);
-  return { name: parliament && own ? name.replace(own, parliament) : name, isMp: true };
+  return { name: parliament && own ? name.replace(own, parliament) : name, isMp: true, memberId: mp.member_id };
 });
