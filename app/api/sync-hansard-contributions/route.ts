@@ -18,8 +18,8 @@ export const maxDuration = 300;
 // NOT to be confused with /api/sync-mp-contributions, which writes the separate
 // mp_contribution_totals (activity aggregates).
 //
-// Upserts on the existing UNIQUE (member_id, debate_website_id), one row per key
-// in each batch (see the dedupe in syncMp). MPs are processed stalest-first (RPC mp_contributions_stalest) within
+// Upserts on UNIQUE (member_id, debate_website_id, sitting_date) (migration 2026-11-07h),
+// one row per key in each batch (see syncMp). MPs are processed stalest-first (RPC mp_contributions_stalest) within
 // a time budget, upserting per MP so progress persists if the budget is hit; the
 // remainder is picked up next run.
 //
@@ -135,27 +135,25 @@ async function GET_impl(req: Request) {
       };
     // debate_website_id is the conflict key — a null one can't be deduped, so drop it.
     }).filter((r) => r.debate_website_id != null);
-    // One row per conflict key in a batch (owner, 7 Nov 2026, U1): Parliament's API can give two sittings the same
-    // debateWebsiteId (75C8A826-… is PMQs "Engagements" on both 21 October and 4 November 2026), and an upsert holding a key
-    // twice fails for the whole MP ("ON CONFLICT DO UPDATE command cannot affect row a second time"). The newest sitting is kept.
+    // One row per conflict key in a batch: (member, debate_website_id, sitting date) since migration 2026-11-07h (owner, 7 Nov
+    // 2026, U2). Parliament's API can give two sittings the same debateWebsiteId (75C8A826-… is PMQs "Engagements" on both
+    // 21 October and 4 November 2026); with the sitting date in the key both are kept. The same sitting listed twice is held once,
+    // as an upsert holding a key twice fails for the whole MP.
+    const contributionKey = (r: { debate_website_id: unknown; sitting_date: unknown }) => `${String(r.debate_website_id)}|${r.sitting_date ?? ''}`;
     const byKey = new Map<string, (typeof listed)[number]>();
-    for (const r of listed) {
-      const key = String(r.debate_website_id);
-      const had = byKey.get(key);
-      if (!had || (r.sitting_date ?? '') > (had.sitting_date ?? '')) byKey.set(key, r);
-    }
+    for (const r of listed) if (!byKey.has(contributionKey(r))) byKey.set(contributionKey(r), r);
     const rows = [...byKey.values()];
 
     if (rows.length) {
       const { data: old } = await supabase.from('mp_contributions').select('*').eq('member_id', id).in('debate_website_id', rows.map((r) => r.debate_website_id));
-      const oldBy = new Map(((old ?? []) as Record<string, unknown>[]).map((r) => [String(r.debate_website_id), r]));
+      const oldBy = new Map(((old ?? []) as Record<string, unknown>[]).map((r) => [contributionKey({ debate_website_id: r.debate_website_id, sitting_date: typeof r.sitting_date === 'string' ? r.sitting_date.slice(0, 10) : r.sitting_date }), r]));
       // The columns the MP page shows (a re-issued debate_id alone changes nothing on the page).
       const SHOWN = ['debate_title', 'sitting_date', 'section', 'house', 'speech_count', 'question_count', 'intervention_count', 'answer_count', 'statement_count', 'total_contributions', 'hansard_url'];
       const strip = (r: Record<string, unknown>) => Object.fromEntries(SHOWN.map((k) => [k, k === 'sitting_date' && typeof r[k] === 'string' ? (r[k] as string).slice(0, 10) : r[k]]));
-      if (rows.some((r) => { const o = oldBy.get(String(r.debate_website_id)); return !o || !sameValue(strip(o), strip(r)); })) changedMps.add(id);
+      if (rows.some((r) => { const o = oldBy.get(contributionKey(r)); return !o || !sameValue(strip(o), strip(r)); })) changedMps.add(id);
     }
     if (rows.length && !dry) {
-      const { error } = await supabase.from('mp_contributions').upsert(rows, { onConflict: 'member_id,debate_website_id' });
+      const { error } = await supabase.from('mp_contributions').upsert(rows, { onConflict: 'member_id,debate_website_id,sitting_date' });
       if (error) { console.error(`[hansard] member ${id} upsert failed: ${error.message}`); failed++; dbFailed++; }
       else { rows_written += rows.length; synced.add(id); }
     } else {

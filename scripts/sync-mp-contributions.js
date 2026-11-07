@@ -51,8 +51,9 @@ function n(v) {
     'insert into mp_contributions (member_id, debate_website_id, debate_id, debate_title, sitting_date, section, house, ' +
     'speech_count, question_count, intervention_count, answer_count, statement_count, total_contributions, hansard_url, updated_at) values\n';
   const onConflict =
-    '\non conflict (member_id, debate_website_id) do update set ' +
-    'debate_title=excluded.debate_title, sitting_date=excluded.sitting_date, section=excluded.section, house=excluded.house, ' +
+    // The key since migration 2026-11-07h (owner, 7 Nov 2026): a debate id Parliament reuses for another sitting is a new row.
+    '\non conflict (member_id, debate_website_id, sitting_date) do update set ' +
+    'debate_title=excluded.debate_title, section=excluded.section, house=excluded.house, ' +
     'speech_count=excluded.speech_count, question_count=excluded.question_count, intervention_count=excluded.intervention_count, ' +
     'answer_count=excluded.answer_count, statement_count=excluded.statement_count, total_contributions=excluded.total_contributions, ' +
     'hansard_url=excluded.hansard_url, updated_at=now();\n';
