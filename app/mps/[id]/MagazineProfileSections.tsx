@@ -31,6 +31,7 @@ import NoJsPager, { pagesByHeight } from '@/app/components/NoJsPager';
 const phoneRowPx = (...texts: (string | null | undefined)[]) => 40 + texts.reduce((px, s) => px + Math.ceil(((s ?? '').length || 1) / 36) * 25, 0);
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
+import type { MpPetitionsTop } from '@/lib/petition-pages';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -325,6 +326,12 @@ interface Props {
   staffInterests?: StaffInterest[];
   staffEmployed?: number; // distinct staff with outside employment, counted on the server (AB1)
   career?: MpCareer | null; // Political career (PC1): mp_biography.career_parliament and career_research, lib/mp-career.ts
+  // MP1 (owner, 7 Nov 2026): the blocks that sat below the sections, now parts of them. Rendered on the server and passed in.
+  votingAll?: number;                 // votes in both sources: the record above and Hansard, October 2004 to March 2016
+  votingArchive?: React.ReactNode;    // the total, every vote by year and the archive's notes (HistoricRecord.tsx)
+  earlierRegisters?: React.ReactNode; // the register history (HistoricRecord.tsx)
+  earlierRegistersCount?: number;
+  constituencyPetitions?: { top: MpPetitionsTop; gss: string; constituency: string | null } | null;
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
   contributions?: Contribution[];
@@ -606,6 +613,11 @@ export default function MagazineProfileSections({
   staffInterests = [],
   staffEmployed = 0,
   career = null,
+  votingAll,
+  votingArchive = null,
+  earlierRegisters = null,
+  earlierRegistersCount = 0,
+  constituencyPetitions = null,
   activity = null,
   contributions = [],
   writtenQuestions = null,
@@ -651,12 +663,12 @@ export default function MagazineProfileSections({
     // Political career (PC1): shown when either part has an entry; each empty group is left out.
     politicalcareer: careerEntries.length > 0,
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
-    voting: (totalVotes ?? votes.length) > 0,
+    voting: (votingAll ?? totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
     house: contributions.length > 0 || (writtenQuestions?.total ?? 0) > 0 || pmqsLinks(memberId, pmqsQuestions).length > 0,
-    petitions: petitionsAvailable,
+    petitions: petitionsAvailable || !!constituencyPetitions,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
-    interests: interests.length > 0 || staffInterests.length > 0 || formerInterests.length > 0,
+    interests: interests.length > 0 || staffInterests.length > 0 || formerInterests.length > 0 || !!earlierRegisters,
     roles: !!(
       (spadAdvisers?.rows.length ?? 0) > 0 ||
       committeeMemberships.length > 0 ||
@@ -770,6 +782,9 @@ export default function MagazineProfileSections({
     const apply = () => {
       const h = window.location.hash.slice(1) as SectionId;
       if (h && validIds.has(h)) setActive(h);
+      // Parts merged in MP1 keep their addresses (/register-history links to #register-history): open their section's tab.
+      else if (h === ('register-history' as SectionId) && validIds.has('interests')) setActive('interests');
+      else if (h === ('votes-2004-2016' as SectionId) && validIds.has('voting')) setActive('voting');
     };
     apply();
     window.addEventListener('hashchange', apply);
@@ -1305,6 +1320,8 @@ export default function MagazineProfileSections({
                 .
               </p>
             )}
+            {/* MP1 (owner, 7 Nov 2026): the votes from Hansard, October 2004 to March 2016, with one total and one list by year. */}
+            {votingArchive}
           </>
         )}
 
@@ -1398,7 +1415,7 @@ export default function MagazineProfileSections({
         {/* Petitions (owner, 30 Oct 2026, cache Stage 2a part 4): the heading and the note with its link to the petitions
             site are always in the page, hidden unless the tab is open, so crawlers see them; the list, with its live
             signature counts, is loaded from /api/mps/[id]/petitions when the tab opens. */}
-        {petitionsAvailable && active === 'petitions' && (() => {
+        {(petitionsAvailable || !!constituencyPetitions) && active === 'petitions' && (() => {
           const fmtNum = (n: number) => n.toLocaleString('en-GB');
           const ordinal = (n: number) => {
             const mod100 = n % 100;
@@ -1427,42 +1444,51 @@ export default function MagazineProfileSections({
               <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.6, color: '#14100d', opacity: 1, border: '1px dashed rgba(20,16,13,0.45)', padding: '10px 12px', marginBottom: '18px' }}>
                 This shows petitions from the current Parliament on the{' '}
                 <a href="https://petition.parliament.uk" target="_blank" rel="noopener noreferrer" style={inkLink}>UK Parliament petitions website</a>{' '}
-                that reached 10,000 signatures, the point at which the government must respond. Petitions with fewer signatures are not included. Constituency counts come from the petitions site, are based on the postcode each signer gives, and are updated daily.
+                that reached 10,000 signatures, the point at which the government must respond. Petitions with fewer signatures are not included{constituencyPetitions ? ', apart from any among the five most signed here' : ''}. Constituency counts come from the petitions site, are based on the postcode each signer gives, and are updated daily.
               </p>
-              {active === 'petitions' && (
-                petitionsFailed ? (
-                  <p role="status" style={note}>The petitions could not be loaded just now. Please try again later.</p>
-                ) : !petitionsAnswer ? (
-                  <p role="status" style={note}>Loading the petitions.</p>
-                ) : list.length === 0 ? (
-                  <p style={note}>No petition from this constituency has reached 10,000 signatures yet.</p>
-                ) : (
+              {/* MP1 (owner, 7 Nov 2026): "Petitions in this constituency", once a block below the sections, is the same data as this
+                  list (petitions signed here, counted by the petitions site), so they are one list: each petition once, with its local
+                  signatures and national total, most signed here first. Its five are in the page's HTML, so they show with JavaScript
+                  off; the full list arrives from /api/mps/[id]/petitions. */}
+              {(() => {
+                type Row = { id: number; title: string; here: number; total: number; full: ConstituencyPetition | null };
+                const rows = new Map<number, Row>();
+                for (const p of constituencyPetitions?.top.petitions ?? []) rows.set(p.id, { id: p.id, title: p.title, here: p.here, total: p.total, full: null });
+                for (const p of list) rows.set(p.petitionId, { id: p.petitionId, title: p.title, here: p.localSignatures, total: p.totalSignatures, full: p });
+                const merged = [...rows.values()].sort((a, b) => b.here - a.here || a.title.localeCompare(b.title));
+                const checkedOn = petitionsAnswer?.checkedOn ?? constituencyPetitions?.top.checkedOn ?? null;
+                return (
                   <>
-                    <NoJsPager id="petitions-local" always count={list.length} rows="> li" size={10}>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                      {list.map((p) => (
-                        <li key={p.petitionId} style={{ padding: '12px 0', borderBottom: inkDivider }}>
-                          <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                            <a href={`/petitions/${p.petitionId}`} style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{p.title}</a>
-                            <span style={chip}>{p.state === 'open' ? 'Open' : 'Closed'}</span>
-                            {p.governmentResponseAt && <span style={chip}>Government responded {fmtDate(p.governmentResponseAt)}</span>}
-                            {p.debatedOn && <span style={chip}>Debated {fmtDate(p.debatedOn)}</span>}
-                          </div>
-                          <div style={{ fontSize: '15px', marginTop: '4px', color: '#14100d' }}>
-                            <strong>{fmtNum(p.localSignatures)}</strong> {p.localSignatures === 1 ? 'signature' : 'signatures'} here · {rankText(p)} · {fmtNum(p.totalSignatures)} signatures in total
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                    </NoJsPager>
-                    {petitionsAnswer.checkedOn && (
-                      <p style={note}>
-                        Counts for closed petitions are final. Open petitions are checked daily, most recently on {fmtDate(petitionsAnswer.checkedOn)}. Source: UK Parliament Petitions (petition.parliament.uk).
-                      </p>
+                    <h3 style={{ ...sectionH3, marginTop: 0 }}>Petitions signed in {constituencyPetitions?.constituency ?? 'this constituency'}</h3>
+                    {petitionsFailed && <p role="status" style={note}>The full list of petitions could not be loaded just now. Please try again later.</p>}
+                    {!petitionsFailed && !petitionsAnswer && merged.length === 0 && <p role="status" style={note}>Loading the petitions.</p>}
+                    {petitionsAnswer && merged.length === 0 && <p style={note}>No petition from this constituency has reached 10,000 signatures yet.</p>}
+                    {merged.length > 0 && (
+                      <NoJsPager id="petitions-local" always count={merged.length} rows="> li" size={10}>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                        {merged.map((r) => (
+                          <li key={r.id} style={{ padding: '12px 0', borderBottom: inkDivider }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                              <a href={`/petitions/${r.id}`} style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{r.title}</a>
+                              {r.full && <span style={chip}>{r.full.state === 'open' ? 'Open' : 'Closed'}</span>}
+                              {r.full?.governmentResponseAt && <span style={chip}>Government responded {fmtDate(r.full.governmentResponseAt)}</span>}
+                              {r.full?.debatedOn && <span style={chip}>Debated {fmtDate(r.full.debatedOn)}</span>}
+                            </div>
+                            <div style={{ fontSize: '15px', marginTop: '4px', color: '#14100d' }}>
+                              <strong>{fmtNum(r.here)}</strong> {r.here === 1 ? 'signature' : 'signatures'} here{r.full ? ` · ${rankText(r.full)}` : ''} · {fmtNum(r.total)} signatures in total
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                      </NoJsPager>
+                    )}
+                    {checkedOn && <p style={note}>Counts as checked on {fmtDate(checkedOn)}. Counts for closed petitions are final; open petitions are checked daily. Source: UK Parliament Petitions (petition.parliament.uk).</p>}
+                    {constituencyPetitions && (
+                      <p style={{ fontSize: '15px', margin: '4px 0 0' }}><Link href={`/petitions?constituency=${constituencyPetitions.gss}`} prefetch={false} style={{ display: 'inline-block', padding: '10px 0', color: '#14100d', textDecoration: 'underline' }}>More petitions in this constituency</Link></p>
                     )}
                   </>
-                )
-              )}
+                );
+              })()}
             </section>
           );
         })()}
@@ -1531,6 +1557,8 @@ export default function MagazineProfileSections({
               </p>
               {list('Motions started', edms.started, edms.startedCount)}
               {list('Motions signed', edms.signed, edms.signedCount)}
+              {/* MP1 (owner, 7 Nov 2026): from the block that sat below the sections; its latest motions are already in the lists above. */}
+              <p style={{ fontSize: '15px', margin: '8px 0 0' }}><Link href={`/edms?member=${memberId}`} prefetch={false} style={{ display: 'inline-block', padding: '10px 0', color: '#14100d', textDecoration: 'underline' }}>More early day motions from this MP</Link></p>
               {edms.lastUpdated && (
                 <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
                   Early Day Motions last updated {fmtDate(edms.lastUpdated)}. Source: UK Parliament (edm.parliament.uk).
@@ -1636,6 +1664,16 @@ export default function MagazineProfileSections({
                 </details>
               )}
               <StaffInterests items={staffInterests} employedStaff={staffEmployed} headingStyle={sectionH3} />
+              {/* MP1 (owner, 7 Nov 2026): the register history, once a block below the sections, last in Registered interests and a
+                  fold of its own on phones. */}
+              {earlierRegisters && (
+                <section style={{ marginTop: '28px' }}>
+                  <SubFold label="Earlier registers" summary={countOf(earlierRegistersCount, 'entry', 'entries')}>
+                    <h3 style={{ ...sectionH3, marginTop: 0 }}>Earlier registers</h3>
+                    {earlierRegisters}
+                  </SubFold>
+                </section>
+              )}
             </>
           );
         })()}
@@ -2821,14 +2859,17 @@ export default function MagazineProfileSections({
   const activityParts: Partial<Record<SectionId, { label: string; summary: string | null }>> = {
     house: { label: 'In the House', summary: [contributions.length > 0 && countOf(contributions.length, 'recent debate'), questionTotal > 0 && countOf(questionTotal, 'written question')].filter(Boolean).join(', ') || null },
     edms: { label: 'Early day motions', summary: edms && edms.startedCount + edms.signedCount > 0 ? countOf(edms.startedCount + edms.signedCount, 'motion') : null },
-    petitions: { label: 'Petitions', summary: petitionsAnswer ? countOf(petitionsAnswer.petitions.length, 'petition') : null },
+    petitions: { label: 'Petitions', summary: (() => {
+      const ids = new Set([...(constituencyPetitions?.top.petitions ?? []).map((p) => p.id), ...(petitionsAnswer?.petitions ?? []).map((p) => p.petitionId)]);
+      return ids.size ? countOf(ids.size, 'petition') : null;
+    })() },
     bills: { label: 'Bills sponsored', summary: sponsoredBills.length > 0 ? countOf(sponsoredBills.length, 'bill') : null },
   };
   const foldSummary: Record<string, string | null> = {
     politicalcareer: careerEntries.length > 0 ? countOf(careerEntries.length, 'entry', 'entries') : null,
     background: timeline.length > 0 ? countOf(timeline.length, 'entry', 'entries') : conductFindings.length > 0 ? countOf(conductFindings.length, 'standards finding') : 'career and education',
     contact: [contact?.phone && 'phone', contact?.email && 'email', contact?.website && 'website', contact?.twitter && 'social media', contact?.address_line1 && 'address'].filter(Boolean).join(', ') || null,
-    voting: countOf(totalVotes ?? votes.length, 'division'),
+    voting: countOf(votingAll ?? totalVotes ?? votes.length, 'division'),
     activity: [questionTotal > 0 && countOf(questionTotal, 'written question'), contributions.length > 0 && countOf(contributions.length, 'recent debate'), edms && edms.startedCount + edms.signedCount > 0 && countOf(edms.startedCount + edms.signedCount, 'EDM'), sponsoredBills.length > 0 && countOf(sponsoredBills.length, 'bill')].filter(Boolean).join(', ') || null,
     interests: interests.length > 0 ? countOf(interests.length, 'entry', 'entries') : 'none current',
     roles: currentCommittees.length > 0

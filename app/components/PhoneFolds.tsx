@@ -28,7 +28,7 @@ export type Fold = {
 
 const css = (phoneMax: number) => `
 .pf-contents, .pf-all, .pf-d, .pf-sd { display: none; }
-@media (min-width: ${phoneMax + 1}px) { .pf-off { display: none !important; } .pf-sb { display: contents; } }
+@media (min-width: ${phoneMax + 1}px) { .pf-off { display: none !important; } .pf-off:has(:target) { display: block !important; } .pf-sb { display: contents; } }
 @media (max-width: ${phoneMax}px) {
   .pf-contents { display: block; margin-bottom: 12px; font-size: 15px; }
   .pf-contents h2 { font-size: 17px; font-weight: bold; margin: 0 0 4px; }
@@ -59,6 +59,8 @@ const css = (phoneMax: number) => `
   .pf-sbtn { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 6px 2px; font-size: 15px; font-weight: bold; color: #14100d; text-align: left; }
   .pf-sd[open] .pf-mark::before { content: '\\2212'; }
   .pf-sd:not([open]) + .pf-sb { display: none; }
+  /* A link to something inside a closed fold (/mps/<id>#register-history) shows it, with JavaScript off as well (MP1). */
+  .pf-d:not([open]) + .pf-body:has(:target), .pf-sd:not([open]) + .pf-sb:has(:target) { display: block; }
   .pf-sb { display: block; padding: 4px 0 12px; }
   .pf-sb > h2:first-child, .pf-sb > h3:first-child, .pf-list .pf-body > .pf-sub > .pf-sb > h2:first-child { display: none; }
 }`;
@@ -105,6 +107,9 @@ export default function PhoneFolds({ folds, showContents = true, contentsLabel =
       const sec = el ? el.closest<HTMLElement>('[data-fold]') : null;
       if (!sec?.dataset.fold) return;
       add(sec.dataset.fold);
+      // A target inside a sub-fold (SubFold) opens that too (MP1).
+      const sb = (el as HTMLElement).closest('.pf-sb');
+      if (sb?.previousElementSibling instanceof HTMLDetailsElement) sb.previousElementSibling.open = true;
       requestAnimationFrame(() => (el as HTMLElement).scrollIntoView());
     };
     reveal();

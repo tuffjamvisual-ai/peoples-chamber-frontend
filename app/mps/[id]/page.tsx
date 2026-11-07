@@ -8,7 +8,8 @@ import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { lastSeatLine, lookupMember, memberRecord, parliamentMemberUrl } from '@/lib/former-mps';
 import FormerMpProfile from './FormerMpProfile';
-import HistoricRecord from './HistoricRecord';
+import { VotingArchiveMerged, EarlierRegisters } from './HistoricRecord';
+import { memberVoteSummary, registerHistory } from '@/lib/historic-archive';
 import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
 import { getMpCareer } from '@/lib/mp-career';
@@ -20,7 +21,6 @@ import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
 import MpDossier from './MpDossier';
 import { staffInterestsText } from './StaffInterestsLine';
 import { distinctStaff, type StaffInterestRow } from './StaffInterests';
-import RelatedLinks from '../../components/RelatedLinks';
 import { mpPay } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
@@ -32,8 +32,6 @@ import { createHash } from 'node:crypto';
 import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
 import type { MpReports, MinisterMeeting, MinisterHospitality } from './MagazineProfileSections';
 import { titleWithin } from '@/lib/seo-title';
-import RelatedLine from '../../components/RelatedLine';
-import { mpRelated } from '@/lib/related-links';
 import { displayMpName } from '@/lib/mp-name';
 import { readAll, inList } from '@/lib/read-all';
 import { recipientIsMp, lastNamePrefilter } from '@/lib/mp-recipient-match';
@@ -41,9 +39,6 @@ import { storedSpellings } from '@/lib/donor-registry';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
-import ConstituencyPetitions from './ConstituencyPetitions';
-import MpEdmsSection from './MpEdmsSection';
-import { latestEdmsForMp, type MpEdmsTop } from '@/lib/edm-pages';
 import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-pages';
 
 
@@ -433,6 +428,17 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // table before its migration) shows no section rather than failing the page.
   // Political career (owner, 7 Nov 2026, PC1): its own read (lib/mp-career.ts), so the page never depends on it.
   const pCareer = getMpCareer(supabase, memberId);
+  // MP1 (owner, 7 Nov 2026): the archive's votes and register history are parts of Voting record and Registered interests, and
+  // the votes by year count both sources, so the current votes' years are read too (only their dates).
+  const pArchiveVotes = memberVoteSummary(memberId);
+  const pRegisterHistory = registerHistory(memberId);
+  const pCurrentYears = readAll<{ division_date: string }>(() => supabase.from('mp_division_votes'), {
+    columns: 'division_date', filter: (q) => q.eq('member_id', memberId), orderBy: 'id', label: `/mps/${memberId} vote years`,
+  }).then((rows) => {
+    const per = new Map<number, number>();
+    for (const r of rows) { const y = Number(String(r.division_date).slice(0, 4)); if (y) per.set(y, (per.get(y) ?? 0) + 1); }
+    return [...per.entries()].map(([year, count]) => ({ year, count }));
+  });
   const pStaffInterests = Promise.resolve(
     supabase
       .from('mp_staff_interests')
@@ -448,31 +454,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .eq('member_id', memberId)
       .order('closed_date', { ascending: false }),
   );
-  // Party slug + same-party peers: previously fetched by RelatedLinks as
-  // its own serial async component. Both depend only on mp.party (available
-  // after the main batch) and are cheap (17-row and 5-row results). Folded
-  // into wave2 so RelatedLinks receives them as props and becomes sync.
-  // normaliseParty maps 'Labour (Co-op)' → 'Labour'. parties.mp_party_string
-  // has no row for 'Labour (Co-op)', so using mp.party directly would return
-  // null slug and wrong peers for 45 co-op MPs. Normalise both queries.
-  const partyKey = normaliseParty(mp.party);
-  const pPartySlug = partyKey
-    ? Promise.resolve(
-        supabase.from('parties').select('slug').eq('mp_party_string', partyKey).maybeSingle(),
-      )
-    : Promise.resolve({ data: null });
-  const pPartyPeers = partyKey
-    ? Promise.resolve(
-        supabase
-          .from('mps')
-          .select('member_id, display_name, constituency')
-          .eq('party', partyKey)
-          .eq('current_member', true)
-          .neq('member_id', memberId)
-          .order('display_name', { ascending: true })
-          .range(0, 4),
-      )
-    : Promise.resolve({ data: [] });
 
   // Petitions most signed in this MP's constituency (petition.parliament.uk,
   // petitions with 10,000+ signatures only — threshold stated to readers on
@@ -500,7 +481,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const pSeatSlug: Promise<string | null> = constituencyGss && mp.current_member !== false
     ? withTimeout(Promise.resolve(supabase.from('constituencies').select('slug').eq('ons_code', constituencyGss).maybeSingle()), 5000).then((r) => (r.data?.slug as string | undefined) ?? null).catch(() => null)
     : Promise.resolve(null);
-  const pEdmsTop: Promise<MpEdmsTop | null> = withTimeout(latestEdmsForMp(memberId), 5000).catch(() => null);
 
   // Early Day Motions this MP started (primary sponsor) and signed
   // (sponsoring_order > 1, i.e. every signature except the primary
@@ -610,7 +590,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
 
   const petitionsAvailable = await pPetitions;
   const petitionsTop = await pPetitionsTop;
-  const [seatSlug, edmsTop] = await Promise.all([pSeatSlug, pEdmsTop]);
+  const seatSlug = await pSeatSlug;
 
   // APPGs (All-Party Parliamentary Groups) this MP is officer of, with
   // each group's registered funders. Sourced from mySociety/appg-
@@ -742,7 +722,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const staffEmployed = distinctStaff(staffRows, 'employment');
   const staffForPage = staffRows.map(({ staff_identifier: _omit, ...r }) => r); // eslint-disable-line @typescript-eslint/no-unused-vars
 
-  const [partySlugRes, partyPeersRes] = await Promise.all([pPartySlug, pPartyPeers]);
 
 
 
@@ -803,14 +782,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const partyWhipSlug = PARTY_WHIP_SLUG[partyDisplay] ?? PARTY_WHIP_SLUG[mp.party ?? ''] ?? null;
 
   const mpReports = await reportsFor(memberId, fullName);
-  const related = await mpRelated({
-    memberId,
-    name: fullName,
-    reportsCount: mpReports?.total ?? 0,
-    constituencyGss: mp.current_member === false ? null : ((mp.constituency_gss_code as string | null) ?? null),
-    interestsCount: (interestsRes.data || []).filter((r) => (r as { is_current?: boolean }).is_current !== false).length,
-    votesCount: Number(voteCounts.all_votes ?? votesWithSi.length) || 0,
-  });
 
   return (
     <>
@@ -866,6 +837,17 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         conductFindings: conductRes.data || [],
         staffInterests: staffForPage,
         career: await pCareer,
+        ...(await (async () => {
+          const [archiveVotes, register, currentYears] = await Promise.all([pArchiveVotes, pRegisterHistory, pCurrentYears]);
+          const currentTotal = Number(voteCounts.all_votes ?? votesWithSi.length) || 0;
+          return {
+            votingAll: currentTotal + (archiveVotes?.total ?? 0),
+            votingArchive: archiveVotes ? <VotingArchiveMerged memberId={memberId} votes={archiveVotes} currentTotal={currentTotal} currentYears={currentYears} /> : null,
+            earlierRegisters: register ? <EarlierRegisters register={register} /> : null,
+            earlierRegistersCount: register?.entries ?? 0,
+          };
+        })()),
+        constituencyPetitions: petitionsTop && petitionsTop.petitions.length > 0 && constituencyGss ? { top: petitionsTop, gss: constituencyGss, constituency: mp.constituency ?? null } : null,
         staffEmployed,
         activity: activityRes.data || null,
         // Votes against most of their party (is_rebellion, set from the MP's party on the day of the vote; see the
@@ -902,45 +884,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       }}
       footer={
         <>
-        {edmsTop && (edmsTop.tabled.length > 0 || edmsTop.signed.length > 0) && <MpEdmsSection top={edmsTop} memberId={memberId} />}
-        {petitionsTop && petitionsTop.petitions.length > 0 && constituencyGss && <ConstituencyPetitions top={petitionsTop} gss={constituencyGss} />}
-        <HistoricRecord memberId={memberId} />
+        {/* MP1 (owner, 7 Nov 2026): every block that sat below the sections is now part of its section (votes 2004 to 2016 in
+            Voting record, register history in Registered interests, constituency petitions in Petitions, the early day motions link
+            in Early day motions). The hidden Related box for search engines and the Related line are removed: hidden text for search
+            engines breaks Google's spam rules. Only the newsletter box stays here. */}
         {/* Newsletter sign-up at the end of the profile, for readers who are not signed in (report 81). */}
         <ArticleEndSignup source="data-mp-profile" line={DATA_SIGNUP_LINE} />
-        {/* The compact Related line, last of the visible content (owner's brief, 3 Nov 2026; lib/related-links.ts). */}
-        {/* Not under 640px (owner, 4 Nov 2026): its links repeat sections already on the page. */}
-        <style>{'@media (max-width: 639.98px) { .mp-related-line { display: none; } }'}</style>
-        <div className="mp-related-line"><RelatedLine links={related} /></div>
-        {/* Server-rendered RelatedLinks: same-party MPs, sponsored bills,
-           recent votes, party page, optional ministerial dept. Lands as
-           crawlable <a href> tags in static HTML for SEO. Wrapped in an
-           sr-only-style 1px clipped container so the block is in the
-           HTML response (Phase 1 SEO Check 15) but not visible at the
-           bottom of the dossier where the user reported it as clutter. */}
-        <div
-          style={{
-            position: 'absolute',
-            width: '1px',
-            height: '1px',
-            padding: 0,
-            margin: '-1px',
-            overflow: 'hidden',
-            clip: 'rect(0,0,0,0)',
-            whiteSpace: 'normal',
-            border: 0,
-          }}
-          aria-hidden="false"
-        >
-          <RelatedLinks
-            variant="mp"
-            memberId={memberId}
-            party={partyDisplay || mp.party || null}
-            partySlug={partySlugRes.data?.slug ?? null}
-            partyPeers={partyPeersRes.data || []}
-            votes={votesWithSi.slice(0, 5)}
-            sponsoredBills={(sponsoredBillsRes.data || []).slice(0, 5)}
-          />
-        </div>
         </>
       }
     />
