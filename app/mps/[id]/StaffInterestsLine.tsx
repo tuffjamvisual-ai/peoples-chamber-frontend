@@ -27,7 +27,7 @@ export function staffInterestsText(items: StaffInterestRow[]): string | null {
 export default function StaffInterestsLine({ text, style }: { text: string | null | undefined; style?: React.CSSProperties }) {
   if (!text) return null;
   return (
-    <p style={{ margin: '0 0 12px', fontSize: '15px', lineHeight: 1.5, ...style }}>
+    <p className="mp-staff-line" style={{ margin: '0 0 12px', fontSize: '15px', lineHeight: 1.5, ...style }}>
       <a href="#interests" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
         {text}
       </a>

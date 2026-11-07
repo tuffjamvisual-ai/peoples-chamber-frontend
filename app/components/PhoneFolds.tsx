@@ -27,8 +27,8 @@ export type Fold = {
 };
 
 const css = (phoneMax: number) => `
-.pf-contents, .pf-all, .pf-d { display: none; }
-@media (min-width: ${phoneMax + 1}px) { .pf-off { display: none !important; } }
+.pf-contents, .pf-all, .pf-d, .pf-sd { display: none; }
+@media (min-width: ${phoneMax + 1}px) { .pf-off { display: none !important; } .pf-sb { display: contents; } }
 @media (max-width: ${phoneMax}px) {
   .pf-contents { display: block; margin-bottom: 12px; font-size: 15px; }
   .pf-contents h2 { font-size: 17px; font-weight: bold; margin: 0 0 4px; }
@@ -51,6 +51,16 @@ const css = (phoneMax: number) => `
   .pf-body { padding: 16px 0 12px; }
   .pf-body > h2:first-child, .pf-body > div:first-child > h2:first-child { display: none; }
   .pf-list .pf-body > .pf-sub > h2:first-child { display: block; }
+  /* Folds inside a fold (SubFold below; owner, 7 Nov 2026, PF3): closed at first, the content beside the details as above. */
+  .pf-sd { display: block; border-top: 1px dashed rgba(20,16,13,0.3); }
+  .pf-sd > summary { display: block; list-style: none; cursor: pointer; }
+  .pf-sd > summary::-webkit-details-marker { display: none; }
+  .pf-sd > summary::after { content: none !important; }
+  .pf-sbtn { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 6px 2px; font-size: 15px; font-weight: bold; color: #14100d; text-align: left; }
+  .pf-sd[open] .pf-mark::before { content: '\\2212'; }
+  .pf-sd:not([open]) + .pf-sb { display: none; }
+  .pf-sb { display: block; padding: 4px 0 12px; }
+  .pf-sb > h2:first-child, .pf-sb > h3:first-child, .pf-list .pf-body > .pf-sub > .pf-sb > h2:first-child { display: none; }
 }`;
 
 const memoryKey = () => `og-folds:${window.location.pathname}${window.location.search}`;
@@ -140,6 +150,26 @@ export default function PhoneFolds({ folds, showContents = true, contentsLabel =
           );
         })}
       </div>
+    </>
+  );
+}
+
+// A fold inside a phone fold (owner, 7 Nov 2026, PF3): a native details holding only its summary, a 44px tap target with
+// 15px text naming the part and its count, closed at first, and the content beside it, shown when it is open. Its own
+// heading is hidden on phones, as the summary names it. From the phone width up the details is hidden and the content's
+// box is display: contents, so the page renders exactly as without it. The styles are in PhoneFolds' stylesheet above.
+export function SubFold({ label, summary, children }: { label: string; summary?: string | null; children: ReactNode }) {
+  return (
+    <>
+      <details className="pf-sd">
+        <summary>
+          <span className="pf-sbtn">
+            <span>{label}{summary ? <span className="pf-sum">: {summary}</span> : null}</span>
+            <span aria-hidden className="pf-mark" />
+          </span>
+        </summary>
+      </details>
+      <div className="pf-sb">{children}</div>
     </>
   );
 }

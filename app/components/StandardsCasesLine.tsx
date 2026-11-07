@@ -7,7 +7,7 @@ export default function StandardsCasesLine({ memberId, style }: { memberId: numb
   const line = standardsLine(memberId);
   if (!line) return null;
   return (
-    <p style={{ margin: '0 0 12px', fontSize: '15px', lineHeight: 1.5, ...style }}>
+    <p className="mp-standards-line" style={{ margin: '0 0 12px', fontSize: '15px', lineHeight: 1.5, ...style }}>
       <Link href={line.href} prefetch={false} style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
         {line.text}
       </Link>

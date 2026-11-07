@@ -119,6 +119,14 @@ export default function MpDossier({
           .pca-mp-constituency a { display: inline-flex; align-items: center; min-height: 44px; }
           .mp-back-link { min-height: 44px; }
         }
+        /* Desktop (owner, 7 Nov 2026, PF3): the profile sections are pulled up 80px over the space below the header, so the
+           Staff interests line sat under the Background heading and the tab list. It keeps its place in the page, so nothing
+           else moves, and is drawn one line higher (56px, a 44px line and its 12px gap), or two with the standards line
+           above it, into the free space under the party name. */
+        @media (min-width: 761px) {
+          .mp-staff-line { position: relative; top: -56px; }
+          .mp-standards-line + .mp-staff-line { top: -112px; }
+        }
       `}</style>
 
       {/* Back-to-party link above the header. Uses the shared BackLink

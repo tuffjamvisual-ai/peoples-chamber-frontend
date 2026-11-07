@@ -17,7 +17,7 @@ import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';
 import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
-import PhoneFolds from '../../components/PhoneFolds';
+import PhoneFolds, { SubFold } from '../../components/PhoneFolds';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
 import AppgSource, { appgAmount } from '../../components/AppgSource';
 import StaffInterests, { type StaffInterest } from './StaffInterests';
@@ -1435,8 +1435,10 @@ export default function MagazineProfileSections({
             if (entries.length === 0) return null;
             const open = entries.slice(0, SHOWN_OPEN);
             const rest = entries.slice(SHOWN_OPEN);
+            // "Motions started" and "Motions signed" each fold on phones (owner, 7 Nov 2026, PF3), so opening one, or its "Show
+            // more", never shows the other as well. Nothing changes from 640px up.
             return (
-              <>
+              <SubFold label={label} summary={fmtNum(total)}>
                 <h3 style={sectionH3}>{label} · {fmtNum(total)}</h3>
                 <NoJsPager id={`edms-open-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`} always count={open.length} rows="> li" size={10}>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>{open.map(item)}</ul>
@@ -1456,7 +1458,7 @@ export default function MagazineProfileSections({
                     Showing the {fmtNum(entries.length)} most recent of {fmtNum(total)}.
                   </p>
                 )}
-              </>
+              </SubFold>
             );
           };
           return (
@@ -1539,6 +1541,8 @@ export default function MagazineProfileSections({
               </p>
               {grouped.map((b) => (
                 <section key={b.key} style={{ marginBottom: '20px' }}>
+                  {/* Each group folds on its own on phones (owner, 7 Nov 2026, PF3); nothing changes from 640px up. */}
+                  <SubFold label={b.label.replace(/ \(see Earnings tab for breakdown\)$/, '')} summary={countOf(b.rows.length, 'entry', 'entries')}>
                   <h3 style={{ ...sectionH3, marginTop: '8px' }}>
                     {b.label} <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({b.rows.length})</span>
                   </h3>
@@ -1547,6 +1551,7 @@ export default function MagazineProfileSections({
                     {b.rows.map((i, idx) => renderRow(i, idx))}
                   </ul>
                   </NoJsPager>
+                  </SubFold>
                 </section>
               ))}
               {formerInterests.length > 0 && (
@@ -2214,7 +2219,7 @@ export default function MagazineProfileSections({
               )}
 
               <h3 style={sectionH3}>By donor</h3>
-              <NoJsPager id="donations-donors" always count={donorRows.length} rows="> tbody > tr" size={15}>
+              <NoJsPager id="donations-donors" always count={donorRows.length} rows="> tbody > tr" size={10}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', marginBottom: '20px', tableLayout: 'auto' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
@@ -2327,6 +2332,8 @@ export default function MagazineProfileSections({
                               </span>
                             )}
                           </div>
+                          {/* 10 a screen on phones, JavaScript on and off (owner, 7 Nov 2026, PF3). */}
+                          <NoJsPager id={`donor-votes-${s.key}`} always count={Math.min(s.votes.length, 20)} rows="> li" size={10}>
                           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
                             {s.votes.slice(0, 20).map((v) => {
                               const dateText = v.division_date ? shortDayMonthYear(v.division_date) : '';
@@ -2348,6 +2355,7 @@ export default function MagazineProfileSections({
                               );
                             })}
                           </ul>
+                          </NoJsPager>
                           {s.votes.length > 20 && (
                             <p style={{ fontSize: '15px', margin: '4px 0 0 0' }}>Showing 20 of {s.votes.length}.</p>
                           )}
@@ -2751,6 +2759,13 @@ export default function MagazineProfileSections({
   const countOf = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-GB')} ${n === 1 ? one : many}`;
   const latestExpenses = [...expenses].sort((a, b) => String(b.year).localeCompare(String(a.year)))[0];
   const questionTotal = writtenQuestions?.total ?? 0;
+  // The phone sub-folds of Parliamentary activity (PF3): each part's name and count, from figures already in the page.
+  const activityParts: Partial<Record<SectionId, { label: string; summary: string | null }>> = {
+    house: { label: 'In the House', summary: [contributions.length > 0 && countOf(contributions.length, 'recent debate'), questionTotal > 0 && countOf(questionTotal, 'written question')].filter(Boolean).join(', ') || null },
+    edms: { label: 'Early day motions', summary: edms && edms.startedCount + edms.signedCount > 0 ? countOf(edms.startedCount + edms.signedCount, 'motion') : null },
+    petitions: { label: 'Petitions', summary: petitionsAnswer ? countOf(petitionsAnswer.petitions.length, 'petition') : null },
+    bills: { label: 'Bills sponsored', summary: sponsoredBills.length > 0 ? countOf(sponsoredBills.length, 'bill') : null },
+  };
   const foldSummary: Record<string, string | null> = {
     background: timeline.length > 0 ? countOf(timeline.length, 'entry', 'entries') : conductFindings.length > 0 ? countOf(conductFindings.length, 'standards finding') : 'career and education',
     contact: [contact?.phone && 'phone', contact?.email && 'email', contact?.website && 'website', contact?.twitter && 'social media', contact?.address_line1 && 'address'].filter(Boolean).join(', ') || null,
@@ -2902,7 +2917,13 @@ export default function MagazineProfileSections({
             node: f.sections.length === 1 && f.sections[0] === f.id
               ? renderSection(f.sections[0])
               : f.sections.map((id) => (
-                <div key={id} id={`section-${id}`} className={`pf-sub${id !== active ? ' pf-off' : ''}`} data-section-block={id}>{renderSection(id)}</div>
+                <div key={id} id={`section-${id}`} className={`pf-sub${id !== active ? ' pf-off' : ''}`} data-section-block={id}>
+                  {/* Parliamentary activity's parts fold separately on phones (owner, 7 Nov 2026, PF3), so opening one never shows
+                      all four at once; nothing changes from 640px up. */}
+                  {f.id === 'activity' && activityParts[id]
+                    ? <SubFold label={activityParts[id]!.label} summary={activityParts[id]!.summary}>{renderSection(id)}</SubFold>
+                    : renderSection(id)}
+                </div>
               )),
           }))}
         />
