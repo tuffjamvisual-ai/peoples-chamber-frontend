@@ -11,6 +11,8 @@ import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
+import { CAREER_GROUPS, careerTimeline, careerDates, billOutcomeText, type CareerEntry } from '@/lib/career-timeline';
+import type { MpCareer } from '@/lib/mp-career';
 import type { QuestionsSummary } from '@/lib/mp-written-questions';
 import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
@@ -32,7 +34,7 @@ import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
-type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'edms' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
+type SectionId = 'bio' | 'career' | 'politicalcareer' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'edms' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
 // TEMPORARY: hide the Political Biography tab + section on every MP profile.
 // Bios stay in the database untouched; this only stops them rendering. To
@@ -55,6 +57,7 @@ const PHONE_FOLDS: Array<{ id: string; label: string; sections: SectionId[] }> =
   { id: 'roles', label: 'Roles', sections: ['roles'] },
   { id: 'diary', label: 'Diary', sections: ['diary'] },
   { id: 'background', label: 'Background and biography', sections: ['career', 'bio'] },
+  { id: 'politicalcareer', label: 'Political career', sections: ['politicalcareer'] },
   { id: 'contact', label: 'Contact', sections: ['contact'] },
 ];
 const PHONE_MAX = 639;
@@ -62,6 +65,7 @@ const PHONE_MAX = 639;
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
   { id: 'career',    label: 'BACKGROUND',       rotate: '-0.12deg' },
+  { id: 'politicalcareer', label: 'POLITICAL CAREER', rotate: '0.1deg' },
   { id: 'contact',   label: 'CONTACT',          rotate: '-0.1deg' },
   { id: 'voting',    label: 'VOTING RECORD',    rotate: '0.15deg' },
   { id: 'bills',     label: 'BILLS SPONSORED',  rotate: '-0.2deg' },
@@ -320,6 +324,7 @@ interface Props {
   /** Register of interests of MPs' staff entries naming this MP (job titles only), shown on the Interests tab. */
   staffInterests?: StaffInterest[];
   staffEmployed?: number; // distinct staff with outside employment, counted on the server (AB1)
+  career?: MpCareer | null; // Political career (PC1): mp_biography.career_parliament and career_research, lib/mp-career.ts
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
   contributions?: Contribution[];
@@ -458,6 +463,29 @@ function TimelineEntry({ entry, last }: { entry: BackgroundEntry; last: boolean 
     </div>
   );
 }
+// One Political career entry (PC1): its dates (a bill shows its outcome and session instead), title and organisation, the
+// detail (a finding exactly as stored, in quotation marks) and a link to its source.
+function CareerItem({ entry: e }: { entry: CareerEntry }) {
+  const dates = e.group === 'bills' ? '' : careerDates(e);
+  return (
+    <li className="og-read" style={{ padding: '6px 0', borderBottom: '1px dotted rgba(20,16,13,0.2)', fontSize: '15px', lineHeight: '24px', overflowWrap: 'anywhere' }}>
+      <div>
+        {dates && <strong style={{ fontFamily: 'monospace', marginRight: '0.6em' }}>{dates}</strong>}
+        <strong>{e.title}</strong>
+        {e.organisation && <>, {e.organisation}</>}
+      </div>
+      {e.group === 'bills' && (
+        <div>{e.detail ? `${e.detail}. ` : ''}{billOutcomeText(e)}{e.outcome !== 'no_further_stage' && e.session ? ` (${e.session} session)` : ''}</div>
+      )}
+      {e.group === 'findings' && e.detail && <div>&ldquo;{e.detail}&rdquo;</div>}
+      {e.group !== 'bills' && e.group !== 'findings' && e.detail && <div>{e.detail}</div>}
+      <div>
+        <a href={e.source.url} className="og-tap" target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612' }}>Source: {e.source.title}</a>
+      </div>
+    </li>
+  );
+}
+
 // "24 October 2026" from a stored YYYY-MM-DD date, read from its parts so the day never shifts with the time zone.
 const DAY_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function dayMonthYear(iso: string): string {
@@ -577,6 +605,7 @@ export default function MagazineProfileSections({
   conductFindings = [],
   staffInterests = [],
   staffEmployed = 0,
+  career = null,
   activity = null,
   contributions = [],
   writtenQuestions = null,
@@ -613,11 +642,14 @@ export default function MagazineProfileSections({
 
   const hasBackground = !!((bio?.background_timeline && bio.background_timeline.length > 0) || (bio?.career_history && bio.career_history.length > 0)
     || (bio?.education && bio.education.length > 0) || bio?.career_background);
+  const careerEntries = careerTimeline(career?.parliament, career?.research);
   const has: Record<SectionId, boolean> = {
     bio: bioVisible && paragraphs.length > 0,
     // Background (24 Oct 2026): shown for a sourced timeline or the older career/education fields.
     // Standards findings (3 Nov 2026) sit at the foot of Background, so the tab also shows for an MP with findings only.
     career: hasBackground || conductFindings.length > 0,
+    // Political career (PC1): shown when either part has an entry; each empty group is left out.
+    politicalcareer: careerEntries.length > 0,
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
@@ -985,6 +1017,32 @@ export default function MagazineProfileSections({
             </>
             )}
             <StandardsFindings findings={conductFindings} headingStyle={sectionH3} />
+          </>
+        )}
+        {active === 'politicalcareer' && careerEntries.length > 0 && (
+          <>
+            <h2 style={sectionH2}>Political career</h2>
+            <p style={{ fontSize: '15px', marginBottom: '16px' }}>Elections, posts, committees and bills from Parliament&rsquo;s own records, with findings and pledges where held. Each entry links to its source.</p>
+            {CAREER_GROUPS.map(({ group, heading }) => {
+              const rows = careerEntries.filter((e) => e.group === group);
+              if (rows.length === 0) return null;
+              return (
+                <section key={group} style={{ marginBottom: '18px' }}>
+                  {/* Each group folds on its own on phones, 25 a screen with JavaScript on and off (owner, 7 Nov 2026, PC1). */}
+                  <SubFold label={heading} summary={countOf(rows.length, 'entry', 'entries')}>
+                    <h3 style={{ ...backgroundLabel, margin: '0 0 6px' }}>{heading}</h3>
+                    <NoJsPager id={`career-${group}`} always count={rows.length} rows="> li" size={25}>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                        {rows.map((e, idx) => <CareerItem key={idx} entry={e} />)}
+                      </ul>
+                    </NoJsPager>
+                  </SubFold>
+                </section>
+              );
+            })}
+            {career?.checkedAt && (
+              <p style={{ fontSize: '15px', marginBottom: '26px' }}>Parliament records checked {dayMonthYear(career.checkedAt)}</p>
+            )}
           </>
         )}
         {active === 'bio' && bioVisible && (
@@ -2767,6 +2825,7 @@ export default function MagazineProfileSections({
     bills: { label: 'Bills sponsored', summary: sponsoredBills.length > 0 ? countOf(sponsoredBills.length, 'bill') : null },
   };
   const foldSummary: Record<string, string | null> = {
+    politicalcareer: careerEntries.length > 0 ? countOf(careerEntries.length, 'entry', 'entries') : null,
     background: timeline.length > 0 ? countOf(timeline.length, 'entry', 'entries') : conductFindings.length > 0 ? countOf(conductFindings.length, 'standards finding') : 'career and education',
     contact: [contact?.phone && 'phone', contact?.email && 'email', contact?.website && 'website', contact?.twitter && 'social media', contact?.address_line1 && 'address'].filter(Boolean).join(', ') || null,
     voting: countOf(totalVotes ?? votes.length, 'division'),

@@ -1,0 +1,165 @@
+// MP Political career, Parliament part (owner, 7 Nov 2026, PC1). For each MP, Parliament's own records: elections and party
+// from the Members API Biography (representations, partyAffiliations), posts (governmentPosts, oppositionPosts, otherPosts),
+// committees (committeeMemberships), and the bills they sponsored from the Bills API (/api/v1/Bills?MemberId=, paged), each
+// bill's outcome taken only from isAct, isDefeated, billWithdrawn and currentStage. Session dates come from Parliament's
+// What's On sessions list (the Bills API has none), fetched once a run.
+//
+// Writes only mp_biography.career_parliament and career_checked_at (never career_research). Every array passes
+// lib/career-timeline.ts validate() before anything is written. One API request a second; a failed request is tried again
+// after 2, 4 and 8 seconds; HTTP 429 or 403 stops the whole run.
+//
+//   npx tsx --tsconfig tsconfig.json scripts/sync-career-parliament.ts --dry-run --out <file.json> [--members 4131,1447]
+//   npx tsx --tsconfig tsconfig.json scripts/sync-career-parliament.ts [--members ...]       writes the database
+// Without --members it takes every current MP from the mps table. --dry-run writes the JSON file and never the database:
+// { generated, members: { "<id>": { name, career_parliament, notes } }, counts }. "notes" lists where Parliament's APIs
+// disagreed with each other or with our MP record, and any request that failed.
+import fs from 'node:fs';
+import { createClient } from '@supabase/supabase-js';
+import { validate, type CareerEntry, type BillOutcome } from '../lib/career-timeline';
+
+process.loadEnvFile(`${__dirname}/../.env.local`);
+const MEMBERS = 'https://members-api.parliament.uk/api';
+const BILLS = 'https://bills-api.parliament.uk/api/v1';
+const SESSIONS = 'https://whatson-api.parliament.uk/calendar/sessions/list.json';
+const PAGE = 20;
+
+const argv = process.argv.slice(2);
+const opt = (k: string) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : undefined; };
+const DRY = argv.includes('--dry-run');
+const OUT = opt('--out');
+if (DRY && !OUT) throw new Error('--dry-run needs --out <file.json>');
+const ONLY = opt('--members')?.split(',').map((s) => Number(s.trim())).filter((n) => Number.isInteger(n) && n > 0);
+
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
+
+// One request a second across the whole run, with retries.
+let last = 0;
+class Stop extends Error {}
+async function get<T>(url: string): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    const wait = 1000 - (Date.now() - last);
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    last = Date.now();
+    let status = 0;
+    try {
+      const res = await fetch(url, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(30000) });
+      status = res.status;
+      if (res.ok) return (await res.json()) as T;
+      if (status === 429 || status === 403) throw new Stop(`HTTP ${status} from ${url}: stopping the run`);
+      if (status === 404) throw new Error(`HTTP 404 from ${url}`);
+    } catch (e) {
+      if (e instanceof Stop || (e instanceof Error && e.message.startsWith('HTTP 404'))) throw e;
+    }
+    if (attempt >= 3) throw new Error(`${status ? `HTTP ${status}` : 'no answer'} from ${url} after 4 tries`);
+    await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
+  }
+}
+
+type Posting = { house: number; name: string; id: number; startDate: string | null; endDate: string | null; additionalInfo: string | null };
+type Biography = { representations: Posting[]; partyAffiliations: Posting[]; governmentPosts: Posting[]; oppositionPosts: Posting[]; otherPosts: Posting[]; committeeMemberships: Posting[] };
+type Bill = { billId: number; shortTitle: string; lastUpdate: string; billWithdrawn: string | null; isDefeated: boolean; isAct: boolean; includedSessionIds: number[]; introducedSessionId: number; currentStage: { description: string; sessionId: number } | null };
+type Session = { SessionId: number; StartDate: string; EndDate: string | null; CommonsDescription: string };
+
+const day = (s: string | null | undefined) => (s ? s.slice(0, 10) : null);
+const HOUSE = (h: number) => (h === 2 ? 'House of Lords' : 'House of Commons');
+
+function fromBiography(id: number, b: Biography): CareerEntry[] {
+  const src = { title: 'UK Parliament: Members API, career', url: `https://members.parliament.uk/member/${id}/career` };
+  const out: CareerEntry[] = [];
+  for (const r of b.representations ?? []) {
+    out.push({ group: 'elections', start: day(r.startDate), end: day(r.endDate) ?? 'present', title: r.house === 2 ? 'Member of the House of Lords' : `MP for ${r.name}`, organisation: r.house === 2 ? null : HOUSE(r.house), detail: r.additionalInfo?.trim() || null, source: src });
+  }
+  for (const p of b.partyAffiliations ?? []) {
+    out.push({ group: 'elections', start: day(p.startDate), end: day(p.endDate) ?? 'present', title: `Party: ${p.name}`, organisation: HOUSE(p.house), detail: null, source: src });
+  }
+  const posts: Array<[Posting[], string]> = [[b.governmentPosts, 'Government post'], [b.oppositionPosts, 'Opposition post'], [b.otherPosts, 'Other post']];
+  for (const [list, kind] of posts) {
+    for (const p of list ?? []) {
+      out.push({ group: 'posts', start: day(p.startDate), end: day(p.endDate) ?? 'present', title: p.name, organisation: p.additionalInfo?.trim() || null, detail: kind, source: src });
+    }
+  }
+  for (const c of b.committeeMemberships ?? []) {
+    out.push({ group: 'committees', start: day(c.startDate), end: day(c.endDate) ?? 'present', title: c.name, organisation: HOUSE(c.house), detail: c.additionalInfo?.trim() || null, source: src });
+  }
+  return out;
+}
+
+// A bill's outcome from isAct, isDefeated, billWithdrawn and currentStage only. "no_further_stage" only when its last
+// session has ended and it is not an Act, defeated or withdrawn.
+function fromBill(bill: Bill, sessions: Map<number, Session>, today: string, notes: string[]): CareerEntry {
+  const lastSessionId = Math.max(...(bill.includedSessionIds?.length ? bill.includedSessionIds : [bill.introducedSessionId]));
+  const s = sessions.get(lastSessionId);
+  const stage = bill.currentStage?.description ?? null;
+  const ended = !!s?.EndDate && s.EndDate.slice(0, 10) < today;
+  if (bill.isAct && (bill.isDefeated || bill.billWithdrawn)) notes.push(`bill ${bill.billId}: the Bills API marks it an Act and also ${bill.isDefeated ? 'defeated' : 'withdrawn'}`);
+  if (bill.isDefeated && bill.billWithdrawn) notes.push(`bill ${bill.billId}: the Bills API marks it both defeated and withdrawn`);
+  if (!s) notes.push(`bill ${bill.billId}: session ${lastSessionId} is not in Parliament's sessions list`);
+  const outcome: BillOutcome = bill.isAct ? 'became_law'
+    : bill.isDefeated ? 'defeated'
+    : bill.billWithdrawn ? 'withdrawn'
+    : ended ? 'no_further_stage'
+    : 'in_progress';
+  const end = outcome === 'withdrawn' ? day(bill.billWithdrawn) : day(bill.lastUpdate);
+  return {
+    group: 'bills', start: null, end, title: bill.shortTitle, organisation: null, detail: 'Sponsor',
+    outcome, stage, session: s?.CommonsDescription ?? `session ${lastSessionId}`,
+    source: { title: `UK Parliament Bills: ${bill.shortTitle}`, url: `https://bills.parliament.uk/bills/${bill.billId}` },
+  };
+}
+
+async function members(): Promise<Array<{ id: number; name: string; constituency: string | null; party: string | null }>> {
+  let q = db.from('mps').select('member_id, name, constituency, party').order('member_id');
+  q = ONLY?.length ? q.in('member_id', ONLY) : q.eq('current_member', true);
+  const { data, error } = await q;
+  if (error) throw new Error(`mps: ${error.message}`);
+  return (data ?? []).map((m) => ({ id: m.member_id as number, name: m.name as string, constituency: (m.constituency as string | null) ?? null, party: (m.party as string | null) ?? null }));
+}
+
+async function main() {
+  const today = new Date().toISOString().slice(0, 10);
+  const sessions = new Map((await get<Session[]>(SESSIONS)).map((s) => [s.SessionId, s]));
+  const list = await members();
+  if (ONLY?.length) for (const id of ONLY) if (!list.some((m) => m.id === id)) console.warn(`member ${id} is not in the mps table: left out`);
+  const result: Record<string, { name: string; career_parliament: CareerEntry[] | null; notes: string[] }> = {};
+  let written = 0, failed = 0;
+  for (const m of list) {
+    const notes: string[] = [];
+    let entries: CareerEntry[] | null = null;
+    try {
+      const bio = (await get<{ value: Biography }>(`${MEMBERS}/Members/${m.id}/Biography`)).value;
+      entries = fromBiography(m.id, bio);
+      // Our MP record against the Members API: the current seat and party.
+      const seat = (bio.representations ?? []).find((r) => r.house === 1 && !r.endDate);
+      const party = (bio.partyAffiliations ?? []).find((p) => !p.endDate);
+      if (m.constituency && seat && seat.name !== m.constituency) notes.push(`constituency: our record "${m.constituency}", Members API "${seat.name}"`);
+      if (m.party && party && party.name !== m.party && !(m.party.startsWith(party.name) || party.name.startsWith(m.party))) notes.push(`party: our record "${m.party}", Members API "${party.name}"`);
+      // Bills, paged.
+      let total = 0; const bills: Bill[] = [];
+      for (let skip = 0; ; skip += PAGE) {
+        const page = await get<{ items: Bill[]; totalResults: number }>(`${BILLS}/Bills?MemberId=${m.id}&Take=${PAGE}&Skip=${skip}`);
+        total = page.totalResults; bills.push(...page.items);
+        if (page.items.length < PAGE || bills.length >= total) break;
+      }
+      if (bills.length !== total) notes.push(`bills: the Bills API reported ${total} but returned ${bills.length}`);
+      entries.push(...bills.map((b) => fromBill(b, sessions, today, notes)));
+      const problems = validate(entries);
+      if (problems.length) { notes.push(...problems.map((p) => `invalid: ${p}`)); entries = null; }
+    } catch (e) {
+      if (e instanceof Stop) throw e;
+      notes.push(`error: ${e instanceof Error ? e.message : String(e)}`);
+      entries = null; failed++;
+    }
+    result[String(m.id)] = { name: m.name, career_parliament: entries, notes };
+    if (!DRY && entries) {
+      const { error } = await db.from('mp_biography').update({ career_parliament: entries, career_checked_at: new Date().toISOString() }).eq('member_id', m.id);
+      if (error) { notes.push(`write failed: ${error.message}`); failed++; } else written++;
+    }
+    console.log(`${m.id} ${m.name}: ${entries ? entries.length : 'no'} entries${notes.length ? `; ${notes.length} note(s)` : ''}`);
+  }
+  const counts: Record<string, number> = {};
+  for (const r of Object.values(result)) for (const e of r.career_parliament ?? []) counts[e.group] = (counts[e.group] ?? 0) + 1;
+  if (DRY) fs.writeFileSync(OUT!, JSON.stringify({ generated: new Date().toISOString(), members: result, counts }, null, 1));
+  console.log(`${list.length} MPs; ${DRY ? 'dry run, nothing written' : `${written} written`}; ${failed} failed; entries by group ${JSON.stringify(counts)}`);
+}
+
+main().catch((e) => { console.error(e instanceof Error ? e.message : e); process.exit(1); });

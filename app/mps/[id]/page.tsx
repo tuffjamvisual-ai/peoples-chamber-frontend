@@ -11,6 +11,7 @@ import FormerMpProfile from './FormerMpProfile';
 import HistoricRecord from './HistoricRecord';
 import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
+import { getMpCareer } from '@/lib/mp-career';
 import { getPeer } from '@/lib/lords';
 import { peerHasPage } from '@/lib/peers';
 import { questionsSummary, type QuestionsSummary } from '@/lib/mp-written-questions';
@@ -430,6 +431,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   );
   // Staff with outside interests (owner's brief, 3 Nov 2026): job titles only, never names. A failed read (or the
   // table before its migration) shows no section rather than failing the page.
+  // Political career (owner, 7 Nov 2026, PC1): its own read (lib/mp-career.ts), so the page never depends on it.
+  const pCareer = getMpCareer(supabase, memberId);
   const pStaffInterests = Promise.resolve(
     supabase
       .from('mp_staff_interests')
@@ -862,6 +865,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         pmqsQuestions,
         conductFindings: conductRes.data || [],
         staffInterests: staffForPage,
+        career: await pCareer,
         staffEmployed,
         activity: activityRes.data || null,
         // Votes against most of their party (is_rebellion, set from the MP's party on the day of the vote; see the
