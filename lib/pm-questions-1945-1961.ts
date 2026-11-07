@@ -10,9 +10,9 @@ const db = () => timedClient(30 * 86400, ['pmqs']);
 const QUESTIONS = 'pm_questions_1945_1961';
 const ROWS = 'pm_question_exchange_rows_1945_1961';
 
-// Newest first, as the session list above it on /pmqs. Macmillan's label tells this fold from his fold of sessions.
+// Newest first, as the session list above it on /pmqs. Macmillan's label carries the span of these questions, from the data, to tell this fold from his fold of sessions.
 const PRIME_MINISTERS: [string, string][] = [
-  ['Macmillan', 'Harold Macmillan (January 1957 to October 1961)'],
+  ['Macmillan', 'Harold Macmillan'],
   ['Eden', 'Anthony Eden'],
   ['Churchill', 'Winston Churchill'],
   ['Attlee', 'Clement Attlee'],
@@ -22,6 +22,9 @@ export type PreFixedDay = { date: string; questions: number };
 export type PreFixedYear = { year: string; questions: number; days: PreFixedDay[] };
 export type PreFixedGroup = { key: string; label: string; questions: number; days: number; years: PreFixedYear[] };
 export type PreFixedSummary = { questions: number; days: number; answeredBySomeoneElse: number; unconfirmedQuestions: number; unconfirmedDates: string[]; groups: PreFixedGroup[] };
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const monthYear = (iso: string) => `${MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`;
 
 type Listed = { question_id: number; date: string; prime_minister: string; answered_by: string; date_status: string };
 
@@ -43,7 +46,8 @@ export const preFixedSummary = cache(async (): Promise<PreFixedSummary> => {
       y.questions += d.questions;
       y.days.push(d);
     }
-    return { key, label, questions: days.reduce((n, d) => n + d.questions, 0), days: days.length, years };
+    const span = key === 'Macmillan' && days.length ? ` (${monthYear(days[days.length - 1].date)} to ${monthYear(days[0].date)})` : '';
+    return { key, label: `${label}${span}`, questions: days.reduce((n, d) => n + d.questions, 0), days: days.length, years };
   });
   const unconfirmed = rows.filter((r) => !r.date_status.startsWith('confirmed'));
   return {

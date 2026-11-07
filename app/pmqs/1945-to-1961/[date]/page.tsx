@@ -23,7 +23,7 @@ const link = { color: ACCENT, textDecoration: 'underline' };
 const body = { fontSize: '16px', lineHeight: 1.7, margin: '0 0 8px', whiteSpace: 'pre-line' as const };
 const OPENS = 2000;   // a longer contribution shows its opening, then a fold, on phones
 
-const heading = (date: string, n: number) => `Questions to the Prime Minister, ${longDateArchive(date)}: ${n} ${n === 1 ? 'question' : 'questions'}`;
+const heading = (date: string, n: number) => `${longDateArchive(date)}: ${n} ${n === 1 ? 'question' : 'questions'} to the Prime Minister`;
 const validDate = (date: string) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
 // The opening of a long contribution, ending at a line break where there is one, else a full stop. No words change.

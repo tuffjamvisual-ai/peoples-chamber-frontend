@@ -94,9 +94,9 @@ export default function PmqsAttendance() {
       </table>
 
       </div>
-      {/* Phones: the same rows as a list, 25 at a time. */}
+      {/* Phones: the same rows as a list, 15 at a time, so the page stays within 10,000px with the fold open (owner, 7 Nov 2026). */}
       <div className="pc-narrow">
-        <PagedList id="pmqs-missed" count={data.missed_dates.length} style={{ fontSize: '15px', lineHeight: 1.6 }}>
+        <PagedList id="pmqs-missed" count={data.missed_dates.length} size={15} style={{ fontSize: '15px', lineHeight: 1.6 }}>
           {data.missed_dates.map((m) => (
             <li key={m.date} className={njpItem('pmqs-missed')} style={{ padding: '10px 0', ...rowLine }}>
               <strong>{longDate(HANSARD_DATE[m.date]?.date ?? m.date)}</strong>

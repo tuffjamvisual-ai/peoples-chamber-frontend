@@ -16,7 +16,8 @@ import { topics } from '@/lib/topics';
 import { SECTION_PAGES } from '@/lib/site-nav';
 import { projectHref } from '@/lib/major-projects';
 import { RECOMMENDATIONS_PUBLIC, allStatus, recPath } from '@/lib/pac';
-import { yearHref } from '@/lib/division-links';
+import { divisionHref, yearHref } from '@/lib/division-links';
+import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -52,8 +53,8 @@ async function fetchAllRows<T>(
 // two counts: (1) Next never produced a /sitemap.xml index (robots.txt 404'd),
 // and (2) under Next 16 the `id` arg is a Promise<string>, but the code compared
 // it as a plain string, so every section fell through to an empty result.
-// Total URL count (static + transparency + departments + ~3.9k bills + 650 MPs)
-// is well under the 50k single-sitemap limit, so one file is simplest.
+// Total URL count (about 23,400 in November 2026) is well under the 50k
+// single-sitemap limit, so one file is simplest.
 // lastmod (owner's approval, 29 Oct 2026, Search Console; widened 5 Nov 2026, visibility campaign item 13): a URL carries
 // a date only where we hold a true one for that record, as each entry below says. Every other entry has no lastModified,
 // so a deploy or a bulk import never tells search engines that every page changed.
@@ -174,6 +175,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // /questions and each department's page, dated by the latest answer. Individual questions are not listed (owner, 6 Nov 2026).
   const questionStats = await questionDepartmentStats().catch(() => []);
+  // Questions to the Prime Minister, 1945 to 1961: the notes page, dated by when these questions were added, and each day, dated by the day, which does not change.
+  const preFixed = await preFixedSummary().catch(() => null);
+  const preFixedEntries: MetadataRoute.Sitemap = preFixed ? [
+    { url: `${SITE}/pmqs/1945-to-1961`, lastModified: new Date('2026-11-07'), changeFrequency: 'yearly', priority: 0.5 },
+    ...preFixed.groups.flatMap((g) => g.years.flatMap((y) => y.days.map((d) => ({ url: `${SITE}/pmqs/1945-to-1961/${d.date}`, lastModified: new Date(`${d.date}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 })))),
+  ] : [];
+
   const questionEntries: MetadataRoute.Sitemap = questionStats.length ? [
     { url: `${SITE}/questions`, ...dated(newest(...questionStats.map((r) => r.latest_answer))), changeFrequency: 'daily' as const, priority: 0.6 },
     ...QUESTION_DEPARTMENTS.map((d) => ({ url: `${SITE}/questions/department/${d.slug}`, ...dated(newest(questionStats.find((r) => r.answering_body_id === d.id)?.latest_answer)), changeFrequency: 'weekly' as const, priority: 0.5 })),
@@ -382,8 +390,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     perYear.set(y, (perYear.get(y) ?? 0) + 1);
     if (d.division_date_only > (newestInYear.get(y) ?? '')) newestInYear.set(y, d.division_date_only);
   }
-  // The archive's year pages too (11 Oct 2004 to 8 Mar 2016). Its 2,908 division pages are not listed: they are reached from these, pending the owner's decision.
-  const archiveDivisions = await fetchAllRows<{ division_date: string }>('historic_commons_divisions', 'division_date', (q) => q.order('division_date', { ascending: true }).order('division_number', { ascending: true }));
+  // The archive's year pages and its 2,908 division pages (11 Oct 2004 to 8 Mar 2016), each dated by the vote, which does not change (owner, 7 Nov 2026).
+  const archiveDivisions = await fetchAllRows<{ division_date: string; division_number: number }>('historic_commons_divisions', 'division_date, division_number', (q) => q.order('division_date', { ascending: true }).order('division_number', { ascending: true })).catch(() => []);
+  const archiveDivisionEntries: MetadataRoute.Sitemap = archiveDivisions.map((d) => ({ url: `${SITE}${divisionHref(d.division_date, d.division_number)}`, lastModified: new Date(`${d.division_date.slice(0, 10)}T00:00:00Z`), changeFrequency: 'yearly' as const, priority: 0.4 }));
   for (const d of archiveDivisions) {
     const y = Number(String(d.division_date).slice(0, 4));
     perYear.set(y, (perYear.get(y) ?? 0) + 1);
@@ -488,6 +497,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...dbBriefingEntries,
     ...pmqsEntries,
     ...pmqsArchiveEntries,
+    ...preFixedEntries,
     ...petitionEntries,
     ...constituencyEntries,
     ...motionEntries,
@@ -499,6 +509,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...peerEntries,
     ...councilEntries,
     ...divisionEntries,
+    ...archiveDivisionEntries,
     ...divisionYearEntries,
     ...committeeEntries,
     ...majorProjectEntries,

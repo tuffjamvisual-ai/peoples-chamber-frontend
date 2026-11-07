@@ -13,9 +13,9 @@ export default async function PreFixedQuestions() {
   const { groups } = await preFixedSummary();
   return (
     <>
-      <h3 id="before-fixed-pmqs" style={FOLDS_H3}>Before fixed PMQs: questions to the Prime Minister, 1945 to 1961</h3>
+      <h3 id="before-fixed-pmqs" style={FOLDS_H3}>Questions to the Prime Minister, 1945 to 1961</h3>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 4px' }}>
-        Before July 1961 there was no fixed time for questions to the Prime Minister. These are individual questions, not PMQs sessions, and are not counted in the session totals above.
+        Before fixed PMQs began in July 1961 there was no set time for questions to the Prime Minister. These are individual questions, not PMQs sessions, and are not counted in the session totals above.
       </p>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
         <Link href="/pmqs/1945-to-1961" prefetch={false} className="og-tap" style={{ color: '#7a1612', textDecoration: 'underline' }}>Notes on these questions</Link>
