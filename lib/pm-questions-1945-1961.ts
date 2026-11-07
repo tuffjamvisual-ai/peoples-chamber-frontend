@@ -3,6 +3,7 @@
 // every read is kept for 30 days under the PMQs tag.
 import 'server-only';
 import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { timedClient } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
 
@@ -28,7 +29,12 @@ const monthYear = (iso: string) => `${MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso
 
 type Listed = { question_id: number; date: string; prime_minister: string; answered_by: string; date_status: string };
 
-export const preFixedSummary = cache(async (): Promise<PreFixedSummary> => {
+// Built once and kept for 30 days under the 'pmqs' tag like the reads it uses (owner, 7 Nov 2026, W1): readAll's count is a
+// head request, which the fetch cache does not keep, so the count ran on every render of /pmqs, the home page and these pages.
+const preFixedSummaryCached = unstable_cache(async (): Promise<PreFixedSummary> => buildPreFixedSummary(), ['pm-questions-1945-1961-summary-v1'], { revalidate: 30 * 86400, tags: ['pmqs'] });
+export const preFixedSummary = cache(async (): Promise<PreFixedSummary> => preFixedSummaryCached());
+
+async function buildPreFixedSummary(): Promise<PreFixedSummary> {
   const rows = await readAll<Listed>(() => db().from(QUESTIONS), {
     columns: 'question_id, date, prime_minister, answered_by, date_status',
     orderBy: { column: 'question_id', ascending: true },
@@ -58,7 +64,7 @@ export const preFixedSummary = cache(async (): Promise<PreFixedSummary> => {
     unconfirmedDates: [...new Set(unconfirmed.map((r) => r.date))].sort(),
     groups,
   };
-});
+}
 
 export type PreFixedQuestion = { question_id: number; date: string; period_label: string | null; by_private_notice: string; section: string; exchange_id: string; date_status: string; hansard_reference: string | null; historic_hansard_url: string | null };
 export type PreFixedRow = { exchange_id: string; row_order: number; kind: string; speaker_as_printed: string | null; person_url: string | null; member_id: number | null; question_number: string | null; text: string };

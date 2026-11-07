@@ -6,6 +6,7 @@
 // To cover a new data-driven page: add its table here with the timestamp column
 // to check, the real-world cadence of the upstream source, and the page it feeds.
 
+import { revalidateTag, unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 
@@ -120,11 +121,11 @@ export function dataSource(key: string): DataSource | undefined {
   return DATA_SOURCES.find((s) => s.key === key);
 }
 
-// Read the newest timestamp for a source. Uses the same anon client the pages
-// already read these tables with, so RLS that permits the page permits this.
+// Read the newest timestamp for a source, live. Uses the same anon client the pages already read these tables with, so RLS
+// that permits the page permits this. The freshness monitor uses this; pages use newestTimestamp below.
 // A failed read throws (owner's approval, 21 Oct 2026), so a page built ahead keeps its last good version rather than
 // losing its "last updated" line; the freshness monitor catches it per source.
-export async function newestTimestamp(src: DataSource): Promise<Date | null> {
+export async function newestTimestampLive(src: DataSource): Promise<Date | null> {
   const { data, error } = await supabase
     .from(src.table)
     .select(src.column)
@@ -136,6 +137,25 @@ export async function newestTimestamp(src: DataSource): Promise<Date | null> {
   if (!raw) return null;
   const d = new Date(raw as string);
   return Number.isNaN(d.getTime()) ? null : d;
+}
+
+// The same, shared by every page and kept for an hour (owner, 7 Nov 2026, W1: these "latest row" reads ran on every page
+// render, about 6,100 times a day each). Tagged FRESHNESS_TAG, which the MP page refresh after syncs, /api/revalidate and
+// the syncs that write these tables expire at once (freshnessChanged), so a sync still shows its new date straight away.
+export const FRESHNESS_TAG = 'data-freshness';
+const newestCached = unstable_cache(async (table: string, column: string, key: string): Promise<string | null> => {
+  const d = await newestTimestampLive({ table, column, key } as DataSource);
+  return d ? d.toISOString() : null;
+}, ['data-freshness-v1'], { revalidate: 3600, tags: [FRESHNESS_TAG] });
+
+export async function newestTimestamp(src: DataSource): Promise<Date | null> {
+  const iso = await newestCached(src.table, src.column, src.key);
+  return iso ? new Date(iso) : null;
+}
+
+// Called where data these dates come from has just changed.
+export function freshnessChanged(): void {
+  try { revalidateTag(FRESHNESS_TAG, { expire: 0 }); } catch { /* outside a request: nothing cached to expire */ }
 }
 
 // The newest timestamp of several sources at once (owner, 1 Nov 2026: the "Last updated" line under each MP profile

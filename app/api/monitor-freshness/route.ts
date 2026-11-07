@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { DATA_SOURCES, CADENCE_MAX_AGE_DAYS, DEFAULT_ZERO_RUN_TOLERANCE, newestTimestamp, ageInDays } from '@/lib/data-freshness';
+import { DATA_SOURCES, CADENCE_MAX_AGE_DAYS, DEFAULT_ZERO_RUN_TOLERANCE, newestTimestampLive, ageInDays } from '@/lib/data-freshness';
 import { sendFreshnessAlert, sendDatabaseSizeAlert, sendBioReviewAlert, sendSewageReleaseAlert, type StaleSource, type BioReviewFlag } from '@/lib/email';
 import { getDatabaseSize } from '@/lib/database-size';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
@@ -72,7 +72,7 @@ async function GET_impl(req: Request) {
   for (const src of DATA_SOURCES) {
     // One source's failed read is logged and treated as no data, as before, so the other sources are still checked.
     let content: Date | null = null;
-    try { content = await newestTimestamp(src); } catch (e) { console.error('monitor-freshness:', (e as Error).message); }
+    try { content = await newestTimestampLive(src); } catch (e) { console.error('monitor-freshness:', (e as Error).message); }
     const contentAgeDays = content ? ageInDays(content, now) : null;
     const maxAge = CADENCE_MAX_AGE_DAYS[src.cadence];
 

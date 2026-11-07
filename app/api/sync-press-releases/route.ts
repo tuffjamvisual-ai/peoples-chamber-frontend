@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { freshnessChanged } from '@/lib/data-freshness';
 import { indexNowAfter } from '@/lib/indexnow';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { revalidatePath, revalidateTag, noteChanged } from '@/lib/refresh-count';
@@ -135,6 +136,7 @@ async function GET_impl(req: Request) {
     noteChanged(added + pagesRefreshed);
     let latestRefreshed = false;
     if (added > 0) { revalidateTag(PRESS_RELEASES_LATEST_TAG, 'max'); revalidatePath('/'); latestRefreshed = true; }
+    if (added > 0 || changedNews.length) freshnessChanged();
     indexNowAfter([...changedNews, ...(added > 0 ? ['/'] : [])], 'sync-press-releases');
     const failuresSaved = await failing.save();
     if (writeErrors > 0 && upserted === 0) {

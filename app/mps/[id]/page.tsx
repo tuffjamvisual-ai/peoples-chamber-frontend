@@ -22,6 +22,7 @@ import { mpPay } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { newestTimestamps } from '@/lib/data-freshness';
+import { latestSpadRelease, voteCounts as readVoteCounts } from '@/lib/mp-page-cache';
 import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
 import type { MpReports, MinisterMeeting, MinisterHospitality } from './MagazineProfileSections';
 import { titleWithin } from '@/lib/seo-title';
@@ -121,7 +122,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const [mp, votesCountRes, interestsCountRes, expensesCountRes, activityRes] = await Promise.all([
     getMp(memberId),
     // Vote counts in one index-only read (mp_vote_counts, migration 2026-10-21b).
-    supabase.rpc('mp_vote_counts', { p_member_id: memberId, p_since: PARL_START }),
+    readVoteCounts(memberId),
     supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true),
     supabase.from('mp_expenses_summary').select('id', { count: 'exact', head: true }).eq('member_id', memberId),
     // The attendance figure the page's headline shows (mp_activity_metrics), for the description (L4).
@@ -269,7 +270,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     // Every vote count the page shows, in one index-only read (mp_vote_counts, migration 2026-10-21b; owner's
     // approval, 21 Oct 2026): the total for the pagination footer and "N divisions recorded", and the votes against
     // the party below. It replaces four exact counts over mp_division_votes (up to 1.4 s each when not cached).
-    supabase.rpc('mp_vote_counts', { p_member_id: memberId, p_since: PARL_START }),
+    readVoteCounts(memberId),
     // Current register only (is_current). Historical rows added by the backfill
     // are retained but excluded from the profile's primary interests list.
     // Named columns, not '*': the nightly last_seen_date stamp (and the search vector) stay out of the page (owner, 30 Oct
@@ -356,7 +357,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // Special advisers this minister appointed, from the Cabinet Office's latest named list (owner, 28 Oct 2026).
   // Shown in the Roles tab; an error or a slow answer leaves the block out rather than failing the page.
   const pSpad = withTimeout((async () => {
-    const { data: rel } = await supabase.from('spad_releases').select('release_slug, as_at, headcount, fte, paybill, prior_paybill, source_url').order('as_at', { ascending: false }).limit(1).maybeSingle();
+    const rel = await latestSpadRelease();
     if (!rel) return null;
     const { data } = await supabase.from('spad_appointments')
       .select('adviser_name, minister_title, minister_name, minister_member_id, pay_band, salary_band_text, salary_band_min, notes')

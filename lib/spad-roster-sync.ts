@@ -2,6 +2,7 @@
 // costs" into spad_releases and spad_appointments. Weekly; the release comes out once a year, so a run whose release
 // has not changed since the last one (kept in sync_cursor) stops after one search and one content request.
 // Uses the shared budget and polite fetching (lib/sync-budget.ts): 20 s per request, Retry-After honoured.
+import { spadReleasesChanged } from '@/lib/mp-page-cache';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { SyncBudget, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
 import { SPAD_SEARCH, SPAD_UA, parseRelease, dedupe, matchMinisters, type MpName } from '@/lib/spad-roster';
@@ -86,6 +87,7 @@ export async function runSpadRosterSync(opts: { supabase: SupabaseClient; maxDur
     const now = new Date().toISOString();
     const { error: relError } = await supabase.from('spad_releases').upsert({ ...release, updated_at: now }, { onConflict: 'release_slug' });
     if (relError) throw new Error(`spad_releases: ${relError.message}`);
+    spadReleasesChanged();
     const out = rows.map((r) => ({ ...r, release_slug: slug, as_at: release.as_at, minister_member_id: r.minister_name ? ids.get(r.minister_name) ?? null : null, source_url: sourceUrl, updated_at: now }));
     for (const r of out) if (typeof r.minister_member_id === 'number') releaseMps.add(r.minister_member_id);
     const { error: apError } = await supabase.from('spad_appointments').upsert(out, { onConflict: 'release_slug,adviser_name,minister_title' });

@@ -1,4 +1,6 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { freshnessChanged } from '@/lib/data-freshness';
+import { voteCountsChanged } from '@/lib/mp-page-cache';
 import { NextResponse } from 'next/server';
 import { indexNowAfter } from '@/lib/indexnow';
 
@@ -13,6 +15,12 @@ export const dynamic = 'force-dynamic';
 // refreshes every page of that route, so it is passed to Next with the 'page' type. Any other path is an exact page.
 
 const MAX_ITEMS = 300;
+
+// A refresh means data changed: the shared "last updated" dates expire, and the cached vote counts when MP pages are named (W1).
+function dataChanged(paths: string[]) {
+  freshnessChanged();
+  if (paths.some((p) => p.startsWith('/mps'))) voteCountsChanged();
+}
 
 function refused(req: Request): NextResponse | null {
   const expected = process.env.CRON_SECRET;
@@ -34,6 +42,7 @@ export async function GET(req: Request) {
   const path = new URL(req.url).searchParams.get('path');
   if (!validPath(path)) return NextResponse.json({ error: "missing or invalid 'path' query param" }, { status: 400 });
   refreshPath(path);
+  dataChanged([path]);
   indexNowAfter([path], 'revalidate');
   return NextResponse.json({ revalidated: true, path, pattern: isPattern(path), at: new Date().toISOString() });
 }
@@ -55,6 +64,7 @@ export async function POST(req: Request) {
   if (bad.length) return NextResponse.json({ error: 'invalid paths or tags', invalid: bad.slice(0, 10) }, { status: 400 });
   for (const p of paths as string[]) refreshPath(p);
   // The exact pages refreshed (route patterns and tags name no single address) go to IndexNow (lib/indexnow.ts).
+  dataChanged(paths as string[]);
   indexNowAfter(paths as string[], 'revalidate');
   // 'max': the tagged entries are marked stale and refreshed on their next visit (the Next.js 16 form of revalidateTag).
   for (const t of tags as string[]) revalidateTag(t, 'max');
