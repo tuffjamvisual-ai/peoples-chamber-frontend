@@ -40,7 +40,7 @@ export const topics: TopicDef[] = [
     slug: 'housing',
     title: 'Housing',
     blurb:
-      'Housing is the policy area where national decisions land most directly on daily life: whether a family can afford to rent, whether a young person can ever buy, whether a council can house those with nowhere to go. Successive governments have promised hundreds of thousands of new homes a year and none has delivered them since the 1960s. Planning rules, leasehold reform, renters’ rights, social housing and council tax all sit here, and the gap between what is pledged and what is built is one of the defining failures of modern British government.',
+      'Housing policy covers how homes are planned, built, rented, bought and allocated. Planning rules, leasehold reform, renters’ rights, social housing and council tax all sit here.',
     departmentSlugs: ['housing'],
     deptApiNames: ['Ministry of Housing, Communities and Local Government'],
     words: ['housing', 'homeless', 'homelessness', 'renters', 'rent', 'rents', 'leasehold', 'leaseholders', 'tenant', 'tenants', 'tenancy', 'tenancies', 'landlord', 'landlords', 'planning', 'building safety', 'levelling up', 'social housing', 'park homes', 'commonhold'],
@@ -52,7 +52,7 @@ export const topics: TopicDef[] = [
     slug: 'immigration',
     title: 'Immigration',
     blurb:
-      'Few subjects move votes like immigration, and few are argued about with less reference to the numbers. It covers legal migration and work visas, asylum and the crossings in small boats, the size of the backlog, the cost of hotel accommodation, and the repeated attempts by governments of both parties to deter arrivals through deals, deterrents and legislation. The questions are genuinely hard: how to meet international obligations, control the border, and run a system that is neither cruel nor a magnet, all at once.',
+      'Immigration policy covers who can come to the UK, on what terms, and how arrivals are processed. It covers legal migration and work visas, asylum, small boat crossings, the asylum backlog, the cost of hotel accommodation, and the agreements and legislation governments have used on arrivals.',
     departmentSlugs: ['home-office'],
     deptApiNames: ['Home Office'],
     words: ['immigration', 'asylum', 'migrant', 'migrants', 'migration', 'border', 'borders', 'refugee', 'refugees', 'deportation', 'nationality', 'small boats'],
@@ -64,7 +64,7 @@ export const topics: TopicDef[] = [
     slug: 'nhs-and-health',
     title: 'NHS and Health',
     blurb:
-      'The NHS consumes nearly a fifth of all government spending and still cannot get patients seen on time. That is the starting point. Health policy decides how long people wait for an operation, whether they can see a GP, how social care is paid for, and how a service consuming nearly a fifth of all government spending copes with an ageing population. Waiting lists, workforce shortages, mental health provision and the unresolved question of who funds social care are the recurring battlegrounds, and the performance of the department behind them is measured here against what it was set up to deliver.',
+      'Health policy covers the NHS in England, public health and adult social care. It decides how long people wait for an operation, whether they can see a GP, and how social care is paid for. Waiting lists, the workforce, mental health provision and the funding of social care are among the questions covered here.',
     departmentSlugs: ['health'],
     deptApiNames: ['Department of Health and Social Care'],
     words: ['nhs', 'health', 'hospital', 'hospitals', 'social care', 'mental health', 'medicine', 'medicines', 'medical', 'patient', 'patients', 'tobacco', 'vapes', 'dentist', 'dentists', 'dental', 'hospice', 'hospices', 'assisted dying'],
@@ -76,7 +76,7 @@ export const topics: TopicDef[] = [
     slug: 'defence',
     title: 'Defence',
     blurb:
-      'Defence is where the gap between what politicians promise and what they fund is sharpest. The questions here are about how much the country spends on its armed forces, the state of the nuclear deterrent, support for veterans, the readiness of equipment and personnel, and the commitments Britain makes through NATO and to allies under pressure. War in Europe and instability in the Middle East have pushed defence back up the agenda after decades of cuts, and the decisions taken now will shape what the country can and cannot do for a generation.',
+      'Defence policy covers the armed forces, equipment, bases and the UK’s military commitments abroad. The questions here are about how much the country spends on its armed forces, the state of the nuclear deterrent, support for veterans, the readiness of equipment and personnel, and the commitments Britain makes through NATO and to allies under pressure.',
     departmentSlugs: ['defence'],
     deptApiNames: ['Ministry of Defence'],
     words: ['defence', 'armed forces', 'military', 'veteran', 'veterans', 'nato', 'army', 'navy', 'royal air force', 'service personnel', 'overseas operations'],
@@ -88,7 +88,7 @@ export const topics: TopicDef[] = [
     slug: 'education',
     title: 'Education',
     blurb:
-      'Education shapes every life chance the state can influence, from early years to university. Policy here covers school funding and standards, teacher recruitment and retention, special educational needs provision that is widely agreed to be in crisis, childcare costs, university finance and the balance between academic and vocational routes. It is an area where the effects of decisions take years to show and where quick savings can do lasting damage, which makes scrutiny of what is promised against what is funded particularly important.',
+      'Education policy covers early years, schools, further education and universities. It covers school funding and standards, teacher recruitment and retention, special educational needs provision, childcare costs, university finance and the balance between academic and vocational routes.',
     departmentSlugs: ['education'],
     deptApiNames: ['Department for Education'],
     words: ['education', 'school', 'schools', 'teacher', 'teachers', 'pupil', 'pupils', 'university', 'universities', 'student', 'students', 'childcare', 'skills', 'apprentice', 'apprentices', 'apprenticeship', 'apprenticeships', 'special educational needs', 'academies', 'higher education'],
@@ -100,7 +100,7 @@ export const topics: TopicDef[] = [
     slug: 'economy-and-tax',
     title: 'Economy and Tax',
     blurb:
-      'Everything else a government wants to do depends on the money to pay for it, which makes the economy the area where the hardest choices are made and the most promises broken. Tax rates and thresholds, the level of borrowing, growth and productivity, the cost of living and the rules governing business all sit here. Manifesto pledges not to raise particular taxes collide with the arithmetic of the public finances, and the distance between what was promised at an election and what is delivered in a Budget is one of the clearest tests of whether a government can be trusted.',
+      'Economic policy covers taxation, public spending, borrowing and the government’s plans for growth. Tax rates and thresholds, the level of borrowing, growth and productivity, the cost of living and the rules governing business all sit here.',
     departmentSlugs: ['treasury', 'business-trade'],
     deptApiNames: ['Treasury', 'Department for Business and Trade'],
     words: ['tax', 'taxes', 'taxation', 'budget', 'finance', 'fiscal', 'national insurance', 'vat', 'economy', 'economic', 'spending', 'business rates', 'customs'],
@@ -112,7 +112,7 @@ export const topics: TopicDef[] = [
     slug: 'welfare-and-benefits',
     title: 'Welfare and Benefits',
     blurb:
-      'The welfare system is how the state supports people who cannot support themselves, through pensions, disability benefits, universal credit and the safety net beneath work on low pay. It is also one of the largest single areas of spending and a perennial political battleground, where every reform pits the cost to the taxpayer against the consequences for the people who rely on it. Pension policy, disability assessments, the level of benefits for people of working age and the rules that decide who qualifies are all decided here, and the human stakes are higher than almost anywhere else in government.',
+      'The welfare system is how the state supports people who cannot support themselves, through pensions, disability benefits, universal credit and the safety net beneath work on low pay. Pension policy, disability assessments, the level of working age benefits and the rules that decide who qualifies are all decided here.',
     departmentSlugs: ['work-pensions'],
     deptApiNames: ['Department for Work and Pensions'],
     words: ['welfare', 'benefit', 'benefits', 'universal credit', 'pension', 'pensions', 'disability', 'disabilities', 'disabled', 'poverty', 'pip', 'personal independence payment', 'winter fuel', 'state pension', 'child benefit', 'carers', 'carer'],
@@ -124,7 +124,7 @@ export const topics: TopicDef[] = [
     slug: 'climate-and-energy',
     title: 'Climate and Energy',
     blurb:
-      'Climate and energy policy decides both how much households pay to heat their homes and what kind of country is handed to the next generation. It covers the path to net zero, the mix of renewables, nuclear and fossil fuels, the future of North Sea oil and gas, energy security after the shock of the Ukraine war, and the cost of the transition and who bears it. The tension at its heart is real: the case for decarbonisation over the long run against the immediate pressure of bills, jobs and supply, and governments are repeatedly forced to choose between them.',
+      'Climate and energy policy covers energy supply and prices, household bills and the UK’s emissions targets. It covers the path to net zero, the mix of renewables, nuclear and fossil fuels, the future of North Sea oil and gas, energy security after the shock of the Ukraine war, and the cost of the transition and who bears it.',
     departmentSlugs: ['energy', 'environment'],
     deptApiNames: ['Department for Energy Security and Net Zero', 'Department for Environment, Food and Rural Affairs'],
     words: ['climate', 'energy', 'net zero', 'carbon', 'renewable', 'renewables', 'electricity', 'emission', 'emissions', 'petroleum', 'environment', 'environmental', 'water', 'sewage', 'oil', 'gas', 'fracking'],
@@ -139,7 +139,7 @@ export const topics: TopicDef[] = [
     slug: 'justice-and-policing',
     title: 'Justice and Policing',
     blurb:
-      'Justice and policing cover the machinery that keeps order and holds people to account: the police, the courts, sentencing, prisons and the law itself. The system is under visible strain, with overflowing prisons, court backlogs that leave victims and defendants waiting years, and questions about whether sentencing matches public expectation. Decisions here determine whether crimes are investigated, whether trials happen in reasonable time, and whether the punishment of offenders serves protection, deterrence or simply warehousing. It is where the state’s power over the individual is at its most direct.',
+      'Justice and policing cover the machinery that keeps order and holds people to account: the police, the courts, sentencing, prisons and the law itself. It covers how crimes are investigated, how long trials take, and how offenders are sentenced and held.',
     departmentSlugs: ['justice', 'home-office'],
     deptApiNames: ['Ministry of Justice', 'Home Office'],
     words: ['justice', 'police', 'policing', 'crime', 'crimes', 'sentencing', 'sentence', 'sentences', 'prison', 'prisons', 'court', 'courts', 'criminal', 'offence', 'offences', 'offenders', 'victims', 'sexual'],
@@ -151,7 +151,7 @@ export const topics: TopicDef[] = [
     slug: 'transport',
     title: 'Transport',
     blurb:
-      'Transport policy is felt every day in the cost of a train ticket, the state of the roads and whether a bus still runs. It covers the railways and the long argument over ownership and fares, the future of major projects like HS2, road building and maintenance, aviation, and the shift towards electric vehicles and active travel. Big infrastructure decisions commit money for decades and are frequently revised, delayed or cancelled, and the record of what was announced against what was actually delivered is one of the more revealing measures of government competence.',
+      'Transport policy covers rail fares and services, roads and local buses. It covers the railways and the long argument over ownership and fares, the future of major projects like HS2, road building and maintenance, aviation, and the shift towards electric vehicles and active travel. It also covers major infrastructure projects.',
     departmentSlugs: ['transport'],
     deptApiNames: ['Department for Transport'],
     words: ['transport', 'rail', 'railway', 'railways', 'road', 'roads', 'hs2', 'bus', 'buses', 'aviation', 'driver', 'drivers', 'driving', 'highway', 'highways', 'cycling', 'electric vehicle', 'electric vehicles', 'motor vehicles', 'taxi', 'taxis', 'airport', 'airports', 'shipping', 'maritime'],
@@ -163,7 +163,7 @@ export const topics: TopicDef[] = [
     slug: 'foreign-affairs',
     title: 'Foreign Affairs',
     blurb:
-      'Foreign affairs is where Britain decides what kind of power it wants to be in the world. It covers diplomacy and alliances, the response to wars and crises, sanctions, trade relationships, international development and the management of the relationship with the United States and Europe. Much of it happens out of public view and is shaped by events the government cannot control, but the choices made about which conflicts to join, which partners to trust and which agreements to sign have consequences that reach back to security, the economy and the country’s standing for years afterwards.',
+      'Foreign policy covers the UK’s relations with other countries, its alliances, its treaties and its aid. It covers diplomacy and alliances, the response to wars and crises, sanctions, trade relationships, international development and the management of the relationship with the United States and Europe.',
     departmentSlugs: ['foreign-office'],
     deptApiNames: ['Foreign, Commonwealth and Development Office'],
     words: ['foreign', 'sanction', 'sanctions', 'gaza', 'israel', 'palestine', 'palestinian', 'iran', 'ukraine', 'diplomatic', 'overseas aid', 'commonwealth', 'trade agreement', 'trade agreements', 'international development', 'treaty', 'treaties'],
@@ -175,7 +175,7 @@ export const topics: TopicDef[] = [
     slug: 'constitutional-reform',
     title: 'Constitutional Reform',
     blurb:
-      'Constitutional reform is the argument about the rules of the game itself: how Parliament works, how power is held to account, and whether the system that produces British governments is fit for purpose. It covers the voting system and the case for proportional representation, reform of the House of Lords, devolution, the standards regime that governs MPs’ conduct and outside interests, and the mechanisms by which the public can remove those who fail them. Unlike most policy areas it has no single department behind it, but it shapes everything else, because it decides who gets to decide.',
+      'Constitutional reform covers the rules of the system itself: how Parliament works and how power is held to account. It covers the voting system, reform of the House of Lords, devolution, the standards regime that governs MPs’ conduct and outside interests, and the ways the public can remove elected representatives. Written questions on it are listed here under the Cabinet Office.',
     departmentSlugs: [],
     deptApiNames: ['Cabinet Office'],
     words: ['constitution', 'constitutional', 'house of lords', 'electoral', 'elections', 'devolution', 'referendum', 'recall', 'standards in public life', 'ministerial standards', 'boundary', 'boundaries', 'proportional representation', 'votes at 16', 'representation of the people', 'local government reorganisation'],
@@ -187,7 +187,7 @@ export const topics: TopicDef[] = [
     slug: 'culture-media-and-sport',
     title: 'Culture, Media and Sport',
     blurb:
-      'Culture, media and sport covers the BBC and the licence fee, Channel 4 and S4C, libraries and museums, the arts, the National Lottery and sport. It also covers the rules on gambling, press regulation and ticket resale, and the new independent regulator for English football. The BBC’s Royal Charter expires at the end of 2027, and decisions on how the BBC is funded after that are due in a government White Paper.',
+      'Culture, media and sport covers the BBC and the licence fee, Channel 4 and S4C, libraries and museums, the arts, the National Lottery and sport. It also covers the rules on gambling, press regulation and ticket resale, and the new independent regulator for English football.',
     departmentSlugs: ['culture'],
     // Written questions were answered as the Department for Culture, Media and Sport until the 2026 renaming.
     deptApiNames: ['Department for Digital, Culture, Media and Sport', 'Department for Culture, Media and Sport'],
