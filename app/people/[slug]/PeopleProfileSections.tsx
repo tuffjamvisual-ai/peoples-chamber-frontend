@@ -287,15 +287,9 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
           <>
             <h2 style={sectionH2}>Earnings</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', fontSize: '15px', lineHeight: 1.7 }}>
+              {/* Withheld (owner, 7 Nov 2026, N1): the figure held was GOV.UK's April 2022 table, not the current one. */}
               {finance.ministerial_salary_annual != null && (
-                <div style={{ borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
-                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
-                    Ministerial salary (entitled)
-                  </div>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-                    £{Number(finance.ministerial_salary_annual).toLocaleString()}
-                  </div>
-                </div>
+                <p style={{ margin: 0, borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>Ministerial salary: being updated from GOV.UK.</p>
               )}
 
               {finance.attendance_allowance_ytd != null && (
@@ -325,7 +319,8 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                 </div>
               )}
 
-              {finance.period_label && (
+              {/* The one period label held describes the withheld April 2022 salary figure, so it is withheld with it (N1). */}
+              {finance.period_label && finance.ministerial_salary_annual == null && (
                 <p style={{ fontSize: '15px', fontStyle: 'italic', color: '#14100d', marginTop: '8px', lineHeight: 1.6 }}>
                   {finance.period_label}
                 </p>

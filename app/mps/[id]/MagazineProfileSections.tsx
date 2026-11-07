@@ -1861,6 +1861,9 @@ export default function MagazineProfileSections({
           // the pay is real but undisclosed, so the outside-earnings figure
           // understates the true amount and is flagged where those rows exist.
           const mpEarningsTotal = (earnings.base || 0) + (earnings.ministerial || 0);
+          // Ministerial salaries are withheld (owner, 7 Nov 2026, N1): the figures held did not match GOV.UK's September 2026
+          // table. A minister's page shows a plain line instead, and no total that would include the old figure.
+          const holdsMinisterialPost = !!earnings.band_label;
           const undisclosedRoleCount = rows.filter((r) => r.total === 0).length;
 
           return (
@@ -1868,9 +1871,9 @@ export default function MagazineProfileSections({
               <h2 style={sectionH2}>Earnings</h2>
               <SectionUpdated date={lastUpdated.earnings} />
               <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.8' }}>
-                <li><strong>Base MP salary:</strong> {fmtMoney(earnings.base)}</li>
-                <li><strong>Ministerial salary:</strong> {fmtMoney(earnings.ministerial)} {earnings.band_label ? `(${earnings.band_label})` : ''}</li>
-                <li style={{ marginTop: '12px', fontSize: '20px' }}><strong>Total earnings as an MP:</strong> {fmtMoney(mpEarningsTotal)}</li>
+                <li><strong>Base MP salary (IPSA, from April 2026):</strong> {fmtMoney(earnings.base)}</li>
+                {holdsMinisterialPost && <li><strong>Ministerial salary:</strong> being updated from GOV.UK.</li>}
+                {!holdsMinisterialPost && <li style={{ marginTop: '12px', fontSize: '20px' }}><strong>Total earnings as an MP:</strong> {fmtMoney(mpEarningsTotal)}</li>}
                 <li style={{ fontSize: '15px', color: '#14100d' }}>Salary paid in connection with the role of MP. This is not a measure of total wealth.</li>
                 {memberId === 5158 && (
                   <li style={{ marginTop: '12px', fontSize: '15px', color: '#14100d' }}>
@@ -1987,7 +1990,7 @@ export default function MagazineProfileSections({
               )}
 
               <p style={{ marginTop: '20px', fontSize: '15px', lineHeight: 1.55 }}>
-                Base salary is set by IPSA and reviewed annually each 1 April. The ministerial supplement has been frozen at 2010 levels by successive prime ministers; figures shown are the rates actually drawn, not the statutory entitlement. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file, the current year is not totalled until IPSA reconciles year end.
+                Base salary is set by IPSA and reviewed annually each 1 April. Ministerial salaries are being updated from GOV.UK. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file, the current year is not totalled until IPSA reconciles year end.
               </p>
               {rows.some((r) => r.acoba) && (
                 <p style={{ marginTop: '12px', fontSize: '15px', lineHeight: 1.55 }}>
@@ -2725,7 +2728,7 @@ export default function MagazineProfileSections({
     roles: currentCommittees.length > 0
       ? countOf(currentCommittees.length, 'current committee')
       : countOf((bio?.government_posts?.length ?? 0) + (bio?.opposition_posts?.length ?? 0) + (bio?.committee_memberships?.length ?? 0) + (bio?.representations?.length ?? 0) + (bio?.party_history?.length ?? 0) + formerCommittees.length + (spadAdvisers?.rows.length ?? 0), 'entry', 'entries'),
-    earnings: `${fmtMoney((earnings.base || 0) + (earnings.ministerial || 0))} as an MP`,
+    earnings: earnings.band_label ? `${fmtMoney(earnings.base || 0)} MP salary` : `${fmtMoney((earnings.base || 0) + (earnings.ministerial || 0))} as an MP`,
     donations: declaredDonations.entryCount > 0 ? `${fmtMoney(declaredDonations.total)} on the current register` : 'none on the current register',
     diary: [ministerMeetings.length > 0 && countOf(ministerMeetings.length, 'meeting'), ministerHospitality.length > 0 && `${ministerHospitality.length.toLocaleString('en-GB')} hospitality`].filter(Boolean).join(', ') || null,
     expenses: latestExpenses?.total_spend != null ? `${fmtMoney(latestExpenses.total_spend)} in ${fmtExpenseYear(latestExpenses.year)}` : null,

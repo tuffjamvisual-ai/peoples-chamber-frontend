@@ -5,7 +5,6 @@ import EarningsTable from './EarningsTable'
 import BackLink from '../components/BackLink';
 import {
   MP_BASE_SALARY_2026,
-  MINISTERIAL_SUPPLEMENT,
   type SalaryBand,
 } from '@/lib/ministerial-salaries'
 import { displayMpName } from '@/lib/mp-name';
@@ -93,8 +92,10 @@ export default async function EarningsPage() {
   )
 
   const rows: EarningsRow[] = (mps || []).map((m: { member_id: number; name: string | null; display_name: string | null; constituency: string | null; party: string | null; party_colour: string | null; photo_url: string | null }) => {
+    // Ministerial salaries are withheld (owner, 7 Nov 2026, N1): the figures held did not match GOV.UK's September 2026
+    // table, so no row carries one and no total includes one until the rates are corrected.
     const band = bandByMember.get(m.member_id) || null
-    const ministerial = band ? MINISTERIAL_SUPPLEMENT[band] : 0
+    const ministerial = 0
     const outside = outsideByMember.get(m.member_id) || 0
     const base = MP_BASE_SALARY_2026
     return {
@@ -132,10 +133,11 @@ export default async function EarningsPage() {
         </h1>
         <p style={{ fontSize: '17px', lineHeight: 1.7, maxWidth: '720px' }}>
           The 50 highest paid current MPs ranked by personal earnings. <strong>Personal earnings</strong> are
-          money the MP actually receives: base salary, ministerial supplement, and declared outside earnings.
+          money the MP actually receives: base salary and declared outside earnings.
           <strong> Public spend</strong> is a separate column showing what IPSA reimburses for staff, office,
           travel and accommodation; it does <em>not</em> go into the MP&apos;s pocket.
         </p>
+        <p style={{ fontSize: '17px', lineHeight: 1.7, maxWidth: '720px', marginTop: '12px' }}>Ministerial salary: being updated from GOV.UK.</p>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px' }}>
           opengovt · MP Earnings
         </p>
@@ -147,15 +149,10 @@ export default async function EarningsPage() {
         <h2 className="text-[15px] uppercase tracking-[0.22em] font-semibold text-[#14100d]">Methodology</h2>
         <p>
           <strong className="text-[#14100d]">Base salary</strong>: £{MP_BASE_SALARY_2026.toLocaleString()} from
-          1 April 2026, applied to every sitting MP regardless of attendance.
+          1 April 2026 (IPSA), applied to every sitting MP regardless of attendance.
         </p>
         <p>
-          <strong className="text-[#14100d]">Ministerial supplement</strong>: paid on top of the base salary at
-          levels frozen since 2010 (PM £{MINISTERIAL_SUPPLEMENT.pm.toLocaleString()} claimed of £80,807 entitlement,
-          Cabinet Minister £{MINISTERIAL_SUPPLEMENT.sos.toLocaleString()},
-          Minister of State £{MINISTERIAL_SUPPLEMENT.minister_of_state.toLocaleString()},
-          Parliamentary Under-Secretary £{MINISTERIAL_SUPPLEMENT.puss.toLocaleString()}). An MP holding two
-          ministerial posts is only paid the highest single band.
+          <strong className="text-[#14100d]">Ministerial salary</strong>: being updated from GOV.UK.
         </p>
         <p>
           <strong className="text-[#14100d]">Outside earnings</strong>: extracted by regex from the
