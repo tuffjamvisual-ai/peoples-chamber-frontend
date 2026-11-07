@@ -14,6 +14,7 @@ import PeopleProfileSections, { type Role, type Interest, type PeerFinance } fro
 import OpenGovShell from '../../components/OpenGovShell';
 import type { ScsBand } from '@/lib/civil-service-salaries';
 import { resolvePersonName } from '@/lib/person-name';
+import { ministerialRateForSlug, ministerialSalaryText } from '@/lib/ministerial-salaries';
 import Link from 'next/link';
 import BackLink from '../../components/BackLink';
 export const revalidate = 21600;
@@ -138,6 +139,13 @@ async function getPersonAndInterests(
 export default async function PersonPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { person, interests, finance } = await getPersonAndInterests(slug);
+  // A Lords minister's salary (owner, 7 Nov 2026, N1): their GOV.UK category's claimed and entitled amounts from
+  // ministerial_salary_rates, found by their GOV.UK slug in dept_ministers. MPs' pay is on their MP page.
+  const peerRate = person ? await ministerialRateForSlug(slug) : null;
+  const isPeer = !!person && /^(the\s+)?(rt\.?\s+hon\.?\s+)?(lord|baroness)\b/i.test(person.name);
+  const ministerialPay = peerRate && peerRate !== 'unfiled'
+    ? (peerRate.house === 'Lords' ? { text: ministerialSalaryText(peerRate), pending: false } : null)
+    : peerRate === 'unfiled' && isPeer ? { text: null, pending: true } : null;
 
   // Return a real 404 (not a 200 "Person not found" soft 404) when the
   // slug matches no person. Renders app/people/[slug]/not-found.tsx, which
@@ -275,6 +283,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 pastRoles={person.pastRoles}
                 interests={interests}
                 finance={finance}
+                ministerialPay={ministerialPay}
                 salary={{
                   scsBand: person.scsBand,
                   actualPayFloor: person.actualPayFloor,

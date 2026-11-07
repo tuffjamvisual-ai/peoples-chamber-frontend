@@ -18,12 +18,7 @@ import { getHiddenBillIds } from '@/lib/hidden-bills';
 import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
 import MpDossier from './MpDossier';
 import RelatedLinks from '../../components/RelatedLinks';
-import {
-  MP_BASE_SALARY_2026,
-  MINISTERIAL_SUPPLEMENT,
-  SALARY_BAND_LABEL,
-  type SalaryBand,
-} from '@/lib/ministerial-salaries';
+import { mpPay } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { newestTimestamps } from '@/lib/data-freshness';
@@ -44,7 +39,6 @@ import MpEdmsSection from './MpEdmsSection';
 import { latestEdmsForMp, type MpEdmsTop } from '@/lib/edm-pages';
 import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-pages';
 
-const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
 // Shared MP-row fetch. generateMetadata and the page component run as
 // separate executions within the same request; React cache() dedupes the
@@ -243,7 +237,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     voteCountsRes,
     interestsRes,
     expensesRes,
-    ministerialRowsRes,
+    pay,
     outsideRowRes,
     committeeMembershipsRes,
     formerInterestsRes,
@@ -283,7 +277,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     supabase.from('mp_registered_interests').select('id, member_id, category_id, category_name, category_sort_order, interest_id, interest_text, created_when, last_amended_when, is_correction, child_interests, created_at, is_current, first_seen_date, source, donor_name, donor_amount, payment_type, received_date, accepted_date').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
     // Individual expense claims are fetched by the Expenses tab when it opens (app/api/mps/[id]/expenses).
-    supabase.from('dept_ministers').select('salary_band, dept_slug').eq('member_id', memberId).not('salary_band', 'is', null),
+    // MP and ministerial pay from ministerial_salary_rates (lib/ministerial-salaries.ts, N1).
+    mpPay(memberId),
     supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
     // Select committee memberships — current (end_date null) first, former newest-first.
     // Folded into this batch rather than awaited separately to avoid a serial round-trip.
@@ -745,25 +740,19 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     is_si: v.division_id != null && siDivisionIds.has(v.division_id),
   }));
 
-  let highestBand: SalaryBand | null = null;
-  for (const r of ministerialRowsRes.data || []) {
-    const b = r.salary_band as SalaryBand | null;
-    if (!b) continue;
-    if (!highestBand || BAND_RANK[b] > BAND_RANK[highestBand]) highestBand = b;
-  }
-
-  const ministerialAmount = highestBand ? MINISTERIAL_SUPPLEMENT[highestBand] : 0;
   const outsideAmount = outsideRowRes.data?.total_extracted ? Number(outsideRowRes.data.total_extracted) : 0;
   const latestExpense = (expensesRes.data && expensesRes.data[0]) || null;
   const earnings = {
-    base: MP_BASE_SALARY_2026,
-    band: highestBand,
-    band_label: highestBand ? SALARY_BAND_LABEL[highestBand] : null,
-    ministerial: ministerialAmount,
+    base: pay.base,
+    base_source: pay.baseSource,
+    ministerial: pay.ministerial,
+    ministerial_text: pay.ministerialText,
+    ministerial_pending: pay.ministerialPending,
+    ministerial_label: pay.ministerialLabel,
     outside: outsideAmount,
     outside_claim_count: outsideRowRes.data?.claim_count || 0,
     outside_source_count: outsideRowRes.data?.source_count || 0,
-    personal_total: MP_BASE_SALARY_2026 + ministerialAmount + outsideAmount,
+    personal_total: pay.base + pay.ministerial + outsideAmount,
     public_spend: latestExpense?.total_spend ? Number(latestExpense.total_spend) : 0,
     public_spend_year: latestExpense?.year || null,
   };

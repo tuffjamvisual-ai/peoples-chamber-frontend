@@ -58,6 +58,8 @@ interface Props {
   pastRoles: Role[];
   interests: Interest[];
   finance: PeerFinance | null;
+  // A Lords minister's salary from ministerial_salary_rates (N1): the claimed and entitled text, or pending.
+  ministerialPay?: { text: string | null; pending: boolean } | null;
   salary: Salary;
 }
 
@@ -76,14 +78,14 @@ const fmtDate = (s?: string | null) =>
 const fmtMonthYear = (s?: string | null) =>
   s ? shortMonthYear(s) : '';
 
-export default function PeopleProfileSections({ paragraphs, currentRoles, pastRoles, interests, finance, salary }: Props) {
+export default function PeopleProfileSections({ paragraphs, currentRoles, pastRoles, interests, finance, salary, ministerialPay = null }: Props) {
   const has: Record<SectionId, boolean> = {
     bio: paragraphs.length > 0,
     roles: currentRoles.length > 0,
     past: pastRoles.length > 0,
     interests: interests.length > 0,
     salary: !!(salary.scsBand || salary.actualPayFloor),
-    earnings: !!(finance && (finance.ministerial_salary_annual || finance.attendance_allowance_ytd || finance.expenses_total_ytd)),
+    earnings: !!ministerialPay || !!(finance && (finance.attendance_allowance_ytd || finance.expenses_total_ytd)),
   };
   const sections = ALL_SECTIONS.filter((s) => has[s.id]);
   const validIds = new Set<SectionId>(sections.map((s) => s.id));
@@ -283,44 +285,46 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
           </>
         )}
 
-        {active === 'earnings' && finance && (
+        {active === 'earnings' && (finance || ministerialPay) && (
           <>
             <h2 style={sectionH2}>Earnings</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', fontSize: '15px', lineHeight: 1.7 }}>
-              {/* Withheld (owner, 7 Nov 2026, N1): the figure held was GOV.UK's April 2022 table, not the current one. */}
-              {finance.ministerial_salary_annual != null && (
-                <p style={{ margin: 0, borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>Ministerial salary: being updated from GOV.UK.</p>
+              {/* The claimed salary with the entitled amount and GOV.UK's table (N1); peer_finance's old "(entitled)" figure is gone. */}
+              {ministerialPay && (
+                <p style={{ margin: 0, borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
+                  Ministerial salary: {ministerialPay.text ?? 'being updated from GOV.UK.'}
+                </p>
               )}
 
-              {finance.attendance_allowance_ytd != null && (
+              {finance?.attendance_allowance_ytd != null && (
                 <div style={{ borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
                   <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
                     Lords attendance allowance (YTD)
                   </div>
                   <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-                    £{Number(finance.attendance_allowance_ytd).toLocaleString()}
-                    {finance.attendance_days_ytd != null && (
+                    £{Number(finance!.attendance_allowance_ytd).toLocaleString()}
+                    {finance!.attendance_days_ytd != null && (
                       <span style={{ fontSize: '15px', fontWeight: 'normal', color: '#14100d', marginLeft: '10px' }}>
-                        ({finance.attendance_days_ytd} days)
+                        ({finance!.attendance_days_ytd} days)
                       </span>
                     )}
                   </div>
                 </div>
               )}
 
-              {finance.expenses_total_ytd != null && (
+              {finance?.expenses_total_ytd != null && (
                 <div style={{ borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
                   <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
                     Expenses (YTD)
                   </div>
                   <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-                    £{Number(finance.expenses_total_ytd).toLocaleString()}
+                    £{Number(finance!.expenses_total_ytd).toLocaleString()}
                   </div>
                 </div>
               )}
 
               {/* The one period label held describes the withheld April 2022 salary figure, so it is withheld with it (N1). */}
-              {finance.period_label && finance.ministerial_salary_annual == null && (
+              {finance?.period_label && finance.ministerial_salary_annual == null && (
                 <p style={{ fontSize: '15px', fontStyle: 'italic', color: '#14100d', marginTop: '8px', lineHeight: 1.6 }}>
                   {finance.period_label}
                 </p>

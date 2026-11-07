@@ -98,6 +98,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
             <Th label="#"        active={sortKey === 'rank'}           dir={sortDir} onClick={() => toggle('rank')}           align="right" width={28} />
             <Th label="MP"       active={sortKey === 'name'}           dir={sortDir} onClick={() => toggle('name')}           />
             <Th label="Base"     active={sortKey === 'base'}           dir={sortDir} onClick={() => toggle('base')}           align="right" />
+            <Th label="Minister." active={sortKey === 'ministerial'}    dir={sortDir} onClick={() => toggle('ministerial')}    align="right" />
             <Th label="Outside"  active={sortKey === 'outside'}        dir={sortDir} onClick={() => toggle('outside')}        align="right" />
             <Th label="Total"    active={sortKey === 'personal_total'} dir={sortDir} onClick={() => toggle('personal_total')} align="right" />
             <Th label="Public spend" active={sortKey === 'public_spend'} dir={sortDir} onClick={() => toggle('public_spend')} align="right" />
@@ -175,11 +176,16 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                             context — the MP's name links to their
                             profile, which carries the constituency. */}
                         {r.party || ''}
+                        {r.minister_label ? ` · ${r.minister_label}` : ''}
                       </div>
                     </div>
                   </div>
                 </td>
                 <td className="px-2 py-3 text-right text-[#14100d] tabular-nums whitespace-nowrap">{fmtMoney(r.base)}</td>
+                {/* The claimed ministerial salary (GOV.UK); a post not yet filed under a GOV.UK category says so (N1). */}
+                <td className={`px-2 py-3 text-right tabular-nums whitespace-nowrap ${r.ministerial ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
+                  {r.ministerial ? fmtMoney(r.ministerial) : r.ministerial_pending ? 'Being updated' : null}
+                </td>
                 <td className={`px-2 py-3 text-right tabular-nums whitespace-nowrap ${r.outside ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
                   {r.outside ? fmtMoney(r.outside) : null}
                 </td>

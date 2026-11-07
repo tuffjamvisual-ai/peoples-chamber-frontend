@@ -1,93 +1,144 @@
-// Ministerial salaries paid ON TOP OF the MP base salary.
-//
-// Ministerial pay in the Commons has been voluntarily frozen at 2010 levels
-// since the Cameron pay-restraint decision in 2010. The Ministerial and
-// other Salaries Act 1975 sets the statutory entitlement, but successive
-// PMs have continued to claim a reduced amount and ministers have been
-// paid the corresponding frozen rate.
-//
-// Source: House of Commons Library briefings on Members' Pay and Expenses
-//   - CBP-10600 (2025/26)
-//   - CBP-10225 (2024/25)
-//   - Ministerial salary information sheet M06 (Commons Information Office).
-// Cross-referenced with Hansard written answers (e.g. HL4728, May 2024).
+// MP and ministerial pay from the database (owner, 7 Nov 2026, N1; migration 2026-11-07d). The figures used to be
+// constants here ("2010-frozen levels"); they matched neither the claimed nor the entitled amounts in GOV.UK's September
+// 2026 table. Now every page reads ministerial_salary_rates through the functions below:
+//   - GOV.UK's categories (Commons and Lords), each with the entitled and the claimed salary, the date the figures apply
+//     from and the publication's address; the claimed salary is what a minister actually receives;
+//   - the MP salary (category mp_salary), with IPSA's announcement as its source.
+// Each dept_ministers row is filed under one category (salary_category); a minister holding several rows is paid once,
+// at the highest claimed rate among them. A minister whose rows are not yet filed (a new appointment the GOV.UK sync has
+// just added) shows "being updated" rather than a guess. /api/check-hand-loaded-releases emails when GOV.UK updates the
+// publication (hand_loaded_datasets row ministerial_salaries).
+import 'server-only';
+import { unstable_cache } from 'next/cache';
+import { supabase } from '@/lib/supabase';
 
-export const MP_BASE_SALARY_2026 = 98_599   // from 1 April 2026 (5% rise per IPSA)
-export const MP_BASE_SALARY_2025 = 93_904   // 2025-26 financial year prior to 1 April 2026
+export type SalaryRate = {
+  category: string; house: 'Commons' | 'Lords'; cabinet: boolean; entitled: number; claimed: number;
+  effective_from: string; source_url: string; checked_at: string;
+};
 
-export type SalaryBand =
-  | 'pm'                  // Prime Minister (currently claimed level)
-  | 'sos'                 // Cabinet Secretary of State + equivalents (Chief Whip, Leader of the House, etc.)
-  | 'minister_of_state'   // Minister of State, Commons
-  | 'puss'                // Parliamentary Under-Secretary of State, Commons (also Asst Whips, etc.)
+export const MP_SALARY_CATEGORY = 'mp_salary';
 
-// Supplements ON TOP OF the MP base salary.
-// These are 2010-frozen levels, claimed by successive governments.
-export const MINISTERIAL_SUPPLEMENT: Record<SalaryBand, number> = {
-  pm:                75_440,   // claimed; full statutory entitlement £80,807
-  sos:               72_310,   // Cabinet Minister / Secretary of State (Commons)
-  minister_of_state: 33_346,
-  puss:              25_277,
+// How each category reads on a page, from GOV.UK's own row names.
+export const CATEGORY_LABEL: Record<string, string> = {
+  commons_pm: 'Prime Minister',
+  commons_cabinet: 'Cabinet Minister',
+  commons_minister_of_state: 'Minister of State',
+  commons_parliamentary_secretary: 'Parliamentary Secretary',
+  commons_attorney_general: 'Attorney General',
+  commons_solicitor_general: 'Solicitor General',
+  commons_whip: 'Government Whip',
+  lords_leader_or_secretary_of_state: 'Leader of the House of Lords or Secretary of State',
+  lords_minister_of_state: 'Minister of State (Lords)',
+  lords_parliamentary_secretary: 'Parliamentary Secretary (Lords)',
+  lords_advocate_general: 'Advocate General for Scotland',
+  lords_chief_whip: 'Lords Chief Whip',
+  lords_deputy_chief_whip: 'Lords Deputy Chief Whip',
+  lords_in_waiting: 'Lord or Baroness in Waiting',
+};
+
+// Every rate, cached for a day under the 'salary-rates' tag (a correction refreshes it with that tag).
+export const salaryRates = unstable_cache(async (): Promise<SalaryRate[]> => {
+  const { data, error } = await supabase.from('ministerial_salary_rates')
+    .select('category, house, cabinet, entitled, claimed, effective_from, source_url, checked_at').order('category');
+  if (error) throw new Error(`ministerial_salary_rates: ${error.message}`);
+  return (data ?? []) as SalaryRate[];
+}, ['salary-rates-v1'], { tags: ['salary-rates'], revalidate: 86400 });
+
+export async function mpSalaryRate(): Promise<SalaryRate | null> {
+  return (await salaryRates()).find((r) => r.category === MP_SALARY_CATEGORY) ?? null;
 }
 
-export const SALARY_BAND_LABEL: Record<SalaryBand, string> = {
-  pm:                'Prime Minister',
-  sos:               'Cabinet Minister',
-  minister_of_state: 'Minister of State',
-  puss:              'Parliamentary Under-Secretary',
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
+// The publisher, from the source address: GOV.UK or IPSA.
+export function publisherOf(url: string): string {
+  const host = new URL(url).hostname.replace(/^www\./, '');
+  return host === 'gov.uk' ? 'GOV.UK' : host === 'theipsa.org.uk' ? 'IPSA' : host;
+}
+// The publication's month, from its address ("…-september-2026"), when it names one.
+export function publicationMonth(url: string): string | null {
+  const m = new URL(url).pathname.toLowerCase().match(new RegExp(`(${MONTHS.join('|')})-(20\\d\\d)\\b`));
+  return m ? `${cap(m[1])} ${m[2]}` : null;
+}
+export function longDate(iso: string): string {
+  const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+  return `${d} ${cap(MONTHS[m - 1])} ${y}`;
+}
+const pounds = (n: number) => `£${n.toLocaleString('en-GB')}`;
+
+// "£67,505 (claimed; entitled to £75,170). Source: GOV.UK, September 2026, figures from 1 April 2026."
+export function ministerialSalaryText(rate: SalaryRate): string {
+  const month = publicationMonth(rate.source_url);
+  return `${pounds(rate.claimed)} (claimed; entitled to ${pounds(rate.entitled)}). Source: ${publisherOf(rate.source_url)}${month ? `, ${month}` : ''}, figures from ${longDate(rate.effective_from)}.`;
+}
+// "IPSA, from 1 April 2026"
+export function mpSalarySource(rate: SalaryRate): string {
+  return `${publisherOf(rate.source_url)}, from ${longDate(rate.effective_from)}`;
 }
 
-/**
- * Best-effort mapping from a `dept_ministers.role` text to a salary band.
- * Order matters: most-specific patterns first.
- *
- * Roles that don't match any band (e.g. unpaid 'Minister without Portfolio',
- * special envoys, lords-only honorific posts) return null and contribute
- * nothing to the ministerial-supplement column on the earnings page.
- */
-export function bandForRole(role: string | null | undefined): SalaryBand | null {
-  if (!role) return null
-  const r = role.toLowerCase()
+type Filed = { member_id: number | null; slug: string | null; salary_category: string | null };
+// The highest claimed rate among a minister's filed rows; 'unfiled' when they hold rows but none is filed yet.
+function pick(rows: Filed[], rates: SalaryRate[]): SalaryRate | 'unfiled' | null {
+  if (!rows.length) return null;
+  const byCategory = new Map(rates.map((r) => [r.category, r]));
+  let best: SalaryRate | null = null;
+  for (const r of rows) {
+    const rate = r.salary_category ? byCategory.get(r.salary_category) : undefined;
+    if (rate && (!best || rate.claimed > best.claimed)) best = rate;
+  }
+  return best ?? 'unfiled';
+}
 
-  // PM bucket — match exact "Prime Minister" titling only
-  if (/^prime minister$/.test(r)) return 'pm'
+// One MP's ministerial rate (dept_ministers by member id).
+export async function ministerialRateForMember(memberId: number): Promise<SalaryRate | 'unfiled' | null> {
+  const [rates, { data, error }] = await Promise.all([
+    salaryRates(),
+    supabase.from('dept_ministers').select('member_id, slug, salary_category').eq('member_id', memberId),
+  ]);
+  if (error) throw new Error(`dept_ministers ${memberId}: ${error.message}`);
+  return pick((data ?? []) as Filed[], rates);
+}
 
-  // PUSS first — "Parliamentary Under-Secretary of State" contains the
-  // substring "Secretary of State", so this must be checked before the
-  // SoS clauses below or we'll wrongly bump junior ministers into Cabinet
-  if (/parliamentary under[- ]secretary/.test(r)) return 'puss'
+// A person's ministerial rate by their GOV.UK slug (people pages; Lords ministers have no MP id).
+export async function ministerialRateForSlug(slug: string): Promise<SalaryRate | 'unfiled' | null> {
+  const [rates, { data, error }] = await Promise.all([
+    salaryRates(),
+    supabase.from('dept_ministers').select('member_id, slug, salary_category').eq('slug', slug),
+  ]);
+  if (error) throw new Error(`dept_ministers ${slug}: ${error.message}`);
+  return pick((data ?? []) as Filed[], rates);
+}
 
-  // Cabinet-rate posts
-  if (/\bdeputy prime minister\b/.test(r)) return 'sos'
-  if (/\bsecretary of state\b/.test(r)) return 'sos'
-  if (/\bchief secretary to the treasury\b/.test(r)) return 'sos'
-  if (/\bchancellor of the exchequer\b/.test(r)) return 'sos'
-  if (/\bchancellor of the duchy of lancaster\b/.test(r)) return 'sos'
-  if (/\bleader of the house\b/.test(r)) return 'sos'
-  if (/\bgovernment chief whip\b/.test(r)) return 'sos'
-  if (/\bparliamentary secretary to the treasury\b/.test(r)) return 'sos'   // = Chief Whip
-  if (/\blord president of the council\b/.test(r)) return 'sos'
-  if (/\blord privy seal\b/.test(r)) return 'sos'
-  if (/\battorney general\b/.test(r)) return 'sos'
-  if (/\badvocate general\b/.test(r)) return 'sos'
-  if (/^chief secretary to the prime minister/.test(r)) return 'sos'
+// Every MP minister's rate, by member id (the /earnings table).
+export async function ministerialRatesByMember(): Promise<Map<number, SalaryRate | 'unfiled'>> {
+  const [rates, { data, error }] = await Promise.all([
+    salaryRates(),
+    supabase.from('dept_ministers').select('member_id, slug, salary_category').not('member_id', 'is', null),
+  ]);
+  if (error) throw new Error(`dept_ministers: ${error.message}`);
+  const byMember = new Map<number, Filed[]>();
+  for (const r of (data ?? []) as Filed[]) byMember.set(r.member_id!, [...(byMember.get(r.member_id!) ?? []), r]);
+  const out = new Map<number, SalaryRate | 'unfiled'>();
+  for (const [id, rows] of byMember) { const p = pick(rows, rates); if (p) out.set(id, p); }
+  return out;
+}
 
-  // Minister of State and Treasury seconds
-  if (/\bminister of state\b/.test(r)) return 'minister_of_state'
-  if (/\beconomic secretary to the treasury\b/.test(r)) return 'minister_of_state'
-  if (/\bexchequer secretary to the treasury\b/.test(r)) return 'minister_of_state'
-  if (/\bfinancial secretary to the treasury\b/.test(r)) return 'minister_of_state'
-  if (/^minister for the cabinet office/.test(r)) return 'minister_of_state'
-
-  // Other PUSS equivalents
-  if (/parliamentary secretary\b/.test(r) && !/treasury/.test(r)) return 'puss'
-  if (/\bsolicitor general\b/.test(r)) return 'puss'
-
-  // Whips (junior) — paid at varying rates around the PUSS level
-  if (/\bassistant whip\b/.test(r)) return 'puss'
-  if (/\blord(s)? of the treasury\b/.test(r)) return 'puss'             // junior whip
-  if (/(?:baroness|lord) in waiting/.test(r)) return 'puss'             // government whip in the Lords
-  if (/\bgovernment whip\b/.test(r)) return 'puss'
-
-  return null
+// What an MP page shows for pay: the MP salary with its source and date, and the ministerial salary when the MP holds a
+// post (its claimed amount, entitled amount and source), or "being updated" when their post is not yet filed.
+export type MpPay = {
+  base: number; baseSource: string | null;
+  ministerial: number; ministerialText: string | null; ministerialPending: boolean; ministerialLabel: string | null;
+};
+export async function mpPay(memberId: number): Promise<MpPay> {
+  const [mp, minister] = await Promise.all([mpSalaryRate(), ministerialRateForMember(memberId)]);
+  const rate = minister && minister !== 'unfiled' ? minister : null;
+  return {
+    base: mp?.claimed ?? 0,
+    baseSource: mp ? mpSalarySource(mp) : null,
+    ministerial: rate?.claimed ?? 0,
+    ministerialText: rate ? ministerialSalaryText(rate) : null,
+    ministerialPending: minister === 'unfiled',
+    ministerialLabel: rate ? CATEGORY_LABEL[rate.category] ?? null : null,
+  };
 }

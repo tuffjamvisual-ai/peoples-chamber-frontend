@@ -4,8 +4,7 @@ import OpenGovShell from '../components/OpenGovShell'
 import EarningsTable from './EarningsTable'
 import BackLink from '../components/BackLink';
 import {
-  MP_BASE_SALARY_2026,
-  type SalaryBand,
+  CATEGORY_LABEL, ministerialRatesByMember, mpSalaryRate, mpSalarySource, ministerialSalaryText, salaryRates,
 } from '@/lib/ministerial-salaries'
 import { displayMpName } from '@/lib/mp-name';
 
@@ -33,7 +32,8 @@ export type EarningsRow = {
   party: string | null
   party_colour: string | null
   photo_url: string | null
-  salary_band: SalaryBand | null
+  minister_label: string | null      // GOV.UK's category for the post (lib/ministerial-salaries.ts)
+  ministerial_pending: boolean       // holds a post not yet filed: no figure and no total
   base: number
   ministerial: number
   outside: number
@@ -41,12 +41,11 @@ export type EarningsRow = {
   public_spend: number
 }
 
-const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 }
 
 export default async function EarningsPage() {
   const [
     { data: mps },
-    { data: ministerRows },
+    ministerRates,
     { data: outsideRows },
     { data: expenseRows },
   ] = await Promise.all([
@@ -54,11 +53,8 @@ export default async function EarningsPage() {
       .from('mps')
       .select('member_id, name, display_name, constituency, party, party_colour, photo_url, current_member')
       .eq('current_member', true),
-    supabase
-      .from('dept_ministers')
-      .select('member_id, salary_band')
-      .not('salary_band', 'is', null)
-      .not('member_id', 'is', null),
+    // Each MP minister's rate from ministerial_salary_rates (highest claimed among their posts; N1).
+    ministerialRatesByMember(),
     supabase
       .from('mp_outside_earnings_summary')
       .select('member_id, total_extracted'),
@@ -68,15 +64,8 @@ export default async function EarningsPage() {
       .eq('year', YEAR),
   ])
 
-  // Highest band per member_id (so an MP holding two ministerial roles
-  // doesn't get paid twice — the ministerial salary is per-person, not per-role)
-  const bandByMember = new Map<number, SalaryBand>()
-  for (const r of ministerRows || []) {
-    if (!r.member_id || !r.salary_band) continue
-    const band = r.salary_band as SalaryBand
-    const cur = bandByMember.get(r.member_id)
-    if (!cur || BAND_RANK[band] > BAND_RANK[cur]) bandByMember.set(r.member_id, band)
-  }
+  const [mpRate, rates] = await Promise.all([mpSalaryRate(), salaryRates()])
+  const base = mpRate?.claimed ?? 0
 
   const outsideByMember = new Map<number, number>(
     (outsideRows || []).map((r: { member_id: number; total_extracted: number | string | null }) => [
@@ -92,12 +81,10 @@ export default async function EarningsPage() {
   )
 
   const rows: EarningsRow[] = (mps || []).map((m: { member_id: number; name: string | null; display_name: string | null; constituency: string | null; party: string | null; party_colour: string | null; photo_url: string | null }) => {
-    // Ministerial salaries are withheld (owner, 7 Nov 2026, N1): the figures held did not match GOV.UK's September 2026
-    // table, so no row carries one and no total includes one until the rates are corrected.
-    const band = bandByMember.get(m.member_id) || null
-    const ministerial = 0
+    const rate = ministerRates.get(m.member_id)
+    const filed = rate && rate !== 'unfiled' ? rate : null
+    const ministerial = filed?.claimed ?? 0
     const outside = outsideByMember.get(m.member_id) || 0
-    const base = MP_BASE_SALARY_2026
     return {
       member_id: m.member_id,
       name: displayMpName(m.display_name || m.name || ''),
@@ -105,7 +92,8 @@ export default async function EarningsPage() {
       party: m.party,
       party_colour: m.party_colour,
       photo_url: m.photo_url,
-      salary_band: band,
+      minister_label: filed ? CATEGORY_LABEL[filed.category] ?? null : null,
+      ministerial_pending: rate === 'unfiled',
       base,
       ministerial,
       outside,
@@ -133,11 +121,10 @@ export default async function EarningsPage() {
         </h1>
         <p style={{ fontSize: '17px', lineHeight: 1.7, maxWidth: '720px' }}>
           The 50 highest paid current MPs ranked by personal earnings. <strong>Personal earnings</strong> are
-          money the MP actually receives: base salary and declared outside earnings.
+          money the MP actually receives: base salary, any ministerial salary (the amount claimed) and declared outside earnings.
           <strong> Public spend</strong> is a separate column showing what IPSA reimburses for staff, office,
           travel and accommodation; it does <em>not</em> go into the MP&apos;s pocket.
         </p>
-        <p style={{ fontSize: '17px', lineHeight: 1.7, maxWidth: '720px', marginTop: '12px' }}>Ministerial salary: being updated from GOV.UK.</p>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px' }}>
           opengovt · MP Earnings
         </p>
@@ -148,12 +135,19 @@ export default async function EarningsPage() {
       <section className="mt-10 text-[15px] text-[#14100d]/80 leading-[1.75] space-y-3 max-w-3xl">
         <h2 className="text-[15px] uppercase tracking-[0.22em] font-semibold text-[#14100d]">Methodology</h2>
         <p>
-          <strong className="text-[#14100d]">Base salary</strong>: £{MP_BASE_SALARY_2026.toLocaleString()} from
-          1 April 2026 (IPSA), applied to every sitting MP regardless of attendance.
+          <strong className="text-[#14100d]">Base salary</strong>: £{base.toLocaleString('en-GB')}
+          {mpRate ? ` (${mpSalarySource(mpRate)})` : ''}, applied to every sitting MP regardless of attendance.
         </p>
         <p>
-          <strong className="text-[#14100d]">Ministerial salary</strong>: being updated from GOV.UK.
+          <strong className="text-[#14100d]">Ministerial salary</strong>: the amount a minister claims, paid on top of
+          the base salary; ministers have chosen to claim less than they are entitled to by law. An MP holding two posts
+          is paid once, for the higher one.
         </p>
+        <ul className="list-none p-0">
+          {rates.filter((r) => r.house === 'Commons' && CATEGORY_LABEL[r.category]).sort((a, b) => b.claimed - a.claimed).map((r) => (
+            <li key={r.category}>{CATEGORY_LABEL[r.category]}: {ministerialSalaryText(r)}</li>
+          ))}
+        </ul>
         <p>
           <strong className="text-[#14100d]">Outside earnings</strong>: extracted by regex from the
           &ldquo;Employment and earnings&rdquo; category of the Register of Members&apos; Financial Interests.

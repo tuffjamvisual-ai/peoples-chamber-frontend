@@ -129,7 +129,7 @@ async function fetchOrg(govukSlug: string) {
 // A list is rewritten only when it differs from the stored one (owner, 30 Oct 2026, cache Stage 2a part 3: unchanged
 // rows are not rewritten), compared in order without updated_at; ministers whose row changed have their MP pages
 // refreshed. `dry` (?dry=1, local tests only) compares but writes nothing.
-const MIN_COLS = ['name', 'role', 'slug', 'is_secretary_of_state', 'photo_url', 'member_id', 'salary_band', 'resigned'] as const;
+const MIN_COLS = ['name', 'role', 'slug', 'is_secretary_of_state', 'photo_url', 'member_id', 'salary_band', 'salary_category', 'resigned'] as const;
 const OFF_COLS = ['name', 'role', 'slug', 'category', 'role_rank', 'appointment_date', 'previous_role', 'photo_url'] as const;
 const AG_COLS = ['name', 'url', 'slug', 'acronym'] as const;
 const pick = (r: Record<string, unknown>, cols: readonly string[]) => Object.fromEntries(cols.map((c) => [c, r[c] ?? null]));
@@ -151,11 +151,13 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
     supabase.from('dept_officials').select(OFF_COLS.join(', ')).eq('dept_slug', deptSlug).order('id'),
     supabase.from('dept_agencies').select(AG_COLS.join(', ')).eq('dept_slug', deptSlug).order('id'),
   ]) as unknown as { data: Record<string, unknown>[] | null }[];
-  const minByName = new Map<string, { photo_url: string | null; member_id: number | null; salary_band: string | null; resigned: boolean }>();
+  const minByName = new Map<string, { photo_url: string | null; member_id: number | null; salary_band: string | null; salary_category: string | null; role: string | null; resigned: boolean }>();
   (existingMins || []).forEach((r) => minByName.set(r.name as string, {
     photo_url: (r.photo_url as string | null) ?? null,
     member_id: (r.member_id as number | null) ?? null,
     salary_band: (r.salary_band as string | null) ?? null,
+    salary_category: (r.salary_category as string | null) ?? null,
+    role: (r.role as string | null) ?? null,
     resigned: !!r.resigned,
   }));
   const offByName = new Map<string, { photo_url: string | null }>();
@@ -212,6 +214,9 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
       photo_url: preserved?.photo_url ?? null,
       member_id: preserved?.member_id ?? null,
       salary_band: preserved?.salary_band ?? null,
+      // GOV.UK salary category (migration 2026-11-07d, N1): kept only while the minister holds the same post; a new or
+      // changed post is left unfiled, and the pages say the salary is being updated until it is filed.
+      salary_category: preserved && preserved.role === m.role ? preserved.salary_category : null,
       resigned: preserved?.resigned ?? false,
       updated_at: now,
     };
