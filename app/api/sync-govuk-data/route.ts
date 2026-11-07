@@ -160,6 +160,22 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
     role: (r.role as string | null) ?? null,
     resigned: !!r.resigned,
   }));
+  // The MP record and the salary category follow the GOV.UK person (their /government/people slug, or failing that their
+  // name as GOV.UK writes it) across every department, so a renamed or moved minister keeps their member_id, and keeps
+  // their salary category while they hold the same post (owner, 7 Nov 2026, S2). Read from all departments, not just this one.
+  const { data: allMins, error: allMinsErr } = await supabase.from('dept_ministers').select('name, slug, role, member_id, salary_category');
+  if (allMinsErr) throw new Error(`dept_ministers (all): ${allMinsErr.message}`);
+  const memberByPerson = new Map<string, number>();
+  const categoryByPost = new Map<string, string>();
+  for (const r of (allMins ?? []) as { name: string; slug: string | null; role: string | null; member_id: number | null; salary_category: string | null }[]) {
+    for (const who of [r.slug ? `slug:${r.slug}` : null, `name:${r.name}`]) {
+      if (!who) continue;
+      if (r.member_id != null && !memberByPerson.has(who)) memberByPerson.set(who, r.member_id);
+      if (r.salary_category && r.role) categoryByPost.set(`${who}|${r.role}`, r.salary_category);
+    }
+  }
+  const memberFor = (slug: string, name: string) => (slug ? memberByPerson.get(`slug:${slug}`) : undefined) ?? memberByPerson.get(`name:${name}`) ?? null;
+  const categoryFor = (slug: string, name: string, role: string) => (slug ? categoryByPost.get(`slug:${slug}|${role}`) : undefined) ?? categoryByPost.get(`name:${name}|${role}`) ?? null;
   const offByName = new Map<string, { photo_url: string | null }>();
   (existingOffs || []).forEach((r) => offByName.set(r.name as string, { photo_url: (r.photo_url as string | null) ?? null }));
 
@@ -212,11 +228,12 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
       slug: m.slug,
       is_secretary_of_state: i === leadIdx,
       photo_url: preserved?.photo_url ?? null,
-      member_id: preserved?.member_id ?? null,
+      // A row this department already holds keeps exactly what it had; only a row new to the department looks the person up.
+      member_id: preserved ? preserved.member_id : memberFor(m.slug, m.name),
       salary_band: preserved?.salary_band ?? null,
-      // GOV.UK salary category (migration 2026-11-07d, N1): kept only while the minister holds the same post; a new or
+      // GOV.UK salary category (migration 2026-11-07d, N1): kept only while the same person holds the same post; a new or
       // changed post is left unfiled, and the pages say the salary is being updated until it is filed.
-      salary_category: preserved && preserved.role === m.role ? preserved.salary_category : null,
+      salary_category: preserved && preserved.role === m.role ? preserved.salary_category : categoryFor(m.slug, m.name, m.role),
       resigned: preserved?.resigned ?? false,
       updated_at: now,
     };
