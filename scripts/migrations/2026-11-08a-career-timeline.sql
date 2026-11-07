@@ -50,7 +50,7 @@ COMMENT ON COLUMN public.mp_biography.career_checked_at IS
   'When scripts/sync-career-parliament.ts last checked career_parliament against Parliament''s APIs.';
 
 -- Self-check: three columns of the right types, both constraints, RLS on, the row count unchanged, and anon and
--- authenticated holding exactly the privileges they held before (SELECT only).
+-- authenticated holding exactly the privileges they held before (none).
 DO $$
 DECLARE
   changed integer;
@@ -77,7 +77,6 @@ BEGIN
   SELECT count(*) INTO writes FROM ct_privs_before b
    WHERE b.priv <> 'SELECT' AND has_table_privilege(b.role, 'public.mp_biography', b.priv);
   IF writes <> 0 THEN RAISE EXCEPTION 'anon or authenticated hold % write privileges on mp_biography', writes; END IF;
-  IF NOT has_table_privilege('anon', 'public.mp_biography', 'SELECT') THEN RAISE EXCEPTION 'anon lost SELECT'; END IF;
   RAISE NOTICE '2026-11-08a: career columns added; % rows unchanged', (SELECT n FROM ct_rows_before);
 END $$;
 
