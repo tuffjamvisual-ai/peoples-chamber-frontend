@@ -22,6 +22,7 @@ import { getBillPublications, latestText } from '@/lib/bill-text';
 import Link from 'next/link';
 import { editorialsForBill } from '@/lib/editorials-source';
 import { billDivisions, divisionHref } from '@/lib/division-links';
+import { billIndexable, billInCurrentSession } from '@/lib/bill-indexing';
 export const revalidate = 604800  // a week; the bill syncs refresh a bill when its data changes (lib/bill-refresh.ts)
 
 // Prerender a small set of bill pages at build time. The list does NOT need
@@ -45,13 +46,9 @@ export async function generateStaticParams() {
   return data.map((row) => ({ id: String(row.id) }))
 }
 
-// Soft-404 mitigation: a bill with zero recorded Commons division votes is a
-// thin, low-value page (dead private members' bill, old Act, or un-voted
-// stage). Google flags these as soft 404s, so we noindex any bill with no
-// recorded votes. Bills with real recorded votes — genuine Commons activity,
-// e.g. the 11 in category E — stay indexable and are never touched by this.
-// follow:true keeps their internal links crawlable, and if a later sync adds
-// votes to a bill it flips back to indexable automatically on revalidation.
+// Whether search engines may index this bill: the rule shared with the sitemap, in lib/bill-indexing.ts (owner, 7 Nov 2026).
+// An indexable bill sends no robots tag (index, follow); any other sends noindex, follow, so its links stay crawlable.
+// If a later sync adds a vote, a working stage or the Act, the page flips back to indexable on revalidation.
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {
@@ -59,39 +56,27 @@ export async function generateMetadata(
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) return {}
 
-  // Fetch the bill's stage/act/division flags and whether any MP vote is recorded against it, in parallel. Only
-  // whether one exists matters, so one indexed row is read instead of counting them all (owner's approval,
-  // 21 Oct 2026; the count averaged 1.2 s during builds).
-  const [{ data: bill, error: billErr1 }, { data: oneVote, error: oneVoteErr }] = await Promise.all([
-    supabase.from('bill').select('status, is_act, commons_division_id').eq('id', billId).single(),
+  // Only whether one MP vote exists matters, so one indexed row is read instead of counting them all (owner's
+  // approval, 21 Oct 2026; the count averaged 1.2 s during builds).
+  const [{ data: bill, error: billErr1 }, { data: oneVote, error: oneVoteErr }, inCurrentSession] = await Promise.all([
+    supabase.from('bill').select('current_stage, is_act, commons_division_id').eq('id', billId).single(),
     supabase.from('mp_division_votes').select('id').eq('bill_id', billId).limit(1),
+    billInCurrentSession(billId),
   ])
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [billErr1, oneVoteErr]) if (e && e.code !== 'PGRST116') throw new Error(`/bills/[id] (bill, mp_division_votes): ${e.message}`);
-  const hasVotes = (oneVote?.length ?? 0) > 0
-
-  // Active-stage guard: a bill still progressing through Committee, Report,
-  // 3rd Reading or Consideration is live and may have divisions we haven't
-  // synced yet (see bill 3970 — real committee divisions missing from our DB).
-  // Keep these indexable even at 0 recorded votes so a sync gap can't deindex
-  // a live bill. Only inert bills (dead readings) get noindexed.
-  const s = (bill?.status || '').toLowerCase()
-  const activeStage = /committee|report|3rd reading|third reading|consideration/.test(s)
-
-  // Bill-level activity signals. The per-MP mp_division_votes table is sparsely
-  // populated (parlparse froze mid-Jan 2026; ~71 bills covered), but the bill
-  // row itself records whether it became an Act and whether it had a Commons
-  // division — the same fields layout.tsx already trusts to write "MPs voted
-  // X-Y". Trust them here too so we never noindex a page that displays a real
-  // vote result or an actual law. Keeps ~695 Acts + ~615 divisioned bills
-  // indexable; genuinely inert dead-reading bills still get noindexed.
-  const isAct = bill?.is_act === true
-  const hasDivision = bill?.commons_division_id != null
 
   // The page names itself canonical (owner, 31 Oct 2026, Search Console "duplicate without a main version"); the layout
-  // sets the same, this makes it explicit on the page. The robots rule above is unchanged.
+  // sets the same, this makes it explicit on the page.
   const canonical = { alternates: { canonical: `/bills/${billId}` } }
-  return (hasVotes || activeStage || isAct || hasDivision) ? canonical : { ...canonical, robots: { index: false, follow: true } }
+  const indexable = billIndexable({
+    currentStage: bill?.current_stage,
+    isAct: bill?.is_act,
+    commonsDivisionId: bill?.commons_division_id,
+    hasVotes: (oneVote?.length ?? 0) > 0,
+    inCurrentSession,
+  })
+  return indexable ? canonical : { ...canonical, robots: { index: false, follow: true } }
 }
 
 const INK = '#14100d'

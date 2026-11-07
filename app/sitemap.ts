@@ -19,6 +19,7 @@ import { RECOMMENDATIONS_PUBLIC, allStatus, recPath } from '@/lib/pac';
 import { divisionHref, yearHref } from '@/lib/division-links';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import { FORMER_MP_PROFILE_IDS } from '@/lib/former-mp-profile-ids';
+import { billIndexable, currentSessionBillIds } from '@/lib/bill-indexing';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -318,15 +319,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Ship ONLY indexable bills, mirroring the bill page's noindex rule EXACTLY so
-  // the sitemap never lists a noindexed URL (previously ~1,000 inert bills were
-  // both sitemapped AND noindexed → "Submitted URL marked 'noindex'" in GSC).
-  // A bill is indexable iff it has >=1 recorded Commons division vote (hasVotes)
-  // OR its status is an active stage OR it became an Act OR it had a Commons
-  // division (bill-level fields, since per-MP mp_division_votes is sparse).
-  // KEEP THIS PREDICATE IN SYNC WITH app/bills/[id]/page.tsx generateMetadata —
-  // the boolean below is byte-for-byte the same as that route's.
-  const ACTIVE_STAGE = /committee|report|3rd reading|third reading|consideration/;
+  // Ship ONLY indexable bills, so the sitemap never lists a noindexed URL. The rule is billIndexable in
+  // lib/bill-indexing.ts, the same function the bill page's robots tag uses (owner, 7 Nov 2026).
   const votedBillIdRows = await fetchAllRows<{ bill_id: number }>(
     'sitemap_bill_ids',
     'bill_id',
@@ -334,19 +328,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
   const votedBillIds = new Set<number>(votedBillIdRows.map((r) => r.bill_id));
   // Hidden bills (bill.hidden_reason: duplicates, bad records) are never listed; their pages return 404.
-  const allBills = await fetchAllRows<{ id: number; status: string | null; is_act: boolean | null; commons_division_id: number | null; last_update: string | null; introduced_session_id: number | null }>(
+  const allBills = await fetchAllRows<{ id: number; current_stage: string | null; is_act: boolean | null; commons_division_id: number | null; last_update: string | null; introduced_session_id: number | null }>(
     'bill',
-    'id, status, is_act, commons_division_id, last_update, introduced_session_id',
+    'id, current_stage, is_act, commons_division_id, last_update, introduced_session_id',
     // Ordered by id so paging is stable (24 Oct 2026, report 36): unordered pages can repeat or skip rows.
     (q) => q.is('hidden_reason', null).order('id', { ascending: true }),
   );
-  const bills = allBills.filter((b) => {
-    const hasVotes = votedBillIds.has(b.id);
-    const activeStage = ACTIVE_STAGE.test((b.status || '').toLowerCase());
-    const isAct = b.is_act === true;
-    const hasDivision = b.commons_division_id != null;
-    return hasVotes || activeStage || isAct || hasDivision;
-  });
+  const currentSessionBills = await currentSessionBillIds();
+  const bills = allBills.filter((b) => billIndexable({
+    currentStage: b.current_stage,
+    isAct: b.is_act,
+    commonsDivisionId: b.commons_division_id,
+    hasVotes: votedBillIds.has(b.id),
+    inCurrentSession: currentSessionBills.has(b.id),
+  }));
   // A bill's last update from the Bills API, where it is a valid date; otherwise no date is claimed.
   const billEntries: MetadataRoute.Sitemap = bills.map((b) => {
     const updated = b.last_update ? new Date(b.last_update) : null;
