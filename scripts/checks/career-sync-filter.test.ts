@@ -55,7 +55,7 @@ test('a contested election becomes one dated elections entry, sourced to the car
   assert.equal(built.length, 1);
   assert.deepEqual(built[0].entry, {
     group: 'elections', start: '2017-06-08', end: '2017-06-08',
-    title: 'Contested Bolton South East, 8 June 2017, not elected',
+    title: 'Contested Bolton South East, not elected',
     organisation: 'House of Commons', detail: null,
     source: { title: 'UK Parliament: Members API, career', url: 'https://members.parliament.uk/member/5403/career' },
   });
@@ -68,7 +68,7 @@ test('a contest that is already a win in representations (same seat, same day) i
   const won = { ...pochinContest, name: 'Runcorn and Helsby', startDate: '2025-05-01T00:00:00' };
   const { built, skipped } = contestEntries(5403, [pochinContest, won], [pochinSeat]);
   assert.equal(skipped, 1);
-  assert.deepEqual(built.map((b) => b.entry.title), ['Contested Bolton South East, 8 June 2017, not elected']);
+  assert.deepEqual(built.map((b) => b.entry.title), ['Contested Bolton South East, not elected']);
 });
 
 test('the same seat contested on another day is kept (a loss before a later win)', () => {
@@ -82,8 +82,15 @@ test('no electionsContested list adds nothing', () => {
 
 test('validate() rejects a contested election with a wrong title, no day, or an end that is not its day', () => {
   const ok = contestEntries(5403, [pochinContest], []).built[0].entry;
-  assert.match(validate([{ ...ok, title: 'Contested Bolton South East, 2017, not elected' }])[0], /title must read "Contested <constituency>, 8 June 2017, not elected"/);
+  assert.match(validate([{ ...ok, title: 'Contested Bolton South East, 2017, not elected' }])[0], /title must read "Contested <constituency>, not elected"/);
+  assert.match(validate([{ ...ok, title: 'Contested Bolton South East, 9 June 2017, not elected' }])[0], /title must read "Contested <constituency>, not elected"/);
+  assert.match(validate([{ ...ok, title: 'Contested Bolton South East' }])[0], /title must read "Contested <constituency>, not elected"/);
   assert.match(validate([{ ...ok, start: '2017', end: '2017' }])[0], /needs its day/);
   assert.match(validate([{ ...ok, end: 'present' }])[0], /ends on its own day/);
   assert.match(validate([{ ...ok, end: '2018-01-01' }])[0], /ends on its own day/);
+});
+
+test('until the nightly sync rewrites them, PCL2 titles dated to their own day still pass, so no page loses its timeline', () => {
+  const ok = contestEntries(5403, [pochinContest], []).built[0].entry;
+  assert.deepEqual(validate([{ ...ok, title: 'Contested Bolton South East, 8 June 2017, not elected' }]), []);
 });

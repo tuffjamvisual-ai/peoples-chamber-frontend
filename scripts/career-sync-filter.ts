@@ -23,7 +23,7 @@ export function keepValid(memberId: number, name: string, built: Built[]): { kep
 }
 
 // Elections contested and lost (owner, PCL2, 8 Nov 2026): one elections entry per Members API Biography electionsContested
-// record, dated to the election day, "Contested <constituency>, <date>, not elected", sourced to the MP's career page. The
+// record, dated to the election day, "Contested <constituency>, not elected" (no date in the title: PCL3), sourced to the MP's career page. The
 // record names no party; its additionalInfo, when Parliament gives one, is kept as the detail. A contest that is already a
 // win in representations (same constituency and the same day) is skipped, not shown twice.
 export type ContestRecord = { house: number; name: string; id: number; startDate: string | null; endDate?: string | null; additionalInfo?: string | null };
@@ -43,7 +43,7 @@ export function contestEntries(memberId: number, contested: ContestRecord[] | nu
       raw: c,
       entry: {
         group: 'elections', start: day, end: day,
-        title: day ? contestTitle(c.name, day) : `Contested ${c.name.trim()}, not elected`,
+        title: contestTitle(c.name),
         organisation: c.house === 2 ? 'House of Lords' : 'House of Commons',
         detail: c.additionalInfo?.trim() || null, source: src,
       },

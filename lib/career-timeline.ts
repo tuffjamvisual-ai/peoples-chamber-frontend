@@ -16,8 +16,11 @@
 //   date in "end" (the withdrawal date, or the last update).
 // Findings are stored exactly as published and shown in quotation marks, unchanged.
 // An election contested and lost (owner, PCL2, 8 Nov 2026; Members API Biography electionsContested) is an elections
-// entry with start and end both the election day and the title "Contested <constituency>, <8 June 2017>, not elected"
-// (contestTitle); validate() checks that shape for any elections title starting "Contested ".
+// entry with start and end both the election day and the title "Contested <constituency>, not elected" (contestTitle; no
+// date, as the dates column shows it: owner, PCL3, 8 Nov 2026); validate() checks that shape for any elections title
+// starting "Contested ". Until the nightly sync has rewritten the stored titles, validate() also accepts PCL2's dated
+// wording "Contested <constituency>, <8 June 2017>, not elected" when that date is the entry's own day, so no MP page
+// loses its timeline in between; the sync writes only the new wording.
 
 export type CareerGroup = 'elections' | 'posts' | 'committees' | 'bills' | 'findings' | 'pledges';
 export type BillOutcome = 'became_law' | 'defeated' | 'withdrawn' | 'no_further_stage' | 'in_progress';
@@ -79,8 +82,9 @@ export function validate(entries: unknown): string[] {
       if (typeof start !== 'string' || !DAY.test(start)) problems.push(`${at}: a contested election needs its day (YYYY-MM-DD) in start`);
       else {
         if (end !== start) problems.push(`${at}: a contested election ends on its own day (end must equal start)`);
-        const place = e.title.match(/^Contested (.+), [^,]+, not elected$/)?.[1];
-        if (!place || e.title !== contestTitle(place, start)) problems.push(`${at}: a contested election's title must read "Contested <constituency>, ${dateLabel(start)}, not elected"`);
+        const place = e.title.match(/^Contested (.+), not elected$/)?.[1];
+        const dated = place?.endsWith(`, ${dateLabel(start)}`); // PCL2's wording, accepted until the nightly sync rewrites it
+        if (!place || (!dated && /\b(1[89]|20)\d\d\b/.test(place))) problems.push(`${at}: a contested election's title must read "Contested <constituency>, not elected"`);
       }
     }
     if (e.group === 'bills') {
@@ -131,9 +135,9 @@ export function careerDates(e: Pick<CareerEntry, 'start' | 'end'>): string {
   return '';
 }
 
-// "Contested Bolton South East, 8 June 2017, not elected" (owner, PCL2, 8 Nov 2026).
-export function contestTitle(constituency: string, day: string): string {
-  return `Contested ${constituency.trim()}, ${dateLabel(day)}, not elected`;
+// "Contested Bolton South East, not elected" (owner, PCL2 and PCL3, 8 Nov 2026): no date, as the dates column shows it.
+export function contestTitle(constituency: string): string {
+  return `Contested ${constituency.trim()}, not elected`;
 }
 
 // A bill's outcome in Parliament's own terms, with no verdict (owner, 7 Nov 2026, PC1).
