@@ -1,0 +1,61 @@
+name: Nightly MP Political career sync
+
+# The Parliament part of each current MP's Political career (PC1, owner approved PCL1 on 7 Nov 2026):
+# scripts/sync-career-parliament.ts rebuilds mp_biography.career_parliament and career_checked_at from the Members API
+# Biography and the Bills API, one request a second with retries (2, 4 and 8 seconds; HTTP 429 or 403 stops the run).
+# It never writes career_research. A full run for 650 MPs takes about 30 to 40 minutes, too long for a Vercel cron route,
+# so it runs here like the other script syncs (daily-sync.yml).
+on:
+  schedule:
+    # 04:37 UTC (04:37 GMT; 05:37 in British Summer Time). Off the hour, as GitHub delays top-of-hour runs most.
+    - cron: '37 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  career:
+    runs-on: ubuntu-latest
+    # Stops a hung run long before GitHub's 6-hour limit; the report step still runs and fails the run, so GitHub
+    # emails the owner.
+    timeout-minutes: 90
+    env:
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm install --no-save @supabase/supabase-js tsx@4.23.15
+
+      # The script reads .env.local (process.loadEnvFile); here the values come from the job's env, so an empty file.
+      - name: Sync the Parliament part of every current MP's Political career
+        id: career
+        timeout-minutes: 80
+        continue-on-error: true
+        run: |
+          touch .env.local
+          npx tsx --tsconfig tsconfig.json scripts/sync-career-parliament.ts
+
+      # Entries left out because they failed validate() (each with the MP's id, Parliament's raw record and the reason).
+      # More than 10 in a run stops the sync before it writes anything, and the step above fails.
+      - name: Keep the left out records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: career-excluded-records
+          path: excluded-records-*.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
+        if: always()
+        timeout-minutes: 2
+        env:
+          STEPS_JSON: ${{ toJSON(steps) }}
+        run: node scripts/report-workflow-steps.js
