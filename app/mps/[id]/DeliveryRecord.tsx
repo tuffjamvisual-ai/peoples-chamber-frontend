@@ -112,8 +112,10 @@ export default function DeliveryRecord({ record, parliament }: { record: Record_
   ];
   if (p.bills_introduced !== null) figures.push({ label: 'Bills introduced', value: p.bills_introduced, note: p.bills_passed !== null ? `${n0(p.bills_passed)} became law, from Parliament's bill records` : "as sponsor, from Parliament's bill records" });
   else if (p.bills_passed !== null) figures.push({ label: 'Bills that became law', value: p.bills_passed, note: "from Parliament's bill records" });
-  if (p.minister_written_answers !== null) figures.push({ label: 'Written answers as a minister', value: p.minister_written_answers, note: "answers to written questions, from Parliament's records" });
-  if (p.minister_written_statements !== null) figures.push({ label: 'Written statements as a minister', value: p.minister_written_statements, note: "from Parliament's records" });
+  // "since 2014" when the MP held a ministerial post before the data starts (owner, 8 Nov 2026, WS1).
+  const since = (t: string | null) => (t ? ` ${t}` : '');
+  if (p.minister_written_answers !== null) figures.push({ label: `Written answers as a minister${since(p.minister_written_answers_since)}`, value: p.minister_written_answers, note: "answers to written questions, from Parliament's records" });
+  if (p.minister_written_statements !== null) figures.push({ label: `Written statements as a minister${since(p.minister_written_statements_since)}`, value: p.minister_written_statements, note: "made during the MP's ministerial posts, from Parliament's records" });
 
   // Items in display order; the first 10 shown, the rest in a fold, each part keeping its group headings.
   const groups = displayGroups(record);

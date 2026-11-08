@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { validate, type DeliveryRecord } from '@/lib/delivery-record';
+import { ministerialPeriods, countInPeriods, coverageLabel, STATEMENTS_FROM, ANSWERS_FROM, type Post } from '@/lib/written-statements';
 
 // The page's read (owner, 8 Nov 2026, DR1): the record only when bio_visible is true, on its own, so the rest of the page
 // never depends on it. Before migration 2026-11-08b, or on any read error, it returns null and the page shows nothing.
@@ -50,4 +51,25 @@ export function withDeliveryPreview<T extends { data: Record<string, unknown> | 
   const f = deliveryPreview(memberId);
   if (!f || !res.data) return res;
   return { ...res, data: { ...res.data, political_bio: f.political_bio, bio_sources: f.bio_sources, bio_last_reviewed: f.checked, bio_visible: true } };
+}
+
+// Written ministerial statements for the panel (owner, 8 Nov 2026, WS1): the MP's statements in
+// parliament_written_statements (migration 2026-11-08c) made inside their ministerial posts (government_posts, which the
+// page already reads). null when the table holds none for the MP, or before the migration, or on any read error.
+// "since" names the period covered when a post started before the data does; posts before it are not counted.
+export async function ministerStatements(supabase: SupabaseClient, memberId: number, posts: Post[] | null | undefined, today: string): Promise<{ count: number | null; since: string | null }> {
+  const periods = ministerialPeriods(posts, today);
+  const { data, error } = await supabase.from('parliament_written_statements').select('date_made').eq('member_id', memberId).limit(5000);
+  if (error) {
+    if (!/parliament_written_statements/.test(error.message)) console.error(`/mps/${memberId} written statements: ${error.message}`);
+    return { count: null, since: null };
+  }
+  const days = ((data ?? []) as Array<{ date_made: string }>).map((r) => r.date_made);
+  if (!days.length) return { count: null, since: null };
+  return { count: countInPeriods(days, periods), since: coverageLabel(periods, STATEMENTS_FROM) };
+}
+
+// The written answers figure's period: our archive holds questions tabled from 4 July 2024 (lib/written-statements.ts).
+export function ministerAnswersSince(posts: Post[] | null | undefined, today: string): string | null {
+  return coverageLabel(ministerialPeriods(posts, today), ANSWERS_FROM);
 }

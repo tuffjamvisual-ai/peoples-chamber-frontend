@@ -13,7 +13,7 @@ import { memberVoteSummary, registerHistory } from '@/lib/historic-archive';
 import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
 import { getMpCareer } from '@/lib/mp-career';
-import { getDeliveryRecord, withDeliveryPreview } from '@/lib/mp-delivery';
+import { getDeliveryRecord, withDeliveryPreview, ministerStatements, ministerAnswersSince } from '@/lib/mp-delivery';
 import DeliveryRecord from './DeliveryRecord';
 import { getPeer } from '@/lib/lords';
 import { peerHasPage } from '@/lib/peers';
@@ -434,7 +434,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // Delivery record (owner approved the format, 8 Nov 2026, DR1): its own read (lib/mp-delivery.ts), only when bio_visible is
   // true. Only for an MP with a record, the count of written questions they answered (answered as a minister: only ministers
   // answer). The table has no index on answering_member_id, so this is read for those MPs alone; a failed or slow read
-  // leaves the figure out. Written statements are not held, so that figure is left out.
+  // leaves the figure out. Written statements come from parliament_written_statements (WS1), counted inside the MP's
+  // ministerial posts; nothing shows while that table has no rows for the MP.
   const pDelivery = getDeliveryRecord(supabase, memberId).catch(() => null);
   const pMinisterAnswers: Promise<number | null> = pDelivery.then((rec) => rec
     ? withTimeout(Promise.resolve(supabase.from('parliament_written_questions').select('id', { count: 'exact', head: true }).eq('answering_member_id', memberId).eq('house', 'Commons')), 8000)
@@ -861,7 +862,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           const record = await pDelivery;
           if (!record) return null;
           const bills = (sponsoredBillsRes.data || []) as Array<{ is_act?: boolean | null }>;
-          return <DeliveryRecord record={record} parliament={{ bills_introduced: bills.length, bills_passed: bills.filter((b) => b.is_act === true).length, minister_written_answers: await pMinisterAnswers }} />;
+          // Written statements inside the MP's ministerial posts, and the period each written figure covers (WS1).
+          const posts = (bioRes.data?.government_posts ?? null) as Array<{ startDate?: string | null; endDate?: string | null }> | null;
+          const today = new Date().toISOString().slice(0, 10);
+          const statements = await withTimeout(ministerStatements(supabase, memberId, posts, today), 8000).catch(() => ({ count: null, since: null }));
+          return <DeliveryRecord record={record} parliament={{
+            bills_introduced: bills.length, bills_passed: bills.filter((b) => b.is_act === true).length,
+            minister_written_answers: await pMinisterAnswers, minister_written_answers_since: ministerAnswersSince(posts, today),
+            minister_written_statements: statements.count, minister_written_statements_since: statements.since,
+          }} />;
         })(),
         ...(await (async () => {
           const [archiveVotes, register, currentYears] = await Promise.all([pArchiveVotes, pRegisterHistory, pCurrentYears]);

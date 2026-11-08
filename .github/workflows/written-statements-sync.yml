@@ -1,0 +1,48 @@
+name: Nightly written ministerial statements sync
+
+# Commons written ministerial statements, metadata only (WS1, owner, 8 Nov 2026): scripts/sync-written-statements.ts reads
+# Parliament's Written Statements API at 100 a page, one request a second, and upserts by id into
+# parliament_written_statements (migration 2026-11-08c). Each night it takes the last 30 days, which also picks up
+# corrections; the first full backfill (about 9,200 statements since November 2014) was run by hand. HTTP 429, 403 or 5xx
+# stops the fetching; more than 10 records failing validate() stops the run before it writes.
+on:
+  schedule:
+    # 05:54 UTC (05:54 GMT; 06:54 in British Summer Time). A minute no other workflow or Vercel cron uses, off the hour.
+    - cron: '54 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  statements:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm install --no-save @supabase/supabase-js tsx@4.23.15
+
+      # The script reads .env.local (process.loadEnvFile); here the values come from the job's env, so an empty file.
+      - name: Sync the last 30 days of Commons written statements
+        id: statements
+        timeout-minutes: 15
+        continue-on-error: true
+        run: |
+          touch .env.local
+          npx tsx --tsconfig tsconfig.json scripts/sync-written-statements.ts --since "$(date -u -d '30 days ago' +%F)"
+
+      - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
+        if: always()
+        timeout-minutes: 2
+        env:
+          STEPS_JSON: ${{ toJSON(steps) }}
+        run: node scripts/report-workflow-steps.js

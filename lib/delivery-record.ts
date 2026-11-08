@@ -124,6 +124,10 @@ export type ParliamentFigures = {
   bills_passed: number | null;
   minister_written_answers: number | null;
   minister_written_statements: number | null;
+  // The period a figure covers, when the MP held a ministerial post before our data starts ("since 2014"), else null
+  // (owner, 8 Nov 2026, WS1; lib/written-statements.ts coverageLabel).
+  minister_written_answers_since: string | null;
+  minister_written_statements_since: string | null;
 };
 export type DeliveryPanel = ParliamentFigures & {
   delivered: number;
@@ -133,7 +137,7 @@ export type DeliveryPanel = ParliamentFigures & {
   attribution: Record<DeliveryAttribution, number>;
   pledges: number;
 };
-const NO_FIGURES: ParliamentFigures = { bills_introduced: null, bills_passed: null, minister_written_answers: null, minister_written_statements: null };
+const NO_FIGURES: ParliamentFigures = { bills_introduced: null, bills_passed: null, minister_written_answers: null, minister_written_statements: null, minister_written_answers_since: null, minister_written_statements_since: null };
 
 // The "Record in numbers" figures, always worked out from the record (and Parliament's figures where given).
 export function computePanel(record: DeliveryRecord, parliament: Partial<ParliamentFigures> = {}): DeliveryPanel {
