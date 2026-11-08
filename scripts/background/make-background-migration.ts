@@ -17,12 +17,16 @@
 // Both:  every array must pass validate(); the backup of the rows goes to "Claude outputs/backups/<tag>-mp-biography-before.csv";
 //        scripts/migrations/<tag>-UNDO.sql is written first, then scripts/migrations/<tag>-background-<mode>.sql. The UNDO puts
 //        back the exact arrays and checked dates read at generation time. The checked date is --date, or today in London.
+// --column delivery (owner approved the format, 8 Nov 2026, DR1): MP biographies with a delivery record, a different shape
+//        with its own arguments and no database read (scripts/background/delivery-migration.ts):
+//          --column delivery --input <file.json> --before <export.csv> --tag <tag> [--out <folder>]
 // DATABASE_URL comes from .env.local and is never printed.
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { validate as validateBackground, sortTimeline, type BackgroundEntry } from '../../lib/background-timeline';
 import { validate as validateCareer, careerTimeline, type CareerEntry } from '../../lib/career-timeline';
+import { runDelivery } from './delivery-migration';
 
 type Mode = 'new' | 'topup';
 // The column written, and what goes with it. Background is the default and its output is unchanged.
@@ -329,4 +333,10 @@ COMMIT;
   for (const r of rejects) console.log(`  rejected: ${r}`);
 }
 
-main();
+// --column delivery has its own arguments and never reads the database; every other run is as before.
+{
+  const argv = process.argv.slice(2);
+  const i = argv.indexOf('--column');
+  if (i >= 0 && argv[i + 1] === 'delivery') runDelivery(argv);
+  else main();
+}

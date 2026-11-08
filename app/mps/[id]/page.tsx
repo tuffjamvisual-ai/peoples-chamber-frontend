@@ -13,6 +13,8 @@ import { memberVoteSummary, registerHistory } from '@/lib/historic-archive';
 import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
 import { getMpCareer } from '@/lib/mp-career';
+import { getDeliveryRecord, withDeliveryPreview } from '@/lib/mp-delivery';
+import DeliveryRecord from './DeliveryRecord';
 import { getPeer } from '@/lib/lords';
 import { peerHasPage } from '@/lib/peers';
 import { questionsSummary, type QuestionsSummary } from '@/lib/mp-written-questions';
@@ -249,7 +251,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     getMp(memberId),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
     // The written biography, its sources and background text only when bio_visible is true (lib/mp-biography.ts).
-    getMpBiography(supabase, memberId),
+    getMpBiography(supabase, memberId).then((r) => withDeliveryPreview(r, memberId)),
     supabase
       .from('bill')
       .select('id, title, status, current_stage, description, long_title, is_act, last_update')
@@ -429,6 +431,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // table before its migration) shows no section rather than failing the page.
   // Political career (owner, 7 Nov 2026, PC1): its own read (lib/mp-career.ts), so the page never depends on it.
   const pCareer = getMpCareer(supabase, memberId);
+  // Delivery record (owner approved the format, 8 Nov 2026, DR1): its own read (lib/mp-delivery.ts), only when bio_visible is
+  // true. Only for an MP with a record, the count of written questions they answered (answered as a minister: only ministers
+  // answer). The table has no index on answering_member_id, so this is read for those MPs alone; a failed or slow read
+  // leaves the figure out. Written statements are not held, so that figure is left out.
+  const pDelivery = getDeliveryRecord(supabase, memberId).catch(() => null);
+  const pMinisterAnswers: Promise<number | null> = pDelivery.then((rec) => rec
+    ? withTimeout(Promise.resolve(supabase.from('parliament_written_questions').select('id', { count: 'exact', head: true }).eq('answering_member_id', memberId).eq('house', 'Commons')), 8000)
+        .then((r) => (r.error ? null : r.count ?? null)).catch(() => null)
+    : null);
   // MP1 (owner, 7 Nov 2026): the archive's votes and register history are parts of Voting record and Registered interests, and
   // the votes by year count both sources, so the current votes' years are read too (only their dates).
   const pArchiveVotes = memberVoteSummary(memberId);
@@ -846,6 +857,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         conductFindings: conductRes.data || [],
         staffInterests: staffForPage,
         career: await pCareer,
+        deliveryRecord: await (async () => {
+          const record = await pDelivery;
+          if (!record) return null;
+          const bills = (sponsoredBillsRes.data || []) as Array<{ is_act?: boolean | null }>;
+          return <DeliveryRecord record={record} parliament={{ bills_introduced: bills.length, bills_passed: bills.filter((b) => b.is_act === true).length, minister_written_answers: await pMinisterAnswers }} />;
+        })(),
         ...(await (async () => {
           const [archiveVotes, register, currentYears] = await Promise.all([pArchiveVotes, pRegisterHistory, pCurrentYears]);
           const currentTotal = Number(voteCounts.all_votes ?? votesWithSi.length) || 0;

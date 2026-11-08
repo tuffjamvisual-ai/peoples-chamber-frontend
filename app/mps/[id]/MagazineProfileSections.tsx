@@ -333,6 +333,7 @@ interface Props {
   votingArchive?: React.ReactNode;    // the total, every vote by year and the archive's notes (HistoricRecord.tsx)
   earlierRegisters?: React.ReactNode; // the register history (HistoricRecord.tsx)
   earlierRegistersCount?: number;
+  deliveryRecord?: React.ReactNode;  // the delivery record under the biography (DeliveryRecord.tsx, DR1)
   constituencyPetitions?: { top: MpPetitionsTop; gss: string; constituency: string | null } | null;
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
@@ -472,6 +473,9 @@ function TimelineEntry({ entry, last }: { entry: BackgroundEntry; last: boolean 
     </div>
   );
 }
+// A biography paragraph's label (DR1): exactly "**Label.**" at the very start, then the text. Any other asterisks stay as
+// plain text.
+const BIO_LABEL = /^\*\*([^*\n]+\.)\*\*(?: ([\s\S]*))?$/;
 // One Political career entry (PC1): its dates (a bill shows its outcome and session instead), title and organisation, the
 // detail (a finding exactly as stored, in quotation marks). Sources are kept in the data but not shown (owner, 8 Nov 2026, PC3).
 function CareerItem({ entry: e }: { entry: CareerEntry }) {
@@ -616,6 +620,7 @@ export default function MagazineProfileSections({
   votingArchive = null,
   earlierRegisters = null,
   earlierRegistersCount = 0,
+  deliveryRecord = null,
   constituencyPetitions = null,
   activity = null,
   contributions = [],
@@ -1077,7 +1082,9 @@ export default function MagazineProfileSections({
               ) : paragraphs.map((para, idx) => {
                 const tilt = idx % 4;
                 const rot = tilt === 0 ? '0.1deg' : tilt === 1 ? '-0.15deg' : tilt === 2 ? '0.08deg' : '-0.1deg';
-                return <p key={idx} style={{ marginBottom: '16px', transform: `rotate(${rot})` }}>{para}</p>;
+                // A paragraph that starts with **Label.** shows Label. in bold, without the asterisks (DR1); nothing else is parsed.
+                const label = BIO_LABEL.exec(para);
+                return <p key={idx} style={{ marginBottom: '16px', transform: `rotate(${rot})` }}>{label ? <><strong>{label[1]}</strong>{label[2] ? ` ${label[2]}` : ''}</> : para}</p>;
               })}
             </div>
 
@@ -1107,6 +1114,8 @@ export default function MagazineProfileSections({
                 )}
               </div>
             )}
+
+            {deliveryRecord}
 
             <div className="mp-reports-wide"><ReportsMentioning reports={reports} /></div>
 
