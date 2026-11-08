@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { fitTitle, titleWithin } from '@/lib/seo-title';
 import { asSentence, ledBy, sentencesOf } from '@/lib/meta-description';
 import { supabase } from '@/lib/supabase';
+import { SITE } from '@/lib/JsonLd';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -78,6 +79,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : titleWithin(`${title}${sponsorTag}`),
     description,
     alternates: { canonical: `/bills/${billId}` },
+    // ./opengraph-image.tsx fills og:image (OG1); the same address is given here so twitter:image points to it as well.
+    twitter: { card: 'summary_large_image', images: [`${SITE}/bills/${billId}/opengraph-image`] },
   };
 }
 

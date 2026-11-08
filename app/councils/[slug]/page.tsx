@@ -13,6 +13,7 @@ import { loadCouncilTax, type CouncilTax } from '@/lib/council-tax';
 import { pageDb, setPageReadTimer } from '@/lib/page-reads';
 import { SHOW_COUNCIL_FOUNDED } from '@/lib/feature-flags';
 import { notFound } from 'next/navigation';
+import { SITE } from '@/lib/JsonLd';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import CouncilTabs from './CouncilTabs';
@@ -207,6 +208,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       ? `${data.gss_code} is the ONS code for ${data.name}, a ${typePhrase(data.type_label)} in ${data.country}.${who}${pop} Spending, services and how the area compares.`
       : `${data.name}, a ${typePhrase(data.type_label)} in ${data.country}.${who}${pop} Spending, services and how the area compares.`),
     alternates: { canonical: `/councils/${slug}` },
+    // ./opengraph-image.tsx fills og:image (OG1); the same address is given here so twitter:image points to it as well.
+    twitter: { card: 'summary_large_image', images: [`${SITE}/councils/${slug}/opengraph-image`] },
   };
 }
 
