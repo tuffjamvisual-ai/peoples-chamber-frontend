@@ -13,6 +13,7 @@
 import { pageview } from '@vercel/analytics';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // The dept page wraps DepartmentTabs in <div style={{ zoom: 1.18 }}>.
 // getBoundingClientRect returns visual (zoomed) px; dividing by this
@@ -90,7 +91,7 @@ export default function DepartmentTabs({
         .dept-fold { display: none; }
         html:not(.og-js) .pca-dept-tabs aside { display: none !important; }
         html:not(.og-js) .dept-slot { display: block !important; }
-        @media (max-width: 639.98px) {
+        @media ${phoneUpTo(639.98)} {
           .pca-dept-tabs { gap: 4px !important; }
           .pca-dept-tabs aside nav { display: none !important; }
           .dept-pick { display: block; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; }

@@ -19,6 +19,7 @@ import {
 import type { AreaTotal, SourceStats } from '@/lib/sewage';
 import type { CSSProperties } from 'react';
 import PhoneTable from '../components/PhoneTable';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export const revalidate = 21600;
 
@@ -159,7 +160,7 @@ export default async function SewagePage() {
           <h2 style={h2}>Water companies</h2>
           {/* Under 640px (owner, 4 Nov 2026): cards like the league tables (their styles are in SewageExplorer.tsx); from 640px
               the table, whose company column stays put while the figures scroll up to 768px (report 47). */}
-          <style>{'@media (max-width: 639.98px) { .sew-co-table { display: none; } }'}</style>
+          <style>{`@media ${phoneUpTo(639.98)} { .sew-co-table { display: none; } }`}</style>
           <ol className="sew-cards" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
             {companies.map((c, i) => (
               <li key={`${c.nation}-${c.company}`} className="sew-card">

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // The welfare explorer's search box: a postcode lookup (resolves to
 // BOTH a constituency and a local authority, since a postcode sits in
@@ -49,7 +50,7 @@ function resultTypeLabel(r: SearchResult): string {
 
 // Under 640px (owner, 4 Nov 2026) the searches come first, so the coverage note also sits directly above any results.
 export const SCOTLAND_NOTE = 'PIP, DLA and Carer’s Allowance are devolved in Scotland, so Scottish results show the three benefits still administered by DWP (Universal Credit, Housing Benefit and ESA) rather than the full comparison of six benefits available for England and Wales.';
-const NOTE_CSS = '.wf-result-note { display: none; } @media (max-width: 639.98px) { .wf-result-note { display: block; } }';
+const NOTE_CSS = `.wf-result-note { display: none; } @media ${phoneUpTo(639.98)} { .wf-result-note { display: block; } }`;
 
 export default function WelfareSearch() {
   const router = useRouter()

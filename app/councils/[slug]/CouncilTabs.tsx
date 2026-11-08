@@ -20,6 +20,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { WELFARE_SLOT } from '@/lib/council-panels';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 type Tab = { id: string; label: string; rotate: string };
 
@@ -179,7 +180,7 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare }: { 
           .council-tabs nav { flex-direction:column; overflow:visible; border-bottom:none; padding:8px; -webkit-mask-image:none !important; mask-image:none !important; }
           .council-tabs nav button { white-space:normal; }
         }
-        @media (max-width: 639.98px) {
+        @media ${phoneUpTo(639.98)} {
           .council-tabs nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; -webkit-mask-image: none !important; mask-image: none !important; }
           .council-tabs nav button { white-space: normal; width: 100%; min-width: 0; padding: 10px 8px !important; letter-spacing: 0.02em !important; overflow-wrap: anywhere; transform: none !important; }
         }

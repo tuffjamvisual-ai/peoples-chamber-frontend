@@ -7,6 +7,7 @@
 // carries data-own-more, so lib/phone-enhance.ts gives it no second button. The button's styles are in globals.css
 // (.og-phone-more).
 import { useState } from 'react';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 type Props = {
   /** CSS selector for the element whose direct children are the items. */
@@ -20,7 +21,7 @@ type Props = {
 export default function PhoneMore({ selector, total, step = 25, off = false }: Props) {
   const [shown, setShown] = useState(step);
   if (off || total <= step) return null;
-  const css = `@media (max-width: 639.98px) { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
+  const css = `@media ${phoneUpTo(639.98)} { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
   const left = total - shown;
   return (
     <>

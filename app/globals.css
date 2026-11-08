@@ -20,7 +20,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 /* Wide data tables (donations / transparency / mp-activity) have no room to
    breathe on a phone. On narrow screens let each table scroll horizontally
    within its column instead of stretching the whole page. Desktop unaffected. */
-@media (max-width: 760px) {
+@media (max-width: 760px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .og-page table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
 
@@ -131,12 +131,12 @@ a:hover {
 .og-strip-input { flex: 1 1 auto; min-width: 0; font-size: 16px; line-height: 1.15; padding: 4px 8px; background: #fbf4e6; box-sizing: border-box; }
 .og-strip-submit { flex: 0 0 auto; font-size: 15px; line-height: 1.15; padding: 4px 12px; }
 .og-strip-close { grid-area: close; width: 28px; height: 28px; padding: 0; border: none; background: none; font-size: 22px; line-height: 1; cursor: pointer; }
-@media (max-width: 640px) { .og-strip { width: calc(min(94vw, 1144px) * 0.92); } }
+@media (max-width: 640px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) { .og-strip { width: calc(min(94vw, 1144px) * 0.92); } }
 /* At 360 px and below the folder is narrow: 6 px sides and slightly tighter spacing on an error keep the longest message
    ("We could not send the confirmation email. Please try again later.") to two lines, so the strip stays under 80 px. */
 @media (max-width: 360px) { .og-strip-inner { padding-left: 6px; padding-right: 6px; } .og-strip-text[role=alert] { letter-spacing: -0.02em; } }
 .og-strip-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: portrait), (min-width: 768px) and (min-height: 500.01px), (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 768px) and (pointer: none) {
   .og-strip-inner { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "text row close"; column-gap: 14px; padding: 10px 16px; }
   .og-strip-text { font-size: 15px; }
   .og-strip-row { max-width: 420px; }
@@ -161,7 +161,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
    sit in the base layer, so a page's own display (a flex row, a block link) wins and only plain inline links become
    boxes. Nothing here applies from 640px up. */
 @layer base {
-  @media (max-width: 639.98px) {
+  @media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
     .ng-page a:not(p a, blockquote a, figcaption a, footer a),
     .ng-page button:not(footer button),
     .ng-page summary:not(footer summary),
@@ -194,9 +194,9 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .njf > summary::-webkit-details-marker { display: none; }
 .njf > summary::before { content: "+"; flex: none; width: 20px; color: #7a1612; }
 .njf[open] > summary::before { content: "\2212"; }
-@media (max-width: 639.98px) { .arch-tap { display: flex; align-items: center; min-height: 44px; } }
-@media (min-width: 640px) { .arch-row { padding: 4px 0; } }
-@media (max-width: 639.98px) {
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) { .arch-tap { display: flex; align-items: center; min-height: 44px; } }
+@media (min-width: 640px) and (orientation: portrait), (min-width: 640px) and (min-height: 500.01px), (min-width: 640px) and (hover: hover), (min-width: 640px) and (pointer: fine), (min-width: 640px) and (pointer: none) { .arch-row { padding: 4px 0; } }
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   html:not(.og-js) .njp-a, .njp-a.njp-on { display: block; height: 0; }
   html:not(.og-js) .njp-nav, .njp-nav.njp-on { justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0 14px; font-size: 15px; color: #14100d; }
   html:not(.og-js) .njp-nav a, .njp-nav.njp-on a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; color: #14100d; font-weight: bold; text-decoration: none; }
@@ -204,14 +204,14 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   html:not(.og-js) .njf > summary, .njf.njf-on > summary { display: flex; align-items: center; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; color: #14100d; cursor: pointer; }
 }
 /* NoJsPager `wide` (PC4): the same paging from 640px up, for lists paged at every width. */
-@media (min-width: 640px) {
+@media (min-width: 640px) and (orientation: portrait), (min-width: 640px) and (min-height: 500.01px), (min-width: 640px) and (hover: hover), (min-width: 640px) and (pointer: fine), (min-width: 640px) and (pointer: none) {
   .njp-a.njp-w { display: block; height: 0; }
   .njp-nav.njp-w { justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0 14px; font-size: 15px; color: #14100d; }
   .njp-nav.njp-w a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; color: #14100d; font-weight: bold; text-decoration: none; }
 }
 .rf-d { display: none; }
 .rf-b, .rf-h { display: contents; }
-@media (max-width: 639.98px) {
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .rf-h { display: none; }
   .rf-d { display: block; border-top: 1px solid rgba(20,16,13,0.25); }
   .rf-b { display: block; }
@@ -227,7 +227,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 }
 .pc-d { display: none; }
 .pc-b { display: contents; }
-@media (max-width: 639.98px) {
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .pc-d { display: block; }
   .pc-b { display: block; }
   .pc-d:not([open]) + .pc-b { display: none; }
@@ -236,7 +236,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .pc-d > summary::-webkit-details-marker { display: none; }
   .pc-wide { display: none; }
 }
-@media (min-width: 640px) { .pc-narrow { display: none; } }
+@media (min-width: 640px) and (orientation: portrait), (min-width: 640px) and (min-height: 500.01px), (min-width: 640px) and (hover: hover), (min-width: 640px) and (pointer: fine), (min-width: 640px) and (pointer: none) { .pc-narrow { display: none; } }
 .pa-list li { padding: 10px 0; border-bottom: 1px solid rgba(20,16,13,0.25); font-size: 15px; line-height: 1.6; }
 .pa-list a { color: #7a1612; text-decoration: underline; font-weight: bold; }
 /* "Skip to main content" (A11Y1): off screen until it has focus, then a clear box at the top left, above everything. */
@@ -253,7 +253,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 /* With no sources page the row is not there at all, and the share control sits exactly as before. */
 .art-actions:not(:has(> .art-sources)) { display: contents; }
 .ng-page a.art-sources, a.art-sources { display: inline-flex; align-items: center; box-sizing: border-box; min-height: 44px; max-width: 100%; padding: 8px 18px; border: 1px solid #14100d; color: #14100d; font-family: inherit; font-size: 16px; font-weight: bold; line-height: 1.3; text-decoration: none; }
-@media (max-width: 639.98px) {
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   html.og-js .art-share { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
   html.og-js .art-actions:has(> .art-sources) .art-share { margin-top: 0; }
   .art-share button { min-height: 44px; padding: 8px 18px; border: 1px solid #14100d; border-radius: 0; background: transparent; color: #14100d; font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer; }
@@ -264,7 +264,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 /* PhoneGroup.tsx: from 640px up the fold line is not there and its content sits as if nothing wrapped it. */
 .pg-d { display: none; }
 .pg-b { display: contents; }
-@media (max-width: 639.98px) {
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .pg-d { display: block; }
   .pg-d > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; list-style: none; border-bottom: 1px solid rgba(20, 16, 13, 0.25); }
   .pg-d > summary::-webkit-details-marker { display: none; }
@@ -273,7 +273,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .pg-b { display: block; }
   .pg-d:not([open]) + .pg-b { display: none; }
 }
-@media (max-width: 639.98px) {
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* The shared phone table (lib/phone-enhance.ts): one card per row, the first column as the title, then "label: value". */
   .ng-page table[data-pt-table="cards"] { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; overflow: visible !important; border: 0 !important; table-layout: auto !important; }
   .ng-page table[data-pt-table="cards"] > thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -335,7 +335,7 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
 
 /* ---- Phones (owner, 5 Nov 2026). Under 640px, and a phone on its side (a touch screen under 500px tall, whatever its
    width, so never a desktop window). */
-@media (max-width: 639.98px), (max-height: 499.98px) and (orientation: landscape) and (pointer: coarse) {
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* iPhone zooms in on any field under 16px. */
   input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea { font-size: 16px !important; }
   /* Safari ignores height on a native dropdown: its own look off, and an arrow drawn in. An inline background keeps its colour. */
@@ -355,7 +355,7 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
   .pca-row [data-pca-leader] { display: none !important; }
   .pca-row span { white-space: normal !important; }
 }
-@media (max-width: 639.98px) {
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* Nothing is wider than its box, at any text size. */
   .ng-page input:not([type="checkbox"]):not([type="radio"]), .ng-page select, .ng-page textarea { max-width: 100% !important; min-width: 0 !important; }
   .ng-page form label { max-width: 100%; min-width: 0; }
@@ -385,7 +385,7 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
    summary gets a tap area at least 44px tall: an invisible layer over it (::after), so no text moves; form controls,
    which cannot carry one, are made 44px tall. */
 .og-cb-short, .og-cb-narrow { display: none; }
-@media (max-width: 479px) {
+@media (max-width: 479px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .og-cookie-banner { padding: 8px 12px !important; }
   .og-cookie-banner h2 { font-size: 16px !important; line-height: 1.25 !important; margin-bottom: 4px !important; }
   .og-cb-long, .og-cb-wide, .og-cb-link { display: none !important; }

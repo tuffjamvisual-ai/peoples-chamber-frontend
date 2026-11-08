@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import Toast from '../components/Toast'
 import PhoneMore from '../components/PhoneMore'
+import { phoneUpTo } from '@/lib/breakpoints';
 
 type Poll = {
   id: number
@@ -244,7 +245,7 @@ export default function PollsClient() {
           </div>
           {/* Phones (under 640px, owner, 4 Nov 2026): the 7 newest polls, then Show more, then the archive (7, not 10: the 10,000px rule, 5 Nov 2026). */}
           <PhoneMore selector="#polls-list" total={filtered.length} step={7} off={!!search} />
-          <style dangerouslySetInnerHTML={{ __html: '.polls-archive-phone { display: none; } @media (max-width: 639.98px) { .polls-archive-phone { display: block; margin: 4px 0 16px; font-size: 15px; color: #14100d; text-decoration: underline; text-underline-offset: 3px; } }' }} />
+          <style dangerouslySetInnerHTML={{ __html: `.polls-archive-phone { display: none; } @media ${phoneUpTo(639.98)} { .polls-archive-phone { display: block; margin: 4px 0 16px; font-size: 15px; color: #14100d; text-decoration: underline; text-underline-offset: 3px; } }` }} />
           <a href="/polls/archive" className="polls-archive-phone no-hover-scale">View archived polls →</a>
           {filtered.length === 0 && (
             <div style={{ textAlign: 'center', padding: '48px 0', color: INK_SOFT }}>

@@ -14,6 +14,7 @@ import NoJsPager from '@/app/components/NoJsPager';
 import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
 import PhoneTable from '../components/PhoneTable';
+import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 export type ExplorerRow = {
   code: string;
@@ -41,10 +42,10 @@ const FIRST = 50;
 // From 768px up the league table was wider than the screen below about 1100px, with its last column cut off, as long
 // lists of water companies stayed on one line. Up to 1439px they now wrap, and anything still too wide scrolls inside the
 // table's own box (owner, 4 Nov 2026). Phones keep PhoneTable's scrolling table; 1440px and wider are unchanged.
-const LEAGUE_CSS = '@media (min-width: 768px) and (max-width: 1439.98px) { .sew-league .pt-box { overflow-x: auto; } .sew-league table { min-width: 0 !important; } .sew-league td.sew-company { white-space: normal !important; } }'
+const LEAGUE_CSS = `@media ${wideFrom(768).split(', ').map((q) => `${q} and (max-width: 1439.98px)`).join(', ')} { .sew-league .pt-box { overflow-x: auto; } .sew-league table { min-width: 0 !important; } .sew-league td.sew-company { white-space: normal !important; } }`
   // Under 640px (owner, 4 Nov 2026) area cards replace the table, from the same rows, so tables and sort orders still apply.
   + ' .sew-cards { display: none; }'
-  + ' @media (max-width: 639.98px) { .sew-league { display: none; } .sew-cards { display: block; list-style: none; margin: 0; padding: 0; }'
+  + ` @media ${phoneUpTo(639.98)} { .sew-league { display: none; } .sew-cards { display: block; list-style: none; margin: 0; padding: 0; }`
   + ' .sew-card { border-top: 1px solid rgba(20,16,13,0.25); } .sew-card:last-child { border-bottom: 1px solid rgba(20,16,13,0.25); }'
   + ' .sew-card summary { display: block; min-height: 44px; padding: 10px 26px 10px 0; position: relative; cursor: pointer; list-style: none; }'
   + ' .sew-card summary::-webkit-details-marker { display: none; }'

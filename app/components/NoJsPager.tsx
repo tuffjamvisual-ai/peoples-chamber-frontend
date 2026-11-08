@@ -1,4 +1,5 @@
 import { cloneElement, type ReactElement, type ReactNode } from 'react';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // Long lists on phones with JavaScript off (owner, 6 Nov 2026; the 10,000px rule). With JavaScript on the phone script (lib/phone-enhance.ts) already
 // shortens lists, and from 640px up lists show whole, so nothing here applies to either: the styles match only `html:not(.og-js)` under 640px.
@@ -31,7 +32,7 @@ export function pagesByHeight(heights: number[], room: number, most = Infinity):
 
 export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; children?: ReactElement<{ className?: string }> }) {
   const split = sizes ?? Array.from({ length: Math.ceil(count / size) }, () => size);
-  const cardCss = cards ? `@media (max-width:639.98px){${cards.map((label, i) => (label ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${i + 1})::before{content:${JSON.stringify(`${label}: `)};font-weight:bold}` : '')).join('')}${title ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${title}){font-weight:bold;font-size:16px}` : ''}}` : '';
+  const cardCss = cards ? `@media ${phoneUpTo(639.98)} {${cards.map((label, i) => (label ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${i + 1})::before{content:${JSON.stringify(`${label}: `)};font-weight:bold}` : '')).join('')}${title ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${title}){font-weight:bold;font-size:16px}` : ''}}` : '';
   const cardClass = cards ? `njc njc-${id}` : '';
   const cardStyle = cards ? <style dangerouslySetInnerHTML={{ __html: cardCss }} /> : null;
   if (split.length <= 1) return <>{cardStyle}{children && cards ? cloneElement(children, { className: [children.props.className, cardClass].filter(Boolean).join(' ') }) : children}</>;
@@ -54,7 +55,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
   return (
     <>
       {cardStyle}
-      <style dangerouslySetInnerHTML={{ __html: wide && always ? css : `@media (max-width:639.98px){${css}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: wide && always ? css : `@media ${phoneUpTo(639.98)} {${css}}` }} />
       {nums.map((k) => <i key={k} id={`${id}-p${k}`} className={`njp-a${always ? ' njp-on' : ''}${wide && always ? ' njp-w' : ''}`} />)}
       {children ? cloneElement(children, { className: [children.props.className, list, cardClass].filter(Boolean).join(' ') }) : null}
       {children && nums.map((k) => <PagerNav key={k} id={id} k={k} pages={pages} always={always} wide={wide && always} />)}
@@ -85,7 +86,7 @@ export function NoJsPagerLinks({ id, count, size = 25, sizes }: { id: string; co
 export function NoJsFold({ id, label, open = false, always = false, children }: { id: string; label: ReactNode; open?: boolean; always?: boolean; children: ReactNode }) {
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `@media (max-width:639.98px){${always ? 'html' : 'html:not(.og-js)'} #${id}:not([open]) ~ *:not(#${id}-end):not(#${id}-end ~ *){display:none!important}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(639.98)} {${always ? 'html' : 'html:not(.og-js)'} #${id}:not([open]) ~ *:not(#${id}-end):not(#${id}-end ~ *){display:none!important}}` }} />
       <details id={id} className={always ? 'njf njf-on' : 'njf'} open={open}><summary>{label}</summary></details>
       {children}
       <i id={`${id}-end`} className="njp-a" />

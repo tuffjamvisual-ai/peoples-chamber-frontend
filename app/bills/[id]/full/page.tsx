@@ -17,6 +17,7 @@ import BackLink from '../../../components/BackLink';
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 import { getBillPublications, getBillText, latestText, actLink, inlineGroupCount, type ApiPublication as TextPublication, type TocEntry } from '@/lib/bill-text';
 import BillTextGroups from './BillTextGroups';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export const revalidate = 604800  // a week, from the cached Parliament answers (lib/bill-text.ts); refreshed by the bill syncs (lib/bill-refresh.ts)
 
@@ -361,5 +362,5 @@ const BILL_TEXT_CSS = `
 .bt-text blockquote { margin: 8px 0 8px 22px; padding-left: 12px; border-left: 2px solid rgba(20,16,13,0.35); }
 .bt-text table { border-collapse: collapse; margin: 10px 0; font-size: 15px; display: block; overflow-x: auto; max-width: 100%; }
 .bt-text td, .bt-text th { border: 1px solid rgba(20,16,13,0.35); padding: 4px 8px; vertical-align: top; }
-@media (max-width: 640px) { .bt-text .bt-para { margin-left: 14px; } .bt-text blockquote { margin-left: 8px; } }
+@media ${phoneUpTo(640)} { .bt-text .bt-para { margin-left: 14px; } .bt-text blockquote { margin-left: 8px; } }
 `

@@ -12,6 +12,7 @@ import CookieBanner from "./components/CookieBanner";
 import SkipLink from "./components/SkipLink";
 import PostHogLoader from "./components/PostHogLoader";
 import { CONSENT_HEAD_SCRIPT } from "@/lib/cookie-consent";
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // Special Elite (body copy) is loaded once here by next/font (25 Oct 2026, report 46): it preloads the font and adds a
 // fallback face sized to match it (adjustFontFallback), so text shown before the font arrives takes the same space and
@@ -121,12 +122,12 @@ export const metadata: Metadata = {
 // homepage intro's sentences as separate paragraphs, and the torn paper strip under the header at half its height.
 // Under 640px and inside a page's own <header> too since 4 Nov 2026 (owner): long introductions were still in the typewriter font.
 const BODY_TEXT = ':is(p, li, blockquote, dd, figcaption, .og-read):not(nav *, footer *, button *, table *, form *, .og-cookie-banner *, .og-kicker, .og-record-date, [class*="stamp"], [style*="uppercase"], [style*="small-caps"], [style*="0.3em"])';
-const PHONE_CSS = `@media (max-width: 639.98px) {
+const PHONE_CSS = `@media ${phoneUpTo(639.98)} {
   ${BODY_TEXT} { font-family: Georgia, "Times New Roman", serif !important; font-size: 17px !important; line-height: 1.6 !important; letter-spacing: normal !important; text-shadow: none !important; }
   ${BODY_TEXT} :is(span, a, strong, em, b, i, time, small, cite, q, div):not([style*="font-family"], [style*="uppercase"], [class*="stamp"]) { font-size: inherit !important; letter-spacing: normal !important; }
   ${BODY_TEXT} [style*="uppercase"] { font-family: var(--font-special-elite), monospace !important; font-size: 15px !important; }
 }
-@media (max-width: 479px) {
+@media ${phoneUpTo(479)} {
   .og-intro-s { display: block; margin-bottom: 12px; }
   .og-intro-s:last-child { margin-bottom: 0; }
   .og-intro-br { display: none; }

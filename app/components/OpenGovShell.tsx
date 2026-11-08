@@ -7,6 +7,7 @@ import MobileMenu from './MobileMenu';
 import HeaderNav from './HeaderNav';
 import FeedbackFooterLink from './FeedbackFooterLink';
 import { OPEN_PARLIAMENT_LICENCE_URL } from './ParliamentSourceCredit';
+import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 // OpenGovShell — the shared "OPEN GOVERNMENT" page template.
 // Renders the folders-pile backdrop, the newb folder header (red-stamp masthead
@@ -37,10 +38,10 @@ export default function OpenGovShell({
   // The folders backdrop is a CSS background (opengov-shell.css), so the browser only asked for it once the stylesheet
   // had arrived, and on desktop it is the largest thing painted (the LCP). Preloading it from the page head starts the
   // download with the HTML instead (25 Oct 2026, report 43); each width gets only the file its stylesheet uses.
-  preload('/folders.webp', { as: 'image', media: '(min-width: 641px)', fetchPriority: 'high' });
+  preload('/folders.webp', { as: 'image', media: wideFrom(641), fetchPriority: 'high' });
   // Under 480px the desk backdrop is not shown at all (owner, 3 Nov 2026: the folder is the page on phones), so it is
   // not preloaded there either.
-  preload('/folders-900.webp', { as: 'image', media: '(min-width: 480px) and (max-width: 640px)' });
+  preload('/folders-900.webp', { as: 'image', media: wideFrom(480).split(', ').map((q) => `${q} and (max-width: 640px)`).join(', ') });
   const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, border: '0.07em solid #7a1612', padding: '0.14em 0.32em 0.06em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#7a1612', fontSize: 'clamp(24px, 4.6vw, 64px)' };
   return (
     <div
@@ -58,7 +59,7 @@ export default function OpenGovShell({
               a 2x phone the 600px one (16 KB), not the full 1086px file (128 KB); still about twice the shown width. */}
           {/* Under 480px the picture is hidden (opengov-shell.css) but a hidden img still downloads: an empty one takes its place there. */}
           <picture>
-          <source media="(max-width: 479px)" srcSet="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" />
+          <source media={phoneUpTo(479)} srcSet="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" />
           <img className="og-header-img" src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="(max-width: 640px) 60vw, min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
           </picture>
 

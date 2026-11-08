@@ -4,6 +4,7 @@
 // it is one "More in this section" control that opens the list, so the page heading is on the first screen.
 import Link from 'next/link';
 import { sectionRow } from '@/lib/site-nav';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export default function SectionLinks({ section }: { section: string }) {
   const item = sectionRow(section);
@@ -11,7 +12,7 @@ export default function SectionLinks({ section }: { section: string }) {
   return (
     <>
     <style dangerouslySetInnerHTML={{ __html: `.sl-phone { display: none; }
-@media (max-width: 639.98px) {
+@media ${phoneUpTo(639.98)} {
   .sl-wide { display: none; }
   .sl-phone { display: block; margin: 0 0 14px; font-family: var(--font-special-elite), monospace; font-size: 15px; }
   .sl-phone summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid #14100d; color: #14100d; font-weight: bold; cursor: pointer; list-style: none; }

@@ -1,3 +1,4 @@
+import { phoneUpTo } from '@/lib/breakpoints';
 // Shares items between two columns of even height for "two columns, no boxes"
 // layouts. The list is cut once, at the point where the two halves are closest in
 // height (judged by the weight given, an estimate of each item's height), so the
@@ -30,8 +31,8 @@ export function balanceColumns<T>(items: T[], weight: (item: T) => number): [T[]
 }
 
 // CSS for the two column grid: two columns side by side, one on phones.
-export const TWO_COLUMN_CSS = '.og-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}@media (max-width:760px){.og-two{grid-template-columns:1fr}}';
+export const TWO_COLUMN_CSS = `.og-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}@media ${phoneUpTo(760)} {.og-two{grid-template-columns:1fr}}`;
 
 // For short lists of similar sized items (link lists): a plain two column grid,
 // rows side by side, no boxes. One column on phones.
-export const TWO_COLUMN_GRID_CSS = '.og-grid2{display:grid;grid-template-columns:1fr 1fr;column-gap:44px}@media (max-width:760px){.og-grid2{grid-template-columns:1fr}}';
+export const TWO_COLUMN_GRID_CSS = `.og-grid2{display:grid;grid-template-columns:1fr 1fr;column-gap:44px}@media ${phoneUpTo(760)} {.og-grid2{grid-template-columns:1fr}}`;

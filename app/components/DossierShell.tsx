@@ -1,6 +1,7 @@
 import ExpandingFolder from './ExpandingFolder';
 import HotspotDropdown from './HotspotDropdown';
 import { SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES } from '@/lib/feature-flags';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // The reusable "dossier" page shell: dark backdrop → People's Chamber newspaper masthead
 // (image + %-positioned nav hotspots + weekly issue line) → an empty expanding manila
@@ -191,7 +192,7 @@ export default function DossierShell({
           font-family: var(--font-special-elite), monospace;
           color: #14100d;
         }
-        @media (max-width: 640px) {
+        @media ${phoneUpTo(640)} {
           .pca-folder { width: 92%; margin-left: 4%; margin-right: 4%; }
         }
       `}</style>

@@ -5,6 +5,7 @@ import { noteSearch } from '@/lib/search-note';
 import { SUBMITTED_SEARCH_KEY } from '@/lib/search-analytics';
 import { useRouter } from 'next/navigation';
 import { departments } from '@/lib/departments';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -168,7 +169,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
         {q && (
           <>
           {/* Phones (under 640px, owner, 4 Nov 2026): a 44px box at the end of the field; the mark stays the same size. */}
-          <style dangerouslySetInnerHTML={{ __html: '@media (max-width: 639.98px) { .og-search-clear { width: 44px; height: 44px; right: 0 !important; padding: 0 !important; display: inline-flex; align-items: center; justify-content: center; } }' }} />
+          <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(639.98)} { .og-search-clear { width: 44px; height: 44px; right: 0 !important; padding: 0 !important; display: inline-flex; align-items: center; justify-content: center; } }` }} />
           <button
             type="button"
             onClick={handleClear}
@@ -204,7 +205,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
       {/* Type and department (SR1, 8 Nov 2026; the audit found no type filter beside the department one): one row, in the
           form above (form attribute), so they reach the address with JavaScript off when Search is pressed; with JavaScript
           on a change applies at once, as the chips do. Shown once, at every width, so each is submitted once. */}
-      <style>{`.srch-selects { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 0 0 12px; } .srch-selects label { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: ${INK}; } .srch-selects select { font-family: ${MONO}; font-size: 15px; letter-spacing: 0.06em; color: ${INK}; background: ${CREAM}; border: 1px solid ${HAIRLINE}; padding: 4px 11px; cursor: pointer; } @media (max-width: 639.98px) { .srch-selects label { width: 100%; } .srch-selects select { flex: 1 1 auto; min-width: 0; min-height: 44px; font-size: 16px; } }`}</style>
+      <style>{`.srch-selects { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 0 0 12px; } .srch-selects label { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: ${INK}; } .srch-selects select { font-family: ${MONO}; font-size: 15px; letter-spacing: 0.06em; color: ${INK}; background: ${CREAM}; border: 1px solid ${HAIRLINE}; padding: 4px 11px; cursor: pointer; } @media ${phoneUpTo(639.98)} { .srch-selects label { width: 100%; } .srch-selects select { flex: 1 1 auto; min-width: 0; min-height: 44px; font-size: 16px; } }`}</style>
       <div className="srch-selects">
         <label>
           Type
@@ -236,7 +237,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
       </div>
 
       {/* Under 640px (owner, 4 Nov 2026): the filters fold into one control naming the current one; from 640px up, as before. */}
-      <style>{`.srch-fold { display: none; } @media (max-width: 639.98px) { .srch-wide { display: none; } .srch-fold { display: block; } .srch-fold summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-fold summary::-webkit-details-marker { display: none; } .srch-fold[open] summary { margin-bottom: 10px; } .srch-fold[open] .srch-mark { transform: rotate(180deg); } }`}</style>
+      <style>{`.srch-fold { display: none; } @media ${phoneUpTo(639.98)} { .srch-wide { display: none; } .srch-fold { display: block; } .srch-fold summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-fold summary::-webkit-details-marker { display: none; } .srch-fold[open] summary { margin-bottom: 10px; } .srch-fold[open] .srch-mark { transform: rotate(180deg); } }`}</style>
       <details className="srch-fold">
         <summary>Filter: {TYPE_CHIPS.find((c) => c.value === defaultType)?.label ?? 'All'}<span className="srch-mark" aria-hidden>▾</span></summary>
         {filters}

@@ -7,6 +7,7 @@
 import NoJsPager from '@/app/components/NoJsPager';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export type ListReport = { title: string; meta: string; bodies: string[]; pages: string[]; other: boolean };
 // [report key "session/number", rec number, status key, status in words]
@@ -38,7 +39,7 @@ function matches(r: ListReport | undefined, filter: string) {
 // Phone cards (owner, 4 Nov 2026, under 640px): a search box, and each recommendation as a card that opens to its history,
 // read from /api/recommendations/... when opened.
 const CARD_CSS = `.rec-card, .rec-search { display: none; }
-@media (max-width: 639.98px) {
+@media ${phoneUpTo(639.98)} {
   .rec-wide { display: none; }
   .rec-search { display: block; }
   .rec-card { display: block; }

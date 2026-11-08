@@ -28,6 +28,7 @@ import { loadCouncilByelections, resultSentence, jointRunnersUp, contextSentence
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export const revalidate = 604800;  // a week (owner, 30 Oct 2026, cache Stage 2a part 4): the council syncs refresh the council routes on a real new release
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
@@ -322,7 +323,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     <OpenGovShell pageStamp="Councils">
       {/* Phones (owner, 30 Oct 2026): under 640px each label sits above its value at full width, as the two columns
           left the values a few letters wide at 320px. Nothing changes from 641px up. */}
-      <style>{'@media (max-width: 640px) { .council-dl > div > dt, .council-dl > div > dd { grid-column: 1 / -1; } .council-dl > div > dt { border-bottom: 0 !important; padding-bottom: 0 !important; } }'}</style>
+      <style>{`@media ${phoneUpTo(640)} { .council-dl > div > dt, .council-dl > div > dd { grid-column: 1 / -1; } .council-dl > div > dt { border-bottom: 0 !important; padding-bottom: 0 !important; } }`}</style>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Councils', path: '/councils' }, { name: c.name, path: `/councils/${c.slug}` }])} />
       <BackLink
         fallbackHref="/councils"

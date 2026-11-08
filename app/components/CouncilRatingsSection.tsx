@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { getLeagueData, getCouncilFinance, TOPIC_NAMES, SERVICE_PARTS, MEASURE_TOPIC, formatPeriod, bandLabel, ordinal } from '@/lib/council-league';
 import type { LeagueRow, LeagueFlag, FinanceEvent, ReserveDetail } from '@/lib/council-league';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -29,7 +30,7 @@ const section: CSSProperties = { borderTop: `1px solid ${INK_HAIRLINE}`, padding
 const th: CSSProperties = { textAlign: 'left', padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK}`, fontWeight: 'normal', verticalAlign: 'bottom' };
 const td: CSSProperties = { padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, verticalAlign: 'top' };
 
-const NARROW_CSS = `@media (max-width: 760px) {
+const NARROW_CSS = `@media ${phoneUpTo(760)} {
   .cr-table { font-size: 15px !important; }
   .cr-table th, .cr-table td { padding-right: 5px !important; overflow-wrap: anywhere; }
   .cr-table th { white-space: normal !important; }

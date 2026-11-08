@@ -54,7 +54,7 @@
 /* ---- Mobile: the desktop chrome is positioned by inline %; override with
    !important. Let the nav wrap, drop the dossier down to make room, hide the
    overlapping account tab, and widen the content. ---- */
-@media (max-width: 760px) {
+@media (max-width: 760px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* The same desktop nav (.og-navwrap) shows on mobile, wrapped to fit. */
   /* Keep the account/support tab in the top-right of the folder, just smaller
      and stacked so it clears the masthead. */
@@ -92,7 +92,7 @@
    wrapping nav and the account tab are hidden (the account links are in the menu panel), and the dossier folder starts
    just below the row: the header image is 1448/1086 = 133.33% of its width tall. From 768px up none of this shows. */
 .og-mbar, .og-menu-panel { display: none; }
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .og-navwrap, .ng-tab { display: none !important; }
   .og-mbar { display: flex; position: absolute; top: 2.6%; right: 5%; z-index: 6; gap: 2px; align-items: center; transform: rotate(-2.5deg); }
   .og-mbar-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; margin: 0; border: 0; background: transparent; color: #14100d; cursor: pointer; text-decoration: none; -webkit-tap-highlight-color: transparent; }
@@ -115,7 +115,7 @@
    480px, and OpenGovShell preloads it only from 480px), the folder's paper edge to edge, a short header bar, and the
    folder's top strip with its tab and the page stamp kept. Content runs at 12px from each side (over 92 per cent of
    the screen). Nothing here applies from 480px up. */
-@media (max-width: 479px) {
+@media (max-width: 479px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .og-backdrop { display: none !important; background-image: none !important; }
   .ng-page { padding: 0 !important; background-color: #e1c495 !important; }
   .og-shell-inner { width: 100% !important; }
@@ -129,4 +129,11 @@
   .dossier-frame .d-mid, .dossier-frame .d-bottom { display: none; }
   .dossier-content { padding: 44px 12px 28px !important; }
   .og-footer-links a { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
+/* ---- Phones held sideways (owner, 8 Nov 2026, RT1; lib/breakpoints.ts): the phone layout above, just wider. The page's
+   own content keeps to 720px at most, centred, so lines of text stay a readable length on a screen up to 932px wide;
+   the header bar, the folder and the footer still run the full width. ---- */
+@media (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+  .dossier-content > .og-main-content { max-width: 720px; margin-left: auto; margin-right: auto; }
 }

@@ -6,6 +6,7 @@
 import { useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export type RankedOrg = {
   slug: string;
@@ -46,7 +47,7 @@ export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[];
         .lb-table a { color: ${INK}; text-decoration: none; overflow-wrap: anywhere; }
         .lb-table a:hover { color: ${ACCENT}; text-decoration: underline; }
         .lb-sub { display: block; font-size: 15px; margin-top: 2px; }
-        @media (max-width: 640px) {
+        @media ${phoneUpTo(640)} {
           .lb-table { font-size: 15px; }
           .lb-wide { display: none; }
         }

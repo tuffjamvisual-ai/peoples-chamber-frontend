@@ -8,6 +8,7 @@ import VotingIntegrity from '../components/VotingIntegrity';
 import Link from 'next/link';
 import { getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle, type SessionBillGroup } from '@/lib/parliament-sessions';
 import { billTitleMatches, BILL_QUERY_MAX } from '@/lib/bill-search';
+import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 export const BILLS_PER_PAGE = 60;
 
@@ -74,12 +75,12 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
       </header>
 
       {/* Under 640px (owner, 4 Nov 2026) the box comes after the list. */}
-      <style>{`.vi-phone { display: none; } @media (max-width: 639.98px) { .vi-wide { display: none; } .vi-phone { display: block; margin-top: 24px; } }`}</style>
+      <style>{`.vi-phone { display: none; } @media ${phoneUpTo(639.98)} { .vi-wide { display: none; } .vi-phone { display: block; margin-top: 24px; } }`}</style>
       <div className="vi-wide"><VotingIntegrity /></div>
 
       <style>{`
         .bills-az { list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 48px; }
-        @media (min-width: 768px) { .bills-az { columns: 2; } }
+        @media ${wideFrom(768)} { .bills-az { columns: 2; } }
         .bills-az li { break-inside: avoid; page-break-inside: avoid; padding: 0 0 14px; }
         .bills-az a { color: #7a1612; text-decoration: none; font-size: 17px; line-height: 1.35; font-weight: bold; }
         .bills-az a:hover, .bills-az a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }

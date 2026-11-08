@@ -6,6 +6,7 @@
 
 import { Fragment, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export type ClientFlag = { label: string; county: boolean; kind: string };
 // Formal action taken against or by a council, kept apart from signs of financial pressure (audit L9).
@@ -120,7 +121,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <style>{`
         .lt-details > div { flex: 1 1 180px; min-width: 0; }
-        @media (max-width: 760px) {
+        @media ${phoneUpTo(760)} {
           .lt-wide { display: none; }
           .lt-table { font-size: 15px !important; }
           .lt-table th, .lt-table td { padding-right: 5px !important; }

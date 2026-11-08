@@ -9,6 +9,7 @@ import {
   RECOMMENDATIONS_PUBLIC, allStatus, wording, bodiesFor, departmentWords, departmentSlugs, sessionWords, recPath, documentWords, latestMinutesUsed,
   STATUS_ORDER, STATUS_LABELS, datePart, targetPassed, BODY_NOTES,
 } from '@/lib/pac';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // /recommendations (owner's approval, 29 Oct 2026, "go stage 4"): the Committee of Public Accounts recommendations
 // tracker. Only exists when RECOMMENDATIONS_PUBLIC=1; then it and every recommendation page are in the sitemap, and
@@ -87,7 +88,7 @@ export default async function RecommendationsPage({ params }: { params: Promise<
         </h1>
       </header>
       {/* Under 640px (owner, 4 Nov 2026): the status summary first, then the searchable list, then the rest. */}
-      <style>{`@media (max-width: 639.98px) {
+      <style>{`@media ${phoneUpTo(639.98)} {
         .rec-page { display: flex; flex-direction: column; }
         .rec-status { order: 1; }
         .rec-all { order: 2; }

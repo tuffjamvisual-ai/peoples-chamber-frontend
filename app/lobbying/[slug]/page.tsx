@@ -11,6 +11,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { getOrgBySlug, getOrgMeetings, getOrgLobbying, cleanDept, fmtDate, ORG_TYPE_LABEL, type OrgMeeting } from '@/lib/lobbying';
 import { getOrganisation } from '@/lib/organisations';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export const revalidate = 86400;
 export function generateStaticParams() { return []; }
@@ -94,7 +95,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
               .lbo-table th { text-align: left; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 6px; border-bottom: 1.5px solid ${INK}; }
               .lbo-table td { padding: 9px 6px; border-bottom: 1px solid ${INK_HAIRLINE}; vertical-align: top; overflow-wrap: anywhere; }
               .lbo-date { white-space: nowrap; }
-              @media (max-width: 640px) {
+              @media ${phoneUpTo(640)} {
                 .lbo-table thead { display: none; }
                 .lbo-table tr { display: block; padding: 10px 2px; border-bottom: 1px solid ${INK_HAIRLINE}; }
                 .lbo-table td { display: block; border: 0; padding: 2px 0; }

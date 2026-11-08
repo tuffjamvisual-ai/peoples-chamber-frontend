@@ -1,4 +1,4 @@
-// Phones under 640px, every page (owner, 4 Nov 2026). Runs in the browser and does nothing from 640px up, so wider screens
+// Phones under 640px, and phones held sideways (RT1, lib/breakpoints.ts), every page (owner, 4 Nov 2026). Runs in the browser and does nothing from 640px up, so wider screens
 // never see it. Three jobs, so that every page gets them without its own markup:
 //   tables   a table with more than 3 columns, or that does not fit, becomes one card per row: the first column is the
 //            title and the rest are "label: value" lines in the same order, labels read from the table's own header.
@@ -15,10 +15,12 @@
 // Only data-* attributes change on the page's own elements, which React leaves alone. The first run is inline, right after
 // the page, so tables are cards before they are painted; PhoneEnhance.tsx adds the buttons once the page is hydrated and
 // repeats the work when a page changes. Styles are in globals.css.
+import { PHONE } from './breakpoints';
+
 export const PHONE_ENHANCE_JS = `(function(){
 var LIMIT=25,MAXH=9800,CAPS=[6000,3000,1500],opened=false,done=null,wait=0,here=location.href,path=location.pathname,extra=[],OWN='nav,.og-menu-panel,.og-mbar,footer,details,.pf-list,[data-own-more]',BACK='og-phone-back:',RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
 function pageHeight(){return document.documentElement.scrollHeight}
-function narrow(){return window.innerWidth<640}
+function narrow(){return window.matchMedia(${JSON.stringify(PHONE)}).matches}
 function text(e){return (e.textContent||'').replace(/[\\u25B2\\u25BC\\u25B4\\u25BE]/g,'').replace(/\\s+/g,' ').trim()}
 function labels(t){
   var head=t.tHead&&t.tHead.rows.length?t.tHead.rows[t.tHead.rows.length-1]:null,body=false;

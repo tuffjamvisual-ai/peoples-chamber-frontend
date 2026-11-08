@@ -17,6 +17,7 @@ import { resolvePersonName } from '@/lib/person-name';
 import { ministerialRateForSlug, ministerialSalaryText } from '@/lib/ministerial-salaries';
 import Link from 'next/link';
 import BackLink from '../../components/BackLink';
+import { phoneUpTo } from '@/lib/breakpoints';
 export const revalidate = 21600;
 
 export async function generateStaticParams() {
@@ -218,7 +219,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 rotation and no negative margins, so nothing is pushed past the screen's edge, and the sections start below the
                 opening without the desktop's upward nudge or zoom. From 640px up nothing changes. */}
             <style>{`
-              @media (max-width: 639.98px) {
+              @media ${phoneUpTo(639.98)} {
                 .pp-header { flex-direction: row !important; align-items: center !important; gap: 12px !important; margin-bottom: 12px !important; }
                 .pp-photo { margin: 0 !important; padding: 4px !important; transform: none !important; }
                 .pp-photo img, .pp-photo > div { width: 72px !important; height: 72px !important; font-size: 32px !important; }

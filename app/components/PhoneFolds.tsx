@@ -11,9 +11,11 @@
 //
 // The closed state is in the page HTML and the stylesheet below applies only under 480px, so nothing moves when the
 // script runs. The rules are here, not in globals.css, so they always arrive with the markup they style. The MP page folds
-// under 640px (owner, 4 Nov 2026): phoneMax sets the width, 479 for every other page.
+// under 640px (owner, 4 Nov 2026): phoneMax sets the width, 479 for every other page. A phone held sideways folds too,
+// whatever its width (RT1, lib/breakpoints.ts).
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 export type Fold = {
   id: string;
@@ -28,8 +30,8 @@ export type Fold = {
 
 const css = (phoneMax: number) => `
 .pf-contents, .pf-all, .pf-d, .pf-sd { display: none; }
-@media (min-width: ${phoneMax + 1}px) { .pf-off { display: none !important; } .pf-off:has(:target) { display: block !important; } .pf-sb { display: contents; } }
-@media (max-width: ${phoneMax}px) {
+@media ${wideFrom(phoneMax + 1)} { .pf-off { display: none !important; } .pf-off:has(:target) { display: block !important; } .pf-sb { display: contents; } }
+@media ${phoneUpTo(phoneMax)} {
   .pf-contents { display: block; margin-bottom: 12px; font-size: 15px; }
   .pf-contents h2 { font-size: 17px; font-weight: bold; margin: 0 0 4px; }
   .pf-contents ul { list-style: none; padding: 0; margin: 0; }
@@ -99,7 +101,7 @@ export default function PhoneFolds({ folds, showContents = true, contentsLabel =
   // The address names a section, or something inside one (a link from elsewhere on the site): open it and go there.
   useEffect(() => {
     const reveal = () => {
-      if (!window.matchMedia(`(max-width: ${phoneMax}px)`).matches) return;
+      if (!window.matchMedia(phoneUpTo(phoneMax)).matches) return;
       const named = new URLSearchParams(window.location.search).get('section');
       const hash = window.location.hash.slice(1);
       const el = (named && document.getElementById(`section-${named}`))

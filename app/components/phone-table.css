@@ -1,7 +1,7 @@
 /* Wide tables on phones (PhoneTable.tsx, report 47). The pinned cells take the dossier paper's colour so the columns
    scrolling under them do not show through. */
 .pt-box { position: relative; }
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .pt-box { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
   /* globals.css makes every dossier table on a phone a sideways-scrolling block; inside this box the box scrolls instead,
      so the table stays a table and its first column can stay put. */
@@ -21,7 +21,7 @@
 
 /* Cards (a table with more than four columns that reads better as one card per row): under 768px each row is a card
    and each cell shows its column name (data-label) before the value. The headings stay for screen readers. */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .pt-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .pt-cards, .pt-cards tbody, .pt-cards tr, .pt-cards td { display: block; width: 100%; box-sizing: border-box; }
   .pt-cards tr { padding: 10px 0; border-bottom: 1px solid rgba(20, 16, 13, 0.25); }

@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { track } from '@vercel/analytics';
 import { CONSENT_EVENT, readConsent, writeConsent } from '@/lib/cookie-consent';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 const INK = '#14100d';
 const PAPER = '#fbf4e6';
@@ -29,7 +30,7 @@ const link: React.CSSProperties = { color: INK, textDecoration: 'underline' };
 // cookies" link, and "Accept analytics" and "Reject analytics" side by side, each on one line and 44px tall.
 const BANNER_CSS = `
 .og-cookie-banner .og-cb-short, .og-cookie-banner .og-cb-narrow { display: none; }
-@media (max-width: 479px) {
+@media ${phoneUpTo(479)} {
   .og-cookie-banner { padding: 8px 12px !important; }
   .og-cookie-banner h2 { font-size: 16px !important; line-height: 1.25 !important; margin-bottom: 4px !important; }
   .og-cookie-banner .og-cb-long, .og-cookie-banner .og-cb-wide, .og-cookie-banner .og-cb-link { display: none !important; }

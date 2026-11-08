@@ -4,7 +4,7 @@
 
 .mobile-nav-toggle { display: none; }   /* hidden on desktop */
 
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* Hide the desktop painted-header hotspot overlay on mobile. */
   .magazine-desktop-nav { display: none; }
 

@@ -32,6 +32,7 @@ const phoneRowPx = (...texts: (string | null | undefined)[]) => 40 + texts.reduc
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
 import type { MpPetitionsTop } from '@/lib/petition-pages';
+import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -857,7 +858,7 @@ export default function MagazineProfileSections({
       .finally(() => setDonationsLoading(false));
   }, [memberId]);
   useEffect(() => {
-    if (window.matchMedia(`(max-width: ${PHONE_MAX}px)`).matches) return; // phones: each loads when its section comes into view (below)
+    if (window.matchMedia(phoneUpTo(PHONE_MAX)).matches) return; // phones: each loads when its section comes into view (below)
     if (active === 'expenses') loadExpenses();
     if (active === 'donations') loadDonations();
     if (active === 'petitions') loadPetitions();
@@ -875,7 +876,7 @@ export default function MagazineProfileSections({
   useEffect(() => {
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     // Phones (owner, 4 Nov 2026): sections are closed, so each loads when it is opened (the observer above).
-    if (saveData || window.matchMedia(`(max-width: ${PHONE_MAX}px)`).matches) return;
+    if (saveData || window.matchMedia(phoneUpTo(PHONE_MAX)).matches) return;
     const start = () => { loadDonations(); loadExpenses(); };
     const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
     if (w.requestIdleCallback) {
@@ -2960,7 +2961,7 @@ export default function MagazineProfileSections({
         /* Tabs with JavaScript off, from 640px (owner, 8 Nov 2026, TB1; backlog item 25): each sidebar item is a link to its
            #section-<id>. A section that is the address's target is shown, and while one is (or holds the target, as with
            #register-history or a pager screen), the open tab gives way to it. With JavaScript on the tabs work as before. */
-        @media (min-width: 640px){
+        @media ${wideFrom(640)} {
           html:not(.og-js) .mp-sections-content .pf-off:target { display: block !important; }
           html:not(.og-js) .mp-sections-content:has(.pf-off:target, .pf-off :target) :is(.pf-sec, .pf-sub):not(.pf-off):not(:target):not(:has(:target)) { display: none !important; }
         }
@@ -2971,7 +2972,7 @@ export default function MagazineProfileSections({
           html:not(.og-js) .mp-sections-grid:has(.pf-off:target, .pf-off :target) .mp-sections-nav a[data-active="true"] > span { border-left-color: transparent !important; background: transparent !important; box-shadow: none !important; font-weight: normal !important; }
           ${sections.map((s) => `html:not(.og-js) .mp-sections-grid:has(#section-${s.id}:target, #section-${s.id} :target) .mp-sections-nav a[data-section="${s.id}"] > span { border-left-color: #7a1612 !important; background: rgba(122,22,18,0.08) !important; box-shadow: inset 1px 0 2px rgba(0,0,0,0.05) !important; font-weight: bold !important; }`).join('\n          ')}
         }
-        @media (min-width: 640px) and (max-width: 1023px){
+        @media ${wideFrom(640).split(', ').map((q) => `${q} and (max-width: 1023px)`).join(', ')}{
           html:not(.og-js) .mp-sections-grid:has(.pf-off:target, .pf-off :target) .mp-sections-nav a[data-active="true"] > span { border-bottom-color: transparent !important; background: transparent !important; font-weight: normal !important; }
           ${sections.map((s) => `html:not(.og-js) .mp-sections-grid:has(#section-${s.id}:target, #section-${s.id} :target) .mp-sections-nav a[data-section="${s.id}"] > span { border-bottom-color: #7a1612 !important; background: rgba(122,22,18,0.08) !important; font-weight: bold !important; }`).join('\n          ')}
         }
@@ -2985,9 +2986,9 @@ export default function MagazineProfileSections({
           .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
           .mp-sections-content { padding: 20px 2px !important; }
         }
-        @media (max-width: 479px){ .mp-sections-nav [data-section] { display: none !important; } }
+        @media ${phoneUpTo(479)} { .mp-sections-nav [data-section] { display: none !important; } }
         .mp-headline, .mp-reports-phone { display: none; }
-        @media (max-width: 639.98px){
+        @media ${phoneUpTo(639.98)} {
           .mp-reports-wide { display: none; }
           .mp-reports-phone { display: block; }
           .mp-reports-phone > section { margin-top: 8px !important; }

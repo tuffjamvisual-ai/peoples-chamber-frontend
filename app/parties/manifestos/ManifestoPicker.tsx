@@ -4,10 +4,11 @@
 // with "By party" as the alternative, the full list the page shows at every other width (children). From 640px up the
 // picker is hidden and only the list shows. Styles are in the <style> below, so nothing here applies from 640px up.
 import { useState, type ReactNode } from 'react';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 const CSS = `
 .mf-controls, .mf-policy { display: none; }
-@media (max-width: 639.98px) {
+@media ${phoneUpTo(639.98)} {
   .mf-controls { display: block; margin-bottom: 18px; }
   .mf-root[data-mode="policy"] .mf-policy { display: block; }
   .mf-root[data-mode="policy"] .mf-party { display: none; }

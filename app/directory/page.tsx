@@ -11,6 +11,7 @@ import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import DirectoryFilter from './DirectoryFilter';
 import PhoneMore from '../components/PhoneMore';
 import Unavailable from '../components/Unavailable';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export const metadata: Metadata = {
   title: { absolute: 'Directory: everything on opengovt, A to Z' },
@@ -27,7 +28,7 @@ const MONO = 'var(--font-special-elite), monospace';
 // up with the 44px letters. Each letter is folded closed until its heading or its letter in the A to Z bar is tapped
 // (owner, 4 Nov 2026; DirectoryFilter.tsx), with every entry still in the page; without JavaScript all of them show.
 const DIRECTORY_PHONE_CSS = `.dir-h-btn { display: none; }
-@media (max-width: 639.98px) {
+@media ${phoneUpTo(639.98)} {
   .dir-letters { align-items: center; }
   .dir-entry { padding: 0 0 9px !important; }
   .dir-entry p { margin: 0 !important; }

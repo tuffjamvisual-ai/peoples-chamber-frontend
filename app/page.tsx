@@ -14,6 +14,7 @@ import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
 import { loadLatestWhitehall } from '@/lib/press-releases-latest';
 import { setPageReadTimer } from '@/lib/page-reads';
 import './home-front.css';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 function fmtGovDate(iso: string | null | undefined): string {
   if (!iso) return '';
@@ -138,7 +139,7 @@ export default async function HomePage() {
                   ("The record, going back decades"), the other reports, Latest from Whitehall and the rest of the rail in
                   their order (the Bills tracker card where it was). CSS order only, so it is the same with JavaScript off.
                   From 640px up, as before. */}
-              <style>{`@media (max-width: 639.98px) {
+              <style>{`@media ${phoneUpTo(639.98)} {
                 .og-lead { display: flex !important; flex-direction: column; }
                 .og-main, .og-rail { display: contents !important; }
                 .og-main > * { order: 5; }

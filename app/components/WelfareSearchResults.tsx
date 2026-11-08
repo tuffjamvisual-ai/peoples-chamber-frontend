@@ -3,6 +3,7 @@
 import { SCOTLAND_NOTE } from './WelfareSearch';
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // Full results listing for /tools/welfare/search — the page a user
 // lands on after pressing Enter/Search on the typeahead box (rather
@@ -90,7 +91,7 @@ export default function WelfareSearchResults() {
 
   return (
     <div>
-      <style>{'.wf-result-note { display: none; } @media (max-width: 639.98px) { .wf-result-note { display: block; } }'}</style>
+      <style>{`.wf-result-note { display: none; } @media ${phoneUpTo(639.98)} { .wf-result-note { display: block; } }`}</style>
       <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(24px, 3.2vw, 36px)', fontWeight: 600, letterSpacing: '-0.01em', marginBottom: '20px', color: INK }}>
         {heading}
       </h1>

@@ -12,6 +12,7 @@ import { displayMpName } from '@/lib/mp-name';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import ArticleEndSignup from '../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export async function generateMetadata(): Promise<Metadata> {
   const year = await latestYear();
@@ -210,7 +211,7 @@ export default async function ExpensesPage() {
         /* Mobile: collapse both two-column blocks (leaderboard + article body)
            to a single column so columns don't render microscopically.
            !important overrides the inline columnCount:2. */
-        @media (max-width: 767px) {
+        @media ${phoneUpTo(767)} {
           .pca-cols { column-count: 1 !important; column-rule: none !important; }
         }
       `}</style>

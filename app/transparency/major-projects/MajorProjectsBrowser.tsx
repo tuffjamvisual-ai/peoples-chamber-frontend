@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // The /transparency/major-projects list with a name search and filters (24 Oct 2026): department, latest delivery
 // confidence rating, the report a project was last in, and "no evaluation plan in March 2025" (the earlier
@@ -63,7 +64,7 @@ const KEYS: (keyof State)[] = ['q', 'dept', 'rating', 'year', 'evaluation'];
 // still in the HTML, and from 640px up all of them show as before.
 const PHONE_PAGE = 25;
 const CARD_CSS = `.mpb-card, .mpb-more, .mpb-phone-name { display: none; }
-@media (max-width: 639.98px) {
+@media ${phoneUpTo(639.98)} {
   .mpb-over { display: none !important; }
   .mpb-more { display: block; min-height: 44px; margin: 0 0 28px; padding: 8px 16px; background: transparent; border: 1px solid #14100d; color: #14100d; font: inherit; font-size: 15px; cursor: pointer; }
   .mpb-phone-name { display: inline; }

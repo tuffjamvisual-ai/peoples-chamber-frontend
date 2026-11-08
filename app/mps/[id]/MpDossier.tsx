@@ -5,6 +5,7 @@ import MagazineProfileSections from './MagazineProfileSections';
 import StaffInterestsLine from './StaffInterestsLine';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 // Rubber-stamp distress texture (patchy ink), matching the OpenGovShell stamps.
 const STAMP_DISTRESS = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='150'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='6' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.4 1.12'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>")`;
@@ -86,7 +87,7 @@ export default function MpDossier({
            margins that push the photo off the right edge and the sidebar off the
            left. On phones, drop the zoom, stack the header (centred photo above
            the name) and pull the sidebar/photo back on-page. */
-        @media (max-width: 760px) {
+        @media ${phoneUpTo(760)} {
           .pca-sections { zoom: 1 !important; }
           /* The grid's -80px desktop nudge drags the stacked sidebar up into the
              header text on mobile; neutralise it so sections start cleanly below. */
@@ -101,13 +102,13 @@ export default function MpDossier({
         }
         /* Phones under 480px (owner, 3 Nov 2026): the photo, with its frame, at most 40 per cent of the screen height,
            so the name and party show on the first screen. */
-        @media (max-width: 479px) {
+        @media ${phoneUpTo(479)} {
           .pca-mp-photo img, .pca-mp-photo > div { width: min(180px, calc(30vh - 60px)) !important; height: min(180px, calc(30vh - 60px)) !important; }
           .pca-mp-header { margin-bottom: 12px !important; gap: 8px !important; }
         }
         /* Under 640px (owner, 4 Nov 2026): a small photo, then name, party and constituency, so the headline figures below
            show on the first screen. */
-        @media (max-width: 639.98px) {
+        @media ${phoneUpTo(639.98)} {
           .pca-mp-header { flex-direction: row !important; align-items: center !important; gap: 12px !important; margin-bottom: 12px !important; }
           .pca-mp-photo { margin: 0 !important; padding: 4px !important; transform: none !important; }
           .pca-mp-photo img, .pca-mp-photo > div { width: 72px !important; height: 72px !important; }
@@ -123,7 +124,7 @@ export default function MpDossier({
            Staff interests line sat under the Background heading and the tab list. It keeps its place in the page, so nothing
            else moves, and is drawn one line higher (56px, a 44px line and its 12px gap), or two with the standards line
            above it, into the free space under the party name. */
-        @media (min-width: 761px) {
+        @media ${wideFrom(761)} {
           .mp-staff-line { position: relative; top: -56px; }
           .mp-standards-line + .mp-staff-line { top: -112px; }
           /* PF4 (owner, 7 Nov 2026): a Standards cases line with no Staff interests line after it had the same overlap; it
