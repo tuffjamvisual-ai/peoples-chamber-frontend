@@ -9,6 +9,7 @@ import { AuthProvider } from "./context/AuthContext";
 import FloatingScrollDownButton from "./components/FloatingScrollDownButton";
 import DeferredAnalytics from "./components/DeferredAnalytics";
 import CookieBanner from "./components/CookieBanner";
+import SkipLink from "./components/SkipLink";
 import PostHogLoader from "./components/PostHogLoader";
 import { CONSENT_HEAD_SCRIPT } from "@/lib/cookie-consent";
 
@@ -163,7 +164,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        {/* GOV.UK style cookie banner, first on the page so keyboard users reach it first (owner, 29 Oct 2026). */}
+        {/* The first thing a keyboard reaches on every page (owner, 8 Nov 2026, A11Y1): hidden until focused, then shown at
+            the top left. It moves focus to the page's own content, <main id="main-content"> (OpenGovShell.tsx). */}
+        <SkipLink />
+        {/* GOV.UK style cookie banner, first after the skip link so keyboard users reach it next (owner, 29 Oct 2026). */}
         <CookieBanner />
         <AuthProvider>
           {children}

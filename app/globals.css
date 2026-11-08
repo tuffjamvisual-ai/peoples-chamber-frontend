@@ -239,6 +239,12 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 @media (min-width: 640px) { .pc-narrow { display: none; } }
 .pa-list li { padding: 10px 0; border-bottom: 1px solid rgba(20,16,13,0.25); font-size: 15px; line-height: 1.6; }
 .pa-list a { color: #7a1612; text-decoration: underline; font-weight: bold; }
+/* "Skip to main content" (A11Y1): off screen until it has focus, then a clear box at the top left, above everything. */
+.og-skip { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+.og-skip:focus, .og-skip:focus-visible { position: fixed; left: 8px; top: 8px; width: auto; height: auto; min-height: 44px; z-index: 2147483647; display: inline-flex; align-items: center; padding: 8px 16px; background: #14100d; color: #ffffff; font-family: var(--font-special-elite), monospace; font-size: 16px; font-weight: bold; text-decoration: underline; outline: 3px solid #ffbf47; outline-offset: 0; }
+/* The page's own content (OpenGovShell.tsx): focused by the skip link, with no outline round the whole page. */
+.og-main-content { display: block; }
+.og-main-content:focus { outline: none; }
 /* ShareButton.tsx: phones only, and nothing without JavaScript. */
 .art-share { display: none; }
 /* The row under an investigation's standfirst (SRC1): the share control, when it shows, and "View sources (N)" beside it,

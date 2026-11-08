@@ -100,7 +100,11 @@ export default function OpenGovShell({
           )}
 
           <div className="dossier-content">
-            {children}
+            {/* The page's own content, the one main landmark on the page and the skip link's target (owner, 8 Nov 2026,
+                A11Y1); the site header, menu and footer stay outside it. */}
+            <main id="main-content" tabIndex={-1} className="og-main-content">
+              {children}
+            </main>
             <footer style={{ marginTop: '48px', paddingTop: '18px', borderTop: '1px solid rgba(20,16,13,0.25)', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d' }}>
               {/* The Open Parliament Licence attribution on every page (owner, 31 Oct 2026), above the independence line. */}
               <p style={{ margin: '0 0 14px', color: '#14100d', lineHeight: 1.65, maxWidth: '82ch' }}>
