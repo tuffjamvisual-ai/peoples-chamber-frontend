@@ -21,8 +21,8 @@
 // before and of the new one differ) have /mps/<id> refreshed and sent to IndexNow (scripts/refresh-pages.ts); an unchanged
 // MP is not refreshed, and a run that stops before writing refreshes nothing. --dry-run lists the pages it would refresh.
 import fs from 'node:fs';
-import path from 'node:path';
 import { refreshPages, stableHash, reportToRun } from './refresh-pages';
+import { excludedRecordsFile } from './career-sync-files';
 import { createClient } from '@supabase/supabase-js';
 import { type CareerEntry, type BillOutcome } from '../lib/career-timeline';
 import { keepValid, contestEntries, MAX_EXCLUDED, type Built, type Excluded, type ContestRecord } from './career-sync-filter';
@@ -171,7 +171,8 @@ async function main() {
     result[String(m.id)] = { name: m.name, career_parliament: entries, notes };
     console.log(`${m.id} ${m.name}: ${entries ? entries.length : 'no'} entries${notes.length ? `; ${notes.length} note(s)` : ''}`);
   }
-  const excludedFile = path.join(EXCLUDED_DIR, `excluded-records-${today}.json`);
+  // A dry run keeps its own file, never the real run's (PR1a).
+  const excludedFile = excludedRecordsFile(EXCLUDED_DIR, today, DRY);
   fs.writeFileSync(excludedFile, JSON.stringify({ generated: new Date().toISOString(), dry_run: DRY, count: excluded.length, records: excluded }, null, 1));
   console.log(`${excluded.length} entr${excluded.length === 1 ? 'y' : 'ies'} left out (failed validate()), listed in ${excludedFile}`);
   for (const x of excluded) console.log(`  left out: ${x.member_id} ${x.name}: ${x.entry.group} "${x.entry.title}": ${x.reason}`);

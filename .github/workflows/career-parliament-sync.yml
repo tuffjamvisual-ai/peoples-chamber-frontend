@@ -7,8 +7,10 @@ name: Nightly MP Political career sync
 # so it runs here like the other script syncs (daily-sync.yml).
 on:
   schedule:
-    # 04:37 UTC (04:37 GMT; 05:37 in British Summer Time). Off the hour, as GitHub delays top-of-hour runs most.
-    - cron: '37 4 * * *'
+    # 03:57 UTC (PR1a, 8 Nov 2026), so a normal 30 to 40 minute run ends well before the site's 05:15 UTC page refresh
+    # (/api/refresh-nightly-pages), which picks up any MP page this run could not refresh itself. GitHub cron is UTC all
+    # year: 03:57 GMT in winter, 04:57 BST in summer. Off the hour, as GitHub delays top-of-hour runs most.
+    - cron: '57 3 * * *'
   workflow_dispatch:
 
 jobs:

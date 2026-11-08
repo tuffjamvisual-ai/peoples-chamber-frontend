@@ -7,8 +7,10 @@ name: Nightly written ministerial statements sync
 # stops the fetching; more than 10 records failing validate() stops the run before it writes.
 on:
   schedule:
-    # 05:54 UTC (05:54 GMT; 06:54 in British Summer Time). A minute no other workflow or Vercel cron uses, off the hour.
-    - cron: '54 5 * * *'
+    # 03:47 UTC (PR1a, 8 Nov 2026), so the run (a minute or two) ends well before the site's 05:15 UTC page refresh
+    # (/api/refresh-nightly-pages), which picks up any MP page it could not refresh itself. GitHub cron is UTC all year:
+    # 03:47 GMT in winter, 04:47 BST in summer. A minute no other workflow or Vercel cron uses, off the hour.
+    - cron: '47 3 * * *'
   workflow_dispatch:
 
 jobs:
