@@ -15,7 +15,8 @@ const MONO = "var(--font-special-elite), monospace";
 
 const FORM_ID = 'site-search-form';
 
-const TYPE_CHIPS = [
+// The search types, offered by the Type select below (AQ1, 8 Nov 2026: the one set of type controls).
+const TYPES = [
   { value: 'all',          label: 'All' },
   // Investigations and briefings are one filter, Reports (23 Oct 2026); type=briefing links still work.
   { value: 'editorial',    label: 'Reports' },
@@ -71,34 +72,11 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
     navigate('', defaultType, dept, defaultSort);
   }
 
+  // Sort order. The type chips that stood above it went in AQ1 (8 Nov 2026): they were buttons that needed JavaScript,
+  // and the Type select below does the same job with JavaScript off too, so there is one set of type controls.
   const filters = (
     <>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>
-        {TYPE_CHIPS.map((chip) => {
-          const active = defaultType === chip.value;
-          return (
-            <button
-              key={chip.value}
-              onClick={() => navigate(q, chip.value, dept, defaultSort)}
-              style={{
-                padding: '4px 11px',
-                fontFamily: MONO,
-                fontSize: '15px',
-                letterSpacing: '0.08em',
-                color: active ? '#fff' : '#14100d',
-                background: active ? ACCENT : 'transparent',
-                border: `1px solid ${active ? ACCENT : HAIRLINE}`,
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-              }}
-            >
-              {chip.label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '10px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
         <div style={{ display: 'inline-flex', border: `1px solid ${HAIRLINE}`, overflow: 'hidden' }}>
           <button
             onClick={() => navigate(q, defaultType, dept, 'relevance')}
@@ -150,7 +128,6 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search a minister, department, policy, vote or government announcement"
-          autoFocus
           style={{
             width: '100%',
             padding: '13px 48px 13px 16px',
@@ -204,7 +181,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
 
       {/* Type and department (SR1, 8 Nov 2026; the audit found no type filter beside the department one): one row, in the
           form above (form attribute), so they reach the address with JavaScript off when Search is pressed; with JavaScript
-          on a change applies at once, as the chips do. Shown once, at every width, so each is submitted once. */}
+          on a change applies at once. Shown once, at every width, so each is submitted once. */}
       <style>{`.srch-selects { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 0 0 12px; } .srch-selects label { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: ${INK}; } .srch-selects select { font-family: ${MONO}; font-size: 15px; letter-spacing: 0.06em; color: ${INK}; background: ${CREAM}; border: 1px solid ${HAIRLINE}; padding: 4px 11px; cursor: pointer; } @media ${phoneUpTo(639.98)} { .srch-selects label { width: 100%; } .srch-selects select { flex: 1 1 auto; min-width: 0; min-height: 44px; font-size: 16px; } }`}</style>
       <div className="srch-selects">
         <label>
@@ -216,7 +193,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
             onChange={(e) => { setType(e.target.value); navigate(q, e.target.value, dept, defaultSort); }}
             style={{ fontStyle: type !== 'all' ? 'normal' : 'italic', borderColor: type !== 'all' ? INK : undefined }}
           >
-            {TYPE_CHIPS.map((c) => <option key={c.value} value={c.value}>{c.value === 'all' ? 'All types' : c.label}</option>)}
+            {TYPES.map((c) => <option key={c.value} value={c.value}>{c.value === 'all' ? 'All types' : c.label}</option>)}
           </select>
         </label>
         <label>
@@ -236,10 +213,10 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
         </label>
       </div>
 
-      {/* Under 640px (owner, 4 Nov 2026): the filters fold into one control naming the current one; from 640px up, as before. */}
+      {/* Phones (owner, 4 Nov 2026): the sort order folds into one control naming the current one; wider screens, as before. */}
       <style>{`.srch-fold { display: none; } @media ${phoneUpTo(639.98)} { .srch-wide { display: none; } .srch-fold { display: block; } .srch-fold summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-fold summary::-webkit-details-marker { display: none; } .srch-fold[open] summary { margin-bottom: 10px; } .srch-fold[open] .srch-mark { transform: rotate(180deg); } }`}</style>
       <details className="srch-fold">
-        <summary>Filter: {TYPE_CHIPS.find((c) => c.value === defaultType)?.label ?? 'All'}<span className="srch-mark" aria-hidden>▾</span></summary>
+        <summary>Sort: {defaultSort === 'newest' ? 'Newest' : 'Best match'}<span className="srch-mark" aria-hidden>▾</span></summary>
         {filters}
       </details>
       <div className="srch-wide">{filters}</div>
