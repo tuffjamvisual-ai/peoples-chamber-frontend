@@ -1,13 +1,14 @@
 // Basic page for a former MP who is not in our mps table (lib/former-mps.ts; owner's decision, 28 Oct 2026). Same
 // heading style as a former member's full profile in MpDossier ("Former MP for X (2015 to 2024)"), with every seat
 // held and the dates, from Parliament's Members API. The full Parliament record is linked as the source. Any Standards
-// findings follow (3 Nov 2026).
+// findings follow (3 Nov 2026). Nothing sits below the sections (owner, 8 Nov 2026, FM1, as MP1 did for sitting MPs): the
+// links the Related line held (their record at Prime Minister's Questions, their House of Lords page, reports that name
+// them) are part of "Time in the House of Commons".
 import StandardsCasesLine from '../../components/StandardsCasesLine';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBreadcrumbs, buildMpPerson } from '@/lib/JsonLd';
-import RelatedLine from '../../components/RelatedLine';
 import type { RelatedLink } from '@/lib/related-links';
 import { lastSeatLine, parliamentMemberUrl, seatYears, type FormerMp } from '@/lib/former-mps';
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
@@ -66,6 +67,15 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
         <p style={line}>
           {mp.name} is no longer an MP.{mp.sitsInLords ? ' They now sit in the House of Lords.' : ''} opengovt keeps full profiles for current MPs; this page {lastSeatOnly ? 'records their last seat and the dates in Parliament’s record' : mp.lastSeatOnly ? 'links to their record at Prime Minister’s Questions' : 'records the seats held and the dates served'}.
         </p>
+        {related.length > 0 && (
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 10px' }} aria-label={`More on ${mp.name}`}>
+            {related.map((r) => (
+              <li key={r.href} style={{ ...line, margin: '0 0 4px' }}>
+                <Link href={r.href} className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>{r.label}</Link>
+              </li>
+            ))}
+          </ul>
+        )}
         <p style={line}>
           <Link href="/mps" className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Find your current MP</Link>.
         </p>
@@ -76,8 +86,6 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
 
       <StandardsFindings findings={conductFindings} />
       <HistoricRecord memberId={mp.memberId} />
-      {/* The compact Related line at the end (owner's brief, 3 Nov 2026): reports that name them, when there are any. */}
-      <RelatedLine links={related} />
     </OpenGovShell>
   );
 }
