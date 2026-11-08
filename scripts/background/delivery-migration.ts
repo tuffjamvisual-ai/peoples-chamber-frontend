@@ -3,7 +3,7 @@
 // scripts/background/fixtures/delivery-4820.json (one MP object, or an array of them).
 //
 //   npx tsx --tsconfig tsconfig.json scripts/background/make-background-migration.ts --column delivery --input <file.json> \
-//     --before <export.csv> --tag <e.g. 2026-11-09a> [--out <folder>]
+//     --before <export.csv> --tag <e.g. 2026-11-09a, or 2026-11-08e-delivery-4820> [--out <folder>]
 //
 // It never reads or writes the database. The values the UNDO puts back come from --before: a fresh export of the MPs'
 // mp_biography rows, made by whoever applies the migration, in the same form as the generator's other backups:
@@ -12,7 +12,9 @@
 // stops unless every row still holds exactly the exported values, so the UNDO can never put back stale ones.
 // Every MP passes lib/delivery-record.ts validate() and the field checks below before anything is written; any problem
 // stops the run with no files written. Files: <tag>-delivery-UNDO.sql first, then <tag>-delivery.sql, then
-// <tag>-delivery-REHEARSAL.sql (the migration and the UNDO in one transaction ending in ROLLBACK), in --out (default
+// <tag>-delivery-REHEARSAL.sql (the migration and the UNDO in one transaction ending in ROLLBACK); a tag with its own
+// name after the date code (2026-11-08e-delivery-4820, DL1) is used as it is: <tag>-UNDO.sql, <tag>.sql and
+// <tag>-REHEARSAL.sql. In --out (default
 // scripts/migrations).
 import fs from 'node:fs';
 import path from 'node:path';
@@ -84,7 +86,7 @@ export function runDelivery(argv: string[]): void {
   const input = get('--input'), beforeFile = get('--before'), tag = get('--tag');
   const out = get('--out') ?? path.join(process.cwd(), 'scripts', 'migrations');
   if (!input || !fs.existsSync(input)) fail('--input must name the delivery JSON file (one MP object or an array)');
-  if (!tag || !/^\d{4}-\d{2}-\d{2}[a-z]{1,2}$/.test(tag)) fail('--tag must look like 2026-11-09a');
+  if (!tag || !/^\d{4}-\d{2}-\d{2}[a-z]{1,2}(-[a-z0-9]+)*$/.test(tag)) fail('--tag must look like 2026-11-09a or 2026-11-08e-delivery-4820');
   if (!beforeFile || !fs.existsSync(beforeFile)) fail('--before must name a fresh CSV export of these MPs\' mp_biography rows (see the header of scripts/background/delivery-migration.ts); this mode never reads the database');
 
   // 1. Every MP is checked first; any problem stops the run before a file is written.
@@ -123,7 +125,9 @@ export function runDelivery(argv: string[]): void {
   }
 
   fs.mkdirSync(out, { recursive: true });
-  const undoName = `${tag}-delivery-UNDO.sql`, migName = `${tag}-delivery.sql`, rehName = `${tag}-delivery-REHEARSAL.sql`;
+  // A tag that names itself (a suffix after the date code) is the file name; a bare date code gets "-delivery" (DL1).
+  const base = /^\d{4}-\d{2}-\d{2}[a-z]{1,2}$/.test(tag) ? `${tag}-delivery` : tag;
+  const undoName = `${base}-UNDO.sql`, migName = `${base}.sql`, rehName = `${base}-REHEARSAL.sql`;
   for (const n of [undoName, migName, rehName]) if (fs.existsSync(path.join(out, n))) fail(`${path.join(out, n)} already exists; choose another --tag`);
 
   const N = ids.length;
