@@ -89,7 +89,7 @@ function ResultRow({ r }: { r: SearchResult }) {
             </Link>
           )}
           <span style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d' }}>
-            {r.date ? fmtDate(r.date) : ''}
+            {r.date ? `${r.dateLabel ? `${r.dateLabel} ` : ''}${fmtDate(r.date)}` : ''}
             {r.kicker       ? (r.date ? ` · ${r.kicker}` : r.kicker) : ''}
             {r.org          ? (r.date ? ` · ${r.org}`    : r.org)    : ''}
             {r.constituency && r.party

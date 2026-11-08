@@ -19,6 +19,7 @@ export type SearchResult = {
   title: string;
   standfirst?: string;
   date?: string;        // YYYY-MM-DD
+  dateLabel?: string;   // what the date is, shown before it (bills: when Parliament last changed the record)
   url: string;
   kicker?: string;
   org?: string;
@@ -204,7 +205,10 @@ async function queryBills(
     type: 'bill' as const,
     title: r.title,
     standfirst: r.current_stage ?? undefined,
+    // bill.last_update is the Bills API's lastUpdate (sync-bills-incremental.js): when Parliament last changed the
+    // bill's record in any way, not the date of its stage, so it is labelled as such (BD1).
     date: toDateStr(r.last_update),
+    dateLabel: 'Last updated',
     url: `/bills/${r.id}`,
   }));
 }

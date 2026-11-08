@@ -285,6 +285,19 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </div>
         )}
 
+        {/* The official record at Parliament, for readers who want to check our page against it (BD1, audit item 6).
+            Only for bills whose Parliament id we hold; it opens in the same tab. */}
+        {bill.parliament_id != null && (
+          <div style={{ textAlign: 'center', margin: '-14px 0 14px' }}>
+            <a
+              href={`https://bills.parliament.uk/bills/${bill.parliament_id}`}
+              style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontFamily: MONO, fontSize: '15px', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}
+            >
+              View the official Parliament record
+            </a>
+          </div>
+        )}
+
         {/* Follow this bill (job 74): a weekly email when it reaches a new stage or is voted on. */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <FollowButton kind="bill" targetKey={String(bill.id)} label={bill.title} />
