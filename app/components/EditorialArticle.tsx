@@ -75,7 +75,17 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           {piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body) && (
             <p style={{ fontSize: '18px', lineHeight: 1.5, margin: '12px 0 0', color: INK }}>{piece.standfirst}</p>
           )}
-          {basePath === '/editorials' && <ShareButton title={piece.headline} />}
+          {/* The share control and, beside it, a link to the sources page (owner, 8 Nov 2026, SRC1), so a reader near the top
+              can reach the sources without scrolling to the "Sources (N)" line further down, which stays. The link shows at
+              every width and with JavaScript off; the share button keeps its own rule (phones, JavaScript on). */}
+          {basePath === '/editorials' && (
+            <div className="art-actions">
+              <ShareButton title={piece.headline} />
+              {sources.length > 0 && (
+                <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="art-sources">View sources ({sources.length})</Link>
+              )}
+            </div>
+          )}
           <div style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             By {piece.authorByline}
           </div>

@@ -241,8 +241,15 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .pa-list a { color: #7a1612; text-decoration: underline; font-weight: bold; }
 /* ShareButton.tsx: phones only, and nothing without JavaScript. */
 .art-share { display: none; }
+/* The row under an investigation's standfirst (SRC1): the share control, when it shows, and "View sources (N)" beside it,
+   the same height and style as the share button. At 320px the two wrap to two lines rather than run off the side. */
+.art-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+/* With no sources page the row is not there at all, and the share control sits exactly as before. */
+.art-actions:not(:has(> .art-sources)) { display: contents; }
+.ng-page a.art-sources, a.art-sources { display: inline-flex; align-items: center; box-sizing: border-box; min-height: 44px; max-width: 100%; padding: 8px 18px; border: 1px solid #14100d; color: #14100d; font-family: inherit; font-size: 16px; font-weight: bold; line-height: 1.3; text-decoration: none; }
 @media (max-width: 639.98px) {
   html.og-js .art-share { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+  html.og-js .art-actions:has(> .art-sources) .art-share { margin-top: 0; }
   .art-share button { min-height: 44px; padding: 8px 18px; border: 1px solid #14100d; border-radius: 0; background: transparent; color: #14100d; font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer; }
   .art-share [role="status"]:not(:empty) { font-size: 15px; color: #14100d; }
   /* Report pages: 16px at the sides (owner, 5 Nov 2026). */
