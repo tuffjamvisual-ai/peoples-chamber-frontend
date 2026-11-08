@@ -1,8 +1,10 @@
-// Unit tests for scripts/career-sync-filter.ts (PCL1, 8 Nov 2026): one bad record leaves out only its own entry.
+// Unit tests for scripts/career-sync-filter.ts (PCL1, 8 Nov 2026): one bad record leaves out only its own entry; and
+// elections contested and lost (PCL2, 8 Nov 2026).
 //   npx tsx --tsconfig tsconfig.json --test scripts/checks/career-sync-filter.test.ts
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { keepValid, MAX_EXCLUDED, type Built } from '../career-sync-filter';
+import { keepValid, contestEntries, MAX_EXCLUDED, type Built } from '../career-sync-filter';
+import { validate } from '../../lib/career-timeline';
 
 const src = { title: 'UK Parliament: Members API, career', url: 'https://members.parliament.uk/member/1521/career' };
 // The Members API record for Sharon Hodgson's Ecclesiastical Committee membership, as Parliament returns it.
@@ -40,4 +42,48 @@ test('an MP whose every entry is valid loses nothing', () => {
 
 test('the stop limit is 10', () => {
   assert.equal(MAX_EXCLUDED, 10);
+});
+
+// Elections contested and lost (PCL2, 8 Nov 2026). The Members API Biography record for Sarah Pochin (5403), as Parliament
+// returns it: Bolton South East, 8 June 2017, not won; she won Runcorn and Helsby on 1 May 2025.
+const pochinContest = { house: 1, name: 'Bolton South East', id: 3345, startDate: '2017-06-08T00:00:00', endDate: null, additionalInfo: null, additionalInfoLink: null };
+const pochinSeat = { house: 1, name: 'Runcorn and Helsby', id: 4270, startDate: '2025-05-01T00:00:00', endDate: null };
+
+test('a contested election becomes one dated elections entry, sourced to the career page, and passes validate()', () => {
+  const { built, skipped } = contestEntries(5403, [pochinContest], [pochinSeat]);
+  assert.equal(skipped, 0);
+  assert.equal(built.length, 1);
+  assert.deepEqual(built[0].entry, {
+    group: 'elections', start: '2017-06-08', end: '2017-06-08',
+    title: 'Contested Bolton South East, 8 June 2017, not elected',
+    organisation: 'House of Commons', detail: null,
+    source: { title: 'UK Parliament: Members API, career', url: 'https://members.parliament.uk/member/5403/career' },
+  });
+  assert.deepEqual(built[0].raw, pochinContest);
+  assert.deepEqual(validate([built[0].entry]), []);
+  assert.equal(keepValid(5403, 'Sarah Pochin MP', built).kept.length, 1);
+});
+
+test('a contest that is already a win in representations (same seat, same day) is not added twice', () => {
+  const won = { ...pochinContest, name: 'Runcorn and Helsby', startDate: '2025-05-01T00:00:00' };
+  const { built, skipped } = contestEntries(5403, [pochinContest, won], [pochinSeat]);
+  assert.equal(skipped, 1);
+  assert.deepEqual(built.map((b) => b.entry.title), ['Contested Bolton South East, 8 June 2017, not elected']);
+});
+
+test('the same seat contested on another day is kept (a loss before a later win)', () => {
+  const earlier = { ...pochinContest, name: 'Runcorn and Helsby', startDate: '2024-07-04T00:00:00' };
+  assert.equal(contestEntries(5403, [earlier], [pochinSeat]).built.length, 1);
+});
+
+test('no electionsContested list adds nothing', () => {
+  assert.deepEqual(contestEntries(5403, undefined, [pochinSeat]), { built: [], skipped: 0 });
+});
+
+test('validate() rejects a contested election with a wrong title, no day, or an end that is not its day', () => {
+  const ok = contestEntries(5403, [pochinContest], []).built[0].entry;
+  assert.match(validate([{ ...ok, title: 'Contested Bolton South East, 2017, not elected' }])[0], /title must read "Contested <constituency>, 8 June 2017, not elected"/);
+  assert.match(validate([{ ...ok, start: '2017', end: '2017' }])[0], /needs its day/);
+  assert.match(validate([{ ...ok, end: 'present' }])[0], /ends on its own day/);
+  assert.match(validate([{ ...ok, end: '2018-01-01' }])[0], /ends on its own day/);
 });

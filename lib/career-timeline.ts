@@ -15,6 +15,9 @@
 //   Parliament names it, "session": the session it was last in ("2019-21"), and for withdrawn and in progress bills the
 //   date in "end" (the withdrawal date, or the last update).
 // Findings are stored exactly as published and shown in quotation marks, unchanged.
+// An election contested and lost (owner, PCL2, 8 Nov 2026; Members API Biography electionsContested) is an elections
+// entry with start and end both the election day and the title "Contested <constituency>, <8 June 2017>, not elected"
+// (contestTitle); validate() checks that shape for any elections title starting "Contested ".
 
 export type CareerGroup = 'elections' | 'posts' | 'committees' | 'bills' | 'findings' | 'pledges';
 export type BillOutcome = 'became_law' | 'defeated' | 'withdrawn' | 'no_further_stage' | 'in_progress';
@@ -44,6 +47,7 @@ const GROUPS = CAREER_GROUPS.map((g) => g.group);
 const OUTCOMES: BillOutcome[] = ['became_law', 'defeated', 'withdrawn', 'no_further_stage', 'in_progress'];
 
 const DATE = /^\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?)?$/;
+const DAY = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 const firstDay = (v: string) => (v.length === 4 ? `${v}-01-01` : v.length === 7 ? `${v}-01` : v);
 const lastDay = (v: string) => (v.length === 4 ? `${v}-12-31` : v.length === 7 ? `${v}-31` : v);
 
@@ -70,6 +74,14 @@ export function validate(entries: unknown): string[] {
     else {
       if (typeof src.title !== 'string' || src.title.trim() === '') problems.push(`${at}: source title is empty`);
       if (typeof src.url !== 'string' || !src.url.startsWith('https://')) problems.push(`${at}: source url must start with https://`);
+    }
+    if (e.group === 'elections' && typeof e.title === 'string' && e.title.startsWith('Contested ')) {
+      if (typeof start !== 'string' || !DAY.test(start)) problems.push(`${at}: a contested election needs its day (YYYY-MM-DD) in start`);
+      else {
+        if (end !== start) problems.push(`${at}: a contested election ends on its own day (end must equal start)`);
+        const place = e.title.match(/^Contested (.+), [^,]+, not elected$/)?.[1];
+        if (!place || e.title !== contestTitle(place, start)) problems.push(`${at}: a contested election's title must read "Contested <constituency>, ${dateLabel(start)}, not elected"`);
+      }
     }
     if (e.group === 'bills') {
       if (!OUTCOMES.includes(e.outcome as BillOutcome)) problems.push(`${at}: a bill needs outcome ${OUTCOMES.join(', ')}`);
@@ -117,6 +129,11 @@ export function careerDates(e: Pick<CareerEntry, 'start' | 'end'>): string {
   if (start) return `From ${dateLabel(start)}`;
   if (end) return end === 'present' ? 'To today' : `Until ${dateLabel(end)}`;
   return '';
+}
+
+// "Contested Bolton South East, 8 June 2017, not elected" (owner, PCL2, 8 Nov 2026).
+export function contestTitle(constituency: string, day: string): string {
+  return `Contested ${constituency.trim()}, ${dateLabel(day)}, not elected`;
 }
 
 // A bill's outcome in Parliament's own terms, with no verdict (owner, 7 Nov 2026, PC1).

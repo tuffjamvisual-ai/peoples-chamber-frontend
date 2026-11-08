@@ -1,5 +1,6 @@
 // MP Political career, Parliament part (owner, 7 Nov 2026, PC1). For each MP, Parliament's own records: elections and party
-// from the Members API Biography (representations, partyAffiliations), posts (governmentPosts, oppositionPosts, otherPosts),
+// from the Members API Biography (representations, partyAffiliations, and electionsContested for elections contested and lost,
+// owner PCL2, 8 Nov 2026, skipping any that is already a win in representations), posts (governmentPosts, oppositionPosts, otherPosts),
 // committees (committeeMemberships), and the bills they sponsored from the Bills API (/api/v1/Bills?MemberId=, paged), each
 // bill's outcome taken only from isAct, isDefeated, billWithdrawn and currentStage. Session dates come from Parliament's
 // What's On sessions list (the Bills API has none), fetched once a run.
@@ -20,7 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { type CareerEntry, type BillOutcome } from '../lib/career-timeline';
-import { keepValid, MAX_EXCLUDED, type Built, type Excluded } from './career-sync-filter';
+import { keepValid, contestEntries, MAX_EXCLUDED, type Built, type Excluded, type ContestRecord } from './career-sync-filter';
 
 process.loadEnvFile(`${__dirname}/../.env.local`);
 const MEMBERS = 'https://members-api.parliament.uk/api';
@@ -64,7 +65,7 @@ async function get<T>(url: string): Promise<T> {
 }
 
 type Posting = { house: number; name: string; id: number; startDate: string | null; endDate: string | null; additionalInfo: string | null };
-type Biography = { representations: Posting[]; partyAffiliations: Posting[]; governmentPosts: Posting[]; oppositionPosts: Posting[]; otherPosts: Posting[]; committeeMemberships: Posting[] };
+type Biography = { representations: Posting[]; electionsContested?: ContestRecord[]; partyAffiliations: Posting[]; governmentPosts: Posting[]; oppositionPosts: Posting[]; otherPosts: Posting[]; committeeMemberships: Posting[] };
 type Bill = { billId: number; shortTitle: string; lastUpdate: string; billWithdrawn: string | null; isDefeated: boolean; isAct: boolean; includedSessionIds: number[]; introducedSessionId: number; currentStage: { description: string; sessionId: number } | null };
 type Session = { SessionId: number; StartDate: string; EndDate: string | null; CommonsDescription: string };
 
@@ -77,6 +78,7 @@ function fromBiography(id: number, b: Biography): Built[] {
   for (const r of b.representations ?? []) {
     out.push({ raw: r, entry: { group: 'elections', start: day(r.startDate), end: day(r.endDate) ?? 'present', title: r.house === 2 ? 'Member of the House of Lords' : `MP for ${r.name}`, organisation: r.house === 2 ? null : HOUSE(r.house), detail: r.additionalInfo?.trim() || null, source: src } });
   }
+  out.push(...contestEntries(id, b.electionsContested, b.representations).built);
   for (const p of b.partyAffiliations ?? []) {
     out.push({ raw: p, entry: { group: 'elections', start: day(p.startDate), end: day(p.endDate) ?? 'present', title: `Party: ${p.name}`, organisation: HOUSE(p.house), detail: null, source: src } });
   }
@@ -137,6 +139,8 @@ async function main() {
     try {
       const bio = (await get<{ value: Biography }>(`${MEMBERS}/Members/${m.id}/Biography`)).value;
       const built = fromBiography(m.id, bio);
+      const dupContests = (bio.electionsContested ?? []).length - built.filter((b) => b.entry.group === 'elections' && b.entry.title.startsWith('Contested ')).length;
+      if (dupContests > 0) notes.push(`contest already a win: ${dupContests} electionsContested record(s) left out as the same seat and day as a representation`);
       // Our MP record against the Members API: the current seat and party.
       const seat = (bio.representations ?? []).find((r) => r.house === 1 && !r.endDate);
       const party = (bio.partyAffiliations ?? []).find((p) => !p.endDate);
