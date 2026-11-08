@@ -52,7 +52,7 @@ export const STAGE_LABEL: Record<DeliveryStage, string> = {
 };
 export const ATTRIBUTION_LABEL: Record<DeliveryAttribution, string> = {
   direct_responsibility: 'Ministerial responsibility',
-  documented_contribution: 'Credited by the delivering body',
+  documented_contribution: 'Credited by a council or delivering body',
   campaign_claim: "MP's own campaign claim",
   no_established_contribution: 'No role established',
 };
@@ -171,4 +171,35 @@ export function itemDates(i: Pick<DeliveryItem, 'start' | 'end'>): string {
   if (i.start) return dateLabel(i.start);
   if (i.end) return `Until ${dateLabel(i.end)}`;
   return '';
+}
+
+// Link texts for one item's sources (owner, 8 Nov 2026, DR3), in order, never two the same:
+//   a) the publisher, the title before its first ": " ("Royal Borough of Greenwich");
+//   b) with the date when the title ends with one in brackets: "Royal Borough of Greenwich, 20 March 2026";
+//   c) where two would still be the same, the title after its first colon instead, shortened to 60 characters at a word
+//      boundary with three full stops if shortened (no dash or ellipsis characters).
+// If two titles are identical even then, the later ones get "(2)", "(3)" so no two links read the same.
+const TITLE_DATE = /\((\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4})\)\s*$/;
+export const sourcePublisher = (title: string) => (title.includes(': ') ? title.slice(0, title.indexOf(': ')) : title);
+export function shortenAtWord(text: string, max = 60): string {
+  const t = text.trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max + 1);
+  const space = cut.lastIndexOf(' ');
+  return `${(space > 0 ? cut.slice(0, space) : t.slice(0, max)).replace(/[\s,;:.]+$/, '')}...`;
+}
+export function sourceLinkTexts(sources: Array<{ title: string }>): string[] {
+  const first = sources.map((s) => {
+    const date = TITLE_DATE.exec(s.title);
+    return date ? `${sourcePublisher(s.title)}, ${date[1]}` : sourcePublisher(s.title);
+  });
+  const repeated = (list: string[], i: number) => list.filter((x) => x === list[i]).length > 1;
+  const second = first.map((t, i) => {
+    if (!repeated(first, i)) return t;
+    const title = sources[i].title;
+    const after = title.includes(':') ? title.slice(title.indexOf(':') + 1).trim() : title;
+    return shortenAtWord(after || title);
+  });
+  const seen = new Map<string, number>();
+  return second.map((t) => { const n = (seen.get(t) ?? 0) + 1; seen.set(t, n); return n === 1 ? t : `${t} (${n})`; });
 }

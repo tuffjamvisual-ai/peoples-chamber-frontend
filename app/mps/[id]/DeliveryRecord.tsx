@@ -7,7 +7,7 @@
 // sub-fold of the biography's fold (SubFold, as PF3), so no single open fold passes 10,000px; from 640px up they show
 // as one panel, the groups under their headings and one list.
 import {
-  computePanel, displayGroups, itemDates, ATTRIBUTIONS, ATTRIBUTION_LABEL, STAGE_LABEL, SCOPE_LABEL,
+  computePanel, displayGroups, itemDates, sourceLinkTexts, ATTRIBUTIONS, ATTRIBUTION_LABEL, STAGE_LABEL, SCOPE_LABEL,
   type DeliveryRecord as Record_, type DeliveryItem, type ParliamentFigures, type DeliveryAttribution,
 } from '@/lib/delivery-record';
 import { SubFold } from '@/app/components/PhoneFolds';
@@ -20,7 +20,7 @@ const link: React.CSSProperties = { color: '#7a1612', textDecoration: 'underline
 // One line of description for each attribution figure.
 const ATTRIBUTION_NOTE: Record<DeliveryAttribution, string> = {
   direct_responsibility: 'held by the MP as a minister',
-  documented_contribution: 'the delivering body credits the MP',
+  documented_contribution: 'a council or the delivering body credits the MP',
   campaign_claim: "claimed by the MP's own campaign, not by the delivering body",
   no_established_contribution: 'no role for the MP found in the sources',
 };
@@ -48,12 +48,12 @@ const CSS = `
 }
 `;
 
-// "GOV.UK" from "GOV.UK: Emergency alert, 7 September 2025": the publisher, for a short link text; the full title is the
-// link's accessible name.
-const publisher = (title: string) => (title.includes(': ') ? title.slice(0, title.indexOf(': ')) : title);
+// Source link texts: the publisher, with the title's date, never two the same in one card (lib/delivery-record.ts
+// sourceLinkTexts, DR3); the full title is the link's accessible name.
 
 function Card({ item }: { item: DeliveryItem }) {
   const dates = itemDates(item);
+  const texts = sourceLinkTexts(item.sources);
   return (
     <li className="dr-card">
       <div className="dr-what">
@@ -62,17 +62,21 @@ function Card({ item }: { item: DeliveryItem }) {
         <div>{item.detail}</div>
       </div>
       <div><strong>Stage:</strong> {STAGE_LABEL[item.stage]}</div>
+      {/* "No role established" stands alone: the role text after it would only repeat it (DR3). */}
       <div>
-        <strong>MP&rsquo;s role:</strong> {item.attribution && <strong>{ATTRIBUTION_LABEL[item.attribution]}. </strong>}
-        {item.mp_role}
+        <strong>MP&rsquo;s role:</strong>{' '}
+        {item.attribution === 'no_established_contribution'
+          ? <strong>{ATTRIBUTION_LABEL[item.attribution]}</strong>
+          : <>{item.attribution && <strong>{ATTRIBUTION_LABEL[item.attribution]}. </strong>}{item.mp_role}</>}
       </div>
       <div><strong>Delivered by:</strong> {item.delivered_by}</div>
-      <div><strong>Dates:</strong> {dates || 'Not given'}</div>
+      {/* No dates known: no Dates line (DR3). */}
+      {dates && <div><strong>Dates:</strong> {dates}</div>}
       <div>
         <strong>Sources:</strong>{' '}
         <ol className="dr-src">
           {item.sources.map((s, i) => (
-            <li key={i}><a href={s.url} target="_blank" rel="noopener noreferrer" style={link} aria-label={s.title}>{publisher(s.title)}</a></li>
+            <li key={i}><a href={s.url} target="_blank" rel="noopener noreferrer" style={link} aria-label={s.title}>{texts[i]}</a></li>
           ))}
         </ol>
       </div>
@@ -162,7 +166,7 @@ export default function DeliveryRecord({ record, parliament }: { record: Record_
             {record.pledges.map((pl, i) => (
               <li key={i}>
                 <strong>{pl.wording}</strong> ({pl.made}). {pl.status}.{' '}
-                <a href={pl.source.url} target="_blank" rel="noopener noreferrer" style={link} aria-label={pl.source.title}>Source: {publisher(pl.source.title)}</a>
+                <a href={pl.source.url} target="_blank" rel="noopener noreferrer" style={link} aria-label={pl.source.title}>Source: {sourceLinkTexts([pl.source])[0]}</a>
               </li>
             ))}
           </ul>

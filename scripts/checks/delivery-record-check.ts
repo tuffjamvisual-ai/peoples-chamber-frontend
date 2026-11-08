@@ -1,12 +1,13 @@
 // MP delivery record check (owner approved the format, 8 Nov 2026, DR1). No network or database: validates the approved
 // pilot fixture (scripts/background/fixtures/delivery-4820.json) with lib/delivery-record.ts, compares computePanel() with
 // the fixture's expected_panel for every figure worked out from the record, makes sure each broken record below fails
-// validate(), and checks the paragraph label stripping used by the RSS feed (lib/bio-labels.ts, DR2). Runs before every build (package.json "prebuild"); exit code 1 on any failure stops the build.
+// validate(), checks the paragraph label stripping used by the RSS feed (lib/bio-labels.ts, DR2 and DR3), the source
+// link texts (sourceLinkTexts, DR3) and the attribution label wording (DR3). Runs before every build (package.json "prebuild"); exit code 1 on any failure stops the build.
 // Run by hand: npx tsx --tsconfig tsconfig.json scripts/checks/delivery-record-check.ts
 import fs from 'node:fs';
 import path from 'node:path';
-import { validate, computePanel, type DeliveryRecord } from '../../lib/delivery-record';
-import { stripParagraphLabels } from '../../lib/bio-labels';
+import { validate, computePanel, sourceLinkTexts, ATTRIBUTION_LABEL, type DeliveryRecord } from '../../lib/delivery-record';
+import { stripParagraphLabels, withoutLeadingLabel } from '../../lib/bio-labels';
 
 const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'background', 'fixtures', 'delivery-4820.json'), 'utf8')) as {
   delivery_record: DeliveryRecord;
@@ -100,6 +101,36 @@ const labelCases: Array<[string, string, string]> = [
   ['second paragraph label: stripped', stripParagraphLabels('One.\n\n**Two.** Text'), 'One.\n\nTwo. Text'],
   ['label later in a paragraph: unchanged', stripParagraphLabels('One.\n**Two.** Text'), 'One.\n**Two.** Text'],
 ];
+// The feed's lead skips a leading label (DR3); a biography without labels is unchanged.
+const firstSentence = (t: string) => { const c = t.replace(/\s+/g, ' ').trim(); const i = c.indexOf('.'); return i > 0 ? c.slice(0, i + 1) : c; };
+labelCases.push(
+  ['feed lead skips a leading label (fixture)', firstSentence(withoutLeadingLabel(bio)), 'Parliamentary Secretary, Cabinet Office, 9 July 2024 to 6 September 2025, responsible for national resilience.'],
+  ['feed lead: a label paragraph alone is skipped', firstSentence(withoutLeadingLabel('**Only.**\n\nNext text here.')), 'Next text here.'],
+  ['feed: no labels unchanged', withoutLeadingLabel('Plain. Text.\n\nMore.'), 'Plain. Text.\n\nMore.'],
+  ['feed: later labels plain', withoutLeadingLabel('**A.** One.\n\n**B.** Two.'), 'One.\n\nB. Two.'],
+);
+
+// 5. Source link texts (DR3) and the attribution wording.
+const T = (title: string) => ({ title });
+labelCases.push(
+  ['link a) publisher', JSON.stringify(sourceLinkTexts([T('Transport for London: Superloop')])), JSON.stringify(['Transport for London'])],
+  ['link b) publisher and bracketed date', JSON.stringify(sourceLinkTexts([T('Royal Borough of Greenwich: Pride in Place funding announced (20 March 2026)')])), JSON.stringify(['Royal Borough of Greenwich, 20 March 2026'])],
+  ['link b) a date not at the end is not added', JSON.stringify(sourceLinkTexts([T('GOV.UK: Emergency alert, 7 September 2025')])), JSON.stringify(['GOV.UK'])],
+  ['link c) same publisher twice: title after the colon', JSON.stringify(sourceLinkTexts([T('Transport for London: Superloop'), T('Transport for London: Extending the DLR to Beckton Riverside and Thamesmead')])), JSON.stringify(['Superloop', 'Extending the DLR to Beckton Riverside and Thamesmead'])],
+  ['link c) shortened at a word boundary with three full stops', JSON.stringify(sourceLinkTexts([T('Royal Borough of Greenwich: Pride in Place programme for Thamesmead Birchmere Park and the wider area'), T('Royal Borough of Greenwich: Contact')])), JSON.stringify(['Pride in Place programme for Thamesmead Birchmere Park and...', 'Contact'])],
+  ['link c) different dates keep b)', JSON.stringify(sourceLinkTexts([T('Royal Borough of Greenwich: A (20 March 2026)'), T('Royal Borough of Greenwich: B (8 September 2026)')])), JSON.stringify(['Royal Borough of Greenwich, 20 March 2026', 'Royal Borough of Greenwich, 8 September 2026'])],
+  ['link: identical titles still differ', JSON.stringify(sourceLinkTexts([T('X: Same'), T('X: Same')])), JSON.stringify(['Same', 'Same (2)'])],
+  ['attribution label wording', ATTRIBUTION_LABEL.documented_contribution, 'Credited by a council or delivering body'],
+);
+// Every item in the fixture: no two links in one card read the same, and no shortened text over 60 characters plus "...".
+record.items.forEach((it, i) => {
+  const texts = sourceLinkTexts(it.sources);
+  if (new Set(texts).size !== texts.length) failures.push(`links: item ${i + 1} has two links with the same text: ${JSON.stringify(texts)}`);
+  for (const t of texts) if (t.endsWith('...') && t.length > 63) failures.push(`links: item ${i + 1}: "${t}" is over 60 characters`);
+  if (/[\u2013\u2014\u2026]/.test(texts.join(''))) failures.push(`links: item ${i + 1}: a dash or ellipsis character`);
+});
+console.log('ok   links: every fixture card has distinct link texts');
+
 for (const [name, got, want] of labelCases) {
   if (got !== want) failures.push(`labels, ${name}: expected ${JSON.stringify(want)}, got ${JSON.stringify(got)}`);
   else console.log(`ok   labels: ${name}`);
