@@ -4,9 +4,12 @@
 // bill's outcome taken only from isAct, isDefeated, billWithdrawn and currentStage. Session dates come from Parliament's
 // What's On sessions list (the Bills API has none), fetched once a run.
 //
-// Writes only mp_biography.career_parliament and career_checked_at (never career_research). Every array passes
-// lib/career-timeline.ts validate() before anything is written. One API request a second; a failed request is tried again
-// after 2, 4 and 8 seconds; HTTP 429 or 403 stops the whole run.
+// Writes only mp_biography.career_parliament and career_checked_at (never career_research). Every entry passes
+// lib/career-timeline.ts validate() before anything is written; an entry that fails is left out on its own (never the
+// MP's whole timeline), written with the MP's id, the raw API record and the reason to excluded-records-<date>.json
+// (owner, PCL1, 8 Nov 2026), and counted at the end. A run leaving out more than 10 entries in total writes nothing and
+// stops with an error. All MPs are fetched before anything is written, so a run that stops (HTTP 429 or 403, or too many
+// left out) writes nothing. One API request a second; a failed request is tried again after 2, 4 and 8 seconds.
 //
 //   npx tsx --tsconfig tsconfig.json scripts/sync-career-parliament.ts --dry-run --out <file.json> [--members 4131,1447]
 //   npx tsx --tsconfig tsconfig.json scripts/sync-career-parliament.ts [--members ...]       writes the database
@@ -14,8 +17,10 @@
 // { generated, members: { "<id>": { name, career_parliament, notes } }, counts }. "notes" lists where Parliament's APIs
 // disagreed with each other or with our MP record, and any request that failed.
 import fs from 'node:fs';
+import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
-import { validate, type CareerEntry, type BillOutcome } from '../lib/career-timeline';
+import { type CareerEntry, type BillOutcome } from '../lib/career-timeline';
+import { keepValid, MAX_EXCLUDED, type Built, type Excluded } from './career-sync-filter';
 
 process.loadEnvFile(`${__dirname}/../.env.local`);
 const MEMBERS = 'https://members-api.parliament.uk/api';
@@ -28,6 +33,9 @@ const opt = (k: string) => { const i = argv.indexOf(k); return i >= 0 ? argv[i +
 const DRY = argv.includes('--dry-run');
 const OUT = opt('--out');
 if (DRY && !OUT) throw new Error('--dry-run needs --out <file.json>');
+// Where the left out records go: the owner's Claude outputs folder when it exists (local runs), else the working
+// directory (GitHub Actions, which keeps it as a run artifact).
+const EXCLUDED_DIR = fs.existsSync('/Volumes/GoliathSSD/opengovt-work/Claude outputs/career') ? '/Volumes/GoliathSSD/opengovt-work/Claude outputs/career' : '.';
 const ONLY = opt('--members')?.split(',').map((s) => Number(s.trim())).filter((n) => Number.isInteger(n) && n > 0);
 
 const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
@@ -63,23 +71,23 @@ type Session = { SessionId: number; StartDate: string; EndDate: string | null; C
 const day = (s: string | null | undefined) => (s ? s.slice(0, 10) : null);
 const HOUSE = (h: number) => (h === 2 ? 'House of Lords' : 'House of Commons');
 
-function fromBiography(id: number, b: Biography): CareerEntry[] {
+function fromBiography(id: number, b: Biography): Built[] {
   const src = { title: 'UK Parliament: Members API, career', url: `https://members.parliament.uk/member/${id}/career` };
-  const out: CareerEntry[] = [];
+  const out: Built[] = [];
   for (const r of b.representations ?? []) {
-    out.push({ group: 'elections', start: day(r.startDate), end: day(r.endDate) ?? 'present', title: r.house === 2 ? 'Member of the House of Lords' : `MP for ${r.name}`, organisation: r.house === 2 ? null : HOUSE(r.house), detail: r.additionalInfo?.trim() || null, source: src });
+    out.push({ raw: r, entry: { group: 'elections', start: day(r.startDate), end: day(r.endDate) ?? 'present', title: r.house === 2 ? 'Member of the House of Lords' : `MP for ${r.name}`, organisation: r.house === 2 ? null : HOUSE(r.house), detail: r.additionalInfo?.trim() || null, source: src } });
   }
   for (const p of b.partyAffiliations ?? []) {
-    out.push({ group: 'elections', start: day(p.startDate), end: day(p.endDate) ?? 'present', title: `Party: ${p.name}`, organisation: HOUSE(p.house), detail: null, source: src });
+    out.push({ raw: p, entry: { group: 'elections', start: day(p.startDate), end: day(p.endDate) ?? 'present', title: `Party: ${p.name}`, organisation: HOUSE(p.house), detail: null, source: src } });
   }
   const posts: Array<[Posting[], string]> = [[b.governmentPosts, 'Government post'], [b.oppositionPosts, 'Opposition post'], [b.otherPosts, 'Other post']];
   for (const [list, kind] of posts) {
     for (const p of list ?? []) {
-      out.push({ group: 'posts', start: day(p.startDate), end: day(p.endDate) ?? 'present', title: p.name, organisation: p.additionalInfo?.trim() || null, detail: kind, source: src });
+      out.push({ raw: p, entry: { group: 'posts', start: day(p.startDate), end: day(p.endDate) ?? 'present', title: p.name, organisation: p.additionalInfo?.trim() || null, detail: kind, source: src } });
     }
   }
   for (const c of b.committeeMemberships ?? []) {
-    out.push({ group: 'committees', start: day(c.startDate), end: day(c.endDate) ?? 'present', title: c.name, organisation: HOUSE(c.house), detail: c.additionalInfo?.trim() || null, source: src });
+    out.push({ raw: c, entry: { group: 'committees', start: day(c.startDate), end: day(c.endDate) ?? 'present', title: c.name, organisation: HOUSE(c.house), detail: c.additionalInfo?.trim() || null, source: src } });
   }
   return out;
 }
@@ -122,12 +130,13 @@ async function main() {
   if (ONLY?.length) for (const id of ONLY) if (!list.some((m) => m.id === id)) console.warn(`member ${id} is not in the mps table: left out`);
   const result: Record<string, { name: string; career_parliament: CareerEntry[] | null; notes: string[] }> = {};
   let written = 0, failed = 0;
+  const excluded: Excluded[] = [];
   for (const m of list) {
     const notes: string[] = [];
     let entries: CareerEntry[] | null = null;
     try {
       const bio = (await get<{ value: Biography }>(`${MEMBERS}/Members/${m.id}/Biography`)).value;
-      entries = fromBiography(m.id, bio);
+      const built = fromBiography(m.id, bio);
       // Our MP record against the Members API: the current seat and party.
       const seat = (bio.representations ?? []).find((r) => r.house === 1 && !r.endDate);
       const party = (bio.partyAffiliations ?? []).find((p) => !p.endDate);
@@ -141,25 +150,38 @@ async function main() {
         if (page.items.length < PAGE || bills.length >= total) break;
       }
       if (bills.length !== total) notes.push(`bills: the Bills API reported ${total} but returned ${bills.length}`);
-      entries.push(...bills.map((b) => fromBill(b, sessions, today, notes)));
-      const problems = validate(entries);
-      if (problems.length) { notes.push(...problems.map((p) => `invalid: ${p}`)); entries = null; }
+      built.push(...bills.map((b) => ({ raw: b, entry: fromBill(b, sessions, today, notes) })));
+      const v = keepValid(m.id, m.name, built);
+      entries = v.kept;
+      for (const x of v.excluded) notes.push(`left out: ${x.entry.group} "${x.entry.title}": ${x.reason}`);
+      excluded.push(...v.excluded);
     } catch (e) {
       if (e instanceof Stop) throw e;
       notes.push(`error: ${e instanceof Error ? e.message : String(e)}`);
       entries = null; failed++;
     }
     result[String(m.id)] = { name: m.name, career_parliament: entries, notes };
-    if (!DRY && entries) {
-      const { error } = await db.from('mp_biography').update({ career_parliament: entries, career_checked_at: new Date().toISOString() }).eq('member_id', m.id);
-      if (error) { notes.push(`write failed: ${error.message}`); failed++; } else written++;
-    }
     console.log(`${m.id} ${m.name}: ${entries ? entries.length : 'no'} entries${notes.length ? `; ${notes.length} note(s)` : ''}`);
+  }
+  const excludedFile = path.join(EXCLUDED_DIR, `excluded-records-${today}.json`);
+  fs.writeFileSync(excludedFile, JSON.stringify({ generated: new Date().toISOString(), dry_run: DRY, count: excluded.length, records: excluded }, null, 1));
+  console.log(`${excluded.length} entr${excluded.length === 1 ? 'y' : 'ies'} left out (failed validate()), listed in ${excludedFile}`);
+  for (const x of excluded) console.log(`  left out: ${x.member_id} ${x.name}: ${x.entry.group} "${x.entry.title}": ${x.reason}`);
+  if (excluded.length > MAX_EXCLUDED) {
+    throw new Error(`${excluded.length} entries left out, more than ${MAX_EXCLUDED}: stopping before writing anything; see ${excludedFile}`);
+  }
+  if (!DRY) {
+    for (const m of list) {
+      const r = result[String(m.id)];
+      if (!r.career_parliament) continue;
+      const { error } = await db.from('mp_biography').update({ career_parliament: r.career_parliament, career_checked_at: new Date().toISOString() }).eq('member_id', m.id);
+      if (error) { r.notes.push(`write failed: ${error.message}`); console.error(`${m.id} ${m.name}: write failed: ${error.message}`); failed++; } else written++;
+    }
   }
   const counts: Record<string, number> = {};
   for (const r of Object.values(result)) for (const e of r.career_parliament ?? []) counts[e.group] = (counts[e.group] ?? 0) + 1;
   if (DRY) fs.writeFileSync(OUT!, JSON.stringify({ generated: new Date().toISOString(), members: result, counts }, null, 1));
-  console.log(`${list.length} MPs; ${DRY ? 'dry run, nothing written' : `${written} written`}; ${failed} failed; entries by group ${JSON.stringify(counts)}`);
+  console.log(`${list.length} MPs; ${DRY ? 'dry run, nothing written' : `${written} written`}; ${failed} failed; ${excluded.length} entries left out; entries by group ${JSON.stringify(counts)}`);
 }
 
 main().catch((e) => { console.error(e instanceof Error ? e.message : e); process.exit(1); });
