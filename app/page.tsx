@@ -263,9 +263,9 @@ export default async function HomePage() {
               {/* "If an Election Were Held Now" reader card removed 17 Oct 2026 (owner's decision): its
                   total was a launch seed of 4,106 votes plus 1 real reader vote. */}
               <Link className="og-block og-card" href="/bills">
-                <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>From the House this week</div>
+                <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>Bills tracker</div>
                 <div className="og-head">Every bill. Every vote. Every law.</div>
-                <p>Follow what Parliament is doing right now, in plain English, then cast your own vote on every bill. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Vote now &rarr;</span></p>
+                <p>Follow what Parliament is doing right now, in plain English, then cast your own vote on every bill. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Browse bills and reader polls &rarr;</span></p>
               </Link>
 
               <Link className="og-block og-brief" href={`/editorials/${slot3.slug}`}>
@@ -303,7 +303,7 @@ export default async function HomePage() {
               <a className="og-block og-card" href="/this-week">
                 <div className="og-head">This week in Parliament</div>
                 <p>The bills before the House of Commons this week and the most recent votes MPs have held.</p>
-                <div className="og-cta">See what MPs are voting on &rarr;</div>
+                <div className="og-cta">See this week&apos;s parliamentary business &rarr;</div>
               </a>
 
               <div className="og-block og-card" id="newsletter">

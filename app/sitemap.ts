@@ -163,6 +163,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Commission research (launched 24 Oct 2026).
     { url: `${SITE}/commission`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITE}/commission/terms`, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${SITE}/commission/sample`, changeFrequency: 'yearly', priority: 0.4 },
     { url: `${SITE}/newsletter`, changeFrequency: 'monthly', priority: 0.6 },
     ...(SHOW_YOUR_TAX_POUND ? [{ url: `${SITE}/your-tax-pound`, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
     ...(SHOW_BUDGET_CHOICES ? [{ url: `${SITE}/budget-trade-offs`, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),

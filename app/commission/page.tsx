@@ -94,6 +94,14 @@ export default function CommissionPage() {
         </ol>
       </section>
 
+      {/* What a report looks like (owner, 8 Nov 2026, HP1): a plain link, so it works with JavaScript off. */}
+      <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 4px' }}>
+        <Link href="/commission/sample" className="og-tap no-hover-scale" style={{ color: ACCENT, fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+          View a sample report
+        </Link>
+      </p>
+      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 18px' }}>See the findings, methodology, sources and data you would receive.</p>
+
       <section aria-label="Request form" style={{ marginBottom: '4%' }}>
         <CommissionForm />
       </section>
