@@ -10,8 +10,11 @@
 // --dry-run   fetches and validates, writes nothing; with --out, the rows it would write go to that file
 // Every record passes lib/written-statements.ts validate() (id, member_id and date_made required; the url built from the
 // date and the uin). A failure is logged and left out; more than 10 failures in a run stop it before anything is written.
-// HTTP 429, 403 or 5xx, or no answer, stops the fetching at once: only complete pages fetched before it are kept, and the
-// run exits 1 after writing them (or, with more than 10 failures, without writing). Rows are written in batches of 500.
+// HTTP 5xx or no answer: the same page is tried again after 2, 4 and 8 seconds, each retry logged with its skip and status
+// (WS1a, 8 Nov 2026, as the career sync does); only when the third retry fails does the fetching stop. HTTP 429 or 403 (or
+// any other refusal) stops it at once, with no retry. When it stops, only complete pages fetched before it are kept (nothing
+// from the failed page), and the run exits 1 after writing them (or, with more than 10 failures, without writing). Rows are
+// written in batches of 500.
 // Reads .env.local for NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (never printed).
 import fs from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
@@ -31,34 +34,57 @@ const OUT = opt('--out');
 if (SINCE && !/^\d{4}-\d{2}-\d{2}$/.test(SINCE)) throw new Error('--since must be YYYY-MM-DD');
 if (MEMBER && !/^\d+$/.test(MEMBER)) throw new Error('--member must be a member id');
 
-class Stop extends Error {}
+export class Stop extends Error {}
+export type Page = { totalResults: number; results: Array<{ value: ApiStatement }> };
+// Waits before the first, second and third retry of a page that got HTTP 5xx or no answer.
+export const RETRY_WAITS = [2000, 4000, 8000];
+type Deps = { fetch: (url: string) => Promise<Response>; sleep: (ms: number) => Promise<void>; log: (line: string) => void };
+const realDeps: Deps = {
+  fetch: (url) => fetch(url, { headers: UA, signal: AbortSignal.timeout(60000) }),
+  sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+  log: (line) => console.warn(line),
+};
+
+// One page, tried up to four times: retried after 2, 4 and 8 seconds on HTTP 5xx or no answer; HTTP 429, 403 or any other
+// refusal stops at once.
+export async function fetchPage(url: string, skip: number, deps: Deps = realDeps): Promise<Page> {
+  for (let attempt = 0; ; attempt++) {
+    let problem: string;
+    try {
+      const res = await deps.fetch(url);
+      if (res.ok) return (await res.json()) as Page;
+      if (res.status < 500) throw new Stop(`HTTP ${res.status} at skip ${skip}`);
+      problem = `HTTP ${res.status}`;
+    } catch (e) {
+      if (e instanceof Stop) throw e;
+      problem = `no answer (${e instanceof Error ? e.message : String(e)})`;
+    }
+    if (attempt >= RETRY_WAITS.length) throw new Stop(`${problem} at skip ${skip} after ${RETRY_WAITS.length} retries`);
+    deps.log(`retry ${attempt + 1} of ${RETRY_WAITS.length}: skip ${skip}, ${problem}; trying again in ${RETRY_WAITS[attempt] / 1000} s`);
+    await deps.sleep(RETRY_WAITS[attempt]);
+  }
+}
+
 let last = 0;
-async function page(skip: number): Promise<{ totalResults: number; results: Array<{ value: ApiStatement }> }> {
+async function page(skip: number): Promise<Page> {
   const wait = 1000 - (Date.now() - last);
   if (wait > 0) await new Promise((r) => setTimeout(r, wait));
   last = Date.now();
   const q = new URLSearchParams({ house: 'Commons', take: String(TAKE), skip: String(skip) });
   if (SINCE) q.set('madeWhenFrom', SINCE);
   if (MEMBER) q.set('members', MEMBER);
-  let res: Response;
-  try {
-    res = await fetch(`${API}?${q}`, { headers: UA, signal: AbortSignal.timeout(60000) });
-  } catch (e) {
-    throw new Stop(`no answer at skip ${skip}: ${e instanceof Error ? e.message : String(e)}`);
-  }
-  if (res.status === 429 || res.status === 403 || res.status >= 500) throw new Stop(`HTTP ${res.status} at skip ${skip}`);
-  if (!res.ok) throw new Stop(`HTTP ${res.status} at skip ${skip}`);
-  return (await res.json()) as { totalResults: number; results: Array<{ value: ApiStatement }> };
+  return fetchPage(`${API}?${q}`, skip);
 }
 
-async function main() {
+// Every page in turn. Complete pages only: a page is added once it has been read in full, so a page that stops the run
+// adds nothing.
+export async function collect(getPage: (skip: number) => Promise<Page>) {
   const rows = new Map<number, StatementRow>();
   const failures: string[] = [];
   let total = 0, fetched = 0, stopped: string | null = null;
-  // Complete pages only: a page is added once it has been read in full.
   for (let skip = 0; ; skip += TAKE) {
     let p;
-    try { p = await page(skip); } catch (e) { if (e instanceof Stop) { stopped = e.message; break; } throw e; }
+    try { p = await getPage(skip); } catch (e) { if (e instanceof Stop) { stopped = e.message; break; } throw e; }
     total = p.totalResults;
     for (const r of p.results ?? []) {
       fetched++;
@@ -68,6 +94,11 @@ async function main() {
     }
     if (!p.results?.length || skip + TAKE >= total) break;
   }
+  return { rows, failures, total, fetched, stopped };
+}
+
+async function main() {
+  const { rows, failures, total, fetched, stopped } = await collect(page);
   for (const f of failures) console.warn(`left out: ${f}`);
   const list = [...rows.values()].sort((a, b) => (a.date_made < b.date_made ? -1 : a.date_made > b.date_made ? 1 : a.id - b.id));
   console.log(`${fetched} of ${total} statements fetched${SINCE ? ` since ${SINCE}` : ''}${MEMBER ? ` for member ${MEMBER}` : ''}; ${list.length} valid, ${failures.length} left out${stopped ? `; stopped early: ${stopped}` : ''}`);
@@ -95,4 +126,7 @@ async function main() {
   if (stopped) process.exit(1);
 }
 
-main().catch((e) => { console.error(e instanceof Error ? e.message : e); process.exit(1); });
+// Runs only when started as a script, so the tests can import fetchPage() and collect() without fetching or writing.
+if (/sync-written-statements\.ts$/.test(process.argv[1] ?? '')) {
+  main().catch((e) => { console.error(e instanceof Error ? e.message : e); process.exit(1); });
+}
