@@ -23,6 +23,7 @@ const EXCLUDED: Record<string, string> = {
   '/your-tax-pound': 'hidden (feature flag off)', '/budget-trade-offs': 'hidden (feature flag off)',
   '/councils/league-table': 'hidden (feature flag off) and noindex',
   '/tools/welfare/search': 'noindex results page',
+  '/bills/search': 'noindex search results, served at /bills?q=',
   // Not found unless RECOMMENDATIONS_PUBLIC=1 (on in production, 4 Nov 2026); listed in the directory when it is on.
   ...(RECOMMENDATIONS_PUBLIC ? {} : { '/recommendations': 'hidden (feature flag off)' }),
 };

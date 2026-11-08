@@ -148,7 +148,8 @@ const nextConfig: NextConfig = {
     ];
     // /bills?page=N moved to /bills/page/N so every page is cached (owner's approval, 21 Oct 2026).
     const billsPageRedirects = [
-      { source: '/bills', has: [{ type: 'query' as const, key: 'page', value: '(?<p>[0-9]{1,4})' }], destination: '/bills/page/:p', permanent: true },
+      // Not a search's pages (/bills?q=...&page=N, BS1): those stay at /bills and are served by /bills/search.
+      { source: '/bills', has: [{ type: 'query' as const, key: 'page', value: '(?<p>[0-9]{1,4})' }], missing: [{ type: 'query' as const, key: 'q' }], destination: '/bills/page/:p', permanent: true },
     ];
     // Investigations and Briefings merged into Reports (owner's approval, 23 Oct 2026): the two list pages move to
     // /reports (the query string, ?page= included, is passed through). Article and /sources addresses are unchanged.
@@ -211,13 +212,21 @@ const nextConfig: NextConfig = {
   // to save a 308 round trip on its slash ending paths (events still arrive), and it would stop the trailing slash
   // redirect for every page of the site.
   async rewrites() {
-    return [
-      { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },
-      { source: '/ingest/:path*', destination: 'https://eu.i.posthog.com/:path*' },
-      // /recommendations is rendered on its first request, not during the build (owner, 7 Nov 2026, AB1):
-      // app/recommendations/list/[view]/page.tsx.
-      { source: '/recommendations', destination: '/recommendations/list/all' },
-    ];
+    return {
+      // "Find a bill" (owner, 8 Nov 2026, BS1): /bills?q=<text> is answered by /bills/search, rendered for each search,
+      // so /bills itself stays cached. Before the pages are matched, as /bills is a page; the address stays /bills?q=.
+      beforeFiles: [
+        { source: '/bills', has: [{ type: 'query' as const, key: 'q' }], destination: '/bills/search' },
+      ],
+      afterFiles: [
+        { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },
+        { source: '/ingest/:path*', destination: 'https://eu.i.posthog.com/:path*' },
+        // /recommendations is rendered on its first request, not during the build (owner, 7 Nov 2026, AB1):
+        // app/recommendations/list/[view]/page.tsx.
+        { source: '/recommendations', destination: '/recommendations/list/all' },
+      ],
+      fallback: [],
+    };
   },
   async headers() {
     return [

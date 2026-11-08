@@ -7,6 +7,7 @@ import SectionLinks from '../components/SectionLinks';
 import VotingIntegrity from '../components/VotingIntegrity';
 import Link from 'next/link';
 import { getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle, type SessionBillGroup } from '@/lib/parliament-sessions';
+import { billTitleMatches, BILL_QUERY_MAX } from '@/lib/bill-search';
 
 export const BILLS_PER_PAGE = 60;
 
@@ -15,9 +16,11 @@ export const BILLS_PER_PAGE = 60;
 // 31 Oct 2026 (owner): a plain A to Z list of links in two columns (one on phones), 60 a page, in place of the bill
 // cards (BillsGrid, BillsGridMobile), so a reader can find a bill by name. Each item is the title, linking to the
 // bill's page, and one line: the current stage and the house it is in.
-export default async function BillsListing({ page }: { page: number }) {
+// "Find a bill" (owner, 8 Nov 2026, BS1): with q (from /bills?q=, served by /bills/search) only the bills whose title
+// matches, from the whole list, A to Z and 60 a page as usual; the form is a plain GET, so it works with JavaScript off.
+export default async function BillsListing({ page, q = '' }: { page: number; q?: string }) {
   const [{ bills, totalCount }, sessions] = await Promise.all([
-    getBillsPage(page, BILLS_PER_PAGE, 'title'),
+    getBillsPage(page, BILLS_PER_PAGE, 'title', q ? (title) => billTitleMatches(title, q) : undefined),
     getParliamentSessions(),
   ]);
   const current = sessions.find((s) => s.is_current);
@@ -39,8 +42,8 @@ export default async function BillsListing({ page }: { page: number }) {
     sessionCounts.carried ? `${sessionCounts.carried.toLocaleString()} carried over` : '',
   ].filter(Boolean);
   const totalPages = Math.max(1, Math.ceil(totalCount / BILLS_PER_PAGE));
-  // A page past the end (bills became Acts since the link was made) is not a page.
-  if (page > totalPages) notFound();
+  // A page past the end (bills became Acts since the link was made) is not a page; a search with no match still shows.
+  if (page > totalPages && !(q && totalCount === 0)) notFound();
 
   return (
     <OpenGovShell pageStamp="Bills">
@@ -81,6 +84,28 @@ export default async function BillsListing({ page }: { page: number }) {
         .bills-az a { color: #7a1612; text-decoration: none; font-size: 17px; line-height: 1.35; font-weight: bold; }
         .bills-az a:hover, .bills-az a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
       `}</style>
+      <style>{`
+        .bills-find { margin: 24px 0 8px; }
+        .bills-find label { display: block; font-size: 16px; font-weight: bold; color: #14100d; margin: 0 0 6px; }
+        .bills-find-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .bills-find input { flex: 1 1 220px; min-width: 0; max-width: 420px; box-sizing: border-box; min-height: 44px; padding: 8px 10px; font-family: inherit; font-size: 16px; color: #14100d; background: #fffaf0; border: 1px solid #14100d; border-radius: 0; }
+        .bills-find button { min-height: 44px; padding: 8px 18px; font-family: inherit; font-size: 16px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; border-radius: 0; cursor: pointer; }
+        .bills-find-result { font-size: 16px; color: #14100d; margin: 14px 0; }
+        .bills-find-result a { color: #7a1612; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; min-height: 44px; }
+      `}</style>
+      <form method="get" action="/bills" role="search" className="bills-find">
+        <label htmlFor="bills-q">Find a bill</label>
+        <div className="bills-find-row">
+          <input id="bills-q" name="q" type="search" maxLength={BILL_QUERY_MAX} defaultValue={q} autoComplete="off" />
+          <button type="submit">Search</button>
+        </div>
+      </form>
+      {q && (
+        <p className="bills-find-result">
+          {totalCount === 0 ? <>No bills match &ldquo;{q}&rdquo;</> : <>{totalCount.toLocaleString()} {totalCount === 1 ? 'bill matches' : 'bills match'} &ldquo;{q}&rdquo;</>}.{' '}
+          <Link href="/bills">Clear search</Link>
+        </p>
+      )}
       {totalCount > 0 && (
         <p style={{ fontSize: '15px', color: '#14100d', margin: '24px 0 14px' }}>
           Showing {((page - 1) * BILLS_PER_PAGE + 1).toLocaleString()} to {Math.min(page * BILLS_PER_PAGE, totalCount).toLocaleString()} of {totalCount.toLocaleString()}
@@ -97,7 +122,9 @@ export default async function BillsListing({ page }: { page: number }) {
           );
         })}
       </ol>
-      <Pagination currentPage={page} totalPages={totalPages} baseUrl="/bills" />
+      {/* A search's pages link to /bills/search directly: the site's own navigation (JavaScript on) does not go through
+          the /bills?q= rewrite, and would show the plain list. */}
+      <Pagination currentPage={page} totalPages={totalPages} baseUrl={q ? '/bills/search' : '/bills'} qsExtra={q ? `&q=${encodeURIComponent(q)}` : ''} />
       <div className="vi-phone"><VotingIntegrity /></div>
 
       {/* Everything not going through Parliament now: the archive (every bill, by session) and the Acts. Replaces the

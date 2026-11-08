@@ -43,8 +43,10 @@ export async function getBillsPage(
   page: number,
   perPage = 20,
   order: 'votes' | 'title' = 'votes',
+  // "Find a bill" (BS1): only the bills whose title passes this test, still A to Z and paged ('title' order only).
+  match?: (title: string) => boolean,
 ): Promise<{ bills: Bill[]; totalCount: number }> {
-  if (order === 'title') return getBillsPageByTitle(page, perPage);
+  if (order === 'title') return getBillsPageByTitle(page, perPage, match);
   // bill_current: bills going through Parliament now (introduced in or carried into the current session; not Acts,
   // withdrawn, defeated or at Royal Assent), so every page has `perPage` cards and the count matches. Earlier bills
   // are in the archive (/bills/sessions). The summary is cut to the card's length here, not in the browser.
@@ -80,16 +82,18 @@ export async function getBillsPage(
 // here: the database cannot order by a title with "The" taken off. Each bill gets current_house, the house its current
 // stage is in (the latest stage in its stages list with that name; else the house it started in), since a Commons bill
 // at committee in the Lords would otherwise read "Commons". stages itself is dropped.
-async function getBillsPageByTitle(page: number, perPage: number): Promise<{ bills: Bill[]; totalCount: number }> {
+async function getBillsPageByTitle(page: number, perPage: number, match?: (title: string) => boolean): Promise<{ bills: Bill[]; totalCount: number }> {
   const cols =
     'id, parliament_id, title, category, description, long_title, current_stage, stage_date, originating_house, introduced_session_id, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, commons_vote_date, last_update, bill_withdrawn, is_act, stages';
   const safePage = Math.max(1, Math.floor(page) || 1);
   try {
-    const rows = await readAll<Record<string, unknown>>(() => supabase.from('bill_current'), {
+    const all = await readAll<Record<string, unknown>>(() => supabase.from('bill_current'), {
       columns: cols,
       orderBy: [{ column: 'title' }, { column: 'id' }],
       label: 'getBillsPage (title)',
     });
+    // The whole list is searched, not one page of it (BS1).
+    const rows = match ? all.filter((r) => match(String(r.title ?? ''))) : all;
     const key = (t: unknown) => String(t ?? '').trim().replace(/^the\s+/i, '');
     rows.sort((a, b) => key(a.title).localeCompare(key(b.title), 'en-GB', { sensitivity: 'base' }) || (a.id as number) - (b.id as number));
     const from = (safePage - 1) * perPage;
