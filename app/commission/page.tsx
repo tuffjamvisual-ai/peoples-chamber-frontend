@@ -3,6 +3,7 @@ import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import CommissionForm from './CommissionForm';
+import EnquiryLink from './EnquiryLink';
 import { COMMISSION_PRICE, COMMISSION_QUOTE } from '@/lib/commission';
 
 // Commission research (owner's brief, 24 Oct 2026; launched the same day): in the menu, the footer, the contact page
@@ -51,6 +52,17 @@ export default function CommissionPage() {
           .cm-service { max-width: none; }
           .cm-centred { max-width: none; text-align: left; }
         }
+        .cm-acts { display: flex; justify-content: center; gap: 12px; margin: 12px auto 14px; max-width: 560px; }
+        .cm-act { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 44px; padding: 8px 20px; border: 2px solid ${ACCENT}; font-size: 16px; font-weight: bold; line-height: 1.25; text-align: center; text-decoration: none; }
+        .cm-act-go { background: ${ACCENT}; color: #f4e8d4 !important; }
+        .cm-act-see { background: transparent; color: ${ACCENT} !important; }
+        @media (max-width: 639.98px) {
+          .cm-acts { flex-direction: column; }
+          .cm-act { width: 100%; }
+        }
+        #enquiry, #enquiry-heading { scroll-margin-top: 12px; }
+        #enquiry-heading:focus { outline: none; }
+        #enquiry-heading:focus-visible { outline: 3px solid ${ACCENT}; outline-offset: 4px; }
       `}</style>
 
       <BackLink
@@ -73,6 +85,12 @@ export default function CommissionPage() {
 
       <section aria-label="The service" style={{ marginBottom: '5%' }}>
         <p className="cm-centred" style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.6, marginTop: 0, marginBottom: '4px' }}>{COMMISSION_PRICE}, with {COMMISSION_QUOTE}, paid once. No subscriptions, no extras.</p>
+        {/* The two actions beside the price (owner, 8 Nov 2026, HP1b): side by side from 640px, stacked full width on
+            phones, each at least 44px tall. Both are plain links, so they work with JavaScript off. */}
+        <div className="cm-acts">
+          <EnquiryLink className="cm-act cm-act-go no-hover-scale" />
+          <Link href="/commission/sample" className="cm-act cm-act-see no-hover-scale">View a sample report</Link>
+        </div>
         <p className="cm-centred" style={{ fontSize: '16px', lineHeight: 1.6, marginTop: 0, marginBottom: '18px' }}>Your fee covers research into any public record, including data not yet published on opengovt.</p>
         <div className="cm-service" style={{ borderTop: `3px solid ${INK}`, borderBottom: `1px solid ${HAIRLINE}`, padding: '16px 0 18px', display: 'flex', flexDirection: 'column' }}>
           <h2 style={{ ...h2, marginBottom: '6px' }}>{SERVICE.name}</h2>
@@ -94,15 +112,9 @@ export default function CommissionPage() {
         </ol>
       </section>
 
-      {/* What a report looks like (owner, 8 Nov 2026, HP1): a plain link, so it works with JavaScript off. */}
-      <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 4px' }}>
-        <Link href="/commission/sample" className="og-tap no-hover-scale" style={{ color: ACCENT, fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-          View a sample report
-        </Link>
-      </p>
-      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 18px' }}>See the findings, methodology, sources and data you would receive.</p>
-
-      <section aria-label="Request form" style={{ marginBottom: '4%' }}>
+      {/* The form, reached by "Start an enquiry" (#enquiry). Its heading takes focus after the jump with JavaScript on. */}
+      <section id="enquiry" aria-labelledby="enquiry-heading" style={{ marginBottom: '4%' }}>
+        <h2 id="enquiry-heading" tabIndex={-1} style={h2}>Start an enquiry</h2>
         <CommissionForm />
       </section>
 
