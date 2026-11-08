@@ -906,6 +906,8 @@ export default function MagazineProfileSections({
   };
   useEffect(() => {
     const onPop = () => {
+      // Previous and Next in a paged list (NoJsPager) change only the hash: stay on this tab (PC4).
+      if (!new URLSearchParams(window.location.search).get('section') && document.getElementById(window.location.hash.slice(1))?.classList.contains('njp-a')) return;
       const fromUrl = new URLSearchParams(window.location.search).get('section') || window.location.hash.slice(1);
       setActive(fromUrl && validIds.has(fromUrl as SectionId) ? (fromUrl as SectionId) : initialActive);
     };
@@ -1042,10 +1044,10 @@ export default function MagazineProfileSections({
               if (rows.length === 0) return null;
               return (
                 <section key={group} style={{ marginBottom: '18px' }}>
-                  {/* Each group folds on its own on phones, 25 a screen with JavaScript on and off (owner, 7 Nov 2026, PC1). */}
+                  {/* Each group folds on its own on phones, 25 a screen with JavaScript on and off (owner, 7 Nov 2026, PC1), and pages at 25 on desktop too (owner, 8 Nov 2026, PC4). */}
                   <SubFold label={heading} summary={countOf(rows.length, 'entry', 'entries')}>
                     <h3 style={{ ...backgroundLabel, margin: '0 0 6px' }}>{heading}</h3>
-                    <NoJsPager id={`career-${group}`} always count={rows.length} rows="> li" size={25}>
+                    <NoJsPager id={`career-${group}`} always wide count={rows.length} rows="> li" size={25}>
                       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                         {rows.map((e, idx) => <CareerItem key={idx} entry={e} />)}
                       </ul>
