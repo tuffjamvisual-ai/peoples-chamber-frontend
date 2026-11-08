@@ -13,7 +13,7 @@ import { memberVoteSummary, registerHistory } from '@/lib/historic-archive';
 import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
 import { getMpCareer } from '@/lib/mp-career';
-import { getDeliveryRecord, withDeliveryPreview, ministerStatements, ministerAnswersSince } from '@/lib/mp-delivery';
+import { getDeliveryRecord, withDeliveryPreview, ministerStatements, ministerAnswers } from '@/lib/mp-delivery';
 import DeliveryRecord from './DeliveryRecord';
 import { getPeer } from '@/lib/lords';
 import { peerHasPage } from '@/lib/peers';
@@ -437,10 +437,11 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // leaves the figure out. Written statements come from parliament_written_statements (WS1), counted inside the MP's
   // ministerial posts; nothing shows while that table has no rows for the MP.
   const pDelivery = getDeliveryRecord(supabase, memberId).catch(() => null);
-  const pMinisterAnswers: Promise<number | null> = pDelivery.then((rec) => rec
-    ? withTimeout(Promise.resolve(supabase.from('parliament_written_questions').select('id', { count: 'exact', head: true }).eq('answering_member_id', memberId).eq('house', 'Commons')), 8000)
-        .then((r) => (r.error ? null : r.count ?? null)).catch(() => null)
-    : null);
+  // Both written questions tables, inside the MP's ministerial posts (WQ1).
+  const pMinisterAnswers: Promise<{ count: number | null; since: string | null }> = pDelivery.then((rec) => rec
+    ? withTimeout(ministerAnswers(supabase, memberId, (bioRes.data?.government_posts ?? null) as Array<{ startDate?: string | null; endDate?: string | null }> | null, new Date().toISOString().slice(0, 10)), 8000)
+        .catch(() => ({ count: null, since: null }))
+    : { count: null, since: null });
   // MP1 (owner, 7 Nov 2026): the archive's votes and register history are parts of Voting record and Registered interests, and
   // the votes by year count both sources, so the current votes' years are read too (only their dates).
   const pArchiveVotes = memberVoteSummary(memberId);
@@ -868,7 +869,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           const statements = await withTimeout(ministerStatements(supabase, memberId, posts, today), 8000).catch(() => ({ count: null, since: null }));
           return <DeliveryRecord record={record} parliament={{
             bills_introduced: bills.length, bills_passed: bills.filter((b) => b.is_act === true).length,
-            minister_written_answers: await pMinisterAnswers, minister_written_answers_since: ministerAnswersSince(posts, today),
+            ...(await pMinisterAnswers.then((a) => ({ minister_written_answers: a.count, minister_written_answers_since: a.since }))),
             minister_written_statements: statements.count, minister_written_statements_since: statements.since,
           }} />;
         })(),

@@ -68,9 +68,12 @@ export function countInPeriods(days: string[], periods: Array<{ from: string; to
 // Where our data starts (owner, 8 Nov 2026: a figure says the period it covers when the MP held a ministerial post before
 // the data starts; posts before it are not counted).
 //   statements  Parliament's Written Statements API starts on 17 November 2014 (HCWS1)
-//   answers     our written questions archive (parliament_written_questions) holds questions tabled from 4 July 2024
+//   answers     our full text archive (parliament_written_questions) holds questions tabled from 4 July 2024, and the details
+//               only table (parliament_written_questions_details, WQ1) those tabled from 1 January 2014: "since 2014" once
+//               that table holds rows, "since July 2024" until then
 export const STATEMENTS_FROM = { day: '2014-11-17', label: 'since 2014' };
 export const ANSWERS_FROM = { day: '2024-07-04', label: 'since July 2024' };
+export const answersFrom = (detailsHeld: boolean) => (detailsHeld ? { day: '2014-01-01', label: 'since 2014' } : ANSWERS_FROM);
 export function coverageLabel(periods: Array<{ from: string }>, from: { day: string; label: string }): string | null {
   return periods.some((p) => p.from < from.day) ? from.label : null;
 }

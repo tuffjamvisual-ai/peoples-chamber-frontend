@@ -2,7 +2,9 @@
 import fs from 'node:fs';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { validate, type DeliveryRecord } from '@/lib/delivery-record';
-import { ministerialPeriods, countInPeriods, coverageLabel, STATEMENTS_FROM, ANSWERS_FROM, type Post } from '@/lib/written-statements';
+import { ministerialPeriods, countInPeriods, coverageLabel, STATEMENTS_FROM, answersFrom, type Post } from '@/lib/written-statements';
+import { countAnswersInPeriods } from '@/lib/written-questions-details';
+import { readAll } from '@/lib/read-all';
 
 // The page's read (owner, 8 Nov 2026, DR1): the record only when bio_visible is true, on its own, so the rest of the page
 // never depends on it. Before migration 2026-11-08b, or on any read error, it returns null and the page shows nothing.
@@ -69,7 +71,23 @@ export async function ministerStatements(supabase: SupabaseClient, memberId: num
   return { count: countInPeriods(days, periods), since: coverageLabel(periods, STATEMENTS_FROM) };
 }
 
-// The written answers figure's period: our archive holds questions tabled from 4 July 2024 (lib/written-statements.ts).
-export function ministerAnswersSince(posts: Post[] | null | undefined, today: string): string | null {
-  return coverageLabel(ministerialPeriods(posts, today), ANSWERS_FROM);
+// Written answers as a minister (WQ1): the questions the MP answered in parliament_written_questions (full text, tabled from
+// 4 July 2024) and parliament_written_questions_details (details only, tabled from 2014; migration 2026-11-08d), each
+// question once, answered inside one of their ministerial posts. null when neither table holds any of their answers, or
+// no ministerial post is known. "since" names the period covered when a post started before the data does: 2014 once the
+// details table holds rows, July 2024 until then. Neither table has an index for a whole member's answers in the
+// archive, so this is read only for an MP with a delivery record.
+export async function ministerAnswers(supabase: SupabaseClient, memberId: number, posts: Post[] | null | undefined, today: string): Promise<{ count: number | null; since: string | null }> {
+  const periods = ministerialPeriods(posts, today);
+  const read = (table: string) => readAll<{ id: number; date_answered: string | null }>(() => supabase.from(table), {
+    columns: 'id, date_answered', filter: (q) => q.eq('answering_member_id', memberId).eq('house', 'Commons'), orderBy: 'id', label: table,
+  });
+  const archive = await read('parliament_written_questions');
+  // Before migration 2026-11-08d the details table is missing: its part is empty and the period stays July 2024.
+  const details = await read('parliament_written_questions_details').catch(() => null);
+  const held = details !== null && await Promise.resolve(supabase.from('parliament_written_questions_details').select('id').limit(1))
+    .then((r) => !r.error && (r.data ?? []).length > 0).catch(() => false);
+  const rows = [...archive, ...(details ?? [])];
+  if (!rows.length || !periods.length) return { count: null, since: null };
+  return { count: countAnswersInPeriods(rows, periods), since: coverageLabel(periods, answersFrom(held)) };
 }
