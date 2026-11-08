@@ -12,6 +12,8 @@ const HAIRLINE = 'rgba(20,16,13,0.18)';
 const CREAM = '#f4e8d4';
 const MONO = "var(--font-special-elite), monospace";
 
+const FORM_ID = 'site-search-form';
+
 const TYPE_CHIPS = [
   { value: 'all',          label: 'All' },
   // Investigations and briefings are one filter, Reports (23 Oct 2026); type=briefing links still work.
@@ -36,6 +38,7 @@ interface Props {
 export default function SearchInput({ defaultQ, defaultType, defaultDept, defaultSort }: Props) {
   const [q, setQ] = useState(defaultQ);
   const [dept, setDept] = useState(defaultDept);
+  const [type, setType] = useState(defaultType);
   const [, startTransition] = useTransition();
   const router = useRouter();
 
@@ -59,7 +62,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
     // Marks this query as submitted, so the results page sends one "search" event for it (with consent only;
     // app/search/SearchTracker.tsx). Arriving from a link or a filter sends none.
     try { window.sessionStorage.setItem(SUBMITTED_SEARCH_KEY, q.trim()); } catch { /* storage unavailable */ }
-    navigate(q, defaultType, dept, defaultSort);
+    navigate(q, type, dept, defaultSort);
   }
 
   function handleClear() {
@@ -95,31 +98,6 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '10px' }}>
-        <select
-          aria-label="Filter by department"
-          value={dept}
-          onChange={(e) => {
-            const newDept = e.target.value;
-            setDept(newDept);
-            navigate(q, defaultType, newDept, defaultSort);
-          }}
-          style={{
-            fontFamily: MONO,
-            fontSize: '15px',
-            letterSpacing: '0.06em',
-            color: INK, fontStyle: dept ? 'normal' : 'italic',
-            background: CREAM,
-            border: `1px solid ${dept ? INK : HAIRLINE}`,
-            padding: '4px 11px',
-            cursor: 'pointer',
-            outline: 'none',
-          }}
-        >
-          <option value="">All departments</option>
-          {departments.map((d) => (
-            <option key={d.slug} value={d.slug}>{d.shortName}</option>
-          ))}
-        </select>
         <div style={{ display: 'inline-flex', border: `1px solid ${HAIRLINE}`, overflow: 'hidden' }}>
           <button
             onClick={() => navigate(q, defaultType, dept, 'relevance')}
@@ -159,11 +137,14 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
 
   return (
     <div style={{ marginBottom: '32px' }}>
-      {/* A visible Search button (23 Oct 2026), styled as the council search's. */}
-      <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '14px' }}>
+      {/* A visible Search button (23 Oct 2026), styled as the council search's. A real GET form to /search (SR1, 8 Nov 2026),
+          so it works with JavaScript off and every search can be linked: q, and the type and department below. */}
+      <form id={FORM_ID} action="/search" method="get" role="search" onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '14px' }}>
+        {defaultSort === 'newest' && <input type="hidden" name="sort" value="newest" />}
         <div style={{ position: 'relative', flex: '1 1 auto', minWidth: 0 }}>
         <input
           aria-label="Search the site"
+          name="q"
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -219,6 +200,40 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
           Search
         </button>
       </form>
+
+      {/* Type and department (SR1, 8 Nov 2026; the audit found no type filter beside the department one): one row, in the
+          form above (form attribute), so they reach the address with JavaScript off when Search is pressed; with JavaScript
+          on a change applies at once, as the chips do. Shown once, at every width, so each is submitted once. */}
+      <style>{`.srch-selects { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 0 0 12px; } .srch-selects label { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: ${INK}; } .srch-selects select { font-family: ${MONO}; font-size: 15px; letter-spacing: 0.06em; color: ${INK}; background: ${CREAM}; border: 1px solid ${HAIRLINE}; padding: 4px 11px; cursor: pointer; } @media (max-width: 639.98px) { .srch-selects label { width: 100%; } .srch-selects select { flex: 1 1 auto; min-width: 0; min-height: 44px; font-size: 16px; } }`}</style>
+      <div className="srch-selects">
+        <label>
+          Type
+          <select
+            name="type"
+            form={FORM_ID}
+            value={type}
+            onChange={(e) => { setType(e.target.value); navigate(q, e.target.value, dept, defaultSort); }}
+            style={{ fontStyle: type !== 'all' ? 'normal' : 'italic', borderColor: type !== 'all' ? INK : undefined }}
+          >
+            {TYPE_CHIPS.map((c) => <option key={c.value} value={c.value}>{c.value === 'all' ? 'All types' : c.label}</option>)}
+          </select>
+        </label>
+        <label>
+          Department
+          <select
+            name="dept"
+            form={FORM_ID}
+            value={dept}
+            onChange={(e) => { setDept(e.target.value); navigate(q, type, e.target.value, defaultSort); }}
+            style={{ fontStyle: dept ? 'normal' : 'italic', borderColor: dept ? INK : undefined }}
+          >
+            <option value="">All departments</option>
+            {departments.map((d) => (
+              <option key={d.slug} value={d.slug}>{d.shortName}</option>
+            ))}
+          </select>
+        </label>
+      </div>
 
       {/* Under 640px (owner, 4 Nov 2026): the filters fold into one control naming the current one; from 640px up, as before. */}
       <style>{`.srch-fold { display: none; } @media (max-width: 639.98px) { .srch-wide { display: none; } .srch-fold { display: block; } .srch-fold summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-fold summary::-webkit-details-marker { display: none; } .srch-fold[open] summary { margin-bottom: 10px; } .srch-fold[open] .srch-mark { transform: rotate(180deg); } }`}</style>

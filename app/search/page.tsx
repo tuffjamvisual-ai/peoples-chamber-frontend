@@ -10,6 +10,8 @@ import PhoneMore from '../components/PhoneMore';
 import { SEARCH_NOTE_JS } from '@/lib/search-note';
 import { searchContent, searchCouncils, searchPeers, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult, type PeerSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
+import { suggestQuery } from '@/lib/search-suggest';
+import { searchVocabulary } from '@/lib/search-vocabulary';
 import { cachedOrganisationList, searchOrganisations, type OrgListRow } from '@/lib/organisations';
 
 export const dynamic = 'force-dynamic';
@@ -290,6 +292,12 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const results = allResults.filter((r) => r.type !== 'mp');
   const hasRecords = mps.length + peers.length + councils.length + orgs.length + donors.length > 0;
   const isEmpty = !hasRecords && results.length === 0;
+  // "Did you mean" (SR1): only for a search that found nothing, one corrected query from our own titles, as a link with
+  // the same filters, never run by itself (lib/search-suggest.ts).
+  const suggestion = q.length >= 2 && isEmpty ? suggestQuery(q, await searchVocabulary()) : null;
+  const suggestionHref = suggestion
+    ? `/search?${new URLSearchParams({ q: suggestion, ...(type !== 'all' ? { type } : {}), ...(dept ? { dept } : {}), ...(sort === 'newest' ? { sort } : {}) }).toString()}`
+    : null;
 
   return (
     <OpenGovShell pageStamp="Search">
@@ -340,6 +348,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {q.length >= 2 && isEmpty && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
           <p style={{ fontSize: '17px', color: INK, marginBottom: '6px' }}>No results for &ldquo;{q}&rdquo;</p>
+          {suggestion && suggestionHref && (
+            <p style={{ fontSize: '17px', color: INK, margin: '0 0 10px' }}>
+              Did you mean <Link href={suggestionHref} className="og-tap" style={{ color: ACCENT, fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{suggestion}</Link>?
+            </p>
+          )}
           <p style={{ fontSize: '15px', color: '#14100d' }}>
             Try different keywords, or{' '}
             <Link href="/departments" style={{ color: ACCENT }}>browse departments</Link>

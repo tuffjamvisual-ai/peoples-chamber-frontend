@@ -157,9 +157,9 @@ export default async function HomePage() {
               </p>
 
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
-                <label htmlFor="home-search-q" className="og-kicker og-search-label">Search Parliament</label>
+                <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt</label>
                 <div style={{ position: 'relative' }}>
-                  <input aria-label="Search Parliament"
+                  <input aria-label="Search opengovt"
                     id="home-search-q"
                     type="text"
                     name="q"
