@@ -784,7 +784,9 @@ export default function MagazineProfileSections({
 
   useEffect(() => {
     const apply = () => {
-      const h = window.location.hash.slice(1) as SectionId;
+      // #<id>, or #section-<id> as the sidebar links write it (TB1).
+      const raw = window.location.hash.slice(1);
+      const h = (raw.startsWith('section-') && validIds.has(raw.slice(8) as SectionId) ? raw.slice(8) : raw) as SectionId;
       if (h && validIds.has(h)) setActive(h);
       // Parts merged in MP1 keep their addresses (/register-history links to #register-history): open their section's tab.
       else if (h === ('register-history' as SectionId) && validIds.has('interests')) setActive('interests');
@@ -891,7 +893,7 @@ export default function MagazineProfileSections({
   useEffect(() => {
     const nav = sectionNavRef.current;
     if (!nav || nav.scrollWidth <= nav.clientWidth) return;
-    const btn = nav.querySelector<HTMLButtonElement>(`[data-section="${active}"]`);
+    const btn = nav.querySelector<HTMLElement>(`[data-section="${active}"]`);
     if (!btn) return;
     const left = btn.offsetLeft - nav.offsetLeft;
     if (left < nav.scrollLeft || left + btn.offsetWidth > nav.scrollLeft + nav.clientWidth) {
@@ -2929,22 +2931,30 @@ export default function MagazineProfileSections({
           long tables (voting, donations) still grow past this. */}
       <style>{`
         @media (min-width: 1024px){ .mp-sections-content{ min-height: 82vh } }
+        /* Tabs with JavaScript off, from 640px (owner, 8 Nov 2026, TB1; backlog item 25): each sidebar item is a link to its
+           #section-<id>. A section that is the address's target is shown, and while one is (or holds the target, as with
+           #register-history or a pager screen), the open tab gives way to it. With JavaScript on the tabs work as before. */
+        @media (min-width: 640px){
+          html:not(.og-js) .mp-sections-content .pf-off:target { display: block !important; }
+          html:not(.og-js) .mp-sections-content:has(.pf-off:target, .pf-off :target) :is(.pf-sec, .pf-sub):not(.pf-off):not(:target):not(:has(:target)) { display: none !important; }
+        }
         @media (max-width: 1023px){
           .mp-sections-nav { flex-direction: row !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-right: 0 !important; padding: 4px 0 0 !important; gap: 2px !important; border-bottom: 1px solid rgba(20,16,13,0.2); }
           .mp-sections-nav::-webkit-scrollbar { display: none; }
           .mp-sections-nav.more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
-          .mp-sections-nav button { white-space: nowrap; flex: 0 0 auto; transform: none !important; border-left: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; padding: 10px 12px !important; font-size: 15px !important; }
-          .mp-sections-nav button[data-active="true"] { border-bottom-color: #7a1612 !important; }
+          .mp-sections-nav button, .mp-sections-nav a[data-section] > span { white-space: nowrap; flex: 0 0 auto; transform: none !important; border-left: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; padding: 10px 12px !important; font-size: 15px !important; }
+          .mp-sections-nav a[data-section] { flex: 0 0 auto; }
+          .mp-sections-nav button[data-active="true"], .mp-sections-nav a[data-section][data-active="true"] > span { border-bottom-color: #7a1612 !important; }
           .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
           .mp-sections-content { padding: 20px 2px !important; }
         }
-        @media (max-width: 479px){ .mp-sections-nav button[data-section] { display: none !important; } }
+        @media (max-width: 479px){ .mp-sections-nav [data-section] { display: none !important; } }
         .mp-headline, .mp-reports-phone { display: none; }
         @media (max-width: 639.98px){
           .mp-reports-wide { display: none; }
           .mp-reports-phone { display: block; }
           .mp-reports-phone > section { margin-top: 8px !important; }
-          .mp-sections-nav button[data-section] { display: none !important; }
+          .mp-sections-nav [data-section] { display: none !important; }
           .mp-sections-nav { border-bottom: none !important; }
           .mp-sections-nav .mp-follow-chip { flex: 1 1 100%; width: 100% !important; min-height: 48px; margin: 0 !important; padding: 8px 12px !important; border: 1px solid #14100d !important; box-shadow: none !important; background: transparent !important; color: #14100d !important; font-weight: bold !important; font-size: 15px !important; text-align: center !important; text-transform: none !important; letter-spacing: normal !important; }
           .mp-headline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
@@ -2972,31 +2982,47 @@ export default function MagazineProfileSections({
             {sections.map((s) => {
               const isActive = active === s.id;
               return (
-                <button
+                // A link to the section, so the tab opens with JavaScript off (TB1); with JavaScript on a plain click is
+                // still handled here (a click with a modifier key opens the address in a new tab or window).
+                <a
                   key={s.id}
+                  href={`#section-${s.id}`}
                   data-section={s.id}
                   data-active={isActive ? 'true' : 'false'}
-                  aria-pressed={isActive}
-                  onClick={() => select(s.id)}
-                  style={{
-                    padding: '12px 16px',
-                    border: 'none',
-                    borderLeft: isActive ? '4px solid #7a1612' : '4px solid transparent',
-                    background: isActive ? 'rgba(122,22,18,0.08)' : 'transparent',
-                    boxShadow: isActive ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
-                    fontWeight: isActive ? 'bold' : 'normal',
-                    fontSize: '15px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: '#14100d',
-                    fontFamily: 'inherit',
-                    transform: `rotate(${s.rotate})`,
-                    textAlign: 'left',
-                    cursor: 'pointer',
+                  aria-current={isActive ? 'true' : undefined}
+                  onClick={(e) => {
+                    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                    e.preventDefault();
+                    select(s.id);
                   }}
+                  style={{ display: 'block', textDecoration: 'none', color: '#14100d' }}
                 >
-                  {s.label}
-                </button>
+                  {/* The tab's look is on this span: the site's link rule (opengov-shell.css) takes any rotation off a
+                      link, so the span carries the tab's styles, its slight tilt included, exactly as the button did. */}
+                  <span
+                    style={{
+                      display: 'block',
+                      padding: '12px 16px',
+                      border: 'none',
+                      borderLeft: isActive ? '4px solid #7a1612' : '4px solid transparent',
+                      background: isActive ? 'rgba(122,22,18,0.08)' : 'transparent',
+                      boxShadow: isActive ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
+                      fontWeight: isActive ? 'bold' : 'normal',
+                      fontSize: '15px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: '#14100d',
+                      fontFamily: 'inherit',
+                      transform: `rotate(${s.rotate})`,
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      // As a button had: the page's text may break anywhere, a button's label never did.
+                      overflowWrap: 'normal',
+                    }}
+                  >
+                    {s.label}
+                  </span>
+                </a>
               );
             })}
             {followable && !formerMember && <FollowButton variant="sidebar" kind="mp" targetKey={String(memberId)} label={fullName || 'this MP'} />}
