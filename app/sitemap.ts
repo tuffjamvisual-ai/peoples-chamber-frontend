@@ -117,6 +117,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
     { url: `${SITE}`, changeFrequency: 'daily', priority: 1.0 },
     { url: `${SITE}/bills`, changeFrequency: 'daily', priority: 0.8 },
+    // This week in Parliament, linked from the homepage (MOB1, 8 Nov 2026). No lastModified: it is drawn from Parliament's
+    // live feeds every 10 minutes, so there is no one true date for the page.
+    { url: `${SITE}/this-week`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${SITE}/mps`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/pmqs`, changeFrequency: 'monthly', priority: 0.6 },
     // The Commissioner for Standards cases (T1): dated by the day the lists were collected (lib/data/standards-cases.json).

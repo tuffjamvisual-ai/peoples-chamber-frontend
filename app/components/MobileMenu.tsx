@@ -2,7 +2,8 @@
 
 // Phone header and menu (owner's choice, 25 Oct 2026, report 47; the TaxPayers' Alliance pattern): under 768px the
 // header is one row, the wordmark with a search icon and a menu icon, and the menu icon opens a full screen panel
-// listing the top level sections as large links (10 of the 11 in NAV, as Commission is the button), with "Commission research" as the one call to action. Each section's
+// listing the top level sections as large links (10 of the 11 in NAV, as Commission is the button), with "Commission research" as the one call to action,
+// first in the panel with "Get the weekly email" so both show without scrolling on a 320 by 740 phone (MOB1, 8 Nov 2026). Each section's
 // landing page lists that section's pages ("In this section", SectionLinks.tsx), so every page in the desktop dropdowns
 // is two taps away. Hidden from 768px up (opengov-shell.css), where the desktop header and dropdowns are unchanged.
 //
@@ -35,8 +36,7 @@ const GROUPS_CSS = `.og-menu-groups { display: none; }
   .og-menu-group a { display: block; box-sizing: border-box; min-height: 44px; align-content: center; color: #14100d; text-decoration: none; font-size: 17px; line-height: 1.2; }
   .og-menu-group a:active { color: #7a1612; }
   .og-menu-group a:focus-visible { outline: 2px solid #7a1612; outline-offset: 1px; }
-  .og-menu-cta { margin-top: 14px; }
-  .og-menu-account { margin-top: 10px; }
+  .og-menu-account { margin-top: 14px; }
 }`;
 
 export default function MobileMenu({ sections }: { sections: Section[] }) {
@@ -131,6 +131,12 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
           <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 5l16 16M21 5 5 21" /></svg>
         </button>
         <style>{GROUPS_CSS}</style>
+        {/* First, above the sections (MOB1, owner's mobile audit, 8 Nov 2026): at the foot of the list they began about
+            760px down on a 320 by 740 phone, below the screen, and there was no newsletter link at all. */}
+        <div className="og-menu-top">
+          <a href="/commission" className="og-menu-cta" onClick={(e) => follow(e, '/commission')}>Commission research</a>
+          <a href="/newsletter" className="og-menu-email" onClick={(e) => follow(e, '/newsletter')}>Get the weekly email</a>
+        </div>
         <nav aria-label="Sections" className="og-menu-groups">
           {PHONE_MENU_GROUPS.map((g) => (
             <div key={g.label} className="og-menu-group">
@@ -149,7 +155,6 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
             ))}
           </ul>
         </nav>
-        <a href="/commission" className="og-menu-cta" onClick={(e) => follow(e, '/commission')}>Commission research</a>
         <style>{ACCOUNT_CSS}</style>
         {/* The account links and Support Us, which sit on the folder tab on larger screens. */}
         <div
