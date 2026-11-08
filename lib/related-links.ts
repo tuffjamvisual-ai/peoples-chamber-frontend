@@ -17,8 +17,9 @@ const editorialHref = (e: { slug: string; kind?: string }) => `/${e.kind === 'br
 const newestFirst = (a: { publishedAt: string }, b: { publishedAt: string }) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
 
 // The council for a constituency, only when the constituency lies in exactly one council (245 of 632 span two or
-// three, and there is no share to choose between them, so those get no council link).
-async function councilForConstituency(gss: string | null | undefined): Promise<RelatedLink | null> {
+// three, and there is no share to choose between them, so those get no council link). Also the MP page's Contact section
+// "Local council" line (HT1, owner, 8 Nov 2026), which took over from the MP page's Related line.
+export async function councilForConstituency(gss: string | null | undefined): Promise<RelatedLink | null> {
   if (!gss) return null;
   const { data, error } = await supabase.from('welfare_constituency_geography').select('council_gss_code').eq('constituency_gss_code', gss).limit(4);
   if (error) throw new Error(`related: constituency councils: ${error.message}`);

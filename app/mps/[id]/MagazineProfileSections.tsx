@@ -279,6 +279,8 @@ type Contact = {
   twitter?: string | null;
   address_line1?: string | null;
   postcode?: string | null;
+  /** The constituency's local council (HT1), when the seat lies in exactly one. */
+  council?: { href: string; label: string } | null;
 } | null;
 
 type CommitteeMembership = {
@@ -662,7 +664,7 @@ export default function MagazineProfileSections({
     career: hasBackground || conductFindings.length > 0,
     // Political career (PC1): shown when either part has an entry; each empty group is left out.
     politicalcareer: careerEntries.length > 0,
-    contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
+    contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1 || contact.council)),
     voting: (votingAll ?? totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
     house: contributions.length > 0 || (writtenQuestions?.total ?? 0) > 0 || pmqsLinks(memberId, pmqsQuestions).length > 0,
@@ -1130,6 +1132,7 @@ export default function MagazineProfileSections({
                   </div>
                 </li>
               )}
+              {contact.council && <li><strong>Local council:</strong> <Link href={contact.council.href} className="og-tap" style={inkLink}>{contact.council.label}</Link></li>}
             </ul>
           </>
         )}

@@ -318,39 +318,7 @@ export default async function HomePage() {
           </div>
 
       </OpenGovShell>
-      <HomepageEditorialIntro />
     </>
-  );
-}
-
-function HomepageEditorialIntro() {
-  return (
-    <section
-      aria-label="About opengovt"
-      style={{
-        position: 'absolute',
-        width: '1px',
-        height: '1px',
-        padding: 0,
-        margin: '-1px',
-        overflow: 'hidden',
-        clip: 'rect(0,0,0,0)',
-        whiteSpace: 'normal',
-        border: 0,
-      }}
-    >
-      <h2>opengovt is an independent record of how the United Kingdom is governed.</h2>
-      <p>
-        Every Member of Parliament has a profile here. Their voting record, their declared earnings, the bills they have sponsored, and the hours they spend on second jobs. Each of the {departments.length} ministerial departments has its own institutional performance report against the public record of what it was set up to do. Every bill since the 2006 to 2007 session is tracked through its stages of Parliament to whether it became law.
-      </p>
-      <p>
-        The transparency surfaces sit alongside the formal record. Ministers&rsquo; meetings, ministers&rsquo; hospitality, the Advisory Committee on Business Appointments, the Register of Members&rsquo; Financial Interests, awarded public contracts and political donations are pulled from the public registers daily, indexed by Member and by department, searchable.
-      </p>
-      <p>
-        The site exists because the public record is real but inaccessible. Every fact on opengovt is drawn from the public record. None of it is invented. None of it is opinion in the sense of being made up. The interpretative judgements in the institutional reports and the political biographies are the editorial work of the project; the underlying record is not.
-      </p>
-      <p>If something is wrong, it can be corrected. If something is missing, it can be added.</p>
-    </section>
   );
 }
 

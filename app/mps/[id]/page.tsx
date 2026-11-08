@@ -40,6 +40,7 @@ import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-pages';
+import { councilForConstituency } from '@/lib/related-links';
 
 
 // Shared MP-row fetch. generateMetadata and the page component run as
@@ -482,6 +483,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     ? withTimeout(Promise.resolve(supabase.from('constituencies').select('slug').eq('ons_code', constituencyGss).maybeSingle()), 5000).then((r) => (r.data?.slug as string | undefined) ?? null).catch(() => null)
     : Promise.resolve(null);
 
+  // The constituency's local council, for Contact's "Local council" line (HT1, owner, 8 Nov 2026; it was in the Related
+  // line MP1 removed). Only when the seat lies in exactly one council; a failed read leaves the line out.
+  const pCouncil = constituencyGss && mp.current_member !== false
+    ? withTimeout(councilForConstituency(constituencyGss), 5000).catch((e) => { console.error(`/mps/${memberId} council:`, e instanceof Error ? e.message : String(e)); return null; })
+    : Promise.resolve(null);
+
   // Early Day Motions this MP started (primary sponsor) and signed
   // (sponsoring_order > 1, i.e. every signature except the primary
   // sponsor's own; withdrawn signatures excluded). Counts come from
@@ -591,6 +598,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const petitionsAvailable = await pPetitions;
   const petitionsTop = await pPetitionsTop;
   const seatSlug = await pSeatSlug;
+  const council = await pCouncil;
 
   // APPGs (All-Party Parliamentary Groups) this MP is officer of, with
   // each group's registered funders. Sourced from mySociety/appg-
@@ -819,6 +827,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           twitter:       contactRes.data?.twitter       ?? mp.twitter       ?? null,
           address_line1: contactRes.data?.address_line1 ?? null,
           postcode:      contactRes.data?.postcode      ?? null,
+          council,
         },
         votes: votesWithSi,
         phoneHeadline: true,
