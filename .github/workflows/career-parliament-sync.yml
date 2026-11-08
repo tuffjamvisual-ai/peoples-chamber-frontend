@@ -20,6 +20,10 @@ jobs:
     env:
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+      # PR1 (owner, 8 Nov 2026): the changed MP pages are refreshed through the site's /api/revalidate with the site's
+      # CRON_SECRET (the repository secret daily-sync.yml already uses) and sent to IndexNow (scripts/refresh-pages.ts).
+      # Without it nothing is refreshed and the run summary says so; a refresh problem never undoes the database write.
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
 
     steps:
       - name: Checkout code

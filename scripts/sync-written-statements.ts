@@ -16,14 +16,43 @@
 // from the failed page), and the run exits 1 after writing them (or, with more than 10 failures, without writing). Rows are
 // written in batches of 500.
 // Reads .env.local for NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (never printed).
+// After writing (owner, 8 Nov 2026, PR1): the members with new or changed statement rows in this run (a stable hash of each
+// stored row against the fetched one) whose mp_biography.delivery_record is not null, the only MPs whose page shows the
+// figure, have /mps/<id> refreshed and sent to IndexNow (scripts/refresh-pages.ts). --dry-run lists them (reading the
+// database, read only, when .env.local or the environment gives it).
 import fs from 'node:fs';
-import { createClient } from '@supabase/supabase-js';
+import { refreshPages, stableHash, reportToRun } from './refresh-pages';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { validate, type ApiStatement, type StatementRow } from '../lib/written-statements';
 
 const API = 'https://questions-statements-api.parliament.uk/api/writtenstatements/statements';
 const TAKE = 100;
 const MAX_FAILURES = 10;
 const UA = { 'User-Agent': 'opengovt.uk parliament archive (https://www.opengovt.uk; contact@opengovt.uk)', Accept: 'application/json' };
+
+// The member_ids with a fetched row that is new or differs from the stored one (synced_at aside).
+export function changedMembers(fetched: StatementRow[], stored: Array<Partial<StatementRow> & { id: number }>): Set<number> {
+  const before = new Map(stored.map((r) => [Number(r.id), stableHash(rowFields(r))]));
+  return new Set(fetched.filter((r) => before.get(r.id) !== stableHash(rowFields(r))).map((r) => r.member_id));
+}
+const FIELDS = ['id', 'uin', 'house', 'member_id', 'member_role', 'date_made', 'title', 'answering_body_id', 'answering_body_name', 'url'] as const;
+const rowFields = (r: Partial<StatementRow>) => Object.fromEntries(FIELDS.map((k) => [k, k === 'id' || k === 'member_id' || k === 'answering_body_id' ? (r[k] == null ? null : Number(r[k])) : (r[k] ?? null)]));
+
+// The pages to refresh: members with new or changed rows whose delivery_record is not null (read only).
+async function pagesToRefresh(db: SupabaseClient, list: StatementRow[]): Promise<string[]> {
+  const stored: Array<Partial<StatementRow> & { id: number }> = [];
+  for (let i = 0; i < list.length; i += 500) {
+    const { data, error } = await db.from('parliament_written_statements').select(FIELDS.join(', ')).in('id', list.slice(i, i + 500).map((r) => r.id));
+    if (error) throw new Error(`parliament_written_statements (stored rows): ${error.message}`);
+    stored.push(...((data ?? []) as unknown as Array<Partial<StatementRow> & { id: number }>));
+  }
+  const members = [...changedMembers(list, stored)];
+  if (!members.length) return [];
+  const { data, error } = await db.from('mp_biography').select('member_id').in('member_id', members).not('delivery_record', 'is', null);
+  if (error) { console.warn(`mp_biography delivery_record: ${error.message}; no pages to refresh`); return []; }
+  console.log(`${members.length} member(s) with new or changed statements; ${((data ?? []) as unknown[]).length} with a delivery record`);
+  return ((data ?? []) as Array<{ member_id: number }>).map((r) => `/mps/${r.member_id}`).sort();
+}
 
 const argv = process.argv.slice(2);
 const opt = (k: string) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : undefined; };
@@ -108,12 +137,20 @@ async function main() {
   if (DRY) {
     for (const r of list.slice(-20)) console.log(`  ${r.date_made} ${r.uin ?? '(no uin)'} member ${r.member_id} ${r.answering_body_name ?? ''}: ${r.title ?? ''} ${r.url ?? ''}`);
     console.log('dry run: nothing written');
+    // The pages a real run would refresh (PR1), read only, when the database is reachable.
+    try { process.loadEnvFile(`${__dirname}/../.env.local`); } catch { /* the environment may give it */ }
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY) {
+      const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
+      await refreshPages(await pagesToRefresh(db, list), { dryRun: true });
+    } else console.log('[refresh] dry run: no database settings, pages to refresh not worked out');
     if (stopped) process.exit(1);
     return;
   }
 
   process.loadEnvFile(`${__dirname}/../.env.local`);
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
+  // Worked out before writing, so the stored rows are the ones from before this run (PR1).
+  const refreshList = await pagesToRefresh(db, list);
   const syncedAt = new Date().toISOString();
   let written = 0;
   for (let i = 0; i < list.length; i += 500) {
@@ -123,6 +160,8 @@ async function main() {
     written += batch.length;
   }
   console.log(`${written} rows written to parliament_written_statements`);
+  // The pages of MPs whose statements figure changed; a refresh problem is reported but never undoes the write (PR1).
+  reportToRun('Written statements sync', await refreshPages(refreshList, { reason: 'written-statements-sync' }));
   if (stopped) process.exit(1);
 }
 

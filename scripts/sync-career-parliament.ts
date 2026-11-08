@@ -17,8 +17,12 @@
 // Without --members it takes every current MP from the mps table. --dry-run writes the JSON file and never the database:
 // { generated, members: { "<id>": { name, career_parliament, notes } }, counts }. "notes" lists where Parliament's APIs
 // disagreed with each other or with our MP record, and any request that failed.
+// After writing (owner, 8 Nov 2026, PR1): the MPs whose career_parliament really changed (a stable hash of the stored value
+// before and of the new one differ) have /mps/<id> refreshed and sent to IndexNow (scripts/refresh-pages.ts); an unchanged
+// MP is not refreshed, and a run that stops before writing refreshes nothing. --dry-run lists the pages it would refresh.
 import fs from 'node:fs';
 import path from 'node:path';
+import { refreshPages, stableHash, reportToRun } from './refresh-pages';
 import { createClient } from '@supabase/supabase-js';
 import { type CareerEntry, type BillOutcome } from '../lib/career-timeline';
 import { keepValid, contestEntries, MAX_EXCLUDED, type Built, type Excluded, type ContestRecord } from './career-sync-filter';
@@ -174,18 +178,37 @@ async function main() {
   if (excluded.length > MAX_EXCLUDED) {
     throw new Error(`${excluded.length} entries left out, more than ${MAX_EXCLUDED}: stopping before writing anything; see ${excludedFile}`);
   }
+  // The MPs whose stored career_parliament this run changes (PR1): the stored value read now, hashed without regard to key
+  // order, against the new one. Read 100 MPs at a time; an MP with no row or no stored value counts as changed.
+  const changing = new Set<number>();
+  const fresh = list.filter((m) => result[String(m.id)].career_parliament);
+  for (let i = 0; i < fresh.length; i += 100) {
+    const ids = fresh.slice(i, i + 100).map((m) => m.id);
+    const { data, error } = await db.from('mp_biography').select('member_id, career_parliament').in('member_id', ids);
+    if (error) throw new Error(`mp_biography (stored values): ${error.message}`);
+    const stored = new Map((data ?? []).map((r) => [r.member_id as number, r.career_parliament as unknown]));
+    for (const id of ids) if (stableHash(stored.get(id) ?? null) !== stableHash(result[String(id)].career_parliament)) changing.add(id);
+  }
+  const refreshIds: number[] = [];
   if (!DRY) {
     for (const m of list) {
       const r = result[String(m.id)];
       if (!r.career_parliament) continue;
       const { error } = await db.from('mp_biography').update({ career_parliament: r.career_parliament, career_checked_at: new Date().toISOString() }).eq('member_id', m.id);
-      if (error) { r.notes.push(`write failed: ${error.message}`); console.error(`${m.id} ${m.name}: write failed: ${error.message}`); failed++; } else written++;
+      if (error) { r.notes.push(`write failed: ${error.message}`); console.error(`${m.id} ${m.name}: write failed: ${error.message}`); failed++; } else {
+        written++;
+        if (changing.has(m.id)) refreshIds.push(m.id);
+      }
     }
-  }
+  } else refreshIds.push(...[...changing]);
   const counts: Record<string, number> = {};
   for (const r of Object.values(result)) for (const e of r.career_parliament ?? []) counts[e.group] = (counts[e.group] ?? 0) + 1;
   if (DRY) fs.writeFileSync(OUT!, JSON.stringify({ generated: new Date().toISOString(), members: result, counts }, null, 1));
   console.log(`${list.length} MPs; ${DRY ? 'dry run, nothing written' : `${written} written`}; ${failed} failed; ${excluded.length} entries left out; entries by group ${JSON.stringify(counts)}`);
+  // Only the MPs whose career changed and was written; a refresh problem is reported but never undoes the write (PR1).
+  console.log(`${changing.size} MP(s) with a changed career_parliament${DRY ? '' : `, ${refreshIds.length} written`}`);
+  const refreshed = await refreshPages(refreshIds.map((id) => `/mps/${id}`), { dryRun: DRY, reason: 'career-parliament-sync' });
+  reportToRun('Political career sync', refreshed);
 }
 
 main().catch((e) => { console.error(e instanceof Error ? e.message : e); process.exit(1); });
