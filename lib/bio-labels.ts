@@ -12,6 +12,8 @@ export function stripParagraphLabels(text: string): string {
 // For the RSS feed's one sentence lead (owner, 8 Nov 2026, DR3): a biography that starts with a label loses that label, so
 // the lead is the first sentence after it; any later labels are plain "Label.". A biography without labels is unchanged.
 const LEADING_LABEL = /^\*\*[^*\n]+\.\*\*(?: |(?=\n)|$)/;
+// Inline source links (BF1, 8 Nov 2026): "[descriptive text](https://...)" is the descriptive text alone in plain text.
+const SOURCE_LINK = /\[([^\]\n]+)\]\((?:[^\s()]|\([^\s()]*\))+\)/g;
 export function withoutLeadingLabel(text: string): string {
-  return stripParagraphLabels(text.replace(LEADING_LABEL, ''));
+  return stripParagraphLabels(text.replace(LEADING_LABEL, '')).replace(SOURCE_LINK, '$1');
 }

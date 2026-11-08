@@ -13,8 +13,7 @@ import { memberVoteSummary, registerHistory } from '@/lib/historic-archive';
 import { supabase } from '@/lib/supabase';
 import { getMpBiography } from '@/lib/mp-biography';
 import { getMpCareer } from '@/lib/mp-career';
-import { getDeliveryRecord, withDeliveryPreview, ministerStatements, ministerAnswers } from '@/lib/mp-delivery';
-import DeliveryRecord from './DeliveryRecord';
+import { withDeliveryPreview } from '@/lib/mp-delivery';
 import { getPeer } from '@/lib/lords';
 import { peerHasPage } from '@/lib/peers';
 import { questionsSummary, type QuestionsSummary } from '@/lib/mp-written-questions';
@@ -429,19 +428,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   );
   // Staff with outside interests (owner's brief, 3 Nov 2026): job titles only, never names. A failed read (or the
   // table before its migration) shows no section rather than failing the page.
-  // Political career (owner, 7 Nov 2026, PC1): its own read (lib/mp-career.ts), so the page never depends on it.
+  // The stored career records (PC1; lib/mp-career.ts): post dates and lost elections in Roles since CH1. Its own read, so
+  // the page never depends on it.
   const pCareer = getMpCareer(supabase, memberId);
-  // Delivery record (owner approved the format, 8 Nov 2026, DR1): its own read (lib/mp-delivery.ts), only when bio_visible is
-  // true. Only for an MP with a record, the count of written questions they answered (answered as a minister: only ministers
-  // answer). The table has no index on answering_member_id, so this is read for those MPs alone; a failed or slow read
-  // leaves the figure out. Written statements come from parliament_written_statements (WS1), counted inside the MP's
-  // ministerial posts; nothing shows while that table has no rows for the MP.
-  const pDelivery = getDeliveryRecord(supabase, memberId).catch(() => null);
-  // Both written questions tables, inside the MP's ministerial posts (WQ1).
-  const pMinisterAnswers: Promise<{ count: number | null; since: string | null }> = pDelivery.then((rec) => rec
-    ? withTimeout(ministerAnswers(supabase, memberId, (bioRes.data?.government_posts ?? null) as Array<{ startDate?: string | null; endDate?: string | null }> | null, new Date().toISOString().slice(0, 10)), 8000)
-        .catch(() => ({ count: null, since: null }))
-    : { count: null, since: null });
   // MP1 (owner, 7 Nov 2026): the archive's votes and register history are parts of Voting record and Registered interests, and
   // the votes by year count both sources, so the current votes' years are read too (only their dates).
   const pArchiveVotes = memberVoteSummary(memberId);
@@ -859,20 +848,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         conductFindings: conductRes.data || [],
         staffInterests: staffForPage,
         career: await pCareer,
-        deliveryRecord: await (async () => {
-          const record = await pDelivery;
-          if (!record) return null;
-          const bills = (sponsoredBillsRes.data || []) as Array<{ is_act?: boolean | null }>;
-          // Written statements inside the MP's ministerial posts, and the period each written figure covers (WS1).
-          const posts = (bioRes.data?.government_posts ?? null) as Array<{ startDate?: string | null; endDate?: string | null }> | null;
-          const today = new Date().toISOString().slice(0, 10);
-          const statements = await withTimeout(ministerStatements(supabase, memberId, posts, today), 8000).catch(() => ({ count: null, since: null }));
-          return <DeliveryRecord record={record} parliament={{
-            bills_introduced: bills.length, bills_passed: bills.filter((b) => b.is_act === true).length,
-            ...(await pMinisterAnswers.then((a) => ({ minister_written_answers: a.count, minister_written_answers_since: a.since }))),
-            minister_written_statements: statements.count, minister_written_statements_since: statements.since,
-          }} />;
-        })(),
         ...(await (async () => {
           const [archiveVotes, register, currentYears] = await Promise.all([pArchiveVotes, pRegisterHistory, pCurrentYears]);
           const currentTotal = Number(voteCounts.all_votes ?? votesWithSi.length) || 0;

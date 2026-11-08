@@ -12,6 +12,7 @@ import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
 import { careerTimeline, dateLabel, type CareerEntry } from '@/lib/career-timeline';
+import BioText from './BioText';
 import type { MpCareer } from '@/lib/mp-career';
 import type { QuestionsSummary } from '@/lib/mp-written-questions';
 import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
@@ -332,7 +333,6 @@ interface Props {
   votingArchive?: React.ReactNode;    // the total, every vote by year and the archive's notes (HistoricRecord.tsx)
   earlierRegisters?: React.ReactNode; // the register history (HistoricRecord.tsx)
   earlierRegistersCount?: number;
-  deliveryRecord?: React.ReactNode;  // the delivery record under the biography (DeliveryRecord.tsx, DR1)
   constituencyPetitions?: { top: MpPetitionsTop; gss: string; constituency: string | null } | null;
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
@@ -481,9 +481,6 @@ function tabOfElement<T extends string>(el: Element | null, valid: Set<T>): T | 
   return fold && valid.has(fold as T) ? (fold as T) : null;
 }
 
-// A biography paragraph's label (DR1): exactly "**Label.**" at the very start, then the text. Any other asterisks stay as
-// plain text.
-const BIO_LABEL = /^\*\*([^*\n]+\.)\*\*(?: ([\s\S]*))?$/;
 // Roles (CH1, owner, 8 Nov 2026: "Hide, move 2 extras"): the Political career folder is no longer shown, as it repeated
 // Roles, Bills sponsored and the biography. Its two details found nowhere else move here, from the same stored records
 // (mp_biography.career_parliament and career_research, lib/mp-career.ts; the nightly career sync is unchanged):
@@ -624,7 +621,6 @@ export default function MagazineProfileSections({
   votingArchive = null,
   earlierRegisters = null,
   earlierRegistersCount = 0,
-  deliveryRecord = null,
   constituencyPetitions = null,
   activity = null,
   contributions = [],
@@ -1080,13 +1076,14 @@ export default function MagazineProfileSections({
             <div style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
               {paragraphs.length === 0 ? (
                 <p>Biography unavailable.</p>
-              ) : paragraphs.map((para, idx) => {
-                const tilt = idx % 4;
-                const rot = tilt === 0 ? '0.1deg' : tilt === 1 ? '-0.15deg' : tilt === 2 ? '0.08deg' : '-0.1deg';
-                // A paragraph that starts with **Label.** shows Label. in bold, without the asterisks (DR1); nothing else is parsed.
-                const label = BIO_LABEL.exec(para);
-                return <p key={idx} style={{ marginBottom: '16px', transform: `rotate(${rot})` }}>{label ? <><strong>{label[1]}</strong>{label[2] ? ` ${label[2]}` : ''}</> : para}</p>;
-              })}
+              ) : (
+                // Labels in bold, label only paragraphs as subheadings, and https source links beside each claim (BF1, BioText.tsx).
+                <BioText paragraphs={paragraphs} paragraphStyle={(idx) => {
+                  const tilt = idx % 4;
+                  const rot = tilt === 0 ? '0.1deg' : tilt === 1 ? '-0.15deg' : tilt === 2 ? '0.08deg' : '-0.1deg';
+                  return { marginBottom: '16px', transform: `rotate(${rot})` };
+                }} />
+              )}
             </div>
 
             {(bio?.bio_last_reviewed || (bio?.bio_sources && bio.bio_sources.length > 0)) && (
@@ -1115,8 +1112,6 @@ export default function MagazineProfileSections({
                 )}
               </div>
             )}
-
-            {deliveryRecord}
 
             <div className="mp-reports-wide"><ReportsMentioning reports={reports} /></div>
 
