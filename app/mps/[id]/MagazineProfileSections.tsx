@@ -11,7 +11,7 @@ import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
-import { CAREER_GROUPS, careerTimeline, careerDates, billOutcomeText, type CareerEntry } from '@/lib/career-timeline';
+import { careerTimeline, dateLabel, type CareerEntry } from '@/lib/career-timeline';
 import type { MpCareer } from '@/lib/mp-career';
 import type { QuestionsSummary } from '@/lib/mp-written-questions';
 import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
@@ -36,7 +36,7 @@ import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
-type SectionId = 'bio' | 'career' | 'politicalcareer' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'edms' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
+type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'edms' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
 // TEMPORARY: hide the Political Biography tab + section on every MP profile.
 // Bios stay in the database untouched; this only stops them rendering. To
@@ -59,7 +59,6 @@ const PHONE_FOLDS: Array<{ id: string; label: string; sections: SectionId[] }> =
   { id: 'roles', label: 'Roles', sections: ['roles'] },
   { id: 'diary', label: 'Diary', sections: ['diary'] },
   { id: 'background', label: 'Background and biography', sections: ['career', 'bio'] },
-  { id: 'politicalcareer', label: 'Political career', sections: ['politicalcareer'] },
   { id: 'contact', label: 'Contact', sections: ['contact'] },
 ];
 const PHONE_MAX = 639;
@@ -67,7 +66,6 @@ const PHONE_MAX = 639;
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
   { id: 'career',    label: 'BACKGROUND',       rotate: '-0.12deg' },
-  { id: 'politicalcareer', label: 'POLITICAL CAREER', rotate: '0.1deg' },
   { id: 'contact',   label: 'CONTACT',          rotate: '-0.1deg' },
   { id: 'voting',    label: 'VOTING RECORD',    rotate: '0.15deg' },
   { id: 'bills',     label: 'BILLS SPONSORED',  rotate: '-0.2deg' },
@@ -486,24 +484,20 @@ function tabOfElement<T extends string>(el: Element | null, valid: Set<T>): T | 
 // A biography paragraph's label (DR1): exactly "**Label.**" at the very start, then the text. Any other asterisks stay as
 // plain text.
 const BIO_LABEL = /^\*\*([^*\n]+\.)\*\*(?: ([\s\S]*))?$/;
-// One Political career entry (PC1): its dates (a bill shows its outcome and session instead), title and organisation, the
-// detail (a finding exactly as stored, in quotation marks). Sources are kept in the data but not shown (owner, 8 Nov 2026, PC3).
-function CareerItem({ entry: e }: { entry: CareerEntry }) {
-  const dates = e.group === 'bills' ? '' : careerDates(e);
-  return (
-    <li className="og-read" style={{ padding: '6px 0', borderBottom: '1px dotted rgba(20,16,13,0.2)', fontSize: '15px', lineHeight: '24px', overflowWrap: 'anywhere' }}>
-      <div>
-        {dates && <strong style={{ fontFamily: 'monospace', marginRight: '0.6em' }}>{dates}</strong>}
-        <strong>{e.title}</strong>
-        {e.organisation && <>, {e.organisation}</>}
-      </div>
-      {e.group === 'bills' && (
-        <div>{e.detail ? `${e.detail}. ` : ''}{billOutcomeText(e)}{e.outcome !== 'no_further_stage' && e.session ? ` (${e.session} session)` : ''}</div>
-      )}
-      {e.group === 'findings' && e.detail && <div>&ldquo;{e.detail}&rdquo;</div>}
-      {e.group !== 'bills' && e.group !== 'findings' && e.detail && <div>{e.detail}</div>}
-    </li>
-  );
+// Roles (CH1, owner, 8 Nov 2026: "Hide, move 2 extras"): the Political career folder is no longer shown, as it repeated
+// Roles, Bills sponsored and the biography. Its two details found nowhere else move here, from the same stored records
+// (mp_biography.career_parliament and career_research, lib/mp-career.ts; the nightly career sync is unchanged):
+// the dates of each government and opposition post, each spell where a post was held more than once, and elections
+// contested but not won.
+const postDates = (entries: CareerEntry[], kind: 'Government post' | 'Opposition post', name: string) =>
+  entries
+    .filter((e) => e.group === 'posts' && e.detail === kind && e.title.trim() === name.trim() && e.start)
+    .map((e) => `${dateLabel(e.start as string)} to ${!e.end || e.end === 'present' ? 'present' : dateLabel(e.end)}`);
+// "Contested Wycombe, 1 May 1997, not elected", from the stored title with or without its date (PCL2 wrote it with
+// the date; PCL3 writes it without, keeping the day in start).
+function contestLine(e: CareerEntry): string {
+  const place = e.title.match(/^Contested (.+?), (?:\d{1,2} [A-Z][a-z]+ \d{4}, )?not elected$/)?.[1];
+  return place && e.start ? `Contested ${place}, ${dateLabel(e.start)}, not elected` : e.title;
 }
 
 // "24 October 2026" from a stored YYYY-MM-DD date, read from its parts so the day never shifts with the time zone.
@@ -669,13 +663,16 @@ export default function MagazineProfileSections({
   const hasBackground = !!((bio?.background_timeline && bio.background_timeline.length > 0) || (bio?.career_history && bio.career_history.length > 0)
     || (bio?.education && bio.education.length > 0) || bio?.career_background);
   const careerEntries = careerTimeline(career?.parliament, career?.research);
+  // Roles (CH1): each post once, in the stored order, with the dates of every spell; and the elections lost.
+  const uniqueByName = (list: Array<{ name: string }> | undefined) => (list ?? []).filter((p, i, all) => all.findIndex((q) => q.name === p.name) === i);
+  const governmentPosts = uniqueByName(bio?.government_posts).map((p) => ({ name: p.name, spells: postDates(careerEntries, 'Government post', p.name) }));
+  const oppositionPosts = uniqueByName(bio?.opposition_posts).map((p) => ({ name: p.name, spells: postDates(careerEntries, 'Opposition post', p.name) }));
+  const contests = careerEntries.filter((e) => e.group === 'elections' && e.title.startsWith('Contested ') && e.start);
   const has: Record<SectionId, boolean> = {
     bio: bioVisible && paragraphs.length > 0,
     // Background (24 Oct 2026): shown for a sourced timeline or the older career/education fields.
     // Standards findings (3 Nov 2026) sit at the foot of Background, so the tab also shows for an MP with findings only.
     career: hasBackground || conductFindings.length > 0,
-    // Political career (PC1): shown when either part has an entry; each empty group is left out.
-    politicalcareer: careerEntries.length > 0,
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1 || contact.council)),
     voting: (votingAll ?? totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
@@ -686,8 +683,9 @@ export default function MagazineProfileSections({
     roles: !!(
       (spadAdvisers?.rows.length ?? 0) > 0 ||
       committeeMemberships.length > 0 ||
-      (bio?.government_posts && bio.government_posts.length > 0) ||
-      (bio?.opposition_posts && bio.opposition_posts.length > 0) ||
+      governmentPosts.length > 0 ||
+      oppositionPosts.length > 0 ||
+      contests.length > 0 ||
       (bio?.committee_memberships && bio.committee_memberships.length > 0) ||
       (bio?.representations && bio.representations.length > 0) ||
       (bio?.party_history && bio.party_history.length > 0)
@@ -1067,32 +1065,6 @@ export default function MagazineProfileSections({
             </>
             )}
             <StandardsFindings findings={conductFindings} headingStyle={sectionH3} />
-          </>
-        )}
-        {active === 'politicalcareer' && careerEntries.length > 0 && (
-          <>
-            <h2 style={sectionH2}>Political career</h2>
-            <p style={{ fontSize: '15px', marginBottom: '16px' }}>Elections, posts, committees and bills from Parliament&rsquo;s own records, with findings and pledges where held.</p>
-            {CAREER_GROUPS.map(({ group, heading }) => {
-              const rows = careerEntries.filter((e) => e.group === group);
-              if (rows.length === 0) return null;
-              return (
-                <section key={group} style={{ marginBottom: '18px' }}>
-                  {/* Each group folds on its own on phones, 25 a screen with JavaScript on and off (owner, 7 Nov 2026, PC1), and pages at 25 on desktop too (owner, 8 Nov 2026, PC4). */}
-                  <SubFold label={heading} summary={countOf(rows.length, 'entry', 'entries')}>
-                    <h3 style={{ ...backgroundLabel, margin: '0 0 6px' }}>{heading}</h3>
-                    <NoJsPager id={`career-${group}`} always wide count={rows.length} rows="> li" size={25}>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                        {rows.map((e, idx) => <CareerItem key={idx} entry={e} />)}
-                      </ul>
-                    </NoJsPager>
-                  </SubFold>
-                </section>
-              );
-            })}
-            {career?.checkedAt && (
-              <p style={{ fontSize: '15px', marginBottom: '26px' }}>Parliament records checked {dayMonthYear(career.checkedAt)}</p>
-            )}
           </>
         )}
         {active === 'bio' && bioVisible && (
@@ -1783,41 +1755,45 @@ export default function MagazineProfileSections({
               </>
             )}
 
-            {bio?.representations && bio.representations.length > 0 && (
+            {((bio?.representations?.length ?? 0) > 0 || contests.length > 0) && (
               <>
                 <h3 style={sectionH3}>Parliamentary career</h3>
                 <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {/* Newest seat first for every MP (owner's approval, 22 Oct 2026). */}
-                  {[...bio.representations].sort((a, b) => (b.startDate || '').localeCompare(a.startDate || '')).map((r, i) => (
+                  {/* Newest first for every MP (owner's approval, 22 Oct 2026); elections lost sit among the seats by date (CH1). */}
+                  {[
+                    ...(bio?.representations ?? []).map((r) => ({ date: r.startDate || '', seat: r, contest: null as CareerEntry | null })),
+                    ...contests.map((e) => ({ date: e.start as string, seat: null, contest: e })),
+                  ].sort((a, b) => b.date.localeCompare(a.date)).map(({ seat: r, contest }, i) => (
                     <li key={i} style={{ padding: '6px 0', borderBottom: inkDivider }}>
-                      <strong>{r.name}</strong>
-                      <div style={{ fontSize: '15px', fontFamily: 'monospace' }}>
-                        {fmtDate(r.startDate)}, {r.endDate ? fmtDate(r.endDate) : 'present'}
-                        {r.endDate && r.endReason ? ` · ${r.endReason}` : ''}
-                      </div>
+                      {r ? (
+                        <>
+                          <strong>{r.name}</strong>
+                          <div style={{ fontSize: '15px', fontFamily: 'monospace' }}>
+                            {fmtDate(r.startDate)}, {r.endDate ? fmtDate(r.endDate) : 'present'}
+                            {r.endDate && r.endReason ? ` · ${r.endReason}` : ''}
+                          </div>
+                        </>
+                      ) : contestLine(contest as CareerEntry)}
                     </li>
                   ))}
                 </ul>
               </>
             )}
 
-            {bio?.government_posts && bio.government_posts.length > 0 && (
-              <>
-                <h3 style={sectionH3}>Government posts</h3>
+            {([['Government posts', governmentPosts], ['Opposition posts', oppositionPosts]] as const).map(([heading, posts]) => posts.length > 0 && (
+              <Fragment key={heading}>
+                <h3 style={sectionH3}>{heading}</h3>
                 <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
-                  {bio.government_posts.map((p, i) => <li key={i}>{p.name}</li>)}
+                  {/* Each spell's dates under the name (CH1), in the style of the seats above. */}
+                  {posts.map((p, i) => (
+                    <li key={i}>
+                      {p.name}
+                      {p.spells.map((d, j) => <div key={j} style={{ fontSize: '15px', fontFamily: 'monospace' }}>{d}</div>)}
+                    </li>
+                  ))}
                 </ul>
-              </>
-            )}
-
-            {bio?.opposition_posts && bio.opposition_posts.length > 0 && (
-              <>
-                <h3 style={sectionH3}>Opposition posts</h3>
-                <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
-                  {bio.opposition_posts.map((p, i) => <li key={i}>{p.name}</li>)}
-                </ul>
-              </>
-            )}
+              </Fragment>
+            ))}
 
             {bio?.party_history && bio.party_history.length > 0 && (
               <>
@@ -2906,7 +2882,6 @@ export default function MagazineProfileSections({
     bills: { label: 'Bills sponsored', summary: sponsoredBills.length > 0 ? countOf(sponsoredBills.length, 'bill') : null },
   };
   const foldSummary: Record<string, string | null> = {
-    politicalcareer: careerEntries.length > 0 ? countOf(careerEntries.length, 'entry', 'entries') : null,
     background: timeline.length > 0 ? countOf(timeline.length, 'entry', 'entries') : conductFindings.length > 0 ? countOf(conductFindings.length, 'standards finding') : 'career and education',
     contact: [contact?.phone && 'phone', contact?.email && 'email', contact?.website && 'website', contact?.twitter && 'social media', contact?.address_line1 && 'address'].filter(Boolean).join(', ') || null,
     voting: countOf(votingAll ?? totalVotes ?? votes.length, 'division'),
@@ -2914,7 +2889,7 @@ export default function MagazineProfileSections({
     interests: interests.length > 0 ? countOf(interests.length, 'entry', 'entries') : 'none current',
     roles: currentCommittees.length > 0
       ? countOf(currentCommittees.length, 'current committee')
-      : countOf((bio?.government_posts?.length ?? 0) + (bio?.opposition_posts?.length ?? 0) + (bio?.committee_memberships?.length ?? 0) + (bio?.representations?.length ?? 0) + (bio?.party_history?.length ?? 0) + formerCommittees.length + (spadAdvisers?.rows.length ?? 0), 'entry', 'entries'),
+      : countOf(governmentPosts.length + oppositionPosts.length + contests.length + (bio?.committee_memberships?.length ?? 0) + (bio?.representations?.length ?? 0) + (bio?.party_history?.length ?? 0) + formerCommittees.length + (spadAdvisers?.rows.length ?? 0), 'entry', 'entries'),
     earnings: earnings.ministerial_pending ? `${fmtMoney(earnings.base || 0)} MP salary` : `${fmtMoney((earnings.base || 0) + (earnings.ministerial || 0))} as an MP`,
     donations: declaredDonations.entryCount > 0 ? `${fmtMoney(declaredDonations.total)} on the current register` : 'none on the current register',
     diary: [ministerMeetings.length > 0 && countOf(ministerMeetings.length, 'meeting'), ministerHospitality.length > 0 && `${ministerHospitality.length.toLocaleString('en-GB')} hospitality`].filter(Boolean).join(', ') || null,
