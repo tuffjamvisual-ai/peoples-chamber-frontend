@@ -473,7 +473,7 @@ function TimelineEntry({ entry, last }: { entry: BackgroundEntry; last: boolean 
   );
 }
 // One Political career entry (PC1): its dates (a bill shows its outcome and session instead), title and organisation, the
-// detail (a finding exactly as stored, in quotation marks) and a link to its source.
+// detail (a finding exactly as stored, in quotation marks). Sources are kept in the data but not shown (owner, 8 Nov 2026, PC3).
 function CareerItem({ entry: e }: { entry: CareerEntry }) {
   const dates = e.group === 'bills' ? '' : careerDates(e);
   return (
@@ -488,9 +488,6 @@ function CareerItem({ entry: e }: { entry: CareerEntry }) {
       )}
       {e.group === 'findings' && e.detail && <div>&ldquo;{e.detail}&rdquo;</div>}
       {e.group !== 'bills' && e.group !== 'findings' && e.detail && <div>{e.detail}</div>}
-      <div>
-        <a href={e.source.url} className="og-tap" target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612' }}>Source: {e.source.title}</a>
-      </div>
     </li>
   );
 }
@@ -1039,7 +1036,7 @@ export default function MagazineProfileSections({
         {active === 'politicalcareer' && careerEntries.length > 0 && (
           <>
             <h2 style={sectionH2}>Political career</h2>
-            <p style={{ fontSize: '15px', marginBottom: '16px' }}>Elections, posts, committees and bills from Parliament&rsquo;s own records, with findings and pledges where held. Each entry links to its source.</p>
+            <p style={{ fontSize: '15px', marginBottom: '16px' }}>Elections, posts, committees and bills from Parliament&rsquo;s own records, with findings and pledges where held.</p>
             {CAREER_GROUPS.map(({ group, heading }) => {
               const rows = careerEntries.filter((e) => e.group === group);
               if (rows.length === 0) return null;
