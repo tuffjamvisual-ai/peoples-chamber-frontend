@@ -9,6 +9,7 @@ import { billSummary } from '@/lib/bill-summary';
 import { supabase } from '@/lib/supabase';
 import { displayMpName } from '@/lib/mp-name';
 import { allEditorials } from '@/lib/editorials-source';
+import { stripParagraphLabels } from '@/lib/bio-labels';
 
 export const revalidate = 1800;
 
@@ -71,7 +72,8 @@ async function fetchMpItems(): Promise<FeedItem[]> {
   if (bioErr) throw new Error(`feed biographies: ${bioErr.message}`);
   const bioByMember = new Map<number, string>();
   (bios || []).forEach((b: { member_id: number; political_bio: string | null }) => {
-    if (b.political_bio) bioByMember.set(b.member_id, b.political_bio);
+    // A paragraph label (**Label.**) is plain "Label." here (DR2); a biography without labels is unchanged.
+    if (b.political_bio) bioByMember.set(b.member_id, stripParagraphLabels(b.political_bio));
   });
 
   return mpRows.map(

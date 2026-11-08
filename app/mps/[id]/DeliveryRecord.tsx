@@ -1,11 +1,11 @@
 // The MP delivery record under the biography (owner approved the format, 8 Nov 2026, DR1): "Record in numbers", worked
-// out with computePanel() and leaving out any figure we do not hold; the "Delivery record" table, grouped Delivered, then
+// out with computePanel() and leaving out any figure we do not hold; the "Delivery record", grouped Delivered, then
 // Committed and in development, then Not established; and the pledges. A server component: the page passes it into the
-// biography section as a node. Desktop has an ordinary table; under 640px each row is a stacked card (CSS only, so it is
-// the same with JavaScript off, and marked data-pt-table="keep" so the phone script leaves it alone). More than 10 rows:
-// the first 10, and the rest in a native <details>. On phones the numbers, each group of the table and the pledges are
-// each a sub-fold of the biography's fold (SubFold, as PF3), so no single open fold passes 10,000px; from 640px up they
-// show as one panel, one table and one list.
+// biography section as a node. Each item is a stacked card at every width (owner, 8 Nov 2026, DR2): its title with the
+// Local or National tag, then Stage, MP's role, Delivered by, Dates and Sources, each on its own line. More than 10
+// items: the first 10, and the rest in a native <details>. On phones the numbers, each group and the pledges are each a
+// sub-fold of the biography's fold (SubFold, as PF3), so no single open fold passes 10,000px; from 640px up they show
+// as one panel, the groups under their headings and one list.
 import {
   computePanel, displayGroups, itemDates, ATTRIBUTIONS, ATTRIBUTION_LABEL, STAGE_LABEL, SCOPE_LABEL,
   type DeliveryRecord as Record_, type DeliveryItem, type ParliamentFigures, type DeliveryAttribution,
@@ -29,26 +29,20 @@ const CSS = `
 .dr-figs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px 18px; margin: 0; padding: 0; list-style: none; }
 .dr-figs li { padding: 8px 0; border-top: 1px solid rgba(20,16,13,0.25); font-size: 15px; line-height: 1.5; }
 .dr-figs strong { display: block; font-size: 16px; }
-.dr-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 15px; line-height: 1.5; }
-.dr-table th, .dr-table td { text-align: left; vertical-align: top; padding: 8px 4px; border-bottom: 1px dotted rgba(20,16,13,0.3); overflow-wrap: break-word; letter-spacing: -0.02em; }
-.dr-table thead th { border-bottom: 2px solid #14100d; font-size: 15px; }
-.dr-table .dr-group th { padding-top: 16px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.08em; color: #7a1612; border-bottom: 1px solid rgba(20,16,13,0.4); }
+.dr-group { margin: 18px 0 0; padding: 0 0 6px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.08em; color: #7a1612; border-bottom: 1px solid rgba(20,16,13,0.4); }
+.dr-cards { margin: 0; padding: 0; list-style: none; }
+.dr-card { padding: 10px 0; border-bottom: 1px solid rgba(20,16,13,0.35); font-size: 15px; line-height: 1.5; overflow-wrap: break-word; }
+.dr-card > div { margin: 2px 0 0; }
+.dr-card .dr-what { margin: 0; font-size: 16px; }
+.dr-card .dr-what > div { font-size: 15px; }
 .dr-tag { display: inline-block; margin-left: 6px; padding: 0 6px; border: 1px solid #14100d; font-size: 15px; line-height: 1.4; white-space: nowrap; }
-.dr-src { margin: 0; padding: 0; list-style: none; }
-.dr-src li { margin: 0 0 4px; }
+.dr-src { display: inline; margin: 0; padding: 0; list-style: none; }
+.dr-src li { display: inline-block; margin: 0 14px 0 0; }
 .dr-more > summary { cursor: pointer; display: flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 12px 0; border: 1px solid #14100d; font-size: 15px; font-weight: bold; width: fit-content; }
 .dr-pledges { margin: 0; padding: 0; list-style: none; }
 .dr-pledges li { padding: 8px 0; border-bottom: 1px dotted rgba(20,16,13,0.3); font-size: 15px; line-height: 1.5; }
 @media (max-width: 639.98px) {
-  .dr-table, .dr-table tbody, .dr-table tr, .dr-table td, .dr-table th { display: block; width: auto !important; }
-  .dr-table thead, .dr-table colgroup { display: none; }
-  .dr-table tr { padding: 10px 0; border-bottom: 1px solid rgba(20,16,13,0.35); }
-  .dr-table td, .dr-table th { padding: 2px 0; border: 0; letter-spacing: normal; }
-  .dr-table .dr-group th { padding-top: 14px; border: 0; }
-  .dr-infold .dr-group { display: none; }
-  .dr-table td[data-label]::before { content: attr(data-label) ": "; font-weight: bold; }
-  .dr-table td.dr-what { font-size: 16px; }
-  .dr-src li { display: inline-block; margin: 0 14px 0 0; }
+  .dr-infold > .dr-group { display: none; }
   .dr-src a { display: inline-flex; align-items: center; min-height: 44px; }
   .dr-pledges a { display: inline-flex; align-items: center; min-height: 44px; }
 }
@@ -58,52 +52,48 @@ const CSS = `
 // link's accessible name.
 const publisher = (title: string) => (title.includes(': ') ? title.slice(0, title.indexOf(': ')) : title);
 
-function Row({ item }: { item: DeliveryItem }) {
+function Card({ item }: { item: DeliveryItem }) {
   const dates = itemDates(item);
   return (
-    <tr>
-      <td className="dr-what">
+    <li className="dr-card">
+      <div className="dr-what">
         <strong>{item.claim}</strong>
         <span className="dr-tag">{SCOPE_LABEL[item.scope]}</span>
         <div>{item.detail}</div>
-      </td>
-      <td data-label="Stage">{STAGE_LABEL[item.stage]}</td>
-      <td data-label="MP's role">
-        {item.attribution && <strong>{ATTRIBUTION_LABEL[item.attribution]}. </strong>}
+      </div>
+      <div><strong>Stage:</strong> {STAGE_LABEL[item.stage]}</div>
+      <div>
+        <strong>MP&rsquo;s role:</strong> {item.attribution && <strong>{ATTRIBUTION_LABEL[item.attribution]}. </strong>}
         {item.mp_role}
-      </td>
-      <td data-label="Delivered by">{item.delivered_by}</td>
-      <td data-label="Dates">{dates || 'Not given'}</td>
-      <td data-label="Sources">
+      </div>
+      <div><strong>Delivered by:</strong> {item.delivered_by}</div>
+      <div><strong>Dates:</strong> {dates || 'Not given'}</div>
+      <div>
+        <strong>Sources:</strong>{' '}
         <ol className="dr-src">
           {item.sources.map((s, i) => (
             <li key={i}><a href={s.url} target="_blank" rel="noopener noreferrer" style={link} aria-label={s.title}>{publisher(s.title)}</a></li>
           ))}
         </ol>
-      </td>
-    </tr>
+      </div>
+    </li>
   );
 }
 
-function Table({ groups, head, inFold = false }: { groups: Array<{ key: string; heading: string; items: DeliveryItem[] }>; head: boolean; inFold?: boolean }) {
+// One or more groups as cards, each under its heading. In a phone sub-fold (inFold) the heading is the fold's summary, so
+// the heading here is hidden under 640px.
+function Cards({ groups, inFold = false }: { groups: Array<{ key: string; heading: string; items: DeliveryItem[] }>; inFold?: boolean }) {
   return (
-    <table className={`dr-table${inFold ? ' dr-infold' : ''}`} data-pt-table="keep">
-      <colgroup>
-        <col style={{ width: '22%' }} /><col style={{ width: '15%' }} /><col style={{ width: '22%' }} />
-        <col style={{ width: '15%' }} /><col style={{ width: '13%' }} /><col style={{ width: '13%' }} />
-      </colgroup>
-      {head && (
-        <thead>
-          <tr><th scope="col">What</th><th scope="col">Stage</th><th scope="col">MP&rsquo;s role</th><th scope="col">Delivered by</th><th scope="col">Dates</th><th scope="col">Sources</th></tr>
-        </thead>
-      )}
+    <>
       {groups.map((g) => (
-        <tbody key={g.key}>
-          <tr className="dr-group"><th colSpan={6} scope="colgroup">{g.heading}</th></tr>
-          {g.items.map((item, i) => <Row key={i} item={item} />)}
-        </tbody>
+        <div key={g.key} className={inFold ? 'dr-infold' : undefined}>
+          <h4 className="dr-group">{g.heading}</h4>
+          <ul className="dr-cards">
+            {g.items.map((item, i) => <Card key={i} item={item} />)}
+          </ul>
+        </div>
       ))}
-    </table>
+    </>
   );
 }
 
@@ -121,7 +111,7 @@ export default function DeliveryRecord({ record, parliament }: { record: Record_
   if (p.minister_written_answers !== null) figures.push({ label: 'Written answers as a minister', value: p.minister_written_answers, note: "answers to written questions, from Parliament's records" });
   if (p.minister_written_statements !== null) figures.push({ label: 'Written statements as a minister', value: p.minister_written_statements, note: "from Parliament's records" });
 
-  // Rows in display order; the first 10 in the table, the rest in a fold, each part keeping its group headings.
+  // Items in display order; the first 10 shown, the rest in a fold, each part keeping its group headings.
   const groups = displayGroups(record);
   let left = SHOWN;
   const first: typeof groups = [], rest: typeof groups = [];
@@ -149,17 +139,17 @@ export default function DeliveryRecord({ record, parliament }: { record: Record_
       {groups.length > 0 && (
         <>
           <h3 style={h3}>Delivery record</h3>
-          {/* Each group folds on its own on phones (its heading row is then the fold's summary); from 640px up the groups
-              read as one table, with the column headings once. */}
-          {first.map((g, gi) => (
+          {/* Each group folds on its own on phones (its heading is then the fold's summary); from 640px up the groups show
+              one after another under their headings. */}
+          {first.map((g) => (
             <SubFold key={g.key} label={g.heading} summary={`${n0(g.items.length)} ${g.items.length === 1 ? 'item' : 'items'}`}>
-              <Table groups={[g]} head={gi === 0} inFold />
+              <Cards groups={[g]} inFold />
             </SubFold>
           ))}
           {restCount > 0 && (
             <details className="dr-more">
               <summary>Show {n0(restCount)} more</summary>
-              <Table groups={rest} head={false} />
+              <Cards groups={rest} />
             </details>
           )}
         </>

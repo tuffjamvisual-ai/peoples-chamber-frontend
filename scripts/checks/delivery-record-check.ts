@@ -1,11 +1,12 @@
 // MP delivery record check (owner approved the format, 8 Nov 2026, DR1). No network or database: validates the approved
 // pilot fixture (scripts/background/fixtures/delivery-4820.json) with lib/delivery-record.ts, compares computePanel() with
-// the fixture's expected_panel for every figure worked out from the record, and makes sure each broken record below fails
-// validate(). Runs before every build (package.json "prebuild"); exit code 1 on any failure stops the build.
+// the fixture's expected_panel for every figure worked out from the record, makes sure each broken record below fails
+// validate(), and checks the paragraph label stripping used by the RSS feed (lib/bio-labels.ts, DR2). Runs before every build (package.json "prebuild"); exit code 1 on any failure stops the build.
 // Run by hand: npx tsx --tsconfig tsconfig.json scripts/checks/delivery-record-check.ts
 import fs from 'node:fs';
 import path from 'node:path';
 import { validate, computePanel, type DeliveryRecord } from '../../lib/delivery-record';
+import { stripParagraphLabels } from '../../lib/bio-labels';
 
 const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'background', 'fixtures', 'delivery-4820.json'), 'utf8')) as {
   delivery_record: DeliveryRecord;
@@ -84,6 +85,25 @@ for (const [name, breakIt] of negatives) {
 }
 
 console.log(`${negOk} of ${negatives.length} negative cases rejected`);
+
+// 4. Paragraph labels in plain text (the RSS feed): stripped only at the very start of a paragraph.
+const bio = (fixture as unknown as { political_bio: string }).political_bio;
+const stripped = stripParagraphLabels(bio);
+const labelCases: Array<[string, string, string]> = [
+  ['the fixture: no "**" left', String(stripped.includes('**')), 'false'],
+  ['the fixture: first paragraph starts "Minister. Parliamentary"', String(stripped.startsWith('Minister. Parliamentary Secretary')), 'true'],
+  ['the fixture: same paragraphs', String(stripped.split('\n\n').length), String(bio.split('\n\n').length)],
+  ['no labels: unchanged', stripParagraphLabels('Plain text. Second sentence.\n\nAnother paragraph.'), 'Plain text. Second sentence.\n\nAnother paragraph.'],
+  ['asterisks mid paragraph: unchanged', stripParagraphLabels('Text with **bold.** inside'), 'Text with **bold.** inside'],
+  ['label without a full stop: unchanged', stripParagraphLabels('**Minister** text'), '**Minister** text'],
+  ['label not followed by a space: unchanged', stripParagraphLabels('**A.**B'), '**A.**B'],
+  ['second paragraph label: stripped', stripParagraphLabels('One.\n\n**Two.** Text'), 'One.\n\nTwo. Text'],
+  ['label later in a paragraph: unchanged', stripParagraphLabels('One.\n**Two.** Text'), 'One.\n**Two.** Text'],
+];
+for (const [name, got, want] of labelCases) {
+  if (got !== want) failures.push(`labels, ${name}: expected ${JSON.stringify(want)}, got ${JSON.stringify(got)}`);
+  else console.log(`ok   labels: ${name}`);
+}
 if (failures.length) {
   console.error(`delivery-record-check failed:\n  ${failures.join('\n  ')}`);
   process.exit(1);
