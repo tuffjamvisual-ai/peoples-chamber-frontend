@@ -80,9 +80,13 @@ try {
   log('built; measuring');
   server = spawn(process.execPath, [nextBin, 'start', '-p', String(PORT)], { cwd: dir, env, stdio: 'ignore', detached: true });
   const base = `http://localhost:${PORT}`;
+  // Up to 180 seconds, one try a second (TB2, 8 Nov 2026: a busy computer took longer than the 60 seconds allowed before).
   let up = false;
-  for (let i = 0; i < 60 && !up; i++) { try { await fetch(`${base}/support`); up = true; } catch { await new Promise((r) => setTimeout(r, 1000)); } }
-  if (!up) throw new Error('next start did not answer');
+  const waitStart = Date.now();
+  for (let i = 0; i < 180 && !up; i++) { try { await fetch(`${base}/support`); up = true; } catch { await new Promise((r) => setTimeout(r, 1000)); } }
+  const waited = Math.round((Date.now() - waitStart) / 1000);
+  if (!up) { log(`next start did not answer within ${waited} seconds`); throw new Error('next start did not answer'); }
+  log(`next start answered after ${waited} seconds`);
   // The audit's own exit code says whether a page is over the limit; the list below says the same, so it is not fatal here.
   const auditOut = `${tmp}/audit`;
   try { node(['scripts/checks/mobile-audit.mjs', '--base', base, '--widths', '375', '--no-shots', '--out', auditOut]); } catch (e) { if (!fs.existsSync(`${auditOut}/results.csv`)) throw e; }

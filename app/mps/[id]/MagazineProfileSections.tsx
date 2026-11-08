@@ -473,6 +473,15 @@ function TimelineEntry({ entry, last }: { entry: BackgroundEntry; last: boolean 
     </div>
   );
 }
+// The tab that holds an element on the page (TB2): a section in a shared fold is a [data-section-block], and a fold
+// holding one section has that section's id as its data-fold. null when the element is in no tab.
+function tabOfElement<T extends string>(el: Element | null, valid: Set<T>): T | null {
+  const block = el?.closest<HTMLElement>('[data-section-block]')?.dataset.sectionBlock;
+  if (block && valid.has(block as T)) return block as T;
+  const fold = el?.closest<HTMLElement>('[data-fold]')?.dataset.fold;
+  return fold && valid.has(fold as T) ? (fold as T) : null;
+}
+
 // A biography paragraph's label (DR1): exactly "**Label.**" at the very start, then the text. Any other asterisks stay as
 // plain text.
 const BIO_LABEL = /^\*\*([^*\n]+\.)\*\*(?: ([\s\S]*))?$/;
@@ -782,15 +791,26 @@ export default function MagazineProfileSections({
     // grid, and without this the translateY stays stale until the next scroll.
   }, [jsSticky, stickyScale, active]);
 
+  // The open tab, for the address handlers below, which are set up once.
+  const activeRef = useRef(active);
+  useEffect(() => { activeRef.current = active; }, [active]);
+
   useEffect(() => {
     const apply = () => {
       // #<id>, or #section-<id> as the sidebar links write it (TB1).
       const raw = window.location.hash.slice(1);
       const h = (raw.startsWith('section-') && validIds.has(raw.slice(8) as SectionId) ? raw.slice(8) : raw) as SectionId;
-      if (h && validIds.has(h)) setActive(h);
-      // Parts merged in MP1 keep their addresses (/register-history links to #register-history): open their section's tab.
-      else if (h === ('register-history' as SectionId) && validIds.has('interests')) setActive('interests');
-      else if (h === ('votes-2004-2016' as SectionId) && validIds.has('voting')) setActive('voting');
+      if (h && validIds.has(h)) { setActive(h); return; }
+      // Anything else inside a tab (a pager screen, #register-history, #mp-delivery-numbers; TB2): open that tab and, once
+      // it shows, bring the target into view. A target in the open tab (Previous and Next in a pager) changes nothing.
+      const el = raw ? document.getElementById(raw) : null;
+      const tab = tabOfElement(el, validIds)
+        // Parts merged in MP1 keep their addresses (/register-history links to #register-history) even if absent.
+        ?? (h === ('register-history' as SectionId) && validIds.has('interests') ? 'interests'
+          : h === ('votes-2004-2016' as SectionId) && validIds.has('voting') ? 'voting' : null);
+      if (!tab || tab === activeRef.current) return;
+      setActive(tab);
+      if (el) requestAnimationFrame(() => requestAnimationFrame(() => el.scrollIntoView()));
     };
     apply();
     window.addEventListener('hashchange', apply);
@@ -915,7 +935,13 @@ export default function MagazineProfileSections({
     const onPop = () => {
       // Previous and Next in a paged list (NoJsPager) change only the hash: stay on this tab (PC4).
       if (!new URLSearchParams(window.location.search).get('section') && document.getElementById(window.location.hash.slice(1))?.classList.contains('njp-a')) return;
-      const fromUrl = new URLSearchParams(window.location.search).get('section') || window.location.hash.slice(1);
+      // The tab the address names: ?section=<id>, #<id>, #section-<id>, or the tab holding the #target (TB2).
+      const raw = window.location.hash.slice(1);
+      const fromHash = !raw ? null
+        : validIds.has(raw as SectionId) ? (raw as SectionId)
+        : raw.startsWith('section-') && validIds.has(raw.slice(8) as SectionId) ? (raw.slice(8) as SectionId)
+        : tabOfElement(document.getElementById(raw), validIds);
+      const fromUrl = new URLSearchParams(window.location.search).get('section') || fromHash;
       setActive(fromUrl && validIds.has(fromUrl as SectionId) ? (fromUrl as SectionId) : initialActive);
     };
     window.addEventListener('popstate', onPop);
@@ -2937,6 +2963,17 @@ export default function MagazineProfileSections({
         @media (min-width: 640px){
           html:not(.og-js) .mp-sections-content .pf-off:target { display: block !important; }
           html:not(.og-js) .mp-sections-content:has(.pf-off:target, .pf-off :target) :is(.pf-sec, .pf-sub):not(.pf-off):not(:target):not(:has(:target)) { display: none !important; }
+        }
+        /* And the sidebar follows (TB2): the item of the tab that is (or holds) the target has the active style, and the
+           default tab's item gives it up. Side bar from 1024px, underline in the 640 to 1023px row, as the tabs show
+           them with JavaScript on. */
+        @media (min-width: 1024px){
+          html:not(.og-js) .mp-sections-grid:has(.pf-off:target, .pf-off :target) .mp-sections-nav a[data-active="true"] > span { border-left-color: transparent !important; background: transparent !important; box-shadow: none !important; font-weight: normal !important; }
+          ${sections.map((s) => `html:not(.og-js) .mp-sections-grid:has(#section-${s.id}:target, #section-${s.id} :target) .mp-sections-nav a[data-section="${s.id}"] > span { border-left-color: #7a1612 !important; background: rgba(122,22,18,0.08) !important; box-shadow: inset 1px 0 2px rgba(0,0,0,0.05) !important; font-weight: bold !important; }`).join('\n          ')}
+        }
+        @media (min-width: 640px) and (max-width: 1023px){
+          html:not(.og-js) .mp-sections-grid:has(.pf-off:target, .pf-off :target) .mp-sections-nav a[data-active="true"] > span { border-bottom-color: transparent !important; background: transparent !important; font-weight: normal !important; }
+          ${sections.map((s) => `html:not(.og-js) .mp-sections-grid:has(#section-${s.id}:target, #section-${s.id} :target) .mp-sections-nav a[data-section="${s.id}"] > span { border-bottom-color: #7a1612 !important; background: rgba(122,22,18,0.08) !important; font-weight: bold !important; }`).join('\n          ')}
         }
         @media (max-width: 1023px){
           .mp-sections-nav { flex-direction: row !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-right: 0 !important; padding: 4px 0 0 !important; gap: 2px !important; border-bottom: 1px solid rgba(20,16,13,0.2); }
