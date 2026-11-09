@@ -1823,7 +1823,8 @@ export default function MagazineProfileSections({
                       <strong>{p.party || p.name}</strong>
                       {(p.startDate || p.endDate) && (
                         <span style={{ marginLeft: '8px', fontSize: '15px', fontFamily: 'monospace' }}>
-                          {p.startDate ? fmtDate(p.startDate) : '?'}, {p.endDate ? fmtDate(p.endDate) : 'present'}
+                          {/* A party still held: "since <date>", as seats and posts (ST1b). */}
+                          {!p.endDate && p.startDate ? `since ${fmtDate(p.startDate)}` : `${p.startDate ? fmtDate(p.startDate) : '?'}, ${p.endDate ? fmtDate(p.endDate) : 'present'}`}
                         </span>
                       )}
                     </li>
