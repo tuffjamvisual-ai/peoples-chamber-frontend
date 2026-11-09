@@ -295,7 +295,7 @@ interface Props {
   paragraphs: string[];
   contact: Contact;
   votes: Vote[];
-  /** The real profile pages (owner, 4 Nov 2026): the four headline figures under 640px. */
+  /** The real profile pages (owner, 4 Nov 2026): the phone reports block under 640px (the headline figure cards went in MP2g). */
   phoneHeadline?: boolean;
   /** Total vote count across all pages — for the "N divisions recorded" line. */
   totalVotes?: number;
@@ -2924,36 +2924,11 @@ export default function MagazineProfileSections({
     expenses: latestExpenses?.total_spend != null ? `${fmtMoney(latestExpenses.total_spend)} in ${fmtExpenseYear(latestExpenses.year)}` : null,
   };
 
-  // The phone headline figures (owner, 4 Nov 2026): attendance from mp_activity_metrics, interests from the current
-  // register, the same donations total as the Donations section (current register, Category 2), and the latest year's
-  // expenses. "None recorded" when there is no real figure.
-  const expensesLatest = latestExpenses?.total_spend != null && Number(latestExpenses.total_spend) > 0 ? Number(latestExpenses.total_spend) : null;
-  const headline: Array<{ label: string; value: string | null; fold: string; shown: boolean }> = [
-    { label: 'Votes attended since July 2024', value: activity?.attendance_pct != null && (activity.divisions_total ?? 0) > 0 ? `${Math.round(Number(activity.attendance_pct))} per cent` : null, fold: 'voting', shown: has.voting },
-    { label: 'Registered interests (current)', value: interests.length > 0 ? interests.length.toLocaleString('en-GB') : null, fold: 'interests', shown: has.interests },
-    { label: 'Donations (current register)', value: declaredDonations.entryCount > 0 ? fmtMoney(declaredDonations.total) : null, fold: 'donations', shown: has.donations },
-    { label: expensesLatest != null ? `Expenses ${fmtExpenseYear(latestExpenses!.year)}` : 'Expenses', value: expensesLatest != null ? fmtMoney(expensesLatest) : null, fold: 'expenses', shown: has.expenses },
-  ];
-  // A second tap on the same figure leaves the address as it was, so tell the folds again.
-  const goToFold = (fold: string) => { if (window.location.hash === `#section-${fold}`) window.dispatchEvent(new HashChangeEvent('hashchange')); };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-px mp-sections-grid" style={{ marginTop: '-80px' }}>
-      {phoneHeadline && (
-        <div className="mp-headline" aria-label="Headline figures">
-          {headline.map((h) => {
-            const inner = (
-              <>
-                <span className="mp-headline-label">{h.label}</span>
-                <span className={h.value == null ? 'mp-headline-none' : 'mp-headline-value'}>{h.value ?? 'None recorded'}</span>
-              </>
-            );
-            return h.shown
-              ? <a key={h.label} href={`#section-${h.fold}`} onClick={() => goToFold(h.fold)} className="mp-headline-tile">{inner}</a>
-              : <div key={h.label} className="mp-headline-tile">{inner}</div>;
-          })}
-        </div>
-      )}
+      {/* MP2g (9 Nov 2026): the four headline figure cards that showed under the photo on phones are gone; the same
+          figures are in the folder titles below. They never showed from 640px up. */}
       {/* Hold the content pane at a uniform height across tabs on desktop, so
           switching between short tabs (Contact, Expenses, Before Politics) and
           taller ones doesn't change the page height — which reflowed the
@@ -2990,7 +2965,7 @@ export default function MagazineProfileSections({
           .mp-sections-content { padding: 20px 2px !important; }
         }
         @media ${phoneUpTo(479)} { .mp-sections-nav [data-section] { display: none !important; } }
-        .mp-headline, .mp-reports-phone { display: none; }
+        .mp-reports-phone { display: none; }
         @media ${phoneUpTo(639.98)} {
           .mp-reports-wide { display: none; }
           .mp-reports-phone { display: block; }
@@ -2998,12 +2973,6 @@ export default function MagazineProfileSections({
           .mp-sections-nav [data-section] { display: none !important; }
           .mp-sections-nav { border-bottom: none !important; }
           .mp-sections-nav .mp-follow-chip { flex: 1 1 100%; width: 100% !important; min-height: 48px; margin: 0 !important; padding: 8px 12px !important; border: 1px solid #14100d !important; box-shadow: none !important; background: transparent !important; color: #14100d !important; font-weight: bold !important; font-size: 15px !important; text-align: center !important; text-transform: none !important; letter-spacing: normal !important; }
-          .mp-headline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
-          .mp-headline-tile { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 84px; padding: 8px 10px; box-sizing: border-box; border: 1px solid rgba(20,16,13,0.35); color: #14100d; text-decoration: none; font-size: 15px; line-height: 1.25; }
-          a.mp-headline-tile::after { display: none; }
-          .mp-headline-label { font-weight: bold; }
-          .mp-headline-value { font-size: 20px; font-weight: bold; color: #7a1612; }
-          .mp-headline-none { font-size: 16px; }
         }
         .mp-col-inline { display: none; }
         @container (max-width: 560px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
