@@ -21,7 +21,7 @@
 //    - every current MP with register entries was checked in the last 3 days
 //    - bills: none with a stage that has sat but no current stage, none untitled, both Houses present
 //    - no contract rows without a Find a Tender identifier since the 16 Oct 2026 clean-up
-//    - the party whip figures were rebuilt in the last 2 days
+//    - the party whip figures were rebuilt after the newest Commons division (scripts/whip-health.js; JF1a)
 //
 // Usage: node scripts/check-data-health.js     (read-only; exit 1 when a check fails)
 
@@ -30,6 +30,8 @@ try { require('dotenv').config({ path: '.env.local' }); } catch { /* the workflo
 const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- a CommonJS script, as the requires above
+const { whipVerdict } = require('./whip-health');
 
 const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 const PARL_START = '2024-07-04';
@@ -210,11 +212,14 @@ const whenText = (d) => `${d.toLocaleDateString('en-GB', { weekday: 'short', day
   });
 
   await check('Party whip figures rebuilt', async () => {
+    // Stale only when a division had its parties applied after the last rebuild, not on the rebuild's age (JF1a).
     const { data, error } = await db.from('party_division_splits').select('refreshed_at').limit(1);
     if (error) throw new Error(error.message);
-    const at = data && data[0] ? new Date(data[0].refreshed_at) : null;
-    const days = at ? Math.floor((now - at) / DAY) : null;
-    at && days <= 2 ? pass('Party whip figures rebuilt', `${days} day${days === 1 ? '' : 's'} ago`) : fail('Party whip figures rebuilt', at ? `last rebuilt ${days} days ago` : 'never rebuilt');
+    const { data: newest, error: nErr } = await db.from('commons_division_totals').select('parties_applied_at')
+      .not('parties_applied_at', 'is', null).order('parties_applied_at', { ascending: false }).limit(1);
+    if (nErr) throw new Error(nErr.message);
+    const v = whipVerdict({ refreshedAt: data && data[0] ? data[0].refreshed_at : null, newestAppliedAt: newest && newest[0] ? newest[0].parties_applied_at : null, now });
+    v.ok ? pass('Party whip figures rebuilt', v.detail) : fail('Party whip figures rebuilt', v.detail);
   });
 
   const failed = results.filter((r) => !r.ok);
