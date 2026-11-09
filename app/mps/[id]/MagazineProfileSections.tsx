@@ -1270,67 +1270,82 @@ export default function MagazineProfileSections({
               )}
               .
             </p>
-            <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7', opacity: vLoading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
-              {voteList.map((v) => (
-                <li key={v.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
-                  <div>
-                    {v.bill_id ? (
-                      <Link href={`/bills/${v.bill_id}`} style={inkLink}>
-                        {v.division_title}
-                      </Link>
-                    ) : v.is_si && v.division_id ? (
-                      <Link href={`/statutory-instruments/${v.division_id}`} style={inkLink}>
-                        {v.division_title}
-                      </Link>
-                    ) : v.division_date_only && v.division_number != null ? (
-                      // Our own division detail page renders the full per-MP
-                      // breakdown grouped by party — built on the parlparse
-                      // import data we already hold. Slug matches the
-                      // parlparse id format so external sites linking to us
-                      // can use the same URL shape.
-                      <Link
-                        href={`/divisions/pw-${v.division_date_only}-${v.division_number}-commons`}
-                        style={inkLink}
-                      >
-                        {v.division_title}
-                      </Link>
-                    ) : (
-                      v.division_title
-                    )}
-                  </div>
-                  <div style={{ fontSize: '15px' }}>
-                    {fmtDate(v.division_date)} · <strong>{v.vote_type.toUpperCase()}</strong>
-                    {v.is_rebellion && <span style={{ color: '#7a1612' }}> · REBEL</span>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-            {voteTotal > votesPerPage && (() => {
-              const totalPages = Math.ceil(voteTotal / votesPerPage);
-              const prevOff = vLoading || vPage <= 1;
-              const nextOff = vLoading || vPage >= totalPages;
-              const base = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', padding: '6px 14px', color: '#14100d', border: '1px solid rgba(20,16,13,0.3)', background: 'transparent' } as const;
+            {/* MP2b (9 Nov 2026): the 10 most recent votes in view; on phones the rest of the page of votes, the paging and every vote by
+                year sit in a closed fold of their own (SubFold: a native <details> under 640px, unchanged from 640px up), so the
+                opened Voting record folder stays short. */}
+            {(() => {
+              const voteUl: React.CSSProperties = { listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7', opacity: vLoading ? 0.5 : 1, transition: 'opacity 0.15s' };
+              const voteItem = (v: (typeof voteList)[number]) => (
+                  <li key={v.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
+                    <div>
+                      {v.bill_id ? (
+                        <Link href={`/bills/${v.bill_id}`} style={inkLink}>
+                          {v.division_title}
+                        </Link>
+                      ) : v.is_si && v.division_id ? (
+                        <Link href={`/statutory-instruments/${v.division_id}`} style={inkLink}>
+                          {v.division_title}
+                        </Link>
+                      ) : v.division_date_only && v.division_number != null ? (
+                        // Our own division detail page renders the full per-MP
+                        // breakdown grouped by party — built on the parlparse
+                        // import data we already hold. Slug matches the
+                        // parlparse id format so external sites linking to us
+                        // can use the same URL shape.
+                        <Link
+                          href={`/divisions/pw-${v.division_date_only}-${v.division_number}-commons`}
+                          style={inkLink}
+                        >
+                          {v.division_title}
+                        </Link>
+                      ) : (
+                        v.division_title
+                      )}
+                    </div>
+                    <div style={{ fontSize: '15px' }}>
+                      {fmtDate(v.division_date)} · <strong>{v.vote_type.toUpperCase()}</strong>
+                      {v.is_rebellion && <span style={{ color: '#7a1612' }}> · REBEL</span>}
+                    </div>
+                  </li>
+              );
+              const recent = voteList.slice(0, RECENT_VOTES);
+              const older = voteList.slice(RECENT_VOTES);
               return (
-                <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <button type="button" disabled={prevOff} onClick={() => loadVotes(vPage - 1, vQuery)} style={{ ...base, cursor: prevOff ? 'default' : 'pointer', textDecoration: prevOff ? 'line-through' : 'none', borderStyle: prevOff ? 'dashed' : 'solid' }}>← Prev</button>
-                  <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>Page {vPage} of {totalPages}</span>
-                  <button type="button" disabled={nextOff} onClick={() => loadVotes(vPage + 1, vQuery)} style={{ ...base, cursor: nextOff ? 'default' : 'pointer', textDecoration: nextOff ? 'line-through' : 'none', borderStyle: nextOff ? 'dashed' : 'solid' }}>Next →</button>
-                </div>
+                <>
+                  <ul style={voteUl}>{recent.map(voteItem)}</ul>
+                  {/* Empty-state when a search returns nothing. */}
+                  {vQuery && voteList.length === 0 && !vLoading && (
+                    <p style={{ marginTop: '20px', fontStyle: 'italic' }}>
+                      No divisions matched &ldquo;{vQuery}&rdquo;.{' '}
+                      <button type="button" onClick={() => { setVSearchInput(''); loadVotes(1, ''); }} style={{ ...inkLink, background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}>
+                        Show all
+                      </button>
+                      .
+                    </p>
+                  )}
+                  {(older.length > 0 || voteTotal > votesPerPage || !!votingArchive) && (
+                    <SubFold label="Older votes and every vote by year" summary={voteTotal > RECENT_VOTES ? `${(voteTotal - Math.min(RECENT_VOTES, voteList.length)).toLocaleString('en-GB')} more` : null}>
+                      {older.length > 0 && <ul style={voteUl}>{older.map(voteItem)}</ul>}
+                      {voteTotal > votesPerPage && (() => {
+                        const totalPages = Math.ceil(voteTotal / votesPerPage);
+                        const prevOff = vLoading || vPage <= 1;
+                        const nextOff = vLoading || vPage >= totalPages;
+                        const base = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', padding: '6px 14px', color: '#14100d', border: '1px solid rgba(20,16,13,0.3)', background: 'transparent' } as const;
+                        return (
+                          <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                            <button type="button" disabled={prevOff} onClick={() => loadVotes(vPage - 1, vQuery)} style={{ ...base, cursor: prevOff ? 'default' : 'pointer', textDecoration: prevOff ? 'line-through' : 'none', borderStyle: prevOff ? 'dashed' : 'solid' }}>← Prev</button>
+                            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>Page {vPage} of {totalPages}</span>
+                            <button type="button" disabled={nextOff} onClick={() => loadVotes(vPage + 1, vQuery)} style={{ ...base, cursor: nextOff ? 'default' : 'pointer', textDecoration: nextOff ? 'line-through' : 'none', borderStyle: nextOff ? 'dashed' : 'solid' }}>Next →</button>
+                          </div>
+                        );
+                      })()}
+                      {/* MP1 (owner, 7 Nov 2026): the votes from Hansard, October 2004 to March 2016, with one total and one list by year. */}
+                      {votingArchive}
+                    </SubFold>
+                  )}
+                </>
               );
             })()}
-
-            {/* Empty-state when a search returns nothing. */}
-            {vQuery && voteList.length === 0 && !vLoading && (
-              <p style={{ marginTop: '20px', fontStyle: 'italic' }}>
-                No divisions matched &ldquo;{vQuery}&rdquo;.{' '}
-                <button type="button" onClick={() => { setVSearchInput(''); loadVotes(1, ''); }} style={{ ...inkLink, background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}>
-                  Show all
-                </button>
-                .
-              </p>
-            )}
-            {/* MP1 (owner, 7 Nov 2026): the votes from Hansard, October 2004 to March 2016, with one total and one list by year. */}
-            {votingArchive}
           </>
         )}
 
@@ -3100,6 +3115,8 @@ export function MpReportList({ items }: { items: MpReports['items'] }) {
 // compact (phones, MP2a, 9 Nov 2026): the 3 most recent as title and date only, then the link to the full list; the ten
 // cards with summaries were about 2,000px of a 4,200px page at 375px.
 const COMPACT_REPORTS = 3;
+// Votes in view in the opened Voting record folder on phones (MP2b); the rest behind a fold.
+const RECENT_VOTES = 10;
 function ReportsMentioning({ reports, headingId = 'mp-reports-heading', compact = false }: { reports: MpReports | null; headingId?: string; compact?: boolean }) {
   if (!reports || reports.items.length === 0) return null;
   const items = compact ? reports.items.slice(0, COMPACT_REPORTS) : reports.items;
