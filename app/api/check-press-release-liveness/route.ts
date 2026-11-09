@@ -7,6 +7,7 @@ import { revalidatePath } from '@/lib/refresh-count';
 import { newsPath } from '@/lib/news-path';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
+import { LISTING, LISTING_PAGE, listingComplete, livenessPlan, govPath, type Pending, type StoredRelease } from '@/lib/press-liveness';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -36,7 +37,15 @@ export const maxDuration = 300;
 // 28 Oct 2026 (owner): a release whose check fails FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts) is
 // stamped as checked (the back of the queue, about a week); the run returns 200 with partial: true, and the freshness
 // email names the release and its error.
-const BATCH = 500;
+// 9 Nov 2026 (JF1e, audit JA1): checked against GOV.UK's own list of current press releases instead of requesting each
+// one (lib/press-liveness.ts). The first run of each day (UTC) reads the list (about 47 requests) and our archive, and
+// queues in sync_cursor CURSOR_ROUTE only the releases missing from the list (not already marked removed), listed again
+// after being marked removed, or listed with no stored body. This and the day's later runs request those alone, saving
+// each as now; once the queue is empty a run makes no request. About 6,000 requests a day before, about 50 plus the
+// queue after. A listing that comes back short is not used (every release missing from it would look removed); the
+// next run tries again.
+const CURSOR_ROUTE = 'press-release-liveness';
+type DayCursor = { date: string; pending: Pending[]; listed: number; stored: number; missingAlreadyRemoved: number; overCap: number; listingRequests: number };
 const DELAY_MS = 250;
 const HEAD_TIMEOUT_MS = 15_000;
 const UA = 'PeoplesChamber/1.0 (+https://www.opengovt.uk)';
@@ -56,21 +65,62 @@ async function GET_impl(req: Request) {
   if (!url || !key) return NextResponse.json({ error: 'supabase env missing' }, { status: 500 });
   const supabase = createClient(url, key);
 
-  const { data, error } = await supabase
-    .from('press_releases')
-    .select('id, gov_url, removed_upstream')
-    .ilike('gov_url', '%gov.uk%')
-    .order('liveness_checked_at', { ascending: true, nullsFirst: true })
-    .limit(BATCH);
-  if (error) return NextResponse.json({ error: error.message }, { status: 502 });
-  const rows = (data || []) as Row[];
-  // Which of these have no stored body (to fill below), without reading the bodies themselves.
-  const noBody = new Set<number>();
-  if (rows.length) {
-    const { data: nb, error: nbErr } = await supabase.from('press_releases').select('id').in('id', rows.map((r) => r.id)).is('body', null);
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: cur, error: curErr } = await supabase.from('sync_cursor').select('cursor').eq('route', CURSOR_ROUTE).maybeSingle();
+  if (curErr) return NextResponse.json({ error: `sync_cursor: ${curErr.message}` }, { status: 502 });
+  let day = (cur?.cursor as DayCursor | undefined) ?? null;
+  let listingRequests = 0;
+  const saveDay = async (d: DayCursor) => {
+    const { error: e } = await supabase.from('sync_cursor').upsert({ route: CURSOR_ROUTE, cursor: d, updated_at: new Date().toISOString() }, { onConflict: 'route' });
+    if (e) throw new Error(`sync_cursor write: ${e.message}`);
+  };
+
+  // Once a day: GOV.UK's list of current press releases against our archive.
+  if (!day || day.date !== today) {
+    const listed = new Set<string>();
+    let total = 0;
+    try {
+      for (let start = 0; ; start += LISTING_PAGE) {
+        if (budget.stopStarting()) throw new Error('time budget reached while reading the listing');
+        const res = await politeFetch(`${LISTING}&count=${LISTING_PAGE}&start=${start}`, { headers: { 'User-Agent': UA, Accept: 'application/json' } }, { budget, timeoutMs: 30_000 });
+        listingRequests++;
+        if (!res.ok) throw new Error(`GOV.UK listing HTTP ${res.status} at ${start}`);
+        const j = (await res.json()) as { total?: number; results?: Array<{ link?: string }> };
+        total = j.total ?? total;
+        for (const r of j.results ?? []) if (r.link) listed.add(govPath(r.link));
+        if ((j.results ?? []).length < LISTING_PAGE || start + LISTING_PAGE >= total) break;
+      }
+    } catch (e) {
+      return NextResponse.json({ ok: true, partial: true, stopped_by: `listing not read: ${(e as Error).message}; tried again next run`, listing_requests: listingRequests, count: 0 });
+    }
+    if (!listingComplete(listed.size, total)) {
+      return NextResponse.json({ ok: true, partial: true, stopped_by: `listing short: ${listed.size} links of ${total}; not used, tried again next run`, listing_requests: listingRequests, count: 0 });
+    }
+    const stored: StoredRelease[] = [];
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await supabase.from('press_releases').select('id, gov_url, removed_upstream').ilike('gov_url', '%gov.uk%').order('id').range(from, from + 999);
+      if (error) return NextResponse.json({ error: error.message }, { status: 502 });
+      stored.push(...((data || []) as StoredRelease[]));
+      if ((data || []).length < 1000) break;
+    }
+    const { data: nb, error: nbErr } = await supabase.from('press_releases').select('id').ilike('gov_url', '%gov.uk%').is('body', null).limit(5000);
     if (nbErr) return NextResponse.json({ error: nbErr.message }, { status: 502 });
-    for (const r of nb || []) noBody.add(r.id as number);
+    const plan = livenessPlan(stored, listed, new Set((nb || []).map((r) => r.id as number)));
+    day = { date: today, pending: plan.pending, listed: plan.listed, stored: stored.length, missingAlreadyRemoved: plan.missingAlreadyRemoved, overCap: plan.overCap, listingRequests };
+    await saveDay(day);
   }
+
+  // The day's queue, oldest first: each release's own page.
+  const queue = day.pending;
+  const rows: Row[] = [];
+  for (let i = 0; i < queue.length; i += 500) {
+    const { data, error } = await supabase.from('press_releases').select('id, gov_url, removed_upstream').in('id', queue.slice(i, i + 500).map((p) => p.id));
+    if (error) return NextResponse.json({ error: error.message }, { status: 502 });
+    rows.push(...((data || []) as Row[]));
+  }
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  const noBody = new Set(queue.filter((p) => p.why === 'no stored body').map((p) => p.id));
+  const done = new Set<number>();
 
   let checked = 0, removed = 0, restored = 0, filled = 0, transient = 0, dbErrors = 0, notReached = 0, flaggedFail = 0;
   const failing = await ItemFailures.load(supabase, '/api/check-press-release-liveness');
@@ -78,6 +128,7 @@ async function GET_impl(req: Request) {
   const notChecked = async (r: Row, error: string) => {
     if (!failing.failed(r.id, r.gov_url ?? `release ${r.id}`, error)) return;
     await write(r.id, { liveness_checked_at: nowIso() });
+    done.add(r.id); // flagged: off today's queue, named in the freshness email
     flaggedFail++;
   };
   const changedPaths = new Set<string | null>();
@@ -89,9 +140,10 @@ async function GET_impl(req: Request) {
     if (e) { dbErrors++; lastDbError = e.message; }
   };
 
-  for (const [i, r] of rows.entries()) {
-    if (budget.stopStarting()) { stoppedBy = 'time budget'; notReached = rows.length - i; break; }
-    if (!r.gov_url) continue;
+  for (const [i, p] of queue.entries()) {
+    if (budget.stopStarting()) { stoppedBy = 'time budget'; notReached = queue.length - i; break; }
+    const r = byId.get(p.id);
+    if (!r || !r.gov_url) { done.add(p.id); continue; }
     const path = r.gov_url.replace(/^https?:\/\/[^/]+/, '');
     try {
       const head = await politeFetch(r.gov_url, { method: 'HEAD', headers: { 'User-Agent': UA } }, { budget, timeoutMs: HEAD_TIMEOUT_MS });
@@ -121,9 +173,10 @@ async function GET_impl(req: Request) {
         continue; // don't stamp checked — retry next run
       }
       checked++;
+      done.add(r.id);
       failing.succeeded(r.id);
     } catch (e) {
-      if (isPoliteStop(e)) { stoppedBy = (e as Error).message; notReached = rows.length - i; break; }
+      if (isPoliteStop(e)) { stoppedBy = (e as Error).message; notReached = queue.length - i; break; }
       transient++;
       await notChecked(r, (e as Error).message || 'no answer');
     }
@@ -136,6 +189,9 @@ async function GET_impl(req: Request) {
   // A release GOV.UK has withdrawn or moved: its page changed, which IndexNow asks to hear about too.
   indexNowAfter([...changedPaths].filter((p): p is string => !!p), 'press-release-liveness');
   const failuresSaved = await failing.save();
+  // What is left of today's queue (not reached, or an error answer to try again) waits for the next run.
+  day.pending = queue.filter((p) => !done.has(p.id));
+  await saveDay(day);
   if (dbErrors > 0) {
     return NextResponse.json({ ok: false, error: `press_releases update failed ${dbErrors} times: ${lastDbError}`, count: checked }, { status: 500 });
   }
@@ -152,7 +208,10 @@ async function GET_impl(req: Request) {
     not_reached: notReached,
     // Pages checked (live or removed); the heartbeat records this as the run's row count.
     count: checked,
-    batch: rows.length,
+    batch: queue.length,
+    pending_left: day.pending.length,
+    listing_requests: listingRequests,
+    listing: { date: day.date, listed: day.listed, stored: day.stored, missing_already_removed: day.missingAlreadyRemoved, over_cap: day.overCap },
     checked,
     stillLive: restored,
     newlyRemoved: removed,
