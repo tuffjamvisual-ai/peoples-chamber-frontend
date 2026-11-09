@@ -412,6 +412,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   {/* The publisher's administration label is left out when it contradicts the seats shown
                       below (e.g. "minority" while one named party holds more than half the seats). */}
                   {comp && !runByContradictsSeats(comp) && <DataRow label="Run by" value={administrationLabel(comp.administration_code)} />}
+                  {/* Northern Ireland (NI2d): no administration line, and why. */}
+                  {/^N09\d{6}$/.test(c.gss_code ?? '') && <DataRow label="Administration" value="Northern Ireland councils share senior posts between parties, so there is no single administration." />}
                   {comp && comp.total_seats > 0 && (
                     <DataRow
                       label="Seats"
@@ -654,6 +656,9 @@ function controlStatusText(status: string | null): string | null {
   if (noc) return `Largest party: ${noc[1]}, ${noc[2]} of ${noc[3]} seats`;
   if (/^noc$/i.test(status)) return null;
   if (/^majority$/i.test(status)) return 'Majority of seats';
+  // A majority stored with its seats (NI2d): "majority (21/40)".
+  const maj = status.match(/^majority \((\d+)\/(\d+)\)$/i);
+  if (maj) return `Majority (${maj[1]} of ${maj[2]} seats)`;
   if (/^(largest|largest party)$/i.test(status)) return 'Largest party';
   const mayor = status.match(/^majority \(directly elected mayor: (.+)\)$/i);
   if (mayor) return `Directly elected mayor: ${mayor[1]}`;

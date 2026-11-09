@@ -13,14 +13,17 @@
 //   - Northern Ireland (NI2, 9 Nov 2026) does not come from that file (it has no columns for NI parties, so DUP, Sinn
 //     Féin and the rest all land in "other"). Its 11 councils are counted instead from Open Council Data's UK
 //     councillors file for May 2026 (one row per councillor, public domain CC0; --ni-file), matched by name to the fixed
-//     list NI_COUNCILS below. Seats are counted by party. Every NI council shows "No overall control" with its largest
-//     party: councils there share power between the parties, and no administration line is given.
+//     list NI_COUNCILS below. Seats are counted by party. Control follows the same rule as GB (NI2d, owner, 9 Nov 2026):
+//     a party with more than half the seats has a majority, stored as "majority (21/40)" and shown as "Majority (21 of
+//     40 seats)"; otherwise "No overall control" with the largest party. NI councils share senior posts between the
+//     parties, so no administration line is given (the page says so).
 //   - Ties (NI2): when two or more parties share the most seats and none has a majority, the status names them all
 //     ("NOC (largest tie: Sinn Féin and DUP 12/40)", shown as "Largest parties: Sinn Féin and DUP, 12 seats each"),
 //     never one picked silently. This applies to GB councils too.
-//   - Existing political_control values are not changed unless --adopt is given. With --adopt,
-//     a value that disagrees with the May snapshot is replaced by it, except for councils run by
-//     a directly elected mayor (control there is not decided by seats), which are only listed.
+//   - Existing political_control values are not changed unless --adopt is given. With --adopt (NI2d), only Northern
+//     Ireland's councils are changed; a GB council that disagrees with the May snapshot is listed, never replaced.
+//   - --write saves Northern Ireland's rows only; GB rows (council_composition and councils) are saved only with --gb
+//     as well, so an NI run leaves every GB row untouched.
 //
 // The files are downloaded by hand from https://opencouncildata.co.uk/productsAndDownloads.php into
 // data/opencouncildata/: "GB Compositions 2016-2026" (history2016-26.csv) and the 2026 councillors file (csv2.php?y=2026,
@@ -38,6 +41,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 const WRITE = process.argv.includes('--write');
 const ADOPT = process.argv.includes('--adopt');
+const GB = process.argv.includes('--gb'); // also write GB rows (NI2d: off by default)
 // GSS codes that changed after a boundary review: the file's new code -> the code we hold.
 const GSS_ALIAS = { E08000038: 'E08000016' /* Barnsley */, E08000039: 'E08000019' /* Sheffield */ };
 const FILE = (process.argv.find((a) => a.startsWith('--file=')) || '').slice(7) || 'data/opencouncildata/history2016-26.csv';
@@ -170,8 +174,8 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
       const want = control.toLowerCase();
       const same = have === want || (have.startsWith('no overall') && !majority) || (have === 'independent' && majority === 'other');
       const mayor = /mayor/i.test(admin) || /mayor/i.test(council.political_control_status || '');
-      if (!same && ADOPT && !mayor) adopt.push({ slug: council.slug, name: council.name, control, status, was: council.political_control });
-      if (!same) disagree.push(`${mayor ? '[mayor, kept] ' : ADOPT ? '[replaced] ' : ''}${council.name}: we have "${council.political_control}"${council.political_control_status ? ` (${council.political_control_status})` : ''}; seats say "${control}" (${ranked.filter(([, n]) => n > 0).map(([p, n]) => `${NAME[p]} ${n}`).join(', ')} of ${total}; administration ${admin || 'not given'})`);
+      // --adopt changes Northern Ireland's councils only (NI2d); a GB disagreement is listed for a person to check.
+      if (!same) disagree.push(`${mayor ? '[mayor, kept] ' : ''}${council.name}: we have "${council.political_control}"${council.political_control_status ? ` (${council.political_control_status})` : ''}; seats say "${control}" (${ranked.filter(([, n]) => n > 0).map(([p, n]) => `${NAME[p]} ${n}`).join(', ')} of ${total}; administration ${admin || 'not given'})`);
     }
   }
 
@@ -203,22 +207,24 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     const { top, parties } = largestOf(seats);
     const council = byGss.get(gss);
     if (!council) unmatched.push(`${name} (${gss})`);
-    const status = nocStatus(seats, total);
-    if (parties.length > 1) ties.push(`${name}: ${status}`);
+    // The same rule as GB (NI2d): more than half the seats is a majority ("other" never is, as it is not one group).
+    const majority = parties.length === 1 && parties[0] !== 'other' && top * 2 > total ? parties[0] : null;
+    const control = majority ? NAME[majority] : 'No overall control';
+    const status = majority ? `majority (${top}/${total})` : nocStatus(seats, total);
+    if (!majority && parties.length > 1) ties.push(`${name}: ${status}`);
     niOut.push({
       gss_code: gss, council_slug: council ? council.slug : null, authority_name: name, snapshot_year: NI_YEAR,
-      total_seats: total, seats, largest_party: parties[0], largest_seats: top, majority_party: null, administration_code: null,
+      total_seats: total, seats, largest_party: parties[0], largest_seats: top, majority_party: majority, administration_code: null,
     });
     const line = Object.entries(seats).sort((a, b) => b[1] - a[1]).map(([p, n]) => `${NAME[p] || p} ${n}`).join(', ');
-    const over = top * 2 > total ? ` [${NAME[parties[0]]} holds ${top} of ${total}, more than half; shown as No overall control under the NI rule]` : '';
-    console.log(`  ${name} (${gss}${council ? `, ${council.slug}` : ', NOT IN OUR councils TABLE'}): ${total} seats: ${line}; status "${status}"${over}`);
+    console.log(`  ${name} (${gss}${council ? `, ${council.slug}` : ', NOT IN OUR councils TABLE'}): ${total} seats: ${line}; control "${control}", status "${status}"`);
     if (!council) continue;
     const was = `${council.political_control || '(none)'}${council.political_control_status ? ` (${council.political_control_status})` : ''}`;
-    const now = `No overall control (${status})`;
-    if (council.political_control !== 'No overall control' || council.political_control_status !== status) {
+    const now = `${control} (${status})`;
+    if (council.political_control !== control || council.political_control_status !== status) {
       niDiff.push(`  ${council.name}: we have ${was}; would be ${now}`);
-      if (!council.political_control) fills.push({ slug: council.slug, name: council.name, control: 'No overall control', status });
-      else if (ADOPT) adopt.push({ slug: council.slug, name: council.name, control: 'No overall control', status, was: council.political_control });
+      if (!council.political_control) fills.push({ slug: council.slug, name: council.name, control, status, ni: true });
+      else if (ADOPT) adopt.push({ slug: council.slug, name: council.name, control, status, was: council.political_control });
     }
   }
   console.log(`  political control that would change for NI councils (${niDiff.length})${ADOPT ? '' : ', with --adopt'}:`);
@@ -237,7 +243,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
   console.log(`\npolitical control to fill where we have none: ${fills.length}`);
   for (const f of fills.slice(0, 30)) console.log(`  ${f.name}: ${f.control}${f.status !== 'majority' ? ` (${f.status})` : ''}`);
   if (fills.length > 30) console.log(`  ... and ${fills.length - 30} more`);
-  console.log(`\nexisting political control that disagrees with the seat count (${disagree.length}); ${ADOPT ? `${adopt.length} replaced by the May snapshot, the rest kept` : 'NOT changed, for a person to check'}:`);
+  console.log(`\nGB political control that disagrees with the seat count (${disagree.length}); NOT changed (--adopt changes Northern Ireland's councils only), for a person to check:`);
   for (const d of disagree) console.log(`  ${d}`);
 
   if (!WRITE) { console.log('\nDRY RUN complete. Nothing was written.'); return; }
@@ -245,12 +251,16 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
 
   console.log('\n--- Writing ---');
   const builtAt = new Date().toISOString();
-  for (let i = 0; i < out.length; i += 500) {
-    const { error: e } = await db.from('council_composition').upsert(out.slice(i, i + 500).map((o) => ({ ...o, built_at: builtAt })), { onConflict: 'gss_code' });
+  // Northern Ireland's rows only, unless --gb (NI2d): an NI run leaves every GB row untouched.
+  const toSave = GB ? out : out.filter((o) => /^N09/.test(o.gss_code));
+  const fillsToSave = GB ? fills : fills.filter((f) => f.ni);
+  console.log(`  writing ${toSave.length} council_composition rows${GB ? ' (GB and NI)' : ' (Northern Ireland only; GB untouched, no --gb)'}`);
+  for (let i = 0; i < toSave.length; i += 500) {
+    const { error: e } = await db.from('council_composition').upsert(toSave.slice(i, i + 500).map((o) => ({ ...o, built_at: builtAt })), { onConflict: 'gss_code' });
     if (e) fail(`council_composition upsert: ${e.message}`);
   }
   let filled = 0;
-  for (const f of fills) {
+  for (const f of fillsToSave) {
     const { error: e } = await db.from('councils').update({ political_control: f.control, political_control_status: f.status, updated_at: builtAt }).eq('slug', f.slug).is('political_control', null);
     if (e) fail(`councils update ${f.slug}: ${e.message}`);
     filled++;
@@ -261,8 +271,8 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     if (e) fail(`councils update ${a.slug}: ${e.message}`);
     replaced++;
   }
-  console.log(`  council_composition: ${out.length} saved; councils.political_control filled: ${filled}; replaced: ${replaced}`);
+  console.log(`  council_composition: ${toSave.length} saved; councils.political_control filled: ${filled}; replaced: ${replaced}`);
   // The council pages keep for a week: refresh them now (owner, 30 Oct 2026; scripts/lib/refresh-site.js).
-  if ((out.length) > 0) { const site = require('./lib/refresh-site'); await site.recordRefresh('import-council-composition', { changed: out.length, ...(await site.refreshCouncilPages()) }); }
+  if ((toSave.length) > 0) { const site = require('./lib/refresh-site'); await site.recordRefresh('import-council-composition', { changed: toSave.length, ...(await site.refreshCouncilPages()) }); }
   console.log('\nWRITE complete.');
 })().catch((e) => fail(e.message));
