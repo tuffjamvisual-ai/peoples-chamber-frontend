@@ -17,6 +17,9 @@
 //     session and the current stage's name (status)
 //   - the bill's own endpoint (/Bills/{id}) gives longTitle, summary and the sponsors
 //   - the bill type comes from /BillTypes (Public, Private or Hybrid)
+//   - with --all (the weekly repair): every bill in the list, but the bill's own endpoint is read, and the bill saved
+//     and re-staged, only for a bill that is new to us or whose list row (lastUpdate, title, stage, Act, defeated,
+//     withdrawn) differs from the stored one (scripts/bill-repair-diff.js; JF1b, 9 Nov 2026), not all ~4,073
 //   - current_stage and stage_date are NOT written here: app/api/sync-bill-stages works them
 //     out from the full stage list (past sittings only). A changed bill gets
 //     stages_synced_at = null so that route refreshes it first on its next run.
@@ -35,6 +38,8 @@
 try { require('dotenv').config({ path: '.env.local' }); } catch { /* the workflow sets the env directly */ }
 const { createClient } = require('@supabase/supabase-js');
 const { refreshOrQueue } = require('./scripts/bill-refresh-queue');
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- a CommonJS script, as the requires above
+const { repairReason } = require('./scripts/bill-repair-diff');
 
 const WRITE = process.argv.includes('--write');
 const ALL = process.argv.includes('--all');
@@ -48,8 +53,10 @@ const supabase = createClient(
 );
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+let requests = 0;
 async function getJson(url) {
   for (let attempt = 1; attempt <= 3; attempt++) {
+    requests++;
     try {
       const res = await fetch(url, { headers: { Accept: 'application/json' } });
       if (res.status === 404) return null;
@@ -123,7 +130,7 @@ const placeholderTitle = (t) => !/[A-Za-z]/.test(t.replace(/\bBill\s*$/i, ''));
   const PROTECTED = ['title', 'long_title', 'category', 'originating_house', 'sponsor_name', 'sponsor_party', 'sponsor_constituency'];
   const existing = new Map();
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await supabase.from('bill').select(`id, parliament_id, last_update, ${PROTECTED.join(', ')}`).not('parliament_id', 'is', null).order('id').range(from, from + 999);
+    const { data, error } = await supabase.from('bill').select(`id, parliament_id, last_update, status, is_act, is_defeated, bill_withdrawn, ${PROTECTED.join(', ')}`).not('parliament_id', 'is', null).order('id').range(from, from + 999);
     if (error) throw new Error(`existing bills: ${error.message}`);
     for (const r of data) existing.set(r.parliament_id, r);
     if (data.length < 1000) break;
@@ -131,12 +138,19 @@ const placeholderTitle = (t) => !/[A-Za-z]/.test(t.replace(/\bBill\s*$/i, ''));
   const keptFields = {};
 
   let updated = 0, added = 0, failed = 0, noSponsor = 0, unchanged = 0;
+  const repairWhy = {};
   const changedIds = [];
   const failures = [];
   const examples = [];
   for (const b of list) {
     const held = existing.get(b.billId);
     if (!ALL && !ONE && held && held.last_update && Date.parse(held.last_update) === apiTime(b.lastUpdate)) { unchanged++; continue; }
+    // The weekly repair re-reads only a bill new to us or whose list row differs from the stored one (JF1b).
+    if (ALL) {
+      const why = repairReason(b, held);
+      if (!why) { unchanged++; continue; }
+      repairWhy[why] = (repairWhy[why] || 0) + 1;
+    }
     try {
       const detail = (await getJson(`${API}/Bills/${b.billId}`)) || {};
       const lead = (detail.sponsors || []).slice().sort((x, y) => (x.sortOrder ?? 999) - (y.sortOrder ?? 999))[0];
@@ -198,6 +212,7 @@ const placeholderTitle = (t) => !/[A-Za-z]/.test(t.replace(/\bBill\s*$/i, ''));
   console.log(`examples:\n  ${examples.join('\n  ')}`);
   console.log(`${WRITE ? '' : 'would be '}updated: ${updated}; ${WRITE ? '' : 'would be '}added: ${added}; unchanged (skipped): ${unchanged}; failed: ${failed}; no member sponsor (e.g. private bills): ${noSponsor}`);
   const kept = Object.entries(keptFields);
+  if (ALL) console.log(`repair: re-read ${list.length - unchanged} of ${list.length} bills ${JSON.stringify(repairWhy)}; requests made ${requests}, against ${1 + pages + list.length} when every bill's detail was re-read`);
   console.log(`saved values kept because Parliament's answer was empty: ${kept.length ? kept.map(([f, n]) => `${f} ${n}`).join(', ') : 'none'}`);
   if (failures.length) console.log(`failures:\n  ${failures.join('\n  ')}`);
   // Any failed bill fails the run, so the workflow shows it (the bills that worked are saved).

@@ -1,9 +1,11 @@
 name: Bills full repair (weekly)
 
-# Every bill in Parliament's Bills API, re-read and re-saved once a week (owner's approval, 21 Oct 2026). The daily
-# sync (daily-sync.yml) reads only bills changed since our newest saved update; this catches anything that misses,
-# such as a bill whose update time Parliament set earlier than one we already hold. About 3 hours at the Bills
-# API's pace (one request per bill, 200 ms apart).
+# Every bill in Parliament's Bills API, checked once a week (owner's approval, 21 Oct 2026). The daily sync
+# (daily-sync.yml) reads only bills changed since our newest saved update; this catches anything that misses, such as a
+# bill whose update time Parliament set earlier than one we already hold. Since JF1b (9 Nov 2026) it reads the whole
+# list (about 204 requests) and re-reads, re-saves and re-stages only the bills whose list row differs from the stored one
+# (scripts/bill-repair-diff.js), not all ~4,073: minutes rather than about 2 hours, and /api/sync-bill-stages and the
+# page refresh no longer redo every bill each Sunday.
 on:
   schedule:
     - cron: '41 4 * * 0'
@@ -46,7 +48,9 @@ jobs:
   # commit, its report (index.html, results.csv, screenshots) kept as a workflow artefact. Reads only. npx next build,
   # not npm run build: the prebuild step writes to the database.
   mobile-audit:
-    runs-on: ubuntu-latest
+    # Pinned (JF1b, 9 Nov 2026): Playwright's Chromium install does not support the ubuntu 26.04 image that
+    # ubuntu-latest moved to, and the 8 Nov run failed there.
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
