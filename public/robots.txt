@@ -17,8 +17,8 @@ Disallow: /login
 Disallow: /account
 # The footer links to /feedback?from=<page> on every page, so bots were reading it once per page (owner, 6 Nov 2026).
 Disallow: /feedback
-# Press release pages are noindex copies of GOV.UK and Commons committee pages (owner, 29 Oct 2026).
-Disallow: /news/
+# Press release pages (/news/) are noindex copies of GOV.UK and Commons committee pages. They are not blocked here
+# (owner, 9 Nov 2026): a block stops Google reading the noindex, so pages it already had stayed indexed. Not in any sitemap.
 
 Sitemap: https://www.opengovt.uk/sitemap.xml
 Sitemap: https://www.opengovt.uk/feed.xml
