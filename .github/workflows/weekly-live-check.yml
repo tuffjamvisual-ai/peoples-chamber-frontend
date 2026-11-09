@@ -48,9 +48,11 @@ jobs:
 
       - name: Install Playwright Chromium and the check's packages
         timeout-minutes: 10
+        # The installer of the playwright package the check imports (1.59.1). "npx playwright" runs @playwright/test's
+        # command (1.58.2, its own older core), whose browser build the check cannot launch (run 42704086109, 9 Nov 2026).
         run: |
           npm install --no-save playwright@1.59.1 @supabase/supabase-js tsx@4.23.15
-          npx playwright install --with-deps chromium
+          node node_modules/playwright/cli.js install --with-deps chromium
 
       # The last finished run's report, to tell new problems from known ones. None on the first run.
       - name: Fetch the previous report
