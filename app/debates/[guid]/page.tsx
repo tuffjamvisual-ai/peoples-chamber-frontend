@@ -426,7 +426,8 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           <p style={{ fontFamily: MONO, fontSize: '15px' }}>No transcript text is available for this debate.</p>
         ) : (
           <>
-          <NoJsPager id="debate-rows" count={groups.length} sizes={debateScreens} />
+          {/* On phones the first screen at most, never more than before (MP2f-9). */}
+          <NoJsPager id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(5, debateScreens[0] ?? 5)} />
           {groups.map((g, i) => (
             <Fragment key={i}>
             <div
@@ -459,7 +460,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
             </div>
             </Fragment>
           ))}
-          <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} />
+          <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(5, debateScreens[0] ?? 5)} />
           </>
         )}
         {groups.length > 0 && <ReadNext links={readNext} />}

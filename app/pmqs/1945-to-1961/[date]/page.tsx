@@ -86,7 +86,8 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
       <div style={{ color: INK }}>
         {day.unconfirmed && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px', fontWeight: 'bold' }}>{UNCONFIRMED_NOTE}</p>}
         <div>
-          <NoJsPager id="pq-day" count={items.length} sizes={screens} />
+          {/* On phones the first screen at most, never more than before (MP2f-9). */}
+          <NoJsPager id="pq-day" count={items.length} sizes={screens} first={Math.min(5, screens[0] ?? 5)} />
           {items.map(({ e, row, first }, i) => {
             const [start, rest] = opening(row.text);
             const answer = row.kind !== 'question' && !!row.speaker_as_printed;
@@ -103,7 +104,7 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
               </Fragment>
             );
           })}
-          <NoJsPagerLinks id="pq-day" count={items.length} sizes={screens} />
+          <NoJsPagerLinks id="pq-day" count={items.length} sizes={screens} first={Math.min(5, screens[0] ?? 5)} />
         </div>
         <section aria-label="Notes" style={{ marginTop: '28px', paddingTop: '14px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
           {day.exchanges.some((e) => e.experiment) && <ExperimentNote />}
