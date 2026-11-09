@@ -8,6 +8,7 @@ import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { fmtMoney, fmtUpdated, loadLanding } from './_lib/data';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const revalidate = 86400;
 
@@ -126,6 +127,7 @@ export default async function SecondJobsLanding() {
           }
         `}</style>
 
+        <ShowAll id="second-jobs-parties" count={(partyTotals).length} rows="> *">
         <div
           style={{
             display: 'grid',
@@ -157,6 +159,7 @@ export default async function SecondJobsLanding() {
             </Link>
           ))}
         </div>
+        </ShowAll>
 
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’

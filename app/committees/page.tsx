@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { readAll } from '@/lib/read-all';
 import OpenGovShell from '../components/OpenGovShell';
 import { displayMpName } from '@/lib/mp-name';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const revalidate = 86400;
 
@@ -119,6 +120,7 @@ export default async function CommitteesIndexPage() {
             >
               {group.label}
             </h2>
+            <ShowAll id={`committees-${group.typeIds.join('-')}`} count={(groupCommittees).length} rows="> *">
             <div className="divide-y" style={{ borderColor: `${INK}18` }}>
               {groupCommittees.map((c) => {
                 const s = stats.get(c.id);
@@ -139,6 +141,7 @@ export default async function CommitteesIndexPage() {
                 );
               })}
             </div>
+            </ShowAll>
           </section>
         );
       })}

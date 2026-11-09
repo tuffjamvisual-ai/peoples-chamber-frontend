@@ -5,6 +5,7 @@ import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import SectionLinks from '../components/SectionLinks';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const metadata: Metadata = {
   title: { absolute: 'UK Government Departments, Ministers, Budgets & Reports' },
@@ -88,6 +89,7 @@ export default async function DepartmentsPage() {
         </h1>
       </header>
 
+      <ShowAll id="departments-grid" count={(departments).length} rows="> li">
       <ul style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
@@ -150,6 +152,7 @@ export default async function DepartmentsPage() {
           );
         })}
       </ul>
+      </ShowAll>
 
     </OpenGovShell>
   );

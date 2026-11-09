@@ -14,6 +14,7 @@ import { normaliseParty } from '@/lib/party-helpers';
 import { fitTitle } from '@/lib/seo-title';
 import ArticleEndSignup from '../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const revalidate = 3600;
 
@@ -73,6 +74,7 @@ export default async function PartiesIndexPage() {
       </header>
 
       <style>{CARDS_CSS}</style>
+      <ShowAll id="party-cards" count={(SLUGS).length} rows="> *">
       <div className="og-pcards">
         {SLUGS.map((slug) => {
           const n = mpCounts.get(slug);
@@ -96,6 +98,7 @@ export default async function PartiesIndexPage() {
           );
         })}
       </div>
+      </ShowAll>
 
       <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '14px 0 0' }}>
         Current MPs: the MP roster, kept in step with the UK Parliament Members API each day, grouped as on{' '}

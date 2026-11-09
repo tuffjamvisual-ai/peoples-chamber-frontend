@@ -6,6 +6,7 @@ import BackLink from '../../components/BackLink';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { SECTION_PAGES, type NavLink } from '@/lib/site-nav';
 import { TWO_COLUMN_GRID_CSS } from '@/lib/balance-columns';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 // Section pages (owner's design, 25 Oct 2026, report 60): a top level menu item opens its own page listing every link in
 // that section, instead of a hover dropdown. Built from lib/site-nav.ts, the same list as the header, the phone panel and
@@ -110,11 +111,12 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
           ))}
         </nav>
       )}
-      {grouped.map((g) => (
+      {grouped.map((g, gi) => (
         <section key={g.title ?? 'all'} id={g.title ? anchor(g.title) : undefined} aria-label={g.title ?? undefined} style={{ marginBottom: '28px', scrollMarginTop: '16px' }}>
           {g.title && (
             <h2 style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: INK, margin: '0 0 6px' }}>{g.title}</h2>
           )}
+          <ShowAll id={`section-tiles-${gi}`} count={g.links.filter((l) => !l.compact).length} rows="> *">
           <div className="og-grid2">
             {g.links.filter((l) => !l.compact).map((l) => (
               <Link
@@ -130,6 +132,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
               </Link>
             ))}
           </div>
+          </ShowAll>
           {g.links.some((l) => l.compact) && (
             <div className="og-cards">
               {g.links.filter((l) => l.compact).map((l) => (

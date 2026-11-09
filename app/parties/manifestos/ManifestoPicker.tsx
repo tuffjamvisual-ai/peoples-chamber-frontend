@@ -5,6 +5,7 @@
 // picker is hidden and only the list shows. Styles are in the <style> below, so nothing here applies from 640px up.
 import { useState, type ReactNode } from 'react';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 const CSS = `
 .mf-controls, .mf-policy { display: none; }
@@ -48,6 +49,7 @@ export default function ManifestoPicker({ themes, children }: { themes: ThemeRow
         )}
       </div>
       {row && (
+        <ShowAll id="manifesto-policy" count={(row.positions).length} rows="> *">
         <div className="mf-policy">
           {row.positions.map((p) => (
             <div key={p.slug} className="mf-row" style={{ borderLeft: `3px solid ${p.colour}`, paddingLeft: '10px' }}>
@@ -63,6 +65,7 @@ export default function ManifestoPicker({ themes, children }: { themes: ThemeRow
             </div>
           ))}
         </div>
+        </ShowAll>
       )}
       <div className="mf-party">{children}</div>
     </div>
