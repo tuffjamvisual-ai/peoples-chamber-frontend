@@ -486,10 +486,18 @@ function tabOfElement<T extends string>(el: Element | null, valid: Set<T>): T | 
 // (mp_biography.career_parliament and career_research, lib/mp-career.ts; the nightly career sync is unchanged):
 // the dates of each government and opposition post, each spell where a post was held more than once, and elections
 // contested but not won.
+// Each spell newest first: "since 20 July 2026" while it is held (CH1a), "9 June 2009 to 13 October 2009" once it ended.
 const postDates = (entries: CareerEntry[], kind: 'Government post' | 'Opposition post', name: string) =>
   entries
     .filter((e) => e.group === 'posts' && e.detail === kind && e.title.trim() === name.trim() && e.start)
-    .map((e) => `${dateLabel(e.start as string)} to ${!e.end || e.end === 'present' ? 'present' : dateLabel(e.end)}`);
+    .map((e) => ({ start: e.start as string, text: !e.end || e.end === 'present' ? `since ${dateLabel(e.start as string)}` : `${dateLabel(e.start as string)} to ${dateLabel(e.end)}` }))
+    .sort((a, b) => b.start.localeCompare(a.start));
+// Posts by their latest start, most recent first, so a post held now is at the top (CH1a); posts with no dates keep their
+// stored order after the dated ones.
+const newestFirst = <T extends { spells: Array<{ start: string }> }>(posts: T[]) =>
+  posts.map((p, i) => ({ p, i, key: p.spells[0]?.start ?? '' }))
+    .sort((a, b) => (a.key && b.key ? b.key.localeCompare(a.key) || a.i - b.i : a.key ? -1 : b.key ? 1 : a.i - b.i))
+    .map(({ p }) => p);
 // "Contested Wycombe, 1 May 1997, not elected", from the stored title with or without its date (PCL2 wrote it with
 // the date; PCL3 writes it without, keeping the day in start).
 function contestLine(e: CareerEntry): string {
@@ -661,8 +669,8 @@ export default function MagazineProfileSections({
   const careerEntries = careerTimeline(career?.parliament, career?.research);
   // Roles (CH1): each post once, in the stored order, with the dates of every spell; and the elections lost.
   const uniqueByName = (list: Array<{ name: string }> | undefined) => (list ?? []).filter((p, i, all) => all.findIndex((q) => q.name === p.name) === i);
-  const governmentPosts = uniqueByName(bio?.government_posts).map((p) => ({ name: p.name, spells: postDates(careerEntries, 'Government post', p.name) }));
-  const oppositionPosts = uniqueByName(bio?.opposition_posts).map((p) => ({ name: p.name, spells: postDates(careerEntries, 'Opposition post', p.name) }));
+  const governmentPosts = newestFirst(uniqueByName(bio?.government_posts).map((p) => ({ name: p.name, spells: postDates(careerEntries, 'Government post', p.name) })));
+  const oppositionPosts = newestFirst(uniqueByName(bio?.opposition_posts).map((p) => ({ name: p.name, spells: postDates(careerEntries, 'Opposition post', p.name) })));
   const contests = careerEntries.filter((e) => e.group === 'elections' && e.title.startsWith('Contested ') && e.start);
   const has: Record<SectionId, boolean> = {
     bio: bioVisible && paragraphs.length > 0,
@@ -1779,11 +1787,11 @@ export default function MagazineProfileSections({
               <Fragment key={heading}>
                 <h3 style={sectionH3}>{heading}</h3>
                 <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
-                  {/* Each spell's dates under the name (CH1), in the style of the seats above. */}
+                  {/* Each spell's dates under the name (CH1), in the style of the seats above; most recent post first (CH1a). */}
                   {posts.map((p, i) => (
                     <li key={i}>
                       {p.name}
-                      {p.spells.map((d, j) => <div key={j} style={{ fontSize: '15px', fontFamily: 'monospace' }}>{d}</div>)}
+                      {p.spells.map((d, j) => <div key={j} style={{ fontSize: '15px', fontFamily: 'monospace' }}>{d.text}</div>)}
                     </li>
                   ))}
                 </ul>
