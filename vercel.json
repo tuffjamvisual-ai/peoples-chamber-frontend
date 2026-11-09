@@ -190,7 +190,7 @@
     },
     {
       "path": "/api/sync-reshuffle-tick",
-      "schedule": "5 */2 * * *"
+      "schedule": "9 */2 * * *"
     },
     {
       "path": "/api/sync-government-contracts",
