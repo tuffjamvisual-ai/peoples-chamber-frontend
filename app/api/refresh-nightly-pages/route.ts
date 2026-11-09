@@ -8,6 +8,7 @@ import { refreshBills, REFRESH_BATCH } from '@/lib/bill-refresh';
 import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 import { queuedMps, dequeueMps, mpsDueByDate } from '@/lib/mp-nightly';
+import { MARKER_ROUTE, clockSkip, withTrigger, triggerName, type TriggerMarker } from '@/lib/nightly-trigger';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +24,9 @@ export const dynamic = 'force-dynamic';
 // MP pages (owner, 30 Oct 2026, cache Stage 2a part 3) are no longer all refreshed: only the MPs the nightly scripts
 // queued, and those whose date based content turned over (lib/mp-nightly.ts). ?dry=1 (local tests only) refreshes
 // nothing and says which MPs it would refresh.
+// Started by the syncs (JF1d, 9 Nov 2026; lib/nightly-trigger.ts): each GitHub nightly sync calls this route with
+// ?trigger=<workflow> as its last step, so its pages are refreshed when it ends, however late GitHub started it. The
+// 05:15 run is the fallback: it does nothing when a sync has already triggered the refresh that day (UTC).
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
@@ -35,6 +39,18 @@ async function GET_impl(req: Request) {
     const [queued, due] = await Promise.all([queuedMps(supabaseAdmin), mpsDueByDate(supabaseAdmin)]);
     return NextResponse.json({ dry_run: true, mp_queue: queued.length, earnings_until_yesterday: due.earnings, meetings_dated_yesterday_or_today: due.meetings });
   }
+  // A sync's trigger, or the clock (JF1d). A marker that cannot be read or written is logged and never stops the refresh.
+  const trigger = triggerName(new URL(req.url).searchParams.get('trigger'));
+  let marker: TriggerMarker | null = null;
+  try {
+    const { data, error } = await supabaseAdmin.from('sync_cursor').select('cursor').eq('route', MARKER_ROUTE).maybeSingle();
+    if (error) throw new Error(error.message);
+    marker = (data?.cursor as TriggerMarker | undefined) ?? null;
+  } catch (e) { console.error(`refresh-nightly-pages: trigger marker: ${(e as Error).message}`); }
+  if (!trigger) {
+    const skip = clockSkip(marker, new Date());
+    if (skip) return NextResponse.json({ ok: true, skipped: true, reason: skip, rows_written: 0, at: new Date().toISOString() });
+  }
   for (const p of NIGHTLY.paths) {
     if (p.includes('[')) revalidatePath(p, 'page');
     else revalidatePath(p);
@@ -42,7 +58,11 @@ async function GET_impl(req: Request) {
   const queue = await emptyBillQueue();
   const mps = await refreshNightlyMps();
   const councils = await refreshQueuedCouncils();
-  return NextResponse.json({ ok: true, rows_written: NIGHTLY.paths.length, paths: NIGHTLY.paths, bill_queue: queue, mps, councils, at: new Date().toISOString() });
+  if (trigger) {
+    const { error } = await supabaseAdmin.from('sync_cursor').upsert({ route: MARKER_ROUTE, cursor: withTrigger(marker, trigger, new Date()), updated_at: new Date().toISOString() }, { onConflict: 'route' });
+    if (error) console.error(`refresh-nightly-pages: trigger marker: ${error.message}`);
+  }
+  return NextResponse.json({ ok: true, trigger: trigger ?? 'clock', rows_written: NIGHTLY.paths.length, paths: NIGHTLY.paths, bill_queue: queue, mps, councils, at: new Date().toISOString() });
 }
 
 // Council pages a hand or GitHub loader could not get the site to refresh (scripts/lib/refresh-site.js queues them in

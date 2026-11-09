@@ -68,6 +68,17 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
+      # JF1d (9 Nov 2026): the site's nightly page refresh, now this sync has ended, rather than at the next 05:15 UTC
+      # (/api/refresh-nightly-pages?trigger=...). A refusal by bot protection is a warning: the 05:15 run covers it.
+      - name: Trigger the nightly page refresh
+        id: nightly-refresh
+        if: always()
+        timeout-minutes: 5
+        continue-on-error: true
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: node scripts/trigger-nightly-refresh.js career-parliament-sync
+
       - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
         if: always()
         timeout-minutes: 2

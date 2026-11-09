@@ -5,6 +5,11 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+concurrency:
+  # JF1d (9 Nov 2026): two runs of this workflow never overlap; a second run waits for the first rather than cancelling it.
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   update-departments:
     runs-on: ubuntu-latest
@@ -202,6 +207,17 @@ jobs:
           if [ "$status" = "0" ]; then exit 0; fi
           if echo "$out" | grep -qE 'HTTP (403|429) '; then echo "::warning::page refresh was refused by bot protection; the 05:15 UTC cron refreshes these pages instead."; exit 0; fi
           exit 1
+      # JF1d (9 Nov 2026): the site's nightly page refresh, now this sync has ended, rather than at the next 05:15 UTC
+      # (/api/refresh-nightly-pages?trigger=...). A refusal by bot protection is a warning: the 05:15 run covers it.
+      - name: Trigger the nightly page refresh
+        id: nightly-refresh
+        if: always()
+        timeout-minutes: 5
+        continue-on-error: true
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: node scripts/trigger-nightly-refresh.js daily-context-update
+
       - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
         if: always()
         env:

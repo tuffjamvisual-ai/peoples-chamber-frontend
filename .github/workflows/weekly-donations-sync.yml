@@ -5,6 +5,11 @@ on:
     - cron: '0 2 * * 1'
   workflow_dispatch:
 
+concurrency:
+  # JF1d (9 Nov 2026): two runs of this workflow never overlap; a second run waits for the first rather than cancelling it.
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   sync-donations:
     runs-on: ubuntu-latest
