@@ -77,10 +77,12 @@ export default async function MinisterialDirectionsPage() {
 
       {years.map((y) => (
         <section key={y} style={{ marginBottom: '32px' }}>
+          {/* Each year folds on phones with JavaScript on as well as off (MP2f, 9 Nov 2026), its year in the fold's label; the
+              heading sits inside the fold, so from 640px up (no fold) the page looks as before. */}
+          <NoJsFold id={`mf-${y}`} always label={`${y}: ${byYear.get(y)!.length} ${byYear.get(y)!.length === 1 ? 'direction' : 'directions'}`} open={y === years[0]}>
           <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 10px' }}>
             {y} · {byYear.get(y)!.length}
           </h2>
-          <NoJsFold id={`mf-${y}`} label={`${byYear.get(y)!.length} directions`} open={y === years[0]}>
           <NoJsPager id={`md-${y}`} count={(byYear.get(y)!).length} rows="> li" size={15}>
           <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {byYear.get(y)!.map((d) => (
