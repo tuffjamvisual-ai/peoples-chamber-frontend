@@ -9,6 +9,7 @@ import { cycleHours } from '@/lib/sync-cycles';
 import type { CycleState } from '@/lib/sync-heartbeat';
 import vercelConfig from '../../../vercel.json';
 import { loadCursor } from '@/lib/sync-budget';
+import { healTimeout } from '@/lib/heal-budget';
 import { SPAD_MANUAL_CHECKS_ROUTE } from '@/lib/spad-background-sync';
 import { annualReportStillUnread } from '@/lib/spad-background';
 import { FAILURES_PREFIX, FLAG_AFTER_RUNS, type ItemFailure } from '@/lib/sync-item-failures';
@@ -50,6 +51,7 @@ const MEMBERS_REVIEW_AT = 300;
 //
 // Guarded by CRON_SECRET. Returns the full dashboard as JSON for manual checks.
 async function GET_impl(req: Request) {
+  const startedAt = Date.now(); // the self heals at the end keep within the 300 seconds from here (lib/heal-budget.ts)
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -208,43 +210,14 @@ async function GET_impl(req: Request) {
     }
   }
 
-  // Self-heal: for routes that are OVERDUE (the cron didn't run in time — the same
-  // signature a silent timeout produces, since the heartbeat is only written on a
-  // clean return), trigger the sync directly rather than only emailing. This turns
-  // the reliably-firing daily monitor (17:03 UTC since 27 Oct 2026) into a fallback scheduler. We do NOT self-heal
-  // 'failing' routes (they ran and returned non-2xx — re-running risks a tight error
-  // loop; those still email for a human). Sequential, time-budgeted, so one slow sync
-  // can't blow the monitor's own deadline; any not reached this run get another shot
-  // tomorrow. A heal that returns 2xx clears its alert (the sync's own heartbeat is
-  // now fresh); a heal that fails is left in the email so a human still sees it.
-  const HEAL_BUDGET_MS = 240_000;
-  const HEAL_PER_ROUTE_MS = 180_000;
-  const healStart = Date.now();
-  const heals: Array<{ route: string; triggered: boolean; status?: number; ok: boolean; reason?: string }> = [];
-  const origin = new URL(req.url).origin;
-  for (const s of sources) {
-    const route = s.syncRoute;
-    if (s.runStatus !== 'overdue' || !route || dry) continue;
-    // GitHub workflow steps record their runs under /github-actions/...; they cannot be
-    // started from here, so they are emailed rather than healed.
-    if (!route.startsWith('/api/')) continue;
-    if (Date.now() - healStart > HEAL_BUDGET_MS) {
-      heals.push({ route, triggered: false, ok: false, reason: 'heal budget exhausted; will retry next run' });
-      continue;
-    }
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), HEAL_PER_ROUTE_MS);
-    try {
-      const hr = await fetch(`${origin}${route}`, { headers: { authorization: `Bearer ${expected}` }, signal: ctrl.signal });
-      const ok = hr.status >= 200 && hr.status < 300;
-      heals.push({ route, triggered: true, status: hr.status, ok });
-    } catch (e) {
-      heals.push({ route, triggered: true, ok: false, reason: (e as Error).name === 'AbortError' ? 'sync exceeded heal timeout' : (e as Error).message });
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-  const healedRoutes = new Set(heals.filter((h) => h.ok).map((h) => h.route));
+  // Self-heal (JF1c, 9 Nov 2026): the routes that are OVERDUE (the cron didn't run in time, the same signature a silent
+  // timeout produces, since the heartbeat is only written on a clean return) are started directly, as a fallback
+  // scheduler, but only after the alert email below has gone and everything else is done, at the end of this run, each
+  // within the time left (lib/heal-budget.ts). Before, the heals ran first and a long one could take the function past 300
+  // seconds, so it was killed before the email and its own heartbeat were written. 'failing' routes (they ran and
+  // returned non-2xx) are not healed, as re-running risks a tight error loop; GitHub workflow steps
+  // (/github-actions/...) cannot be started from here. A route not reached this run gets another try tomorrow.
+  const toHeal = dry ? [] : [...new Set(sources.filter((s) => s.runStatus === 'overdue' && s.syncRoute?.startsWith('/api/')).map((s) => s.syncRoute as string))];
 
   // Zero-rows watch: runs successfully but keeps returning nothing for longer than
   // the source's tolerance — a quieter signal the upstream may have moved. Sitting-day
@@ -254,8 +227,8 @@ async function GET_impl(req: Request) {
     .filter((s) => s.runStatus === 'ok' && s.zeroRunStreak >= s.zeroRunTolerance && !ZERO_ROWS_NORMAL.has(s.syncRoute ?? ''))
     .map((s) => ({ page: s.page, route: s.syncRoute, zeroRunStreak: s.zeroRunStreak, tolerance: s.zeroRunTolerance }));
 
-  // Email only what self-heal did NOT recover.
-  const emailAlerts = alerts.filter((a) => !a.route || !healedRoutes.has(a.route));
+  // Every alert is emailed, before any self heal (JF1c); an overdue route that will be healed says so.
+  const emailAlerts: StaleSource[] = alerts.map((a) => (a.route && toHeal.includes(a.route) ? { ...a, reason: `${a.reason ?? 'overdue'}; a self heal is tried after this email (see the run's JSON for the result)` } : a));
 
   // Members and the email plan (owner's decision, 25 Oct 2026, job 74): from 300 members with a confirmed address, a
   // warning line in every daily email to review the Resend plan (the free plan's 100 a day carries about 400 members
@@ -355,7 +328,7 @@ async function GET_impl(req: Request) {
   }
   const alertEmail = dry ? { sent: false, reason: 'dry run' } : emailAlerts.length > 0
     ? await sendFreshnessAlert(emailAlerts)
-    : { sent: false, reason: healedRoutes.size ? 'self_healed' : 'nothing_stale' };
+    : { sent: false, reason: 'nothing_stale' };
 
   // Database disk check: reported every run, emailed only when over a threshold.
   const { size: databaseSize, error: databaseSizeError } = await getDatabaseSize(dry);
@@ -439,6 +412,25 @@ async function GET_impl(req: Request) {
       return { error: (e as Error).message };
     }
   })();
+
+  // The self heals, last (JF1c): each given at most the time left before the deadline, none started without enough.
+  const heals: Array<{ route: string; triggered: boolean; status?: number; ok: boolean; reason?: string }> = [];
+  const origin = new URL(req.url).origin;
+  for (const route of toHeal) {
+    const timeout = healTimeout(startedAt, Date.now());
+    if (timeout === null) { heals.push({ route, triggered: false, ok: false, reason: 'not enough time left in this run; will retry next run' }); continue; }
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeout);
+    try {
+      const hr = await fetch(`${origin}${route}`, { headers: { authorization: `Bearer ${expected}` }, signal: ctrl.signal });
+      heals.push({ route, triggered: true, status: hr.status, ok: hr.status >= 200 && hr.status < 300 });
+    } catch (e) {
+      heals.push({ route, triggered: true, ok: false, reason: (e as Error).name === 'AbortError' ? `sync exceeded the heal time left (${Math.round(timeout / 1000)} s)` : (e as Error).message });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  const healedRoutes = new Set(heals.filter((h) => h.ok).map((h) => h.route));
 
   return NextResponse.json({
     ok: true,
