@@ -58,7 +58,7 @@ function what(s: StaffInterest): string | null {
   return org;
 }
 
-export default function StaffInterests({ items, employedStaff, headingStyle }: { items: StaffInterest[]; employedStaff: number; headingStyle?: React.CSSProperties }) {
+export default function StaffInterests({ items, employedStaff }: { items: StaffInterest[]; employedStaff: number }) {
   if (items.length === 0) return null;
   const sorted = [...items].sort((a, b) => ORDER[a.category] - ORDER[b.category] || (b.start_date || '').localeCompare(a.start_date || ''));
   const registerId = Math.max(...items.map((i) => i.register_id));
@@ -72,15 +72,9 @@ export default function StaffInterests({ items, employedStaff, headingStyle }: {
     visits > 0 && `${visits} overseas ${visits === 1 ? 'visit' : 'visits'}`,
   ].filter(Boolean).join(', ');
   return (
-    <section style={{ marginTop: '28px', color: INK }}>
-      <h3 style={{ fontSize: '18px', fontWeight: 'bold', ...headingStyle, marginTop: 0, marginBottom: '8px', color: INK }}>
-        Staff with outside interests <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({items.length})</span>
-        {/* (n) counts lines: an entry naming two MPs shows once on each MP's page. */}
-      </h3>
-      <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '8px' }}>{counts}.</p>
-      <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '12px' }}>
-        Jobs, gifts and visits abroad declared by people working for this MP, as published in the House of Commons register of interests of MPs&rsquo; staff. Staff are shown by job title only.
-      </p>
+    // In the Staff interests folder (ST1c, 9 Nov 2026), under its opening line: no heading or intro of its own.
+    <section style={{ marginTop: '12px', color: INK }}>
+      <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '12px' }}>{counts}.</p>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.6 }}>
         {sorted.map((s) => {
           const parts = [s.job_title?.trim() || 'Staff member', TYPE_LABEL[s.category], what(s), dates(s)].filter(Boolean);

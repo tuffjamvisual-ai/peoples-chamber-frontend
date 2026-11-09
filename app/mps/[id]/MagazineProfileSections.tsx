@@ -1704,7 +1704,7 @@ export default function MagazineProfileSections({
             <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 4px' }}>
               Outside interests of people this MP employs, as declared on the Register of Interests of Members&rsquo; Staff. These are not the MP&rsquo;s own interests.
             </p>
-            <StaffInterests items={staffInterests} employedStaff={staffEmployed} headingStyle={sectionH3} />
+            <StaffInterests items={staffInterests} employedStaff={staffEmployed} />
           </>
         )}
 
