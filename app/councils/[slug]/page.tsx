@@ -405,7 +405,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
 
               {hasLeadership && (
-                <Section title="Political Control & Leadership" date={councilUpdated} source="councils.updated_at">
+                <Section title="Political Control & Leadership" date={councilUpdated} source="councils.updated_at"
+                  // NI2 (9 Nov 2026): where the seat figures come from, and as of when.
+                  sourceLine={comp && comp.total_seats > 0 ? { text: `Seats: opencouncildata.co.uk, public domain, as of May ${comp.snapshot_year}`, source: 'council_composition.snapshot_year' } : undefined}>
                   <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
                   {/* The publisher's administration label is left out when it contradicts the seats shown
                       below (e.g. "minority" while one named party holds more than half the seats). */}
@@ -658,7 +660,7 @@ function controlStatusText(status: string | null): string | null {
   return status;
 }
 
-function Section({ title, children, date, source }: { title: string; children: React.ReactNode; date?: string | null; source?: string }) {
+function Section({ title, children, date, source, sourceLine }: { title: string; children: React.ReactNode; date?: string | null; source?: string; sourceLine?: { text: string; source: string } }) {
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
@@ -668,6 +670,7 @@ function Section({ title, children, date, source }: { title: string; children: R
         {children}
       </dl>
       <RecordDate text={date} source={source} />
+      {sourceLine && <RecordDate text={sourceLine.text} source={sourceLine.source} />}
     </section>
   );
 }
