@@ -15,7 +15,7 @@ const MONO = 'var(--font-special-elite), monospace';
 function Heading() {
   return (
     <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
-      Fly-tipping
+      Fly tipping
     </h2>
   );
 }

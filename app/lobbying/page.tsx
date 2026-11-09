@@ -120,7 +120,7 @@ export default async function LobbyingPage() {
         <h2 style={sectionHead}>Who meets ministers most</h2>
         {summary && summary.meetings_counted > 0 && (
           <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, lineHeight: 1.6, margin: '-6px 0 14px', maxWidth: '46em' }}>
-            Rankings cover organisations matched so far, found in {meetingShare}% of meetings.
+            Rankings cover the organisations matched, which appear in {meetingShare} per cent of meetings.
           </p>
         )}
         <LobbyRanking tabs={tabs} sinceLabel={since ? `Since ${since}` : 'All'} />

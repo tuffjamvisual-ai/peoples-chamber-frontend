@@ -194,7 +194,7 @@ export default function ReaderVIPoll({ pollster, initialTally, initialTotal, ini
       )}
 
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: INK, margin: '18px 0 0' }}>
-        Readers&rsquo; figures are a self-selected sample of opengovt visitors, one vote per account. They are not a weighted, representative poll and are not directly comparable to the professionally weighted figures above. &ldquo;Another party&rdquo; and &ldquo;wouldn&rsquo;t vote&rdquo; have no pollster equivalent shown.
+        Readers&rsquo; figures are a sample of opengovt visitors who chose to vote, one vote per account. They are not a weighted, representative poll and are not directly comparable to the professionally weighted figures above. &ldquo;Another party&rdquo; and &ldquo;wouldn&rsquo;t vote&rdquo; have no pollster equivalent shown.
       </p>
     </section>
   );

@@ -76,7 +76,7 @@ export default function SiteFooter() {
             gap: '1rem',
           }}
         >
-          <div>© {new Date().getFullYear()} opengovt. Public-record reporting.</div>
+          <div>© {new Date().getFullYear()} opengovt. Reporting from the public record.</div>
           <div style={{ letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600 }}>peopleschamber.uk</div>
         </div>
       </div>

@@ -150,7 +150,7 @@ export default async function ConstituencyDonationsPage() {
           UK political donations don&rsquo;t all land at central party HQ. Each declared donation carries an accounting unit telling you which branch of the party kept the money. Filtering out central HQ, regional liaisons, parliamentary funds and councillor associations leaves the pots held in each constituency. The top of the list is dominated by affluent shire seats with safe incumbents and a handful of strategic marginals. The EC&rsquo;s official register doesn&rsquo;t pivot this column. This page does.
         </p>
         <p style={{ fontSize: '15px', marginTop: '12px', lineHeight: 1.6 }}>
-          For context: of the &pound;{Math.round(rowsTotal).toLocaleString()} of declared donations &ge; &pound;1,500 with an accounting unit, &pound;{Math.round(centralTotal).toLocaleString()} ({Math.round(100 * centralTotal / (centralTotal + constituencyTotal))}%) went to central HQ, parliamentary or regional pools, and &pound;{Math.round(constituencyTotal).toLocaleString()} ({Math.round(100 * constituencyTotal / (centralTotal + constituencyTotal))}%) to constituency associations like those below.
+          For context: of the &pound;{Math.round(rowsTotal).toLocaleString()} of declared donations &ge; &pound;1,500 with an accounting unit, &pound;{Math.round(centralTotal).toLocaleString()} ({Math.round(100 * centralTotal / (centralTotal + constituencyTotal))} per cent) went to central HQ, parliamentary or regional pools, and &pound;{Math.round(constituencyTotal).toLocaleString()} ({Math.round(100 * constituencyTotal / (centralTotal + constituencyTotal))} per cent) to constituency associations like those below.
         </p>
       </header>
 

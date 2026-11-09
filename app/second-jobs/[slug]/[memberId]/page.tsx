@@ -157,7 +157,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
                     ))}
                     {rowTotal > 0 && (
                       <li style={{ display: 'grid', gridTemplateColumns: '1fr auto', padding: '8px 0', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.14em', color: INK_SOFT }}>
-                        <span>One-off payments for this role</span>
+                        <span>Single payments for this role</span>
                         <span style={{ fontVariantNumeric: 'tabular-nums', color: INK, fontWeight: 700 }}>{fmtMoney(rowTotal)}</span>
                       </li>
                     )}
@@ -175,7 +175,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’
           Register of Financial Interests (members-api.parliament.uk) for current MPs
-          only. The declared total is the sum of one-off “Payment: £X” amounts in
+          only. The declared total is the sum of single “Payment: £X” amounts in
           registered payment entries. Regular pay (an amount a month, a quarter or a year)
           is listed separately with its period and is not added to the total or to other
           rates. Regular pay whose end date has passed is listed as past regular pay, and pay the

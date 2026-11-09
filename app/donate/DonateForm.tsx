@@ -116,7 +116,7 @@ export default function DonateForm() {
       </button>
 
       <p style={{ fontSize: 15, marginTop: 12, color: INK }}>
-        Secure one-off payment via Stripe. No account needed. You&rsquo;ll be redirected to Stripe&rsquo;s checkout page.
+        Secure single payment via Stripe. No account needed. You&rsquo;ll be redirected to Stripe&rsquo;s checkout page.
       </p>
     </div>
   );

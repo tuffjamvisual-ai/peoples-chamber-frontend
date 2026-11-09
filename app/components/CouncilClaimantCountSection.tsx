@@ -92,7 +92,7 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
         Claimant count
       </h2>
       <p style={{ fontFamily: SERIF, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 4px' }}>
-        <strong>{fmtNum(latest.claimants as number)}</strong> people claiming unemployment-related benefits, {fmtMonth(latest.month)}
+        <strong>{fmtNum(latest.claimants as number)}</strong> people claiming benefits related to unemployment, {fmtMonth(latest.month)}
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 16px' }}>
         {[

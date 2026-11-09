@@ -136,7 +136,7 @@ export default async function CouncilOmbudsmanSection({ gssCode }: { gssCode: st
       </P>
       <P small>
         The Ombudsman cautions against reading this number on its own as a measure of how well a council performs: it also
-        depends on how many people the council serves, one-off local events, people&rsquo;s expectations, and how well the
+        depends on how many people the council serves, local events that happen once, people&rsquo;s expectations, and how well the
         council tells people they can complain to the Ombudsman.
       </P>
       <P>

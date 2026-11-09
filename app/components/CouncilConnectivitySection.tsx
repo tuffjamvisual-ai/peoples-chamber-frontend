@@ -103,7 +103,7 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
         Broadband and mobile
       </h2>
       <p style={{ fontFamily: SERIF, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 4px' }}>
-        <strong>{pct(share('gigabit_n'))}</strong> of {fmtNum(premises)} homes and businesses can get gigabit-capable broadband, {fmtMonth(month)}
+        <strong>{pct(share('gigabit_n'))}</strong> of {fmtNum(premises)} homes and businesses can get broadband capable of gigabit speeds, {fmtMonth(month)}
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 14px' }}>
         {[
@@ -141,7 +141,7 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
 
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
-        These figures show what is available, not what people buy. &ldquo;Decent&rdquo; broadband means 10 Mbit/s download and 1 Mbit/s upload, the standard set by the broadband Universal Service Obligation. Full fibre use is the share of all premises with a full fibre connection in use. Mobile figures count the four networks Ofcom reports (EE, O2, Three and Vodafone) and are modelled predictions of signal strength; 5G figures use Ofcom&rsquo;s high-confidence measure.
+        These figures show what is available, not what people buy. &ldquo;Decent&rdquo; broadband means 10 Mbit/s download and 1 Mbit/s upload, the standard set by the broadband Universal Service Obligation. Full fibre use is the share of all premises with a full fibre connection in use. Mobile figures count the four networks Ofcom reports (EE, O2, Three and Vodafone) and are modelled predictions of signal strength; 5G figures use Ofcom&rsquo;s high confidence measure.
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Ofcom, Connected Nations ({fmtMonth(month)} data). Contains public sector information licensed under the Open Government Licence v3.0.
