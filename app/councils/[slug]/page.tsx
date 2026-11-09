@@ -645,6 +645,9 @@ function runByContradictsSeats(comp: { administration_code: string | null; seats
 
 function controlStatusText(status: string | null): string | null {
   if (!status) return null;
+  // A tie names every party with the most seats (NI2), never one picked silently.
+  const tie = status.match(/^NOC \(largest tie: (.+) (\d+)\/(\d+)\)$/);
+  if (tie) return `Largest parties: ${tie[1]}, ${tie[2]} seats each`;
   const noc = status.match(/^NOC \(largest: (.+) (\d+)\/(\d+)\)$/);
   if (noc) return `Largest party: ${noc[1]}, ${noc[2]} of ${noc[3]} seats`;
   if (/^noc$/i.test(status)) return null;

@@ -12,6 +12,8 @@ export type CouncilComposition = {
 const SEAT_NAME: Record<string, string> = {
   con: 'Conservative', lab: 'Labour', ld: 'Liberal Democrats', green: 'Green', ukip: 'UKIP',
   ref: 'Reform UK', pc: 'Plaid Cymru', snp: 'SNP', other: 'Independents and others',
+  // Northern Ireland (NI2, 9 Nov 2026; Open Council Data's councillors file, May 2026)
+  sf: 'Sinn Féin', dup: 'DUP', alliance: 'Alliance', uup: 'UUP', sdlp: 'SDLP', tuv: 'TUV', pbp: 'People Before Profit', pup: 'PUP',
 };
 // Codes used in the publisher's administration labels.
 const ADMIN_NAME: Record<string, string> = {
