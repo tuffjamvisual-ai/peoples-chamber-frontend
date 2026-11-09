@@ -1280,7 +1280,9 @@ export default function MagazineProfileSections({
               const voteUl: React.CSSProperties = { listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7', opacity: vLoading ? 0.5 : 1, transition: 'opacity 0.15s' };
               const voteItem = (v: (typeof voteList)[number]) => (
                   <li key={v.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
-                    <div>
+                    {/* MP2b-2: on phones the division title is clamped to 2 lines (CSS only, so the full title is still the link's
+                        text and accessible name, with JavaScript on or off); the vote, date and result line below is not. */}
+                    <div className="mp-vote-title">
                       {v.bill_id ? (
                         <Link href={`/bills/${v.bill_id}`} style={inkLink}>
                           {v.division_title}
@@ -2975,6 +2977,7 @@ export default function MagazineProfileSections({
           .mp-sections-nav .mp-follow-chip { flex: 1 1 100%; width: 100% !important; min-height: 48px; margin: 0 !important; padding: 8px 12px !important; border: 1px solid #14100d !important; box-shadow: none !important; background: transparent !important; color: #14100d !important; font-weight: bold !important; font-size: 15px !important; text-align: center !important; text-transform: none !important; letter-spacing: normal !important; }
         }
         .mp-col-inline { display: none; }
+        @media ${phoneUpTo(639.98)} { .mp-vote-title, .mp-vote-title > a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; } }
         @container (max-width: 560px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
       `}</style>
       <aside className="lg:col-span-1" style={{ marginLeft: '-13%' }}>
@@ -3113,8 +3116,10 @@ function FirstThenAll({ items, wrap }: { items: React.ReactNode[]; wrap: (kids: 
 // compact (phones, MP2a, 9 Nov 2026): the 3 most recent as title and date only, then the link to the full list; the ten
 // cards with summaries were about 2,000px of a 4,200px page at 375px.
 const COMPACT_REPORTS = 3;
-// Votes in view in the opened Voting record folder on phones (MP2b); the rest behind a fold.
-const RECENT_VOTES = 10;
+// Votes in view in the opened Voting record folder on phones (MP2b); the rest behind a fold. MP2b-2 (9 Nov 2026): with
+// each title clamped to 2 lines, 10 votes still opened the folder past +1,200px at 375px (+1,382 to +1,437 on /mps/1427,
+// 1446, 4820, 163 and 400), so the largest number that fits on the worst of them, the same on every profile.
+const RECENT_VOTES = 7;
 function ReportsMentioning({ reports, headingId = 'mp-reports-heading', compact = false }: { reports: MpReports | null; headingId?: string; compact?: boolean }) {
   if (!reports || reports.items.length === 0) return null;
   const items = compact ? reports.items.slice(0, COMPACT_REPORTS) : reports.items;
