@@ -1,6 +1,5 @@
 import { titleWithin } from '@/lib/seo-title';
 import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem, pagesByHeight } from '@/app/components/NoJsPager';
-import ScreenMore from '@/app/components/ScreenMore';
 import { splitAnswer } from '@/lib/answer-html';
 import { Fragment, cache } from 'react';
 import ReadNext from '../../components/ReadNext';
@@ -460,7 +459,6 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
             </div>
             </Fragment>
           ))}
-          <ScreenMore id="debate-rows" sizes={debateScreens} />
           <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} />
           </>
         )}

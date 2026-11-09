@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem, pagesByHeight } from '../../../components/NoJsPager';
-import ScreenMore from '../../../components/ScreenMore';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { longDateArchive } from '@/lib/pmqs-archive';
 import { preFixedDay, preFixedSummary, type PreFixedExchange, type PreFixedRow } from '@/lib/pm-questions-1945-1961';
@@ -104,7 +103,6 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
               </Fragment>
             );
           })}
-          <ScreenMore id="pq-day" sizes={screens} />
           <NoJsPagerLinks id="pq-day" count={items.length} sizes={screens} />
         </div>
         <section aria-label="Notes" style={{ marginTop: '28px', paddingTop: '14px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
