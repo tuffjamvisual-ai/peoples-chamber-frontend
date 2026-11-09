@@ -998,9 +998,9 @@ export default function MagazineProfileSections({
                   return (
                     <div key={phase} style={{ marginBottom: '18px' }}>
                       <div style={backgroundLabel}>{heading}</div>
-                      {rows.map((e, idx) => (
-                        <TimelineEntry key={idx} entry={e} last={idx === rows.length - 1} />
-                      ))}
+                      <FirstThenAll wrap={(kids) => <>{kids}</>} items={rows.map((e, idx) => (
+                        <TimelineEntry key={idx} entry={e} last={idx === rows.length - 1 || idx === FIRST_ITEMS - 1} />
+                      ))} />
                     </div>
                   );
                 })}
@@ -1040,7 +1040,7 @@ export default function MagazineProfileSections({
             {(bio?.career_history ?? []).length > 0 && (
               <div style={{ marginBottom: '8px' }}>
                 <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '12px' }}>Roles</div>
-                {(bio?.career_history ?? []).map((job, idx) => {
+                <FirstThenAll wrap={(kids) => <>{kids}</>} items={(bio?.career_history ?? []).map((job, idx) => {
                   const last = idx === (bio?.career_history?.length ?? 0) - 1;
                   return (
                     <div key={idx} style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: last ? 'none' : '1px solid rgba(20,16,13,0.15)' }}>
@@ -1050,7 +1050,7 @@ export default function MagazineProfileSections({
                       {job.detail && <div style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '6px' }}>{job.detail}</div>}
                     </div>
                   );
-                })}
+                })} />
               </div>
             )}
 
@@ -1712,8 +1712,7 @@ export default function MagazineProfileSections({
               <>
                 <h3 style={sectionH3}>Committee memberships</h3>
                 {currentCommittees.length > 0 && (
-                  <ul style={{ listStyle: 'none', padding: 0, marginBottom: formerCommittees.length > 0 ? '8px' : 0 }}>
-                    {currentCommittees.map((m, i) => {
+                  <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'none', padding: 0, marginBottom: formerCommittees.length > 0 ? '8px' : 0 }}>{kids}</ul>} items={currentCommittees.map((m, i) => {
                       const hasPage = m.committee_id != null && COMMITTEE_ID_SET.has(m.committee_id);
                       const name = m.committee_name ?? `Committee ${m.committee_id}`;
                       return (
@@ -1728,8 +1727,8 @@ export default function MagazineProfileSections({
                           )}
                         </li>
                       );
-                    })}
-                  </ul>
+                    })
+                  } />
                 )}
                 {formerCommittees.length > 0 && (
                   <details>
@@ -1769,9 +1768,8 @@ export default function MagazineProfileSections({
             {((bio?.representations?.length ?? 0) > 0 || contests.length > 0) && (
               <>
                 <h3 style={sectionH3}>Parliamentary career</h3>
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {/* Newest first for every MP (owner's approval, 22 Oct 2026); elections lost sit among the seats by date (CH1). */}
-                  {[
+                {/* Newest first for every MP (owner's approval, 22 Oct 2026); elections lost sit among the seats by date (CH1). */}
+                <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'none', padding: 0 }}>{kids}</ul>} items={[
                     ...(bio?.representations ?? []).map((r) => ({ date: r.startDate || '', seat: r, contest: null as CareerEntry | null })),
                     ...contests.map((e) => ({ date: e.start as string, seat: null, contest: e })),
                   ].sort((a, b) => b.date.localeCompare(a.date)).map(({ seat: r, contest }, i) => (
@@ -1787,31 +1785,29 @@ export default function MagazineProfileSections({
                         </>
                       ) : contestLine(contest as CareerEntry)}
                     </li>
-                  ))}
-                </ul>
+                  ))
+                } />
               </>
             )}
 
             {([['Government posts', governmentPosts], ['Opposition posts', oppositionPosts]] as const).map(([heading, posts]) => posts.length > 0 && (
               <Fragment key={heading}>
                 <h3 style={sectionH3}>{heading}</h3>
-                <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
-                  {/* Each spell's dates under the name (CH1), in the style of the seats above; most recent post first (CH1a). */}
-                  {posts.map((p, i) => (
+                {/* Each spell's dates under the name (CH1), in the style of the seats above; most recent post first (CH1a). */}
+                <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>{kids}</ul>} items={posts.map((p, i) => (
                     <li key={i}>
                       {p.name}
                       {p.spells.map((d, j) => <div key={j} style={{ fontSize: '15px', fontFamily: 'monospace' }}>{d.text}</div>)}
                     </li>
-                  ))}
-                </ul>
+                  ))
+                } />
               </Fragment>
             ))}
 
             {bio?.party_history && bio.party_history.length > 0 && (
               <>
                 <h3 style={sectionH3}>Party history</h3>
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {bio.party_history.map((p, i) => (
+                <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'none', padding: 0 }}>{kids}</ul>} items={bio.party_history.map((p, i) => (
                     <li key={i} style={{ padding: '4px 0' }}>
                       <strong>{p.party || p.name}</strong>
                       {(p.startDate || p.endDate) && (
@@ -1821,8 +1817,8 @@ export default function MagazineProfileSections({
                         </span>
                       )}
                     </li>
-                  ))}
-                </ul>
+                  ))
+                } />
               </>
             )}
 
@@ -1837,8 +1833,7 @@ export default function MagazineProfileSections({
                     Electoral Commission donation figures for these funders could not be loaded just now.
                   </p>
                 )}
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
-                  {appgs.map((a) => (
+                <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>{kids}</ul>} items={appgs.map((a) => (
                     <li key={a.slug} style={{ padding: '10px 0', borderBottom: inkDivider }}>
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                         <strong>{a.title}</strong>
@@ -1901,8 +1896,8 @@ export default function MagazineProfileSections({
                         </div>
                       )}
                     </li>
-                  ))}
-                </ul>
+                  ))
+                } />
                 <AppgSource />
               </>
             )}
@@ -3109,6 +3104,20 @@ export function MpReportList({ items }: { items: MpReports['items'] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+// MP2c (9 Nov 2026): a list longer than FIRST_ITEMS shows its first FIRST_ITEMS; on phones the rest wait in a closed
+// fold, "Show all <N>" (SubFold: a native <details> under 640px, shown as before from 640px up). wrap draws the items
+// in their list (the same <ul> as before, or none).
+const FIRST_ITEMS = 5;
+function FirstThenAll({ items, wrap }: { items: React.ReactNode[]; wrap: (kids: React.ReactNode[]) => React.ReactNode }) {
+  if (items.length <= FIRST_ITEMS) return <>{wrap(items)}</>;
+  return (
+    <>
+      {wrap(items.slice(0, FIRST_ITEMS))}
+      <SubFold label={`Show all ${items.length.toLocaleString('en-GB')}`}>{wrap(items.slice(FIRST_ITEMS))}</SubFold>
+    </>
   );
 }
 
