@@ -10,6 +10,7 @@ import type { CycleState } from '@/lib/sync-heartbeat';
 import vercelConfig from '../../../vercel.json';
 import { loadCursor } from '@/lib/sync-budget';
 import { healTimeout } from '@/lib/heal-budget';
+import { NI_SOURCE, parseNiPage, toNiColumns, compareNi, niCheckDue, type NiCounts } from '@/lib/ni-composition-check';
 import { SPAD_MANUAL_CHECKS_ROUTE } from '@/lib/spad-background-sync';
 import { annualReportStillUnread } from '@/lib/spad-background';
 import { FAILURES_PREFIX, FLAG_AFTER_RUNS, type ItemFailure } from '@/lib/sync-item-failures';
@@ -413,6 +414,25 @@ async function GET_impl(req: Request) {
     }
   })();
 
+  // Northern Ireland council seats against Open Council Data's own page (NI2, 9 Nov 2026): once a month, read only, the
+  // differences listed in this report and nowhere else (lib/ni-composition-check.ts). ?ni=1 runs it on other days in
+  // local tests only.
+  const niCouncils: { checked: boolean; source: string; differences?: string[]; error?: string } = { checked: false, source: NI_SOURCE };
+  if (niCheckDue(now) || (process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('ni') === '1')) {
+    try {
+      const { data: niRows, error: niErr } = await supabaseAdmin.from('council_composition').select('authority_name, seats, total_seats').like('gss_code', 'N09%');
+      if (niErr) throw new Error(`council_composition: ${niErr.message}`);
+      const ours = new Map<string, NiCounts>((niRows ?? []).map((r) => [r.authority_name as string, toNiColumns(r.seats as Record<string, number>, r.total_seats as number)]));
+      const page = await fetch(NI_SOURCE, { headers: { 'User-Agent': 'opengovt freshness monitor (+https://www.opengovt.uk)' }, signal: AbortSignal.timeout(20_000) });
+      if (!page.ok) throw new Error(`opencouncildata ${page.status}`);
+      const theirs = parseNiPage(await page.text());
+      if (theirs.size === 0) throw new Error('no councils found on the page');
+      Object.assign(niCouncils, { checked: true, differences: compareNi(ours, theirs) });
+    } catch (e) {
+      niCouncils.error = (e as Error).message;
+    }
+  }
+
   // The self heals, last (JF1c): each given at most the time left before the deadline, none started without enough.
   const heals: Array<{ route: string; triggered: boolean; status?: number; ok: boolean; reason?: string }> = [];
   const origin = new URL(req.url).origin;
@@ -453,6 +473,7 @@ async function GET_impl(req: Request) {
     blueBadges,
     childrenInCare,
     roadCondition,
+    niCouncils,
     members: { confirmed: memberCount ?? null, reviewResendPlanAt: MEMBERS_REVIEW_AT },
     emailedAlertCount: emailAlerts.length,
     selfHealed: [...healedRoutes],
