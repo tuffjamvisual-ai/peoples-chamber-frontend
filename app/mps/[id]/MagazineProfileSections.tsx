@@ -37,7 +37,7 @@ import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
-type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'edms' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
+type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'edms' | 'interests' | 'staffinterests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
 // TEMPORARY: hide the Political Biography tab + section on every MP profile.
 // Bios stay in the database untouched; this only stops them rendering. To
@@ -53,6 +53,8 @@ const BIO_VISIBLE_MEMBER_IDS = new Set<number>([1427, 400, 3914, 420, 5099, 4263
 const PHONE_FOLDS: Array<{ id: string; label: string; sections: SectionId[] }> = [
   { id: 'voting', label: 'Voting record', sections: ['voting'] },
   { id: 'interests', label: 'Registered interests', sections: ['interests'] },
+  // The MP's staff's interests in a folder of their own (ST1, 9 Nov 2026), so they are never read as the MP's.
+  { id: 'staffinterests', label: 'Staff interests', sections: ['staffinterests'] },
   { id: 'earnings', label: 'Earnings', sections: ['earnings'] },
   { id: 'donations', label: 'Donations', sections: ['donations'] },
   { id: 'expenses', label: 'Expenses', sections: ['expenses'] },
@@ -74,6 +76,7 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'petitions', label: 'PETITIONS',        rotate: '-0.1deg' },
   { id: 'edms',      label: 'EARLY DAY MOTIONS', rotate: '0.1deg' },
   { id: 'interests', label: 'INTERESTS',        rotate: '0.1deg' },
+  { id: 'staffinterests', label: 'STAFF INTERESTS', rotate: '-0.1deg' },
   { id: 'roles',     label: 'ROLES',            rotate: '-0.15deg' },
   { id: 'earnings',  label: 'EARNINGS',         rotate: '0.2deg' },
   { id: 'donations', label: 'DONATIONS',        rotate: '-0.15deg' },
@@ -683,7 +686,9 @@ export default function MagazineProfileSections({
     house: contributions.length > 0 || (writtenQuestions?.total ?? 0) > 0 || pmqsLinks(memberId, pmqsQuestions).length > 0,
     petitions: petitionsAvailable || !!constituencyPetitions,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
-    interests: interests.length > 0 || staffInterests.length > 0 || formerInterests.length > 0 || !!earlierRegisters,
+    interests: interests.length > 0 || formerInterests.length > 0 || !!earlierRegisters,
+    // Staff interests (ST1): their own folder, shown only when there is at least one.
+    staffinterests: staffInterests.length > 0,
     roles: !!(
       (spadAdvisers?.rows.length ?? 0) > 0 ||
       committeeMemberships.length > 0 ||
@@ -1678,7 +1683,6 @@ export default function MagazineProfileSections({
                   </NoJsPager>
                 </details>
               )}
-              <StaffInterests items={staffInterests} employedStaff={staffEmployed} headingStyle={sectionH3} />
               {/* MP1 (owner, 7 Nov 2026): the register history, once a block below the sections, last in Registered interests and a
                   fold of its own on phones. */}
               {earlierRegisters && (
@@ -1692,6 +1696,17 @@ export default function MagazineProfileSections({
             </>
           );
         })()}
+
+        {active === 'staffinterests' && staffInterests.length > 0 && (
+          <>
+            <h2 style={sectionH2}>Staff interests</h2>
+            {/* ST1 (9 Nov 2026): the opening line says whose interests these are; the list below is unchanged. */}
+            <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 4px' }}>
+              Outside interests of people this MP employs, as declared on the Register of Interests of Members&rsquo; Staff. These are not the MP&rsquo;s own interests.
+            </p>
+            <StaffInterests items={staffInterests} employedStaff={staffEmployed} headingStyle={sectionH3} />
+          </>
+        )}
 
         {active === 'roles' && (
           <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
@@ -2891,6 +2906,7 @@ export default function MagazineProfileSections({
     voting: countOf(votingAll ?? totalVotes ?? votes.length, 'division'),
     activity: [questionTotal > 0 && countOf(questionTotal, 'written question'), contributions.length > 0 && countOf(contributions.length, 'recent debate'), edms && edms.startedCount + edms.signedCount > 0 && countOf(edms.startedCount + edms.signedCount, 'EDM'), sponsoredBills.length > 0 && countOf(sponsoredBills.length, 'bill')].filter(Boolean).join(', ') || null,
     interests: interests.length > 0 ? countOf(interests.length, 'entry', 'entries') : 'none current',
+    staffinterests: staffInterests.length > 0 ? `${staffInterests.length.toLocaleString('en-GB')} declared` : null,
     roles: currentCommittees.length > 0
       ? countOf(currentCommittees.length, 'current committee')
       : countOf(governmentPosts.length + oppositionPosts.length + contests.length + (bio?.committee_memberships?.length ?? 0) + (bio?.representations?.length ?? 0) + (bio?.party_history?.length ?? 0) + formerCommittees.length + (spadAdvisers?.rows.length ?? 0), 'entry', 'entries'),
