@@ -16,6 +16,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
@@ -88,6 +89,7 @@ export default async function ContractorsWhoDonatePage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Matched companies · ranked by political donations</h2>
+        <ShowAll id="contractors-matched" count={(matched).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -116,6 +118,7 @@ export default async function ContractorsWhoDonatePage() {
             ))}
           </tbody>
         </table>
+        </ShowAll>
       </section>
 
       <section style={{ background: CREAM, padding: '12px 14px', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>

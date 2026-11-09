@@ -1,5 +1,5 @@
 import { titleWithin } from '@/lib/seo-title';
-import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold, ShowAll } from '@/app/components/NoJsPager';
 // Per-party money dossier — /parties/[slug]/money
 //
 // The data layer the policy and critique pages never had: every
@@ -296,6 +296,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
         <section style={{ marginBottom: '32px' }}>
           <h2 style={sectionH2}>Top funding sectors</h2>
           <p style={{ fontSize: '15px', marginBottom: '10px' }}>Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included; this view shows which parts of the economy fund the party.</p>
+          <ShowAll id="party-money-sectors" count={(sectorRows).length}>
           <table style={tableStyle}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -314,6 +315,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
               ))}
             </tbody>
           </table>
+          </ShowAll>
         </section>
       )}
 

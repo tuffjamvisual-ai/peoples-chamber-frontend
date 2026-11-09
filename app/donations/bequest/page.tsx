@@ -16,6 +16,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const revalidate = 86400;
 
@@ -92,6 +93,7 @@ export default async function BequestPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By recipient party</h2>
+        <ShowAll id="bequest-recipients" count={(recipientRanked).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -114,10 +116,12 @@ export default async function BequestPage() {
             ))}
           </tbody>
         </table>
+        </ShowAll>
       </section>
 
       <section>
         <h2 style={sectionH2}>Largest individual estates</h2>
+        <ShowAll id="bequest-donors" count={(donorRanked).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -140,6 +144,7 @@ export default async function BequestPage() {
             ))}
           </tbody>
         </table>
+        </ShowAll>
       </section>
 
 </OpenGovShell>

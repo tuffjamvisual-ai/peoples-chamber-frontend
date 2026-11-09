@@ -105,6 +105,12 @@ function PagerNav({ id, k, pages, always = false, wide = false, top = false }: {
 }
 
 // The Previous and Next links for rows that are siblings (`items` above): put after the last of them.
+// A plain list or table (MP2f-2, 9 Nov 2026): on phones the first rows and "Show all <N>" after it, with no paging at any
+// width; nothing changes from 640px up. rows: from the list to its rows, "> tbody > tr" for a table, "> li" for a list.
+export function ShowAll({ id, count, rows = '> tbody > tr', first, children }: { id: string; count: number; rows?: string; first?: number; children: ReactElement<{ className?: string }> }) {
+  return <NoJsPager id={id} count={count} rows={rows} size={Math.max(count, 1)} first={first}>{children}</NoJsPager>;
+}
+
 // With "Show all" on phones (MP2f) after them, for rows that are siblings.
 export function NoJsPagerLinks({ id, count, size = 25, sizes, first = PHONE_FIRST }: { id: string; count: number; size?: number; sizes?: number[]; first?: number }) {
   const pages = sizes ? sizes.length : Math.ceil(count / size);

@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const metadata: Metadata = {
   title: 'MP expenses refused or repaid: IPSA rejections',
@@ -150,7 +151,7 @@ export default async function RefusedExpensesPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By financial year</h2>
-        <div className="rr-scroll"><table style={tableStyle}>
+        <div className="rr-scroll"><ShowAll id="refused-years" count={(years).length}><table style={tableStyle}>
           <thead>
             <tr style={headerRow}>
               <th style={{ ...th, textAlign: 'left' }}>Year</th>
@@ -173,12 +174,12 @@ export default async function RefusedExpensesPage() {
               </tr>
             ))}
           </tbody>
-        </table></div>
+        </table></ShowAll></div>
       </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Why IPSA refused</h2>
-        <div className="rr-scroll"><table style={tableStyle}>
+        <div className="rr-scroll"><ShowAll id="refused-reasons" count={(reasons).length}><table style={tableStyle}>
           <thead>
             <tr style={headerRow}>
               <th style={{ ...th, textAlign: 'left' }}>Reason</th>
@@ -195,7 +196,7 @@ export default async function RefusedExpensesPage() {
               </tr>
             ))}
           </tbody>
-        </table></div>
+        </table></ShowAll></div>
       </section>
 
       <section style={{ marginBottom: '32px' }}>

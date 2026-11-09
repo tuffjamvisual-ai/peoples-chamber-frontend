@@ -21,6 +21,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const revalidate = 86400;
 
@@ -94,6 +95,7 @@ export default async function LateDisclosedPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Recipients with the most late disclosures</h2>
+        <ShowAll id="late-recipients" count={(recipientRanked).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -116,10 +118,12 @@ export default async function LateDisclosedPage() {
             ))}
           </tbody>
         </table>
+        </ShowAll>
       </section>
 
       <section>
         <h2 style={sectionH2}>Longest delays · top 50</h2>
+        <ShowAll id="late-top50" count={(top50).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -148,6 +152,7 @@ export default async function LateDisclosedPage() {
             ))}
           </tbody>
         </table>
+        </ShowAll>
       </section>
 
       <p style={{ fontSize: '15px', marginTop: '24px' }}>

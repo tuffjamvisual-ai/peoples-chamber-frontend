@@ -13,6 +13,7 @@ import { donorNameToSlug } from '../donors/[slug]/page';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll, inList } from '@/lib/read-all';
 import { storedSpellings } from '@/lib/donor-registry';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const revalidate = 86400;
 
@@ -91,6 +92,7 @@ export default async function AppgFundersIndex() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Funders paying for two or more APPGs · {multi.length}</h2>
+        <ShowAll id="appg-funders-multi" count={(multi).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -124,6 +126,7 @@ export default async function AppgFundersIndex() {
             })}
           </tbody>
         </table>
+        </ShowAll>
       </section>
 
       <details style={{ marginBottom: '32px' }}>

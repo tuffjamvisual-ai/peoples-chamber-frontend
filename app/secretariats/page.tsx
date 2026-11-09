@@ -9,6 +9,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import AppgSource from '../components/AppgSource';
 import { secretariatNameToSlug } from './[slug]/page';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const revalidate = 86400;
 
@@ -65,6 +66,7 @@ export default async function SecretariatsIndex() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Firms operating two or more APPGs · {multi.length}</h2>
+        <ShowAll id="secretariats-multi" count={(multi).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -85,6 +87,7 @@ export default async function SecretariatsIndex() {
             ))}
           </tbody>
         </table>
+        </ShowAll>
       </section>
 
       <details style={{ marginBottom: '32px' }}>
