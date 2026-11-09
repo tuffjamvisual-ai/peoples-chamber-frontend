@@ -23,6 +23,7 @@ import { donorRegistry } from '@/lib/donor-registry';
 import { getDonorProfile, LABEL_ORDER } from '@/lib/donor-profile';
 import { getDonorWhatFollowed, WHAT_FOLLOWED_CAP } from '@/lib/donor-what-followed';
 import PhoneTable from '../../components/PhoneTable';
+import { SubFold } from '../../components/PhoneFolds';
 import JsonLd, { buildDonorEntity } from '@/lib/JsonLd';
 import FollowButton from '../../components/FollowButton';
 
@@ -498,9 +499,12 @@ export default async function DonorPage({ params }: PageProps) {
         )}
       </section>
 
+      {/* MP2f (9 Nov 2026): on phones each section below the totals is a fold of its own with its count (SubFold: native
+          <details> under 640px, unchanged from 640px up), so the page opens short with JavaScript on or off. */}
       {/* Who they are (owner, 31 Oct 2026): the donor's background from public records and published reporting, each fact
           with its source, shown as written (lib/donor-profile.ts). Only when a profile exists. */}
       {background && (
+        <SubFold label="Who they are" summary={`${background.profile.facts.length} facts`}>
         <section aria-labelledby="donor-background" style={{ marginBottom: '28px', fontSize: '15px', lineHeight: 1.6, color: INK }}>
           <h2 id="donor-background" style={sectionH2}>Who they are</h2>
           <p style={{ margin: '0 0 12px', maxWidth: '70ch' }}>
@@ -536,8 +540,10 @@ export default async function DonorPage({ params }: PageProps) {
             Last checked {new Date(`${background.profile.last_checked}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}
           </p>
         </section>
+        </SubFold>
       )}
 
+      <SubFold label="How the money was split" summary={`${typeRows.length} ${typeRows.length === 1 ? 'type' : 'types'}`}>
       <section style={{ marginBottom: '28px' }}>
         <h2 style={sectionH2}>How the money was split</h2>
         <NoJsPager id="slug-0" count={(typeRows).length} rows="> tbody > tr" size={10}>
@@ -561,9 +567,11 @@ export default async function DonorPage({ params }: PageProps) {
         </table>
         </NoJsPager>
       </section>
+      </SubFold>
 
       {/* What followed (owner, 1 Nov 2026): records only, matched by Companies House number; no commentary. */}
       {showFollowed && (
+        <SubFold label="What followed" summary={null}>
         <section aria-labelledby="what-followed" style={{ marginBottom: '28px', fontSize: '15px', lineHeight: 1.6, color: INK }}>
           <h2 id="what-followed" style={sectionH2}>What followed</h2>
           <p style={{ margin: '0 0 8px', maxWidth: '70ch' }}>
@@ -604,9 +612,11 @@ export default async function DonorPage({ params }: PageProps) {
             </p>
           )}
         </section>
+        </SubFold>
       )}
 
       {appgsFunded.length > 0 && (
+        <SubFold label={`Also funds ${appgsFunded.length} APPG${appgsFunded.length === 1 ? '' : 's'}`} summary={null}>
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${WARN}` }}>
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also funds {appgsFunded.length} APPG{appgsFunded.length === 1 ? '' : 's'}</h2>
           <p style={{ fontSize: '15px', marginBottom: '12px' }}>This donor pays the secretariat of these All-Party Parliamentary Groups. Officers of these groups are MPs running a lobby this donor underwrites.</p>
@@ -621,9 +631,11 @@ export default async function DonorPage({ params }: PageProps) {
           </ul>
           </NoJsPager>
         </section>
+        </SubFold>
       )}
 
       {contractRecords.length > 0 && (
+        <SubFold label="Public contracts" summary={`${contractRecords.length.toLocaleString('en-GB')} records`}>
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${DANGER}` }}>
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>{matchedContracts.length === 0 ? `On ${matchedFrameworks.length} UK public framework${matchedFrameworks.length === 1 ? '' : 's'}` : `Also holds ${matchedContracts.length} UK public contract${matchedContracts.length === 1 ? '' : 's'}`}{matchedContracts.length === 0 ? '' : unpublishedValues === matchedContracts.length ? ' · values not published' : ` · ${fmtMoney(totalContractValue)}${unpublishedValues ? ` (value not published for ${unpublishedValues})` : ''}`}{matchedFrameworks.length && matchedContracts.length ? ` · on ${matchedFrameworks.length} framework${matchedFrameworks.length === 1 ? '' : 's'}` : ''}</h2>
           <p style={{ fontSize: '15px', marginBottom: '12px' }}>This donor&rsquo;s Companies House number also appears for a supplier on Find a Tender, the government&rsquo;s register of public contracts. Contracts are matched by that number only, never by name; no causal link is implied between the donations on this page and the contracts below.{matchedContracts.length > 0 ? ' Public bodies awarding the work:' : ''}</p>
@@ -700,8 +712,10 @@ export default async function DonorPage({ params }: PageProps) {
           </div>
           <Link href="/donations/government-contractors" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>See every contractor that also donates &rarr;</Link>
         </section>
+        </SubFold>
       )}
 
+      <SubFold label="Recipients" summary={`top ${Math.min(recipientRows.length, 50)}`}>
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Recipients · top {Math.min(recipientRows.length, 50)}</h2>
         <NoJsPager id="slug-3" count={(recipientRows.slice(0, 50)).length} rows="> tbody > tr" size={10} cards={[null, 'Type', 'Donations', 'Total']} title={1}>
@@ -739,9 +753,11 @@ export default async function DonorPage({ params }: PageProps) {
           <p style={{ fontSize: '15px', marginTop: '8px' }}>Showing top 50 of {recipientRows.length.toLocaleString('en-GB')}.</p>
         )}
       </section>
+      </SubFold>
 
       {/* Record-level list (audit reassessment, 16 Oct 2026): every donation, newest first, with
           its Electoral Commission reference, so a reader can check the original entry. */}
+      <SubFold label="Each donation" summary={donations.length.toLocaleString('en-GB')}>
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Each donation{donations.length > 100 ? ` · newest 100 of ${donations.length.toLocaleString('en-GB')}` : ''}</h2>
         {/* Phones (report 47): the date column stays put while the other columns scroll, with a hint when more are out of view. */}
@@ -787,6 +803,7 @@ export default async function DonorPage({ params }: PageProps) {
           </NoJsPager>
         </PhoneTable>
       </section>
+      </SubFold>
 
     </OpenGovShell>
   );

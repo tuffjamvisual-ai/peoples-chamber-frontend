@@ -211,6 +211,24 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   html:not(.og-js) .njf, .njf.njf-on { display: block; border-top: 1px solid rgba(20,16,13,0.25); }
   html:not(.og-js) .njf > summary, .njf.njf-on > summary { display: flex; align-items: center; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; color: #14100d; cursor: pointer; }
 }
+/* SubFold (app/components/PhoneFolds.tsx) on any page (MP2f, 9 Nov 2026): its rules were only in PhoneFolds' own styles,
+   so a SubFold on a page without PhoneFolds did not fold. The same rules, here once. */
+.pf-sd { display: none; }
+@media (min-width: 640px) and (orientation: portrait), (min-width: 640px) and (min-height: 500.01px), (min-width: 640px) and (hover: hover), (min-width: 640px) and (pointer: fine), (min-width: 640px) and (pointer: none) { .pf-sb { display: contents; } }
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+  .pf-sd { display: block; border-top: 1px dashed rgba(20,16,13,0.3); }
+  .pf-sd > summary { display: block; list-style: none; cursor: pointer; }
+  .pf-sd > summary::-webkit-details-marker { display: none; }
+  .pf-sd > summary::after { content: none !important; }
+  .pf-sbtn { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 6px 2px; font-size: 15px; font-weight: bold; color: #14100d; text-align: left; }
+  .pf-sum { font-weight: normal; }
+  .pf-mark { flex: 0 0 auto; font-size: 20px; line-height: 1; color: #7a1612; }
+  .pf-mark::before { content: '+'; }
+  .pf-sd[open] .pf-mark::before { content: '\2212'; }
+  .pf-sb { display: block; padding: 4px 0 12px; }
+  .pf-sd:not([open]) + .pf-sb { display: none; }
+  .pf-sd:not([open]) + .pf-sb:has(:target) { display: block; }
+}
 /* NoJsPager "Show all" (MP2f, 9 Nov 2026): on phones, a native <details> after a long list's first rows; nothing from 640px up. */
 .njp-sa { display: none; }
 @media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
