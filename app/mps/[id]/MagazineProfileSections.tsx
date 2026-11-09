@@ -1772,7 +1772,8 @@ export default function MagazineProfileSections({
                         <>
                           <strong>{r.name}</strong>
                           <div style={{ fontSize: '15px', fontFamily: 'monospace' }}>
-                            {fmtDate(r.startDate)}, {r.endDate ? fmtDate(r.endDate) : 'present'}
+                            {/* A seat still held: "since <date>", as posts (DX1, like CH1a). */}
+                            {r.endDate ? `${fmtDate(r.startDate)}, ${fmtDate(r.endDate)}` : `since ${fmtDate(r.startDate)}`}
                             {r.endDate && r.endReason ? ` · ${r.endReason}` : ''}
                           </div>
                         </>
@@ -2234,11 +2235,11 @@ export default function MagazineProfileSections({
                   lives at /explainers/donations and is linked below. */}
               <section style={{ marginBottom: '20px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: '3px solid #7a1612' }}>
                 <p style={callPLast}>
-                  The UK&rsquo;s political donation system asks politicians to declare who funds them and trusts them to tell the truth. There is no independent audit of what MPs receive. Donations below £500 need not be declared at all. Unincorporated associations and trusts can donate without revealing who provided the money. A company registered at Companies House with entirely foreign ownership and no UK employees is a permissible donor. Fines for non compliance are low enough to be treated as a cost of doing business. No major reform has been implemented since 2000. The register records what politicians chose to disclose, not what actually happened.
+                  These are the donations declared to the Electoral Commission and Parliament&rsquo;s register. Donations of £500 or less need not be declared, and nobody independently audits what is reported.
                 </p>
                 <p style={{ margin: '10px 0 0 0', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
                   <Link href="/explainers/donations" className="og-tap" style={{ color: '#7a1612', textDecoration: 'underline' }}>
-                    Read the full explainer &rarr;
+                    How donation rules work &rarr;
                   </Link>
                 </p>
               </section>
