@@ -1,0 +1,76 @@
+name: Weekly live check
+
+# QA1 Part B (owner approved, 9 Nov 2026): finds site problems before readers do. scripts/checks/qa/weekly-live-check.ts
+# reads at most 50 live pages and links, one request a second, user agent "opengovt site check", and checks each
+# page's status, height at 375px, internal links, "Updated" dates against the data's cadence, time relative words in our
+# wording, and the official record links on bills and divisions; it also runs the bill status data rule (read only).
+# The report (audit/qa/weekly-<date>.md and .json) is kept as an artifact for 90 days. The run fails, so GitHub emails
+# the owner, only when there is a problem the previous run did not have, or when bot protection stopped every page.
+#
+# Bot protection: Vercel's managed bot protection answers this agent with a 429 challenge. The check sends the
+# repository secret SITE_CHECK_TOKEN as the x-opengovt-site-check header; a firewall bypass rule matched on that header
+# (and nothing else) lets it through. Until the owner adds the secret and the rule, the report says the pages were
+# challenged and the run fails.
+on:
+  schedule:
+    # Mondays 06:37 UTC: a minute no Vercel cron or other workflow uses, off the hour. GitHub starts scheduled runs
+    # hours late on this repository (JA1); nothing depends on this one's time.
+    - cron: '37 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  check:
+    # Pinned: Playwright does not support Chromium on ubuntu-latest's newer image (JF1b).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      SITE_CHECK_TOKEN: ${{ secrets.SITE_CHECK_TOKEN }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install Playwright Chromium and the check's packages
+        timeout-minutes: 10
+        run: |
+          npm install --no-save playwright@1.59.1 @supabase/supabase-js tsx@4.23.15
+          npx playwright install --with-deps chromium
+
+      # The last finished run's report, to tell new problems from known ones. None on the first run.
+      - name: Fetch the previous report
+        continue-on-error: true
+        run: |
+          prev=$(gh run list --workflow weekly-live-check.yml --status completed --limit 5 --json databaseId,headBranch --jq '[.[] | select(.headBranch == "main")][0].databaseId')
+          if [ -n "$prev" ]; then gh run download "$prev" --name weekly-live-check --dir prev || true; fi
+          ls prev 2>/dev/null || echo "no previous report"
+
+      - name: Check the live site
+        timeout-minutes: 25
+        run: |
+          previous=$(ls prev/weekly-*.json 2>/dev/null | sort | tail -1)
+          npx tsx --tsconfig tsconfig.json scripts/checks/qa/weekly-live-check.ts --out-dir audit/qa ${previous:+--previous "$previous"}
+
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-live-check
+          path: audit/qa/weekly-*
+          if-no-files-found: ignore
+          retention-days: 90
