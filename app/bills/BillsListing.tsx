@@ -61,6 +61,29 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           Bills in Parliament
         </h1>
+        {/* The search field straight under the heading (UX1c, 9 Nov 2026), so it is in the first screen at 1280 x 720. */}
+        <style>{`
+          .bills-find { margin: 0 0 16px; }
+          .bills-find label { display: block; font-size: 16px; font-weight: bold; color: #14100d; margin: 0 0 6px; }
+          .bills-find-row { display: flex; flex-wrap: wrap; gap: 8px; }
+          .bills-find input { flex: 1 1 220px; min-width: 0; max-width: 420px; box-sizing: border-box; min-height: 44px; padding: 8px 10px; font-family: inherit; font-size: 16px; color: #14100d; background: #fffaf0; border: 1px solid #14100d; border-radius: 0; }
+          .bills-find button { min-height: 44px; padding: 8px 18px; font-family: inherit; font-size: 16px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; border-radius: 0; cursor: pointer; }
+          .bills-find-result { font-size: 16px; color: #14100d; margin: 14px 0; }
+          .bills-find-result a { color: #7a1612; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; min-height: 44px; }
+        `}</style>
+        <form method="get" action="/bills" role="search" className="bills-find">
+          <label htmlFor="bills-q">Find a bill</label>
+          <div className="bills-find-row">
+            <input id="bills-q" name="q" type="search" maxLength={BILL_QUERY_MAX} defaultValue={q} autoComplete="off" />
+            <button type="submit">Search</button>
+          </div>
+        </form>
+        {q && (
+          <p className="bills-find-result">
+            {totalCount === 0 ? <>No bills match &ldquo;{q}&rdquo;</> : <>{totalCount.toLocaleString()} {totalCount === 1 ? 'bill matches' : 'bills match'} &ldquo;{q}&rdquo;</>}.{' '}
+            <Link href="/bills">Clear search</Link>
+          </p>
+        )}
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           The bills going through UK Parliament now: introduced in the {current ? sessionTitle(current) : 'current session'} or carried over into it. How MPs voted. How you voted. The gap between the two.
         </p>
@@ -86,28 +109,6 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
         .bills-az a { color: #7a1612; text-decoration: none; font-size: 17px; line-height: 1.35; font-weight: bold; }
         .bills-az a:hover, .bills-az a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
       `}</style>
-      <style>{`
-        .bills-find { margin: 24px 0 8px; }
-        .bills-find label { display: block; font-size: 16px; font-weight: bold; color: #14100d; margin: 0 0 6px; }
-        .bills-find-row { display: flex; flex-wrap: wrap; gap: 8px; }
-        .bills-find input { flex: 1 1 220px; min-width: 0; max-width: 420px; box-sizing: border-box; min-height: 44px; padding: 8px 10px; font-family: inherit; font-size: 16px; color: #14100d; background: #fffaf0; border: 1px solid #14100d; border-radius: 0; }
-        .bills-find button { min-height: 44px; padding: 8px 18px; font-family: inherit; font-size: 16px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; border-radius: 0; cursor: pointer; }
-        .bills-find-result { font-size: 16px; color: #14100d; margin: 14px 0; }
-        .bills-find-result a { color: #7a1612; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; min-height: 44px; }
-      `}</style>
-      <form method="get" action="/bills" role="search" className="bills-find">
-        <label htmlFor="bills-q">Find a bill</label>
-        <div className="bills-find-row">
-          <input id="bills-q" name="q" type="search" maxLength={BILL_QUERY_MAX} defaultValue={q} autoComplete="off" />
-          <button type="submit">Search</button>
-        </div>
-      </form>
-      {q && (
-        <p className="bills-find-result">
-          {totalCount === 0 ? <>No bills match &ldquo;{q}&rdquo;</> : <>{totalCount.toLocaleString()} {totalCount === 1 ? 'bill matches' : 'bills match'} &ldquo;{q}&rdquo;</>}.{' '}
-          <Link href="/bills">Clear search</Link>
-        </p>
-      )}
       {totalCount > 0 && (
         <p style={{ fontSize: '15px', color: '#14100d', margin: '24px 0 14px' }}>
           Showing {((page - 1) * BILLS_PER_PAGE + 1).toLocaleString()} to {Math.min(page * BILLS_PER_PAGE, totalCount).toLocaleString()} of {totalCount.toLocaleString()}
