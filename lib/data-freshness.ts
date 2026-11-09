@@ -51,7 +51,7 @@ export const DATA_SOURCES: DataSource[] = [
   // Council details (leaders, party control, council tax, finance) are kept up to date by hand:
   // council tax each March, leaders after the May elections, finance once a year. There is no
   // reliable automated feed of council leaders, so this is checked yearly, not weekly.
-  { key: 'councils',             table: 'councils',              column: 'updated_at',   cadence: 'annual',    label: 'Council details',            source: 'MHCLG and council publications, updated by hand', page: '/councils' },
+  { key: 'councils',             table: 'councils',              column: 'updated_at',   cadence: 'annual',    label: 'Council details',            source: 'MHCLG and council publications, updated by hand', page: '/councils/[slug]' },
   { key: 'mp_expenses',          table: 'mp_expenses_detail',    column: 'updated_at',   cadence: 'quarterly', label: 'MP expenses',                source: 'IPSA',                          page: '/expenses', /* loaded by hand since 21 Oct 2026 (theipsa.org.uk robots.txt disallows /api/*); the Monday hand-loaded check emails on a new IPSA release */ },
   { key: 'press_releases',       table: 'press_releases',        column: 'published_at', cadence: 'daily',     label: 'Government press releases',   source: 'GOV.UK',                        page: '/transparency/press-releases',          syncRoute: '/api/sync-press-releases' },
   { key: 'bills',                table: 'bill',                  column: 'last_update',  cadence: 'daily',     label: 'Bills',                      source: 'UK Parliament Bills API',       page: '/bills',                                syncRoute: '/github-actions/bills' /* Daily Data Sync workflow, sync-bills-incremental.js */ },

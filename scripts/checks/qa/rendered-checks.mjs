@@ -15,10 +15,14 @@
 // expected: a run fails only on a new one (a page over the limit that was not, or longer than its baseline by more than
 // 200px; a time word on a page that did not have it). A4 for divisions is an expected failure until division pages link
 // to Parliament's record (EXPECTED_A4_DIVISIONS below); A4 for bills is a hard rule.
+// Dates (QA2c): each "Updated" line is judged against the limit of the source it names (record-dates.mjs) and reported
+// with the counts; a stale date is data, not code, so it is listed but never refuses a push (the weekly live check and
+// the freshness monitor report data age).
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
+import { loadSources, recordDates, judgeDates } from './record-dates.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..', '..');
@@ -55,6 +59,7 @@ function pages() {
   return [...new Set(types.map((t) => first.get(t) ?? all.find((p) => p.url === t)).filter(Boolean))];
 }
 
+const SOURCES = loadSources(ROOT);
 const exceptions = JSON.parse(fs.readFileSync(path.join(HERE, 'house-style-exceptions.json'), 'utf8'));
 const TIME_WORDS = [/\bpresent\b/i, /\bnow\b/i, /\bcurrently\b/i, /\bthis Parliament\b/i, /\bto date\b/i, /\bso far\b/i];
 
@@ -112,12 +117,13 @@ async function main() {
   await ctx.route('**/*', (r) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(r.request().url()) ? r.abort() : r.continue()));
   const page = await ctx.newPage();
   for (const p of [...list, ...extra]) {
-    const r = { route: p.route, url: p.url, status: null, height: null, timeWords: [], link: null };
+    const r = { route: p.route, url: p.url, status: null, height: null, timeWords: [], link: null, dates: [] };
     try {
       const res = await fetch(BASE + p.url, { redirect: 'manual', signal: AbortSignal.timeout(60000) });
       r.status = res.status;
       const html = res.status === 200 ? await res.text() : '';
       if (html && !(exceptions.time_words_skip_routes ?? []).includes(p.route)) r.timeWords = timeWords(visibleText(html));
+      if (html) r.dates = judgeDates(recordDates(html), p.route, SOURCES).map((d) => ({ ...d, date: d.date.toISOString().slice(0, 10) }));
       const want = await officialLink(p.url).catch((e) => ({ kind: 'error', href: null, error: e.message }));
       if (want) r.link = { ...want, found: want.href ? html.includes(want.href) : false };
       if (res.status === 200 && !extra.includes(p)) {
@@ -158,6 +164,7 @@ async function main() {
       if ((b.timeWords ?? []).includes(word)) expected.push(`A2 ${r.url}: ${w}`);
       else fails.push(`A2 ${r.url}: ${w} (new)`);
     }
+    for (const d of r.dates) if (d.stale) expected.push(`date ${r.url}: "Updated ${d.date}" is ${d.age} days old, over ${d.limit} for ${d.judgedBy === 'source' ? d.source : "this page's data"} (data, reported only)`);
     if (r.link && !r.link.found) {
       const line = `A4 ${r.url}: no link to ${r.link.href ?? `Parliament's record (${r.link.error ?? 'id not found'})`}`;
       if (r.link.kind === 'division' && EXPECTED_A4_DIVISIONS) expected.push(line);
@@ -170,6 +177,9 @@ async function main() {
     a3_over_limit: results.filter((r) => r.height != null && r.height > LIMIT_PX).length,
     a4_checked: results.filter((r) => r.link).length,
     a4_missing: results.filter((r) => r.link && !r.link.found).length,
+    date_lines: results.reduce((n, r) => n + r.dates.length, 0),
+    date_lines_by_source: results.reduce((n, r) => n + r.dates.filter((d) => d.judgedBy === 'source').length, 0),
+    dates_stale: results.reduce((n, r) => n + r.dates.filter((d) => d.stale).length, 0),
     new_problems: fails.length,
     expected: expected.length,
   };

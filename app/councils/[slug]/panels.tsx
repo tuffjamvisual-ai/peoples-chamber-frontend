@@ -49,7 +49,7 @@ export async function recordText(source: DateSource): Promise<string | null> {
 export async function Dated<P extends object>({ C, props, source }: { C: (props: P) => Promise<ReactNode>; props: P; source: DateSource }) {
   const node = await C(props);
   if (node == null || node === false) return null;
-  return <>{node}<RecordDate tight text={await recordText(source)} /></>;
+  return <>{node}<RecordDate tight text={await recordText(source)} source={source && 'updated' in source ? source.updated.join('.') : undefined} /></>;
 }
 
 function part<P extends object>(C: (props: P) => Promise<ReactNode>, props: P, source: DateSource): Part {

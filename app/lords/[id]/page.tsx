@@ -138,7 +138,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
               <PostList posts={committees} current={false} />
             </details>
           )}
-          {p.posts_checked_at && <RecordDate text={`Updated ${longDay(p.posts_checked_at)}`} />}
+          {p.posts_checked_at && <RecordDate text={`Updated ${longDay(p.posts_checked_at)}`} source="peers.posts_checked_at" />}
         </div>
     ),
   });
@@ -175,7 +175,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
           <p style={{ fontSize: '15px', margin: '8px 0 0' }}>
             <a href={parliamentRegisterUrl(memberId)} target="_blank" rel="noopener noreferrer" style={link}>Official register of interests</a>
           </p>
-          {interestsUpdated && <RecordDate text={`Updated ${interestsUpdated}`} />}
+          {interestsUpdated && <RecordDate text={`Updated ${interestsUpdated}`} source="peer_registered_interests.last_seen_date" />}
         </div>
     ),
   });
@@ -208,7 +208,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
               </ul>
             </>
           )}
-          {votesUpdated && <RecordDate text={`Updated ${votesUpdated}`} />}
+          {votesUpdated && <RecordDate text={`Updated ${votesUpdated}`} source="lords_divisions.synced_at" />}
         </div>
     ),
   });
@@ -220,7 +220,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
         <div style={{ color: INK }}>
           <h2 id="peer-questions" style={h2}>Written questions</h2>
           <WrittenQuestionsSummary summary={questions} allHref={`/lords/${memberId}/questions`} />
-          {questionsUpdated && <RecordDate text={`Updated ${questionsUpdated}`} />}
+          {questionsUpdated && <RecordDate text={`Updated ${questionsUpdated}`} source="parliament_written_questions.fetched_at" />}
         </div>
     ),
   });

@@ -405,7 +405,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
 
               {hasLeadership && (
-                <Section title="Political Control & Leadership" date={councilUpdated}>
+                <Section title="Political Control & Leadership" date={councilUpdated} source="councils.updated_at">
                   <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
                   {/* The publisher's administration label is left out when it contradicts the seats shown
                       below (e.g. "minority" while one named party holds more than half the seats). */}
@@ -453,7 +453,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
 
               {hasOverview && (
-                <Section title="Overview" date={c.population_year ? `Period ${c.population_year}` : councilUpdated}>
+                <Section title="Overview" date={c.population_year ? `Period ${c.population_year}` : councilUpdated} source={c.population_year ? undefined : 'councils.updated_at'}>
                   <DataRow
                     label={c.population_year ? `Population (${c.population_year} estimate)` : 'Population'}
                     value={c.population?.toLocaleString('en-GB') ?? null}
@@ -527,7 +527,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             </>,
             money: <>
               {hasFinance && (
-                <Section title="Finance" date={councilTax ? `Period ${councilTax.year.replace('-', '/')}` : councilUpdated}>
+                <Section title="Finance" date={councilTax ? `Period ${councilTax.year.replace('-', '/')}` : councilUpdated} source={councilTax ? undefined : 'councils.updated_at'}>
                   <DataRow label="Annual revenue budget" value={c.revenue_budget_mn != null ? `£${c.revenue_budget_mn.toLocaleString()}m` : null} />
                   {councilTax ? (
                     <DataRow label={`Council tax ${councilTax.year.replace('-', '/')} (Band D)`} value={councilTaxValue(councilTax, c.name, c.type)} sub={councilTaxSub(councilTax)} />
@@ -592,7 +592,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             </>,
             health: <>
               {showPublicHealth && (
-                <Section title="Public Health" date={publicHealthDate}>
+                <Section title="Public Health" date={publicHealthDate} source="council_public_health_metrics.updated_at">
                   <PublicHealthRow label="Smoking (adults)" row={publicHealthByKey.get('smoking_prevalence')} nation={c.country} />
                   <PublicHealthRow label="Physically active (adults)" row={publicHealthByKey.get('physical_activity_prevalence')} nation={c.country} />
                   <PublicHealthRow label="Overweight or obese (adults)" row={publicHealthByKey.get('obesity_prevalence')} nation={c.country} />
@@ -620,7 +620,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 Welfare spending
               </h2>
               <WelfareLocalAuthorityDetail gss={c.gss_code} embedded />
-              <RecordDate text={welfareDate} />
+              <RecordDate text={welfareDate} source="welfare_local_authority_summary.updated_at" />
             </section>
           ) : null}
         />
@@ -655,7 +655,7 @@ function controlStatusText(status: string | null): string | null {
   return status;
 }
 
-function Section({ title, children, date }: { title: string; children: React.ReactNode; date?: string | null }) {
+function Section({ title, children, date, source }: { title: string; children: React.ReactNode; date?: string | null; source?: string }) {
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
@@ -664,7 +664,7 @@ function Section({ title, children, date }: { title: string; children: React.Rea
       <dl className="council-dl" style={{ margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 220px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` }}>
         {children}
       </dl>
-      <RecordDate text={date} />
+      <RecordDate text={date} source={source} />
     </section>
   );
 }

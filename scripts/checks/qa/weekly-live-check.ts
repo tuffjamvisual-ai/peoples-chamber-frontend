@@ -15,6 +15,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { chromium } from 'playwright';
 import { visibleText, timeWords } from './rendered-checks.mjs';
+import { loadSources, recordDates, judgeDates } from './record-dates.mjs';
 
 const argv = process.argv.slice(2);
 const arg = (k: string, d: string | null) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -54,28 +55,10 @@ function sample(): { route: string; url: string }[] {
   return [...new Map([...must, ...rest].map((p) => [p.url, p])).values()].slice(0, SAMPLE_PAGES);
 }
 
-// The most lenient cadence of the data a page shows, in days (a page such as a council's shows several sources and an
-// "Updated" line cannot be tied to its source from the HTML, so only a date older than all of them is a problem), or null if none is listed. Read from the text of
-// lib/data-freshness.ts (one source per line: cadence and page), because that module needs the Next.js server to load.
-// CADENCE_MAX_AGE_DAYS there: keep these in step.
-const MAX_AGE: Record<string, number> = { daily: 2, weekly: 9, monthly: 35, quarterly: 100, annual: 400 };
-const PAGE_CADENCES: { page: string; cadence: string }[] = fs.readFileSync(path.join(ROOT, 'lib/data-freshness.ts'), 'utf8').split('\n')
-  .map((l) => ({ cadence: /cadence: '(\w+)'/.exec(l)?.[1], page: /page: '([^']+)'/.exec(l)?.[1] }))
-  .filter((x): x is { page: string; cadence: string } => !!x.cadence && !!x.page);
-function maxAgeDays(route: string): number | null {
-  const ages = PAGE_CADENCES.filter((s) => s.page === route).map((s) => MAX_AGE[s.cadence]).filter((n) => n != null);
-  return ages.length ? Math.max(...ages) : null;
-}
-
-const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
-function updatedDates(html: string): Date[] {
-  const out: Date[] = [];
-  for (const m of html.matchAll(/class="og-record-date"[^>]*>\s*Updated (\d{1,2}) ([A-Za-z]+) (\d{4})/g)) {
-    const mo = MONTHS.indexOf(m[2].toLowerCase());
-    if (mo >= 0) out.push(new Date(Date.UTC(Number(m[3]), mo, Number(m[1]))));
-  }
-  return out;
-}
+// "Updated <date>" lines: each judged against the limit of the source it names (data-source, QA2c), else the page's
+// most lenient listed source (scripts/checks/qa/record-dates.mjs).
+const SOURCES = loadSources(ROOT);
+const dateCounts = { lines: 0, by_source: 0, by_page: 0, not_judged: 0 };
 
 async function get(url: string, method = 'GET'): Promise<Response> {
   requests++;
@@ -106,10 +89,10 @@ async function main(): Promise<number> {
       const html = res.status === 200 ? await res.text() : '';
       if (html) {
         for (const w of timeWords(visibleText(html))) r.problems.push(`time word ${w}`);
-        const max = maxAgeDays(p.route);
-        if (max != null) for (const d of updatedDates(html)) {
-          const age = Math.floor((Date.now() - d.getTime()) / 86400000);
-          if (age > max) r.problems.push(`"Updated ${d.toISOString().slice(0, 10)}" is ${age} days old, over ${max} for this page's data`);
+        for (const d of judgeDates(recordDates(html), p.route, SOURCES)) {
+          dateCounts.lines++;
+          if (d.judgedBy === 'source') dateCounts.by_source++; else if (d.judgedBy === 'page') dateCounts.by_page++; else dateCounts.not_judged++;
+          if (d.stale) r.problems.push(`"Updated ${d.date.toISOString().slice(0, 10)}" is ${d.age} days old, over ${d.limit} for ${d.judgedBy === 'source' ? d.source : "this page's data"}`);
         }
         if (p.route === '/bills/[id]' && !/href="https:\/\/bills\.parliament\.uk\/bills\/\d+"/.test(html)) r.problems.push('no link to the bill on bills.parliament.uk');
         if (p.route === '/divisions/[slug]' && !/href="https:\/\/votes\.parliament\.uk\/Votes\/(Commons|Lords)\/Division\/\d+"/.test(html)) r.problems.push('no link to the division on votes.parliament.uk');
@@ -155,7 +138,7 @@ async function main(): Promise<number> {
   const date = new Date().toISOString().slice(0, 10);
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  const json = { date, base: BASE, requests, pages: results.length, challenged, problems, new_problems: fresh, bill_status: billStatus, results };
+  const json = { date, base: BASE, requests, pages: results.length, challenged, date_lines: dateCounts, problems, new_problems: fresh, bill_status: billStatus, results };
   fs.writeFileSync(path.join(OUT_DIR, `weekly-${date}.json`), JSON.stringify(json, null, 1));
   const md = [
     `# Weekly live check, ${date}`, '',
@@ -165,10 +148,11 @@ async function main(): Promise<number> {
     `## All problems (${problems.length})`, '', ...(problems.length ? problems.map((x) => `- ${x}`) : ['None.']), '',
     '## Pages', '', '| Page | Status | Height at 375px | Problems |', '|---|---|---|---|',
     ...results.map((r) => `| ${r.url} | ${r.challenged ? '429 challenge' : r.status} | ${r.height ?? ''} | ${r.problems.length} |`), '',
+    `"Updated" lines: ${dateCounts.lines} found; ${dateCounts.by_source} judged by their own source, ${dateCounts.by_page} by the page's data, ${dateCounts.not_judged} not judged.`, '',
     `Bill status data rule: ${billStatus ?? 'not run (no database keys)'}`, '',
   ].join('\n');
   fs.writeFileSync(path.join(OUT_DIR, `weekly-${date}.md`), md);
-  console.log(`weekly live check: ${results.length} pages, ${requests} requests, ${challenged} challenged, ${problems.length} problems, ${fresh.length} new`);
+  console.log(`weekly live check: ${results.length} pages, ${requests} requests, ${challenged} challenged, ${problems.length} problems, ${fresh.length} new; date lines ${JSON.stringify(dateCounts)}`);
   if (challenged === results.length) { console.error('weekly live check: every page was challenged by bot protection; nothing was checked'); return 1; }
   return fresh.length ? 1 : 0;
 }
