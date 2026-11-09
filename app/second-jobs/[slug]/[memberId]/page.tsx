@@ -5,10 +5,10 @@
 
 import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
-import { fmtAmount, fmtMoney, isOneOff, loadMember, parseParent, parsePayment, slugToLabel } from '../../_lib/data';
+import { currentPartySlug, fmtAmount, fmtMoney, isOneOff, loadMember, parseParent, parsePayment, slugToLabel } from '../../_lib/data';
 import { displayMpName } from '@/lib/mp-name';
 
 export function generateStaticParams() { return []; }
@@ -41,7 +41,12 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
   if (!Number.isFinite(memberIdNum)) notFound();
 
   const item = await loadMember(slug, memberIdNum);
-  if (!item) notFound();
+  if (!item) {
+    // The MP's page under their current party, when the address has an old party in it (SC1): a permanent redirect.
+    const now = await currentPartySlug(memberIdNum);
+    if (now && now !== slug && (await loadMember(now, memberIdNum))) permanentRedirect(`/second-jobs/${now}/${memberIdNum}`);
+    notFound();
+  }
 
   const label = slugToLabel(slug);
   const name = displayMpName(item.mp.display_name || item.mp.name || '');

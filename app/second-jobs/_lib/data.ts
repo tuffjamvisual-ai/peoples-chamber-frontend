@@ -386,6 +386,14 @@ export async function loadLanding(): Promise<{
 // MP only (22 Oct 2026, owner's approval). loadAll() read every MP's employment entries, twice per page (metadata
 // and page), and hit anon's 3 s limit on cold reads. Returns null where loadAll() would have no entry: not a current
 // MP, no current employment entry, or a party that is not this slug. Cached per request so both callers share it.
+// The party slug a current MP's second jobs page is under now, or null if they are not a current MP (SC1, 9 Nov 2026):
+// an MP who changed party (Karl Turner, independent then Labour again) keeps the old address in Google, which then 404s.
+export const currentPartySlug = cache(async (memberId: number): Promise<string | null> => {
+  const { data, error } = await supabase.from('mps').select('party').eq('current_member', true).eq('member_id', memberId).maybeSingle();
+  if (error) throw new Error(`mps: ${error.message}`);
+  return data ? partyToSlug((data as { party: string | null }).party) : null;
+});
+
 export const loadMember = cache(async (slug: string, memberId: number): Promise<MpDetail | null> => {
   const [{ data: mp, error: mpError }, { data: rows, error: rowsError }, { data: summary, error: summaryError }] = await Promise.all([
     supabase.from('mps').select('member_id, display_name, name, constituency, party, party_colour')
