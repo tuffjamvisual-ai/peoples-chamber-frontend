@@ -47,6 +47,10 @@ export const maxDuration = 300;
 // Publications check: the bills going through Parliament now (bill_current) have their Publications count read from
 // the Bills API, PUBLICATIONS_PER_RUN a run in turn, within the time budget; a bill whose count changed is refreshed
 // (a new version of its text). The counts are kept in sync_cursor under PUBLICATIONS_CURSOR.
+// 9 Nov 2026 (JF2e, jobs audit JA1 item 13): the STALE_DAYS sweep covers only live bills, the bill_current view (not an
+// Act, not withdrawn, not defeated, not at Royal Assent, and in the current session, so not fallen): 194 bills instead
+// of all 4,073 with a Parliament id, whose stages can no longer change. Changed bills (stages_synced_at null, set by the
+// nightly bill sync when a bill's list row changed) are still read whatever their status.
 // Local tests only (never on Vercel production): ?dry=1 reads and compares but writes and refreshes nothing, and says
 // how many bills it would refresh.
 
@@ -78,20 +82,30 @@ async function GET_impl(req: Request) {
   const supabase = createClient(url, key);
   const dry = process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('dry') === '1';
 
-  // Changed bills (NULL stages_synced_at) first, then the oldest sync.
+  // Changed bills (NULL stages_synced_at) first, then the live bills (bill_current) not refreshed for STALE_DAYS, oldest
+  // first. Hidden bills (bill.hidden_reason) have no page and are not refreshed (24 Oct 2026); bill_current has none.
   const cutoff = new Date(Date.now() - STALE_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  const { data: rows, error: selErr } = await supabase
+  const COLUMNS = 'id, parliament_id, stages_synced_at, stages, current_stage, stage_date, sponsor_member_id';
+  const { data: changedRows, error: chErr } = await supabase
     .from('bill')
-    .select('id, parliament_id, stages_synced_at, stages, current_stage, stage_date, sponsor_member_id')
+    .select(COLUMNS)
     .not('parliament_id', 'is', null)
-    // Hidden bills (bill.hidden_reason) have no page and are not refreshed (24 Oct 2026).
     .is('hidden_reason', null)
-    .or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`)
-    .order('stages_synced_at', { ascending: true, nullsFirst: true })
+    .is('stages_synced_at', null)
+    .order('id')
     .limit(RUN_CAP);
-  if (selErr) return NextResponse.json({ error: selErr.message }, { status: 500 });
+  if (chErr) return NextResponse.json({ error: chErr.message }, { status: 500 });
+  const { data: staleRows, error: stErr } = await supabase
+    .from('bill_current')
+    .select(COLUMNS)
+    .not('parliament_id', 'is', null)
+    .lt('stages_synced_at', cutoff)
+    .order('stages_synced_at', { ascending: true })
+    .limit(RUN_CAP);
+  if (stErr) return NextResponse.json({ error: stErr.message }, { status: 500 });
 
-  const targets = rows || [];
+  const targets = [...(changedRows || []), ...(staleRows || [])].slice(0, RUN_CAP);
+  const queueMix = { changed: (changedRows || []).length, stale_live: (staleRows || []).length };
   const failing = await ItemFailures.load(supabase, '/api/sync-bill-stages');
   // Flagged bills still due go after the others.
   const queue = [...targets.filter((r) => !failing.isFlagged(r.id)), ...targets.filter((r) => failing.isFlagged(r.id))];
@@ -192,12 +206,16 @@ async function GET_impl(req: Request) {
   const storesRefresh = changed.size > 0 && !dry ? await refreshStore(supabase, 'refresh_bill_stores') : null;
   const refreshed = changed.size > 0 && !dry ? (revalidateBillPages(), refreshBills(changed, changedSponsors)) : null;
 
-  const { count: remaining } = await supabase.from('bill').select('id', { count: 'exact', head: true })
-    .not('parliament_id', 'is', null).is('hidden_reason', null).or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`);
+  const { count: remainingChanged } = await supabase.from('bill').select('id', { count: 'exact', head: true })
+    .not('parliament_id', 'is', null).is('hidden_reason', null).is('stages_synced_at', null);
+  const { count: remainingStale } = await supabase.from('bill_current').select('id', { count: 'exact', head: true })
+    .not('parliament_id', 'is', null).lt('stages_synced_at', cutoff);
+  const remaining = remainingChanged == null || remainingStale == null ? null : remainingChanged + remainingStale;
   const failuresSaved = dry ? false : await failing.save();
   if (fail > 0) console.error(JSON.stringify({ route: '/api/sync-bill-stages', targeted: targets.length, ok, fail, not_found: notFound, skipped_for_time: skippedForTime, first_failures: failures.slice(0, 5) }));
   return NextResponse.json({
     targeted: targets.length,
+    queue: queueMix,
     rows_written: ok,
     fail,
     not_found: notFound,
@@ -208,7 +226,7 @@ async function GET_impl(req: Request) {
     failing_items: failing.summary(),
     failures_saved: failuresSaved,
     skipped_for_time: skippedForTime,
-    // Bills still due after this run (changed, or not refreshed for STALE_DAYS); they come first next run.
+    // Bills still due after this run (changed, or live and not refreshed for STALE_DAYS); they come first next run.
     partial: skippedForTime > 0 || (remaining ?? 0) > 0 || flaggedFail > 0,
     stopped_by: stoppedBy,
     still_due: remaining ?? null,
