@@ -3,7 +3,9 @@ name: Nightly MP Political career sync
 # The Parliament part of each current MP's Political career (PC1, owner approved PCL1 on 7 Nov 2026):
 # scripts/sync-career-parliament.ts rebuilds mp_biography.career_parliament and career_checked_at from the Members API
 # Biography and the Bills API, one request a second with retries (2, 4 and 8 seconds; HTTP 429 or 403 stops the run).
-# It never writes career_research. A full run for 650 MPs takes about 30 to 40 minutes, too long for a Vercel cron route,
+# It never writes career_research. Since SY2 (9 Nov 2026) it checks Parliament's cheap lists (posts, members, bills
+# updated since its cursor) and fetches in full only the MPs that changed, plus up to 25 records over 30 days old, saving
+# each MP as it goes; with no cursor it runs a baseline over as many nights as it needs. Too long for a Vercel cron route,
 # so it runs here like the other script syncs (daily-sync.yml).
 on:
   schedule:
@@ -48,14 +50,15 @@ jobs:
       # The script reads .env.local (process.loadEnvFile); here the values come from the job's env, so an empty file.
       - name: Sync the Parliament part of every current MP's Political career
         id: career
-        timeout-minutes: 80
+        # SY2: the script stops starting new MPs after 33 minutes (--budget-minutes) and keeps what it has written.
+        timeout-minutes: 40
         continue-on-error: true
         run: |
           touch .env.local
           npx tsx --tsconfig tsconfig.json scripts/sync-career-parliament.ts
 
       # Entries left out because they failed validate() (each with the MP's id, Parliament's raw record and the reason).
-      # More than 10 in a run stops the sync before it writes anything, and the step above fails.
+      # More than 10 in a run stops the sync before it writes any more, and the step above fails.
       - name: Keep the left out records
         if: always()
         uses: actions/upload-artifact@v4
