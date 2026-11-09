@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { billStageLine, billSummary, NO_SUMMARY_TEXT } from '@/lib/bill-summary';
+import { isLaw } from '@/lib/bill-status';
 
 // Bills listing card styled as a Victorian-era UK Parliamentary Bill
 // cover sheet (Representation of the People Bill template):
@@ -219,7 +220,7 @@ export default function BillCoverCard({ bill, userVote = null }: Props) {
 
       {/* Royal Assent stamp — only for Acts (bill.is_act). Sits opposite
           the Voted stamp so they don't collide. */}
-      {bill.is_act && (
+      {isLaw(bill) && (
         <div
           aria-hidden
           style={{

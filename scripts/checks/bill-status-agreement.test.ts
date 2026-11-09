@@ -1,10 +1,8 @@
 // QA1 A1 (owner approved, 9 Nov 2026): bill status agreement. No network or database (the stored data is checked by
 // scripts/checks/qa/bill-status-data.ts in the weekly live check). Run: npx tsx --test scripts/checks/bill-status-agreement.test.ts
 //
-// EXPECTED FAILURE until UX1a: the status is still worked out in several places (the bill page and its layout, the
-// bill grids, the session archive, This week, the search route). The code rule is marked todo, so it is reported but
-// does not fail the run. When UX1a is merged, set BILL_STATUS_MODULE in scripts/checks/qa/bill-status-rules.ts and
-// remove the todo option below: from then on any second place that reads the raw flags fails the test run.
+// Since UX1a (9 Nov 2026) every reader facing place gets a bill's status from lib/bill-status.ts (BILL_STATUS_MODULE in
+// scripts/checks/qa/bill-status-rules.ts), so any second place that reads the raw flags fails the test run.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -12,9 +10,8 @@ import { codeOffenders, flagReads, stagesAfterEnd, usesFlags, BILL_STATUS_MODULE
 
 const ROOT = path.join(__dirname, '..', '..');
 
-test('one status function: no reader facing file reads the raw bill flags except the status module',
-  { todo: BILL_STATUS_MODULE ? undefined : 'expected failure until UX1a sets the one bill status function' },
-  () => {
+test('one status function: no reader facing file reads the raw bill flags except the status module', () => {
+    assert.ok(BILL_STATUS_MODULE, 'BILL_STATUS_MODULE is set (UX1a)');
     const offenders = codeOffenders(ROOT);
     assert.deepEqual(offenders, [], `these files work out a bill status themselves:\n  ${offenders.join('\n  ')}`);
   });

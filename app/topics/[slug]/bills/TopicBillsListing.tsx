@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import { getTopic, topicBillArgs } from '@/lib/topics';
+import { isLaw } from '@/lib/bill-status';
 
 export const TOPIC_BILLS_PER_PAGE = 20;
 
@@ -63,7 +64,7 @@ export default async function TopicBillsListing({ slug, page }: { slug: string; 
           <Link key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
             <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>
               {b.title}
-              {b.is_act && <span style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, marginLeft: '8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Act</span>}
+              {isLaw(b) && <span style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, marginLeft: '8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Act</span>}
             </div>
             <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '3px' }}>
               {[b.current_stage, b.last_update ? `updated ${fmtDate(b.last_update)}` : ''].filter(Boolean).join(' · ')}

@@ -7,6 +7,7 @@ import type { CSSProperties } from 'react';
 import BillCoverCard from './BillCoverCard';
 import Pagination from './Pagination';
 import { useSearchParamQ } from './useSearchParamQ';
+import { isInProgress } from '@/lib/bill-status';
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
@@ -109,11 +110,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages,
     let filtered = [...source];
 
     if (!searchResults) {
-      filtered = filtered.filter((bill: any) =>
-        !bill.bill_withdrawn &&
-        !bill.is_act &&
-        bill.current_stage !== 'Royal Assent'
-      );
+      filtered = filtered.filter((bill: any) => isInProgress(bill)); // the one bill status (UX1a)
     }
 
     if (activeTab === 'trending') {

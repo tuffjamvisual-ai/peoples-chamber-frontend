@@ -5,6 +5,8 @@ import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { displayMpName } from '@/lib/mp-name';
 import { searchFormerMps } from '@/lib/former-mps';
+import { billStatus } from '@/lib/bill-status';
+import { getParliamentSessions, sessionTitle } from '@/lib/parliament-sessions';
 
 export type SearchResultType =
   | 'editorial'
@@ -189,7 +191,7 @@ async function queryBills(
   const limit = tsType === 'phrase' ? PHRASE_PER_TABLE : PER_TABLE;
   let query = supabase
     .from('bill')
-    .select('id, title, current_stage, last_update')
+    .select('id, title, current_stage, last_update, is_act, is_defeated, bill_withdrawn')
     .textSearch('search_vec', q, { type: tsType, config: 'english' })
     .is('hidden_reason', null)
     .order('last_update', { ascending: false, nullsFirst: false })
@@ -201,16 +203,33 @@ async function queryBills(
   const { data, error } = await query;
   if (error) throw new Error(`bill: ${error.message}`);
 
-  return (data ?? []).map((r) => ({
+  // Each bill's latest session and its one status (UX1a, lib/bill-status.ts): two bills of the same name in different
+  // sessions read apart, and a withdrawn bill or one that fell with its session never reads as in progress.
+  const ids = (data ?? []).map((r) => r.id as number);
+  const [{ data: inSessions, error: sErr }, sessions] = ids.length
+    ? await Promise.all([supabase.from('bill_in_session_stored').select('bill_id, session_id').in('bill_id', ids), getParliamentSessions()])
+    : [{ data: [], error: null }, []];
+  if (sErr) throw new Error(`bill sessions: ${sErr.message}`);
+  const latest = new Map<number, number>();
+  for (const r of inSessions ?? []) latest.set(r.bill_id as number, Math.max(latest.get(r.bill_id as number) ?? 0, r.session_id as number));
+  const byId = new Map(sessions.map((s) => [s.id, s]));
+  const current = sessions.find((s) => s.is_current)?.id ?? null;
+
+  return (data ?? []).map((r) => {
+    const sid = latest.get(r.id as number) ?? null;
+    const session = sid != null ? byId.get(sid) : undefined;
+    const status = billStatus(r, { sessionEnded: sid != null && current != null && sid !== current });
+    return {
     type: 'bill' as const,
     title: r.title,
-    standfirst: r.current_stage ?? undefined,
+    standfirst: [session ? sessionTitle(session) : null, status.label].filter(Boolean).join(' · '),
     // bill.last_update is the Bills API's lastUpdate (sync-bills-incremental.js): when Parliament last changed the
     // bill's record in any way, not the date of its stage, so it is labelled as such (BD1).
     date: toDateStr(r.last_update),
     dateLabel: 'Last updated',
     url: `/bills/${r.id}`,
-  }));
+    };
+  });
 }
 
 async function queryDivisions(

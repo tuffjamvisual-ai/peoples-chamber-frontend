@@ -14,6 +14,7 @@ import { listSummary } from '@/lib/editorials/list-summary';
 import { listReadingLabel, textReadingLabel } from '@/lib/reading-time';
 import ContinueToArticle from '../../components/ContinueToArticle';
 import NoJsPager, { NoJsPagerLinks, njpItem } from '@/app/components/NoJsPager';
+import { isLaw } from '@/lib/bill-status';
 
 export const revalidate = 86400;
 
@@ -104,7 +105,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   // newest of each title is listed, so the 8 shown are different bills. topic_bills returns newest first.
   const newest = newestPerTitle((billRes.data || []) as BillRow[]).slice(0, 8);
   // Bills: active (not yet an Act) first, then most recent Acts.
-  const bills = newest.sort((a, b) => Number(!!a.is_act) - Number(!!b.is_act));
+  const bills = newest.sort((a, b) => Number(isLaw(a)) - Number(isLaw(b)));
   const keyActs = newestPerTitle([...newestPerTitle((actRes.data || []) as BillRow[]).slice(0, 8), ...((namedRes.data || []) as BillRow[])]);
 
   // Top MPs by written questions to the topic's department(s).
@@ -207,7 +208,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
             <Link key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>
                 {b.title}
-                {b.is_act && <span style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, marginLeft: '8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Act</span>}
+                {isLaw(b) && <span style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, marginLeft: '8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Act</span>}
               </div>
               {b.current_stage && <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '3px' }}>{b.current_stage}</div>}
             </Link>

@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { displayMpName } from '@/lib/mp-name';
 import { allEditorials } from '@/lib/editorials-source';
 import { withoutLeadingLabel } from '@/lib/bio-labels';
+import { isLaw } from '@/lib/bill-status';
 
 export const revalidate = 1800;
 
@@ -130,7 +131,7 @@ async function fetchBillItems(): Promise<FeedItem[]> {
     }) => {
       const lead = firstSentence(billSummary(b), 200);
       const statusBits: string[] = [];
-      if (b.is_act) statusBits.push('Now an Act of Parliament');
+      if (isLaw(b)) statusBits.push('Now an Act of Parliament');
       else if (b.current_stage) statusBits.push(`Currently at ${b.current_stage}`);
       if (b.sponsor_name) statusBits.push(`sponsored by ${b.sponsor_name}`);
       const description = [lead, statusBits.join('; ')].filter(Boolean).join(' ');

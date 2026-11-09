@@ -217,15 +217,15 @@ export function buildBillLegislation(opts: {
   billId: number;
   title: string;
   legislationDate: string | null; // ISO date
-  isAct: boolean;
-  isDefeated: boolean;
-  isWithdrawn: boolean;
+  isLaw: boolean; // these three from lib/bill-status.ts (UX1a)
+  defeated: boolean;
+  withdrawn: boolean;
   sponsorName: string | null;
 }) {
   // legislationLegalForce (23 Oct 2026; legislationStatus is not a schema.org property): a bill, whether before
   // Parliament, withdrawn or defeated, is not in force. An Act's commencement can follow Royal Assent, so no force
   // status is claimed for it.
-  const legalForce = opts.isAct ? undefined : 'https://schema.org/NotInForce';
+  const legalForce = opts.isLaw ? undefined : 'https://schema.org/NotInForce';
 
   return {
     '@context': 'https://schema.org',
@@ -238,7 +238,7 @@ export function buildBillLegislation(opts: {
       '@type': 'Country',
       name: 'United Kingdom',
     },
-    legislationType: opts.isAct ? 'Act' : 'Bill',
+    legislationType: opts.isLaw ? 'Act' : 'Bill',
     legislationLegalForce: legalForce,
     sponsor: opts.sponsorName
       ? { '@type': 'Person', name: opts.sponsorName }

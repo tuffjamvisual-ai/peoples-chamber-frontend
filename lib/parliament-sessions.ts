@@ -3,6 +3,7 @@
 // is the bill_in_session view (scripts/migrations/2026-10-20h-parliament-sessions.sql). A session with no name yet
 // (a new session before the loader is re-run) shows as "Session 41".
 import { supabase } from './supabase';
+import { billStatus } from '@/lib/bill-status';
 
 export type ParliamentSession = {
   id: number;
@@ -134,9 +135,11 @@ export const SESSION_GROUPS: { key: SessionBillGroup; heading: string; note: str
 
 export function sessionBillGroup(b: SessionBill, sessionId: number, isCurrent: boolean): SessionBillGroup {
   if (b.latest_session_id != null && b.latest_session_id > sessionId) return 'carried';
-  if (b.is_act || b.current_stage === 'Royal Assent') return 'law';
-  if (b.bill_withdrawn) return 'withdrawn';
-  if (b.is_defeated) return 'defeated';
-  if (isCurrent) return 'current';
+  // The one bill status (UX1a, lib/bill-status.ts): a session that is not the current one has ended.
+  const s = billStatus(b, { sessionEnded: !isCurrent });
+  if (s.kind === 'law') return 'law';
+  if (s.kind === 'withdrawn') return 'withdrawn';
+  if (s.kind === 'defeated') return 'defeated';
+  if (s.kind === 'in_progress') return 'current';
   return 'unfinished';
 }

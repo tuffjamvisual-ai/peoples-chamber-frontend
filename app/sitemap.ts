@@ -21,6 +21,7 @@ import { divisionHref, yearHref } from '@/lib/division-links';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import { FORMER_MP_PROFILE_IDS } from '@/lib/former-mp-profile-ids';
 import { billIndexable, currentSessionBillIds } from '@/lib/bill-indexing';
+import { isLaw } from '@/lib/bill-status';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -348,7 +349,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const currentSessionBills = await currentSessionBillIds();
   const bills = allBills.filter((b) => billIndexable({
     currentStage: b.current_stage,
-    isAct: b.is_act,
+    isLaw: isLaw(b),
     commonsDivisionId: b.commons_division_id,
     hasVotes: votedBillIds.has(b.id),
     inCurrentSession: currentSessionBills.has(b.id),

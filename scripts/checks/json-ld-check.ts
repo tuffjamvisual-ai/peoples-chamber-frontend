@@ -55,7 +55,7 @@ const cases: { name: string; data: unknown; needs: (j: Node) => string[] }[] = [
   },
   { name: 'BreadcrumbList', data: buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: TRICKY, path: '/mps/163' }]), needs: (j) => ((j.itemListElement as unknown[])?.length === 2 ? [] : ['items']) },
   { name: 'donor', data: buildDonorEntity({ slug: 'x', name: TRICKY, individual: true }), needs: () => [] },
-  { name: 'Legislation', data: buildBillLegislation({ billId: 1, title: TRICKY, legislationDate: null, isAct: false, isDefeated: false, isWithdrawn: false, sponsorName: TRICKY }), needs: () => [] },
+  { name: 'Legislation', data: buildBillLegislation({ billId: 1, title: TRICKY, legislationDate: null, isLaw: false, defeated: false, withdrawn: false, sponsorName: TRICKY }), needs: () => [] },
   { name: 'department', data: buildDepartmentOrg({ slug: 'x', name: TRICKY, description: TRICKY, sosName: TRICKY, sosMemberId: 1, sosRole: null }), needs: () => [] },
   { name: 'transparency page', data: buildTransparencyPage({ path: '/x', name: TRICKY, description: TRICKY }), needs: () => [] },
 ];

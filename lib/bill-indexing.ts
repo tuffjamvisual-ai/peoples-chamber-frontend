@@ -16,7 +16,7 @@ const WORKING_STAGE = /committee|report|3rd reading|third reading|consideration/
 
 export type BillIndexFacts = {
   currentStage: string | null | undefined;
-  isAct: boolean | null | undefined;
+  isLaw: boolean; // from lib/bill-status.ts (UX1a)
   commonsDivisionId: number | null | undefined;
   hasVotes: boolean;
   inCurrentSession: boolean;
@@ -25,7 +25,7 @@ export type BillIndexFacts = {
 export function billIndexable(b: BillIndexFacts): boolean {
   return b.inCurrentSession
     || WORKING_STAGE.test((b.currentStage || '').toLowerCase())
-    || b.isAct === true
+    || b.isLaw
     || b.commonsDivisionId != null
     || b.hasVotes;
 }

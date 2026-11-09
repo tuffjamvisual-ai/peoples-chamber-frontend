@@ -4,6 +4,7 @@ import { fitTitle, titleWithin } from '@/lib/seo-title';
 import { asSentence, ledBy, sentencesOf } from '@/lib/meta-description';
 import { supabase } from '@/lib/supabase';
 import { SITE } from '@/lib/JsonLd';
+import { billStatus } from '@/lib/bill-status';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -49,10 +50,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const the = /^the /i.test(title) ? title : `the ${title}`;
   const The = the.charAt(0).toUpperCase() + the.slice(1);
   const summaryFirst = sentencesOf(billSummary(bill))[0];
+  const status = billStatus(bill); // the one bill status (UX1a, lib/bill-status.ts)
   const description = ledBy(title, [
-    bill.is_act ? `${The} became an Act of Parliament${bill.current_stage === 'Royal Assent' && stageDay ? ` on ${stageDay}` : ''}.`
-      : bill.bill_withdrawn ? `${The} was withdrawn before becoming law.`
-      : bill.is_defeated ? `${The} was defeated.`
+    status.kind === 'law' ? `${The} became an Act of Parliament${bill.current_stage === 'Royal Assent' && stageDay ? ` on ${stageDay}` : ''}.`
+      : status.kind === 'withdrawn' ? `${The} was withdrawn before becoming law.`
+      : status.kind === 'defeated' ? `${The} was defeated.`
       : bill.current_stage ? `The latest stage of ${the} was ${bill.current_stage}${stageDay ? `, on ${stageDay}` : ''}.`
       : null,
     `${asSentence(The)}`,

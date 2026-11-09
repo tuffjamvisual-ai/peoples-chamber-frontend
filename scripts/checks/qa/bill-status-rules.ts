@@ -13,7 +13,7 @@ import ts from 'typescript';
 
 // The module UX1a creates for the one status function. Until it exists the code rule is an expected failure (the test
 // is marked todo); set this to its path when UX1a is merged, and the test becomes a hard failure.
-export const BILL_STATUS_MODULE: string | null = null;
+export const BILL_STATUS_MODULE: string | null = 'lib/bill-status.ts'; // UX1a, 9 Nov 2026
 
 const FLAGS = new Set(['bill_withdrawn', 'is_defeated', 'is_act', 'billWithdrawn', 'isDefeated', 'isAct']);
 // Syncs store the flags; they do not show a status. Scripts and checks are not reader facing.

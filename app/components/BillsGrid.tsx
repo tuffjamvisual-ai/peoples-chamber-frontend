@@ -10,6 +10,7 @@ import FilterBar from './FilterBar';
 import BillCoverCard from './BillCoverCard';
 import Pagination from './Pagination';
 import { useSearchParamQ } from './useSearchParamQ';
+import { isInProgress } from '@/lib/bill-status';
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
@@ -146,7 +147,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, total
     let filtered = [...source];
 
     if (!searchResults) {
-      filtered = filtered.filter((bill: any) => !bill.bill_withdrawn && !bill.is_act);
+      filtered = filtered.filter((bill: any) => isInProgress(bill)); // the one bill status (UX1a)
     }
 
     if (houseFilter) filtered = filtered.filter((bill: any) => bill.originating_house === houseFilter);

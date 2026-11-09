@@ -33,6 +33,7 @@ import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
 import type { MpPetitionsTop } from '@/lib/petition-pages';
 import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
+import { isLaw } from '@/lib/bill-status';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -1364,7 +1365,7 @@ export default function MagazineProfileSections({
                 <li key={b.id} style={{ padding: '12px 0', borderBottom: inkDivider }}>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                     <Link href={`/bills/${b.id}`} style={{ ...inkLink, fontWeight: 'bold' }}>{b.title}</Link>
-                    {b.is_act && <span style={{ background: '#7a1612', color: '#f4e8d4', padding: '1px 6px', fontSize: '15px', letterSpacing: '0.08em' }}>✓ ACT</span>}
+                    {isLaw(b) && <span style={{ background: '#7a1612', color: '#f4e8d4', padding: '1px 6px', fontSize: '15px', letterSpacing: '0.08em' }}>✓ ACT</span>}
                     {b.status && <span style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{b.status}</span>}
                   </div>
                   {b.current_stage && (

@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { SITE } from '@/lib/JsonLd'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink'
+import { isInProgress } from '@/lib/bill-status';
 
 // Reflects the current week's Commons business on a 10-minute ISR window, so
 // visitors are served from cache rather than triggering two live Parliament API
@@ -55,7 +56,7 @@ async function getCommonsBills() {
     const res = await fetch('https://bills-api.parliament.uk/api/v1/Bills?SortOrder=DateUpdatedDescending', { next: { revalidate: 3600 } })
     if (!res.ok) return [] as BillItem[]
     const j = (await res.json()) as { items?: BillItem[] }   // Parliament's titles word for word (owner, 5 Nov 2026)
-    const items: BillItem[] = (j.items || []).filter((b: BillItem) => !b.isAct && !b.billWithdrawn)
+    const items: BillItem[] = (j.items || []).filter((b: BillItem) => isInProgress(b))
     const { start, end } = weekRange()
     // Bills with a COMMONS stage sitting from today to six days ahead.
     const thisWeek = items.filter((b) =>

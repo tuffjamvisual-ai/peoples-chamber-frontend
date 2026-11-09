@@ -23,6 +23,7 @@ import Link from 'next/link';
 import { editorialsForBill } from '@/lib/editorials-source';
 import { billDivisions, divisionHref } from '@/lib/division-links';
 import { billIndexable, billInCurrentSession } from '@/lib/bill-indexing';
+import { billStatus, isLaw, sittingCancelled } from '@/lib/bill-status';
 export const revalidate = 604800  // a week; the bill syncs refresh a bill when its data changes (lib/bill-refresh.ts)
 
 // Prerender a small set of bill pages at build time. The list does NOT need
@@ -71,7 +72,7 @@ export async function generateMetadata(
   const canonical = { alternates: { canonical: `/bills/${billId}` } }
   const indexable = billIndexable({
     currentStage: bill?.current_stage,
-    isAct: bill?.is_act,
+    isLaw: bill ? isLaw(bill) : false,
     commonsDivisionId: bill?.commons_division_id,
     hasVotes: (oneVote?.length ?? 0) > 0,
     inCurrentSession,
@@ -149,7 +150,10 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   // The Commons divisions matched to this bill (mp_division_votes.bill_id), linked in the page (owner, 31 Oct 2026).
   const billVotes = await billDivisions(billId)
 
-  const votingClosed = bill.is_act === true || bill.bill_withdrawn != null || bill.is_defeated === true
+  // The one bill status (UX1a, lib/bill-status.ts): a bill not listed in the current session (introduced or carried into
+  // it) has had its session end.
+  const status = billStatus(bill, { sessionEnded: !(await billInCurrentSession(billId)) })
+  const votingClosed = status.ended
   const commonsDivisionDate = bill.commons_vote_date
     ? new Date(bill.commons_vote_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
     : null
@@ -223,9 +227,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         billId,
         title: bill.title || bill.long_title || `Bill ${billId}`,
         legislationDate: bill.last_update || null,
-        isAct: !!bill.is_act,
-        isDefeated: !!bill.is_defeated,
-        isWithdrawn: !!bill.bill_withdrawn,
+        isLaw: status.kind === 'law',
+        defeated: status.kind === 'defeated',
+        withdrawn: status.kind === 'withdrawn',
         sponsorName:
           (bill.sponsors as { items?: { name?: string }[] } | null)?.items?.[0]?.name ||
           bill.sponsor_name ||
@@ -410,11 +414,12 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         )}
 
         {/* Status tags — preserved underneath as small chips so the cover stays clean */}
-        {(bill.is_act || bill.is_defeated || bill.bill_withdrawn || bill.category || bill.originating_house || bill.current_stage) && (
+        {(status.ended || bill.category || bill.originating_house || bill.current_stage) && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '22px', justifyContent: 'center' }}>
-            {bill.is_act && <Tag colour={SUCCESS}>✓ Passed into law</Tag>}
-            {bill.is_defeated && <Tag colour={DANGER}>✗ Defeated</Tag>}
-            {bill.bill_withdrawn && <Tag colour={INK_SOFT}>Withdrawn</Tag>}
+            {status.kind === 'law' && <Tag colour={SUCCESS}>✓ Passed into law</Tag>}
+            {status.kind === 'defeated' && <Tag colour={DANGER}>✗ Defeated</Tag>}
+            {status.kind === 'withdrawn' && <Tag colour={INK_SOFT}>{status.label}</Tag>}
+            {status.kind === 'fell' && <Tag colour={INK_SOFT}>{status.label}</Tag>}
             {bill.category && <Tag colour={ACCENT}>{bill.category}</Tag>}
             {bill.originating_house && <Tag colour={INK_SOFT}>{bill.originating_house}</Tag>}
             {bill.current_stage && <Tag colour={INK_SOFT}>{bill.current_stage}</Tag>}
@@ -468,14 +473,16 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               // defeated. Showing the same "not yet divided" text for all
               // three was misleading for Acts that already passed.
               const noVoteLabel =
-                bill.is_act ? 'Passed without division'
-                : bill.bill_withdrawn ? 'Bill withdrawn'
-                : bill.is_defeated ? 'Defeated'
+                status.kind === 'law' ? 'Passed without division'
+                : status.kind === 'withdrawn' ? 'Bill withdrawn'
+                : status.kind === 'defeated' ? 'Defeated'
+                : status.kind === 'fell' ? 'Fell at the end of the session'
                 : 'Not yet divided'
               const noVoteHelper =
-                bill.is_act ? 'No division called, Third Reading carried on the voices.'
-                : bill.bill_withdrawn ? 'Bill was withdrawn before a Commons vote.'
-                : bill.is_defeated ? 'Bill defeated before reaching a Commons division.'
+                status.kind === 'law' ? 'No division called, Third Reading carried on the voices.'
+                : status.kind === 'withdrawn' ? 'Bill was withdrawn before a Commons vote.'
+                : status.kind === 'defeated' ? 'Bill defeated before reaching a Commons division.'
+                : status.kind === 'fell' ? 'The session ended before a Commons vote.'
                 : 'MPs have not voted on this bill yet.'
               return (
                 <VoteBar
@@ -594,8 +601,8 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '28px', marginBottom: '38px' }}>
           <Eyebrow>Bill passage</Eyebrow>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-            {commonsStages.length > 0 && <StageGroup label="Commons" colour={ACCENT} stages={commonsStages} />}
-            {lordsStages.length > 0 && <StageGroup label="Lords" colour={DANGER} stages={lordsStages} />}
+            {commonsStages.length > 0 && <StageGroup label="Commons" colour={ACCENT} stages={commonsStages} cancelled={(d) => sittingCancelled(bill, d)} />}
+            {lordsStages.length > 0 && <StageGroup label="Lords" colour={DANGER} stages={lordsStages} cancelled={(d) => sittingCancelled(bill, d)} />}
             {royalAssent && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '14px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
                 <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: SUCCESS, flexShrink: 0 }} />
@@ -847,7 +854,8 @@ function VoteBar({
   )
 }
 
-function StageGroup({ label, colour, stages }: { label: string; colour: string; stages: Stage[] }) {
+// A sitting dated after the bill was withdrawn will not happen: it shows "Cancelled" (UX1a).
+function StageGroup({ label, colour, stages, cancelled }: { label: string; colour: string; stages: Stage[]; cancelled?: (date: string) => boolean }) {
   return (
     <div>
       <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', marginBottom: '12px', color: colour === ACCENT ? ACCENT : INK }}>
@@ -860,7 +868,9 @@ function StageGroup({ label, colour, stages }: { label: string; colour: string; 
             <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <span style={{ fontFamily: MONO, fontSize: '15px' }}>{stage.description}</span>
               {stage.stageSittings[0]?.date && (
-                <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{fmtDate(stage.stageSittings[0].date)}</span>
+                cancelled?.(stage.stageSittings[0].date)
+                  ? <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>Cancelled (was {fmtDate(stage.stageSittings[0].date)})</span>
+                  : <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{fmtDate(stage.stageSittings[0].date)}</span>
               )}
             </div>
           </li>

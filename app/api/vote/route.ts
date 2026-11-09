@@ -3,6 +3,7 @@ import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { getSessionUserId } from '@/lib/session';
 import { touchLastSeen } from '@/lib/touch-last-seen';
 import { revalidatePath } from 'next/cache';
+import { billStatus } from '@/lib/bill-status';
 
 export const dynamic = 'force-dynamic';
 
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
     
     // A first vote on a closed bill is refused too (owner, 4 Nov 2026), on the same checks as public.change_bill_vote:
     // an Act, withdrawn or defeated. Votes already cast stay as they are.
-    if (target.is_act || target.bill_withdrawn != null || target.is_defeated) {
+    if (billStatus(target).ended) {
       return NextResponse.json({ error: 'Voting has closed on this bill', closed: true }, { status: 400 });
     }
 
