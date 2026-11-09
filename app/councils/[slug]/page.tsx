@@ -694,7 +694,7 @@ function PublicHealthRow({
       <DataRow
         label={label}
         value="No data available"
-        sub={`Not currently published at local authority level for ${nation}.`}
+        sub={`Not published at local authority level for ${nation}.`}
       />
     );
   }

@@ -26,7 +26,9 @@
   "Present Value",
   "Leader of the House of Commons",
   "Minister of State",
-  "Currently Serving"
+  "Currently Serving",
+  "up to date",
+  "Jump to date"
  ],
  "time_words_skip_routes": [
   "/debates/[guid]",

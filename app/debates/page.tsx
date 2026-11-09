@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Commons Debates',
   description:
-    'Every debate held in the House of Commons this Parliament. Read the full record on site, by date and section.',
+    'Every debate held in the House of Commons since the July 2024 general election. Read the full record on site, by date and section.',
   alternates: { canonical: '/debates' },
 };
 
@@ -110,7 +110,7 @@ export default async function DebatesPage({
           Commons Debates
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK }}>
-          Every debate held in the House of Commons this Parliament, drawn from the official record. Read the full transcript of any debate on this site.
+          Every debate held in the House of Commons since the July 2024 general election, drawn from the official record. Read the full transcript of any debate on this site.
         </p>
       </header>
 
@@ -119,7 +119,7 @@ export default async function DebatesPage({
           About these records
         </div>
         <p style={{ fontSize: '15px', lineHeight: 1.7, color: INK, marginBottom: '12px' }}>
-          These are the official records of every debate in the House of Commons this Parliament. Each one is pulled from the parliamentary record and published here in full. Nothing is summarised and nothing links off this site.
+          These are the official records of every debate in the House of Commons since the July 2024 general election. Each one is pulled from the parliamentary record and published here in full. Nothing is summarised and nothing links off this site.
         </p>
         <p style={{ fontSize: '15px', lineHeight: 1.7, color: INK, marginBottom: '12px' }}>
           Debates happen in three places. The <strong style={{ fontWeight: 'inherit' }}>Commons Chamber</strong> is the main floor of the House. <strong style={{ fontWeight: 'inherit' }}>Westminster Hall</strong> is the second debating room, used for backbench and constituency subjects that do not need a vote. <strong style={{ fontWeight: 'inherit' }}>General Committees</strong> work through the detail of bills and regulations line by line.

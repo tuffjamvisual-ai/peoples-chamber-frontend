@@ -31,7 +31,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const s = await searchParams;
   return {
     title: 'Written questions in Parliament',
-    description: 'Search every written question this Parliament by words, MP or peer, department and date, with the answers as published.',
+    description: 'Search every written question since the July 2024 general election by words, MP or peer, department and date, with the answers as published.',
     alternates: { canonical: '/questions' },
     ...(filtered(s) ? { robots: { index: false, follow: true } } : {}),
   };
@@ -75,7 +75,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>{person ? `Written questions: ${person.name}` : 'Written questions'}</h1>
       <p style={{ fontSize: '16px', color: INK, margin: '0 0 16px', maxWidth: '720px', lineHeight: 1.6 }}>
-        Questions MPs and peers table for a written answer from a government department, in this Parliament.
+        Questions MPs and peers table for a written answer from a government department, since the July 2024 general election.
       </p>
 
       <form action="/questions" method="get" role="search" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', margin: '0 0 12px', maxWidth: '720px' }}>

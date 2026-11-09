@@ -21,7 +21,7 @@ export default async function HomeRecord() {
         Questions to the Prime Minister from 1945 to 1961: {before.questions.toLocaleString('en-GB')} questions on {before.days.toLocaleString('en-GB')} days, before PMQs had a fixed time.
       </Link>,
     ] : []),
-    <Link key="petitions" href="/petitions" prefetch={false} style={link}>Every petition this Parliament that reached 10,000 signatures, with the government&rsquo;s full response.</Link>,
+    <Link key="petitions" href="/petitions" prefetch={false} style={link}>Every petition since the July 2024 general election that reached 10,000 signatures, with the government&rsquo;s full response.</Link>,
     <span key="seats">
       <Link href="/constituencies" prefetch={false} style={link}>Every constituency&rsquo;s 2024 result and byelections</Link>,{' '}
       <Link href="/edms" prefetch={false} style={link}>every early day motion</Link>, and{' '}
@@ -29,7 +29,7 @@ export default async function HomeRecord() {
     </span>,
     <Link key="votes" href="/divisions/year/2004" prefetch={false} className="og-tap" style={link}>Commons votes back to October 2004</Link>,
     <Link key="register" href="/register-history" prefetch={false} className="og-tap" style={link}>Register of Members&rsquo; Financial Interests back to 2000</Link>,
-    <Link key="questions" href="/questions" prefetch={false} style={link}>Every written question and answer this Parliament, including corrected answers and what they first said.</Link>,
+    <Link key="questions" href="/questions" prefetch={false} style={link}>Every written question and answer since the July 2024 general election, including corrected answers and what they first said.</Link>,
   ];
   return (
     <section className="og-record" aria-labelledby="og-record-head" style={{ margin: '20px 0 8px', paddingTop: '14px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>

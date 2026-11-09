@@ -59,7 +59,7 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
           style={{ maxWidth: '100%', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', padding: '7px 8px', border: `1px solid ${INK}`, background: '#f4e8d4', color: INK }}>
           {quarters.map((q) => <option key={q} value={q}>{q}</option>)}
         </select>
-        {quarters.length === 1 && <p style={{ fontSize: '15px', margin: '6px 0 0' }}>Only this quarter so far: each new quarter is added as it is published, and earlier ones stay.</p>}
+        {quarters.length === 1 && <p style={{ fontSize: '15px', margin: '6px 0 0' }}>One quarter is published here: each new quarter is added as it is published, and earlier ones stay.</p>}
       </div>
 
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '14px', marginBottom: '32px' }}>

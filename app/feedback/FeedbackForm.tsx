@@ -105,7 +105,7 @@ export default function FeedbackForm({ from }: { from: string }) {
       <div style={row}>
         <label htmlFor="feedback-message" style={label}>Message</label>
         <textarea id="feedback-message" name="message" rows={7} value={v.message} onChange={(e) => set('message', e.target.value)} style={{ ...border('message'), resize: 'vertical', lineHeight: 1.5 }} {...aria('message')} />
-        <p style={hint}>Between {MESSAGE_MIN} and {MESSAGE_MAX.toLocaleString('en-GB')} characters. {v.message.trim().length.toLocaleString('en-GB')} so far.</p>
+        <p style={hint}>Between {MESSAGE_MIN} and {MESSAGE_MAX.toLocaleString('en-GB')} characters. Written: {v.message.trim().length.toLocaleString('en-GB')}.</p>
         {err('message')}
       </div>
 

@@ -216,7 +216,7 @@ export default function CommissionForm() {
       <div data-cm-step="1" style={row}>
         <label htmlFor="commission-question" style={label}>What do you want investigated, and why?</label>
         <textarea id="commission-question" name="question" rows={7} value={v.question} onChange={(e) => set('question', e.target.value)} style={{ ...border('question'), resize: 'vertical', lineHeight: 1.5 }} {...aria('question')} />
-        <p style={hint}>Between {QUESTION_MIN} and {QUESTION_MAX.toLocaleString('en-GB')} characters. {v.question.trim().length.toLocaleString('en-GB')} so far. We decide how to investigate.</p>
+        <p style={hint}>Between {QUESTION_MIN} and {QUESTION_MAX.toLocaleString('en-GB')} characters. Written: {v.question.trim().length.toLocaleString('en-GB')}. We decide how to investigate.</p>
         {err('question')}
       </div>
       </fieldset>

@@ -173,7 +173,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {topMps.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
           <h2 style={sectionH2}>MPs scrutinising this most</h2>
-          <p style={{ fontSize: '15px', color: INK, marginBottom: '12px' }}>By written questions tabled to the department this Parliament.</p>
+          <p style={{ fontSize: '15px', color: INK, marginBottom: '12px' }}>By written questions tabled to the department since the July 2024 general election.</p>
           {topMps.map((r, i) => {
             const m = r;
             return (

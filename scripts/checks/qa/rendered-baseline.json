@@ -1,5 +1,5 @@
 {
- "about": "QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new.",
+ "about": "QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new. Time words updated by QA2a (9 Nov 2026): what is left is in Terminal 2 files, database content (editorials, reports, party pages, polls) or official text.",
  "written": "2026-11-09",
  "pages": {
   "/mps/5247": {
@@ -14,10 +14,7 @@
   },
   "/": {
    "height": 5278,
-   "timeWords": [
-    "now",
-    "this parliament"
-   ]
+   "timeWords": []
   },
   "/departments/defence": {
    "height": 2359,
@@ -31,22 +28,15 @@
   },
   "/sections/parliament": {
    "height": 7121,
-   "timeWords": [
-    "now",
-    "this parliament"
-   ]
+   "timeWords": []
   },
   "/councils/derry-city-and-strabane": {
    "height": 3573,
-   "timeWords": [
-    "currently"
-   ]
+   "timeWords": []
   },
   "/transparency/special-advisers": {
    "height": 8214,
-   "timeWords": [
-    "so far"
-   ]
+   "timeWords": []
   },
   "/expenses": {
    "height": 5409,
@@ -61,8 +51,7 @@
    "timeWords": [
     "present",
     "now",
-    "this parliament",
-    "to date"
+    "this parliament"
    ]
   },
   "/parties/green": {
@@ -97,9 +86,7 @@
   },
   "/transparency/press-releases": {
    "height": 5195,
-   "timeWords": [
-    "to date"
-   ]
+   "timeWords": []
   },
   "/councils": {
    "height": 8962,
@@ -107,10 +94,7 @@
   },
   "/directory": {
    "height": 2384,
-   "timeWords": [
-    "now",
-    "this parliament"
-   ]
+   "timeWords": []
   },
   "/laws/made-without-a-vote": {
    "height": 8399,
@@ -132,9 +116,7 @@
   },
   "/commission": {
    "height": 2766,
-   "timeWords": [
-    "so far"
-   ]
+   "timeWords": []
   },
   "/parties": {
    "height": 4570,
@@ -142,9 +124,7 @@
   },
   "/transparency": {
    "height": 4401,
-   "timeWords": [
-    "this parliament"
-   ]
+   "timeWords": []
   },
   "/contact": {
    "height": 1860,
@@ -152,9 +132,7 @@
   },
   "/transparency/mp-activity": {
    "height": 7283,
-   "timeWords": [
-    "this parliament"
-   ]
+   "timeWords": []
   },
   "/topics": {
    "height": 3028,
@@ -180,9 +158,7 @@
   },
   "/topics/welfare-and-benefits": {
    "height": 5908,
-   "timeWords": [
-    "this parliament"
-   ]
+   "timeWords": []
   },
   "/bills/657/full": {
    "height": 1567,
@@ -338,8 +314,7 @@
   "/petitions": {
    "height": 4765,
    "timeWords": [
-    "now",
-    "this parliament"
+    "now"
    ]
   },
   "/petitions/700143": {
@@ -352,9 +327,7 @@
   },
   "/constituencies": {
    "height": 1720,
-   "timeWords": [
-    "this parliament"
-   ]
+   "timeWords": []
   },
   "/constituencies/clacton": {
    "height": 5494,
@@ -380,15 +353,11 @@
   },
   "/questions": {
    "height": 4755,
-   "timeWords": [
-    "this parliament"
-   ]
+   "timeWords": []
   },
   "/questions/department/science-innovation-and-technology": {
    "height": 4063,
-   "timeWords": [
-    "this parliament"
-   ]
+   "timeWords": []
   },
   "/questions/1951193": {
    "height": 4901,

@@ -67,7 +67,7 @@ export default async function ConstituenciesPage({ searchParams }: { searchParam
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>Constituencies</h1>
       <p style={{ fontSize: '16px', color: INK, margin: '0 0 16px', maxWidth: '720px', lineHeight: 1.6 }}>
         All {seats.length} UK parliamentary constituencies on the boundaries used since the 2024 general election, with each seat&rsquo;s MP,
-        results in this Parliament, petitions and councils.
+        results since the July 2024 general election, petitions and councils.
       </p>
       <form action="/constituencies" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 16px', maxWidth: '720px' }}>
         <label htmlFor="constituency-search" style={{ flex: '1 0 100%', fontSize: '15px', fontWeight: 'bold', color: INK }}>Search by name or postcode</label>

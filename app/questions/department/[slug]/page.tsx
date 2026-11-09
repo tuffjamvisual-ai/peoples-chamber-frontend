@@ -25,7 +25,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   return {
     // Never the name alone, which the department's own page has (owner, 7 Nov 2026: titles stay unique).
     title: namedTitle(d.name, (n) => [`Written questions: ${n}`, `${n}: questions`]),
-    description: `Written questions answered by ${d.name} this Parliament, newest first, with counts and average days to answer.`.slice(0, 160),
+    description: `Written questions answered by ${d.name} since the July 2024 general election, newest first, with counts and average days to answer.`.slice(0, 160),
     alternates: { canonical: `/questions/department/${d.slug}` },
     ...(before ? { robots: { index: false, follow: true } } : {}),
   };
@@ -59,7 +59,7 @@ export default async function DepartmentQuestions({ params, searchParams }: { pa
           <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '6px 0', borderBottom: '1px solid rgba(20,16,13,0.25)' }}><dt style={{ fontWeight: 'bold' }}>{k}</dt><dd style={{ margin: 0 }}>{v}</dd></div>
         ))}
       </dl>
-      <p style={{ fontSize: '15px', color: INK, margin: '0 0 10px' }}>This Parliament. Withdrawn questions are not counted.</p>
+      <p style={{ fontSize: '15px', color: INK, margin: '0 0 10px' }}>Since the July 2024 general election. Withdrawn questions are not counted.</p>
       <TookOnNote department={d} />
       {now.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Now part of</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{now.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
       {moved.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Functions moved to</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{moved.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}

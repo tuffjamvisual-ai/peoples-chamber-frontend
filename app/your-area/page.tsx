@@ -368,7 +368,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
             </li>
           ))}
         </ol>,
-        <p key="n" style={{ ...para, fontSize: '15px' }}>Petitions that reached 10,000 signatures in this Parliament.</p>,
+        <p key="n" style={{ ...para, fontSize: '15px' }}>Petitions that reached 10,000 signatures since the July 2024 general election.</p>,
       ],
     }));
   }

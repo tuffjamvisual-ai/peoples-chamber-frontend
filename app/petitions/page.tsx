@@ -22,7 +22,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const s = await searchParams;
   return {
     title: 'Petitions that reached 10,000 signatures',
-    description: 'Every UK Parliament petition this Parliament with 10,000 signatures or more: the government response, any debate, and signatures by constituency.',
+    description: 'Every UK Parliament petition since the July 2024 general election with 10,000 signatures or more: the government response, any debate, and signatures by constituency.',
     alternates: { canonical: '/petitions' },
     ...(filtered(s) ? { robots: { index: false, follow: true } } : {}),
   };
@@ -79,7 +79,7 @@ export default async function PetitionsPage({ searchParams }: { searchParams: Pr
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>{place?.name ? `Petitions most signed in ${place.name}` : 'Petitions'}</h1>
       <p style={{ fontSize: '16px', color: INK, margin: '0 0 16px', maxWidth: '720px', lineHeight: 1.6 }}>
-        Petitions on Parliament&rsquo;s petitions site in this Parliament that reached 10,000 signatures, the point at which the
+        Petitions on Parliament&rsquo;s petitions site since the July 2024 general election that reached 10,000 signatures, the point at which the
         government must respond. Petitions with fewer signatures are not included.
       </p>
 
