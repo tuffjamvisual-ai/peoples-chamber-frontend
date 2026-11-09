@@ -997,10 +997,13 @@ export default function MagazineProfileSections({
                   if (rows.length === 0) return null;
                   return (
                     <div key={phase} style={{ marginBottom: '18px' }}>
+                      {/* MP2d: each phase a fold of its own on phones, with its count. */}
+                      <SubFold label={heading} summary={countOf(rows.length, 'entry', 'entries')}>
                       <div style={backgroundLabel}>{heading}</div>
                       <FirstThenAll wrap={(kids) => <>{kids}</>} items={rows.map((e, idx) => (
                         <TimelineEntry key={idx} entry={e} last={idx === rows.length - 1 || idx === FIRST_ITEMS - 1} />
                       ))} />
+                      </SubFold>
                     </div>
                   );
                 })}
@@ -1706,10 +1709,13 @@ export default function MagazineProfileSections({
             <h2 style={sectionH2}>Roles</h2>
             <SectionUpdated date={lastUpdated.roles} />
 
-            {spadAdvisers && <SpadAdvisersBlock rows={spadAdvisers.rows} release={spadAdvisers.release} interests={spadAdvisers.interests} leftOn={spadAdvisers.leftOn} ministerName={spadAdvisers.ministerName} gender={spadAdvisers.gender} memberId={memberId} headingStyle={sectionH3} />}
+            {/* MP2d (9 Nov 2026): on phones each part of Roles is a fold of its own with its count, as Registered interests'
+                categories are (SubFold: native <details> under 640px; unchanged from 640px up). */}
+            {spadAdvisers && <SubFold label="Special advisers" summary={countOf(spadAdvisers.rows.length, 'adviser')}><SpadAdvisersBlock rows={spadAdvisers.rows} release={spadAdvisers.release} interests={spadAdvisers.interests} leftOn={spadAdvisers.leftOn} ministerName={spadAdvisers.ministerName} gender={spadAdvisers.gender} memberId={memberId} headingStyle={sectionH3} /></SubFold>}
 
             {committeeMemberships.length > 0 && (
               <>
+              <SubFold label="Committee memberships" summary={currentCommittees.length > 0 ? `${currentCommittees.length.toLocaleString('en-GB')} current` : countOf(formerCommittees.length, 'former membership')}>
                 <h3 style={sectionH3}>Committee memberships</h3>
                 {currentCommittees.length > 0 && (
                   <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'none', padding: 0, marginBottom: formerCommittees.length > 0 ? '8px' : 0 }}>{kids}</ul>} items={currentCommittees.map((m, i) => {
@@ -1762,11 +1768,13 @@ export default function MagazineProfileSections({
                     </ul>
                   </details>
                 )}
+              </SubFold>
               </>
             )}
 
             {((bio?.representations?.length ?? 0) > 0 || contests.length > 0) && (
               <>
+              <SubFold label="Parliamentary career" summary={countOf((bio?.representations?.length ?? 0) + contests.length, 'entry', 'entries')}>
                 <h3 style={sectionH3}>Parliamentary career</h3>
                 {/* Newest first for every MP (owner's approval, 22 Oct 2026); elections lost sit among the seats by date (CH1). */}
                 <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'none', padding: 0 }}>{kids}</ul>} items={[
@@ -1787,11 +1795,13 @@ export default function MagazineProfileSections({
                     </li>
                   ))
                 } />
+              </SubFold>
               </>
             )}
 
             {([['Government posts', governmentPosts], ['Opposition posts', oppositionPosts]] as const).map(([heading, posts]) => posts.length > 0 && (
               <Fragment key={heading}>
+              <SubFold label={heading} summary={countOf(posts.length, 'post')}>
                 <h3 style={sectionH3}>{heading}</h3>
                 {/* Each spell's dates under the name (CH1), in the style of the seats above; most recent post first (CH1a). */}
                 <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>{kids}</ul>} items={posts.map((p, i) => (
@@ -1801,11 +1811,13 @@ export default function MagazineProfileSections({
                     </li>
                   ))
                 } />
+              </SubFold>
               </Fragment>
             ))}
 
             {bio?.party_history && bio.party_history.length > 0 && (
               <>
+              <SubFold label="Party history" summary={countOf(bio.party_history.length, 'party', 'parties')}>
                 <h3 style={sectionH3}>Party history</h3>
                 <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'none', padding: 0 }}>{kids}</ul>} items={bio.party_history.map((p, i) => (
                     <li key={i} style={{ padding: '4px 0' }}>
@@ -1819,11 +1831,13 @@ export default function MagazineProfileSections({
                     </li>
                   ))
                 } />
+              </SubFold>
               </>
             )}
 
             {appgs.length > 0 && (
               <>
+              <SubFold label="All-Party Parliamentary Groups officered" summary={countOf(appgs.length, 'group')}>
                 <h3 style={sectionH3}>All-Party Parliamentary Groups officered</h3>
                 <p style={{ fontSize: '15px', lineHeight: 1.55, marginBottom: '12px', maxWidth: '60ch' }}>
                   APPGs are unofficial groups, drawn from across the parties, that MPs run on specific topics. Each group&rsquo;s registered funders are the entities paying for its secretariat, research and events. Officers are the MPs responsible for the group. Together they are the formal lobbying channel inside Westminster, the one that doesn&rsquo;t appear on the Register of Members&rsquo; Financial Interests.
@@ -1899,6 +1913,7 @@ export default function MagazineProfileSections({
                   ))
                 } />
                 <AppgSource />
+              </SubFold>
               </>
             )}
           </div>
@@ -2070,6 +2085,7 @@ export default function MagazineProfileSections({
 
               {rows.length > 0 && (
                 <>
+                <SubFold label="Outside roles and earnings by payer" summary={countOf(rows.length, 'payer')}>
                   <h3 style={{ ...sectionH3, marginTop: '28px' }}>Outside roles &amp; earnings by payer</h3>
                   <p style={{ fontSize: '15px', marginBottom: '8px', lineHeight: 1.5 }}>Includes every Category 1 declaration. Directorships and shareholdings register the role but not the income, so they show as &ldquo;Not disclosed&rdquo;.</p>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', marginBottom: '8px', tableLayout: 'auto' }}>
@@ -2136,9 +2152,12 @@ export default function MagazineProfileSections({
                       })}
                     </tbody>
                   </table>
+                </SubFold>
                 </>
               )}
 
+              {/* MP2d: the notes on how the figures are set, in a fold of their own on phones. */}
+              <SubFold label="How these figures are set">
               <p style={{ marginTop: '20px', fontSize: '15px', lineHeight: 1.55 }}>
                 Base salary is set by IPSA and reviewed annually each 1 April. A minister&rsquo;s salary is the amount they claim, as GOV.UK publishes it, with the amount they are entitled to by law beside it; ministers have chosen to claim less. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file, the current year is not totalled until IPSA reconciles year end.
               </p>
@@ -2147,6 +2166,7 @@ export default function MagazineProfileSections({
                   <strong>ACOBA</strong> is the Advisory Committee on Business Appointments, the independent body that vets new jobs taken by former ministers and senior officials in the two years after they leave government. It reviews each role for conflicts of interest and can recommend conditions such as lobbying bans or waiting periods, though it cannot block an appointment. &ldquo;ACOBA: Yes&rdquo; means the appointment was submitted for review; &ldquo;ACOBA: No&rdquo; means it was not, which is sometimes legitimate (the rules did not apply) and sometimes a story (a former minister bypassing the vetting).
                 </p>
               )}
+              </SubFold>
             </>
           );
         })()}
