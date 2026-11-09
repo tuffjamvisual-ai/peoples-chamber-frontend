@@ -1,15 +1,41 @@
 {
- "about": "QA1 A5 and A2 house style exceptions (owner approved QA1, 9 Nov 2026). allow: official names, titles, citations and addresses that keep their hyphen or wording; they are removed from the text before the rules run. skip_files: paths or folders not scanned for A5 because readers never see them (internal tools, design mock-ups). time_words_allow: text in which a time relative word is part of an official name or a quotation (A2).",
+ "about": "QA1 A5 and A2 house style exceptions (owner approved QA1, 9 Nov 2026). allow: official names, titles, citations and addresses that keep their hyphen or wording; they are removed from the text before the rules run. skip_files: paths or folders not scanned for A5 because readers never see them (internal tools, design mock-ups). time_words_allow: text in which a time relative word is part of an official name or a quotation (A2). time_words_skip_routes: page types that show the official record word for word (Hansard, petitions, motions, written questions, the register), whose wording is not ours (A2).",
  "allow": [
-  "All-Party", "Co-op", "Co-operative", "CC BY-SA", "eu-west-1", "cc740-1",
-  "members-api.parliament.uk", "find-tender.service.gov.uk",
-  "Sub-regional fuel poverty data", "State-funded schools inspections and outcomes"
+  "All-Party",
+  "Co-op",
+  "Co-operative",
+  "CC BY-SA",
+  "eu-west-1",
+  "cc740-1",
+  "members-api.parliament.uk",
+  "find-tender.service.gov.uk",
+  "Sub-regional fuel poverty data",
+  "State-funded schools inspections and outcomes"
  ],
  "skip_files": [
-  "app/internal/", "app/landing-preview/", "app/newspaper-demo/", "app/preview-2/", "app/preview-3/",
-  "app/preview-4/", "app/preview-5/", "app/preview-footer/"
+  "app/internal/",
+  "app/landing-preview/",
+  "app/newspaper-demo/",
+  "app/preview-2/",
+  "app/preview-3/",
+  "app/preview-4/",
+  "app/preview-5/",
+  "app/preview-footer/"
  ],
  "time_words_allow": [
-  "Present Value", "Leader of the House of Commons", "Minister of State", "Currently Serving"
+  "Present Value",
+  "Leader of the House of Commons",
+  "Minister of State",
+  "Currently Serving"
+ ],
+ "time_words_skip_routes": [
+  "/debates/[guid]",
+  "/pmqs/[date]",
+  "/pmqs/1945-to-1961/[date]",
+  "/mps/[id]/pmqs",
+  "/petitions/[id]",
+  "/edms/[id]",
+  "/questions/[id]",
+  "/transparency/register-of-interests"
  ]
 }

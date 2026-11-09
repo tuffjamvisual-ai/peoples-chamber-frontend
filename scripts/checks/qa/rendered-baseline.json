@@ -1,0 +1,427 @@
+{
+ "about": "QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new.",
+ "written": "2026-11-09",
+ "pages": {
+  "/mps/5247": {
+   "height": 2179,
+   "timeWords": [
+    "this parliament"
+   ]
+  },
+  "/editorials/upk2tz9zw9": {
+   "height": 6922,
+   "timeWords": []
+  },
+  "/": {
+   "height": 5278,
+   "timeWords": [
+    "now",
+    "this parliament"
+   ]
+  },
+  "/departments/defence": {
+   "height": 2359,
+   "timeWords": [
+    "now"
+   ]
+  },
+  "/divisions/pw-2022-12-12-123-commons": {
+   "height": 8643,
+   "timeWords": []
+  },
+  "/sections/parliament": {
+   "height": 7121,
+   "timeWords": [
+    "now",
+    "this parliament"
+   ]
+  },
+  "/councils/derry-city-and-strabane": {
+   "height": 3573,
+   "timeWords": [
+    "currently"
+   ]
+  },
+  "/transparency/special-advisers": {
+   "height": 8214,
+   "timeWords": [
+    "so far"
+   ]
+  },
+  "/expenses": {
+   "height": 5409,
+   "timeWords": []
+  },
+  "/transparency/ministers-meetings": {
+   "height": 6209,
+   "timeWords": []
+  },
+  "/reports": {
+   "height": 6642,
+   "timeWords": [
+    "present",
+    "now",
+    "this parliament",
+    "to date"
+   ]
+  },
+  "/parties/green": {
+   "height": 6911,
+   "timeWords": [
+    "now"
+   ]
+  },
+  "/mps": {
+   "height": 2276,
+   "timeWords": []
+  },
+  "/debates/8FEA59EC-19CA-43B1-BA41-80B7DB394D54": {
+   "height": 5233,
+   "timeWords": []
+  },
+  "/organisations": {
+   "height": 4445,
+   "timeWords": []
+  },
+  "/spending": {
+   "height": 5088,
+   "timeWords": []
+  },
+  "/people/gavin-lambert": {
+   "height": 1678,
+   "timeWords": []
+  },
+  "/civil-service": {
+   "height": 3879,
+   "timeWords": []
+  },
+  "/transparency/press-releases": {
+   "height": 5195,
+   "timeWords": [
+    "to date"
+   ]
+  },
+  "/councils": {
+   "height": 8962,
+   "timeWords": []
+  },
+  "/directory": {
+   "height": 2384,
+   "timeWords": [
+    "now",
+    "this parliament"
+   ]
+  },
+  "/laws/made-without-a-vote": {
+   "height": 8399,
+   "timeWords": []
+  },
+  "/bills": {
+   "height": 4237,
+   "timeWords": [
+    "now"
+   ]
+  },
+  "/departments": {
+   "height": 4441,
+   "timeWords": []
+  },
+  "/bills/657": {
+   "height": 2836,
+   "timeWords": []
+  },
+  "/commission": {
+   "height": 2766,
+   "timeWords": [
+    "so far"
+   ]
+  },
+  "/parties": {
+   "height": 4570,
+   "timeWords": []
+  },
+  "/transparency": {
+   "height": 4401,
+   "timeWords": [
+    "this parliament"
+   ]
+  },
+  "/contact": {
+   "height": 1860,
+   "timeWords": []
+  },
+  "/transparency/mp-activity": {
+   "height": 7283,
+   "timeWords": [
+    "this parliament"
+   ]
+  },
+  "/topics": {
+   "height": 3028,
+   "timeWords": []
+  },
+  "/recommendations": {
+   "height": 7520,
+   "timeWords": []
+  },
+  "/parties/green/bio": {
+   "height": 4593,
+   "timeWords": [
+    "now"
+   ]
+  },
+  "/second-jobs/labour": {
+   "height": 5160,
+   "timeWords": []
+  },
+  "/transparency/ministerial-directions": {
+   "height": 5810,
+   "timeWords": []
+  },
+  "/topics/welfare-and-benefits": {
+   "height": 5908,
+   "timeWords": [
+    "this parliament"
+   ]
+  },
+  "/bills/657/full": {
+   "height": 1567,
+   "timeWords": []
+  },
+  "/donors": {
+   "height": 6673,
+   "timeWords": []
+  },
+  "/laws": {
+   "height": 7199,
+   "timeWords": []
+  },
+  "/second-jobs": {
+   "height": 3803,
+   "timeWords": []
+  },
+  "/search?q=nhs": {
+   "height": 3678,
+   "timeWords": [
+    "now"
+   ]
+  },
+  "/polls": {
+   "height": 8622,
+   "timeWords": []
+  },
+  "/pmqs": {
+   "height": 6581,
+   "timeWords": []
+  },
+  "/pmqs/1961-12-07": {
+   "height": 7170,
+   "timeWords": []
+  },
+  "/pmqs/1991-11-05": {
+   "height": 6704,
+   "timeWords": []
+  },
+  "/pmqs/2015-03-18": {
+   "height": 6920,
+   "timeWords": []
+  },
+  "/pmqs/1945-to-1961": {
+   "height": 1717,
+   "timeWords": []
+  },
+  "/pmqs/1945-to-1961/1949-04-26": {
+   "height": 3344,
+   "timeWords": []
+  },
+  "/pmqs/1945-to-1961/1960-02-18": {
+   "height": 4322,
+   "timeWords": []
+  },
+  "/pmqs/1945-to-1961/1961-07-18": {
+   "height": 4609,
+   "timeWords": []
+  },
+  "/pmqs/1945-to-1961/1946-03-11": {
+   "height": 4147,
+   "timeWords": []
+  },
+  "/mps/185/pmqs": {
+   "height": 2955,
+   "timeWords": []
+  },
+  "/mps/769": {
+   "height": 1386,
+   "timeWords": []
+  },
+  "/mps/2565": {
+   "height": 1262,
+   "timeWords": []
+  },
+  "/standards": {
+   "height": 4672,
+   "timeWords": []
+  },
+  "/editorials/se9k4m2xq7": {
+   "height": 8157,
+   "timeWords": []
+  },
+  "/editorials/bg9k4mxw2q": {
+   "height": 8135,
+   "timeWords": [
+    "now"
+   ]
+  },
+  "/editorials/mi5k7qxw9n": {
+   "height": 8148,
+   "timeWords": [
+    "now"
+   ]
+  },
+  "/editorials/hx7n4qw2mk": {
+   "height": 8386,
+   "timeWords": [
+    "now"
+   ]
+  },
+  "/editorials/whr8acs2gf": {
+   "height": 8047,
+   "timeWords": [
+    "present",
+    "now",
+    "currently"
+   ]
+  },
+  "/parties/labour/money": {
+   "height": 9642,
+   "timeWords": []
+  },
+  "/polls/archive": {
+   "height": 9478,
+   "timeWords": [
+    "now",
+    "currently"
+   ]
+  },
+  "/donations/impermissible": {
+   "height": 9280,
+   "timeWords": []
+  },
+  "/donations/trust-funded": {
+   "height": 9342,
+   "timeWords": []
+  },
+  "/transparency/revolving-door": {
+   "height": 9222,
+   "timeWords": []
+  },
+  "/transparency/register-of-interests": {
+   "height": 9288,
+   "timeWords": []
+  },
+  "/parties/green/money": {
+   "height": 9184,
+   "timeWords": []
+  },
+  "/divisions/pw-2019-01-15-293-commons": {
+   "height": 8648,
+   "timeWords": []
+  },
+  "/councils/blue-badges": {
+   "height": 9089,
+   "timeWords": []
+  },
+  "/donations/leadership-contests": {
+   "height": 9061,
+   "timeWords": []
+  },
+  "/petitions": {
+   "height": 4765,
+   "timeWords": [
+    "now",
+    "this parliament"
+   ]
+  },
+  "/petitions/700143": {
+   "height": 3616,
+   "timeWords": []
+  },
+  "/petitions/750050": {
+   "height": 4327,
+   "timeWords": []
+  },
+  "/constituencies": {
+   "height": 1720,
+   "timeWords": [
+    "this parliament"
+   ]
+  },
+  "/constituencies/clacton": {
+   "height": 5494,
+   "timeWords": []
+  },
+  "/constituencies/arbroath-and-broughty-ferry": {
+   "height": 4001,
+   "timeWords": []
+  },
+  "/edms": {
+   "height": 4284,
+   "timeWords": [
+    "this parliament"
+   ]
+  },
+  "/edms/65938": {
+   "height": 3952,
+   "timeWords": []
+  },
+  "/edms/62415": {
+   "height": 4597,
+   "timeWords": []
+  },
+  "/questions": {
+   "height": 4755,
+   "timeWords": [
+    "this parliament"
+   ]
+  },
+  "/questions/department/science-innovation-and-technology": {
+   "height": 4063,
+   "timeWords": [
+    "this parliament"
+   ]
+  },
+  "/questions/1951193": {
+   "height": 4901,
+   "timeWords": []
+  },
+  "/divisions/pw-2013-02-05-151-commons": {
+   "height": 7725,
+   "timeWords": []
+  },
+  "/mps/206": {
+   "height": 2805,
+   "timeWords": [
+    "present",
+    "now",
+    "this parliament",
+    "to date"
+   ]
+  },
+  "/debates/CEAC32EB-971E-4A0D-BD3A-80A92B6DC230": {
+   "height": 5551,
+   "timeWords": []
+  },
+  "/debates/2E73E779-90FC-4597-9B0C-E50391655AFD": {
+   "height": 6236,
+   "timeWords": []
+  },
+  "/mps/4128/pmqs": {
+   "height": 1110,
+   "timeWords": []
+  },
+  "/mps/8/pmqs": {
+   "height": 1707,
+   "timeWords": []
+  }
+ }
+}
