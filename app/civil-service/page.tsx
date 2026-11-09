@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { fmtHeadcount } from '@/lib/department-civil-service';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const metadata: Metadata = {
   title: 'UK Civil Service Headcount by Department',
@@ -86,6 +87,7 @@ export default async function CivilServicePage() {
           (in the Home Office).
         </p>
 
+        <ShowAll id="civil-service-reported" count={(reported).length} rows="> li">
         <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {reported.map((m, i) => {
             const hc = m.row!.headcount || 0;
@@ -116,6 +118,7 @@ export default async function CivilServicePage() {
             );
           })}
         </ol>
+        </ShowAll>
 
         {notReported.length > 0 && (
           <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid rgba(0,0,0,0.15)' }}>

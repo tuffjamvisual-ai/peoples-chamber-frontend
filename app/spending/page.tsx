@@ -8,6 +8,7 @@ import BackLink from '../components/BackLink';
 import { fmtMillions } from '@/lib/department-civil-service';
 import ArticleEndSignup from '../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const metadata: Metadata = {
   // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
@@ -78,6 +79,7 @@ export default async function SpendingPage() {
           {fmtMillions(totalReported)} in Total Departmental Expenditure Limits across {reported.length} of the
           24 ministerial departments, FY {fy} plans. {top ? `${top.name} alone is ${topShare}% of it.` : ''}
         </p>
+<ShowAll id="spending-reported" count={(reported).length} rows="> li">
 <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {reported.map((m, i) => {
             const total = m.row!.total_del_millions || 0;
@@ -108,6 +110,7 @@ export default async function SpendingPage() {
             );
           })}
         </ol>
+        </ShowAll>
 
         {notReported.length > 0 && (
           <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid rgba(0,0,0,0.15)' }}>
@@ -120,6 +123,7 @@ export default async function SpendingPage() {
               fall outside the HM Treasury Estimates altogether (the two House
               of Parliament leaderships).
             </p>
+            <ShowAll id="spending-not-reported" count={(notReported).length} rows="> li">
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {notReported.map((m) => (
                 <li key={m.slug} style={{ marginBottom: '10px', fontSize: '15px' }}>
@@ -134,6 +138,7 @@ export default async function SpendingPage() {
                 </li>
               ))}
             </ul>
+            </ShowAll>
           </section>
         )}
       </div>

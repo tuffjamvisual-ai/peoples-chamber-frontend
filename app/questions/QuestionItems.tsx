@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { petitionDate } from '@/lib/petition-pages';
 import { departmentById } from '@/lib/question-departments';
 import type { Person, QuestionRow } from '@/lib/question-pages';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 const INK = '#14100d';
 
@@ -18,6 +19,7 @@ export const questionState = (q: QuestionRow) => {
 export default function QuestionItems({ rows, people, showDepartment = true, moreHref, moreLabel }: { rows: QuestionRow[]; people: Map<number, Person>; showDepartment?: boolean; moreHref: string | null; moreLabel: string }) {
   return (
     <>
+      <ShowAll id="questions-list" count={(rows).length} rows="> li">
       <ul id="questions-list" data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {rows.map((q) => (
           <li key={q.id} style={{ borderBottom: '1px solid rgba(20,16,13,0.25)' }}>
@@ -31,6 +33,7 @@ export default function QuestionItems({ rows, people, showDepartment = true, mor
           </li>
         ))}
       </ul>
+      </ShowAll>
       {moreHref && (
         <p style={{ margin: '12px 0 0' }}>
           <a href={`${moreHref}#questions-list`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '44px', padding: '8px 12px', border: `1px solid ${INK}`, fontSize: '15px', fontWeight: 'bold', color: INK, textDecoration: 'none' }}>{moreLabel}</a>

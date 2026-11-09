@@ -6,6 +6,7 @@ import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { getParliamentSessions, sessionDates, sessionTitle, SESSIONS_SOURCE_URL } from '@/lib/parliament-sessions';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const revalidate = 604800;  // a week; the bill syncs refresh it after the stored views are rebuilt, when a bill changed
 
@@ -42,6 +43,7 @@ export default async function BillSessionsPage() {
         </p>
       </header>
 
+      <ShowAll id="bill-sessions" count={(sessions).length} rows="> li">
       <ol style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: `1px solid ${HAIRLINE}` }}>
         {sessions.map((s) => (
           <li key={s.id} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '14px 0', display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: '16px', rowGap: '4px' }}>
@@ -59,6 +61,7 @@ export default async function BillSessionsPage() {
           </li>
         ))}
       </ol>
+      </ShowAll>
 
       <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '24px', maxWidth: '720px' }}>
         Our bill records start in the 2004/05 session, but the two earliest sessions hold only five bills: ones that were

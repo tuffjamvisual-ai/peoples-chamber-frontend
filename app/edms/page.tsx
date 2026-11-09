@@ -7,6 +7,7 @@ import { displayMpName } from '@/lib/mp-name';
 import { supabaseAdminRead } from '@/lib/supabase-admin';
 import { allEdms, edmState, memberEdmIds } from '@/lib/edm-pages';
 import { petitionDate } from '@/lib/petition-pages';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 // Early day motions this Parliament (owner, backlog item 15b, 6 Nov 2026), newest first, 25 at a time. With over 4,000 motions the
 // whole list cannot sit in the page, so Show more is a link that asks for 25 more and lands on the first new one, and it works with
@@ -120,6 +121,7 @@ export default async function EdmsPage({ searchParams }: { searchParams: Promise
       </p>
 
       {shown.length === 0 ? <p style={{ fontSize: '16px', color: INK, margin: '16px 0' }}>No motions match.</p> : (
+        <ShowAll id="edms-list" count={(shown).length} rows="> li">
         <ul data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {shown.map((m, i) => (
             <li key={m.id} id={`m${i + 1}`} style={{ borderBottom: '1px solid rgba(20,16,13,0.25)' }}>
@@ -133,6 +135,7 @@ export default async function EdmsPage({ searchParams }: { searchParams: Promise
             </li>
           ))}
         </ul>
+        </ShowAll>
       )}
       {show < list.length && (
         <p style={{ margin: '12px 0 0' }}>

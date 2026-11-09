@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import Pagination from '../../components/Pagination';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 // Static /transparency/press-releases route. Lives outside the dynamic
 // [section] route because press releases aren't a tabular dataset — each
@@ -70,6 +71,7 @@ function groupByMonth(items: Release[]): Map<string, Release[]> {
 // views). Each row links to its on-site /news/[slug] page.
 function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: string }) {
   return (
+    <ShowAll id="press-releases" count={(items).length} rows="> li">
     <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
       {items.map((r) => {
         const slug = slugFromGovUrl(r.gov_url);
@@ -130,6 +132,7 @@ function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: st
         );
       })}
     </ul>
+    </ShowAll>
   );
 }
 

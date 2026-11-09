@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 // A sample commissioned report (owner's brief and approval, 8 Nov 2026, HP1), linked from /commission so a client can see
 // what they would receive. The wording is the owner's, word for word, from "Claude outputs/commission/sample-report-
@@ -97,6 +98,7 @@ export default function CommissionSamplePage() {
       <p style={{ ...p, fontWeight: 'bold' }}>{CHECKED}</p>
 
       <h2 style={h2}>Findings</h2>
+      <ShowAll id="sample-findings" count={(FINDINGS).length} rows="> li">
       <ol style={{ margin: 0, paddingLeft: '1.6em', maxWidth: '720px' }}>
         {FINDINGS.map((f) => (
           <li key={f.heading} style={{ fontSize: '16px', lineHeight: 1.8, marginBottom: '14px' }}>
@@ -106,6 +108,7 @@ export default function CommissionSamplePage() {
           </li>
         ))}
       </ol>
+      </ShowAll>
 
       <h2 style={h2}>Methodology</h2>
       <p style={p}>{METHODOLOGY}</p>

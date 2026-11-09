@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle, type SessionBillGroup } from '@/lib/parliament-sessions';
 import { billTitleMatches, BILL_QUERY_MAX } from '@/lib/bill-search';
 import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export const BILLS_PER_PAGE = 60;
 
@@ -112,6 +113,7 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
           Showing {((page - 1) * BILLS_PER_PAGE + 1).toLocaleString()} to {Math.min(page * BILLS_PER_PAGE, totalCount).toLocaleString()} of {totalCount.toLocaleString()}
         </p>
       )}
+      <ShowAll id="bills-az" count={(bills).length} rows="> li">
       <ol className="bills-az" aria-label="Bills going through Parliament, A to Z">
         {bills.map((b) => {
           const line = [b.current_stage?.trim(), b.current_house].filter(Boolean).join(', ');
@@ -123,6 +125,7 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
           );
         })}
       </ol>
+      </ShowAll>
       {/* A search's pages link to /bills/search directly: the site's own navigation (JavaScript on) does not go through
           the /bills?q= rewrite, and would show the plain list. */}
       <Pagination currentPage={page} totalPages={totalPages} baseUrl={q ? '/bills/search' : '/bills'} qsExtra={q ? `&q=${encodeURIComponent(q)}` : ''} />
