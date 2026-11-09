@@ -7,15 +7,33 @@
 // items sit beside the details rather than in it, because a closed details hides its contents at every width.
 import type { ReactNode } from 'react';
 
+// Phones (MP2f, 9 Nov 2026): the first PHONE_FIRST items of the opening list; the rest of it shows when the first
+// "Show more" opens (globals.css .mc-first, a rule on the list, no JavaScript), and that control counts what is left from
+// there. A list of more than PHONE_FIRST and no more than the opening gets a phone only "Show all <N>". Nothing changes
+// from 640px up.
+const PHONE_FIRST = 5;
+
 // first: how many items show as the page opens, when fewer than a step, so a page of long items stays within the 10,000px limit.
 type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean };
 
 export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false }: Props) {
   const opening = Math.max(1, Math.min(first ?? step, step));
   const Tag = ordered ? 'ol' : 'ul';
-  const list = (some: ReactNode[]) => <Tag className={className} data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
-  if (items.length <= opening) return list(items);
-  const label = (from: number) => <summary>Show more ({(items.length - from).toLocaleString('en-GB')} left)</summary>;
+  const list = (some: ReactNode[], firstList = false) => <Tag className={[className, firstList ? 'mc-first' : ''].filter(Boolean).join(' ') || undefined} data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
+  if (items.length <= opening) {
+    if (phoneOnly || items.length <= PHONE_FIRST) return list(items);
+    return <>{list(items, true)}<details className="mc-more mc-phone"><summary>Show all {items.length.toLocaleString('en-GB')}</summary></details></>;
+  }
+  const label = (from: number) => (
+    // One span: the summary is a flex box, and separate pieces would lose the space before "left".
+    <summary>
+      <span>
+        Show more ({from === opening && !phoneOnly
+          ? <><span className="mc-n-wide">{(items.length - from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{(items.length - Math.min(PHONE_FIRST, from)).toLocaleString('en-GB')}</span></>
+          : (items.length - from).toLocaleString('en-GB')} left)
+      </span>
+    </summary>
+  );
   const rest = (from: number): ReactNode => {
     if (from >= items.length) return null;
     if (phoneOnly) {
@@ -28,7 +46,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
     }
     return <details className="mc-more">{label(from)}{list(items.slice(from, from + step))}{rest(from + step)}</details>;
   };
-  return <>{list(items.slice(0, opening))}{rest(opening)}</>;
+  return <>{list(items.slice(0, opening), !phoneOnly)}{rest(opening)}</>;
 }
 
 // How many items fit as a page opens: their heights at 375px, up to the room the page leaves within the 10,000px limit.

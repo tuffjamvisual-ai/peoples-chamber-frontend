@@ -189,6 +189,14 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .pa-year > summary { font-size: 15px; }
 .mc-more > summary { justify-content: center; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }
 .mc-more[open] > summary { display: none; }
+/* MoreChain on phones (MP2f): the first 5 of the opening list until the first "Show more" opens; its count from there. */
+.mc-phone, .mc-n-phone { display: none; }
+@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+  .mc-phone { display: block; }
+  .mc-n-phone { display: inline; }
+  .mc-n-wide { display: none; }
+  .mc-first:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+6) { display: none !important; }
+}
 /* Long lists and sections on phones with JavaScript off (app/components/NoJsPager.tsx). Nothing here changes any other view. */
 .njp-a, .njp-nav, .njf { display: none; }
 .njf > summary::-webkit-details-marker { display: none; }
