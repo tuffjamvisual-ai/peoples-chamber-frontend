@@ -321,6 +321,47 @@ export async function searchCouncils(q: string, limit = COUNCIL_LIMIT): Promise<
     .map((r) => ({ slug: r.slug, name: r.name, typeLabel: r.type_label ?? null, country: r.country ?? null }));
 }
 
+// Constituencies (UX1b, 9 Nov 2026; the audit searched "Yeovil" and found no way to the seat or its MP): matched on the
+// seat's name, an exact match first, each with its current MP. Shown first among the records, so the seat and its MP
+// lead the page.
+export type ConstituencySearchResult = { slug: string; name: string; nation: string | null; mp: { memberId: number; name: string; party: string | null } | null };
+
+export async function searchConstituencies(q: string, limit = 10): Promise<ConstituencySearchResult[]> {
+  const term = (isPhrase(q) ? unwrapPhrase(q) : q).trim();
+  const safe = term.replace(/[%_,()\\"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
+  if (safe.length < 2) return [];
+  const { data, error } = await supabase
+    .from('constituencies')
+    .select('ons_code, slug, name, nation')
+    .ilike('name', `%${safe}%`)
+    .order('name', { ascending: true })
+    .limit(limit);
+  if (error) {
+    console.warn('[search] constituencies error:', error.message);
+    return [];
+  }
+  const rows = data ?? [];
+  if (!rows.length) return [];
+  const { data: mps, error: mpErr } = await supabase
+    .from('mps')
+    .select('member_id, display_name, party, constituency_gss_code')
+    .in('constituency_gss_code', rows.map((r) => r.ons_code))
+    .eq('current_member', true);
+  if (mpErr) console.warn('[search] constituency MPs error:', mpErr.message);
+  const mpBySeat = new Map((mps ?? []).map((m) => [m.constituency_gss_code, m]));
+  const lower = safe.toLowerCase();
+  return rows
+    .slice()
+    .sort((x, y) => (x.name.toLowerCase() === lower ? 0 : 1) - (y.name.toLowerCase() === lower ? 0 : 1))
+    .map((r) => {
+      const m = mpBySeat.get(r.ons_code);
+      return {
+        slug: r.slug, name: r.name, nation: r.nation ?? null,
+        mp: m ? { memberId: m.member_id, name: displayMpName(m.display_name) ?? String(m.member_id), party: m.party ?? null } : null,
+      };
+    });
+}
+
 // Members of the House of Lords (owner, 4 Nov 2026), from the peers table, matched on any form of their name, current
 // members first. A peer with no page here links to Parliament's profile (lib/peers.ts).
 export type PeerSearchResult = { memberId: number; name: string; party: string | null; peerageType: string | null; isCurrent: boolean; href: string };

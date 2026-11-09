@@ -23,6 +23,7 @@ const TYPES = [
   { value: 'pressRelease', label: 'Releases' },
   { value: 'bill',         label: 'Bills' },
   { value: 'division',     label: 'Divisions' },
+  { value: 'constituency', label: 'Constituencies' },
   { value: 'mp',           label: 'MPs' },
   { value: 'peer',         label: 'Peers' },
   { value: 'council',      label: 'Councils' },

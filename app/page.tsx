@@ -143,25 +143,22 @@ export default async function HomePage() {
                 .og-lead { display: flex !important; flex-direction: column; }
                 .og-main, .og-rail { display: contents !important; }
                 .og-main > * { order: 5; }
-                .og-main > form, .og-main > form + * { order: 1; }
                 .og-main > a.og-block:not(.og-brief) { order: 2; }
                 .og-rail > a.og-card[href="/this-week"] { order: 3; }
                 .og-main > .og-intro-line { order: 4; padding-top: 0 !important; }
                 .og-main > .og-record { order: 4; }
-                .og-main > form + * { margin-bottom: 12px !important; }
+                .og-finders { margin-bottom: 12px !important; }
                 .og-rail > * { order: 8; }
                 .og-rail > .og-brief { order: 6; }
                 .og-main > section[aria-label="Latest from Whitehall"] { order: 7; }
                 .og-intro-line .og-intro-s ~ .og-intro-s, .og-intro-line .og-intro-br { display: none !important; }
               }`}</style>
-              <div className="og-lead">
-            <div className="og-main">
-              <p className="og-intro-line" style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: 'clamp(16px, 1.9vw, 22px)', letterSpacing: '0.01em', color: '#14100d', marginBottom: '18px', lineHeight: 1.45 }}>
-                <span className="og-intro-s">opengovt is an independent record of how power is exercised across Britain, from Westminster to local councils.</span><br className="og-intro-br" />
-                <span className="og-intro-s">Search what governments and politicians promised, what decisions were made, how public money was spent and what happened next.</span><br className="og-intro-br" />
-                <span className="og-intro-s">Follow the evidence. Examine the record.</span>
-              </p>
-
+              {/* The two finders side by side (UX1b, 9 Nov 2026; the audit found the postcode box below the fold and unlabelled
+                  as the way to find an MP): the main search, then "Find your MP or council (postcode)". They run across
+                  the full width above the lead story and the rail, so on a 1280 x 720 screen both are in the first screen
+                  above the research promotion (UX1c). Each column is at least 280px, so they stack on phones. */}
+              <style>{`.og-finders { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px 20px; align-items: end; margin-bottom: 28px; } .og-finders > form, .og-finders > section { margin: 0 !important; }`}</style>
+              <div className="og-finders">
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
                 <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt</label>
                 <div style={{ position: 'relative' }}>
@@ -206,7 +203,16 @@ export default async function HomePage() {
                 </div>
               </form>
 
-              <AreaSearch tight label="Search local authorities" placeholder="Postcode, town or council" />
+              <AreaSearch label="Find your MP or council (postcode)" placeholder="Postcode, town or council" />
+              </div>
+              <div className="og-lead">
+            <div className="og-main">
+              <p className="og-intro-line" style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: 'clamp(16px, 1.9vw, 22px)', letterSpacing: '0.01em', color: '#14100d', marginBottom: '18px', lineHeight: 1.45 }}>
+                <span className="og-intro-s">opengovt is an independent record of how power is exercised across Britain, from Westminster to local councils.</span><br className="og-intro-br" />
+                <span className="og-intro-s">Search what governments and politicians promised, what decisions were made, how public money was spent and what happened next.</span><br className="og-intro-br" />
+                <span className="og-intro-s">Follow the evidence. Examine the record.</span>
+              </p>
+
 
               <HomeRecord />
 

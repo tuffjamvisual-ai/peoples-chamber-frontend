@@ -8,7 +8,7 @@ import SaveSearchButton from './SaveSearchButton';
 import SearchTracker from './SearchTracker';
 import PhoneMore from '../components/PhoneMore';
 import { SEARCH_NOTE_JS } from '@/lib/search-note';
-import { searchContent, searchCouncils, searchPeers, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult, type PeerSearchResult } from '@/lib/search-content';
+import { searchContent, searchCouncils, searchConstituencies, searchPeers, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult, type ConstituencySearchResult, type PeerSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
 import { suggestQuery } from '@/lib/search-suggest';
 import { searchVocabulary } from '@/lib/search-vocabulary';
@@ -31,6 +31,7 @@ const TYPE_META: Record<string, { label: string; color: string }> = {
   mp:           { label: 'MP',            color: '#14100d' },
 };
 const COUNCIL_META = { label: 'Council', color: '#1a5c5c' };
+const SEAT_META = { label: 'Constituency', color: '#2a4a6e' };
 
 const POPULAR = [
   'knife crime', 'small boats', 'NHS', 'energy bills',
@@ -142,6 +143,46 @@ function CouncilRow({ c }: { c: CouncilSearchResult }) {
   );
 }
 
+// A constituency (UX1b), in the same row style: the seat, then its current MP as a second link.
+function ConstituencyRow({ c }: { c: ConstituencySearchResult }) {
+  return (
+    <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+        <span
+          style={{
+            fontFamily: MONO,
+            fontSize: '15px',
+            letterSpacing: '0.1em',
+            color: INK,
+            border: `1px solid ${SEAT_META.color}`,
+            padding: '2px 6px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            marginTop: '3px',
+            textTransform: 'uppercase',
+          }}
+        >
+          {SEAT_META.label}
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <Link
+            href={`/constituencies/${c.slug}`}
+            style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: INK, textDecoration: 'none', lineHeight: 1.4 }}
+          >
+            {c.name}
+          </Link>
+          <span style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d' }}>
+            {c.mp ? (
+              <>MP: <Link href={`/mps/${c.mp.memberId}`} className="og-tap" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{c.mp.name}</Link>{c.mp.party ? ` · ${c.mp.party}` : ''}</>
+            ) : 'No sitting MP'}
+            {c.nation ? ` · ${c.nation}` : ''}
+          </span>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 // A donor name, in the same row style as the other results: the name as registered and its record count.
 const DONOR_META = { label: 'Donor', color: '#5c3a1a' };
 function DonorRow({ d }: { d: DonorNameResult }) {
@@ -246,7 +287,7 @@ function PeerRow({ p }: { p: PeerSearchResult }) {
 // The two groups of results (owner, 4 Nov 2026): the record itself, and what mentions the term.
 const groupHeading: React.CSSProperties = { fontSize: '19px', fontWeight: 'bold', color: INK, margin: '0 0 2px' };
 const groupNote: React.CSSProperties = { fontSize: '15px', color: INK, margin: '0 0 16px', lineHeight: 1.5 };
-const RECORD_FILTERS = ['peer', 'council', 'organisation', 'donor'];
+const RECORD_FILTERS = ['constituency', 'peer', 'council', 'organisation', 'donor'];
 const FILTERED_SHOWN = 50;
 
 type PageProps = {
@@ -269,15 +310,16 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const to   = sp.to    ?? null;
   const sort = (sp.sort === 'newest' ? 'newest' : 'relevance') as 'relevance' | 'newest';
 
-  // Councils, peers, organisations and donors are shown with All selected, or alone with their own filter (owner,
+  // Constituencies (UX1b), councils, peers, organisations and donors are shown with All selected, or alone with their own filter (owner,
   // 4 Nov 2026). A department or date filter does not apply to them. Donor names are name matches only, linked when
   // the donor page exists (lib/donor-search.ts). With All, the first few of each, and the full lists are on their pages.
   const inAll = q.length >= 2 && type === 'all' && !dept && !from && !to;
   const wants = (t: string) => q.length >= 2 && (inAll || type === t);
   const shown = type === 'all' ? 10 : FILTERED_SHOWN;
   const noDonors = { results: [] as DonorNameResult[], more: false, totalNames: 0 };
-  const [allResults, councils, peers, donorSearch, orgList]: [SearchResult[], CouncilSearchResult[], PeerSearchResult[], { results: DonorNameResult[]; more: boolean; totalNames: number }, OrgListRow[]] = await Promise.all([
+  const [allResults, seats, councils, peers, donorSearch, orgList]: [SearchResult[], ConstituencySearchResult[], CouncilSearchResult[], PeerSearchResult[], { results: DonorNameResult[]; more: boolean; totalNames: number }, OrgListRow[]] = await Promise.all([
     q.length >= 2 ? searchContent(q, type, dept, from, to, sort) : Promise.resolve([]),
+    wants('constituency') ? searchConstituencies(q, shown) : Promise.resolve([]),
     wants('council') ? searchCouncils(q, shown) : Promise.resolve([]),
     wants('peer') ? searchPeers(q, shown) : Promise.resolve([]),
     wants('donor') ? searchDonorNames(q) : Promise.resolve(noDonors),
@@ -289,9 +331,12 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const donors = linkedDonors.slice(0, shown);
   // The record itself (an MP's page, a council, a company) apart from the reports, releases, bills and votes that
   // mention the term.
-  const mps = allResults.filter((r) => r.type === 'mp');
+  // An exact constituency name (UX1b): that seat's MP leads the MPs too.
+  const exactSeat = seats.find((c) => c.name.toLowerCase() === q.replace(/^"|"$/g, '').trim().toLowerCase());
+  const mps = allResults.filter((r) => r.type === 'mp')
+    .sort((a, b) => Number(b.constituency === exactSeat?.name) - Number(a.constituency === exactSeat?.name));
   const results = allResults.filter((r) => r.type !== 'mp');
-  const hasRecords = mps.length + peers.length + councils.length + orgs.length + donors.length > 0;
+  const hasRecords = seats.length + mps.length + peers.length + councils.length + orgs.length + donors.length > 0;
   const isEmpty = !hasRecords && results.length === 0;
   // "Did you mean" (SR1): only for a search that found nothing, one corrected query from our own titles, as a link with
   // the same filters, never run by itself (lib/search-suggest.ts).
@@ -327,7 +372,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           Search
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
-          Reports, press releases, bills, votes, MPs, peers, councils, donors and organisations, searched together.
+          Reports, press releases, bills, votes, constituencies, MPs, peers, councils, donors and organisations, searched together.
         </p>
       </header>
 
@@ -344,7 +389,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {!RECORD_FILTERS.includes(type) && <SaveSearchButton q={q} type={type} dept={dept} from={from} to={to} sort={sort} />}
       {/* The "search" analytics event for a submitted search, with consent only; the count is every result shown or
           counted on this page (content, councils, organisations, donor names). */}
-      <SearchTracker q={q} resultsCount={allResults.length + councils.length + peers.length + orgMatches.length + (donorSearch.more ? donorSearch.totalNames : linkedDonors.length)} />
+      <SearchTracker q={q} resultsCount={allResults.length + seats.length + councils.length + peers.length + orgMatches.length + (donorSearch.more ? donorSearch.totalNames : linkedDonors.length)} />
 
       {q.length >= 2 && isEmpty && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
@@ -364,8 +409,20 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {hasRecords && (
         <>
           <h2 style={groupHeading}>Records matching &ldquo;{q}&rdquo;</h2>
-          <p style={groupNote}>The page for the MP, peer, council, organisation or donor itself.</p>
+          <p style={groupNote}>The page for the constituency, MP, peer, council, organisation or donor itself.</p>
         </>
+      )}
+
+      {seats.length > 0 && (
+        <section aria-labelledby="search-seats" style={{ marginBottom: '28px' }}>
+          <h3 id="search-seats" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            Constituencies · {seats.length}
+          </h3>
+          <ul id="results-seats" data-own-more style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {seats.map((c) => <ConstituencyRow key={c.slug} c={c} />)}
+          </ul>
+          <PhoneMore selector="#results-seats" total={seats.length} step={10} />
+        </section>
       )}
 
       {mps.length > 0 && (
