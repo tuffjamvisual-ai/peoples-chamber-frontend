@@ -20,8 +20,6 @@ import { questionsSummary, type QuestionsSummary } from '@/lib/mp-written-questi
 import { getHiddenBillIds } from '@/lib/hidden-bills';
 import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
 import MpDossier from './MpDossier';
-import { staffInterestsText } from './StaffInterestsLine';
-import { distinctStaff, type StaffInterestRow } from './StaffInterests';
 import { mpPay } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
@@ -426,8 +424,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .eq('member_id', memberId)
       .maybeSingle(),
   );
-  // Staff with outside interests (owner's brief, 3 Nov 2026): job titles only, never names. A failed read (or the
-  // table before its migration) shows no section rather than failing the page.
   // The stored career records (PC1; lib/mp-career.ts): post dates and lost elections in Roles since CH1. Its own read, so
   // the page never depends on it.
   const pCareer = getMpCareer(supabase, memberId);
@@ -442,14 +438,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     for (const r of rows) { const y = Number(String(r.division_date).slice(0, 4)); if (y) per.set(y, (per.get(y) ?? 0) + 1); }
     return [...per.entries()].map(([year, count]) => ({ year, count }));
   });
-  const pStaffInterests = Promise.resolve(
-    supabase
-      .from('mp_staff_interests')
-      .select('id, register_id, register_date, category, job_title, description, organisation, country, start_date, end_date, staff_identifier')
-      .eq('member_id', memberId)
-      .eq('is_current', true)
-      .limit(200),
-  );
   const pConduct = Promise.resolve(
     supabase
       .from('mp_conduct_findings')
@@ -723,14 +711,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // committees-api.parliament.uk via app/api/sync-standards-committee (and scripts/sync-standards-committee.js).
   // Resolved findings (member_id matched) only; a name the sync could not match to one member stays unattached.
   const conductRes = await pConduct;
-  const staffInterestsRes = await pStaffInterests;
-  if (staffInterestsRes.error) console.error(`/mps/${memberId} mp_staff_interests: ${staffInterestsRes.error.message}`);
-  // Parliament's anonymous staff identifier is used here only, to count each staff member once (AB1): the rows passed on
-  // to the page leave it out, so it is in neither the HTML nor the data sent to the browser.
-  const staffRows = (staffInterestsRes.data ?? []) as StaffInterestRow[];
-  const staffLine = staffInterestsText(staffRows);
-  const staffEmployed = distinctStaff(staffRows, 'employment');
-  const staffForPage = staffRows.map(({ staff_identifier: _omit, ...r }) => r); // eslint-disable-line @typescript-eslint/no-unused-vars
 
 
 
@@ -816,7 +796,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       partyColour={partyColour}
       partyIsCoop={partyIsCoop}
       photoUrl={mp.photo_url ?? null}
-      staffInterestsLine={staffLine}
       followable
       sections={{
         memberId,
@@ -846,7 +825,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         writtenQuestions,
         pmqsQuestions,
         conductFindings: conductRes.data || [],
-        staffInterests: staffForPage,
         career: await pCareer,
         ...(await (async () => {
           const [archiveVotes, register, currentYears] = await Promise.all([pArchiveVotes, pRegisterHistory, pCurrentYears]);
@@ -859,7 +837,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           };
         })()),
         constituencyPetitions: petitionsTop && petitionsTop.petitions.length > 0 && constituencyGss ? { top: petitionsTop, gss: constituencyGss, constituency: mp.constituency ?? null } : null,
-        staffEmployed,
         activity: activityRes.data || null,
         // Votes against most of their party (is_rebellion, set from the MP's party on the day of the vote; see the
         // 2026-10-15c migration): since the July 2024 election with the votes cast in that time, and across all the

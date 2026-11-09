@@ -2,7 +2,6 @@ import Image from 'next/image';
 import StandardsCasesLine from '../../components/StandardsCasesLine';
 import Link from 'next/link';
 import MagazineProfileSections from './MagazineProfileSections';
-import StaffInterestsLine from './StaffInterestsLine';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
@@ -43,8 +42,6 @@ interface MpDossierProps {
   partyIsCoop: boolean;
   photoUrl: string | null;
   sections: React.ComponentProps<typeof MagazineProfileSections>;
-  /** The staff interests summary line, built on the server (StaffInterestsLine.tsx). */
-  staffInterestsLine?: string | null;
   /** Optional footer slot rendered inside the dossier folder (e.g. RelatedLinks).
       Pages used to render this OUTSIDE the dossier — that worked fine when
       voting records were 999 items long because the folder always stretched
@@ -69,7 +66,6 @@ export default function MpDossier({
   partyIsCoop,
   photoUrl,
   sections,
-  staffInterestsLine = null,
   footer,
   followable = false,
 }: MpDossierProps) {
@@ -120,16 +116,12 @@ export default function MpDossier({
           .pca-mp-constituency a { display: inline-flex; align-items: center; min-height: 44px; }
           .mp-back-link { min-height: 44px; }
         }
-        /* Desktop (owner, 7 Nov 2026, PF3): the profile sections are pulled up 80px over the space below the header, so the
-           Staff interests line sat under the Background heading and the tab list. It keeps its place in the page, so nothing
-           else moves, and is drawn one line higher (56px, a 44px line and its 12px gap), or two with the standards line
-           above it, into the free space under the party name. */
+        /* Desktop (owner, 7 Nov 2026, PF3 and PF4): the profile sections are pulled up 80px over the space below the header,
+           so the Standards cases line would sit under the Background heading and the tab list. It keeps its place in the
+           page, so nothing else moves, and is drawn one line higher (56px, a 44px line and its 12px gap), into the free
+           space under the party name. */
         @media ${wideFrom(761)} {
-          .mp-staff-line { position: relative; top: -56px; }
-          .mp-standards-line + .mp-staff-line { top: -112px; }
-          /* PF4 (owner, 7 Nov 2026): a Standards cases line with no Staff interests line after it had the same overlap; it
-             moves up one line the same way. With both lines, the standards line stays where PF3 drew it. */
-          .mp-standards-line:not(:has(+ .mp-staff-line)) { position: relative; top: -56px; }
+          .mp-standards-line { position: relative; top: -56px; }
         }
       `}</style>
 
@@ -238,8 +230,6 @@ export default function MpDossier({
 
       {/* Commissioner for Standards cases (owner, 7 Nov 2026, T1): one line, at every width, for a member with any. */}
       <StandardsCasesLine memberId={memberId} />
-      {/* Staff interests (owner, 7 Nov 2026, Z2): one line beside the standards line, for an MP with entries in the latest edition. */}
-      <StaffInterestsLine text={staffInterestsLine} />
 
       {/* Full interactive profile sections (scaled up via zoom to restore text size). */}
       <div className="pca-sections" style={{ zoom: 1.18 }}>
