@@ -13,6 +13,12 @@ on:
     - cron: '47 3 * * *'
   workflow_dispatch:
 
+concurrency:
+  # SY1 (9 Nov 2026): two runs of this sync never overlap (a scheduled run and a hand run, or a late run and the next
+  # night's). The group is the workflow's name; a second run waits for the first to finish rather than cancelling it.
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   statements:
     runs-on: ubuntu-latest
