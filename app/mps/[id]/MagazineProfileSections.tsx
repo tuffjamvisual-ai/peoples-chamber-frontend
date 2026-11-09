@@ -3044,7 +3044,7 @@ export default function MagazineProfileSections({
       {/* Under 640px (owner, 4 Nov 2026): reports directly below Follow this MP, above the folded sections. Nothing at all for an
           MP with none. From 640px they stay in their section. */}
       {phoneHeadline && reports && reports.items.length > 0 && (
-        <div className="mp-reports-phone"><ReportsMentioning reports={reports} headingId="mp-reports-heading-phone" /></div>
+        <div className="mp-reports-phone"><ReportsMentioning reports={reports} headingId="mp-reports-heading-phone" compact /></div>
       )}
 
       <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
@@ -3097,13 +3097,26 @@ export function MpReportList({ items }: { items: MpReports['items'] }) {
   );
 }
 
-function ReportsMentioning({ reports, headingId = 'mp-reports-heading' }: { reports: MpReports | null; headingId?: string }) {
+// compact (phones, MP2a, 9 Nov 2026): the 3 most recent as title and date only, then the link to the full list; the ten
+// cards with summaries were about 2,000px of a 4,200px page at 375px.
+const COMPACT_REPORTS = 3;
+function ReportsMentioning({ reports, headingId = 'mp-reports-heading', compact = false }: { reports: MpReports | null; headingId?: string; compact?: boolean }) {
   if (!reports || reports.items.length === 0) return null;
+  const items = compact ? reports.items.slice(0, COMPACT_REPORTS) : reports.items;
   return (
     <section aria-labelledby={headingId} style={{ marginTop: '32px' }}>
       <h3 id={headingId} style={sectionH3}>Reports mentioning this MP</h3>
-      <MpReportList items={reports.items} />
-      {reports.total > reports.items.length && (
+      {compact ? (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
+          {items.map((r) => (
+            <li key={r.href} style={{ padding: '10px 0', borderBottom: inkDivider }}>
+              <Link href={r.href} style={{ ...inkLink, fontWeight: 'bold' }}>{r.headline}</Link>
+              <div style={{ fontFamily: 'monospace', fontSize: '15px', marginTop: '2px' }}>{r.date}</div>
+            </li>
+          ))}
+        </ul>
+      ) : <MpReportList items={items} />}
+      {reports.total > items.length && (
         <p style={{ marginTop: '10px', fontSize: '15px' }}>
           <Link href={`/mps/${reports.memberId}/reports`} className="og-tap" style={inkLink}>All {reports.total} reports mentioning {reports.mpName}</Link>
         </p>
