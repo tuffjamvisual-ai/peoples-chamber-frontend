@@ -272,7 +272,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
         {bodyHtml ? (
           <>
+            {/* data-article-body: the release text, never folded; the phone length check leaves it out (QA2d). */}
             <div
+              data-article-body=""
               className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]"
               dangerouslySetInnerHTML={{ __html: bodyHtml }}
             />

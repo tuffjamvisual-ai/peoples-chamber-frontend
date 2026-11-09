@@ -52,7 +52,8 @@ export default function BriefingArticle({ b, slug, banner, sourcesHref }: { b: B
         )}
       </header>
 
-      <article style={{ maxWidth: '680px', fontSize: '18px', lineHeight: 1.75, color: INK }}>
+      {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
+      <article data-article-body="" style={{ maxWidth: '680px', fontSize: '18px', lineHeight: 1.75, color: INK }}>
         {paragraphs.map((p, i) => (
           <p key={i} style={{ margin: '0 0 18px' }}>{p}</p>
         ))}

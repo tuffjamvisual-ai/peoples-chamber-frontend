@@ -104,7 +104,8 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
         </header>
 
-        <article data-own-folds="" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
+        {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
+        <article data-own-folds="" data-article-body="" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
           <ReportBody body={piece.body} />
           {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
           {piece.updateNote && piece.updateNote.length > 0 && (

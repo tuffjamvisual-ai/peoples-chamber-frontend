@@ -7,7 +7,8 @@
 //   A2  no time relative word in what readers see: "present", "now", "currently", "this Parliament", "to date", "so far"
 //       in the page's visible text. Allowed phrases: time_words_allow in house-style-exceptions.json; page types that show the
 //       official record word for word (Hansard, petitions, motions, written questions) are skipped: time_words_skip_routes.
-//   A3  phone length: at 375px, as the page first opens (folds closed), at most 2,500px tall. Baseline: audit/mp2's
+//   A3  phone length: at 375px, as the page first opens (folds closed), at most 2,500px tall, not counting article text
+//       (elements marked data-article-body: editorials, briefings, press releases; owner, 9 Nov 2026, QA2d). Baseline: audit/mp2's
 //       page-lengths.csv when MP2 writes it, else page-length-baseline.json (measured when this check was added).
 //   A4  official record links: each bill page links to bills.parliament.uk for that bill, each division page to
 //       votes.parliament.uk for that division (ids read from the database).
@@ -129,7 +130,8 @@ async function main() {
       if (res.status === 200 && !extra.includes(p)) {
         await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
         await page.waitForTimeout(300);
-        r.height = await page.evaluate(() => Math.round(document.documentElement.scrollHeight));
+        // QA2d (owner, 9 Nov 2026): article text is never folded, so the limit applies to the page minus the article body.
+        r.height = await page.evaluate(() => Math.round(document.documentElement.scrollHeight - [...document.querySelectorAll('[data-article-body]')].reduce((n, el) => n + el.getBoundingClientRect().height, 0)));
       }
     } catch (e) { r.error = e.message.split('\n')[0]; }
     results.push(r);
