@@ -282,7 +282,7 @@
     },
     {
       "path": "/api/sync-connectivity",
-      "schedule": "41 10 1 * *"
+      "schedule": "41 10 * * 1"
     },
     {
       "path": "/api/sync-parliament-archive",
