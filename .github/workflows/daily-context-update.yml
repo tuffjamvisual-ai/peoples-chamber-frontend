@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      staff_register:
+        description: "Also run the staff register sync (stopped on schedule: owner, 9 Nov 2026)"
+        type: boolean
+        default: false
 
 concurrency:
   # JF1d (9 Nov 2026): two runs of this workflow never overlap; a second run waits for the first rather than cancelling it.
@@ -110,14 +115,14 @@ jobs:
         timeout-minutes: 60
         run: node scripts/sync-peer-interests.js --write
         continue-on-error: true
-      # Tuesdays. The only writer of mp_staff_interests; one request when no new edition is out. Stops on HTTP 429 or 403.
-      - name: Staff register (interests API, new editions of the Commons register of MPs' staff)
+      # Staff register: NOT run on the schedule (owner, 9 Nov 2026: staff interests removed from the site completely). It
+      # runs only when started by hand with the staff_register input ticked. The only writer of mp_staff_interests; the
+      # table and its data are kept unchanged. Stops on HTTP 429 or 403.
+      - name: Staff register (by hand only; interests API, new editions of the Commons register of MPs' staff)
         id: staff-register
+        if: github.event_name == 'workflow_dispatch' && inputs.staff_register
         timeout-minutes: 30
-        run: |
-          if [ "$(date -u +%u)" = "2" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            node scripts/sync-staff-register.js --write
-          fi
+        run: node scripts/sync-staff-register.js --write
         continue-on-error: true
       - name: Recompute outside-earnings summary (depends on mp_registered_interests)
         id: outside-earnings

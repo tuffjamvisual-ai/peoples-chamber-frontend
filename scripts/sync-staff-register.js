@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// STOPPED ON SCHEDULE (owner, 9 Nov 2026): staff interests are removed from the site completely, so this no longer runs
+// on the nightly schedule. It can still be run by hand (daily-context-update.yml, workflow_dispatch with staff_register
+// ticked, or from a terminal). Nothing reads mp_staff_interests on the site; the table and its data are kept unchanged.
 // Staff register (owner, 4 Nov 2026): the only writer of mp_staff_interests. Every edition of the Commons register of
 // interests of MPs' staff not yet read, from Parliament's interests API v2 (Open Parliament Licence v3.0): the CSV of
 // an edition (lib/staff-interests.js) gives what the MP pages list, and /Interests?RegisterId=N adds the anonymous staff

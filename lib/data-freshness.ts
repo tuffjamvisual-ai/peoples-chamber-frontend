@@ -44,9 +44,8 @@ export const DATA_SOURCES: DataSource[] = [
   { key: 'department_budgets',   table: 'department_budgets',    column: 'updated_at',   cadence: 'weekly',    label: 'Departmental budgets',       source: 'GOV.UK supply estimates',      page: '/spending',                             syncRoute: '/api/sync-department-budgets' },
   { key: 'department_staffing',  table: 'department_staffing',   column: 'updated_at',   cadence: 'weekly',    label: 'Civil service staffing',     source: 'Cabinet Office workforce data', page: '/civil-service',                        syncRoute: '/api/sync-department-staffing' },
   { key: 'appgs',                table: 'appgs',                 column: 'scraped_at',   cadence: 'weekly',    label: 'APPG register',              source: 'mySociety / UK Parliament APPG register', page: '/secretariats',                     syncRoute: '/api/sync-appgs' },
-  // The staff register is published about every six weeks (20 Jul, 1 Sep, 12 Oct 2026), so its data age is checked on a
-  // quarterly cadence; the weekly run itself is watched through its heartbeat.
-  { key: 'staff_interests',      table: 'mp_staff_interests',    column: 'register_date', cadence: 'quarterly', label: "MPs' staff interests",     source: 'UK Parliament register of interests of MPs\' staff', page: '/mps/[id]',                    syncRoute: '/api/sync-staff-interests' },
+  // No staff register entry (owner, 9 Nov 2026): staff interests were removed from the site and the sync no longer runs
+  // on a schedule, so the age of mp_staff_interests is not monitored. The table and its data are kept unchanged.
   { key: 'government_contracts', table: 'government_contracts',  column: 'updated_at',   cadence: 'daily',     label: 'Government contracts',       source: 'Find a Tender (OCDS)',          page: '/donations/government-contractors',     syncRoute: '/api/sync-government-contracts' },
   // Council details (leaders, party control, council tax, finance) are kept up to date by hand:
   // council tax each March, leaders after the May elections, finance once a year. There is no
