@@ -12,7 +12,6 @@ import { notFound } from 'next/navigation'
 import { billStageLine, NO_SUMMARY_TEXT } from '@/lib/bill-summary'
 import BillVotingClient from './BillVotingClient'
 import { NoJsFold } from '@/app/components/NoJsPager'
-import { PHONE } from '@/lib/breakpoints'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBillLegislation, buildBreadcrumbs } from '@/lib/JsonLd';
@@ -296,34 +295,27 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </div>
         )}
 
-        {/* Phones (UX2g, owner approved through Cowork, 10 Nov 2026): the sponsor with the stage and date, under the title, then
-            two jump links: the full timeline and the reader poll. The formal summary, the official record link and the full
-            sponsor block below stay; the sponsor block is left out on phones, as this line gives it. From 640px up, as before. */}
-        <style>{`.bq-phone { display: none; } @media ${PHONE} { .bq-phone { display: block; text-align: center; margin: -14px 0 14px; } .bq-wide { display: none !important; } .bq-jump { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 18px; } .bq-jump a { display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; } }`}</style>
+        {/* At every width (UX2g phones; UX4g desktop, owner approved, 10 Nov 2026): under the stage and date, the sponsor, the
+            official record at Parliament (BD1: only for bills whose Parliament id we hold; same tab), then two jump links: the
+            full timeline and the reader poll (which follows the parliamentary record). The formal summary and the full bill
+            link stay below; the sponsor block lower down is left out, as this line gives it. */}
+        <style>{`.bq-phone { display: block; text-align: center; margin: -14px 0 14px; } .bq-wide { display: none !important; } .bq-jump { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 18px; } .bq-jump a, .bq-rec a { display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; }`}</style>
         <div className="bq-phone">
           {presented && (
             <p style={{ fontFamily: MONO, fontStyle: 'italic', fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 2px' }}>
               Presented by {presented}{supportersLine ? `, supported by ${supportersLine}` : ''}.
             </p>
           )}
+          {bill.parliament_id != null && (
+            <div className="bq-rec" style={{ fontFamily: MONO }}>
+              <a href={`https://bills.parliament.uk/bills/${bill.parliament_id}`}>View the official Parliament record</a>
+            </div>
+          )}
           <nav aria-label="On this page" className="bq-jump" style={{ fontFamily: MONO }}>
             {stages.length > 0 && <a href="#bill-passage">Full timeline ↓</a>}
             <a href="#vote">Reader poll ↓</a>
           </nav>
         </div>
-
-        {/* The official record at Parliament, for readers who want to check our page against it (BD1, audit item 6).
-            Only for bills whose Parliament id we hold; it opens in the same tab. */}
-        {bill.parliament_id != null && (
-          <div style={{ textAlign: 'center', margin: '-14px 0 14px' }}>
-            <a
-              href={`https://bills.parliament.uk/bills/${bill.parliament_id}`}
-              style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontFamily: MONO, fontSize: '15px', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}
-            >
-              View the official Parliament record
-            </a>
-          </div>
-        )}
 
         {/* Follow this bill (job 74): a weekly email when it reaches a new stage or is voted on. */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -467,7 +459,83 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       </header>
 
 
-      {/* The ballot — interactive cross-box vote + the running counts.
+      {/* How the Lords voted — formal Lords divisions on this bill. */}
+      {lordsDivisions.length > 0 && <LordsVotesSection divisions={lordsDivisions} />}
+
+      {/* Commons votes on this bill (owner, 31 Oct 2026): plain links to each matched division page. */}
+      {billVotes.length > 0 && (
+        <section aria-labelledby="bill-commons-votes" style={{ marginBottom: '34px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
+          <h2 id="bill-commons-votes" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 12px' }}>
+            Parliamentary votes in the Commons
+          </h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.7, color: INK }}>
+            {billVotes.map((d) => (
+              <li key={`${d.date}-${d.number}`}>
+                <Link href={divisionHref(d.date, d.number)} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{d.title}</Link>
+                {' '}({new Date(d.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}, division {d.number})
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Sponsor */}
+      {bill.sponsor_name && (
+        <section style={{ marginBottom: '34px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
+          <Eyebrow>Sponsored by</Eyebrow>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '4px 0' }}>
+            {bill.sponsor_photo ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={bill.sponsor_photo}
+                alt={bill.sponsor_name}
+                style={{ width: '60px', height: '60px', objectFit: 'cover', background: '#cfc6b1', border: `1px solid ${INK_HAIRLINE}`, flexShrink: 0, filter: 'contrast(1.05) sepia(0.05)' }}
+              />
+            ) : (
+              <div style={{ width: '60px', height: '60px', background: '#cfc6b1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: SERIF, fontSize: '20px', fontWeight: 'bold', color: INK, flexShrink: 0, border: `1px solid ${INK_HAIRLINE}` }}>
+                {bill.sponsor_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+              </div>
+            )}
+            <div>
+              <div style={{ fontFamily: SERIF, fontSize: '18px', fontWeight: 'bold', lineHeight: 1.25 }}>{bill.sponsor_name}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
+                {bill.sponsor_party && (
+                  <span className={lightBadge(bill.sponsor_party_colour) ? 'og-ink-on-light' : undefined} style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '2px 8px', color: '#ebe5d8', background: bill.sponsor_party_colour ? `#${String(bill.sponsor_party_colour).replace('#', '')}` : '#7697a2' }}>
+                    {bill.sponsor_party}
+                  </span>
+                )}
+                {bill.sponsor_constituency && (
+                  <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{bill.sponsor_constituency}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Bill passage */}
+      {stages.length > 0 && (
+        <section id="bill-passage" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '28px', marginBottom: '38px', scrollMarginTop: '16px' }}>
+          <Eyebrow>Bill passage</Eyebrow>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+            {commonsStages.length > 0 && <StageGroup label="Commons" colour={ACCENT} stages={commonsStages} cancelled={(d) => sittingCancelled(bill, d)} />}
+            {lordsStages.length > 0 && <StageGroup label="Lords" colour={DANGER} stages={lordsStages} cancelled={(d) => sittingCancelled(bill, d)} />}
+            {royalAssent && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '14px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: SUCCESS, flexShrink: 0 }} />
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: INK, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Royal Assent</span>
+                  {royalAssent.stageSittings[0]?.date && (
+                    <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{fmtDate(royalAssent.stageSittings[0].date)}</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* The ballot (after the parliamentary record since UX4g, owner approved, 10 Nov 2026) — interactive cross-box vote + the running counts.
           Sits on the parchment, separated by a ruling line above. */}
       <section id="vote" style={{ marginBottom: '40px', borderTop: `1.5px solid ${INK}`, paddingTop: '28px', scrollMarginTop: '90px' }}>
         {/* A closed ballot (an Act, withdrawn, defeated or fallen bill) is folded on phones (step 5, 10 Nov 2026: page length). */}
@@ -583,82 +651,6 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         </div>
         </ClosedBallotFold>
       </section>
-
-      {/* How the Lords voted — formal Lords divisions on this bill. */}
-      {lordsDivisions.length > 0 && <LordsVotesSection divisions={lordsDivisions} />}
-
-      {/* Commons votes on this bill (owner, 31 Oct 2026): plain links to each matched division page. */}
-      {billVotes.length > 0 && (
-        <section aria-labelledby="bill-commons-votes" style={{ marginBottom: '34px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
-          <h2 id="bill-commons-votes" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 12px' }}>
-            Parliamentary votes in the Commons
-          </h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.7, color: INK }}>
-            {billVotes.map((d) => (
-              <li key={`${d.date}-${d.number}`}>
-                <Link href={divisionHref(d.date, d.number)} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{d.title}</Link>
-                {' '}({new Date(d.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}, division {d.number})
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Sponsor */}
-      {bill.sponsor_name && (
-        <section style={{ marginBottom: '34px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
-          <Eyebrow>Sponsored by</Eyebrow>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '4px 0' }}>
-            {bill.sponsor_photo ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={bill.sponsor_photo}
-                alt={bill.sponsor_name}
-                style={{ width: '60px', height: '60px', objectFit: 'cover', background: '#cfc6b1', border: `1px solid ${INK_HAIRLINE}`, flexShrink: 0, filter: 'contrast(1.05) sepia(0.05)' }}
-              />
-            ) : (
-              <div style={{ width: '60px', height: '60px', background: '#cfc6b1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: SERIF, fontSize: '20px', fontWeight: 'bold', color: INK, flexShrink: 0, border: `1px solid ${INK_HAIRLINE}` }}>
-                {bill.sponsor_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
-              </div>
-            )}
-            <div>
-              <div style={{ fontFamily: SERIF, fontSize: '18px', fontWeight: 'bold', lineHeight: 1.25 }}>{bill.sponsor_name}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
-                {bill.sponsor_party && (
-                  <span className={lightBadge(bill.sponsor_party_colour) ? 'og-ink-on-light' : undefined} style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '2px 8px', color: '#ebe5d8', background: bill.sponsor_party_colour ? `#${String(bill.sponsor_party_colour).replace('#', '')}` : '#7697a2' }}>
-                    {bill.sponsor_party}
-                  </span>
-                )}
-                {bill.sponsor_constituency && (
-                  <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{bill.sponsor_constituency}</span>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Bill passage */}
-      {stages.length > 0 && (
-        <section id="bill-passage" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '28px', marginBottom: '38px', scrollMarginTop: '16px' }}>
-          <Eyebrow>Bill passage</Eyebrow>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-            {commonsStages.length > 0 && <StageGroup label="Commons" colour={ACCENT} stages={commonsStages} cancelled={(d) => sittingCancelled(bill, d)} />}
-            {lordsStages.length > 0 && <StageGroup label="Lords" colour={DANGER} stages={lordsStages} cancelled={(d) => sittingCancelled(bill, d)} />}
-            {royalAssent && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '14px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: SUCCESS, flexShrink: 0 }} />
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: INK, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Royal Assent</span>
-                  {royalAssent.stageSittings[0]?.date && (
-                    <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{fmtDate(royalAssent.stageSittings[0].date)}</span>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
 
       {/* Investigations about this bill (owner's approval, 29 Oct 2026): published pieces that list it in
           relatedBillIds, newest first; shown only when one matches. */}
