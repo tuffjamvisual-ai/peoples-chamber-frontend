@@ -143,7 +143,8 @@ export default async function HomePage() {
                 .og-lead { display: flex !important; flex-direction: column; }
                 .og-main, .og-rail { display: contents !important; }
                 .og-main > * { order: 5; }
-                .og-main > a.og-block:not(.og-brief) { order: 2; }
+                .og-main > .og-lead-story { order: 2; }
+                .og-lead-story .og-lede { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
                 .og-rail > a.og-card[href="/this-week"] { order: 3; }
                 .og-main > .og-intro-line { order: 4; padding-top: 0 !important; }
                 .og-main > .og-record { order: 4; }
@@ -216,13 +217,16 @@ export default async function HomePage() {
 
               <HomeRecord />
 
-              <a className="og-block" href={`/editorials/${slot1.slug}`}>
-                <div className="og-head">{slot1.headline}</div>
+              {/* The lead story (UX1g, 9 Nov 2026): the headline is the link, and the summary and opening are plain text
+                  after it, so a screen reader hears the headline as the link's name rather than the whole block. On
+                  phones the opening is cut to four lines (the CSS above). */}
+              <style>{`.og-lead-head { display: block; text-decoration: none; color: inherit; } .og-lead-head:hover, .og-lead-head:focus-visible { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; } .og-lead-head:focus-visible { outline: 3px solid #7a1612; outline-offset: 3px; }`}</style>
+              <article className="og-block og-lead-story">
+                <a className="og-head og-lead-head" href={`/editorials/${slot1.slug}`}>{slot1.headline}</a>
                 <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{listReadingLabel(slot1)}</div>
                 <div className="og-standfirst">{listSummary(slot1)}</div>
                 {ledeText && <p className="og-lede">{ledeText}</p>}
-                <ContinueToArticle />
-              </a>
+              </article>
 
               <a className="og-block og-brief" href={`/editorials/${slot2.slug}`}>
                 <div className="og-head">{slot2.headline}</div>
