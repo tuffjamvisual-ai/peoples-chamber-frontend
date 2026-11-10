@@ -13,8 +13,7 @@ import { SubFold } from '../../components/PhoneFolds'
 export const revalidate = 3600
 
 const ACCENT = '#7a1612'
-// The donations dataset's related pages: beside the title from 640px up; on phones in "Explore this dataset" below the
-// first results (UX2c).
+// The donations dataset's related pages: in "Explore this dataset" after the first results, at every width (UX2c, UX4e).
 const DONATION_LINKS: { href: string; label: string }[] = [
   { href: '/donors', label: 'Donor index' },
   { href: '/donations/foreign', label: 'Foreign source map' },
@@ -256,29 +255,13 @@ export default async function TransparencySectionPage({
         )}
         {section === 'donations' && (
           <>
-          {/* Phones (UX2c, owner approved through Cowork, 10 Nov 2026): the title, this one line source note, then the donor or
-              recipient search. The record count, the note on the Register of Members' Financial Interests and the related pages
-              are in "Explore this dataset", a closed native fold below the first results. A search's own count stays here. From 640px up, as before. */}
-          <style>{`.tr-dphone { display: none; } @media ${PHONE} { .tr-dwide { display: none !important; } .tr-dphone { display: block; } .tr-dhead { margin-bottom: 16px !important; } }`}</style>
-          <p className="tr-dphone text-[#14100d] text-[15px] leading-[1.5]" style={{ margin: 0 }}>Source: the Electoral Commission&rsquo;s donations register.</p>
-          <p className="tr-dwide text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
-            This is Electoral Commission data on money given to parties and candidates. It is separate from the{' '}
-            <Link href="/transparency/register-of-interests" className="underline" style={{ color: ACCENT }}>
-              Register of Members&rsquo; Financial Interests
-            </Link>
-            , which is what MPs themselves declare to Parliament (gifts, employment, property and the like).
-          </p>
+          {/* At every width (UX2c phones; UX4e desktop, owner approved, 10 Nov 2026): the title, this one line source note,
+              then the donor or recipient search. The record count, the note on the Register of Members' Financial Interests
+              and the related pages are in "Explore this dataset" after the first results: a closed native fold on phones,
+              open from 640px up. A search's own count stays here. */}
+          <style>{`.tr-dwide { display: none !important; } .tr-dhead { margin-bottom: 16px !important; } .tr-explore-h { font-size: 18px; font-weight: bold; margin: 0 0 8px; } @media ${PHONE} { .tr-explore-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; } }`}</style>
+          <p className="text-[#14100d] text-[15px] leading-[1.5]" style={{ margin: 0 }}>Source: the Electoral Commission&rsquo;s donations register.</p>
           </>
-        )}
-        {section === 'donations' && (
-          <div className="tr-dwide mt-6 flex flex-wrap gap-3 text-[15px]">
-            {DONATION_LINKS.map((l, i) => (
-              <span key={l.href} className="contents">
-                {i > 0 && <span>·</span>}
-                <Link href={l.href} className="font-mono underline" style={{ color: ACCENT }}>{l.label} &rarr;</Link>
-              </span>
-            ))}
-          </div>
         )}
       </header>
 
@@ -292,8 +275,8 @@ export default async function TransparencySectionPage({
       />
 
       {section === 'donations' && (
-        <section className="tr-dphone" aria-labelledby="tr-explore" style={{ margin: '28px 0 8px' }}>
-          <h2 id="tr-explore" className="sr-only">Explore this dataset</h2>
+        <section aria-labelledby="tr-explore" style={{ margin: '28px 0 8px' }}>
+          <h2 id="tr-explore" className="tr-explore-h">Explore this dataset</h2>
           <SubFold label={`Explore this dataset (${DONATION_LINKS.length} related pages)`}>
           {!searchTerm && (
             <p className="text-[#14100d] text-[15px] leading-[1.6]" style={{ margin: '0 0 8px' }}>

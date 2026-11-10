@@ -57,10 +57,11 @@ const LEAGUE_CSS = `@media ${wideFrom(768).split(', ').map((q) => `${q} and (max
   // Phones (UX2e, 10 Nov 2026): two labelled selectors, geography and measure, replace the ten buttons. A GET form, so it
   // works with JavaScript off (app/sewage/go sends it to that table's own cached page); with JavaScript on a change
   // applies at once and the Show button is not needed. From 640px up the buttons stay.
-  + ' .sew-pick { display: none; }'
-  + ` @media ${phoneUpTo(639.98)} { .sew-tabs, .sew-sorts { display: none !important; } .sew-pick { display: grid; gap: 10px; margin: 0 0 12px; }`
+  // At every width (UX4e, 10 Nov 2026; phones since UX2e): the two selectors replace the buttons, side by side from 640px.
+  + ' .sew-tabs, .sew-sorts { display: none !important; } .sew-pick { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 10px 16px; margin: 0 0 8px; }'
   + ' .sew-pick label { display: block; font-size: 15px; } .sew-pick select { display: block; width: 100%; min-height: 44px; margin-top: 4px; font-size: 16px; padding: 6px 8px; border: 1px solid #14100d; background: transparent; color: #14100d; border-radius: 0; }'
-  + ' .sew-pick button { min-height: 44px; font-size: 16px; } html.og-js .sew-pick button { display: none; } }';
+  + ' .sew-pick button { min-height: 44px; font-size: 16px; } html.og-js .sew-pick button { display: none; }'
+  + ` @media ${phoneUpTo(639.98)} { .sew-pick { grid-template-columns: 1fr; } }`;
 
 const fmtInt = (v: number) => Math.round(v).toLocaleString('en-GB');
 const ordinal = (k: number) => {
@@ -218,13 +219,17 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
 
   return (
     <div className="sew-root">
-      <section id="your-area" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+      <section id="your-area" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '16px', marginBottom: '8px' }}>
+        {/* From 640px the heading sits on the same row as the form (UX4e, 10 Nov 2026). */}
+        <style>{`.sew-area-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; } .sew-area-row > h2 { margin: 0 !important; } @media ${phoneUpTo(639.98)} { .sew-area-row { display: block; } .sew-area-row > h2 { margin: 0 0 14px !important; } }`}</style>
+        <div className="sew-area-row">
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           Your area
         </h2>
         <form onSubmit={onSearch} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
           <label htmlFor="sewage-postcode" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>Postcode</label>
           <input
+            data-main-action
             id="sewage-postcode"
             value={postcode}
             onChange={(e) => setPostcode(e.target.value)}
@@ -234,6 +239,7 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
           />
           <button type="submit" disabled={busy || !postcode.trim()} style={btn(true)}>{busy ? 'Looking up…' : 'Find'}</button>
         </form>
+        </div>
         {lookupError && <p style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, margin: '0 0 8px' }}>{lookupError}</p>}
         {lookup && (
           <div>
@@ -249,8 +255,8 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
         )}
       </section>
 
-      <section id="league" className="sew-tables" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-        <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+      <section id="league" className="sew-tables" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '12px', marginBottom: '28px' }}>
+        <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 8px' }}>
           League tables: most sewage spills
         </h2>
         <form method="get" action="/sewage/go" className="sew-pick" style={{ fontFamily: MONO, color: INK }} onSubmit={(e) => e.preventDefault()}>

@@ -157,4 +157,6 @@
   .og-compact .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: flex-start !important; row-gap: 2px; }
   .og-compact .ng-tab { position: static !important; transform: none !important; order: 1; margin-left: auto; }
   .og-compact .og-dossier { margin-top: 16px !important; }
+  /* Less space above the page inside the folder (UX4e, 10 Nov 2026): 88px, clear of the folder's tab and the page stamp. */
+  .og-compact .dossier-content { padding-top: 88px; }
 }

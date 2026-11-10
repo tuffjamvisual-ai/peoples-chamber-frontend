@@ -20,7 +20,7 @@ import type { CSSProperties } from 'react';
 import PhoneTable from '../components/PhoneTable';
 import { ShowAll, NoJsFold } from '../components/NoJsPager';
 import { SubFold } from '../components/PhoneFolds';
-import { phoneUpTo, PHONE } from '@/lib/breakpoints';
+import { phoneUpTo } from '@/lib/breakpoints';
 import type { SortKey } from './table-ids';
 
 
@@ -120,22 +120,26 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }}
       />
-      {/* Phones (UX2e, owner approved through Cowork, 10 Nov 2026): "Your area" (postcode) straight after the title, then the
-          league tables (two selectors, SewageExplorer), then the national totals in their own section, then the rest. CSS order,
-          the same with JavaScript off. From 640px up, as before. */}
-      <style>{`.sew-nat-h { display: none; } @media ${PHONE} { .sew-flow { display: flex; flex-direction: column; } .sew-flow > * { order: 5; } .sew-flow > header { order: 0; } .sew-flow > .sew-root { display: contents; } .sew-flow > .sew-root > #your-area { order: 1; } .sew-flow > .sew-root > .sew-tables { order: 2; } .sew-flow > .sew-nat { order: 3; border-top: 1px solid ${INK_HAIRLINE}; padding-top: 20px; margin-bottom: 28px; } .sew-nat-h { display: block; } }`}</style>
+      {/* At every width (UX2e phones; UX4e desktop, owner approved, 10 Nov 2026): "Your area" (postcode) straight after the
+          title, then the league tables (two selectors on phones, the buttons from 640px up, SewageExplorer), then the national
+          totals in their own section, then the rest. CSS order, the same with JavaScript off. */}
+      <style>{`.sew-flow { display: flex; flex-direction: column; } .sew-flow > * { order: 5; } .sew-flow > header { order: 0; } .sew-flow > .sew-root { display: contents; } .sew-flow > .sew-root > #your-area { order: 1; } .sew-flow > .sew-root > .sew-tables { order: 2; } .sew-flow > .sew-nat { order: 3; border-top: 1px solid ${INK_HAIRLINE}; padding-top: 20px; margin-bottom: 28px; }`}</style>
       <article className="sew-flow" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: '#14100d', fontFamily: SERIF }}>
-        <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
+        <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '16px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             England · Scotland · Northern Ireland · Storm overflows
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             Sewage Spills
           </h1>
+          {/* One line on what the page is, from 640px up (UX4e); the full introduction is in "National totals" below. Phones keep
+              their first screen as it was (UX2e). */}
+          <style>{`@media ${phoneUpTo(639.98)} { .sew-oneline { display: none; } }`}</style>
+          <p className="sew-oneline" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.5, color: INK, margin: '8px 0 0' }}>How long storm overflows spilled sewage, by area and water company.</p>
         </header>
 
         <section className="sew-nat" aria-label="National totals">
-        <h2 className="sew-nat-h" style={h2}>National totals</h2>
+        <h2 style={h2}>National totals</h2>
         <p style={para}>
           A storm overflow releases diluted sewage into a river or the sea when sewers are overloaded, usually in heavy rain. Overflows are run by water and sewerage companies, which must monitor how often and for how long each one spills. Councils do not run them, so these tables show where spills happened, not how well a council performs.
         </p>
