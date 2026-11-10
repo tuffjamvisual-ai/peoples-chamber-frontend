@@ -2975,7 +2975,9 @@ export default function MagazineProfileSections({
           .mp-reports-phone > section { margin-top: 8px !important; }
           .mp-sections-nav [data-section] { display: none !important; }
           .mp-sections-nav { border-bottom: none !important; }
-          .mp-sections-nav .mp-follow-chip { flex: 1 1 100%; width: 100% !important; min-height: 48px; margin: 0 !important; padding: 8px 12px !important; border: 1px solid #14100d !important; box-shadow: none !important; background: transparent !important; color: #14100d !important; font-weight: bold !important; font-size: 15px !important; text-align: center !important; text-transform: none !important; letter-spacing: normal !important; }
+          /* Follow is a secondary action on phones (UX2p, owner approved through Cowork, 10 Nov 2026): an outline button sized
+             to its label, not the full width, 44px tall. */
+          .mp-sections-nav .mp-follow-chip { flex: 0 0 auto; width: auto !important; min-height: 44px; margin: 0 !important; padding: 6px 14px !important; border: 1px solid #14100d !important; box-shadow: none !important; background: transparent !important; color: #14100d !important; font-weight: normal !important; font-size: 15px !important; text-align: center !important; text-transform: none !important; letter-spacing: normal !important; }
         }
         .mp-col-inline { display: none; }
         @media ${phoneUpTo(639.98)} { .mp-vote-title, .mp-vote-title > a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; } }
