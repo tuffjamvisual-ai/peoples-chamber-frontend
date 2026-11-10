@@ -7,10 +7,28 @@ import Link from 'next/link'
 import OpenGovShell from '../../components/OpenGovShell'
 import Pagination from '../../components/Pagination'
 import TransparencyClient from './TransparencyClient'
+import { PHONE } from '@/lib/breakpoints'
+import { SubFold } from '../../components/PhoneFolds'
 
 export const revalidate = 3600
 
 const ACCENT = '#7a1612'
+// The donations dataset's related pages: beside the title from 640px up; on phones in "Explore this dataset" below the
+// first results (UX2c).
+const DONATION_LINKS: { href: string; label: string }[] = [
+  { href: '/donors', label: 'Donor index' },
+  { href: '/donations/foreign', label: 'Foreign source map' },
+  { href: '/donations/late-disclosed', label: 'Late disclosed register' },
+  { href: '/donations/trust-funded', label: 'Trust routed' },
+  { href: '/donations/impermissible', label: 'Impermissible' },
+  { href: '/donations/bequest', label: 'Bequests' },
+  { href: '/donations/leadership-contests', label: 'Leadership race money' },
+  { href: '/donations/sponsored-visits', label: 'Sponsored visits' },
+  { href: '/donations/government-contractors', label: 'Contractors who donate' },
+  { href: '/donations/constituencies', label: 'By constituency' },
+  { href: '/donations/double-dip', label: 'Double dip' },
+  { href: '/explainers/donations', label: 'What the data means' },
+]
 const PAGE_LIMIT = 50    // rows per page: the only pager on these lists (23 Oct 2026)
 const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/   // as app/contracts/[ocid]/page.tsx accepts
 
@@ -154,14 +172,14 @@ export default async function TransparencySectionPage({
         ← Accountability
       </a>
 
-      <header style={{ marginBottom: '5%' }}>
+      <header className="tr-dhead" style={{ marginBottom: '5%' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', fontWeight: 500, marginBottom: '12px', color: ACCENT }}>
           Dataset
         </p>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           {config.title}
         </h1>
-        <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl">
+        <p className={`${section === 'donations' && !searchTerm ? 'tr-dwide ' : ''}text-[#14100d] text-[15px] leading-[1.7] max-w-2xl`}>
           {searchTerm ? (
             <>
               <span className="font-mono text-[#14100d] text-base font-bold">{totalCount.toLocaleString()}</span>
@@ -231,39 +249,29 @@ export default async function TransparencySectionPage({
           </p>
         )}
         {section === 'donations' && (
-          <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
+          <>
+          {/* Phones (UX2c, owner approved through Cowork, 10 Nov 2026): the title, this one line source note, then the donor or
+              recipient search. The record count, the note on the Register of Members' Financial Interests and the related pages
+              are in "Explore this dataset", a closed native fold below the first results. A search's own count stays here. From 640px up, as before. */}
+          <style>{`.tr-dphone { display: none; } @media ${PHONE} { .tr-dwide { display: none !important; } .tr-dphone { display: block; } .tr-dhead { margin-bottom: 16px !important; } }`}</style>
+          <p className="tr-dphone text-[#14100d] text-[15px] leading-[1.5]" style={{ margin: 0 }}>Source: the Electoral Commission&rsquo;s donations register.</p>
+          <p className="tr-dwide text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
             This is Electoral Commission data on money given to parties and candidates. It is separate from the{' '}
             <Link href="/transparency/register-of-interests" className="underline" style={{ color: ACCENT }}>
               Register of Members&rsquo; Financial Interests
             </Link>
             , which is what MPs themselves declare to Parliament (gifts, employment, property and the like).
           </p>
+          </>
         )}
         {section === 'donations' && (
-          <div className="mt-6 flex flex-wrap gap-3 text-[15px]">
-            <Link href="/donors" className="font-mono underline" style={{ color: ACCENT }}>Donor index &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/foreign" className="font-mono underline" style={{ color: ACCENT }}>Foreign source map &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/late-disclosed" className="font-mono underline" style={{ color: ACCENT }}>Late disclosed register &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/trust-funded" className="font-mono underline" style={{ color: ACCENT }}>Trust routed &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/impermissible" className="font-mono underline" style={{ color: ACCENT }}>Impermissible &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/bequest" className="font-mono underline" style={{ color: ACCENT }}>Bequests &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/leadership-contests" className="font-mono underline" style={{ color: ACCENT }}>Leadership race money &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/sponsored-visits" className="font-mono underline" style={{ color: ACCENT }}>Sponsored visits &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/government-contractors" className="font-mono underline" style={{ color: ACCENT }}>Contractors who donate &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/constituencies" className="font-mono underline" style={{ color: ACCENT }}>By constituency &rarr;</Link>
-            <span>·</span>
-            <Link href="/donations/double-dip" className="font-mono underline" style={{ color: ACCENT }}>Double dip &rarr;</Link>
-            <span>·</span>
-            <Link href="/explainers/donations" className="font-mono underline" style={{ color: ACCENT }}>What the data means &rarr;</Link>
+          <div className="tr-dwide mt-6 flex flex-wrap gap-3 text-[15px]">
+            {DONATION_LINKS.map((l, i) => (
+              <span key={l.href} className="contents">
+                {i > 0 && <span>·</span>}
+                <Link href={l.href} className="font-mono underline" style={{ color: ACCENT }}>{l.label} &rarr;</Link>
+              </span>
+            ))}
           </div>
         )}
       </header>
@@ -276,6 +284,31 @@ export default async function TransparencySectionPage({
         searchQuery={searchTerm ?? ''}
         linkedOcids={linkedOcids}
       />
+
+      {section === 'donations' && (
+        <section className="tr-dphone" aria-labelledby="tr-explore" style={{ margin: '28px 0 8px' }}>
+          <h2 id="tr-explore" className="sr-only">Explore this dataset</h2>
+          <SubFold label={`Explore this dataset (${DONATION_LINKS.length} related pages)`}>
+          {!searchTerm && (
+            <p className="text-[#14100d] text-[15px] leading-[1.6]" style={{ margin: '0 0 8px' }}>
+              <span className="font-mono font-bold">{totalCount.toLocaleString()}</span> records in this dataset. Search above to look through every record.
+            </p>
+          )}
+          <p className="text-[#14100d] text-[15px] leading-[1.6]" style={{ margin: '0 0 8px' }}>
+            This is Electoral Commission data on money given to parties and candidates. It is separate from the{' '}
+            <Link href="/transparency/register-of-interests" className="underline" style={{ color: ACCENT }}>Register of Members&rsquo; Financial Interests</Link>
+            , which is what MPs themselves declare to Parliament (gifts, employment, property and the like).
+          </p>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {DONATION_LINKS.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className="font-mono underline text-[15px]" style={{ color: ACCENT, display: 'flex', alignItems: 'center', minHeight: '44px' }}>{l.label} &rarr;</Link>
+              </li>
+            ))}
+          </ul>
+          </SubFold>
+        </section>
+      )}
 
       <Pagination
         currentPage={page}
