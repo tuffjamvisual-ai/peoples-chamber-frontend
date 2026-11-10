@@ -1,5 +1,5 @@
 {
- "about": "QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new. Time words updated by QA2a (9 Nov 2026): what is left is in Terminal 2 files, database content (editorials, reports, party pages, polls) or official text. A3 heights for article pages re measured without the article body (QA2d, 9 Nov 2026). QA3 (10 Nov 2026): time words rewritten in the database content (editorials, party_policies 71, parties green, polls 55 and 57) removed; \"present a similar problem\" (a verb) is in time_words_allow. QA4 (10 Nov 2026): A2 entries no longer found (after the MP2, UX1 and QA4 changes) removed. A6 (QA6, 10 Nov 2026): each page's first screen failures at 390 x 844, 320 x 568 and 844 x 390 when the check was added; no page marked data-main-action yet, so every page is \"no-main-action\" until UX2 marks them.",
+ "about": "QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new. Time words updated by QA2a (9 Nov 2026): what is left is in Terminal 2 files, database content (editorials, reports, party pages, polls) or official text. A3 heights for article pages re measured without the article body (QA2d, 9 Nov 2026). QA3 (10 Nov 2026): time words rewritten in the database content (editorials, party_policies 71, parties green, polls 55 and 57) removed; \"present a similar problem\" (a verb) is in time_words_allow. QA4 (10 Nov 2026): A2 entries no longer found (after the MP2, UX1 and QA4 changes) removed. A6 (QA6, 10 Nov 2026): each page's first screen failures at 390 x 844, 320 x 568 and 844 x 390 when the check was added; no page marked data-main-action yet, so every page is \"no-main-action\" until UX2 marks them. QA5 (10 Nov 2026): /polls/archive height 9,478 to 9,702px (each archived poll's closed Sources fold, f84f7fea, and the longer dated poll 50 explainer); its A2 \"currently\" and /reports \"now\" stay (other rows).",
  "written": "2026-11-10",
  "pages": {
   "/mps/5247": {
@@ -433,7 +433,7 @@
    ]
   },
   "/polls/archive": {
-   "height": 9478,
+   "height": 9702,
    "timeWords": [
     "currently"
    ],
