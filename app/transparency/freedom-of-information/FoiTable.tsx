@@ -2,6 +2,7 @@
 // The all-bodies FOI table, sortable by name, requests received, or answered within 20 working days (by the published
 // percentage, then the count). Rendered on the server in name order; sorting needs JavaScript.
 import { useState } from 'react';
+import { ShowAll } from '@/app/components/NoJsPager';
 
 export type FoiTableRow = {
   body: string;
@@ -46,6 +47,8 @@ export default function FoiTable({ rows }: { rows: FoiTableRow[] }) {
         <button type="button" onClick={by('received')} className={btn}>requests received{arrow('received')}</button>{' · '}
         <button type="button" onClick={by('met')} className={btn}>answered within 20 working days{arrow('met')}</button>
       </p>
+      {/* Phones (step 5, 10 Nov 2026; the page was 7,243px): the first 5 bodies, then "Show all <N>". */}
+      <ShowAll id="foi" count={sorted.length}>
       <table className="w-full text-[#14100d] text-[15px] border-collapse min-w-[640px]">
         <thead>
           <tr>
@@ -70,6 +73,7 @@ export default function FoiTable({ rows }: { rows: FoiTableRow[] }) {
           ))}
         </tbody>
       </table>
+      </ShowAll>
     </div>
   );
 }
