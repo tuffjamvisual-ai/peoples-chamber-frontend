@@ -15,6 +15,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import SectionLinks from '../../components/SectionLinks';
 import ManifestoPicker, { type ThemeRow } from './ManifestoPicker';
+import { PHONE } from '@/lib/breakpoints';
 
 export const revalidate = 3600;
 
@@ -170,7 +171,12 @@ export default async function PartiesIndex() {
           /bills/[id]/full so the parties index reads as part of the
           dossier line rather than a cream table dropped on top of it. */}
       {/* Content sits directly on the dossier folder (parchment paper removed). */}
+      {/* Phones (UX2m, owner approved through Cowork, 10 Nov 2026): the policy selector straight after the title, with the colour
+          key beside the results (ManifestoPicker); the introduction follows the comparison. CSS order, the same with
+          JavaScript off. From 640px up, as before. */}
+      <style>{`@media ${PHONE} { .mf-flow { display: flex; flex-direction: column; } .mf-flow > header { margin-bottom: 12px !important; padding-bottom: 8px !important; } .mf-flow .mf-modes { margin-bottom: 8px; } .mf-flow > .mf-intro { order: 1; margin-top: 24px !important; } }`}</style>
       <article
+        className="mf-flow"
         style={{
           padding: 0,
           color: '#14100d',
@@ -195,6 +201,7 @@ export default async function PartiesIndex() {
         </header>
 
         <p
+          className="mf-intro"
           style={{
             fontFamily: MONO,
             fontSize: 'clamp(15px, 1.4vw, 17px)',

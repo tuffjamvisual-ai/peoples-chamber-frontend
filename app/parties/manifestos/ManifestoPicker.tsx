@@ -22,6 +22,8 @@ const CSS = `
   .mf-name { display: block; min-height: 44px; align-content: center; font-size: 18px; font-weight: 600; color: #14100d; text-decoration: none; }
   .mf-text { display: block; min-height: 44px; font-size: 15px; line-height: 1.7; color: #14100d; text-decoration: none; }
   .mf-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-left: 8px; vertical-align: middle; }
+  .mf-key { display: flex; align-items: center; gap: 8px; margin: 10px 0 0; font-size: 15px; color: #14100d; }
+  .mf-key .mf-dot { margin-left: 0; background: #14100d; }
 }`;
 
 export type PartyPosition = { slug: string; name: string; colour: string; text: string | null; shifted: boolean };
@@ -45,6 +47,8 @@ export default function ManifestoPicker({ themes, children }: { themes: ThemeRow
             <select id="mf-theme" className="mf-select" value={theme} onChange={(e) => setTheme(e.target.value)}>
               {themes.map((t) => <option key={t.theme} value={t.theme}>{t.theme}</option>)}
             </select>
+            {/* The colour key beside the results (UX2m): each party's rule is its colour; a dot marks a shift since 2024. */}
+            <p className="mf-key"><span className="mf-dot" aria-hidden />A dot after a position: the party has shifted since 2024.</p>
           </>
         )}
       </div>

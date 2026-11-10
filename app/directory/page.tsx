@@ -11,7 +11,7 @@ import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import DirectoryFilter from './DirectoryFilter';
 import PhoneMore from '../components/PhoneMore';
 import Unavailable from '../components/Unavailable';
-import { phoneUpTo } from '@/lib/breakpoints';
+import { phoneUpTo, PHONE } from '@/lib/breakpoints';
 
 export const metadata: Metadata = {
   title: { absolute: 'Directory: everything on opengovt, A to Z' },
@@ -62,13 +62,17 @@ export default function DirectoryPage() {
 
       <style dangerouslySetInnerHTML={{ __html: DIRECTORY_PHONE_CSS }} />
       <noscript><style dangerouslySetInnerHTML={{ __html: DIRECTORY_NOSCRIPT_CSS }} /></noscript>
+      {/* Phones (UX2m, owner approved through Cowork, 10 Nov 2026): the search above the letters. CSS order; from 640px up, as before. */}
+      <style>{`@media ${PHONE} { .dir-top { display: flex; flex-direction: column; } .dir-top > .dir-find { order: -1; } }`}</style>
+      <div className="dir-top">
       <nav aria-label="Jump to a letter" className="dir-letters" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', margin: '0 0 16px', fontFamily: MONO, fontSize: '16px' }}>
         {letters.map((l) => groups.has(l)
           ? <a key={l} href={`#letter-${l === '#' ? 'other' : l}`} data-letter-link={l} className="no-hover-scale" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', color: ACCENT, border: `1px solid ${HAIRLINE}`, textDecoration: 'none', fontWeight: 'bold' }}>{l}</a>
           : <Unavailable key={l} note="no entries" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', border: '1px dashed transparent' }}>{l}</Unavailable>)}
       </nav>
 
-      <DirectoryFilter />
+      <div className="dir-find"><DirectoryFilter /></div>
+      </div>
 
       <div id="directory-list">
         {letters.filter((l) => groups.has(l)).map((l) => (
