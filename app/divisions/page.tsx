@@ -7,6 +7,7 @@ import BackLink from '../components/BackLink';
 import Unavailable from '@/app/components/Unavailable';
 import { divisionYears } from '@/lib/division-links';
 import DivisionYearLinks from './DivisionYearLinks';
+import { ShowAll } from '../components/NoJsPager';
 
 // Browsable index of Commons divisions (recorded votes), newest first. Each
 // links to the in-house division page. Data we already hold in mp_division_votes
@@ -94,6 +95,9 @@ export default async function DivisionsIndexPage({
 
       {rows.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No divisions found.</p>}
 
+      {/* Phones (step 5, 10 Nov 2026; the page was 6,668px): the 3 most recent sitting days, then "Show all <N>". */}
+      <ShowAll id="div-days" count={byDate.length} rows="> section" first={3}>
+      <div>
       {byDate.map((group) => (
         <section key={group.date} style={{ marginBottom: '28px' }}>
           <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '8px' }}>
@@ -112,6 +116,8 @@ export default async function DivisionsIndexPage({
           ))}
         </section>
       ))}
+      </div>
+      </ShowAll>
 
       {totalPages > 1 && (
         <nav aria-label="Pagination" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '32px', fontFamily: MONO, fontSize: '15px' }}>
