@@ -400,7 +400,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         style={{
           fontFamily: 'var(--font-special-elite), monospace',
           fontSize: 'clamp(15px, 1.7vw, 18px)',
-          marginBottom: '32px',
+          marginBottom: cvaId != null ? '4px' : '32px',
           lineHeight: 1.6,
           transform: 'rotate(-0.15deg)',
         }}
@@ -416,6 +416,15 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         {tellers.length > 0 && <>{'  ·  '}{tellers.length} tellers (not counted)</>}
         {boths.length > 0 && <>{'  ·  '}{boths.length} both</>}
       </p>
+      {/* The official record beside the result (UX1e, 9 Nov 2026), as on the bill page: Parliament's own page for this
+          division, from its Commons Votes division id (every division after the archive has one). */}
+      {cvaId != null && (
+        <p style={{ margin: '0 0 28px' }}>
+          <a href={`https://votes.parliament.uk/votes/commons/division/${cvaId}`} style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+            Official Parliament record
+          </a>
+        </p>
+      )}
 
       {description && (
         <section style={{ marginBottom: '40px' }}>

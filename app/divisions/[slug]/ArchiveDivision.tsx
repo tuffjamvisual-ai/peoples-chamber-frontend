@@ -56,6 +56,13 @@ export default async function ArchiveDivisionPage({ d }: { d: Division }) {
         {!named && <>{'  ·  '}<span style={{ color: ACCENT }}>{d.ayes_shown > d.noes_shown ? 'majority ' : d.ayes_shown < d.noes_shown ? 'lost by ' : 'tied · margin '}{Math.abs(d.ayes_shown - d.noes_shown)}</span></>}
         {tellers > 0 && <>{'  ·  '}{tellers} tellers (not counted)</>}
       </p>
+      {/* The official record (UX1e, 9 Nov 2026). Parliament's Commons Votes site starts in 2016, so for the archive it is
+          Hansard for the sitting day, which prints this division's lists. */}
+      <p style={{ margin: d.count_note ? '0 0 12px' : '-24px 0 28px' }}>
+        <a href={`https://hansard.parliament.uk/Commons/${date}`} style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontFamily: TYPE, fontSize: '15px', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+          Official Parliament record (Hansard, {archiveDate(date)})
+        </a>
+      </p>
       {d.count_note && <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '32px', paddingLeft: '12px', borderLeft: `3px solid ${ACCENT}`, maxWidth: '46em' }}>{d.count_note}</p>}
       {d.evel_ayes && d.evel_noes && <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '32px', maxWidth: '46em' }}>Hansard also prints a second count for this vote, under English votes for English laws: Ayes {d.evel_ayes}, Noes {d.evel_noes}.</p>}
 
