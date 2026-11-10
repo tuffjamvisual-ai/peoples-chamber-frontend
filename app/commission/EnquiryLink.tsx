@@ -9,6 +9,7 @@ import type { CSSProperties } from 'react';
 export default function EnquiryLink({ className, style }: { className?: string; style?: CSSProperties }) {
   return (
     <a
+      data-main-action
       href="#enquiry"
       className={className}
       style={style}

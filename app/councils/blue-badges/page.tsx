@@ -15,6 +15,7 @@ import LastUpdated from '../../components/LastUpdated';
 import '../../components/phone-table.css';
 import { supabase } from '@/lib/supabase';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
+import { PHONE } from '@/lib/breakpoints';
 import {
   loadLatestTwoYears, loadEnglandLostStolen, count, shareText, sharePct, change, changeText, pctChangeText, asAt, yearTo,
   releaseFor, yearOf, OGL, OGL_URL, ROUNDING_NOTE, SHARE_NOTE, LOW_TEXT, RANKING_PATH, type BlueBadgeRow,
@@ -85,7 +86,10 @@ export default async function BlueBadgesPage() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }}
       />
-      <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
+      {/* Phones (UX3b, 10 Nov 2026): the council table straight after the title, then the national figures and the rest, so
+          the table starts on the first screen (A6). CSS order, the same with JavaScript off; from 640px up, as before. */}
+      <style>{`@media ${PHONE} { .bb-flow { display: flex; flex-direction: column; } .bb-flow > * { order: 2; } .bb-flow > header { order: 0; margin-bottom: 14px !important; } .bb-flow > .bb-main { order: 1; } }`}</style>
+      <article className="bb-flow" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
             England · Councils · Disabled parking
@@ -133,7 +137,7 @@ export default async function BlueBadgesPage() {
           </SubFold>
         </section>
 
-        <section style={section}>
+        <section data-main-action className="bb-main" style={section}>
           <h2 style={h2}>Share of residents holding a badge</h2>
           {/* Phones (under 768px): one card per council (phone-table.css .pt-cards); four columns did not fit 320px. */}
             <NoJsPager id="bb-a" first={3} count={(byShare).length} rows="> tbody > tr" size={15}>

@@ -34,6 +34,14 @@ const ACCENT = '#7a1612';
 
 export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [], related, banner, sourcesHref }: { banner?: ReactNode; sourcesHref?: string; related?: RelatedLink[]; piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
   const sources = piece.evidence?.recordsReviewed ?? [];
+  const showStandfirst = !!piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body);
+  const onThisPage = (
+    <OnThisPage items={[
+      { href: '#article-text', label: `The ${basePath === '/editorials' ? 'report' : 'briefing'}` },
+      ...(sources.length > 0 ? [{ href: '#article-sources', label: `Sources (${sources.length})` }] : []),
+      { href: '#art-more', label: 'Explore the data and more reports' },
+    ]} />
+  );
   return (
     <OpenGovShell pageStamp={stamp}>
       {banner}
@@ -66,7 +74,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
       <div {...(basePath === '/editorials' ? { 'data-report-page': '' } : {})} style={{ fontFamily: 'var(--font-special-elite), monospace', width: '100%' }}>
         {/* Phones (UX2n, owner approved through Cowork, 10 Nov 2026): "View sources" straight under the headline, above the
             standfirst, which is unchanged. CSS order, the same with JavaScript off; from 640px up, as before. */}
-        <style>{`@media ${PHONE} { .art-head { display: flex; flex-direction: column; } .art-head > .art-sf { order: 2; } .art-head > .art-after { order: 3; } .art-head > .art-actions { order: 1; margin-top: 0; } }`}</style>
+        <style>{`@media ${PHONE} { .art-head { display: flex; flex-direction: column; } .art-head > .art-sf { order: 2; } .art-head > .art-after { order: 3; } .art-head > .art-actions { order: 1; margin-top: 0; } .art-head { padding-bottom: 12px !important; margin-bottom: 14px !important; } }`}</style>
         <header className="art-head" style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
           <ContentBadge kind={piece.kind} opinion={piece.opinion} />
           {piece.kicker && (
@@ -78,8 +86,8 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
             {piece.headline}
           </h1>
           {/* The stored standfirst, at every width, unless it repeats the opening paragraph (owner, 5 Nov 2026). */}
-          {piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body) && (
-            <p className="art-sf" style={{ fontSize: '18px', lineHeight: 1.5, margin: '12px 0 0', color: INK }}>{piece.standfirst}</p>
+          {showStandfirst && (
+            <p data-main-action className="art-sf" style={{ fontSize: '18px', lineHeight: 1.5, margin: '12px 0 0', color: INK }}>{piece.standfirst}</p>
           )}
           {/* The share control and, beside it, a link to the sources page (owner, 8 Nov 2026, SRC1), so a reader near the top
               can reach the sources without scrolling to the "Sources (N)" line further down, which stays. The link shows at
@@ -112,15 +120,14 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
 
         {/* Long articles on phones (owner, 9 Nov 2026; step 5, 10 Nov 2026): the article text stays whole and what is around it
             folds, with this list of the page's parts at the top. Under 640px only. */}
-        <OnThisPage items={[
-          { href: '#article-text', label: `The ${basePath === '/editorials' ? 'report' : 'briefing'}` },
-          ...(sources.length > 0 ? [{ href: '#article-sources', label: `Sources (${sources.length})` }] : []),
-          { href: '#art-more', label: 'Explore the data and more reports' },
-        ]} />
+        {/* Without a standfirst (it repeats the opening), the list follows the opening paragraph instead (UX3b, 10 Nov 2026),
+            so the text starts on the first screen (A6), as the standfirst does on other reports. */}
+        {showStandfirst && onThisPage}
 
         {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
-        <article id="article-text" data-own-folds="" data-article-body="" style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
-          <ReportBody body={piece.body} />
+        {/* The main action (UX3a, A6): the standfirst when it shows, otherwise the start of the text. */}
+        <article id="article-text" data-own-folds="" data-article-body="" data-main-action={showStandfirst ? undefined : ''} style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
+          <ReportBody body={piece.body} afterFirst={showStandfirst ? undefined : onThisPage} />
           {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
           {piece.updateNote && piece.updateNote.length > 0 && (
             <section aria-labelledby="article-updates" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
@@ -193,11 +200,12 @@ function withLinks(text: string): React.ReactNode {
 }
 
 // The body as it reads from 640px up, with folds that only show under 640px on a long report (lib/editorials/phone-folds.ts).
-function ReportBody({ body }: { body: Block[] }) {
+// afterFirst: shown after the first block (the phones' "On this page" list for a report without a standfirst, UX3b).
+function ReportBody({ body, afterFirst }: { body: Block[]; afterFirst?: ReactNode }) {
   const plan = phonePlan(body);
-  if (!plan) return <>{body.map((block, i) => <Fragment key={`b${i}`}>{renderBlock(block, i)}</Fragment>)}</>;
+  if (!plan) return <>{body.map((block, i) => <Fragment key={`b${i}`}>{renderBlock(block, i)}{i === 0 && afterFirst}</Fragment>)}</>;
   let at = 0; // keeps each block's index as it is in the body
-  const run = (blocks: Block[]) => blocks.map((block) => { const i = at++; return <Fragment key={`b${i}`}>{renderBlock(block, i)}</Fragment>; });
+  const run = (blocks: Block[]) => blocks.map((block) => { const i = at++; return <Fragment key={`b${i}`}>{renderBlock(block, i)}{i === 0 && afterFirst}</Fragment>; });
   const rest = (c: Chain): ReactNode => (
     <>
       {run(c.blocks)}

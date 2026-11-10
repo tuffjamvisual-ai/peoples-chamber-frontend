@@ -79,7 +79,7 @@ export default function DirectoryFilter() {
   return (
     <div style={{ margin: '0 0 20px', maxWidth: '520px' }}>
       <label htmlFor={id} style={{ display: 'block', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '4px' }}>Filter this list</label>
-      <input id={id} type="search" value={q} onChange={(e) => apply(e.target.value)} autoComplete="off"
+      <input data-main-action id={id} type="search" value={q} onChange={(e) => apply(e.target.value)} autoComplete="off"
         placeholder="For example donations or MPs"
         style={{ width: '100%', boxSizing: 'border-box', fontFamily: MONO, fontSize: '16px', color: INK, background: '#f4e8d4', border: `1px solid ${INK}`, padding: '9px 10px' }} />
       <p role="status" aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: none ? '10px 0 0' : 0, minHeight: 0 }}>

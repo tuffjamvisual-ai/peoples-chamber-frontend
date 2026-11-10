@@ -180,6 +180,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
                       key={e.href}
                       href={e.href}
                       className="no-hover-scale reports-card"
+                      data-main-action={mi === firstShownMonth && i === m.idx.find((k) => visible[k]) ? '' : undefined}
                       style={{ display: visible[i] ? 'flex' : 'none', flexDirection: 'column', height: '100%', padding: '22px 0', borderBottom: `1px solid ${HAIRLINE}`, textDecoration: 'none', color: INK }}
                     >
                       {/* The type, then the piece's own kicker when it says something the type does not. */}

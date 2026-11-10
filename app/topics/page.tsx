@@ -64,7 +64,7 @@ export default function TopicsIndexPage() {
 
       {/* Two balanced columns, no boxes. */}
       <style>{TWO_COLUMN_CSS}</style>
-      <div className="og-two">
+      <div data-main-action className="og-two">
         {balanceColumns(topics, (t) => 3 + firstSentence(t.blurb).length / 45).map((col, ci) => (
           <div key={ci}>
             {col.map((t) => (

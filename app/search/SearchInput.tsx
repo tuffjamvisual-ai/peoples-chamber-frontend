@@ -125,6 +125,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
         {defaultSort === 'newest' && <input type="hidden" name="sort" value="newest" />}
         <div style={{ position: 'relative', flex: '1 1 auto', minWidth: 0 }}>
         <input
+          data-main-action
           aria-label="Search the site"
           name="q"
           type="text"

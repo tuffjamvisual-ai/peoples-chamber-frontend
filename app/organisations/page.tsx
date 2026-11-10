@@ -93,7 +93,7 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
       <form method="get" action="/organisations" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', margin: '0 0 18px', padding: '14px 0', borderTop: `1px solid ${HAIRLINE}`, borderBottom: `1px solid ${HAIRLINE}` }}>
         <label htmlFor="org-q" style={{ fontFamily: FONT, fontSize: '15px', width: '100%' }}>Name or Companies House number</label>
         {filter && <input type="hidden" name="has" value={filter.key} />}
-        <input id="org-q" name="q" type="search" defaultValue={q} autoComplete="off"
+        <input data-main-action id="org-q" name="q" type="search" defaultValue={q} autoComplete="off"
           style={{ flex: '1 1 200px', minWidth: 0, fontFamily: FONT, fontSize: '16px', color: INK, background: '#f4e8d4', border: `1px solid ${INK}`, padding: '8px 10px', boxSizing: 'border-box' }} />
         <button type="submit" style={{ fontFamily: FONT, fontSize: '16px', padding: '8px 16px', border: `1px solid ${ACCENT}`, background: ACCENT, color: '#f4efe6', cursor: 'pointer' }}>Search</button>
       </form>

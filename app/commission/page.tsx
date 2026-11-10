@@ -58,7 +58,8 @@ export default function CommissionPage() {
         .cm-act-go { background: ${ACCENT}; color: #f4e8d4 !important; }
         .cm-act-see { background: transparent; color: ${ACCENT} !important; }
         @media ${phoneUpTo(639.98)} {
-          .cm-acts { flex-direction: column; }
+          /* A smaller gap above the actions (UX3b, 10 Nov 2026), so "Start an enquiry" starts on the first screen (A6). Spacing only. */
+          .cm-acts { flex-direction: column; margin-top: 2px; }
           .cm-act { width: 100%; }
         }
         #enquiry, #enquiry-heading { scroll-margin-top: 12px; }

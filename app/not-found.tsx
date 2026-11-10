@@ -36,7 +36,7 @@ export default function NotFound() {
         </p>
         <form action="/search" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 24px', maxWidth: '36em' }}>
           <label htmlFor="nf-q" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}>Search the site</label>
-          <input id="nf-q" name="q" type="search" placeholder="An MP, a bill, a council, a donor…"
+          <input data-main-action id="nf-q" name="q" type="search" placeholder="An MP, a bill, a council, a donor…"
             style={{ flex: '1 1 14em', minWidth: 0, fontFamily: MONO, fontSize: '16px', padding: '8px 10px', border: `1px solid ${INK}`, background: 'transparent', color: INK }} />
           <button type="submit" style={{ fontFamily: MONO, fontSize: '16px', padding: '8px 14px', border: `1px solid ${INK}`, background: INK, color: '#f4efe6', cursor: 'pointer' }}>
             Search

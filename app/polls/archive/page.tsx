@@ -71,12 +71,12 @@ export default async function ArchivedPollsPage() {
       {/* Phones (UX3d): the 6 newest polls, then "Show all <N>" (a native details, ShowAll). From 640px up, every poll. */}
       <ShowAll id="polls-archive" count={polls.length} rows="> article" first={6}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-        {polls.map((p) => {
+        {polls.map((p, pi) => {
           const total = (p.vote_count_yes || 0) + (p.vote_count_no || 0)
           const yesPct = total ? Math.round((p.vote_count_yes / total) * 100) : 0
           const noPct = total ? 100 - yesPct : 0
           return (
-            <article key={p.id} style={{ borderTop: `3px solid ${ACCENT}`, paddingTop: '16px' }}>
+            <article key={p.id} data-main-action={pi === 0 ? '' : undefined} style={{ borderTop: `3px solid ${ACCENT}`, paddingTop: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
                 {p.constituency && (
                   <span style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: INK_SOFT }}>

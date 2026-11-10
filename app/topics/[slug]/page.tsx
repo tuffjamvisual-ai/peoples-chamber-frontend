@@ -146,7 +146,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
 
       {/* Department assessment */}
       {dept && (
-        <section style={{ marginBottom: '6%' }}>
+        <section data-main-action style={{ marginBottom: '6%' }}>
           <h2 style={sectionH2}>The department responsible</h2>
           <Link href={`/departments/${dept.slug}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, border: `1px solid ${HAIRLINE}`, padding: '16px 18px' }}>
             <div style={{ fontSize: 'clamp(17px, 2vw, 22px)', fontWeight: 'bold', marginBottom: '4px' }}>{dept.name} <span style={{ color: ACCENT }}>→</span></div>

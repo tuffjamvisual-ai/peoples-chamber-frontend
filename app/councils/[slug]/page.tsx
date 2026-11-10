@@ -389,7 +389,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             { id: 'sewage', label: 'Sewage', rotate: '0.07deg' },
           ]}
           slots={{
-            overview: <div className="ov-flow">
+            overview: <div data-main-action className="ov-flow">
               {/* Phones (UX2f, owner approved through Cowork, 10 Nov 2026): political control and the key figures first; the
                   opening sentence and the Wikipedia background (a closed fold) after them. CSS order; from 640px up as before. */}
               <style>{`@media ${phoneUpTo(639.98)} { .ov-flow { display: flex; flex-direction: column; } .ov-flow > .ov-about { order: 1; } .ov-flow > style { display: none; } }`}</style>

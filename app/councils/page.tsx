@@ -136,7 +136,7 @@ export default async function CouncilsIndex() {
           who runs it, how much it spends, and what it does.
         </p>
 
-        <div className="cn-find" style={{ maxWidth: '46em', margin: '0 auto 28px' }}>
+        <div data-main-action className="cn-find" style={{ maxWidth: '46em', margin: '0 auto 28px' }}>
           <div style={{ fontFamily: MONO, fontSize: '15px', marginBottom: '8px', color: INK }}>Find a council by postcode or name</div>
           <CouncilSearch />
         </div>
