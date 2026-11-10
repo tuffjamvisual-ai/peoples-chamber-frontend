@@ -208,14 +208,14 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By donor type</h2>
         <p style={{ fontSize: '15px', marginBottom: '10px' }}>The most diagnostic single decomposition. Tells you who actually owns the party.</p>
-        <NoJsPager id="pm-type" count={typeRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', '% of total']} title={1}>
+        <NoJsPager id="pm-type" count={typeRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
               <th style={th}>Donor type</th>
               <th style={{ ...th, textAlign: 'right' }}>Donations</th>
               <th style={{ ...th, textAlign: 'right' }}>Total</th>
-              <th style={{ ...th, textAlign: 'right' }}>% of total</th>
+              <th style={{ ...th, textAlign: 'right' }}>Share of total</th>
             </tr>
           </thead>
           <tbody>
@@ -267,14 +267,14 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
         <h2 style={sectionH2}>Where the money landed · accounting unit</h2>
         <p style={{ fontSize: '15px', marginBottom: '10px' }}>Money that lands at Central HQ funds the party machine. Money that lands at a constituency association funds a single seat. The mix tells you whether the party is centrally bankrolled or locally rooted.</p>
         <NoJsFold id="pm-where-fold" label="Show each accounting unit">
-        <NoJsPager id="pm-where" count={unitRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', '% of total']} title={1}>
+        <NoJsPager id="pm-where" count={unitRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
               <th style={th}>Where</th>
               <th style={{ ...th, textAlign: 'right' }}>Donations</th>
               <th style={{ ...th, textAlign: 'right' }}>Total</th>
-              <th style={{ ...th, textAlign: 'right' }}>% of total</th>
+              <th style={{ ...th, textAlign: 'right' }}>Share of total</th>
             </tr>
           </thead>
           <tbody>

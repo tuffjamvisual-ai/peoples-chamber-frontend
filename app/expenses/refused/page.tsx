@@ -128,7 +128,7 @@ export default async function RefusedExpensesPage() {
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '12px', maxWidth: '60ch' }}>
           Every claim IPSA refused, and every amount repaid, by MPs serving now, in the IPSA records we hold
-          {firstYear && lastYear ? <> ({yearLabel(firstYear)} to {yearLabel(lastYear)}{isPartial(lastYear) ? ' so far' : ''})</> : null}, and why.
+          {firstYear && lastYear ? <> ({yearLabel(firstYear)} to {yearLabel(lastYear)}{isPartial(lastYear) ? ', the last a part year' : ''})</> : null}, and why.
           IPSA publishes new claims about every two months. Source:{' '}
           <a href="https://www.theipsa.org.uk/" style={{ color: ACCENT }}>Independent Parliamentary Standards Authority</a>.
         </p>
@@ -163,7 +163,7 @@ export default async function RefusedExpensesPage() {
           <tbody>
             {years.map((y) => (
               <tr key={y.year} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ ...td, textAlign: 'left' }}>{yearLabel(y.year)}{isPartial(y.year) ? ' (so far)' : ''}</td>
+                <td style={{ ...td, textAlign: 'left' }}>{yearLabel(y.year)}{isPartial(y.year) ? ' (part year)' : ''}</td>
                 <td style={{ ...td, textAlign: 'right' }}>
                   <span style={{ fontFamily: 'monospace' }}>{fmtMoney(y.refused)}</span>
                   <span style={{ display: 'block', fontSize: '15px' }}>{y.refusedCount.toLocaleString('en-GB')} claim{y.refusedCount === 1 ? '' : 's'}</span>

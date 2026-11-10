@@ -79,7 +79,7 @@ export default async function CivilServicePage() {
       <div style={{ zoom: 1.18, fontFamily: 'var(--font-special-elite), monospace' }}>
         <p style={{ fontSize: '16px', lineHeight: 1.7, marginBottom: '8px', maxWidth: '720px' }}>
           {fmtHeadcount(totalReported)} civil servants across {reported.length} of the 24 ministerial
-          departments, as at {topPeriod}. The five largest employers account for {topFiveShare}% of them.
+          departments, as at {topPeriod}. The five largest employers account for {topFiveShare} per cent of them.
         </p>
         <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '32px', maxWidth: '720px' }}>
           Figures are rounded to the nearest five. They count civil servants only. They do

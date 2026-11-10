@@ -85,7 +85,7 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
           </p>
         )}
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          The bills going through UK Parliament now: introduced in the {current ? sessionTitle(current) : 'current session'} or carried over into it. How MPs voted. How you voted. The gap between the two.
+          The bills before UK Parliament in the {current ? sessionTitle(current) : 'current session'}: introduced in it or carried over into it. How MPs voted. How you voted. The gap between the two.
         </p>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginTop: '8px' }}>
           Acts, withdrawn bills and bills from earlier sessions are in the{' '}

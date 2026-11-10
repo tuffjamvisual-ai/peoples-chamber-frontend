@@ -1165,7 +1165,7 @@ export default function MagazineProfileSections({
                     sinceElection > 0 ? (
                       <>
                         <span style={red}>Voted against most of their party {plural(sinceElection)} since the July 2024 election</span>
-                        <span> · {((sinceElection / votesSinceElection) * 100).toFixed(1)}% of their {votesSinceElection.toLocaleString('en-GB')} votes in that time. These votes are marked </span>
+                        <span> · {((sinceElection / votesSinceElection) * 100).toFixed(1)} per cent of their {votesSinceElection.toLocaleString('en-GB')} votes in that time. These votes are marked </span>
                         <span style={red}>REBEL</span><span> below.</span>
                       </>
                     ) : (
@@ -2162,7 +2162,7 @@ export default function MagazineProfileSections({
               {/* MP2d: the notes on how the figures are set, in a fold of their own on phones. */}
               <SubFold label="How these figures are set">
               <p style={{ marginTop: '20px', fontSize: '15px', lineHeight: 1.55 }}>
-                Base salary is set by IPSA and reviewed annually each 1 April. A minister&rsquo;s salary is the amount they claim, as GOV.UK publishes it, with the amount they are entitled to by law beside it; ministers have chosen to claim less. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file, the current year is not totalled until IPSA reconciles year end.
+                Base salary is set by IPSA and reviewed annually each 1 April. A minister&rsquo;s salary is the amount they claim, as GOV.UK publishes it, with the amount they are entitled to by law beside it; ministers have chosen to claim less. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since the July 2024 general election; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file, the current year is not totalled until IPSA reconciles year end.
               </p>
               {rows.some((r) => r.acoba) && (
                 <p style={{ marginTop: '12px', fontSize: '15px', lineHeight: 1.55 }}>
@@ -2305,7 +2305,7 @@ export default function MagazineProfileSections({
                       Plus {fmtMoney(localTotal)} to this MP&rsquo;s local constituency party
                     </h3>
                     <p style={{ fontSize: '15px', lineHeight: 1.55, marginBottom: '12px' }}>
-                      {constituencyDonations.length.toLocaleString()} donation{constituencyDonations.length === 1 ? '' : 's'} from {localDonorSet.size.toLocaleString()} donor{localDonorSet.size === 1 ? '' : 's'}, recorded against the local constituency association rather than against the MP individually. This is the channel through which the majority of substantive funding to major-party MPs flows. Same donors, same political effect, different accounting envelope.
+                      {constituencyDonations.length.toLocaleString()} donation{constituencyDonations.length === 1 ? '' : 's'} from {localDonorSet.size.toLocaleString()} donor{localDonorSet.size === 1 ? '' : 's'}, recorded against the local constituency association rather than against the MP individually. This is the channel through which the majority of substantive funding to MPs of the major parties flows. Same donors, same political effect, different accounting envelope.
                     </p>
                     <details>
                       <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
@@ -2355,7 +2355,7 @@ export default function MagazineProfileSections({
                       <li><strong>{impermissible.length}</strong> recorded as impermissible (e.g. donor not on the UK electoral register) totalling {fmtMoney(impermissible.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</li>
                     )}
                     {concealed.length > 0 && (
-                      <li><strong>{concealed.length}</strong> attempted-concealment cases totalling {fmtMoney(concealed.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</li>
+                      <li><strong>{concealed.length}</strong> cases of attempted concealment totalling {fmtMoney(concealed.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</li>
                     )}
                   </ul>
                 </section>

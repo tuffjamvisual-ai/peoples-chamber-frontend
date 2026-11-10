@@ -27,7 +27,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const s = await searchParams;
   return {
     title: 'Early day motions in the Commons',
-    description: 'Every early day motion tabled in the House of Commons this Parliament, with its text, sponsors, signatures and amendments.',
+    description: 'Every early day motion tabled in the House of Commons since the July 2024 general election, with its text, sponsors, signatures and amendments.',
     alternates: { canonical: '/edms' },
     ...(filtered(s) ? { robots: { index: false, follow: true } } : {}),
   };
@@ -90,7 +90,7 @@ export default async function EdmsPage({ searchParams }: { searchParams: Promise
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>{memberName ? `Early day motions: ${memberName}` : 'Early day motions'}</h1>
       <p style={{ fontSize: '16px', color: INK, margin: '0 0 8px', maxWidth: '720px', lineHeight: 1.6 }}>
-        Motions MPs table in the House of Commons in this Parliament. Few are debated; other MPs sign them to show support.
+        Motions MPs have tabled in the House of Commons since the July 2024 general election. Few are debated; other MPs sign them to show support.
       </p>
       <p style={{ fontSize: '15px', color: INK, margin: '0 0 16px', maxWidth: '720px', lineHeight: 1.6 }}>
         Open means tabled this session and not withdrawn. Closed means tabled in an earlier session.

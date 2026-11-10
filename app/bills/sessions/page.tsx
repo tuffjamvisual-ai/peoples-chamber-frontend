@@ -24,6 +24,7 @@ const HAIRLINE = 'rgba(20,16,13,0.18)';
 export default async function BillSessionsPage() {
   const sessions = await getParliamentSessions();
   const total = sessions.reduce((n, s) => n + s.bills_introduced, 0);
+  const current = sessions.find((s) => s.is_current);
 
   return (
     <OpenGovShell pageStamp="Bills">
@@ -39,7 +40,7 @@ export default async function BillSessionsPage() {
           session lists every bill, including Acts and withdrawn bills.
         </p>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginTop: '8px' }}>
-          The bills going through Parliament now are on <Link href="/bills" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Bills in Parliament</Link>.
+          The bills before Parliament{current ? <> in the {sessionTitle(current)}</> : null} are on <Link href="/bills" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Bills in Parliament</Link>.
         </p>
       </header>
 
