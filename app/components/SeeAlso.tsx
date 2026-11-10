@@ -1,8 +1,10 @@
 // "See also" block for the foot of data pages, so a visitor who arrives from search always
 // has a next step. Same look as the editorial "Explore next" block (ExploreNext.tsx).
-// Pass internal links only. Added 15 Oct 2026.
+// Pass internal links only. Added 15 Oct 2026. Under 640px the notes are left out, the titles naming each page (step 5,
+// 10 Nov 2026: page length).
 
 import Link from 'next/link';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -19,6 +21,7 @@ export default function SeeAlso({ links, heading = 'See also' }: { links: SeeAls
         .sa-link:hover .sa-title { color: ${ACCENT}; text-decoration: underline; }
         .sa-title { font-size: 16px; font-weight: bold; overflow-wrap: anywhere; }
         .sa-note { display: block; font-size: 15px; line-height: 1.5; margin-top: 2px; }
+        @media ${phoneUpTo(639.98)} { .sa-note { display: none; } }
       `}</style>
       <h2 style={{ fontFamily: FONT, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 6px' }}>{heading}</h2>
       {links.map((l) => (

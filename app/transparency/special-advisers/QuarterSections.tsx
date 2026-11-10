@@ -3,7 +3,7 @@
 // The quarterly returns on /transparency/special-advisers, one quarter at a time (owner, 28 Oct 2026: every quarter is
 // kept from April to June 2026 on). The page's HTML holds every quarter; the latest is shown first, and the selector
 // switches between them in the browser.
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { ShowAll } from '@/app/components/NoJsPager';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
@@ -94,6 +94,7 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
       {activity.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={sectionH2}>Most active Special Advisers in {quarter}</h2>
+          <ShowAll id="q-active" count={Math.min(activity.length, 30)}>
           <table style={tableStyle}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -118,6 +119,7 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
               ))}
             </tbody>
           </table>
+          </ShowAll>
         </section>
       )}
 
