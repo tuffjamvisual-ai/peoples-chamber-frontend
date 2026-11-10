@@ -88,6 +88,22 @@ type EdmJoined = {
   amendment_to_motion_id: number | null;
 };
 
+// Reads started early and awaited later (PERF, 10 Nov 2026). A promise that rejects before the code reaches its await
+// was an unhandledRejection, and that ended the whole Node.js process: on 8 Nov 16:08 GMT one slow "vote years" read
+// took down every page the same instance was serving. handled() marks a promise as handled at once, so it can no longer
+// end the process, but it still throws where it is awaited (for reads whose failure should keep the last good page).
+// orNull() is for the extra parts of a section: a failed read is logged and that part is left out.
+function handled<T>(promise: Promise<T>): Promise<T> {
+  promise.catch(() => {});
+  return promise;
+}
+function orNull<T>(promise: Promise<T>, label: string): Promise<T | null> {
+  return promise.catch((e) => {
+    console.error(`${label}:`, e instanceof Error ? e.message : String(e));
+    return null;
+  });
+}
+
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
     promise,
@@ -382,7 +398,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // Reeves and Peter Kyle.
   const diaryPart = lastNamePrefilter(lastWord).replace(/[%_,]/g, '');
   // Kept per member for an hour (lib/mp-cache.ts, W2): readAll starts with a head count the fetch cache does not keep.
-  const pMeetingsHosp = withTimeout(mpCached('ministers-diary', memberId, () => Promise.all([
+  const pMeetingsHosp = handled(withTimeout(mpCached('ministers-diary', memberId, () => Promise.all([
     readAll<MinisterMeeting>(() => supabase.from('ministers_meetings'), {
       columns: 'id, minister_name, minister_dept, meeting_date, organisation, purpose, quarter, enriched_description, source_publication_slug',
       filter: (q) => q.ilike('minister_name', `%${diaryPart}%`).lte('meeting_date', new Date().toISOString().slice(0, 10)),
@@ -395,47 +411,47 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       orderBy: [{ column: 'hospitality_date', ascending: false }, { column: 'id', ascending: false }],
       label: `/mps/${memberId} ministers_hospitality`,
     }),
-  ])), 7000);
-  const pContribs = Promise.resolve(
+  ])), 7000));
+  const pContribs = handled(Promise.resolve(
     supabase
       .from('mp_contributions')
       .select('debate_title, sitting_date, section, house, speech_count, question_count, intervention_count, answer_count, statement_count, total_contributions, hansard_url')
       .eq('member_id', memberId)
       .order('sitting_date', { ascending: false })
       .limit(25),
-  );
+  ));
   // Written questions (owner, 3 Nov 2026): the count, first date and newest five, read alongside the contributions. A
   // failed or slow read shows the tab without them rather than holding up the page.
   const pQuestions: Promise<QuestionsSummary | null> = withTimeout(mpCached('written-questions', memberId, () => questionsSummary(supabase, memberId)), 7000).catch((e) => {
     console.error(`/mps/${memberId} written questions:`, e instanceof Error ? e.message : e);
     return null;
   });
-  const pOfficers = Promise.resolve(
+  const pOfficers = handled(Promise.resolve(
     supabase
       .from('appg_officers')
       .select('appg_slug, role, party, removed')
       .eq('member_id', memberId)
       .eq('removed', false),
-  );
-  const pActivity = Promise.resolve(
+  ));
+  const pActivity = handled(Promise.resolve(
     supabase
       .from('mp_activity_metrics')
       .select('divisions_voted, divisions_total, attendance_pct, rebellions_total, rebellion_rate_pct, speeches_year, questions_year')
       .eq('member_id', memberId)
       .maybeSingle(),
-  );
+  ));
   // The stored career records (PC1; lib/mp-career.ts): post dates and lost elections in Roles since CH1. Its own read, so
   // the page never depends on it.
-  const pCareer = getMpCareer(supabase, memberId);
+  const pCareer = handled(getMpCareer(supabase, memberId));
   // MP1 (owner, 7 Nov 2026): the archive's votes and register history are parts of Voting record and Registered interests, and
   // the votes by year count both sources, so the current votes' years are read too (only their dates).
-  const pArchiveVotes = memberVoteSummary(memberId);
-  const pRegisterHistory = registerHistory(memberId);
+  const pArchiveVotes = orNull(memberVoteSummary(memberId), `/mps/${memberId} archive votes`);
+  const pRegisterHistory = orNull(registerHistory(memberId), `/mps/${memberId} earlier registers`);
   // PERF1 (10 Nov 2026): the date and division number only, in the order of the natural key index
   // (member_id, division_date_only, division_number), so Postgres answers from the index without reading the table:
   // about 20 disk pages and 3 to 11 ms instead of one page per vote (up to 1,800 pages, 924 ms, and timeouts when many
   // MP pages render at once). division_date_only is division_date's day; no row has either column null.
-  const pCurrentYears = readAll<{ division_date_only: string }>(() => supabase.from('mp_division_votes'), {
+  const pCurrentYears = orNull(readAll<{ division_date_only: string }>(() => supabase.from('mp_division_votes'), {
     columns: 'division_date_only, division_number',
     filter: (q) => q.eq('member_id', memberId).not('division_date_only', 'is', null).not('division_number', 'is', null),
     orderBy: [{ column: 'division_date_only' }, { column: 'division_number' }], label: `/mps/${memberId} vote years`,
@@ -443,14 +459,14 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     const per = new Map<number, number>();
     for (const r of rows) { const y = Number(String(r.division_date_only).slice(0, 4)); if (y) per.set(y, (per.get(y) ?? 0) + 1); }
     return [...per.entries()].map(([year, count]) => ({ year, count }));
-  });
-  const pConduct = Promise.resolve(
+  }), `/mps/${memberId} vote years`);
+  const pConduct = handled(Promise.resolve(
     supabase
       .from('mp_conduct_findings')
       .select('id, mp_name_at_time, closed_date, outcome, rule_breached, summary, penalty, url, source')
       .eq('member_id', memberId)
       .order('closed_date', { ascending: false }),
-  );
+  ));
 
   // Petitions most signed in this MP's constituency (petition.parliament.uk,
   // petitions with 10,000+ signatures only — threshold stated to readers on
@@ -837,7 +853,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           const currentTotal = Number(voteCounts.all_votes ?? votesWithSi.length) || 0;
           return {
             votingAll: currentTotal + (archiveVotes?.total ?? 0),
-            votingArchive: archiveVotes ? <VotingArchiveMerged memberId={memberId} votes={archiveVotes} currentTotal={currentTotal} currentYears={currentYears} /> : null,
+            // Without the current votes' years the merged by year counts would be wrong, so the archive part is left out.
+            votingArchive: archiveVotes && currentYears ? <VotingArchiveMerged memberId={memberId} votes={archiveVotes} currentTotal={currentTotal} currentYears={currentYears} /> : null,
             earlierRegisters: register ? <EarlierRegisters register={register} /> : null,
             earlierRegistersCount: register?.entries ?? 0,
           };
