@@ -49,7 +49,7 @@ export default async function ArchiveDivisionPage({ d }: { d: Division }) {
         <p style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '12px' }}>{ARCHIVE_NOTE}</p>
       </header>
 
-      <p style={{ fontFamily: TYPE, fontSize: 'clamp(15px, 1.7vw, 18px)', marginBottom: d.count_note ? '12px' : '32px', lineHeight: 1.6, transform: 'rotate(-0.15deg)' }}>
+      <p data-main-action style={{ fontFamily: TYPE, fontSize: 'clamp(15px, 1.7vw, 18px)', marginBottom: d.count_note ? '12px' : '32px', lineHeight: 1.6, transform: 'rotate(-0.15deg)' }}>
         <span style={{ color: INK, fontWeight: 'bold' }}>{d.ayes_shown} Aye</span>{'  /  '}
         <span style={{ color: INK, fontWeight: 'bold' }}>{d.noes_shown} No</span>
         {named && <>{'  ·  '}counted from the list of names</>}

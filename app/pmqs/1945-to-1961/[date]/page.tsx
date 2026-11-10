@@ -93,7 +93,7 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
             const answer = row.kind !== 'question' && !!row.speaker_as_printed;
             return (
               <Fragment key={`${e.id}-${row.row_order}`}>
-                <div className={njpItem('pq-day')} style={{ marginBottom: '14px' }}>
+                <div className={njpItem('pq-day')} data-main-action={i === 0 ? '' : undefined} style={{ marginBottom: '14px' }}>
                   {first && <ExchangeHead e={e} />}
                   <div style={answer ? { paddingLeft: '12px', borderLeft: `3px solid ${ACCENT}` } : undefined}>
                     <Speaker row={row} />

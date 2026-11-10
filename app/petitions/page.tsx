@@ -85,7 +85,7 @@ export default async function PetitionsPage({ searchParams }: { searchParams: Pr
 
       <form action="/petitions" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', maxWidth: '720px' }}>
         <label htmlFor="petition-search" style={{ flex: '1 0 100%', fontSize: '15px', fontWeight: 'bold', color: INK }}>Search by title</label>
-        <input id="petition-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
+        <input data-main-action id="petition-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
         {state && <input type="hidden" name="state" value={state} />}
         {responded && <input type="hidden" name="responded" value="1" />}
         {debated && <input type="hidden" name="debated" value="1" />}

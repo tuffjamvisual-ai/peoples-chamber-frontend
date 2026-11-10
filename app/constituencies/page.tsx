@@ -71,7 +71,7 @@ export default async function ConstituenciesPage({ searchParams }: { searchParam
       </p>
       <form action="/constituencies" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 16px', maxWidth: '720px' }}>
         <label htmlFor="constituency-search" style={{ flex: '1 0 100%', fontSize: '15px', fontWeight: 'bold', color: INK }}>Search by name or postcode</label>
-        <input id="constituency-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
+        <input data-main-action id="constituency-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
         <button type="submit" style={{ minHeight: '44px', padding: '8px 16px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button>
       </form>
       {message && <p role="status" style={{ fontSize: '16px', color: INK, margin: '0 0 16px' }}>{message}</p>}

@@ -87,6 +87,8 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
         MPs&rsquo; standards cases: Commissioner decisions
       </h1>
       <div style={{ color: INK }}>
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="About these cases and their source">
         <p style={p}>
           These are decisions published by the Parliamentary Commissioner for Standards on allegations about Members: those rectified, those not
           upheld and those reported to the Committee on Standards. Names are as the Commissioner lists them. Each links to the decision as published.
@@ -95,12 +97,13 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
           Source: <a href={STANDARDS.sourceUrl} rel="noopener" style={link}>Allegations and complaints against MPs</a>, Parliamentary Commissioner
           for Standards, UK Parliament. Lists collected on 7 November 2026.
         </p>
+        </SubFold>
 
 
         {OUTCOMES.map((outcome, si) => {
           const groups = byPeriodNewestFirst(STANDARDS.cases.filter((c) => c.outcome === outcome));
           return (
-            <section key={outcome} aria-labelledby={`sc-${OUTCOME_KEY[outcome]}`}>
+            <section key={outcome} data-main-action={si === 0 ? '' : undefined} aria-labelledby={`sc-${OUTCOME_KEY[outcome]}`}>
               <h2 id={`sc-${OUTCOME_KEY[outcome]}`} style={h2}>{SECTION_TITLE[outcome]}</h2>
               {outcome === 'Rectified' && (
                 // Folded on phones (step 5, 10 Nov 2026: page length).

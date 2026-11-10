@@ -209,7 +209,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
             </p>
           )}
           {bill.long_title && (
-            <p style={{ fontFamily: SERIF, fontSize: '16px', lineHeight: 1.7, maxWidth: '46em', margin: 0 }}>{bill.long_title}</p>
+            <p data-main-action style={{ fontFamily: SERIF, fontSize: '16px', lineHeight: 1.7, maxWidth: '46em', margin: 0 }}>{bill.long_title}</p>
           )}
           {act && (
             <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, margin: '14px 0 0' }}>

@@ -112,7 +112,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
         </nav>
       )}
       {grouped.map((g, gi) => (
-        <section key={g.title ?? 'all'} id={g.title ? anchor(g.title) : undefined} aria-label={g.title ?? undefined} style={{ marginBottom: '28px', scrollMarginTop: '16px' }}>
+        <section key={g.title ?? 'all'} data-main-action={gi === 0 ? '' : undefined} id={g.title ? anchor(g.title) : undefined} aria-label={g.title ?? undefined} style={{ marginBottom: '28px', scrollMarginTop: '16px' }}>
           {g.title && (
             <h2 style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: INK, margin: '0 0 6px' }}>{g.title}</h2>
           )}

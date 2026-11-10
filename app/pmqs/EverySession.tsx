@@ -22,7 +22,7 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
   const noteFor = (pm: string, stored: string | null, library: number | null) =>
     stored?.includes('cut-off') ? (library !== null && counted.get(pm) !== library ? `Commons Library lists ${library}` : null) : stored;
   return (
-    <section aria-labelledby="pmqs-every-session" style={{ color: INK, marginBottom: '40px' }}>
+    <section data-main-action aria-labelledby="pmqs-every-session" style={{ color: INK, marginBottom: '40px' }}>
       <h2 id="pmqs-every-session" style={{ fontSize: 'clamp(22px, 2.6vw, 30px)', fontWeight: 'bold', margin: '0 0 8px' }}>Every session since 1961</h2>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
         {sessions.length.toLocaleString('en-GB')} sessions from 24 October 1961 to {longDateArchive(sessions[0].date)}, by Prime Minister, newest first. A session on the day the office changed hands counts for the outgoing Prime Minister.

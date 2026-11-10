@@ -3049,10 +3049,10 @@ export default function MagazineProfileSections({
       {/* Under 640px (owner, 4 Nov 2026): reports directly below Follow this MP, above the folded sections. Nothing at all for an
           MP with none. From 640px they stay in their section. */}
       {phoneHeadline && reports && reports.items.length > 0 && (
-        <div className="mp-reports-phone"><ReportsMentioning reports={reports} headingId="mp-reports-heading-phone" compact /></div>
+        <div data-main-action className="mp-reports-phone"><ReportsMentioning reports={reports} headingId="mp-reports-heading-phone" compact /></div>
       )}
 
-      <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
+      <div data-main-action className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
         {/* Under 640px (owner, 4 Nov 2026): every section folds away under "On this page", as the GOV.UK accordion does, in
             PHONE_FOLDS order; wider screens keep the tabs. Both are in the HTML and the stylesheets pick one by screen
             width, so nothing changes once the page script runs: each section is rendered once, and from 640px every

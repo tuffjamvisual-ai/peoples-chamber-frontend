@@ -67,7 +67,8 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Written questions', path: '/questions' }, { name: heading, path: `/questions/${q.id}` }])} />
       <Link href="/questions" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All written questions</Link>
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 14px', overflowWrap: 'anywhere' }}>{heading}</h1>
-      <dl style={{ margin: '0 0 18px', fontSize: '16px', color: INK }}>
+      {/* The main action (UX3a, A6): the record's facts. */}
+      <dl data-main-action style={{ margin: '0 0 18px', fontSize: '16px', color: INK }}>
         {rows.map(([k, v]) => (
           <div key={k} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 8px', minHeight: '32px', padding: '4px 0', borderBottom: LINE }}>
             <dt style={{ fontWeight: 'bold', minWidth: '120px' }}>{k}</dt>

@@ -48,7 +48,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
 
       <StandardsCasesLine memberId={mp.memberId} />
 
-      <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+      <section data-main-action style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           Time in the House of Commons
         </h2>

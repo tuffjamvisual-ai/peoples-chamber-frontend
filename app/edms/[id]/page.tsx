@@ -78,7 +78,8 @@ export default async function EdmPage({ params }: { params: Promise<{ id: string
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Early day motions', path: '/edms' }, { name: m.title, path: `/edms/${m.id}` }])} />
       <Link href="/edms" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All early day motions</Link>
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 14px', overflowWrap: 'anywhere' }}>{m.title}</h1>
-      <dl style={{ margin: '0 0 18px', fontSize: '16px', color: INK }}>
+      {/* The main action (UX3a, A6): the record's facts. */}
+      <dl data-main-action style={{ margin: '0 0 18px', fontSize: '16px', color: INK }}>
         {facts.map(([k, v]) => (
           <div key={k} style={{ display: 'flex', flexWrap: 'wrap', gap: '0 8px', padding: '6px 0', borderBottom: LINE }}>
             <dt style={{ fontWeight: 'bold', minWidth: '96px' }}>{k}</dt>

@@ -281,7 +281,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
             {/* Opening (owner, 7 Nov 2026, L2): "[Name] is [role]." from the page's own record (person_cache, the first
                 current role as shown above, official title exact), and, for a sitting MP, a link to their MP page. */}
             {(person.currentRoles[0]?.title || resolved?.memberId) && (
-              <div style={{ maxWidth: '46em', fontSize: '16px', lineHeight: 1.7, marginBottom: '4%' }}>
+              <div data-main-action style={{ maxWidth: '46em', fontSize: '16px', lineHeight: 1.7, marginBottom: '4%' }}>
                 {person.currentRoles[0]?.title && (
                   <p style={{ margin: '0 0 8px' }}>{person.name} is {person.currentRoles[0].title.replace(/\s+/g, ' ').trim()}.</p>
                 )}

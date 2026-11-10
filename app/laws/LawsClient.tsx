@@ -91,7 +91,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
   return (
     <>
       <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap' }}>
-        <input aria-label="Search Acts by title or summary"
+        <input data-main-action aria-label="Search Acts by title or summary"
           type="text"
           placeholder="Search Acts by title or summary…"
           value={search}

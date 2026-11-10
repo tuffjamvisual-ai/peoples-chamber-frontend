@@ -139,4 +139,7 @@
    the header bar, the folder and the footer still run the full width. ---- */
 @media (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .dossier-content > .og-main-content { max-width: 720px; margin-left: auto; margin-right: auto; }
+  /* Less space above the page on a sideways phone (UX3b, 10 Nov 2026), so the title and the main action fit in its 390px
+     tall first screen (A6). */
+  .dossier-content { padding-top: 20px !important; }
 }

@@ -398,6 +398,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           where boxy stat cells would feel out of place. Margin sign reflects
           the result (positive = ayes won). */}
       <p
+        data-main-action
         style={{
           fontFamily: 'var(--font-special-elite), monospace',
           fontSize: 'clamp(15px, 1.7vw, 18px)',

@@ -77,7 +77,7 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
           : ' questions. The Speaker\u2019s interventions, shouted asides and points of order are left out'}{session.hansardUrl ? <>: <a href={session.hansardUrl} rel="noopener" style={link}>read the full record in Hansard</a></> : ''}.
       </p>
       <OpenHashTarget />
-      <MoreChain ordered phoneOnly style={{ color: INK }} first={openingCount(exchanges.map((e) => 120 + textHeightAt375(e.question) + e.answers.reduce((px, a) => px + textHeightAt375(a), 0) + (e.speaker.length ? 150 : 0)))} items={exchanges.map((e) => (
+      <MoreChain mainAction ordered phoneOnly style={{ color: INK }} first={openingCount(exchanges.map((e) => 120 + textHeightAt375(e.question) + e.answers.reduce((px, a) => px + textHeightAt375(a), 0) + (e.speaker.length ? 150 : 0)))} items={exchanges.map((e) => (
           <li key={e.id} id={`q-${e.id}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
             <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}><Link href={`/mps/${e.asker.id}`} style={link}>{e.asker.name}</Link></p>
             <p style={body}>{e.question}</p>

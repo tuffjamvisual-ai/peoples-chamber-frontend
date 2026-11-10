@@ -10,6 +10,7 @@ import { PROCEDURE_MEANING } from '@/lib/parliament-si-treaties';
 import { listSis, siYear, siDepartments, fmtDate, PER_PAGE, type SiFlag } from '@/lib/si-treaties-data';
 import ParliamentSourceCredit from '../../components/ParliamentSourceCredit';
 import Unavailable from '@/app/components/Unavailable';
+import { SubFold } from '../../components/PhoneFolds';
 
 // Every statutory instrument laid before Parliament, newest laid first (report 81), from the statutory_instruments
 // table (UK Parliament Statutory Instruments API, loaded daily by /api/sync-statutory-instruments-treaties).
@@ -61,15 +62,18 @@ export default async function MadeWithoutAVotePage({ searchParams }: { searchPar
 
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', marginBottom: '12px', lineHeight: 1.1 }}>Laws Made Without a Vote</h1>
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="How these laws are made">
         <p style={{ fontSize: '16px', lineHeight: 1.75, maxWidth: '46em', margin: '0 0 10px' }}>
           Ministers make most UK law themselves, through statutory instruments, using powers an Act of Parliament gives them. Under the negative procedure an instrument becomes law, or stays law, unless Parliament objects in time. Few are ever debated.
         </p>
+        </SubFold>
         <p style={{ fontFamily: MONO, fontSize: '16px', fontWeight: 'bold', margin: 0 }}>
           {year.laid.toLocaleString('en-GB')} laid before Parliament in the last 12 months; {year.debated.toLocaleString('en-GB')} of them were debated ({pct} per cent).
         </p>
       </header>
 
-      <form method="get" action="/laws/made-without-a-vote" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '12px', alignItems: 'end', margin: '0 0 22px', padding: '14px 0', borderTop: `1px solid ${HAIRLINE}`, borderBottom: `1px solid ${HAIRLINE}` }}>
+      <form data-main-action method="get" action="/laws/made-without-a-vote" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '12px', alignItems: 'end', margin: '0 0 22px', padding: '14px 0', borderTop: `1px solid ${HAIRLINE}`, borderBottom: `1px solid ${HAIRLINE}` }}>
         <div>
           <label htmlFor="si-department" style={label}>Department</label>
           <select id="si-department" name="department" defaultValue={department || ''} style={select}>

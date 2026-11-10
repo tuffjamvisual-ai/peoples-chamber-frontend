@@ -79,7 +79,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
       </p>
 
       <form action="/questions" method="get" role="search" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', margin: '0 0 12px', maxWidth: '720px' }}>
-        <div style={{ gridColumn: '1 / -1' }}><label htmlFor="q-words" style={labelStyle}>Words</label><input id="q-words" type="search" name="words" defaultValue={words} style={field} /></div>
+        <div style={{ gridColumn: '1 / -1' }}><label htmlFor="q-words" style={labelStyle}>Words</label><input data-main-action id="q-words" type="search" name="words" defaultValue={words} style={field} /></div>
         <div style={{ gridColumn: '1 / -1' }}><label htmlFor="q-who" style={labelStyle}>MP or peer</label><input id="q-who" type="search" name="who" defaultValue={who} style={field} /></div>
         <div style={{ gridColumn: '1 / -1' }}>
           <label htmlFor="q-department" style={labelStyle}>Department</label>

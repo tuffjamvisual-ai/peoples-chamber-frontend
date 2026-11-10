@@ -86,7 +86,7 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
 
       {current && (
         <>
-          <h2 style={h2}>Current MP</h2>
+          <h2 data-main-action style={h2}>Current MP</h2>
           <p style={{ ...para, margin: '0 0 2px', fontWeight: 'bold' }}><Link href={`/mps/${current.member_id}`} prefetch={false} style={{ ...link, fontWeight: 'bold' }}>{displayMpName(current.name)}</Link></p>
           {current.party && <p style={para}>{current.party}</p>}
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>

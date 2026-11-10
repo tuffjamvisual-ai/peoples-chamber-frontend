@@ -14,15 +14,16 @@ import type { ReactNode } from 'react';
 const PHONE_FIRST = 5;
 
 // first: how many items show as the page opens, when fewer than a step, so a page of long items stays within the 10,000px limit.
-type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean };
+// mainAction (UX3a): the first list carries data-main-action, the page's main action that the A6 check measures.
+type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean; mainAction?: boolean };
 
-export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false }: Props) {
+export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false, mainAction = false }: Props) {
   const opening = Math.max(1, Math.min(first ?? step, step));
   const Tag = ordered ? 'ol' : 'ul';
-  const list = (some: ReactNode[], firstList = false) => <Tag className={[className, firstList ? 'mc-first' : ''].filter(Boolean).join(' ') || undefined} data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
+  const list = (some: ReactNode[], firstList = false, mark = false) => <Tag className={[className, firstList ? 'mc-first' : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
   if (items.length <= opening) {
-    if (phoneOnly || items.length <= PHONE_FIRST) return list(items);
-    return <>{list(items, true)}<details className="mc-more mc-phone"><summary>Show all {items.length.toLocaleString('en-GB')}</summary></details></>;
+    if (phoneOnly || items.length <= PHONE_FIRST) return list(items, false, mainAction);
+    return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary>Show all {items.length.toLocaleString('en-GB')}</summary></details></>;
   }
   const label = (from: number) => (
     // One span: the summary is a flex box, and separate pieces would lose the space before "left".
@@ -46,7 +47,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
     }
     return <details className="mc-more">{label(from)}{list(items.slice(from, from + step))}{rest(from + step)}</details>;
   };
-  return <>{list(items.slice(0, opening), !phoneOnly)}{rest(opening)}</>;
+  return <>{list(items.slice(0, opening), !phoneOnly, mainAction)}{rest(opening)}</>;
 }
 
 // How many items fit as a page opens: their heights at 375px, up to the room the page leaves within the 10,000px limit.

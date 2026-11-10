@@ -152,7 +152,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
         </div>
       </aside>
 
-      <div className="lg:col-span-3 p-6 sm:p-8" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace' }}>
+      <div data-main-action className="lg:col-span-3 p-6 sm:p-8" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace' }}>
         {active === 'bio' && (
           <>
             <h2 style={sectionH2}>Political Biography</h2>

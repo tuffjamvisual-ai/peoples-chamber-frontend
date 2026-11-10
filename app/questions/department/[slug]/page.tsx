@@ -54,7 +54,8 @@ export default async function DepartmentQuestions({ params, searchParams }: { pa
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Written questions', path: '/questions' }, { name: d.name, path: `/questions/department/${d.slug}` }])} />
       <Link href="/questions" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All written questions</Link>
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 12px', overflowWrap: 'anywhere' }}>{d.name}: written questions</h1>
-      <dl style={{ margin: '0 0 12px', fontSize: '16px', color: INK }}>
+      {/* The main action (UX3a, A6): the department's figures. */}
+      <dl data-main-action style={{ margin: '0 0 12px', fontSize: '16px', color: INK }}>
         {facts.map(([k, v]) => (
           <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '6px 0', borderBottom: '1px solid rgba(20,16,13,0.25)' }}><dt style={{ fontWeight: 'bold' }}>{k}</dt><dd style={{ margin: 0 }}>{v}</dd></div>
         ))}

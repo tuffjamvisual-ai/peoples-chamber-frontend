@@ -291,7 +291,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
         {/* [Stage, date], as on the bill cards; nothing if both are empty */}
         {billStageLine(bill) && (
-          <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.1em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '24px' }}>
+          <div data-main-action style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.1em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '24px' }}>
             [{billStageLine(bill)}]
           </div>
         )}

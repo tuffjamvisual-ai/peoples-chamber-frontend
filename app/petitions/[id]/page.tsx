@@ -96,7 +96,8 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
       <Link href="/petitions" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All petitions</Link>
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 14px', overflowWrap: 'anywhere' }}>{p.action}</h1>
 
-      <dl style={{ margin: '0 0 18px', fontSize: '16px', color: INK }}>
+      {/* The main action (UX3a, A6): the record's facts. */}
+      <dl data-main-action style={{ margin: '0 0 18px', fontSize: '16px', color: INK }}>
         {facts.map(([k, v]) => (
           <div key={k} style={{ display: 'flex', flexWrap: 'wrap', gap: '0 8px', padding: '6px 0', borderBottom: '1px solid rgba(20,16,13,0.25)' }}>
             <dt style={{ fontWeight: 'bold', minWidth: '96px' }}>{k}</dt>

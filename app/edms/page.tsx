@@ -98,7 +98,7 @@ export default async function EdmsPage({ searchParams }: { searchParams: Promise
 
       <form action="/edms" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', maxWidth: '720px' }}>
         <label htmlFor="edm-search" style={{ flex: '1 0 100%', fontSize: '15px', fontWeight: 'bold', color: INK }}>Search by title or number</label>
-        <input id="edm-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
+        <input data-main-action id="edm-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
         {state && <input type="hidden" name="state" value={state} />}
         {prayer && <input type="hidden" name="prayer" value="1" />}
         {sort && <input type="hidden" name="sort" value={sort} />}

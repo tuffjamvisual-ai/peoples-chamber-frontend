@@ -27,7 +27,7 @@ export default async function PreFixedNotesPage() {
       <Link href="/pmqs#before-fixed-pmqs" prefetch={false} className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none' }}>← Back to the questions</Link>
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 12px', color: INK }}>{TITLE}</h1>
       <div style={{ color: INK }}>
-        <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 16px', fontWeight: 'bold' }}>{s.questions.toLocaleString('en-GB')} questions on {s.days.toLocaleString('en-GB')} days.</p>
+        <p data-main-action style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 16px', fontWeight: 'bold' }}>{s.questions.toLocaleString('en-GB')} questions on {s.days.toLocaleString('en-GB')} days.</p>
         <PreFixedNotes answeredBySomeoneElse={s.answeredBySomeoneElse} />
         <ExperimentNote />
         <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>

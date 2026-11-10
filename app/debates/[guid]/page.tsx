@@ -19,6 +19,7 @@ import { normaliseParty } from '@/lib/party-helpers'
 import { displayMpName } from '@/lib/mp-name'
 import { fetchDivisionVotes, divisionTally } from '@/lib/division-votes'
 import DebateSummary, { type Speaker, type VoteSummary } from './DebateSummary'
+import { SubFold } from '../../components/PhoneFolds';
 
 // In-house rendering of a Hansard debate. opengovt never links out, so rather
 // than send readers to hansard.parliament.uk we pull the debate transcript from
@@ -391,7 +392,23 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         {ov?.Location && (
           <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: INK, marginTop: '8px' }}>{ov.Location}</div>
         )}
-        {divisionIds.length > 0 && (
+        {/* Phones (UX3b, 10 Nov 2026): more than one vote folds into "Votes in this debate (N)", so the debate starts on the
+            first screen (A6). From 640px up, as before. */}
+        {divisionIds.length > 1 && (
+          <SubFold label={`Votes in this debate (${divisionIds.length})`}>
+          <div style={{ marginTop: '14px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {divisionIds.map((slug) => {
+              const num = slug.match(/-(\d+)-commons$/)?.[1];
+              return (
+                <Link key={slug} href={`/divisions/${slug}`} className="no-hover-scale" style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: '#fff', background: ACCENT, padding: '4px 10px', textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                  {num ? `Division ${num} →` : 'Vote held →'}
+                </Link>
+              );
+            })}
+          </div>
+          </SubFold>
+        )}
+        {divisionIds.length === 1 && (
           <div style={{ marginTop: '14px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {divisionIds.map((slug) => {
               const num = slug.match(/-(\d+)-commons$/)?.[1];
@@ -406,7 +423,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
       </header>
 
       {opening && (
-        <p style={{ maxWidth: '46em', margin: '0 auto 20px', fontSize: '16px', lineHeight: 1.7, color: INK }}>{opening}</p>
+        <p data-main-action style={{ maxWidth: '46em', margin: '0 auto 20px', fontSize: '16px', lineHeight: 1.7, color: INK }}>{opening}</p>
       )}
 
       {/* Phones (step 5, 10 Nov 2026; the long-article rule): the transcript as before, the summary and Read next folded,
@@ -417,7 +434,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
       </NoJsFold>
 
       {about && (
-        <section style={{ maxWidth: '46em', margin: '0 auto 7%', borderLeft: `2px solid ${ACCENT}`, paddingLeft: '16px' }}>
+        <section data-main-action={opening ? undefined : ''} style={{ maxWidth: '46em', margin: '0 auto 7%', borderLeft: `2px solid ${ACCENT}`, paddingLeft: '16px' }}>
           <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.14em', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>
             What this debate is about
           </div>
@@ -427,7 +444,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         </section>
       )}
 
-      <div id="debate-text" style={{ maxWidth: '46em', margin: '0 auto', scrollMarginTop: '24px' }}>
+      <div data-main-action={opening || about ? undefined : ''} id="debate-text" style={{ maxWidth: '46em', margin: '0 auto', scrollMarginTop: '24px' }}>
         {groups.length === 0 ? (
           <p style={{ fontFamily: MONO, fontSize: '15px' }}>No transcript text is available for this debate.</p>
         ) : (

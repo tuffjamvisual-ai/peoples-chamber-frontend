@@ -45,7 +45,7 @@ export default async function ArchiveSessionView({ session }: { session: Archive
         {session.exchanges} {session.exchanges === 1 ? 'contribution' : 'contributions'} in the record: <a href={record.href} rel="noopener" style={link}>{record.label}</a>.
       </p>
       <div style={{ color: INK }}>
-        <MoreChain ordered first={openingCount(exchanges.map(heightAt375))} items={exchanges.map((e) => (
+        <MoreChain mainAction ordered first={openingCount(exchanges.map(heightAt375))} items={exchanges.map((e) => (
           <li key={e.lead.order} id={`r-${e.lead.order}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
             <Name c={e.lead} />
             <p style={body}>{e.lead.text}</p>

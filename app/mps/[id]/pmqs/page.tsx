@@ -58,7 +58,7 @@ function AnswerSection({ id, title, days }: { id: string; title: string; days: A
   if (days.length === 0) return null;
   const total = days.reduce((n, d) => n + d.answers, 0);
   return (
-    <section id={id} aria-labelledby={`${id}-head`} style={{ color: INK, marginTop: '32px' }}>
+    <section data-main-action id={id} aria-labelledby={`${id}-head`} style={{ color: INK, marginTop: '32px' }}>
       <h2 id={`${id}-head`} style={{ fontSize: 'clamp(22px, 2.6vw, 30px)', fontWeight: 'bold', margin: '0 0 8px' }}>{title} ({total.toLocaleString('en-GB')})</h2>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>In {days.length.toLocaleString('en-GB')} {days.length === 1 ? 'session' : 'sessions'}, by year. Open a session to read the answers.</p>
       {byYear(days).map((y) => (
@@ -119,7 +119,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
         {questions.length} {questions.length === 1 ? 'question' : 'questions'} at <Link href="/pmqs" style={{ color: ACCENT, textDecoration: 'underline' }}>Prime Minister&rsquo;s Questions</Link> since July 2024, newest first, from Hansard.
       </p>
       <NoJsPager id="pmqs-asked" always count={questions.length} rows="> li" sizes={pagesByHeight(questions.map((q) => rowHeight(q.text)), 4000, 25)}>
-        <ul data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0, color: INK }}>
+        <ul data-own-more="" data-main-action style={{ listStyle: 'none', margin: 0, padding: 0, color: INK }}>
           {questions.map((q) => (
           <li key={q.extId} style={{ padding: '10px 0', borderTop: '1px solid rgba(20,16,13,0.25)', fontSize: '15px', lineHeight: 1.6 }}>
             <Link href={`/pmqs/${q.date}#q-${q.extId}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', minHeight: '44px' }}>{longDate(q.date)}</Link>
@@ -130,7 +130,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
       </NoJsPager>
       </>)}
       {askedInArchive.length > 0 && (
-        <section aria-labelledby="mp-pmqs-archive" style={{ color: INK, marginTop: questions.length > 0 ? '32px' : 0 }}>
+        <section data-main-action aria-labelledby="mp-pmqs-archive" style={{ color: INK, marginTop: questions.length > 0 ? '32px' : 0 }}>
           <h2 id="mp-pmqs-archive" style={{ fontSize: 'clamp(22px, 2.6vw, 30px)', fontWeight: 'bold', margin: '0 0 8px' }}>In the archive, 1961 to 2024</h2>
           <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
             {askedInArchive.length.toLocaleString('en-GB')} {answered ? (askedInArchive.length === 1 ? 'question' : 'questions') : (askedInArchive.length === 1 ? 'question or answer' : 'questions and answers')} at <Link href="/pmqs" style={{ color: ACCENT, textDecoration: 'underline' }}>Prime Minister&rsquo;s Questions</Link> before July 2024, by year.
