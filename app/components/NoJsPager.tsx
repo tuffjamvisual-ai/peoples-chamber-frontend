@@ -16,6 +16,8 @@ import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 //   wide   with `always`: pages at every width, from 640px up as well, with JavaScript on and off (MP Political career, PC4)
 //   cards  a table as stacked rows on phones with JavaScript off, as the phone script makes it with JavaScript on: the label of each column, null for none
 //   title  which column (from 1) is the row's bold title in those stacked rows
+//   ownMore  the list has its own phone "Show more" with JavaScript on (PhoneMore): the first rows and "Show all" then apply
+//          with JavaScript off only, so a phone never shows two controls on one list (MP2f-10, 10 Nov 2026)
 export const njpItem = (id: string) => `njp-i-${id}`;
 // Phones (MP2f, 9 Nov 2026; owner: a page with its folds closed at most 2,500px, long lists behind "Show all"): the first
 // PHONE_FIRST rows, then a native <details> "Show all <N>" after the list. While it is closed a rule hides the other rows
@@ -44,7 +46,7 @@ export function pagesByHeight(heights: number[], room: number, most = Infinity):
   return sizes;
 }
 
-export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, first = PHONE_FIRST, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; first?: number; children?: ReactElement<{ className?: string }> }) {
+export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, first = PHONE_FIRST, ownMore = false, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; first?: number; ownMore?: boolean; children?: ReactElement<{ className?: string }> }) {
   const split = sizes ?? Array.from({ length: Math.ceil(count / size) }, () => size);
   const cardCss = cards ? `@media ${phoneUpTo(639.98)} {${cards.map((label, i) => (label ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${i + 1})::before{content:${JSON.stringify(`${label}: `)};font-weight:bold}` : '')).join('')}${title ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${title}){font-weight:bold;font-size:16px}` : ''}}` : '';
   const cardClass = cards ? `njc njc-${id}` : '';
@@ -54,8 +56,11 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
   const listClass = `njp-l-${id}`;
   const itemClass = njpItem(id);
   const closed = `:has(> .${showAllClass(id)}:not([open])):not(:has(:target))`;
+  // ownMore (MP2f-10): with JavaScript on the page's own "Show more" is the only control, so the rule and "Show all" are
+  // for JavaScript off only (html:not(.og-js)); without it they hold either way, as before.
+  const jsOff = ownMore ? 'html:not(.og-js) ' : '';
   const phoneCss = showAll
-    ? `@media ${phoneUpTo(639.98)} {${rows ? `${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}}`
+    ? `@media ${phoneUpTo(639.98)} {${rows ? `${jsOff}${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${jsOff}${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}}`
     : '';
   const phoneStyle = phoneCss ? <style dangerouslySetInnerHTML={{ __html: phoneCss }} /> : null;
   const ownList = (extra: string) => children ? cloneElement(children as ReactElement<{ className?: string; 'data-own-more'?: string }>, { className: [children.props.className, extra, cardClass].filter(Boolean).join(' '), ...(showAll ? { 'data-own-more': '' } : {}) }) : null;

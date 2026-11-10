@@ -159,7 +159,7 @@ export default async function CouncilsIndex() {
                       <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '8px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
                         {items[0].type_label}{items.length > 1 ? 's' : ''} · {items.length}
                       </div>
-                      <NoJsPager id={`njp-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, "-")} count={(items).length} rows="> li" size={25}>
+                      <NoJsPager id={`njp-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, "-")} ownMore count={(items).length} rows="> li" size={25}>
                       <ul
                         data-own-more
                         id={`councils-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}

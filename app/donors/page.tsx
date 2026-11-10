@@ -109,7 +109,7 @@ export default async function DonorsIndex() {
       <DonorSearch />
 
       {/* Phones (under 768px, report 47): one card per donor (phone-table.css .pt-cards), five columns did not fit. */}
-      <NoJsPager id="donors-rows" count={(top).length} rows="> tbody > tr" size={25}>
+      <NoJsPager id="donors-rows" ownMore count={(top).length} rows="> tbody > tr" size={25}>
       <table className="pt-cards" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>

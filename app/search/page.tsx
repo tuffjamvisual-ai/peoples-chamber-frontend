@@ -502,7 +502,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
             {allResults.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+ results` : `${results.length} result${results.length === 1 ? '' : 's'}`}
             {type !== 'all' && ` · ${type === 'editorial' || type === 'briefing' ? 'Reports' : TYPE_META[type]?.label ?? type} only`}
           </p>
-          <NoJsPager id="results-rows" count={(results).length} rows="> li" size={25}>
+          <NoJsPager id="results-rows" ownMore count={(results).length} rows="> li" size={25}>
           <ol id="results-all" data-own-more style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {results.map((r, i) => <ResultRow key={i} r={r} />)}
           </ol>
