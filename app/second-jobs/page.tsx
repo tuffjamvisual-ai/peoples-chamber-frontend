@@ -5,6 +5,7 @@
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { SubFold } from '../components/PhoneFolds';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { fmtMoney, fmtUpdated, loadLanding } from './_lib/data';
@@ -162,6 +163,8 @@ export default async function SecondJobsLanding() {
         </ShowAll>
 
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
+          {/* Folded on phones (step 5, 10 Nov 2026: page length). */}
+          <SubFold label="Methodology">
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’
           Register of Financial Interests (members-api.parliament.uk) for current MPs
           only. Roles are taken from category “1. Employment and earnings”.
@@ -171,6 +174,7 @@ export default async function SecondJobsLanding() {
           quarter or a year) is listed separately on each MP’s page with its period and is
           not added to the total or to other rates. Ranges and roles without a figure are
           not summed. Totals are rebuilt every night from the latest Register.
+          </SubFold>
         </section>
 
       </article>
