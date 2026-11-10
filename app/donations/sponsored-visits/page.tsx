@@ -16,7 +16,7 @@
 // capacity. The two together form the full picture of who's
 // paying for MPs to go where.
 
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -140,6 +140,8 @@ export default async function SponsoredVisitsPage() {
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Foreign government paymasters</h2>
         <p style={{ fontSize: '15px', marginBottom: '8px' }}>Sponsors acting for a state, paying directly for UK MPs to visit. Ranked by total declared value.</p>
+        {/* Each table folded on phones (step 5, 10 Nov 2026; the page was 5,849px). */}
+        <NoJsFold id="spvf-0" always label={`The list (${(foreignGovs).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-0" count={(foreignGovs).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
@@ -164,11 +166,13 @@ export default async function SponsoredVisitsPage() {
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
       </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>&lsquo;Friends of&rsquo; groups</h2>
         <p style={{ fontSize: '15px', marginBottom: '8px' }}>Parliamentary groups with an affinity for a foreign country, paying for delegations of their MP members. Often a channel of soft power for the country in question.</p>
+        <NoJsFold id="spvf-1" always label={`The list (${(friendsOf).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-1" count={(friendsOf).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
@@ -193,10 +197,12 @@ export default async function SponsoredVisitsPage() {
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
       </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Think tanks &amp; institutions</h2>
+        <NoJsFold id="spvf-2" always label={`The list (${(thinkTanks).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-2" count={(thinkTanks).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
@@ -221,10 +227,12 @@ export default async function SponsoredVisitsPage() {
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
       </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Recipients · who took the most paid travel</h2>
+        <NoJsFold id="spvf-3" always label={`The list (${(recipientRanked).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-3" count={(recipientRanked).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
@@ -247,10 +255,12 @@ export default async function SponsoredVisitsPage() {
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
       </section>
 
       <section>
         <h2 style={sectionH2}>Largest single trips</h2>
+        <NoJsFold id="spvf-4" always label={`The list (${(largest).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-4" count={(largest).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
@@ -279,6 +289,7 @@ export default async function SponsoredVisitsPage() {
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
       </section>
 
 </OpenGovShell>
