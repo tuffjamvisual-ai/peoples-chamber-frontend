@@ -7,6 +7,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { fmtHeadcount } from '@/lib/department-civil-service';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { SubFold } from '../components/PhoneFolds';
 
 export const metadata: Metadata = {
   title: 'UK Civil Service Headcount by Department',
@@ -81,14 +82,17 @@ export default async function CivilServicePage() {
           {fmtHeadcount(totalReported)} civil servants across {reported.length} of the 24 ministerial
           departments, as at {topPeriod}. The five largest employers account for {topFiveShare} per cent of them.
         </p>
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="About these figures">
         <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '32px', maxWidth: '720px' }}>
           Figures are rounded to the nearest five. They count civil servants only. They do
           not include armed forces personnel (in MoD), NHS staff (in DHSC) or police officers
           (in the Home Office).
         </p>
+        </SubFold>
 
         <ShowAll id="civil-service-reported" count={(reported).length} rows="> li">
-        <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        <ol data-main-action style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {reported.map((m, i) => {
             const hc = m.row!.headcount || 0;
             const pct = (hc / maxHc) * 100;

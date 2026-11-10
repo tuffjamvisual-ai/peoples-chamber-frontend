@@ -1,5 +1,6 @@
 import React from 'react';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { SubFold } from './PhoneFolds';
 
 // Shared left-nav sidebar for the four per-party pages (Manifesto vs Record,
 // People's verdict, Money, Whip), plus cross links to the party's MPs and the
@@ -44,6 +45,7 @@ export default function PartySidebar({
            passes the (short) sidebar, instead of staying in a narrow column. */
         .pca-party-sidebar-grid::after { content: ''; display: table; clear: both; }
         .pca-party-sidebar-grid > aside { margin-bottom: 24px; }
+        @media ${phoneUpTo(639.98)} { .pca-party-sidebar-grid > aside { margin-bottom: 12px; } }
         @media (min-width: 1024px) {
           .pca-party-sidebar-grid > aside { float: left; width: 220px; margin-right: 36px; margin-bottom: 0; }
         }
@@ -52,6 +54,9 @@ export default function PartySidebar({
       <aside>
         {/* Under 640px (owner, 4 Nov 2026) the tabs wrap into rows instead of stacking. */}
         <style>{`@media ${phoneUpTo(639.98)} { .party-tabs { flex-direction: row !important; flex-wrap: wrap; } .party-tabs > * { flex: 1 1 auto; transform: none !important; } }`}</style>
+        {/* Phones (UX3b, 10 Nov 2026): the party's pages in one closed native fold, so the page's own content starts on the
+            first screen (A6). From 640px up the tabs show as before. */}
+        <SubFold label={`Party pages (${items.length})`}>
         <nav className="party-tabs" style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0' }}>
           {items.map((item) => {
             const on = item.key === active;
@@ -83,6 +88,7 @@ export default function PartySidebar({
             );
           })}
         </nav>
+        </SubFold>
       </aside>
 
       <div>{children}</div>

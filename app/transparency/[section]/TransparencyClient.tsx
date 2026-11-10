@@ -104,6 +104,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
         </label>
         <form method="GET" className="flex flex-wrap gap-2 max-w-md">
           <input
+            data-main-action
             id="transparency-search"
             name="q"
             type="search"

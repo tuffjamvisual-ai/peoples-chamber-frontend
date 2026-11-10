@@ -212,9 +212,12 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           Register of Members&rsquo; Financial Interests
         </h1>
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="About this register">
         <p style={{ fontSize: '16px', lineHeight: 1.75, maxWidth: '760px', color: INK }}>
           What MPs themselves declare to Parliament: gifts, hospitality, employment and earnings, overseas visits, land and property, shareholdings and family interests. Search {total.toLocaleString('en-GB')} declared entries across every MP, filter by category or date, and follow each entry back to the Member.
         </p>
+        </SubFold>
 
         {/* Phones (step 5, 10 Nov 2026): the note on the two registers and the donations total folded. */}
         <SubFold label="This register and donations">

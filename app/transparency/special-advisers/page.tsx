@@ -168,16 +168,19 @@ export default async function SpecialAdvisersPage() {
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.15 }}>
           Who advises Whitehall, and what they declared
         </h1>
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="About special advisers and this page">
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch' }}>
           Special Advisers are political appointees paid out of public funds. They are not civil servants, not ministers and not elected. They write speeches, brief ministers, set tone, and often drive policy. Their conduct sits outside the MPs&rsquo; Register of Interests and outside the standard civil service rules.
         </p>
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', marginTop: '12px' }}>
           Once a year the Cabinet Office publishes every special adviser by name, with the minister who appointed them and their pay band. The Cabinet Office and the major Whitehall departments also publish a quarterly return of each Special Adviser&rsquo;s gifts, hospitality, and meetings with senior media figures. This page brings both together; every quarter is kept from April to June 2026 on.
         </p>
+        </SubFold>
       </header>
 
       {release && appointments.length > 0 && (
-        <section id={SPAD_LIST_ANCHOR} style={{ marginBottom: '40px', scrollMarginTop: '16px' }}>
+        <section data-main-action id={SPAD_LIST_ANCHOR} style={{ marginBottom: '40px', scrollMarginTop: '16px' }}>
           <h2 style={sectionH2}>All special advisers in post at {longDate(release.as_at)}</h2>
           {totals && <p style={{ fontSize: '17px', lineHeight: 1.6, fontWeight: 'bold', margin: '0 0 10px', maxWidth: '62ch' }}>{totals}</p>}
           <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 10px' }}>

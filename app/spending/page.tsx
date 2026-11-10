@@ -80,7 +80,7 @@ export default async function SpendingPage() {
           24 ministerial departments, FY {fy} plans. {top ? `${top.name} alone is ${topShare}% of it.` : ''}
         </p>
 <ShowAll id="spending-reported" count={(reported).length} rows="> li">
-<ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+<ol data-main-action style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {reported.map((m, i) => {
             const total = m.row!.total_del_millions || 0;
             const pct = (total / maxTotal) * 100;

@@ -116,7 +116,8 @@ export default async function ImpermissiblePage() {
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           Impermissible donations to UK parties
         </h1>
-        <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
+        {/* The main action (UX3a, A6): the headline result. */}
+        <p data-main-action style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
           {rows.length} declared donations totalling &pound;{Math.round(totalAll).toLocaleString()} were ruled impermissible under UK law and either returned to the donor or forfeited to the Consolidated Fund. The most common reason is that the donor was not registered on a UK electoral roll at the time of giving. The list runs from honest administrative slips to instances where the recipient party accepted untraceable direct bank transfers and could not verify the source before the deadline.
         </p>
       </header>

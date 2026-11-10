@@ -14,6 +14,7 @@ import PartySidebar from '../../components/PartySidebar';
 import { SubFold } from '../../components/PhoneFolds';
 import Link from 'next/link';
 import { THEME_TOPIC, partySecondJobs } from '@/lib/party-links';
+import { PHONE } from '@/lib/breakpoints';
 
 export const revalidate = 21600;
 
@@ -179,7 +180,10 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
       {/* Header: name + colour bar. The FOUNDED / COMMONS MPS /
           DONATIONS / WEBSITE metrics row was removed 2026-06-03 per
           user request — critique leads directly under the colour bar. */}
-      <div style={{ marginTop: '5%', marginBottom: '5%' }}>
+      {/* Phones (UX3b, 10 Nov 2026): smaller margins round the party's header (5% of the width was 42px on a sideways phone), so
+          the page's content starts on the first screen (A6). */}
+      <style>{`@media ${PHONE} { .pt-head { margin-top: 12px !important; margin-bottom: 12px !important; } }`}</style>
+      <div className="pt-head" style={{ marginTop: '5%', marginBottom: '5%' }}>
         <h1
           style={{
             fontSize: 'clamp(28px, 4.6vw, 60px)',
@@ -221,7 +225,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
       {/* The 11 themed policy blocks. Each block: theme label, 2024
           manifesto position, source, optional post-election shift in a
           coloured callout, shift source. */}
-      <div>
+      <div data-main-action>
         {policies.length === 0 && (
           <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px' }}>
             Policy positions not yet researched for this party. Coming soon.

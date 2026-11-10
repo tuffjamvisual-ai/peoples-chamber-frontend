@@ -66,6 +66,8 @@ export default async function SecondJobsLanding() {
           </h1>
         </header>
 
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="About these figures">
         <p
           style={{
             fontFamily: MONO,
@@ -83,9 +85,11 @@ export default async function SecondJobsLanding() {
           pay (an amount a month, a quarter or a year), ranges and roles without
           amounts are not in the totals, but are in the underlying lists.
         </p>
+        </SubFold>
 
         {/* Headline stats trio */}
         <div
+          data-main-action
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',

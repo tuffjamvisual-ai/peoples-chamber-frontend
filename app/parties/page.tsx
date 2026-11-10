@@ -75,7 +75,7 @@ export default async function PartiesIndexPage() {
 
       <style>{CARDS_CSS}</style>
       <ShowAll id="party-cards" count={(SLUGS).length} rows="> *">
-      <div className="og-pcards">
+      <div data-main-action className="og-pcards">
         {SLUGS.map((slug) => {
           const n = mpCounts.get(slug);
           return (

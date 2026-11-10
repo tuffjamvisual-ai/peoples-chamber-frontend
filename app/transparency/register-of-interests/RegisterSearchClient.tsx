@@ -125,6 +125,7 @@ export default function RegisterSearchClient({ mps, buckets, initial }: Props) {
             Search donor, organisation or keyword
           </label>
           <input
+            data-main-action
             id="roi-q"
             type="search"
             value={q}

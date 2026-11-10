@@ -43,7 +43,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
         .dept-polaroid > [role="img"] { width: 60px !important; height: 60px !important; bottom: -14px !important; right: -6px !important; }
         .dept-head-sec { padding-bottom: 8px !important; margin-bottom: 12px !important; }
       }`}</style>
-      <section className=" pb-8 mb-8 dept-head-sec">
+      <section data-main-action className=" pb-8 mb-8 dept-head-sec">
         <div className="flex flex-wrap items-center gap-8 dept-head-row" style={{ minWidth: 0 }}>
           <div
             className="dept-polaroid"

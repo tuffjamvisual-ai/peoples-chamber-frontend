@@ -21,6 +21,7 @@ import PartySidebar from '../../../components/PartySidebar';
 import { sectorForDonor } from '@/lib/donor-sectors';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
+import { SubFold } from '../../../components/PhoneFolds';
 
 export const revalidate = 21600;
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
@@ -198,14 +199,17 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
           Who actually funds the {party.name}
         </h1>
         <div style={{ height: '4px', background: accent, width: '80px', marginBottom: '12px' }} />
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="About these figures">
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '60ch' }}>
           Every declared donation to the {party.name} on the Electoral Commission register, aggregated by year, by donor type, by sector and by accounting unit. The headline number on the policy page is &pound;{Math.round(total).toLocaleString()} across {donations.length.toLocaleString()} declared donations from {distinctDonors.toLocaleString()} distinct donors. The figures below are the decomposition.
         </p>
+        </SubFold>
       </header>
 
       <PartySidebar party={party} active="money">
 
-      <section style={{ marginBottom: '32px' }}>
+      <section data-main-action style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By donor type</h2>
         <p style={{ fontSize: '15px', marginBottom: '10px' }}>The most diagnostic single decomposition. Tells you who actually owns the party.</p>
         <NoJsPager id="pm-type" first={2} count={typeRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>

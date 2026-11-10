@@ -203,19 +203,23 @@ export default async function TransparencySectionPage({
             </>
           )}
         </p>
+        {/* Phones (UX3b, 10 Nov 2026): the revolving door's introduction, dates and sources in one closed native fold, so the
+            search starts on the first screen (A6). From 640px up, as before. */}
         {section === 'revolving-door' && (
+          <SubFold label="About the revolving door and its sources">
+        {(
           <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
             The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector, often in industries they previously regulated or had influence over. Until it closed on 13 October 2025 these appointments were reviewed by the Advisory Committee on Business Appointments (ACOBA), which could attach conditions such as waiting periods or restrictions on lobbying former colleagues. Responsibility has since passed to the Civil Service Commission for senior officials and special advisers, and to the Independent Adviser on Ministerial Standards for former ministers.
           </p>
         )}
-        {section === 'revolving-door' && range?.first && range.latest && (
+        {range?.first && range.latest && (
           <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-4">
             {range.firstAfter
               ? <>Records from {longDate(range.first)} to {longDate(range.latest)}. Those up to {longDate(range.lastAcoba ?? range.first)} are from the Advisory Committee on Business Appointments; those from {longDate(range.firstAfter)} are the advice the Independent Adviser on Ministerial Standards has published for former ministers. Advice for senior officials and special advisers since ACOBA closed is not included yet.</>
               : <>Records from {longDate(range.first)} to {longDate(range.latest)}, from the Advisory Committee on Business Appointments.</>}
           </p>
         )}
-        {section === 'revolving-door' && (
+        {(
           // Sources (owner's approval, 25 Oct 2026, report 67): the two GOV.UK notices behind the intro, then the pages
           // the data comes from. ACOBA's advice is read from the GOV.UK search API filtered to ACOBA
           // (app/api/sync-revolving-door), shown here as the same search on GOV.UK; the Independent Adviser's advice from
@@ -229,6 +233,8 @@ export default async function TransparencySectionPage({
               </span>
             ))}
           </p>
+        )}
+          </SubFold>
         )}
         {section === 'appgs' && (
           <>

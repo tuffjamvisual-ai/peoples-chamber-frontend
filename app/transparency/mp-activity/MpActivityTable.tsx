@@ -123,7 +123,7 @@ export default function MpActivityTable({ rows, firstRank, total, view, party, q
         <div style={group}>{(['most-questions', 'fewest-questions'] as const).map(viewLink)}</div>
         <div style={group}>{(['most-words', 'name'] as const).map(viewLink)}</div>
       </div>
-      <form method="get" action={BASE} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 16px', alignItems: 'center', marginBottom: '12px' }}>
+      <form data-main-action method="get" action={BASE} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 16px', alignItems: 'center', marginBottom: '12px' }}>
         {view !== DEFAULT_VIEW && <input type="hidden" name="view" value={view} />}
         <label style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.06em', color: INK }}>
           Party:{' '}

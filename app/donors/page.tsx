@@ -12,6 +12,7 @@ import { donorPageSlug } from '@/lib/donor-slug';
 import DonorSearch from './DonorSearch';
 import PhoneMore from '../components/PhoneMore';
 import '../components/phone-table.css';
+import { SubFold } from '../components/PhoneFolds';
 
 export const revalidate = 86400;
 
@@ -101,9 +102,12 @@ export default async function DonorsIndex() {
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           Who funds Westminster
         </h1>
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="About this list">
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
           The 200 biggest UK political donors by lifetime giving. The Electoral Commission&rsquo;s own search lets you filter by recipient. It does not let you ask: who has this donor backed? This page does. Click any donor to see every party, MP, constituency association and APPG they have funded.
         </p>
+        </SubFold>
       </header>
 
       <DonorSearch />

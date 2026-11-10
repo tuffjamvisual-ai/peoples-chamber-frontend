@@ -18,6 +18,7 @@ import { type EvidencePanelProps } from '../../../components/EvidencePanel';
 import { partyDescription } from '@/lib/page-descriptions';
 import { wholeSentences } from '@/lib/meta-description';
 import { namedTitle } from '@/lib/seo-title';
+import { PHONE } from '@/lib/breakpoints';
 
 export const revalidate = 21600;
 
@@ -108,7 +109,10 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
       {/* Header: name + colour bar. The FOUNDED / COMMONS MPS /
           DONATIONS / WEBSITE metrics row was removed 2026-06-03 per
           user request — the bio leads directly under the colour bar. */}
-      <div style={{ marginTop: '5%', marginBottom: '5%' }}>
+      {/* Phones (UX3b, 10 Nov 2026): smaller margins round the party's header (5% of the width was 42px on a sideways phone), so
+          the page's content starts on the first screen (A6). */}
+      <style>{`@media ${PHONE} { .pt-head { margin-top: 12px !important; margin-bottom: 12px !important; } }`}</style>
+      <div className="pt-head" style={{ marginTop: '5%', marginBottom: '5%' }}>
         <h1
           style={{
             fontSize: 'clamp(28px, 4.6vw, 60px)',
@@ -144,7 +148,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
               body-prose typewriter face (Special Elite). The eyebrow
               label was removed 2026-06-03 per user request. */}
           {party.critique ? (
-            <section style={{ marginBottom: '40px' }}>
+            <section data-main-action style={{ marginBottom: '40px' }}>
               <div
                 style={{
                   fontFamily: 'var(--font-special-elite), monospace',

@@ -9,6 +9,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { departments } from '@/lib/departments';
 import { fetchDirections, sortKey, dateLine, ministerLine, letterLinks, departmentsAtTheTime } from '@/lib/ministerial-directions';
+import { SubFold } from '../../components/PhoneFolds';
 
 export const revalidate = 86400;
 
@@ -67,16 +68,19 @@ export default async function MinisterialDirectionsPage() {
         <h1 style={{ fontFamily: MONO, fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.15 }}>
           When ministers overrule their officials on spending
         </h1>
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="What a ministerial direction is">
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch' }}>
           Each department has an accounting officer, usually its permanent secretary, who answers to Parliament for how its money is spent. When they object that spending would break the rules or not be value for money, the minister can tell them in writing to go ahead anyway. That instruction is a ministerial direction. Both letters go to the National Audit Office and the Public Accounts Committee, and the government publishes them.
         </p>
+        </SubFold>
         <p style={{ marginTop: '14px', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>
           {all.length} directions published, {first} to {years[0]}
         </p>
       </header>
 
-      {years.map((y) => (
-        <section key={y} style={{ marginBottom: '32px' }}>
+      {years.map((y, yi) => (
+        <section key={y} data-main-action={yi === 0 ? '' : undefined} style={{ marginBottom: '32px' }}>
           {/* Each year folds on phones with JavaScript on as well as off (MP2f, 9 Nov 2026), its year in the fold's label; the
               heading sits inside the fold, so from 640px up (no fold) the page looks as before. */}
           <NoJsFold id={`mf-${y}`} always label={`${y}: ${byYear.get(y)!.length} ${byYear.get(y)!.length === 1 ? 'direction' : 'directions'}`} open={y === years[0]}>

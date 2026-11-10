@@ -5,6 +5,7 @@ import BackLink from '../../components/BackLink'
 import MpActivityTable, { type Row, type ViewKey, VIEWS, DEFAULT_VIEW } from './MpActivityTable'
 import Pagination from '../../components/Pagination'
 import { displayMpName } from '@/lib/mp-name';
+import { SubFold } from '../../components/PhoneFolds';
 
 // Dynamic: the view, party, search and page come from the query string (owner, 31 Oct 2026: 50 MPs a page, sorted,
 // filtered and sliced on the server instead of sending every MP to the browser).
@@ -113,12 +114,15 @@ export default async function MpActivityPage({ searchParams }: { searchParams: P
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           MP Activity
         </h1>
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="About this ranking">
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '760px', color: INK }}>
           Every current MP ranked by how much work they do in the House of Commons since the general election on 4 July 2024: how much they have spoken, and how many written questions they have tabled to government departments. Spoken figures come from Hansard; written questions from the Questions and Statements record, with the departments each MP questions most. Written questions are a backbench scrutiny tool, so ministers, whips and the Speaker are excluded from the fewest questions ranking, and MPs elected at a by election within the last six months are excluded throughout, their term being too short to compare. Sort by contributions or by written questions.
         </p>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '760px', color: INK, marginTop: '12px' }}>
           Opposition MPs typically table more written questions than government MPs because questioning departments is the primary scrutiny tool available to those not in power. The rankings reflect this. A Conservative MP tabling 4,000 questions to a Labour government is doing the job opposition is supposed to do.
         </p>
+        </SubFold>
       </header>
 
       <MpActivityTable rows={pageRows} firstRank={start + 1} total={list.length} view={view} party={party} q={q} parties={parties} />

@@ -82,9 +82,12 @@ export default function TransparencyHubPage() {
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           Accountability
         </h1>
+        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
+        <SubFold label="About these datasets">
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           {SECTIONS.length} datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed and the full local council register. Each section links to a searchable list of the underlying records.
         </p>
+        </SubFold>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px' }}>
           {SECTIONS.length} datasets · drawn from public registers
         </p>
@@ -92,7 +95,7 @@ export default function TransparencyHubPage() {
 
       {/* Two balanced columns, no boxes; reading order runs down the left column, then the right. */}
       <style>{TWO_COLUMN_CSS}</style>
-      <div className="og-two">
+      <div data-main-action className="og-two">
         {balanceColumns(SECTIONS.map((s, i) => ({ s, i })), ({ s }) => 4 + s.description.length / 45).map((col, ci) => (
           <div key={ci}>
             {/* Phones (owner, 10 Nov 2026, S5-fold): the first column open, the second in a closed native fold labelled with

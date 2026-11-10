@@ -94,7 +94,8 @@ export default async function TrustFundedPage() {
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           UK political donations routed through a trust
         </h1>
-        <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
+        {/* The main action (UX3a, A6): the headline result. */}
+        <p data-main-action style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
           {rows.length} declared donations totalling &pound;{Math.round(totalAll).toLocaleString()} list a trust as the donor rather than a named individual or company. The Electoral Commission requires the trust creator&rsquo;s name and status to be recorded, but the working capital and the active beneficial chain stay one step removed from the public register. The list runs from the late Victorian Liberal Club bequests still paying out today to modern opaque vehicles.
         </p>
       </header>

@@ -120,7 +120,8 @@ export default async function LeadershipContestsPage() {
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           Donations to UK party leadership candidates
         </h1>
-        <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
+        {/* The main action (UX3a, A6): the headline result. */}
+        <p data-main-action style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
           {rows.length} declared donations totalling &pound;{Math.round(totalAll).toLocaleString()} were given for a specific position the recipient was standing for. Leadership contests in the two main parties dominate the total: the 2016 Owen Smith challenge to Jeremy Corbyn raised &pound;400k+ from a clearly identified donor list; the 2022 Conservative race after Boris Johnson&rsquo;s resignation funnelled a similar sum into the Truss and Sunak camps. These are the gifts the donor wrote into the contest itself, not generic party support.
         </p>
       </header>

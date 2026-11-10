@@ -184,7 +184,11 @@ export default async function ExpensesPage() {
           </Link>
         </p>
 
+        {/* Phones (UX3b, 10 Nov 2026): the three figures follow the ten MPs (the copy after the list), so the list starts on
+            the first screen (A6). From 640px up, here as before. */}
+        <style>{`.ex-stats-p { display: none; } @media ${phoneUpTo(639.98)} { .ex-stats-w { display: none !important; } .ex-stats-p { display: grid; } }`}</style>
         <div
+          className="ex-stats-w"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
@@ -216,6 +220,7 @@ export default async function ExpensesPage() {
         }
       `}</style>
       <ol
+        data-main-action
         className="pca-cols"
         style={{
           listStyle: 'none',
@@ -239,6 +244,11 @@ export default async function ExpensesPage() {
           />
         ))}
       </ol>
+      <div className="ex-stats-p" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', margin: '16px 0 0' }}>
+          <Stat label="Top 10 combined" value={fmtMoney(grandTotal)} />
+          <Stat label="Average" value={top.length ? fmtMoney(grandTotal / top.length) : '£0'} />
+          <Stat label="Year" value={YEAR_LABEL} />
+      </div>
 
       <p style={{ marginTop: '32px', fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
         Totals reflect spend recorded against budgets and uncapped categories for the {YEAR_LABEL} financial year.

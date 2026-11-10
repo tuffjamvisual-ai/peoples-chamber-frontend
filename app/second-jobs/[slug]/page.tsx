@@ -79,6 +79,7 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
 
         {/* Party headline trio */}
         <div
+          data-main-action
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',

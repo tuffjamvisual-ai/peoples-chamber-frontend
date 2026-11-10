@@ -439,7 +439,7 @@ export default async function PressReleasesIndexPage({
       </header>
 
       {/* Search box — GET form, crawlable, no client JS. Switches to search mode. */}
-      <form method="GET" action="/transparency/press-releases" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px', maxWidth: '640px' }}>
+      <form data-main-action method="GET" action="/transparency/press-releases" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px', maxWidth: '640px' }}>
         <input
           type="text"
           name="q"

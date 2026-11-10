@@ -72,6 +72,7 @@ export default function DonorSearch() {
   return (
     <section aria-label="Search donors" style={{ marginBottom: '28px', fontFamily: MONO, color: INK }}>
       <input
+        data-main-action
         aria-label="Search all donor names"
         type="search"
         placeholder="Search all donor names…"

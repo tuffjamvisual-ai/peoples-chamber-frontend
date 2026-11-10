@@ -90,7 +90,7 @@ export default async function DepartmentsPage() {
       </header>
 
       <ShowAll id="departments-grid" count={(departments).length} rows="> li">
-      <ul style={{
+      <ul data-main-action style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
         gap: '32px',
