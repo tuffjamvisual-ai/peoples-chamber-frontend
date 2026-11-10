@@ -422,7 +422,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
       {/* The official record beside the result (UX1e, 9 Nov 2026), as on the bill page: Parliament's own page for this
           division, from its Commons Votes division id (every division after the archive has one). */}
       {cvaId != null && (
-        <p style={{ margin: '0 0 28px' }}>
+        <p style={{ margin: '0 0 16px' }}>
           <a href={`https://votes.parliament.uk/votes/commons/division/${cvaId}`} style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
             Official Parliament record
           </a>
@@ -430,7 +430,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
       )}
 
       {description && (
-        <section style={{ marginBottom: '40px' }}>
+        <section style={{ marginBottom: '28px' }}>
           <h2 style={sectionH2}>What this vote was about</h2>
           <p
             style={{
@@ -450,7 +450,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
 
         {/* Find an MP in this vote (UX2k): a GET form, so it works with JavaScript off; the answer is on its own page,
             app/divisions/[slug]/mp, which names how each matching MP voted. */}
-        <style>{`.dv-find { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin: 16px 0 0; } .dv-find label { display: flex; flex-direction: column; gap: 4px; flex: 1 1 16em; font-family: var(--font-special-elite), monospace; font-size: 15px; } .dv-find input { min-height: 44px; font-size: 16px; padding: 8px 10px; border: 1px solid ${INK}; background: transparent; color: ${INK}; border-radius: 0; } .dv-find button { min-height: 44px; font-size: 16px; padding: 0 18px; background: ${ACCENT}; color: #fff; border: none; border-radius: 0; font-family: var(--font-special-elite), monospace; cursor: pointer; } @media ${PHONE} { .dv-jump { display: inline-flex; align-items: center; min-height: 44px; } }
+        <style>{`.dv-find { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin: 10px 0 0; } .dv-find label { display: flex; flex-direction: column; gap: 4px; flex: 1 1 16em; font-family: var(--font-special-elite), monospace; font-size: 15px; } .dv-find input { min-height: 44px; font-size: 16px; padding: 8px 10px; border: 1px solid ${INK}; background: transparent; color: ${INK}; border-radius: 0; } .dv-find button { min-height: 44px; font-size: 16px; padding: 0 18px; background: ${ACCENT}; color: #fff; border: none; border-radius: 0; font-family: var(--font-special-elite), monospace; cursor: pointer; } @media ${PHONE} { .dv-jump { display: inline-flex; align-items: center; min-height: 44px; } }
           .dv-d { display: none; }
           @media ${PHONE} {
             .dv-d { display: block; border-top: 1px dashed rgba(20,16,13,0.3); }
@@ -471,7 +471,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           <button type="submit">Find</button>
         </form>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', marginTop: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', marginTop: '14px' }}>
           <VoteColumn id="ayes" heading={`Voted AYE (${ayeTotal})`} groups={ayeGroups} accent={SUCCESS} />
           <VoteColumn id="noes" heading={`Voted NO (${noTotal})`} groups={noeGroups} accent={DANGER} />
         </div>
