@@ -12,6 +12,7 @@ import type { Metadata } from 'next';
 import LastUpdated from '../../components/LastUpdated';
 import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
+import { SubFold } from '@/app/components/PhoneFolds';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
@@ -89,7 +90,7 @@ export default async function ContractorsWhoDonatePage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Matched companies · ranked by political donations</h2>
-        <ShowAll id="contractors-matched" count={(matched).length}>
+        <ShowAll id="contractors-matched" first={3} count={(matched).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -125,9 +126,12 @@ export default async function ContractorsWhoDonatePage() {
         <strong>What this list isn&rsquo;t.</strong> A company appearing on both registers does not mean its contracts were obtained as a result of its donations. What the list does show is the firms that both supply the public sector and give to political parties, with the totals from each register, so the overlap can be seen in one place.
       </section>
 
+      {/* Phones: 3 companies first and the sources folded (step 5, 10 Nov 2026: page length). */}
+      <SubFold label="Sources and how companies are matched">
       <p style={{ fontSize: '15px', color: '#14100d', opacity: 1 }}>
         Sources: Find a Tender (OCDS) + Electoral Commission donations register. Match rule: the supplier&rsquo;s Companies House number on Find a Tender equals the donor&rsquo;s on the Electoral Commission register; a contract counts only when its notices give one number for that supplier. Counting: Find a Tender publishes several notices for one contract (an award, its contract details, later changes); each contract is counted once at its latest value. Frameworks are counted as places, not added to the contract value: a framework&rsquo;s value is the most that every supplier on it could be paid, potential value, not spending.
       </p>
+      </SubFold>
       <LastUpdated sourceKey="government_contracts" />
     </OpenGovShell>
   );
