@@ -8,6 +8,8 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import LastUpdated from '../components/LastUpdated';
 import LobbyRanking, { type RankingTab } from './LobbyRanking';
+import { ShowAll, NoJsFold } from '../components/NoJsPager';
+import { SubFold } from '../components/PhoneFolds';
 import ClientSearch from './ClientSearch';
 import { getRankings, getSummary, getFirmsForQuarter, quarterLabel, fmtDate, type RankingRow, type OrgType } from '@/lib/lobbying';
 
@@ -131,6 +133,8 @@ export default async function LobbyingPage() {
         )}
 
         <h2 style={{ ...sectionHead, marginTop: '44px' }}>Consultant lobbyists</h2>
+        {/* Folded on phones (step 5, 10 Nov 2026; the page was 6,987px): the register note and the firms with most clients. */}
+        <NoJsFold id="lb-firms-f" always label={latestQuarter ? `Firms with the most clients, ${quarterLabel(latestQuarter)}` : 'About the register'}>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 16px', maxWidth: '46em' }}>
           Firms that lobby ministers or permanent secretaries for a paying client must register and
           name their clients every quarter. Lobbyists employed directly by the organisation they
@@ -141,6 +145,7 @@ export default async function LobbyingPage() {
             <h3 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK, margin: '0 0 8px', fontWeight: 'bold' }}>
               Firms with the most clients, {quarterLabel(latestQuarter)}
             </h3>
+            <ShowAll id="lb-firms" count={Math.min(firms.length, 15)} rows="> li">
             <ol style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', borderTop: `1px solid ${INK_HAIRLINE}`, maxWidth: '46em' }}>
               {firms.slice(0, 15).map((f, i) => (
                 <li key={f.firm} style={{ display: 'flex', gap: '12px', alignItems: 'baseline', padding: '8px 2px', borderBottom: `1px solid ${INK_HAIRLINE}`, fontFamily: SERIF, fontSize: '16px', color: INK }}>
@@ -150,11 +155,14 @@ export default async function LobbyingPage() {
                 </li>
               ))}
             </ol>
+            </ShowAll>
           </>
         )}
+        </NoJsFold>
         <ClientSearch />
 
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK, lineHeight: 1.7, maxWidth: '46em' }}>
+          <SubFold label="How this is counted">
           <strong>How this is counted.</strong> A meeting is one entry in a minister’s published
           return, so a meeting with two ministers counts once for each, as the government publishes
           it. Organisations are counted only when their name matches a spelling checked by hand,
@@ -165,6 +173,7 @@ export default async function LobbyingPage() {
           are incomplete. The lobbyist register covers {summary ? registerSpan(summary.orcl_first_quarter, summary.orcl_last_quarter) : 'recent quarters'}.
           Sources: GOV.UK ministers’ meetings transparency returns and the Registrar of Consultant
           Lobbyists quarterly returns, both under the Open Government Licence v3.0.
+          </SubFold>
         </section>
         <LastUpdated sourceKey="lobbying_meetings" />
         <LastUpdated sourceKey="consultant_lobbyists" />

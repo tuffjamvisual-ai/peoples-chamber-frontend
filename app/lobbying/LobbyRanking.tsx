@@ -5,6 +5,7 @@
 
 import { useState, type CSSProperties } from 'react';
 import Link from 'next/link';
+import { ShowAll } from '@/app/components/NoJsPager';
 import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
 import { phoneUpTo } from '@/lib/breakpoints';
 
@@ -68,6 +69,8 @@ export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[];
       {rows.length === 0 ? (
         <p style={{ fontFamily: FONT, fontSize: '15px', color: INK }}>No meetings recorded for this group in this period.</p>
       ) : (
+        // Phones (step 5, 10 Nov 2026; the page was 6,987px): the first 3, then "Show all <N>".
+        <ShowAll id="lb-rank" count={rows.length} first={3}>
         <table className="lb-table">
           <thead>
             <tr>
@@ -93,6 +96,7 @@ export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[];
             ))}
           </tbody>
         </table>
+        </ShowAll>
       )}
     </div>
   );
