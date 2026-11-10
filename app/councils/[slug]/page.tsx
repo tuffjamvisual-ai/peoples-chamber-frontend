@@ -6,6 +6,8 @@ import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
 import { namedTitle } from '@/lib/seo-title';
 import RelatedLine from '../../components/RelatedLine';
+import { SubFold } from '../../components/PhoneFolds';
+import { NoJsFold } from '../../components/NoJsPager';
 import { councilRelated } from '@/lib/related-links';
 import { administrationLabel, seatsLine, seatName, type CouncilComposition } from '@/lib/council-composition';
 import { shortParty, type ElectionSummary } from '@/lib/council-election-summary';
@@ -391,36 +393,27 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   {c.name} (ONS code {c.gss_code}) is a {typePhrase(c.type_label)} in {c.country}.
                 </p>
               )}
+              {/* The description and its credit folded on phones (step 5, 10 Nov 2026: page length). */}
               {c.description && (
+                <SubFold label="About the council">
                 <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
                   {c.description}
                 </p>
-              )}
-              {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0), so it is credited. */}
-              {c.description && c.wikipedia_url && (
-                <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, margin: '-20px auto 28px', maxWidth: '46em', color: INK_SOFT }}>
-                  From <a href={c.wikipedia_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>Wikipedia</a>,
-                  {' '}under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>CC BY-SA 4.0</a>.
-                </p>
+                {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0), so it is credited. */}
+                {c.wikipedia_url && (
+                  <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, margin: '-20px auto 28px', maxWidth: '46em', color: INK_SOFT }}>
+                    From <a href={c.wikipedia_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>Wikipedia</a>,
+                    {' '}under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>CC BY-SA 4.0</a>.
+                  </p>
+                )}
+                </SubFold>
               )}
 
               {hasLeadership && (
                 <Section title="Political Control & Leadership" date={councilUpdated} source="councils.updated_at"
                   // NI2 (9 Nov 2026): where the seat figures come from, and as of when.
-                  sourceLine={comp && comp.total_seats > 0 ? { text: `Seats: opencouncildata.co.uk, public domain, as of May ${comp.snapshot_year}`, source: 'council_composition.snapshot_year' } : undefined}>
-                  <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
-                  {/* The publisher's administration label is left out when it contradicts the seats shown
-                      below (e.g. "minority" while one named party holds more than half the seats). */}
-                  {comp && !runByContradictsSeats(comp) && <DataRow label="Run by" value={administrationLabel(comp.administration_code)} />}
-                  {/* Northern Ireland (NI2d): no administration line, and why. */}
-                  {/^N09\d{6}$/.test(c.gss_code ?? '') && <DataRow label="Administration" value="Northern Ireland councils share senior posts between parties, so there is no single administration." />}
-                  {comp && comp.total_seats > 0 && (
-                    <DataRow
-                      label="Seats"
-                      value={`${seatsLine(comp)} (${comp.total_seats} seats)`}
-                      sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
-                    />
-                  )}
+                  sourceLine={comp && comp.total_seats > 0 ? { text: `Seats: opencouncildata.co.uk, public domain, as of May ${comp.snapshot_year}`, source: 'council_composition.snapshot_year' } : undefined}
+                  moreLabel="Byelections, leader, chief executive and last election" more={<>
                   {/* Byelections since May 2026 (owner's approval, 30 Oct 2026; lib/council-byelections.ts), newest
                       first, each from the council's own declaration. The seats above are left as at May 2026. */}
                   {byelections.length > 0 && (
@@ -453,11 +446,25 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   )}
                   <DataRow label="Chief executive" value={c.chief_exec ?? c.chief_exec_note} sub={chiefExecSource(c)} />
                   <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary, c.slug)} sub={lastElectionSub(c.last_election_year, comp, electionSummary, c)} />
+                </>}>
+                  <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
+                  {/* The publisher's administration label is left out when it contradicts the seats shown
+                      below (e.g. "minority" while one named party holds more than half the seats). */}
+                  {comp && !runByContradictsSeats(comp) && <DataRow label="Run by" value={administrationLabel(comp.administration_code)} />}
+                  {/* Northern Ireland (NI2d): no administration line, and why. */}
+                  {/^N09\d{6}$/.test(c.gss_code ?? '') && <DataRow label="Administration" value="Northern Ireland councils share senior posts between parties, so there is no single administration." />}
+                  {comp && comp.total_seats > 0 && (
+                    <DataRow
+                      label="Seats"
+                      value={`${seatsLine(comp)} (${comp.total_seats} seats)`}
+                      sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
+                    />
+                  )}
                 </Section>
               )}
 
               {hasOverview && (
-                <Section title="Overview" date={c.population_year ? `Period ${c.population_year}` : councilUpdated} source={c.population_year ? undefined : 'councils.updated_at'}>
+                <Section title="Overview" fold="Population, website and more" date={c.population_year ? `Period ${c.population_year}` : councilUpdated} source={c.population_year ? undefined : 'councils.updated_at'}>
                   <DataRow
                     label={c.population_year ? `Population (${c.population_year} estimate)` : 'Population'}
                     value={c.population?.toLocaleString('en-GB') ?? null}
@@ -492,6 +499,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
                     Districts under {c.short_name || c.name} · {children.length}
                   </h2>
+                  <NoJsFold id="council-districts-f" always label={`The ${children.length} districts`}>
                   <ul
                     style={{
                       listStyle: 'none',
@@ -526,6 +534,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       </li>
                     ))}
                   </ul>
+                  </NoJsFold>
                 </section>
               )}
             </>,
@@ -665,15 +674,18 @@ function controlStatusText(status: string | null): string | null {
   return status;
 }
 
-function Section({ title, children, date, source, sourceLine }: { title: string; children: React.ReactNode; date?: string | null; source?: string; sourceLine?: { text: string; source: string } }) {
+// Phones (step 5, 10 Nov 2026: council pages were 3,000 to 4,100px): `fold` folds the whole list under that label;
+// `more` adds rows after the list, folded under `moreLabel`. From 640px up both read as one list, as before.
+function Section({ title, children, date, source, fold, more, moreLabel, sourceLine }: { title: string; children?: React.ReactNode; date?: string | null; source?: string; fold?: string; more?: React.ReactNode; moreLabel?: string; sourceLine?: { text: string; source: string } }) {
+  const dlStyle: React.CSSProperties = { margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 220px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` };
+  const list = <dl className="council-dl" style={dlStyle}>{children}</dl>;
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
         {title}
       </h2>
-      <dl className="council-dl" style={{ margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 220px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` }}>
-        {children}
-      </dl>
+      {fold ? <SubFold label={fold}>{list}</SubFold> : list}
+      {more && <SubFold label={moreLabel ?? 'More'}><dl className="council-dl" style={{ ...dlStyle, borderTop: 'none' }}>{more}</dl></SubFold>}
       <RecordDate text={date} source={source} />
       {sourceLine && <RecordDate text={sourceLine.text} source={sourceLine.source} />}
     </section>
@@ -788,6 +800,8 @@ function lastElectionValue(year: number | null | undefined, comp: CouncilComposi
     return (
       <>
         <strong>{when}</strong>
+        {/* Phones (step 5, 10 Nov 2026: page length): the results by party folded under the date. */}
+        <SubFold label="Results by party">
         <span style={{ display: 'block', marginTop: '4px' }}>
           {sum.parties.filter((p) => p.share >= 0.5 || p.seats > 0).map((p, i) => (
             <span key={p.party} style={{ display: 'block' }}>
@@ -795,6 +809,7 @@ function lastElectionValue(year: number | null | undefined, comp: CouncilComposi
             </span>
           ))}
         </span>
+        </SubFold>
       </>
     );
   }
