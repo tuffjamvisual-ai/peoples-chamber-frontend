@@ -7,7 +7,6 @@
 //   /donors/<slug>       no donor name in the register gives this slug: 410 (the Electoral Commission corrected or
 //                        removed the name).
 //   /news/<slug>         not in our press releases: GOV.UK's page when it still has the release, otherwise 410.
-import { donorNameToSlug } from './donor-slug';
 
 // Every department page (lib/departments/index.ts). next.config.ts checks at build time that the two lists agree.
 export const DEPARTMENT_SLUGS = new Set([
@@ -52,22 +51,15 @@ async function departmentAction(ctx: Ctx, slug: string): Promise<GoneAction> {
   return rows[0] ? { kind: 'redirect', location: `/organisations/${rows[0].slug}` } : { kind: 'gone' };
 }
 
-// A pattern that every donor name giving this slug matches (donorNameToSlug: lower case, "&" read as "and",
-// apostrophes dropped, anything else between letters and digits a hyphen). The names it finds are then checked exactly.
-function donorPattern(slug: string): string {
-  const any = '[^a-z0-9]*';
-  const tok = (t: string) => (t === 'and' ? '(and|&)' : t.split('').join("['’‘]?"));
-  return `^${any}${slug.split('-').map(tok).join(any)}${any}$`;
-}
-
 async function donorAction(ctx: Ctx, slug: string): Promise<GoneAction> {
   // Long slugs are cut at 100 characters and "-2" marks a second name with the same slug: left to the page.
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || slug.length >= 95 || /-\d+$/.test(slug)) return PASS;
-  const LIMIT = 50;
-  const rows = await rest<{ donor_name: string | null }[]>(ctx, `political_donations?select=donor_name&donor_name=imatch.${encodeURIComponent(donorPattern(slug))}&limit=${LIMIT}`);
+  // PERF step 5 (10 Nov 2026): an exact lookup in the donor_slugs view, served by the expression index
+  // political_donations_donor_slug_idx (donorNameToSlug in SQL; equal for all 24,223 donor names when checked). Under
+  // 1 ms; the regex match it replaces walked every donor name (up to 4.2 s, past this check's 3 s limit).
+  const rows = await rest<{ slug: string }[]>(ctx, `donor_slugs?select=slug&slug=eq.${encodeURIComponent(slug)}&limit=1`);
   if (rows == null) return PASS;
-  if (rows.some((r) => r.donor_name && donorNameToSlug(r.donor_name.trim()) === slug)) return PASS;
-  return rows.length < LIMIT ? { kind: 'gone' } : PASS;
+  return rows.length ? PASS : { kind: 'gone' };
 }
 
 async function newsAction(ctx: Ctx, slug: string): Promise<GoneAction> {
