@@ -20,6 +20,10 @@
 //       expected; the baseline is empty since UX3 marked every page type and brought each within the limits.
 //       Desktop (owner, 10 Nov 2026): at 1280 x 720 the main action, and the first result where a page marks one with
 //       data-first-result, must start above 720px (codes main-1280x720, first-1280x720).
+//       Consent (T1-7ab, owner via Cowork, 10 Nov 2026): these positions are measured with the cookie choice already made,
+//       as a returning reader sees the page. A separate first-visit pass, with no choice made, checks at each size that
+//       the cookie banner (fixed to the foot of the screen at every width) does not cover the main action as the page
+//       opens (code banner-<size>).
 //   A4  official record links: each bill page links to bills.parliament.uk for that bill, each division page to
 //       votes.parliament.uk for that division (ids read from the database).
 // A2 and A3 found problems on pages that existed before the check; those are in rendered-baseline.json and are
@@ -133,6 +137,8 @@ async function officialLink(urlPath) {
 
 // A6: the measured position behind a code, for the report.
 function a6Detail(r, code) {
+  const b = /^banner-(\d+x\d+)$/.exec(code);
+  if (b) { const x = r.a6Banner?.[b[1]]; return x ? ` (main action ${x.mainTop} to ${x.mainBottom}px, banner from ${x.bannerTop}px, first visit)` : ''; }
   const m = /^(main|h1|first)-(\d+x\d+)$/.exec(code);
   if (!m) return '';
   const v = A6_VIEWS.find((x) => x.name === m[2]);
@@ -172,6 +178,8 @@ async function main() {
   // A6: the same pages at four phone sizes and one desktop size, one context each.
   for (const v of A6_VIEWS) {
     const c = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: !v.desktop, hasTouch: !v.desktop });
+    // A returning reader: the cookie choice is made, so no banner (T1-7ab).
+    await c.addCookies([{ name: 'og_cookies_policy', value: encodeURIComponent(JSON.stringify({ analytics: false })), url: BASE }]);
     await c.route('**/*', (q) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(q.request().url()) ? q.abort() : q.continue()));
     const pg = await c.newPage();
     for (const r of results) {
@@ -196,6 +204,31 @@ async function main() {
       } catch (e) { r.a6 ??= []; r.a6.push(`error-${v.name}`); }
     }
     await c.close();
+    // First visit (no cookie choice yet): the banner must not cover the main action as the page opens.
+    const fv = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: !v.desktop, hasTouch: !v.desktop });
+    await fv.route('**/*', (q) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(q.request().url()) ? q.abort() : q.continue()));
+    const fp = await fv.newPage();
+    for (const r of results) {
+      if (r.status !== 200 || r.height == null) continue;
+      try {
+        await fp.goto(BASE + r.url, { waitUntil: 'load', timeout: 60000 });
+        await fp.waitForTimeout(300);
+        const x = await fp.evaluate(() => {
+          const main = document.querySelector('[data-main-action]');
+          const banner = [...document.querySelectorAll('.og-cookie-banner')].find((b) => b.getClientRects().length);
+          if (!main || !main.getClientRects().length || !banner) return null;
+          const m = main.getBoundingClientRect(), b = banner.getBoundingClientRect();
+          return { mainTop: Math.round(m.top), mainBottom: Math.round(m.bottom), bannerTop: Math.round(b.top), bannerBottom: Math.round(b.bottom) };
+        });
+        // Covered: the main action starts on the first screen but its top line is under the banner.
+        if (x && x.mainTop < v.height && x.mainTop + 20 > x.bannerTop && x.mainTop < x.bannerBottom) {
+          r.a6 ??= []; r.a6Banner ??= {};
+          r.a6Banner[v.name] = x;
+          r.a6.push(`banner-${v.name}`);
+        }
+      } catch (e) { r.a6 ??= []; r.a6.push(`error-first-visit-${v.name}`); }
+    }
+    await fv.close();
   }
   await browser.close();
 
