@@ -13,7 +13,7 @@ import { editorialSet } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { listReadingLabel, textReadingLabel } from '@/lib/reading-time';
 import ContinueToArticle from '../../components/ContinueToArticle';
-import NoJsPager, { NoJsPagerLinks, njpItem } from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem } from '@/app/components/NoJsPager';
 import { isLaw } from '@/lib/bill-status';
 
 export const revalidate = 86400;
@@ -175,6 +175,8 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
         <section style={{ marginBottom: '6%' }}>
           <h2 style={sectionH2}>MPs scrutinising this most</h2>
           <p style={{ fontSize: '15px', color: INK, marginBottom: '12px' }}>By written questions tabled to the department since the July 2024 general election.</p>
+          {/* Phones (step 5, 10 Nov 2026; the page was 5,530px): this list and the votes, bills and Acts below are folded. */}
+          <NoJsFold id="tp-mps" always label={`The ${topMps.length.toLocaleString('en-GB')} MPs`}>
           {topMps.map((r, i) => {
             const m = r;
             return (
@@ -184,6 +186,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
               </Link>
             );
           })}
+          </NoJsFold>
         </section>
       )}
 
@@ -191,12 +194,14 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {divisions.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
           <h2 style={sectionH2}>Recent Commons votes</h2>
+          <NoJsFold id="tp-votes" always label={`The ${divisions.length.toLocaleString('en-GB')} most recent`}>
           {divisions.map((d) => (
             <Link key={`${d.division_date_only}-${d.division_number}`} href={`/divisions/pw-${d.division_date_only}-${d.division_number}-commons`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{d.division_title}</div>
               <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '3px' }}>{fmtDate(d.division_date_only as string)}</div>
             </Link>
           ))}
+          </NoJsFold>
         </section>
       )}
 
@@ -204,6 +209,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {bills.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
           <h2 style={sectionH2}>Bills and Acts</h2>
+          <NoJsFold id="tp-bills" always label={`The ${bills.length.toLocaleString('en-GB')} most recent`}>
           {bills.map((b) => (
             <Link key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>
@@ -213,6 +219,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
               {b.current_stage && <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '3px' }}>{b.current_stage}</div>}
             </Link>
           ))}
+          </NoJsFold>
         </section>
       )}
 
@@ -220,11 +227,13 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {keyActs.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
           <h2 style={sectionH2}>Key Acts</h2>
+          <NoJsFold id="tp-acts" always label={`The ${keyActs.length.toLocaleString('en-GB')} Acts`}>
           {keyActs.map((b) => (
             <Link key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{b.title}</div>
             </Link>
           ))}
+          </NoJsFold>
         </section>
       )}
       {(bills.length > 0 || keyActs.length > 0) && (
@@ -240,7 +249,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
           {/* 10 a screen on phones with JavaScript off (owner, 7 Nov 2026, PF1): each card is tall: its 26 cards made
               /topics/constitutional-reform 9,813px, and still 9,638px at 25 a screen. The cards are siblings, so each carries the pager's item class and the
               Previous and Next links follow the last one. */}
-          <NoJsPager id="topic-reports" count={relatedEditorials.length} size={10} />
+          <NoJsPager id="topic-reports" count={relatedEditorials.length} size={10} first={2} />
           {relatedEditorials.map((e) => (
             <Link key={e.href} href={e.href} className={`no-hover-scale ${njpItem('topic-reports')}`} style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.headline}</div>
@@ -250,7 +259,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
               <ContinueToArticle style={{ marginTop: '4px' }} />
             </Link>
           ))}
-          <NoJsPagerLinks id="topic-reports" count={relatedEditorials.length} size={10} />
+          <NoJsPagerLinks id="topic-reports" count={relatedEditorials.length} size={10} first={2} />
         </section>
       )}
 
