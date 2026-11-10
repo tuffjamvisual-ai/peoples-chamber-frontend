@@ -143,9 +143,13 @@ export default function PollsClient() {
   }, [polls, search, sort])
 
   return (
-    <>
+    <div className="pc-flow">
+      {/* Phones (UX2b, 10 Nov 2026): the first question comes straight after the page's one line introduction, so the
+          counts and the search and sort row follow the polls (CSS order, the same with JavaScript off). From 640px up, as before. */}
+      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(639.98)} { .pc-flow { display: flex; flex-direction: column; } .pc-flow > .pc-after { order: 1; } }` }} />
       <Toast message={notice} onDone={() => setNotice(null)} />
       <div
+        className="pc-after"
         style={{
           display: 'flex',
           gap: '24px',
@@ -165,6 +169,7 @@ export default function PollsClient() {
       </div>
 
       <div
+        className="pc-after"
         style={{
           display: 'flex',
           alignItems: 'baseline',
@@ -258,7 +263,7 @@ export default function PollsClient() {
           )}
         </>
       )}
-    </>
+    </div>
   )
 }
 
