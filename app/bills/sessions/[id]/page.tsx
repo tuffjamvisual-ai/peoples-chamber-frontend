@@ -88,7 +88,8 @@ export default async function BillSessionPage({ params }: Props) {
             {g.heading} <span style={{ fontWeight: 'normal', color: INK }}>({groups.get(g.key)!.length.toLocaleString()})</span>
           </h2>
           <p style={{ fontSize: '15px', marginBottom: '8px' }}>{g.note}</p>
-          <NoJsPager id={`bs-${g.key}`} count={(groups.get(g.key)!).length} rows="> li" size={25}>
+          {/* Phones: the first 2 of each group (step 5, 10 Nov 2026: page length). */}
+          <NoJsPager id={`bs-${g.key}`} first={2} count={(groups.get(g.key)!).length} rows="> li" size={25}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {groups.get(g.key)!.map((b) => {
               const meta = [
