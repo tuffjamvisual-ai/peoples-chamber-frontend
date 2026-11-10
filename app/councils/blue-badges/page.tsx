@@ -4,7 +4,8 @@
 // assessed by the council, from DfT's table notes, and England's lost and stolen badges (the only lost and stolen
 // figures DfT now publishes). Data: council_blue_badges (migration 2026-10-28d), wording in lib/blue-badges.ts.
 
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
@@ -117,6 +118,9 @@ export default async function BlueBadgesPage() {
 
         <section style={section}>
           <h2 style={h2}>Who qualifies</h2>
+          {/* Phones (step 5, 10 Nov 2026: page length): this explainer and the notes folded, the first table 3 rows, the
+              second table folded. From 640px up, as before. */}
+          <SubFold label="Read it">
           <p style={para}>
             Some people qualify automatically, which DfT calls &ldquo;without further assessment&rdquo;: people who get the higher rate of the mobility part of Disability Living Allowance, or who meet the moving around or journey planning criteria of Personal Independence Payment, and people who are registered blind, get the War Pensioner&rsquo;s Supplement or are covered by the Armed Forces and Reserve Forces Compensation Scheme.
           </p>
@@ -126,12 +130,13 @@ export default async function BlueBadgesPage() {
           <p style={para}>
             This summary is from the notes to DfT&rsquo;s <a href="https://www.gov.uk/government/statistical-data-sets/blue-badge-scheme-statistics-data-tables-dis" target="_blank" rel="noopener noreferrer" style={{ color: INK }}>Blue Badge data tables</a>.
           </p>
+          </SubFold>
         </section>
 
         <section style={section}>
           <h2 style={h2}>Share of residents holding a badge</h2>
           {/* Phones (under 768px): one card per council (phone-table.css .pt-cards); four columns did not fit 320px. */}
-            <NoJsPager id="bb-a" count={(byShare).length} rows="> tbody > tr" size={15}>
+            <NoJsPager id="bb-a" first={3} count={(byShare).length} rows="> tbody > tr" size={15}>
             <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
               <thead>
                 <tr>
@@ -159,6 +164,7 @@ export default async function BlueBadgesPage() {
         <section style={section}>
           <h2 style={h2}>Change on the year</h2>
           {/* Phones: one card per council, as above. */}
+            <NoJsFold id="bb-b-f" always label="The table">
             <NoJsPager id="bb-b" count={(byChange).length} rows="> tbody > tr" size={15}>
             <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
               <thead>
@@ -184,11 +190,13 @@ export default async function BlueBadgesPage() {
               </tbody>
             </table>
             </NoJsPager>
+            </NoJsFold>
           <p style={{ ...para, marginTop: '10px' }}>England: {pctChangeText(eng ? change(eng, engPrev) : null)}.</p>
         </section>
 
         <section style={section}>
           <h2 style={h2}>About these figures</h2>
+          <SubFold label="Read about the figures">
           <p style={para}>
             Badges held are valid badges at 31 March. Badges can also be issued to organisations that transport disabled people, and these are included. Badges issued in the year to 31 March include badges for people who did not hold one before and badges from reapplications by existing holders (badges usually last three years). {SHARE_NOTE}
             {rounded ? ` ${ROUNDING_NOTE}` : ''}
@@ -198,6 +206,7 @@ export default async function BlueBadgesPage() {
             Source: <a href={rel.url} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>Department for Transport, {rel.label}</a>.{' '}
             <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
           </p>
+          </SubFold>
         </section>
       </article>
       <LastUpdated sourceKey="blue_badges" />

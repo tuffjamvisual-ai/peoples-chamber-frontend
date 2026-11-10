@@ -3,7 +3,8 @@
 // explainer of what "looked after" means, from DfE's release. Compared with England only. Data:
 // council_children_in_care (migration 2026-10-28g), wording in lib/children-in-care.ts.
 
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
@@ -101,13 +102,17 @@ export default async function ChildrenInCarePage() {
 
         <section style={section}>
           <h2 style={h2}>What &ldquo;looked after&rdquo; means</h2>
+          {/* Phones (step 5, 10 Nov 2026: page length): this explainer and the notes folded, the first table 3 rows, the
+              second table folded. From 640px up, as before. */}
+          <SubFold label="Read it">
           {EXPLAINER.map((p) => <p key={p.slice(0, 20)} style={para}>{p}</p>)}
           <p style={para}>This summary is from DfE&rsquo;s <a href={SOURCE_PAGE} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>release and its notes</a>.</p>
+          </SubFold>
         </section>
 
         <section style={section}>
           <h2 style={h2}>Rate per 10,000 children</h2>
-          <NoJsPager id="cic-a" count={(byRate).length} rows="> tbody > tr" size={15}>
+          <NoJsPager id="cic-a" first={3} count={(byRate).length} rows="> tbody > tr" size={15}>
           <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
             <thead>
               <tr>
@@ -134,6 +139,7 @@ export default async function ChildrenInCarePage() {
 
         <section style={section}>
           <h2 style={h2}>Change on the year</h2>
+          <NoJsFold id="cic-b-f" always label="The table">
           <NoJsPager id="cic-b" count={(byChange).length} rows="> tbody > tr" size={15}>
           <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
             <thead>
@@ -159,11 +165,13 @@ export default async function ChildrenInCarePage() {
             </tbody>
           </table>
           </NoJsPager>
+          </NoJsFold>
           <p style={{ ...para, marginTop: '10px' }}>England: {pctChangeText(change(eng, engPrev))}. A small council&rsquo;s percentage can move a lot with a few children.</p>
         </section>
 
         <section style={section}>
           <h2 style={h2}>About these figures</h2>
+          <SubFold label="Read about the figures">
           <p style={para}>
             Children looked after on 31 March, from the SSDA903 return each council makes to DfE. Unless stated, the figures leave out children looked after under an agreed series of short term placements (DfE). {ROUNDING_NOTE}
             {usedSymbols.length ? ` Where DfE gives no figure it shows a symbol: ${usedSymbols.map((s) => SYMBOL_MEANING[s]).join('; ')}. A council with no figure is not ranked.` : ''}
@@ -172,6 +180,7 @@ export default async function ChildrenInCarePage() {
             Source: <a href={SOURCE_PAGE} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>Department for Education, {releaseLabel(latest)}</a>.{' '}
             <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
           </p>
+          </SubFold>
         </section>
       </article>
       <LastUpdated sourceKey="children_in_care" />
