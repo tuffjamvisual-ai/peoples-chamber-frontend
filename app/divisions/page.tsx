@@ -6,6 +6,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import Unavailable from '@/app/components/Unavailable';
 import { divisionYears } from '@/lib/division-links';
+import { handled } from '@/lib/settle';
 import DivisionYearLinks from './DivisionYearLinks';
 import { ShowAll } from '../components/NoJsPager';
 
@@ -47,7 +48,9 @@ export default async function DivisionsIndexPage({
   const pageNum = Math.max(1, parseInt(sp.page || '1', 10) || 1);
   const from = (pageNum - 1) * PER_PAGE;
 
-  const yearsP = divisionYears();
+  // Started before the page's own read and awaited after it, so handled at once (lib/settle.ts): a failed read still
+  // throws where it is awaited, but can no longer end the whole server process while the page read is running.
+  const yearsP = handled(divisionYears());
   const { data, count } = await supabase
     .from('commons_divisions_fts')
     .select('division_date_only, division_number, division_title', { count: 'exact' })
