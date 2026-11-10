@@ -11,6 +11,7 @@ import { titleWithin } from '@/lib/seo-title';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import PartySidebar from '../../components/PartySidebar';
+import { SubFold } from '../../components/PhoneFolds';
 import Link from 'next/link';
 import { THEME_TOPIC, partySecondJobs } from '@/lib/party-links';
 
@@ -245,6 +246,9 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             >
               {p.theme}
             </h2>
+            {/* Phones (step 5, 10 Nov 2026; the page was 8,272px): each theme's manifesto position and shift folded under its
+                heading. From 640px up, as before. */}
+            <SubFold label={p.current_shift ? 'Manifesto and shift since 2024' : 'Manifesto position'}>
             <div
               style={{
                 fontFamily: 'var(--font-special-elite), monospace',
@@ -283,6 +287,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
                 </p>
               )}
             </div>
+            </SubFold>
           </section>
         ))}
       </div>
