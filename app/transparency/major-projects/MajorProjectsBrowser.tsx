@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { ShowAllDetails } from '@/app/components/NoJsPager';
 
 // The /transparency/major-projects list with a name search and filters (24 Oct 2026): department, latest delivery
 // confidence rating, the report a project was last in, and "no evaluation plan in March 2025" (the earlier
@@ -60,13 +61,13 @@ const KEYS: (keyof State)[] = ['q', 'dept', 'rating', 'year', 'evaluation'];
 // Phone cards (owner, 4 Nov 2026, under 640px): the project's name, department, rating, expected completion and last
 // report; everything else, including the department's commentary, is read when the card is opened. An independent
 // assessment is a solid label and a departmental one a dashed outline, so the two read differently at a glance.
-// Under 640px the list also shows PHONE_PAGE projects at a time and headings give full department names. Every project is
-// still in the HTML, and from 640px up all of them show as before.
-const PHONE_PAGE = 25;
-const CARD_CSS = `.mpb-card, .mpb-more, .mpb-phone-name { display: none; }
+// Under 640px the list shows the first PHONE_PAGE projects and headings give full department names; the rest are behind
+// "Show all <N>", a native details (step 5, 10 Nov 2026: was a "Show more" button that needed JavaScript, 25 at a time,
+// and the page was 7,567px). Every project is still in the HTML, and from 640px up all of them show as before.
+const PHONE_PAGE = 4;
+const CARD_CSS = `.mpb-card, .mpb-phone-name { display: none; }
 @media ${phoneUpTo(639.98)} {
-  .mpb-over { display: none !important; }
-  .mpb-more { display: block; min-height: 44px; margin: 0 0 28px; padding: 8px 16px; background: transparent; border: 1px solid #14100d; color: #14100d; font: inherit; font-size: 15px; cursor: pointer; }
+  body:has(.njp-sa-mpb:not([open])) .mpb-over { display: none !important; }
   .mpb-phone-name { display: inline; }
   .mpb-wide { display: none; }
   .mpb-card { display: block; }
@@ -273,11 +274,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
           </section>
         );
       })}
-      {count > phoneLimit && (
-        <button type="button" className="mpb-more" onClick={() => setPhoneLimit((n) => n + PHONE_PAGE)}>
-          Show more ({count - phoneLimit} left)
-        </button>
-      )}
+      {count > phoneLimit && <ShowAllDetails id="mpb" count={count} />}
       {count === 0 && <p style={{ fontSize: '15px', margin: '0 0 28px' }}>No projects match.</p>}
     </>
   );
