@@ -15,8 +15,9 @@
 //       search field, postcode field, first question or first record), must start above 760px at 430 x 932 (UX3h), above
 //       700px at 390 x 844 and above 520px at 320 x 568; at 844 x 390 the h1 and the main action must both start within
 //       390px. Measured from the top of the page as it opens, JavaScript on. Each page's failures are codes (no-main-action,
-//       main-hidden, main-430x932, main-390x844, main-320x568, h1-844x390, main-844x390, no-h1); today's are in the
-//       baseline (a6), so only a new code blocks.
+//       main-hidden, main-430x932, main-390x844, main-320x568, h1-844x390, main-844x390, no-h1). no-main-action always
+//       fails (UX3c): every page type, new ones included, marks its main action. Other codes in the baseline (a6) are
+//       expected; the baseline is empty since UX3 marked every page type and brought each within the limits.
 //       Desktop (owner, 10 Nov 2026): at 1280 x 720 the main action, and the first result where a page marks one with
 //       data-first-result, must start above 720px (codes main-1280x720, first-1280x720).
 //   A4  official record links: each bill page links to bills.parliament.uk for that bill, each division page to
@@ -229,6 +230,8 @@ async function main() {
     for (const code of r.a6 ?? []) {
       const line = `A6 ${r.url}: ${code}${a6Detail(r, code)}`;
       if (code.startsWith('error-')) fails.push(`${line} (could not measure)`);
+      // Every page type marks its main action (UX3c, owner approved, 10 Nov 2026): an unmarked page always fails, baseline or not.
+      else if (code === 'no-main-action') fails.push(`${line} (every page type must mark its main action with data-main-action)`);
       else if ((b.a6 ?? []).includes(code)) expected.push(line);
       else fails.push(`${line} (new)`);
     }

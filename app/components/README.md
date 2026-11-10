@@ -32,7 +32,7 @@ The QA1 rendered checks, run by the pre-push hook, measure `data-main-action` on
 - above 520px at 320 x 568;
 - within 390px at 844 x 390, where the `h1` must start within 390px too.
 
-Today's failures are in `rendered-baseline.json` (`a6`), so only a new failure blocks a push.
+Every page type marks its main action: a page with no `data-main-action` fails A6 whatever the baseline says (UX3c). The A6 baseline in `rendered-baseline.json` is empty, so any A6 failure blocks a push.
 
 If a page cannot use `PageShell` yet, put `data-main-action` on its main action directly. A6 measures whichever element carries it.
 
