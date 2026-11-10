@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import { billStageLine, NO_SUMMARY_TEXT } from '@/lib/bill-summary'
 import BillVotingClient from './BillVotingClient'
+import { NoJsFold } from '@/app/components/NoJsPager'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBillLegislation, buildBreadcrumbs } from '@/lib/JsonLd';
@@ -451,6 +452,8 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       {/* The ballot — interactive cross-box vote + the running counts.
           Sits on the parchment, separated by a ruling line above. */}
       <section id="vote" style={{ marginBottom: '40px', borderTop: `1.5px solid ${INK}`, paddingTop: '28px', scrollMarginTop: '90px' }}>
+        {/* A closed ballot (an Act, withdrawn, defeated or fallen bill) is folded on phones (step 5, 10 Nov 2026: page length). */}
+        <ClosedBallotFold closed={votingClosed}>
         <div style={{ position: 'relative', padding: '0 4px' }}>
           <div style={{ textAlign: 'center', marginBottom: '22px' }}>
             <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
@@ -560,6 +563,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             )}
           </div>
         </div>
+        </ClosedBallotFold>
       </section>
 
       {/* How the Lords voted — formal Lords divisions on this bill. */}
@@ -898,4 +902,9 @@ function StageGroup({ label, colour, stages, cancelled }: { label: string; colou
       </ul>
     </div>
   )
+}
+
+// The reader ballot folded on phones once voting has closed; open bills show it as before.
+function ClosedBallotFold({ closed, children }: { closed: boolean; children: React.ReactNode }) {
+  return closed ? <NoJsFold id="bill-ballot-f" always label="Reader poll: closed, see the result">{children}</NoJsFold> : <>{children}</>
 }
