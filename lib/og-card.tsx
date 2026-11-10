@@ -7,6 +7,7 @@
 import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { handled } from './settle';
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -14,7 +15,9 @@ const INK = '#14100d';
 const CREAM = '#f4e8d4';
 const ACCENT = '#7a1612';
 
-const specialElite = readFile(join(process.cwd(), 'public/fonts/special-elite.ttf'));
+// Read once when the module loads and awaited per image, so handled at once (lib/settle.ts): a missing font still fails
+// the image where it is awaited, but can no longer end the whole server process before any image is asked for.
+const specialElite = handled(readFile(join(process.cwd(), 'public/fonts/special-elite.ttf')));
 
 // The title's size: 72px up to 60 characters, then down evenly to 46px at 140 characters, and no smaller; longer
 // titles are cut at 160 characters (the longest bill title is about 150).
