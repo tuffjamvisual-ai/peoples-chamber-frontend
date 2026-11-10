@@ -1,4 +1,4 @@
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { divisionSeoTitle } from '@/lib/division-title';
 import { titleWithin } from '@/lib/seo-title';
 import { billSummary as officialBillSummary } from '@/lib/bill-summary';
@@ -548,6 +548,8 @@ function VoteColumn({
       <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: '#14100d' }}>
         {heading}
       </h3>
+      {/* Each side's names folded under its heading on phones (step 5, 10 Nov 2026: the lists were about 2,100px). */}
+      <NoJsFold id={`dvf-${heading.split(" ")[1]}`.replace(/[^a-zA-Z0-9-]+/g, "-")} always label="The names, by party">
       {groups.map((g) => (
         <div key={g.party} style={{ marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -574,6 +576,7 @@ function VoteColumn({
           </NoJsPager>
         </div>
       ))}
+      </NoJsFold>
     </div>
   );
 }

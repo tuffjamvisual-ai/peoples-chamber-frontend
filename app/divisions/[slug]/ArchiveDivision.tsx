@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import OpenGovShell from '@/app/components/OpenGovShell';
 import BackLink from '@/app/components/BackLink';
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { partyColourForMember } from '@/lib/party-helpers';
 import { divisionHref, yearHref } from '@/lib/division-links';
 import { ARCHIVE_NOTE, HANSARD_LABEL, archiveDate, archiveNeighbours, archiveProfileHref, archiveTitle, archiveVotes, recordInconsistent, type ArchiveDivision as Division, type ArchiveVote } from '@/lib/historic-archive';
@@ -110,6 +110,8 @@ function VoteColumn({ heading, side, groups, accent }: { heading: string; side: 
   return (
     <div>
       <h3 style={{ fontFamily: TYPE, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', color: accent, marginBottom: '12px', fontWeight: 'bold' }}>{heading}</h3>
+      {/* Each side's names folded under its heading on phones (step 5, 10 Nov 2026: the lists were about 2,100px). */}
+      <NoJsFold id={`dvf-${side}`} always label="The names, by party">
       {groups.map((g) => (
         <div key={g.party} style={{ marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '15px' }}>
@@ -132,6 +134,7 @@ function VoteColumn({ heading, side, groups, accent }: { heading: string; side: 
           </NoJsPager>
         </div>
       ))}
+      </NoJsFold>
     </div>
   );
 }
