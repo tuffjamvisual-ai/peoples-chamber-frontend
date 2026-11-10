@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShowAll } from './NoJsPager';
+import { SubFold } from './PhoneFolds';
 import { archiveSessions } from '@/lib/pmqs-archive';
 import { pmqsSet } from '@/lib/pmqs';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
@@ -32,15 +32,18 @@ export default async function HomeRecord() {
     <Link key="register" href="/register-history" prefetch={false} className="og-tap" style={link}>Register of Members&rsquo; Financial Interests back to 2000</Link>,
     <Link key="questions" href="/questions" prefetch={false} style={link}>Every written question and answer since the July 2024 general election, including corrected answers and what they first said.</Link>,
   ];
+  // Phones (owner, 10 Nov 2026, S5-home2): the section is in a closed native fold labelled with its heading and item count
+  // (SubFold), opened in full; from 640px up it shows as before. The wrapper carries the homepage's phone order.
   return (
+    <div className="og-record-f">
+    <SubFold label={`The record, going back decades (${items.length})`}>
     <section className="og-record" aria-labelledby="og-record-head" style={{ margin: '20px 0 8px', paddingTop: '14px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
       <h2 id="og-record-head" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: INK, margin: '0 0 10px' }}>The record, going back decades</h2>
-      {/* Phones (step 5, 10 Nov 2026: page length): the first 3, then "Show all <N>". */}
-      <ShowAll id="og-record" count={items.length} rows="> li" first={3}>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontFamily: 'var(--font-special-elite), monospace' }}>
         {items.map((item, i) => <li key={i} style={{ marginBottom: '10px' }}><p style={para}>{item}</p></li>)}
       </ul>
-      </ShowAll>
     </section>
+    </SubFold>
+    </div>
   );
 }

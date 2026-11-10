@@ -9,7 +9,6 @@ import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
 import AreaSearch from './components/AreaSearch';
 import HomeRecord from './components/HomeRecord';
-import { ShowAll } from './components/NoJsPager';
 import NewsletterSignup from './components/NewsletterSignup';
 import { SubFold } from './components/PhoneFolds';
 import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
@@ -149,11 +148,11 @@ export default async function HomePage() {
                 .og-lead-story .og-lede { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
                 .og-rail > a.og-card[href="/this-week"] { order: 3; }
                 .og-main > .og-intro-line { order: 4; padding-top: 0 !important; }
-                .og-main > .og-record { order: 4; }
+                .og-main > .og-record-f { order: 4; }
                 .og-finders { margin-bottom: 12px !important; }
                 .og-rail > * { order: 8; }
                 .og-rail > .og-brief { order: 6; }
-                .og-main > section[aria-label="Latest from Whitehall"] { order: 7; }
+                .og-main > .og-whitehall-f { order: 7; }
                 .og-intro-line .og-intro-s ~ .og-intro-s, .og-intro-line .og-intro-br { display: none !important; }
                 .og-brief > :not(.og-head) { display: none !important; }
                 .og-rail > #newsletter:not(:target) { display: none !important; }
@@ -245,7 +244,11 @@ export default async function HomePage() {
               </a>
 
 
+              {/* Phones (owner, 10 Nov 2026, S5-home2): a closed native fold labelled with the heading and item count, opened
+                  in full; from 640px up as before. The wrapper carries the phone order. */}
               {whitehallItems.length > 0 && (
+                <div className="og-whitehall-f">
+                <SubFold label={`Latest from Whitehall (${whitehallItems.length})`}>
                 <section aria-label="Latest from Whitehall" style={{ marginTop: '28px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
                   <h2 style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
                     Latest from Whitehall
@@ -253,8 +256,6 @@ export default async function HomePage() {
                   <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
                     Government press releases, published as issued
                   </p>
-                  {/* Phones (step 5, 10 Nov 2026: page length): the 3 newest, then "Show all <N>". */}
-                  <ShowAll id="og-whitehall" count={whitehallItems.length} rows="> li" first={3}>
                   <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                     {whitehallItems.map(({ slug, title, organisation, publishedAt }) => (
                       <li key={slug} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0' }}>
@@ -269,8 +270,9 @@ export default async function HomePage() {
                       </li>
                     ))}
                   </ol>
-                  </ShowAll>
                 </section>
+                </SubFold>
+                </div>
               )}
             </div>
 
