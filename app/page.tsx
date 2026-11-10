@@ -11,6 +11,7 @@ import AreaSearch from './components/AreaSearch';
 import HomeRecord from './components/HomeRecord';
 import { ShowAll } from './components/NoJsPager';
 import NewsletterSignup from './components/NewsletterSignup';
+import { SubFold } from './components/PhoneFolds';
 import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
 import { loadLatestWhitehall } from '@/lib/press-releases-latest';
 import { setPageReadTimer } from '@/lib/page-reads';
@@ -154,7 +155,14 @@ export default async function HomePage() {
                 .og-rail > .og-brief { order: 6; }
                 .og-main > section[aria-label="Latest from Whitehall"] { order: 7; }
                 .og-intro-line .og-intro-s ~ .og-intro-s, .og-intro-line .og-intro-br { display: none !important; }
+                .og-brief > :not(.og-head) { display: none !important; }
+                .og-rail > #newsletter:not(:target) { display: none !important; }
+                .og-rail > .og-news-line { display: block !important; }
               }`}</style>
+              {/* Phones only (owner, 10 Nov 2026, S5-home; the page was 4,689px at 375px): folded, nothing cut. The other
+                  reports show their headlines only, which are the links; the research promotion is in a closed native
+                  fold (the SubFold after the rail opens); the newsletter block is one line linking to the sign-up page
+                  (/newsletter), and a link to #newsletter still shows the block. From 640px up the page is unchanged. */}
               {/* The two finders side by side (UX1b, 9 Nov 2026; the audit found the postcode box below the fold and unlabelled
                   as the way to find an MP): the main search, then "Find your MP or council (postcode)". They run across
                   the full width above the lead story and the rail, so on a 1280 x 720 screen both are in the first screen
@@ -272,6 +280,7 @@ export default async function HomePage() {
                   together in the main column. On phones the rail follows the main column, so it comes after the reports
                   and Latest from Whitehall. Labelled as a service so it reads apart from the journalism. Plain
                   server-rendered markup: no image and no script. */}
+              <SubFold label="Commission research from opengovt">
               <section className="og-promo" aria-labelledby="og-promo-head">
                 <div className="og-kicker">opengovt service</div>
                 <h2 id="og-promo-head" className="og-promo-head">Want something investigated from the public record?</h2>
@@ -279,6 +288,7 @@ export default async function HomePage() {
                 <p className="og-promo-price">From £295, with a fixed quote for each enquiry, including data not yet on opengovt</p>
                 <Link href="/commission" className="og-promo-btn">Commission research</Link>
               </section>
+              </SubFold>
 
               {/* "If an Election Were Held Now" reader card removed 17 Oct 2026 (owner's decision): its
                   total was a launch seed of 4,106 votes plus 1 real reader vote. */}
@@ -326,6 +336,7 @@ export default async function HomePage() {
                 <div className="og-cta">See this week&apos;s parliamentary business &rarr;</div>
               </a>
 
+              <Link className="og-news-line" href="/newsletter" style={{ display: 'none' }}>Sign up for opengovt Weekly, the weekly newsletter &rarr;</Link>
               <div className="og-block og-card" id="newsletter">
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>Weekly newsletter</div>
                 <div className="og-head">What government announced. What the evidence shows. What happened next.</div>
