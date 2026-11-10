@@ -28,6 +28,7 @@ import { divisionHref, divisionNeighbours, yearHref } from '@/lib/division-links
 import { fetchDivisionVotes, divisionTally, isRebel, type Vote as DivisionVote } from '@/lib/division-votes';
 import { ARCHIVE_LAST_DATE, archiveDate, archiveDivision, archiveNeighbours, archiveTitle } from '@/lib/historic-archive';
 import ArchiveDivisionPage from './ArchiveDivision';
+import { PHONE } from '@/lib/breakpoints';
 
 export const revalidate = 86400;  // divisions don't change after the vote happens
 
@@ -405,9 +406,10 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           transform: 'rotate(-0.15deg)',
         }}
       >
-        <span style={{ color: INK, fontWeight: 'bold' }}>{ayeTotal} Aye</span>
+        {/* The counts jump to each side's names (UX2k, owner approved through Cowork, 10 Nov 2026); 44px tall on phones. */}
+        <a href="#ayes" className="dv-jump" style={{ color: INK, fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{ayeTotal} Aye</a>
         {'  /  '}
-        <span style={{ color: INK, fontWeight: 'bold' }}>{noTotal} No</span>
+        <a href="#noes" className="dv-jump" style={{ color: INK, fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{noTotal} No</a>
         {'  ·  '}
         <span style={{ color: ACCENT }}>
           {ayeTotal > noTotal ? 'majority ' : ayeTotal < noTotal ? 'lost by ' : 'tied · margin '}
@@ -445,9 +447,20 @@ export default async function DivisionDetailPage({ params }: PageProps) {
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>How MPs voted</h2>
 
+        {/* Find an MP in this vote (UX2k): a GET form, so it works with JavaScript off; the answer is on its own page,
+            app/divisions/[slug]/mp, which names how each matching MP voted. */}
+        <style>{`.dv-find { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin: 16px 0 0; } .dv-find label { display: flex; flex-direction: column; gap: 4px; flex: 1 1 16em; font-family: var(--font-special-elite), monospace; font-size: 15px; } .dv-find input { min-height: 44px; font-size: 16px; padding: 8px 10px; border: 1px solid ${INK}; background: transparent; color: ${INK}; border-radius: 0; } .dv-find button { min-height: 44px; font-size: 16px; padding: 0 18px; background: ${ACCENT}; color: #fff; border: none; border-radius: 0; font-family: var(--font-special-elite), monospace; cursor: pointer; } @media ${PHONE} { .dv-jump { display: inline-flex; align-items: center; min-height: 44px; } }`}</style>
+        <form method="get" action={`/divisions/${slug}/mp`} className="dv-find" role="search">
+          <label>
+            Find an MP in this vote
+            <input type="text" name="name" autoComplete="off" placeholder="Name or constituency" required />
+          </label>
+          <button type="submit">Find</button>
+        </form>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', marginTop: '24px' }}>
-          <VoteColumn heading={`Voted AYE (${ayeTotal})`} groups={ayeGroups} accent={SUCCESS} />
-          <VoteColumn heading={`Voted NO (${noTotal})`} groups={noeGroups} accent={DANGER} />
+          <VoteColumn id="ayes" heading={`Voted AYE (${ayeTotal})`} groups={ayeGroups} accent={SUCCESS} />
+          <VoteColumn id="noes" heading={`Voted NO (${noTotal})`} groups={noeGroups} accent={DANGER} />
         </div>
         {totals && (ayeNamed !== ayeTotal || noNamed !== noTotal) && (
           <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.6, marginTop: '16px' }}>
@@ -535,17 +548,19 @@ function MpVoteLink({ vote, children }: { vote: Vote; children: React.ReactNode 
 }
 
 function VoteColumn({
+  id,
   heading,
   groups,
   accent,
 }: {
+  id: string;
   heading: string;
   groups: Array<{ party: string; partyColour: string; rows: Vote[] }>;
   accent: string;
 }) {
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: '#14100d' }}>
+      <h3 id={id} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: '#14100d', scrollMarginTop: '16px' }}>
         {heading}
       </h3>
       {/* Each side's names folded under its heading on phones (step 5, 10 Nov 2026: the lists were about 2,100px). */}
