@@ -7,6 +7,7 @@ import SignupNote from './SignupNote';
 import SaveSearchButton from './SaveSearchButton';
 import SearchTracker from './SearchTracker';
 import PhoneMore from '../components/PhoneMore';
+import { SubFold } from '../components/PhoneFolds';
 import { SEARCH_NOTE_JS } from '@/lib/search-note';
 import { searchContent, searchCouncils, searchConstituencies, searchPeers, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult, type ConstituencySearchResult, type PeerSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
@@ -339,6 +340,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
     .sort((a, b) => Number(b.constituency === exactSeat?.name) - Number(a.constituency === exactSeat?.name));
   const results = allResults.filter((r) => r.type !== 'mp');
   const hasRecords = seats.length + mps.length + peers.length + councils.length + orgs.length + donors.length > 0;
+  // The first group of results shown, which stays open on phones (UX2q); every later one is folded there.
+  const firstGroup = ([['seats', seats.length], ['mps', mps.length], ['peers', peers.length], ['councils', councils.length], ['orgs', orgs.length], ['donors', donors.length], ['content', results.length]] as const).find(([, n]) => n > 0)?.[0] ?? null;
   const isEmpty = !hasRecords && results.length === 0;
   // "Did you mean" (SR1): only for a search that found nothing, one corrected query from our own titles, as a link with
   // the same filters, never run by itself (lib/search-suggest.ts).
@@ -422,6 +425,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       )}
 
       {seats.length > 0 && (
+        <ResultGroup open={firstGroup === 'seats'} label={`Constituencies (${seats.length})`}>
         <section aria-labelledby="search-seats" style={{ marginBottom: '28px' }}>
           <h3 id="search-seats" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Constituencies · {seats.length}
@@ -431,9 +435,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
           </ul>
           <PhoneMore selector="#results-seats" total={seats.length} step={10} />
         </section>
+        </ResultGroup>
       )}
 
       {mps.length > 0 && (
+        <ResultGroup open={firstGroup === 'mps'} label={`MPs (${mps.length})`}>
         <section aria-labelledby="search-mps" style={{ marginBottom: '28px' }}>
           <h3 id="search-mps" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             MPs · {mps.length}
@@ -443,9 +449,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
           </ul>
           <PhoneMore selector="#results-mps" total={mps.length} step={10} />
         </section>
+        </ResultGroup>
       )}
 
       {peers.length > 0 && (
+        <ResultGroup open={firstGroup === 'peers'} label={`Members of the House of Lords (${peers.length})`}>
         <section aria-labelledby="search-peers" style={{ marginBottom: '28px' }}>
           <h3 id="search-peers" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Members of the House of Lords · {peers.length}
@@ -455,9 +463,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
           </ul>
           <PhoneMore selector="#results-peers" total={peers.length} step={10} />
         </section>
+        </ResultGroup>
       )}
 
       {councils.length > 0 && (
+        <ResultGroup open={firstGroup === 'councils'} label={`Councils (${councils.length})`}>
         <section aria-labelledby="search-councils" style={{ marginBottom: '28px' }}>
           <h3 id="search-councils" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Councils · {councils.length}
@@ -467,9 +477,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
           </ul>
           <PhoneMore selector="#results-councils" total={councils.length} step={10} />
         </section>
+        </ResultGroup>
       )}
 
       {orgs.length > 0 && (
+        <ResultGroup open={firstGroup === 'orgs'} label={`Organisations (${orgMatches.length.toLocaleString('en-GB')})`}>
         <section aria-labelledby="search-orgs" style={{ marginBottom: '28px' }}>
           <h3 id="search-orgs" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Organisations · {orgMatches.length.toLocaleString('en-GB')}
@@ -484,9 +496,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
             </p>
           )}
         </section>
+        </ResultGroup>
       )}
 
       {donors.length > 0 && (
+        <ResultGroup open={firstGroup === 'donors'} label={`Donor names (${(donorSearch.more ? donorSearch.totalNames : linkedDonors.length).toLocaleString('en-GB')})`}>
         <section aria-labelledby="search-donors" style={{ marginBottom: '28px' }}>
           <h3 id="search-donors" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Donor names (as registered with the Electoral Commission) · {(donorSearch.more ? donorSearch.totalNames : linkedDonors.length).toLocaleString('en-GB')}
@@ -501,11 +515,13 @@ export default async function SearchPage({ searchParams }: PageProps) {
             </p>
           )}
         </section>
+        </ResultGroup>
       )}
 
       {hasRecords && <p className="srch-rnote-p" style={groupNote}>Records above: the page for the constituency, MP, peer, council, organisation or donor itself.</p>}
 
       {results.length > 0 && (
+        <ResultGroup open={firstGroup === 'content'} label={`Reports, releases, bills and votes (${allResults.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+` : results.length})`}>
         <section>
           <h2 style={groupHeading}>Reports, releases, bills and votes that mention &ldquo;{q}&rdquo;</h2>
           <p style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '12px' }}>
@@ -519,6 +535,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           </NoJsPager>
           <PhoneMore selector="#results-all" total={results.length} first={5} step={25} />
         </section>
+        </ResultGroup>
       )}
 
       {!q && (
@@ -550,4 +567,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {q && <p className="srch-intro-p" style={{ fontSize: '16px', lineHeight: 1.8, color: '#14100d', marginTop: '28px' }}>{SEARCHED}</p>}
     </OpenGovShell>
   );
+}
+
+// Phones (UX2q, owner approved through Cowork, 10 Nov 2026): the first group of results stays open; each later group is a
+// closed native fold labelled with its name and count (SubFold: from 640px up the group shows as before).
+function ResultGroup({ open, label, children }: { open: boolean; label: string; children: React.ReactNode }) {
+  return open ? <>{children}</> : <SubFold label={label}>{children}</SubFold>;
 }
