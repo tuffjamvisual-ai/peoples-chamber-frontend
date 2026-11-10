@@ -8,7 +8,7 @@ import BackLink from '../components/BackLink';
 import { fmtMillions } from '@/lib/department-civil-service';
 import ArticleEndSignup from '../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
-import { ShowAll } from '@/app/components/NoJsPager';
+import { ShowAll, NoJsFold } from '@/app/components/NoJsPager';
 
 export const metadata: Metadata = {
   // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
@@ -117,6 +117,8 @@ export default async function SpendingPage() {
             <h2 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.25em', color: ACCENT, marginBottom: '12px', fontWeight: 600 }}>
               Not in Mains DEL
             </h2>
+            {/* Folded on phones (step 5, 10 Nov 2026: the page was 3,550px). */}
+            <NoJsFold id="spending-nr-f" always label={`The ${notReported.length.toLocaleString('en-GB')} departments`}>
             <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '16px' }}>
               These departments are either bundled into a Mains aggregate
               (&ldquo;Law Officers&apos; Departments&rdquo;, &ldquo;Small and Independent Bodies&rdquo;) or
@@ -139,6 +141,7 @@ export default async function SpendingPage() {
               ))}
             </ul>
             </ShowAll>
+            </NoJsFold>
           </section>
         )}
       </div>
