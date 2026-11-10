@@ -15,6 +15,8 @@
 //       at 320 x 568; at 844 x 390 the h1 and the main action must both start within 390px. Measured from the top of the
 //       page as it opens, JavaScript on. Each page's failures are codes (no-main-action, main-hidden, main-390x844,
 //       main-320x568, h1-844x390, main-844x390, no-h1); today's are in the baseline (a6), so only a new code blocks.
+//       Desktop (owner, 10 Nov 2026): at 1280 x 720 the main action, and the first result where a page marks one with
+//       data-first-result, must start above 720px (codes main-1280x720, first-1280x720).
 //   A4  official record links: each bill page links to bills.parliament.uk for that bill, each division page to
 //       votes.parliament.uk for that division (ids read from the database).
 // A2 and A3 found problems on pages that existed before the check; those are in rendered-baseline.json and are
@@ -45,6 +47,7 @@ const A6_VIEWS = [
   { name: '390x844', width: 390, height: 844, main: 700 },
   { name: '320x568', width: 320, height: 568, main: 520 },
   { name: '844x390', width: 844, height: 390, main: 390, h1: 390 },
+  { name: '1280x720', width: 1280, height: 720, main: 720, first: 720, desktop: true },
 ];
 const EXPECTED_A4_DIVISIONS = true;
 const BASELINE_FILE = path.join(HERE, 'rendered-baseline.json');
@@ -122,11 +125,11 @@ async function officialLink(urlPath) {
 
 // A6: the measured position behind a code, for the report.
 function a6Detail(r, code) {
-  const m = /^(main|h1)-(\d+x\d+)$/.exec(code);
+  const m = /^(main|h1|first)-(\d+x\d+)$/.exec(code);
   if (!m) return '';
   const v = A6_VIEWS.find((x) => x.name === m[2]);
   const at = r.a6Tops?.[m[2]]?.[m[1]];
-  return ` (starts at ${at}px, limit ${m[1] === 'h1' ? v.h1 : v.main}px)`;
+  return ` (starts at ${at ?? 'hidden'}px, limit ${m[1] === 'h1' ? v.h1 : m[1] === 'first' ? v.first : v.main}px)`;
 }
 
 async function main() {
@@ -158,7 +161,7 @@ async function main() {
   }
   // A6: the same pages at three phone sizes, one context each.
   for (const v of A6_VIEWS) {
-    const c = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+    const c = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: !v.desktop, hasTouch: !v.desktop });
     await c.route('**/*', (q) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(q.request().url()) ? q.abort() : q.continue()));
     const pg = await c.newPage();
     for (const r of results) {
@@ -169,7 +172,8 @@ async function main() {
         const t = await pg.evaluate(() => {
           const top = (el) => (el && el.getClientRects().length ? Math.round(el.getBoundingClientRect().top + window.scrollY) : null);
           const main = document.querySelector('[data-main-action]');
-          return { main: main ? top(main) : undefined, h1: top(document.querySelector('h1')) };
+          const first = document.querySelector('[data-first-result]');
+          return { main: main ? top(main) : undefined, h1: top(document.querySelector('h1')), first: first ? top(first) : undefined };
         });
         r.a6 ??= []; r.a6Tops ??= {};
         r.a6Tops[v.name] = t;
@@ -177,6 +181,8 @@ async function main() {
         else if (t.main === null) { if (!r.a6.includes('main-hidden')) r.a6.push('main-hidden'); }
         else if (t.main >= v.main) r.a6.push(`main-${v.name}`);
         if (v.h1 != null) { if (t.h1 == null) r.a6.push('no-h1'); else if (t.h1 >= v.h1) r.a6.push(`h1-${v.name}`); }
+        // The first result is checked only where a page marks one (not every page has results).
+        if (v.first != null && t.first !== undefined && (t.first === null || t.first >= v.first)) r.a6.push(`first-${v.name}`);
       } catch (e) { r.a6 ??= []; r.a6.push(`error-${v.name}`); }
     }
     await c.close();
