@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { track } from '@vercel/analytics';
 import { CONSENT_EVENT, readConsent, writeConsent } from '@/lib/cookie-consent';
-import { phoneUpTo, PHONE } from '@/lib/breakpoints';
+import { phoneUpTo, wideFrom, PHONE } from '@/lib/breakpoints';
 
 const INK = '#14100d';
 const PAPER = '#fbf4e6';
@@ -44,9 +44,33 @@ const BANNER_CSS = `
   .og-cookie-banner .og-cb-actions { gap: 8px !important; margin-top: 0 !important; flex-wrap: nowrap !important; }
   .og-cookie-banner .og-cb-btn { flex: 1 1 0; min-width: 0; min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 0 6px !important; }
   body:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set) body:has(.og-cookie-banner) { padding-bottom: 130px; }
-  html:has(#og-cookies-done:target) .og-cookie-banner { display: none !important; }
-  html:has(#og-cookies-done:target) body { padding-bottom: 0; }
 }
+/* Tablet and desktop (T1-7ab, owner via Cowork, 10 Nov 2026): the same idea as UX2o, a slim bar fixed to the foot of the
+   screen, out of the page flow, so it never pushes the page down or covers the top of it. One line of text ending in
+   "View cookies", then Accept and Reject side by side, the same size, 44px tall. The heading is kept for screen
+   readers. From 1024px the long button labels and the two-part sentence; from 640 to 1023px the shorter ones. The page
+   gets the same space at its foot so nothing ends up behind the bar. */
+@media ${wideFrom(640)} {
+  .og-cookie-banner { position: fixed !important; left: 0; right: 0; bottom: 0; z-index: 50; border-bottom: none !important; border-top: 2px solid ${INK}; padding: 10px 24px !important; box-shadow: 0 -2px 10px rgba(20,16,13,0.18); }
+  .og-cookie-banner .og-cb-inner, .og-cookie-banner .og-cb-confirm { display: flex; align-items: center; gap: 12px 24px; }
+  .og-cookie-banner h2 { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0 !important; }
+  .og-cookie-banner .og-cb-long, .og-cookie-banner .og-cb-link { display: none !important; }
+  .og-cookie-banner .og-cb-short, .og-cookie-banner .og-cb-confirm p { display: block; flex: 1 1 auto; min-width: 0; font-size: 15px !important; line-height: 1.4 !important; margin: 0 !important; }
+  .og-cookie-banner .og-cb-actions { display: grid !important; grid-template-columns: 1fr 1fr; gap: 12px !important; margin: 0 !important; flex: none; }
+  .og-cookie-banner .og-cb-btn { min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 6px 14px !important; flex: none; }
+  body:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set) body:has(.og-cookie-banner) { padding-bottom: 96px; }
+}
+@media ${wideFrom(640)} {
+  .og-cookie-banner .og-cb-wide, .og-cookie-banner .og-cb-short-full { display: none; }
+  .og-cookie-banner .og-cb-narrow, .og-cookie-banner .og-cb-short-phone { display: inline; }
+}
+@media ${wideFrom(1024)} {
+  .og-cookie-banner .og-cb-wide, .og-cookie-banner .og-cb-short-full { display: inline; }
+  .og-cookie-banner .og-cb-narrow, .og-cookie-banner .og-cb-short-phone { display: none; }
+}
+/* With JavaScript off, a choice made in the banner comes back with #og-cookies-done, which hides it, at every width. */
+html:has(#og-cookies-done:target) .og-cookie-banner { display: none !important; }
+html:has(#og-cookies-done:target) body { padding-bottom: 0 !important; }
 @media ${phoneUpTo(479)} {
   .og-cookie-banner { padding: 8px 12px !important; }
   .og-cookie-banner h2 { font-size: 16px !important; line-height: 1.25 !important; margin-bottom: 4px !important; }
@@ -98,9 +122,9 @@ export default function CookieBanner() {
       style={{ background: PAPER, borderBottom: `2px solid ${INK}`, padding: '16px', boxSizing: 'border-box', width: '100%' }}
     >
       <style>{BANNER_CSS}</style>
-      <div style={{ maxWidth: '1144px', margin: '0 auto' }}>
+      <div className="og-cb-inner" style={{ maxWidth: '1144px', margin: '0 auto' }}>
         {state === 'accepted' || state === 'rejected' ? (
-          <div ref={confirmRef} tabIndex={-1} style={{ outline: 'none' }}>
+          <div ref={confirmRef} tabIndex={-1} className="og-cb-confirm" style={{ outline: 'none', flex: '1 1 auto' }}>
             <p style={text}>
               {state === 'accepted' ? 'You’ve accepted additional cookies.' : 'You’ve rejected additional cookies.'}{' '}
               You can <Link href="/cookies" className="focus-ring og-cb-inline" style={link}>change your cookie settings</Link> at any time.

@@ -58,6 +58,9 @@ export default function FloatingScrollDownButton() {
         top = Math.min(top, r.bottom - GAP_FROM_FOLDER_EDGE - BUTTON);
         top = Math.max(top, r.top + GAP_FROM_FOLDER_EDGE);
       }
+      // Above the cookie bar while it shows (fixed to the foot of the screen at every width, T1-7ab), never on it.
+      const bar = [...document.querySelectorAll<HTMLElement>('.og-cookie-banner')].find((el) => el.getClientRects().length && getComputedStyle(el).position === 'fixed');
+      if (bar) top = Math.min(top, bar.getBoundingClientRect().top - GAP_FROM_FOLDER_EDGE - BUTTON);
       setPos({ visible, atBottom, left, top });
     };
     // Measured straight away (not on the next animation frame): animation
