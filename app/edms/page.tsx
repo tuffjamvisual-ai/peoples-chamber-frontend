@@ -85,7 +85,7 @@ export default async function EdmsPage({ searchParams }: { searchParams: Promise
   ];
 
   return (
-    <OpenGovShell pageStamp="Motions">
+    <OpenGovShell>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Early day motions', path: '/edms' }])} />
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>{memberName ? `Early day motions: ${memberName}` : 'Early day motions'}</h1>

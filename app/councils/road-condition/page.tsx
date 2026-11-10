@@ -61,7 +61,7 @@ export default async function RoadConditionPage() {
   }).filter((x): x is Area => !!x);
 
   return (
-    <OpenGovShell pageStamp="Road condition">
+    <OpenGovShell>
       <BackLink fallbackHref="/councils" label="← Back" className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }} />
       {/* Phones (UX2d, owner approved through Cowork, 10 Nov 2026): the road categories first, then the national figures and the

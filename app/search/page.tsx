@@ -351,7 +351,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
     : null;
 
   return (
-    <OpenGovShell pageStamp="Search">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

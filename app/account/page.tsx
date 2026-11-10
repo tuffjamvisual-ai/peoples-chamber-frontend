@@ -62,7 +62,7 @@ export default function AccountPage() {
   }
 
   return (
-    <OpenGovShell pageStamp="Account">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

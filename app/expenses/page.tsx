@@ -144,7 +144,7 @@ export default async function ExpensesPage() {
   const { top, grandTotal } = await topSpenders(YEAR);
 
   return (
-    <OpenGovShell pageStamp="Expenses">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

@@ -55,7 +55,7 @@ async function currentMps(): Promise<Map<string, number>> {
 export default async function PartiesIndexPage() {
   const mpCounts = await currentMps();
   return (
-    <OpenGovShell pageStamp="Parties">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

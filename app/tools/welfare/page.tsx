@@ -14,7 +14,7 @@ const INK = '#14100d'
 
 export default function WelfareExplorerPage() {
   return (
-    <OpenGovShell pageStamp="Welfare Explorer">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

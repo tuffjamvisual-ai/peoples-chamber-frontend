@@ -41,7 +41,7 @@ export default async function ProgrammesIndexPage() {
     .filter((g) => g.items.length > 0);
 
   return (
-    <OpenGovShell pageStamp="Programmes">
+    <OpenGovShell>
       <header style={{ marginBottom: '32px' }}>
         <h1 style={{
           fontSize: 'clamp(28px, 4vw, 48px)',

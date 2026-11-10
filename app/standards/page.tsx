@@ -74,7 +74,7 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
   const sp = await searchParams;
   const members = membersWithCases();
   return (
-    <OpenGovShell pageStamp="Standards">
+    <OpenGovShell>
       <style>{`
         .sc-member { display: none; border: 2px solid ${INK}; padding: 12px 14px; margin: 0 0 24px; }
         .sc-member:target { display: block; }

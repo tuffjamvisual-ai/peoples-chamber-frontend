@@ -81,7 +81,7 @@ export default async function ReportsPage() {
   const items = [...fileItems, ...dbItems].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
   return (
-    <OpenGovShell pageStamp="Reports">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

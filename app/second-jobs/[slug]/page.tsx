@@ -43,7 +43,7 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
   const partyClaims = items.reduce((s, i) => s + i.claimCount, 0);
 
   return (
-    <OpenGovShell pageStamp="Second Jobs">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/second-jobs"
         label="← Back"

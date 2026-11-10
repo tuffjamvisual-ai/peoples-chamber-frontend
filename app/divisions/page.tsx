@@ -73,7 +73,7 @@ export default async function DivisionsIndexPage({
   const href = (p: number) => (p <= 1 ? '/divisions' : `/divisions?page=${p}`);
 
   return (
-    <OpenGovShell pageStamp="Divisions">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

@@ -48,7 +48,7 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
   if (page > totalPages && !(q && totalCount === 0)) notFound();
 
   return (
-    <OpenGovShell pageStamp="Bills">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

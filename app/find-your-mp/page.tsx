@@ -13,7 +13,7 @@ const INK = '#14100d'
 
 export default function FindYourMpPage() {
   return (
-    <OpenGovShell pageStamp="Find Your MP">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

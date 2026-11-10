@@ -124,7 +124,7 @@ export default async function StateDashboard() {
     byService.get(s)!.reduce((t, r) => t + 6 + (r.recent_change ? 1 : 0) + (r.definition_note ? r.definition_note.length / 55 : 0), 2));
 
   return (
-    <OpenGovShell pageStamp="Broken State">
+    <OpenGovShell>
       <a href="/transparency" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}>
         ← Accountability
       </a>

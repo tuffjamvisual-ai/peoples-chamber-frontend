@@ -26,7 +26,7 @@ const NAME_NOTE = `We changed our name to opengovt in 2026 as a courtesy, to avo
 
 export default function AboutPage() {
   return (
-    <OpenGovShell pageStamp="About">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

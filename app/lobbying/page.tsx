@@ -88,7 +88,7 @@ export default async function LobbyingPage() {
   const since = fmtDate(summary?.first_meeting || null);
 
   return (
-    <OpenGovShell pageStamp="Lobbying">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

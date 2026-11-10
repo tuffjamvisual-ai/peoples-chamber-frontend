@@ -32,7 +32,7 @@ export default async function SecondJobsLanding() {
   const asOf = fmtUpdated(summaryUpdated);
 
   return (
-    <OpenGovShell pageStamp="Second Jobs">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

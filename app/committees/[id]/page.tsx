@@ -130,7 +130,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
   const purposeHtml = committee.purpose ? sanitizeHtml(committee.purpose) : null;
 
   return (
-    <OpenGovShell pageStamp="Committee">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/committees"
         label="← Committees"

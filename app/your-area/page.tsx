@@ -72,7 +72,7 @@ async function settle<T>(label: string, p: Promise<T>): Promise<T | null> {
 
 function Shell({ children }: { children: ReactNode }) {
   return (
-    <OpenGovShell pageStamp="Your Area">
+    <OpenGovShell>
       <header style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>Your area</h1>
       </header>

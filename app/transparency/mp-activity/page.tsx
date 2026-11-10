@@ -102,7 +102,7 @@ export default async function MpActivityPage({ searchParams }: { searchParams: P
   const qsExtra = [view !== DEFAULT_VIEW ? `&view=${encodeURIComponent(view)}` : '', party ? `&party=${encodeURIComponent(party)}` : '', q ? `&q=${encodeURIComponent(q)}` : ''].join('')
 
   return (
-    <OpenGovShell pageStamp="MP Activity">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/transparency"
         label="← Back"

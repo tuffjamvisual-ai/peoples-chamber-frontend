@@ -36,7 +36,7 @@ export default async function TreatiesPage({ searchParams }: { searchParams: Pro
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <OpenGovShell pageStamp="Treaties">
+    <OpenGovShell>
       <BackLink fallbackHref="/sections/parliament" label="← Parliament" className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 

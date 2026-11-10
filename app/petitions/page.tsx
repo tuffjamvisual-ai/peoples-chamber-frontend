@@ -74,7 +74,7 @@ export default async function PetitionsPage({ searchParams }: { searchParams: Pr
   ));
 
   return (
-    <OpenGovShell pageStamp="Petitions">
+    <OpenGovShell>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Petitions', path: '/petitions' }])} />
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>{place?.name ? `Petitions most signed in ${place.name}` : 'Petitions'}</h1>

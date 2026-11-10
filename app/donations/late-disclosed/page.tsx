@@ -68,7 +68,7 @@ export default async function LateDisclosedPage() {
   const top50 = sum.top.map((r) => ({ ...r, gap: Number(r.gap), amount: r.amount == null ? null : Number(r.amount) }));
 
   return (
-    <OpenGovShell pageStamp="Donations">
+    <OpenGovShell>
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>

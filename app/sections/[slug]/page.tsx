@@ -82,7 +82,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
   const { item } = s;
   const grouped = groups(item.children!);
   return (
-    <OpenGovShell pageStamp={item.label}>
+    <OpenGovShell>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: item.label, path: `/sections/${slug}` }])} />
       <BackLink
         fallbackHref="/"

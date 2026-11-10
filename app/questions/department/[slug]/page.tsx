@@ -50,7 +50,7 @@ export default async function DepartmentQuestions({ params, searchParams }: { pa
   const moved = related(d.functionsMovedTo);
 
   return (
-    <OpenGovShell pageStamp="Questions">
+    <OpenGovShell>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Written questions', path: '/questions' }, { name: d.name, path: `/questions/department/${d.slug}` }])} />
       <Link href="/questions" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All written questions</Link>
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 12px', overflowWrap: 'anywhere' }}>{d.name}: written questions</h1>

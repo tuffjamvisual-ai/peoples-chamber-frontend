@@ -18,7 +18,7 @@ const p: React.CSSProperties = { fontSize: '16px', lineHeight: 1.75, color: INK,
 
 export default function CookiesPage() {
   return (
-    <OpenGovShell pageStamp="Cookies">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

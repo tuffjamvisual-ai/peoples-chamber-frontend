@@ -44,7 +44,7 @@ function firstSentence(s: string) {
 
 export default function TopicsIndexPage() {
   return (
-    <OpenGovShell pageStamp="Topics">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

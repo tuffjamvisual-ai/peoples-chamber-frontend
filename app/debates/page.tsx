@@ -97,7 +97,7 @@ export default async function DebatesPage({
   };
 
   return (
-    <OpenGovShell pageStamp="Debates">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

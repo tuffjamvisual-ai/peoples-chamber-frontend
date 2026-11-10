@@ -70,7 +70,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   const person = memberParam ? byId.get(memberParam) : null;
 
   return (
-    <OpenGovShell pageStamp="Questions">
+    <OpenGovShell>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Written questions', path: '/questions' }])} />
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>{person ? `Written questions: ${person.name}` : 'Written questions'}</h1>

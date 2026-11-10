@@ -106,7 +106,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
   if (!name || (questions.length === 0 && archive.length === 0 && !answered)) notFound();
   const archiveYears = byYear<MemberContribution>(askedInArchive);
   return (
-    <OpenGovShell pageStamp="PMQs">
+    <OpenGovShell>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'MPs', path: '/mps' }, ...(profile ? [{ name, path: `/mps/${memberId}` }] : []), { name: 'Questions at PMQs', path: `/mps/${memberId}/pmqs` }])} />
       <Link href={profile ? `/mps/${memberId}` : parliamentMemberUrl(memberId)} className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none' }}>← {name}</Link>
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', margin: '0 0 8px', color: INK }}>{answered ? `${name} at PMQs` : `Questions at PMQs by ${name}`}</h1>

@@ -107,7 +107,7 @@ export default async function EarningsPage() {
   const top = rows.slice(0, 50)
 
   return (
-    <OpenGovShell pageStamp="Earnings">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/mps"
         label="← Back"

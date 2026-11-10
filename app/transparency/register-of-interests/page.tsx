@@ -197,7 +197,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
       : '';
 
   return (
-    <OpenGovShell pageStamp="Register of Interests" stampStyle={{ top: '3.4cqw' }}>
+    <OpenGovShell stampStyle={{ top: '3.4cqw' }}>
       <BackLink
         fallbackHref="/transparency"
         label="← Transparency"

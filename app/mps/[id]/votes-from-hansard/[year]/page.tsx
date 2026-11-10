@@ -52,7 +52,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   if (!name || !votes.length) notFound();
   const years = [...new Set(summary.map((v) => Number(v.division_date.slice(0, 4))))].sort((a, b) => a - b);
   return (
-    <OpenGovShell pageStamp="Votes">
+    <OpenGovShell>
       <BackLink fallbackHref={`/mps/${p.memberId}`} label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: '15px', minHeight: '44px' }} />
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.15, margin: '0 0 10px', color: INK }}>{name}: Commons votes in {p.year}</h1>
       <p style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 6px', color: INK }}>{HANSARD_LABEL}</p>

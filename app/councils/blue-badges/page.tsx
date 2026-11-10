@@ -78,7 +78,7 @@ export default async function BlueBadgesPage() {
   const anyLow = list.some((r) => r.cur.low_fields.includes('held'));
 
   return (
-    <OpenGovShell pageStamp="Blue Badges">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/councils"
         label="← Back"

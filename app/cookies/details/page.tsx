@@ -43,7 +43,7 @@ function CookieTable({ caption, rows }: { caption: string; rows: [string, string
 
 export default function CookieDetailsPage() {
   return (
-    <OpenGovShell pageStamp="Cookies">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/cookies"
         label="← Back"

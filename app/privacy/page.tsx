@@ -15,7 +15,7 @@ const p: React.CSSProperties = { fontSize: '16px', lineHeight: 1.75, color: INK,
 
 export default function PrivacyPage() {
   return (
-    <OpenGovShell pageStamp="Privacy">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

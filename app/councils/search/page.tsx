@@ -88,9 +88,12 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
             marginBottom: '28px',
           }}
         >
-          <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
-            Council search
-          </div>
+          {/* The label repeats the title without a search, so it shows only with one (UX3g, owner approved, 10 Nov 2026). */}
+          {q && (
+            <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
+              Council search
+            </div>
+          )}
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             {q ? `Results for "${q}"` : 'Search for a council'}
           </h1>

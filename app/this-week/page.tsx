@@ -131,7 +131,7 @@ export default async function ThisWeekPage() {
   const fmtDay = (ymd: string) => new Date(`${ymd}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
 
   return (
-    <OpenGovShell pageStamp="This Week">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"

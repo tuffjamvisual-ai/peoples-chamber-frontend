@@ -61,7 +61,7 @@ export default async function ConstituenciesPage({ searchParams }: { searchParam
   const nations = ['England', 'Scotland', 'Wales', 'Northern Ireland'];
 
   return (
-    <OpenGovShell pageStamp="Constituencies">
+    <OpenGovShell>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Constituencies', path: '/constituencies' }])} />
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>Constituencies</h1>

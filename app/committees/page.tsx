@@ -93,7 +93,7 @@ export default async function CommitteesIndexPage() {
   }
 
   return (
-    <OpenGovShell pageStamp="Committees">
+    <OpenGovShell>
       <header className="mb-10">
         <p className="text-[15px] uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT, fontFamily: MONO }}>
           UK Parliament

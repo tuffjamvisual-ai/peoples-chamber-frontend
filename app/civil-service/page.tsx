@@ -67,7 +67,7 @@ export default async function CivilServicePage() {
   const maxHc = reported[0]?.row?.headcount || 1;
 
   return (
-    <OpenGovShell pageStamp="Civil Service">
+    <OpenGovShell>
       <BackLink
         fallbackHref="/transparency"
         label="← Back"
