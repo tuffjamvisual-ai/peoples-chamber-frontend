@@ -150,22 +150,25 @@
 }
 
 
-/* ---- The back arrow (owner, 10 Nov 2026, T1-5u; BackLink.tsx): one "←", the same on every inner page, at the top
-   left of the page folder, a 44px tap. It is placed against the folder's content box, so where a page puts BackLink in
-   its markup does not move it. ---- */
-.ng-page .og-back { position: absolute; z-index: 3; top: clamp(10px, 5cqw, 70px); left: clamp(14px, 6.5cqw, 80px); display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: 0; padding: 0; box-sizing: border-box; color: #14100d; text-decoration: none; font-family: var(--font-special-elite), 'Courier New', monospace; font-size: 30px; line-height: 1; letter-spacing: 0; text-transform: none; transform: none; }
-.ng-page .og-back:hover { color: #7a1612; }
+/* ---- The back arrow (owner, 10 Nov 2026, T1-5u; BackLink.tsx): one arrow, the same on every inner page, at the top left
+   of the page folder, a 48px tap. It is placed against the folder's content box, so where a page puts BackLink in its
+   markup does not move it. Bold, in the link red, about 32px tall from 768px up and 28px on phones (owner: "the back
+   arrow is way too small"; with its stroke the drawing fills about 20 of its 24 units, so a 39px box draws it 32px tall). ---- */
+.ng-page .og-back { position: absolute; z-index: 3; top: clamp(6px, 4.1cqw, 70px); left: clamp(12px, 6.2cqw, 78px); display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; margin: 0; padding: 0; box-sizing: border-box; color: #7a1612; text-decoration: none; line-height: 1; transform: none; }
+.ng-page .og-back svg { display: block; width: 39px; height: 39px; flex: none; }
+.ng-page .og-back:hover { color: #14100d; }
 .ng-page .og-back:focus-visible { outline: 2px solid #7a1612; outline-offset: 2px; }
 /* Phones: the arrow sits in the top left corner of the folder, and the content starts below it. */
 @media (max-width: 767px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
-  .ng-page .og-back { top: 2px; left: 4px; }
-  .dossier-content:has(.og-back) { padding-top: 48px !important; }
+  .ng-page .og-back { top: 2px; left: 2px; }
+  .ng-page .og-back svg { width: 34px; height: 34px; }
+  .dossier-content:has(.og-back) { padding-top: 52px !important; }
 }
 /* Phones held sideways: the arrow sits in the margin left of the 720px column, so the content does not move down. */
 @media (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
-  .ng-page .og-back { top: 8px; left: 4px; }
+  .ng-page .og-back { top: 6px; left: 2px; }
   .dossier-content:has(.og-back) { padding-top: 20px !important; }
   /* A page whose column is widened to the full width (a cards table straight inside it, globals.css) has no margin
      for the arrow, so its content starts below the arrow, as on a phone held upright. */
-  .dossier-content:has(.og-back):has(> .og-main-content > table[data-pt-table="cards"]) { padding-top: 48px !important; }
+  .dossier-content:has(.og-back):has(> .og-main-content > table[data-pt-table="cards"]) { padding-top: 56px !important; }
 }
