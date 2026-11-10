@@ -1,4 +1,4 @@
-import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
+import NoJsPager from '@/app/components/NoJsPager';
 import { divisionSeoTitle } from '@/lib/division-title';
 import { titleWithin } from '@/lib/seo-title';
 import { billSummary as officialBillSummary } from '@/lib/bill-summary';
@@ -449,7 +449,19 @@ export default async function DivisionDetailPage({ params }: PageProps) {
 
         {/* Find an MP in this vote (UX2k): a GET form, so it works with JavaScript off; the answer is on its own page,
             app/divisions/[slug]/mp, which names how each matching MP voted. */}
-        <style>{`.dv-find { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin: 16px 0 0; } .dv-find label { display: flex; flex-direction: column; gap: 4px; flex: 1 1 16em; font-family: var(--font-special-elite), monospace; font-size: 15px; } .dv-find input { min-height: 44px; font-size: 16px; padding: 8px 10px; border: 1px solid ${INK}; background: transparent; color: ${INK}; border-radius: 0; } .dv-find button { min-height: 44px; font-size: 16px; padding: 0 18px; background: ${ACCENT}; color: #fff; border: none; border-radius: 0; font-family: var(--font-special-elite), monospace; cursor: pointer; } @media ${PHONE} { .dv-jump { display: inline-flex; align-items: center; min-height: 44px; } }`}</style>
+        <style>{`.dv-find { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin: 16px 0 0; } .dv-find label { display: flex; flex-direction: column; gap: 4px; flex: 1 1 16em; font-family: var(--font-special-elite), monospace; font-size: 15px; } .dv-find input { min-height: 44px; font-size: 16px; padding: 8px 10px; border: 1px solid ${INK}; background: transparent; color: ${INK}; border-radius: 0; } .dv-find button { min-height: 44px; font-size: 16px; padding: 0 18px; background: ${ACCENT}; color: #fff; border: none; border-radius: 0; font-family: var(--font-special-elite), monospace; cursor: pointer; } @media ${PHONE} { .dv-jump { display: inline-flex; align-items: center; min-height: 44px; } }
+          .dv-d { display: none; }
+          @media ${PHONE} {
+            .dv-d { display: block; border-top: 1px dashed rgba(20,16,13,0.3); }
+            .dv-d > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 6px 2px; list-style: none; cursor: pointer; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: ${INK}; }
+            .dv-d > summary::-webkit-details-marker { display: none; }
+            .dv-mark::before { content: '+'; font-size: 20px; color: ${ACCENT}; }
+            .dv-d[open] .dv-mark::before { content: '\\2212'; }
+            .dv-d:not([open]) + .dv-b { display: none; }
+            .dv-col:target > .dv-d + .dv-b, .dv-col:has(:target) > .dv-d + .dv-b { display: block; }
+          }`}</style>
+        {/* With JavaScript on, the Aye or No total also opens that side's fold (UX3f). */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){function o(){var h=location.hash.slice(1);if(h!=='ayes'&&h!=='noes')return;var c=document.getElementById(h);var d=c&&c.querySelector('.dv-d');if(d)d.open=true;}window.addEventListener('hashchange',o);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',o);else o();})();` }} />
         <form method="get" action={`/divisions/${slug}/mp`} className="dv-find" role="search">
           <label>
             Find an MP in this vote
@@ -558,13 +570,20 @@ function VoteColumn({
   groups: Array<{ party: string; partyColour: string; rows: Vote[] }>;
   accent: string;
 }) {
+  const count = groups.reduce((n, g) => n + g.rows.length, 0);
+  // The list names the tellers too, who are not in Parliament's count above, so the label says how many of them there are.
+  const tellerCount = groups.reduce((n, g) => n + g.rows.filter((v) => v.is_teller).length, 0);
   return (
-    <div>
-      <h3 id={id} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: '#14100d', scrollMarginTop: '16px' }}>
+    <div id={id} className="dv-col" style={{ scrollMarginTop: '16px' }}>
+      <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: '#14100d' }}>
         {heading}
       </h3>
-      {/* Each side's names folded under its heading on phones (step 5, 10 Nov 2026: the lists were about 2,100px). */}
-      <NoJsFold id={`dvf-${heading.split(" ")[1]}`.replace(/[^a-zA-Z0-9-]+/g, "-")} always label="The names, by party">
+      {/* Phones (step 5; UX3f, owner approved, 10 Nov 2026): each side's names in a closed native fold whose label gives the
+          count. The Aye and No totals link to #ayes and #noes: arriving there shows that side's names with JavaScript off
+          too (:target, the rule below); with JavaScript on the fold is opened as well, so its marker matches. From 640px
+          up the fold is not there and the names show as before. */}
+      <details className="dv-d"><summary><span>{`${count.toLocaleString('en-GB')} ${count === 1 ? 'name' : 'names'}, by party${tellerCount ? `, with ${tellerCount} ${tellerCount === 1 ? 'teller' : 'tellers'}` : ''}`}</span><span aria-hidden className="dv-mark" /></summary></details>
+      <div className="dv-b">
       {groups.map((g) => (
         <div key={g.party} style={{ marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -591,7 +610,7 @@ function VoteColumn({
           </NoJsPager>
         </div>
       ))}
-      </NoJsFold>
+      </div>
     </div>
   );
 }
