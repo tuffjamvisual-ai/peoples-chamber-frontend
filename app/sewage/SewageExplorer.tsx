@@ -31,7 +31,8 @@ export type ExplorerRow = {
 export type ExplorerTable = { id: string; label: string; nation: string; year: number; rows: ExplorerRow[]; areaWord: string };
 
 // No per-overflow average (owner's rule, 19 Oct 2026: no "per X" figures).
-type SortKey = 'hours' | 'share' | 'spills';
+import type { SortKey } from './table-ids';
+export type { SortKey };
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -52,7 +53,14 @@ const LEAGUE_CSS = `@media ${wideFrom(768).split(', ').map((q) => `${q} and (max
   + ' .sew-card summary { display: block; min-height: 44px; padding: 10px 26px 10px 0; position: relative; cursor: pointer; list-style: none; }'
   + ' .sew-card summary::-webkit-details-marker { display: none; }'
   + ' .card-mark { position: absolute; right: 4px; top: 10px; font-size: 20px; line-height: 1; color: #7a1612; }'
-  + ' .card-mark::before { content: "+"; } .sew-card details[open] .card-mark::before { content: "\\2212"; } }';
+  + ' .card-mark::before { content: "+"; } .sew-card details[open] .card-mark::before { content: "\\2212"; } }'
+  // Phones (UX2e, 10 Nov 2026): two labelled selectors, geography and measure, replace the ten buttons. A GET form, so it
+  // works with JavaScript off (app/sewage/go sends it to that table's own cached page); with JavaScript on a change
+  // applies at once and the Show button is not needed. From 640px up the buttons stay.
+  + ' .sew-pick { display: none; }'
+  + ` @media ${phoneUpTo(639.98)} { .sew-tabs, .sew-sorts { display: none !important; } .sew-pick { display: grid; gap: 10px; margin: 0 0 12px; }`
+  + ' .sew-pick label { display: block; font-size: 15px; } .sew-pick select { display: block; width: 100%; min-height: 44px; margin-top: 4px; font-size: 16px; padding: 6px 8px; border: 1px solid #14100d; background: transparent; color: #14100d; border-radius: 0; }'
+  + ' .sew-pick button { min-height: 44px; font-size: 16px; } html.og-js .sew-pick button { display: none; } }';
 
 const fmtInt = (v: number) => Math.round(v).toLocaleString('en-GB');
 const ordinal = (k: number) => {
@@ -86,9 +94,9 @@ function hoursRank(rows: ExplorerRow[], code: string): { rank: number; of: numbe
 
 type Lookup = { postcode: string; councilCode: string | null; councilName: string | null; constituencyCode: string | null; constituencyName: string | null };
 
-export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) {
-  const [tableId, setTableId] = useState(tables[0]?.id ?? '');
-  const [sort, setSort] = useState<SortKey>('hours');
+export default function SewageExplorer({ tables, initialTable, initialSort = 'hours' }: { tables: ExplorerTable[]; initialTable?: string; initialSort?: SortKey }) {
+  const [tableId, setTableId] = useState(initialTable && tables.some((t) => t.id === initialTable) ? initialTable : (tables[0]?.id ?? ''));
+  const [sort, setSort] = useState<SortKey>(initialSort);
   const [showAll, setShowAll] = useState(false);
   const [postcode, setPostcode] = useState('');
   const [busy, setBusy] = useState(false);
@@ -127,7 +135,8 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
     if (lookup?.councilCode) q.set('council', lookup.councilCode);
     if (lookup?.constituencyCode) q.set('constituency', lookup.constituencyCode);
     const qs = q.toString();
-    const url = `${window.location.pathname}${qs ? `?${qs}` : ''}${lookup ? '#your-area' : ''}`;
+    // Always /sewage: a table's own page (/sewage/t/…, for JavaScript off) is the same page with that table chosen.
+    const url = `/sewage${qs ? `?${qs}` : ''}${lookup ? '#your-area' : ''}`;
     window.history.replaceState(null, '', url);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCopied(null);
@@ -208,7 +217,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
   );
 
   return (
-    <div>
+    <div className="sew-root">
       <section id="your-area" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           Your area
@@ -240,10 +249,25 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
         )}
       </section>
 
-      <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+      <section id="league" className="sew-tables" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           League tables: most sewage spills
         </h2>
+        <form method="get" action="/sewage/go" className="sew-pick" style={{ fontFamily: MONO, color: INK }} onSubmit={(e) => e.preventDefault()}>
+          <label>
+            Geography
+            <select name="table" value={table?.id ?? ''} onChange={(e) => { setTableId(e.target.value); setShowAll(false); }}>
+              {tables.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+            </select>
+          </label>
+          <label>
+            Measure
+            <select name="sort" value={sort} onChange={(e) => { setSort(e.target.value as SortKey); setShowAll(false); }}>
+              {SORTS.map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}
+            </select>
+          </label>
+          <button type="submit" style={btn(true)}>Show</button>
+        </form>
         <div role="tablist" aria-label="Choose a table" className="sew-tabs" style={{ marginBottom: '10px' }}>
           {tables.map((t) => (
             <button key={t.id} type="button" role="tab" aria-selected={t.id === table?.id} onClick={() => { setTableId(t.id); setShowAll(false); }} style={btn(t.id === table?.id)}>
@@ -251,7 +275,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
             </button>
           ))}
         </div>
-        <div aria-label="Sort by" style={{ marginBottom: '10px' }}>
+        <div aria-label="Sort by" className="sew-sorts" style={{ marginBottom: '10px' }}>
           <span style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginRight: '8px' }}>Sort by:</span>
           {SORTS.map((s) => (
             <button key={s.key} type="button" aria-pressed={sort === s.key} onClick={() => { setSort(s.key); setShowAll(false); }} style={btn(sort === s.key)}>
