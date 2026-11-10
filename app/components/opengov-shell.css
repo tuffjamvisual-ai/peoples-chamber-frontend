@@ -49,6 +49,11 @@
   .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: center !important; row-gap: 2px; font-size: clamp(15px, 1.5cqw, 14px) !important; }
   .og-navwrap .ng-nav > li > a { padding: 3px 8px !important; }
   .og-dossier { margin-top: -109% !important; }
+  /* The account tab (owner, 10 Nov 2026): at these widths its 15px label ran past the tab's curved left edge ("LO… IN").
+     Tighter letters, anchored nearer the tab's right edge, so the whole label sits on the tab; each link
+     is a 44px tap, and the tab moves up by the added padding so the text stays where it was. */
+  .ng-tab { right: 9.5% !important; top: calc(3.2% - 8px) !important; letter-spacing: 0 !important; }
+  .ng-tab a { display: inline-block; padding: 8px 0; min-height: 44px; box-sizing: border-box; }
 }
 
 /* ---- Mobile: the desktop chrome is positioned by inline %; override with
