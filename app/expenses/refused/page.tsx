@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
-import { ShowAll } from '@/app/components/NoJsPager';
+import { ShowAll, NoJsFold } from '@/app/components/NoJsPager';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 export const metadata: Metadata = {
@@ -202,7 +202,10 @@ export default async function RefusedExpensesPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Refused, by MP</h2>
+        {/* Both by-MP tables folded on phones (step 5, 10 Nov 2026: the page was 4,451px). */}
+        <NoJsFold id="rr-ref-f" always label={`The ${refusedAgg.length.toLocaleString('en-GB')} MPs`}>
         <MpTable rows={refusedAgg} mpById={mpById} totalLabel="Total refused" />
+        </NoJsFold>
       </section>
 
       <section style={{ marginBottom: '32px' }}>
@@ -210,7 +213,9 @@ export default async function RefusedExpensesPage() {
         <p style={{ fontSize: '15px', marginBottom: '12px', maxWidth: '60ch' }}>
           Repaid &ne; refused: a repayment is money the MP did receive but then returned, either voluntarily or after IPSA review.
         </p>
+        <NoJsFold id="rr-rep-f" always label={`The ${repaidAgg.length.toLocaleString('en-GB')} MPs`}>
         <MpTable rows={repaidAgg} mpById={mpById} totalLabel="Total repaid" />
+        </NoJsFold>
       </section>
 
     </OpenGovShell>
