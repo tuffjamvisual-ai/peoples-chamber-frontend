@@ -30,7 +30,12 @@
   "Currently Serving",
   "up to date",
   "Jump to date",
-  "present a similar problem"
+  "present a similar problem",
+  "This Week in Parliament",
+  "This week in Parliament",
+  "Mail on Sunday",
+  "Sun on Sunday",
+  "Express on Sunday"
  ],
  "time_words_skip_routes": [
   "/debates/[guid]",

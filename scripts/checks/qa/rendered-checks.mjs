@@ -4,7 +4,8 @@
 //   node scripts/checks/qa/rendered-checks.mjs --base http://localhost:3000 [--all] [--write-baseline] [--json <file>]
 // Pages: one example of each page type in scripts/checks/mobile-audit-fast.txt (--all: every type in
 // mobile-audit-pages.csv), the examples taken from mobile-audit-pages.csv as the mobile audit does.
-//   A2  no time relative word in what readers see: "present", "now", "currently", "this Parliament", "to date", "so far"
+//   A2  no time relative word in what readers see: "present", "now", "currently", "this Parliament", "to date", "so far",
+//       "this week", "last week", a weekday with no date ("on Friday"), "ago", "weeks on", "months on"
 //       in the page's visible text. Allowed phrases: time_words_allow in house-style-exceptions.json; page types that show the
 //       official record word for word (Hansard, petitions, motions, written questions) are skipped: time_words_skip_routes.
 //   A3  phone length: at 375px, as the page first opens (folds closed), at most 2,500px tall, not counting article text
@@ -76,7 +77,10 @@ function pages() {
 
 const SOURCES = loadSources(ROOT);
 const exceptions = JSON.parse(fs.readFileSync(path.join(HERE, 'house-style-exceptions.json'), 'utf8'));
-const TIME_WORDS = [/\bpresent\b/i, /\bnow\b/i, /\bcurrently\b/i, /\bthis Parliament\b/i, /\bto date\b/i, /\bso far\b/i];
+// QA8 (owner, 10 Nov 2026): also "this week", "last week", a weekday with no date after it ("on Friday"; "on Friday
+// 17 July 2026" is fine), "ago", and "weeks on" or "months on".
+const TIME_WORDS = [/\bpresent\b/i, /\bnow\b/i, /\bcurrently\b/i, /\bthis Parliament\b/i, /\bto date\b/i, /\bso far\b/i,
+  /\bthis week\b/i, /\blast week\b/i, /\bon (?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b(?![ ,]+\d)/i, /\bago\b/, /\b(?:weeks|months) on\b/i]; // "ago" in lower case only: "AGO" is the Attorney General's Office
 
 // The text a reader sees: the body without scripts, styles, templates, hidden inputs and tags.
 export function visibleText(html) {
