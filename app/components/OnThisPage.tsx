@@ -1,0 +1,21 @@
+import { phoneUpTo } from '@/lib/breakpoints';
+
+// "On this page" for long articles on phones (owner, 9 Nov 2026; step 5, 10 Nov 2026): the article text stays whole, the
+// parts around it fold, and this list at the top links to each part. Under 640px only; plain links, so it works with
+// JavaScript off. A link to a folded part's <details> id lands on its summary.
+const INK = '#14100d';
+const HAIRLINE = 'rgba(20,16,13,0.25)';
+
+export default function OnThisPage({ items }: { items: { href: string; label: string }[] }) {
+  return (
+    <>
+      <style>{`.art-otp { display: none; } @media ${phoneUpTo(639.98)} { .art-otp { display: block; margin: 0 0 24px; padding: 8px 0; border-top: 1px solid ${HAIRLINE}; border-bottom: 1px solid ${HAIRLINE}; } .art-otp ul { list-style: none; margin: 0; padding: 0; } .art-otp a { display: flex; align-items: center; min-height: 44px; font-size: 15px; color: ${INK}; text-decoration: underline; text-underline-offset: 3px; } }`}</style>
+      <nav className="art-otp" aria-label="On this page">
+        <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 2px', color: INK }}>On this page</p>
+        <ul>
+          {items.map((i) => <li key={i.href}><a href={i.href}>{i.label}</a></li>)}
+        </ul>
+      </nav>
+    </>
+  );
+}

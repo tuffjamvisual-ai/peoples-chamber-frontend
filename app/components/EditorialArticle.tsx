@@ -23,6 +23,8 @@ import { readingLabel } from '@/lib/reading-time';
 import { standfirstRepeatsOpening } from '@/lib/editorials/standfirst';
 import { phonePlan, type Chain } from '@/lib/editorials/phone-folds';
 import OpenHashTarget from './OpenHashTarget';
+import { NoJsFold } from './NoJsPager';
+import OnThisPage from './OnThisPage';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -104,8 +106,16 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
         </header>
 
+        {/* Long articles on phones (owner, 9 Nov 2026; step 5, 10 Nov 2026): the article text stays whole and what is around it
+            folds, with this list of the page's parts at the top. Under 640px only. */}
+        <OnThisPage items={[
+          { href: '#article-text', label: `The ${basePath === '/editorials' ? 'report' : 'briefing'}` },
+          ...(sources.length > 0 ? [{ href: '#article-sources', label: `Sources (${sources.length})` }] : []),
+          { href: '#art-more', label: 'Explore the data and more reports' },
+        ]} />
+
         {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
-        <article data-own-folds="" data-article-body="" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
+        <article id="article-text" data-own-folds="" data-article-body="" style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
           <ReportBody body={piece.body} />
           {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
           {piece.updateNote && piece.updateNote.length > 0 && (
@@ -121,7 +131,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           {/* One "Sources (N)" link to the article's sources page, never the full list (owner's standing instruction,
               2 Nov 2026, as eda0b417 did on 23 Oct). The "How this piece was checked" panel is on that page only. */}
           {sources.length > 0 && (
-            <p style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
+            <p id="article-sources" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
               <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
             </p>
           )}
@@ -136,6 +146,8 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
       </div>
 
 
+      {/* What follows the article, folded on phones (step 5, 10 Nov 2026). */}
+      <NoJsFold id="art-more" always label="Explore the data and more reports">
       {/* Reports with the compact Related line (owner's brief, 3 Nov 2026) do not repeat its MPs in a second "Related"
           section: one related block per page. Briefings keep this section. */}
       {!related && (
@@ -149,6 +161,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
       )}
 
       <ExploreNext piece={piece} />
+      </NoJsFold>
 
     </OpenGovShell>
   );
