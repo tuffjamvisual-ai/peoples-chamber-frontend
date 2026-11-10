@@ -31,7 +31,9 @@ export function balanceColumns<T>(items: T[], weight: (item: T) => number): [T[]
 }
 
 // CSS for the two column grid: two columns side by side, one on phones.
-export const TWO_COLUMN_CSS = `.og-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}@media ${phoneUpTo(760)} {.og-two{grid-template-columns:1fr}}`;
+// .og-desc: a link's description, left out under 640px so an index of links is titles only on phones (step 5, 10 Nov 2026:
+// page length; /transparency was 4,401px).
+export const TWO_COLUMN_CSS = `.og-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}@media ${phoneUpTo(760)} {.og-two{grid-template-columns:1fr}}@media ${phoneUpTo(639.98)} {.og-two .og-desc{display:none}}`;
 
 // For short lists of similar sized items (link lists): a plain two column grid,
 // rows side by side, no boxes. One column on phones.

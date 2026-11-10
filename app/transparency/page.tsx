@@ -102,7 +102,7 @@ export default function TransparencyHubPage() {
                 <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
                   {s.title} <span >→</span>
                 </h2>
-                <p style={{ fontSize: '15px', lineHeight: 1.6 }}>{s.description}</p>
+                <p className="og-desc" style={{ fontSize: '15px', lineHeight: 1.6 }}>{s.description}</p>
               </Link>
             ))}
           </div>
