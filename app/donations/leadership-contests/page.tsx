@@ -132,7 +132,7 @@ export default async function LeadershipContestsPage() {
             <h2 style={sectionH2}>
               {c.contest} <span style={{ fontSize: '15px', marginLeft: '8px' }}>{c.count} donations · &pound;{Math.round(c.total).toLocaleString()}</span>
             </h2>
-            <NoJsFold id={`lcf-${contestIndex}`} open={contestIndex === 0} label={`${candidates.length.toLocaleString('en-GB')} candidates`}>
+            <NoJsFold id={`lcf-${contestIndex}`} always label={`${candidates.length.toLocaleString('en-GB')} candidates`}>
             <NoJsPager id={`lc-${c.contest}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(candidates).length} rows="> tbody > tr" cards={[null, 'Year', 'Donations', 'Total raised', 'Largest donor']} title={1} size={15}>
             <table style={tableStyle}>
               <thead>
@@ -169,6 +169,8 @@ export default async function LeadershipContestsPage() {
 
       <section>
         <h2 style={sectionH2}>Largest single leadership / mayoral donations</h2>
+        {/* Folded on phones like each contest above (step 5, 10 Nov 2026). */}
+        <NoJsFold id="lcf-top" always label={`The ${top30.length.toLocaleString('en-GB')} largest`}>
         <NoJsPager id="leader-0" count={(top30).length} rows="> tbody > tr" size={15} cards={[null, 'To', 'For', 'Accepted', 'Amount']} title={1}>
         <table style={tableStyle}>
           <thead>
@@ -197,6 +199,7 @@ export default async function LeadershipContestsPage() {
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
       </section>
 
 </OpenGovShell>
