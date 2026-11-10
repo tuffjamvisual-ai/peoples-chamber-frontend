@@ -3046,13 +3046,15 @@ export default function MagazineProfileSections({
         </div>
       </aside>
 
-      {/* Under 640px (owner, 4 Nov 2026): reports directly below Follow this MP, above the folded sections. Nothing at all for an
-          MP with none. From 640px they stay in their section. */}
-      {phoneHeadline && reports && reports.items.length > 0 && (
-        <div data-main-action className="mp-reports-phone"><ReportsMentioning reports={reports} headingId="mp-reports-heading-phone" compact /></div>
-      )}
-
+      {/* The main action (UX3a, A6; UX3i, 10 Nov 2026): this column, shown at every width: the sections (the voting record
+          first). On phones it opens with the reports that mention the MP (below). */}
       <div data-main-action className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
+        {/* Under 640px (owner, 4 Nov 2026): reports directly below Follow this MP, above the folded sections. Nothing at all for
+            an MP with none. From 640px they stay in their section. Inside this column (UX3i) so the marked main action is
+            the same element at every width. */}
+        {phoneHeadline && reports && reports.items.length > 0 && (
+          <div className="mp-reports-phone"><ReportsMentioning reports={reports} headingId="mp-reports-heading-phone" compact /></div>
+        )}
         {/* Under 640px (owner, 4 Nov 2026): every section folds away under "On this page", as the GOV.UK accordion does, in
             PHONE_FOLDS order; wider screens keep the tabs. Both are in the HTML and the stylesheets pick one by screen
             width, so nothing changes once the page script runs: each section is rendered once, and from 640px every

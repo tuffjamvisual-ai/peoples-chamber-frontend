@@ -9,7 +9,6 @@ import {
   RECOMMENDATIONS_PUBLIC, allStatus, wording, bodiesFor, departmentWords, departmentSlugs, sessionWords, recPath, documentWords, latestMinutesUsed,
   STATUS_ORDER, STATUS_LABELS, datePart, targetPassed, BODY_NOTES,
 } from '@/lib/pac';
-import { phoneUpTo } from '@/lib/breakpoints';
 
 // /recommendations (owner's approval, 29 Oct 2026, "go stage 4"): the Committee of Public Accounts recommendations
 // tracker. Only exists when RECOMMENDATIONS_PUBLIC=1; then it and every recommendation page are in the sitemap, and
@@ -82,30 +81,34 @@ export default async function RecommendationsPage({ params }: { params: Promise<
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
-      <header style={{ marginBottom: '4%' }}>
-        <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', color: INK }}>
+      <header style={{ marginBottom: '16px' }}>
+        <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', color: INK }}>
           Public Accounts Committee recommendations
         </h1>
+        <p style={{ ...p, margin: 0 }}>{total.toLocaleString('en-GB')} recommendations, followed through the government&rsquo;s Treasury Minutes.</p>
       </header>
-      {/* Under 640px (owner, 4 Nov 2026): the status summary first, then the searchable list, then the rest. */}
-      <style>{`@media ${phoneUpTo(639.98)} {
+      {/* At every width (UX3i, owner approved through Cowork, 10 Nov 2026; was phones only, status first, 4 Nov 2026): the
+          search and the list first, then "About these recommendations" (a closed native fold), the status summary and the
+          most moved targets. CSS order, the same with JavaScript off. */}
+      <style>{`
         .rec-page { display: flex; flex-direction: column; }
-        .rec-status { order: 1; }
-        .rec-all { order: 2; }
-        .rec-intro { order: 3; margin-top: 24px; }
+        .rec-all { order: 1; }
+        .rec-intro { order: 2; margin-top: 24px; }
+        .rec-status { order: 3; }
         .rec-moved { order: 4; }
-        .rec-status h2 { margin-top: 0 !important; }
-      }`}</style>
+        .rec-all > h2:first-child { margin-top: 0 !important; }
+        .rec-intro > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 16px; font-weight: bold; color: ${INK}; }
+      `}</style>
       <section className="rec-page" style={{ color: INK }}>
-        <div className="rec-intro">
+        <details className="rec-intro">
+        <summary>About these recommendations</summary>
         <p style={p}>
           The Committee of Public Accounts examines how government spends public money and makes recommendations to departments. The government answers each recommendation in a Treasury Minute, saying whether it agrees and by when it will act, and reports on the ones still open in Treasury Minutes Progress Reports.
         </p>
         <p style={p}>
           This tracker follows {total.toLocaleString('en-GB')} recommendations through those documents{latestMinutes ? `, up to the ${documentWords(latestMinutes)}` : ''}. The documents are published by HM Treasury on GOV.UK under the Open Government Licence v3.0.
         </p>
-
-        </div>
+        </details>
 
         <div className="rec-status">
         <h2 style={h2}>Where the recommendations stand</h2>

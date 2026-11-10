@@ -38,10 +38,9 @@ function matches(r: ListReport | undefined, filter: string) {
 
 // Phone cards (owner, 4 Nov 2026, under 640px): a search box, and each recommendation as a card that opens to its history,
 // read from /api/recommendations/... when opened.
-const CARD_CSS = `.rec-card, .rec-search { display: none; }
+const CARD_CSS = `.rec-card { display: none; } .rec-search { display: block; }
 @media ${phoneUpTo(639.98)} {
   .rec-wide { display: none; }
-  .rec-search { display: block; }
   .rec-card { display: block; }
   .rec-card > summary { display: block; min-height: 44px; padding: 0 26px 0 0; position: relative; cursor: pointer; list-style: none; }
   .rec-card > summary::-webkit-details-marker { display: none; }
@@ -103,7 +102,7 @@ export default function RecommendationList({ reports, rows, departmentOptions, s
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
   const [limit, setLimit] = useState(PAGE);
-  const [search, setSearch] = useState(''); // the search box shows under 640px only
+  const [search, setSearch] = useState(''); // the search box, at every width since UX3i (10 Nov 2026); the page's main action
   // ?department=<page slug>&status=<open|delivered|rejected|target_passed> from a department page's tab.
   useEffect(() => {
     try {
@@ -129,7 +128,7 @@ export default function RecommendationList({ reports, rows, departmentOptions, s
   return (
     <section>
       <style>{CARD_CSS}</style>
-      <label className="rec-search" style={{ fontSize: '15px', color: INK, margin: '0 0 12px' }}>
+      <label className="rec-search" data-main-action style={{ fontSize: '15px', color: INK, margin: '0 0 12px' }}>
         Search recommendations
         <input type="search" value={search} onChange={(e) => { setSearch(e.target.value); setLimit(PAGE); }}
           style={{ display: 'block', width: '100%', boxSizing: 'border-box', minHeight: '44px', marginTop: '4px', fontSize: '16px', color: INK, background: 'transparent', border: '1px solid rgba(20,16,13,0.4)', padding: '6px 8px' }} />
