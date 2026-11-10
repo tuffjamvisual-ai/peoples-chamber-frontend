@@ -38,7 +38,6 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
   const onThisPage = (
     <OnThisPage items={[
       { href: '#article-text', label: `The ${basePath === '/editorials' ? 'report' : 'briefing'}` },
-      ...(sources.length > 0 ? [{ href: '#article-sources', label: `Sources (${sources.length})` }] : []),
       { href: '#art-more', label: 'Explore the data and more reports' },
     ]} />
   );
@@ -72,8 +71,8 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
       )}
 
       <div {...(basePath === '/editorials' ? { 'data-report-page': '' } : {})} style={{ fontFamily: 'var(--font-special-elite), monospace', width: '100%' }}>
-        {/* Phones (UX2n, owner approved through Cowork, 10 Nov 2026): "View sources" straight under the headline, above the
-            standfirst, which is unchanged. CSS order, the same with JavaScript off; from 640px up, as before. */}
+        {/* Phones (UX2n, owner approved through Cowork, 10 Nov 2026): the share control straight under the headline, above
+            the standfirst, which is unchanged. CSS order, the same with JavaScript off; from 640px up, as before. */}
         <style>{`@media ${PHONE} { .art-head { display: flex; flex-direction: column; } .art-head > .art-sf { order: 2; } .art-head > .art-after { order: 3; } .art-head > .art-actions { order: 1; margin-top: 0; } .art-head { padding-bottom: 12px !important; margin-bottom: 14px !important; } }`}</style>
         <header className="art-head" style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
           <ContentBadge kind={piece.kind} opinion={piece.opinion} />
@@ -89,15 +88,12 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           {showStandfirst && (
             <p data-main-action className="art-sf" style={{ fontSize: '18px', lineHeight: 1.5, margin: '12px 0 0', color: INK }}>{piece.standfirst}</p>
           )}
-          {/* The share control and, beside it, a link to the sources page (owner, 8 Nov 2026, SRC1), so a reader near the top
-              can reach the sources without scrolling to the "Sources (N)" line further down, which stays. The link shows at
-              every width and with JavaScript off; the share button keeps its own rule (phones, JavaScript on). */}
+          {/* The share control (phones, JavaScript on). One Sources list per report, at the end of the article (owner,
+              10 Nov 2026, T1-5r): the "View sources (N)" link that sat here (SRC1) and the "Sources (N)" entry in "On this
+              page" are gone. */}
           {basePath === '/editorials' && (
             <div className="art-actions">
               <ShareButton title={piece.headline} />
-              {sources.length > 0 && (
-                <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="art-sources">View sources ({sources.length})</Link>
-              )}
             </div>
           )}
           <div className="art-after" style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
