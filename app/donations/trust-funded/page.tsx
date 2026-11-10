@@ -137,7 +137,7 @@ export default async function TrustFundedPage() {
 
       <section>
         <h2 style={sectionH2}>Most recent trust donations</h2>
-        <NoJsFold id="trustf-recent" label="Show the most recent donations">
+        <NoJsFold id="trustf-recent" always label="Show the most recent donations">
         <NoJsPager id="trustf-1" count={(recent).length} rows="> tbody > tr" size={25} cards={[null, 'Recipient', 'Accepted', 'Amount']} title={1}>
         <table style={tableStyle}>
           <thead>
