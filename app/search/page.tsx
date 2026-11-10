@@ -13,7 +13,7 @@ import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
 import { suggestQuery } from '@/lib/search-suggest';
 import { searchVocabulary } from '@/lib/search-vocabulary';
 import { cachedOrganisationList, searchOrganisations, type OrgListRow } from '@/lib/organisations';
-import { phoneUpTo } from '@/lib/breakpoints';
+import { phoneUpTo, PHONE } from '@/lib/breakpoints';
 
 export const dynamic = 'force-dynamic';
 
@@ -301,6 +301,8 @@ type PageProps = {
   }>;
 };
 
+const SEARCHED = 'Reports, press releases, bills, parliamentary votes, constituencies, MPs, peers, councils, donors and organisations, searched together.';
+
 export default async function SearchPage({ searchParams }: PageProps) {
   const sp   = await searchParams;
   const q    = (sp.q    ?? '').trim();
@@ -360,7 +362,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
         }}
       />
 
-      <header style={{ marginBottom: '5%' }}>
+      {/* Phones with a search (UX2h): the line on what is searched moves to the end of the page and the gaps under the title
+          and the search box are smaller, so the first match is on the first screen. Without a search, and from 640px up, as before. */}
+      {q && <style>{`.srch-intro-p { display: none; } @media ${PHONE} { .srch-intro-w { display: none; } .srch-intro-p { display: block; } .srch-head { margin-bottom: 12px !important; } .srch-box { margin-bottom: 12px !important; } }`}</style>}
+      <header className="srch-head" style={{ marginBottom: '5%' }}>
         <h1 style={{
           fontSize: 'clamp(28px, 4vw, 46px)',
           fontWeight: 'bold',
@@ -371,8 +376,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
         }}>
           Search
         </h1>
-        <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
-          Reports, press releases, bills, parliamentary votes, constituencies, MPs, peers, councils, donors and organisations, searched together.
+        <p className="srch-intro-w" style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
+          {SEARCHED}
         </p>
       </header>
 
@@ -409,7 +414,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {hasRecords && (
         <>
           <h2 style={groupHeading}>Records matching &ldquo;{q}&rdquo;</h2>
-          <p style={groupNote}>The page for the constituency, MP, peer, council, organisation or donor itself.</p>
+          {/* Phones (UX2h): this note follows the record results instead (srch-rnote below), so the first match sits under
+              the search box. From 640px up, here as before. */}
+          <style>{`.srch-rnote-p { display: none; } @media ${PHONE} { .srch-rnote-w { display: none; } .srch-rnote-p { display: block; } }`}</style>
+          <p className="srch-rnote-w" style={groupNote}>The page for the constituency, MP, peer, council, organisation or donor itself.</p>
         </>
       )}
 
@@ -495,6 +503,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
         </section>
       )}
 
+      {hasRecords && <p className="srch-rnote-p" style={groupNote}>Records above: the page for the constituency, MP, peer, council, organisation or donor itself.</p>}
+
       {results.length > 0 && (
         <section>
           <h2 style={groupHeading}>Reports, releases, bills and votes that mention &ldquo;{q}&rdquo;</h2>
@@ -537,6 +547,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           </div>
         </div>
       )}
+      {q && <p className="srch-intro-p" style={{ fontSize: '16px', lineHeight: 1.8, color: '#14100d', marginTop: '28px' }}>{SEARCHED}</p>}
     </OpenGovShell>
   );
 }

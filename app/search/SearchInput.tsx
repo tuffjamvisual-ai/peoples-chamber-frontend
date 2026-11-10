@@ -116,7 +116,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
   );
 
   return (
-    <div style={{ marginBottom: '32px' }}>
+    <div className="srch-box" style={{ marginBottom: '32px' }}>
       {/* A visible Search button (23 Oct 2026), styled as the council search's. A real GET form to /search (SR1, 8 Nov 2026),
           so it works with JavaScript off and every search can be linked: q, and the type and department below. */}
       <form id={FORM_ID} action="/search" method="get" role="search" onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '14px' }}>
@@ -183,6 +183,14 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
       {/* Type and department (SR1, 8 Nov 2026; the audit found no type filter beside the department one): one row, in the
           form above (form attribute), so they reach the address with JavaScript off when Search is pressed; with JavaScript
           on a change applies at once. Shown once, at every width, so each is submitted once. */}
+      {/* Phones (UX2h, owner approved through Cowork, 10 Nov 2026): type, department and sort in one closed native fold,
+          "Filters", so the first results sit straight under the search box. The fold holds only its summary and the controls
+          sit beside it (the SubFold pattern), so from 640px up they show as before and the fold is not there. */}
+      <style>{`.srch-filters { display: none; } @media ${phoneUpTo(639.98)} { .srch-filters { display: block; margin: 0 0 12px; } .srch-filters > summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 12px; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-filters > summary::-webkit-details-marker { display: none; } .srch-filters[open] .srch-mark { transform: rotate(180deg); } .srch-filters:not([open]) + .srch-fbody { display: none; } .srch-fbody .srch-fold { display: none !important; } .srch-fbody .srch-wide { display: block !important; } }`}</style>
+      <details className="srch-filters">
+        <summary>Filters{type !== 'all' || dept || defaultSort === 'newest' ? `: ${[type !== 'all' ? TYPES.find((c) => c.value === type)?.label : null, dept ? departments.find((d) => d.slug === dept)?.shortName : null, defaultSort === 'newest' ? 'Newest' : null].filter(Boolean).join(' · ')}` : ''}<span className="srch-mark" aria-hidden>▾</span></summary>
+      </details>
+      <div className="srch-fbody">
       <style>{`.srch-selects { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 0 0 12px; } .srch-selects label { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: ${INK}; } .srch-selects select { font-family: ${MONO}; font-size: 15px; letter-spacing: 0.06em; color: ${INK}; background: ${CREAM}; border: 1px solid ${HAIRLINE}; padding: 4px 11px; cursor: pointer; } @media ${phoneUpTo(639.98)} { .srch-selects label { width: 100%; } .srch-selects select { flex: 1 1 auto; min-width: 0; min-height: 44px; font-size: 16px; } }`}</style>
       <div className="srch-selects">
         <label>
@@ -221,6 +229,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
         {filters}
       </details>
       <div className="srch-wide">{filters}</div>
+      </div>
     </div>
   );
 }
