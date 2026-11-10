@@ -5,6 +5,7 @@ import { readAll } from '@/lib/read-all';
 import OpenGovShell from '../components/OpenGovShell';
 import { displayMpName } from '@/lib/mp-name';
 import { ShowAll } from '@/app/components/NoJsPager';
+import BackLink from '@/app/components/BackLink';
 
 export const revalidate = 86400;
 
@@ -94,6 +95,7 @@ export default async function CommitteesIndexPage() {
 
   return (
     <OpenGovShell>
+      <BackLink fallbackHref="/" />
       <header className="mb-10">
         <p className="text-[15px] uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT, fontFamily: MONO }}>
           UK Parliament

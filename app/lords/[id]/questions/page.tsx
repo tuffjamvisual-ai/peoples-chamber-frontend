@@ -11,6 +11,7 @@ import { peerHasPage } from '@/lib/peers';
 import { questionsPage, questionDepartments } from '@/lib/mp-written-questions';
 import QuestionsList from '../../../mps/[id]/questions/QuestionsList';
 
+import BackLink from '@/app/components/BackLink';
 // Every written question a peer has asked in the House of Lords (owner, 3 Nov 2026), newest first: the MP questions
 // list with the House set to Lords. Page 1 and the departments are cached for a day; other pages and the filter come
 // from /api/lords/[id]/questions. Not in the sitemap.
@@ -47,9 +48,7 @@ export default async function PeerQuestionsPage({ params }: { params: Promise<{ 
   return (
     <OpenGovShell pageStamp="Questions">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'House of Lords', path: '/lords' }, { name: p.name_display, path: `/lords/${memberId}` }, { name: 'Written questions', path: `/lords/${memberId}/questions` }])} />
-      <Link href={`/lords/${memberId}`} className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-        ← {p.name_display}
-      </Link>
+      <BackLink fallbackHref={`/lords/${memberId}`} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 6px' }}>Written questions by {p.name_display}</h1>
       <p style={{ fontSize: '15px', color: INK, margin: '0 0 18px', maxWidth: '720px', lineHeight: 1.6 }}>
         Questions {p.name_display} has tabled in the House of Lords for a written answer from the government, from

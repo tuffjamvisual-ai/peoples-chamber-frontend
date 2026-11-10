@@ -10,6 +10,7 @@ import { displayMpName } from '@/lib/mp-name';
 import { questionsPage, questionDepartments } from '@/lib/mp-written-questions';
 import QuestionsList from './QuestionsList';
 
+import BackLink from '@/app/components/BackLink';
 // Every Commons written question an MP has asked (owner, 3 Nov 2026), newest first, from parliament_written_questions
 // (lib/mp-written-questions.ts). Page 1 and the department list are rendered on first request and cached for a day; no
 // searchParams, so the page stays cached like /mps/[id]/reports. Other pages and the department filter come from
@@ -53,9 +54,7 @@ export default async function MpQuestionsPage({ params }: { params: Promise<{ id
   return (
     <OpenGovShell pageStamp="Questions">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'MPs', path: '/mps' }, { name, path: `/mps/${memberId}` }, { name: 'Written questions', path: `/mps/${memberId}/questions` }])} />
-      <Link href={`/mps/${memberId}`} className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-        ← {name}
-      </Link>
+      <BackLink fallbackHref={`/mps/${memberId}`} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 6px' }}>Written questions by {name}</h1>
       <p style={{ fontSize: '15px', color: INK, margin: '0 0 18px', maxWidth: '720px', lineHeight: 1.6 }}>
         Questions {name} has tabled in the House of Commons for a written answer from a government department, from

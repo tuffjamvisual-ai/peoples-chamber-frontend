@@ -17,6 +17,7 @@ import { peerHasPage, parliamentProfileUrl, parliamentRegisterUrl, type Post } f
 import { questionsSummary } from '@/lib/mp-written-questions';
 import { lookupMember } from '@/lib/former-mps';
 
+import BackLink from '@/app/components/BackLink';
 // A member of the House of Lords (owner's yes, 3 Nov 2026): name, party, type of peerage, sitting since, posts held,
 // a voting record summary with recent votes, the register of interests (owner, 4 Nov 2026), written questions and links
 // to the official Parliament profile. No biography. Pages exist for current peers and anyone who has sat since 4 July 2024 (lib/peers.ts peerHasPage); earlier
@@ -228,9 +229,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
   return (
     <OpenGovShell pageStamp="House of Lords">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'House of Lords', path: '/lords' }, { name: p.name_display, path: `/lords/${memberId}` }])} />
-      <Link href="/lords" className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-        ← House of Lords
-      </Link>
+      <BackLink fallbackHref="/lords" />
 
       <header style={{ display: 'flex', gap: '18px', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: '8px', color: INK }}>
         {p.thumbnail_url && (

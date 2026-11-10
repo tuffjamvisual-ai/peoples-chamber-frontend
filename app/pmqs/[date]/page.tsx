@@ -9,6 +9,7 @@ import MoreChain, { openingCount, textHeightAt375 } from '../../components/MoreC
 import OpenHashTarget from '../../components/OpenHashTarget';
 import ArchiveSessionView from './ArchiveSessionView';
 
+import BackLink from '@/app/components/BackLink';
 // One session of Prime Minister's Questions (owner, 5 Nov 2026): rendered on first request and refreshed every six hours,
 // because Hansard can correct a session for about two weeks.
 export const revalidate = 21600;
@@ -59,7 +60,7 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
   return (
     <OpenGovShell pageStamp="PMQs">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: "Prime Minister's Questions", path: '/pmqs' }, { name: longDate(date), path: `/pmqs/${date}` }])} />
-      <Link href="/pmqs" className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none' }}>← All sessions</Link>
+      <BackLink fallbackHref="/pmqs" />
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 12px', color: INK }}>
         Prime Minister&rsquo;s Questions, {longDate(date)}
       </h1>

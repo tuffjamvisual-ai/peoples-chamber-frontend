@@ -29,6 +29,7 @@ import { getLeagueData, bandLabel, ordinal } from '@/lib/council-league';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 import { displayMpName } from '@/lib/mp-name';
+import BackLink from '@/app/components/BackLink';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,6 +74,7 @@ async function settle<T>(label: string, p: Promise<T>): Promise<T | null> {
 function Shell({ children }: { children: ReactNode }) {
   return (
     <OpenGovShell>
+      <BackLink fallbackHref="/" />
       <header style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>Your area</h1>
       </header>

@@ -12,6 +12,7 @@ import { departmentById } from '@/lib/question-departments';
 import { getQuestion, questionPeople } from '@/lib/question-pages';
 import { petitionDate } from '@/lib/petition-pages';
 
+import BackLink from '@/app/components/BackLink';
 // One written question (owner, backlog item 15c, 6 Nov 2026): the question and answer as published, who asked and who answered, dates and
 // days taken, attachments, and for a corrected answer its date with the original in a fold. Addressed by Parliament's id, because 45,904
 // question numbers repeat; /questions/<number> goes to the list of questions with that number. Kept for a day, refreshed by the sync.
@@ -65,7 +66,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
   return (
     <OpenGovShell pageStamp="Question">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Written questions', path: '/questions' }, { name: heading, path: `/questions/${q.id}` }])} />
-      <Link href="/questions" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All written questions</Link>
+      <BackLink fallbackHref="/questions" />
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 14px', overflowWrap: 'anywhere' }}>{heading}</h1>
       {/* The main action (UX3a, A6): the record's facts. */}
       <dl data-main-action style={{ margin: '0 0 18px', fontSize: '16px', color: INK }}>

@@ -23,6 +23,7 @@ import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
 import { SubFold } from '../../../components/PhoneFolds';
 
+import BackLink from '@/app/components/BackLink';
 export const revalidate = 21600;
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
 // cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
@@ -183,13 +184,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
   return (
     <OpenGovShell pageStamp="Parties">
-      <a
-        href={`/parties/${party.slug}`}
-        className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← {party.name}
-      </a>
+      <BackLink fallbackHref={`/parties/${party.slug}`} />
 
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>

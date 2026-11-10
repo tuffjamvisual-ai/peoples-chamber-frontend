@@ -6,6 +6,7 @@ import { longDateArchive } from '@/lib/pmqs-archive';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import PreFixedNotes, { ExperimentNote, UNCONFIRMED_NOTE } from './PreFixedNotes';
 
+import BackLink from '@/app/components/BackLink';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const TITLE = 'Questions to the Prime Minister, 1945 to 1961';
@@ -24,7 +25,7 @@ export default async function PreFixedNotesPage() {
   return (
     <OpenGovShell pageStamp="PMQs">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: "Prime Minister's Questions", path: '/pmqs' }, { name: '1945 to 1961', path: '/pmqs/1945-to-1961' }])} />
-      <Link href="/pmqs#before-fixed-pmqs" prefetch={false} className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none' }}>← Back to the questions</Link>
+      <BackLink fallbackHref="/pmqs#before-fixed-pmqs" />
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 12px', color: INK }}>{TITLE}</h1>
       <div style={{ color: INK }}>
         <p data-main-action style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 16px', fontWeight: 'bold' }}>{s.questions.toLocaleString('en-GB')} questions on {s.days.toLocaleString('en-GB')} days.</p>

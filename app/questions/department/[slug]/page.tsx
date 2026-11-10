@@ -9,6 +9,7 @@ import { QUESTION_PAGE_SIZE, questionDepartmentStats, questionPeople, searchQues
 import QuestionItems from '../../QuestionItems';
 import TookOnNote from '../../../components/TookOnNote';
 
+import BackLink from '@/app/components/BackLink';
 // One answering department (owner, 6 Nov 2026), one page per Parliament id, with links between reorganised departments. Newest first,
 // 25 at a time. Counts leave out withdrawn questions. Days to answer run from the date tabled to the date answered.
 export const dynamic = 'force-dynamic';
@@ -52,7 +53,7 @@ export default async function DepartmentQuestions({ params, searchParams }: { pa
   return (
     <OpenGovShell>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Written questions', path: '/questions' }, { name: d.name, path: `/questions/department/${d.slug}` }])} />
-      <Link href="/questions" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All written questions</Link>
+      <BackLink fallbackHref="/questions" />
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 12px', overflowWrap: 'anywhere' }}>{d.name}: written questions</h1>
       {/* The main action (UX3a, A6): the department's figures. */}
       <dl data-main-action style={{ margin: '0 0 12px', fontSize: '16px', color: INK }}>

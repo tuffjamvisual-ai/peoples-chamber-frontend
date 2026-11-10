@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
+import BackLink from '@/app/components/BackLink';
 import {
   getLiveProgrammes,
   fmtDate,
@@ -42,6 +43,7 @@ export default async function ProgrammesIndexPage() {
 
   return (
     <OpenGovShell>
+      <BackLink fallbackHref="/" />
       <header style={{ marginBottom: '32px' }}>
         <h1 style={{
           fontSize: 'clamp(28px, 4vw, 48px)',

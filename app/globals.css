@@ -346,7 +346,6 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .ng-page [data-pt-fold-hide], .ng-page table[data-pt-table="cards"][data-pt-fold-hide] { display: none !important; }
   .ng-page .pt-box::before { content: none !important; display: none !important; }
   .ng-page [data-pm-hide] { display: none !important; }
-  .og-back { text-transform: none !important; letter-spacing: normal !important; font-size: 18px !important; }
   .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
   html:not(.og-js) .og-phone-more { display: none; }
   .rc-h2 { display: none; }

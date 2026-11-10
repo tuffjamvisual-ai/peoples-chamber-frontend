@@ -20,6 +20,7 @@ import { wholeSentences } from '@/lib/meta-description';
 import { namedTitle } from '@/lib/seo-title';
 import { PHONE } from '@/lib/breakpoints';
 
+import BackLink from '@/app/components/BackLink';
 export const revalidate = 21600;
 
 export async function generateStaticParams() {
@@ -88,23 +89,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
 
   return (
     <OpenGovShell pageStamp="Parties">
-      <a
-        href="/parties/manifestos"
-        className="no-hover-scale"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          marginTop: '-6%',
-          marginBottom: '12px',
-          color: INK,
-          textDecoration: 'none',
-          fontSize: 'clamp(18px, 2.2vw, 28px)',
-          transform: 'rotate(-0.2deg)',
-        }}
-      >
-        ← Compare parties
-      </a>
+      <BackLink fallbackHref="/parties/manifestos" />
 
       {/* Header: name + colour bar. The FOUNDED / COMMONS MPS /
           DONATIONS / WEBSITE metrics row was removed 2026-06-03 per

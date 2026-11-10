@@ -9,10 +9,11 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { displayMpName } from '@/lib/mp-name';
 import { longDate, pmqsSet } from '@/lib/pmqs';
 import { archiveRole, longDateArchive, memberArchive, type MemberContribution } from '@/lib/pmqs-archive';
-import { lookupMember, memberName, parliamentMemberUrl } from '@/lib/former-mps';
+import { lookupMember, memberName } from '@/lib/former-mps';
 import { idsFor } from '@/lib/historic-archive';
 import NoJsPager, { pagesByHeight } from '../../../components/NoJsPager';
 
+import BackLink from '@/app/components/BackLink';
 // Every question an MP has asked at Prime Minister's Questions since July 2024 (owner, 5 Nov 2026), newest first, then
 // their questions and answers in the archive, 1961 to 2024, by year. A former MP's page too (owner, 6 Nov 2026): the name comes from Parliament's record when they
 // are not in the mps table. On a day someone answered the session their words are answers, listed apart by session rather than as questions they asked.
@@ -108,7 +109,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
   return (
     <OpenGovShell>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'MPs', path: '/mps' }, ...(profile ? [{ name, path: `/mps/${memberId}` }] : []), { name: 'Questions at PMQs', path: `/mps/${memberId}/pmqs` }])} />
-      <Link href={profile ? `/mps/${memberId}` : parliamentMemberUrl(memberId)} className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none' }}>← {name}</Link>
+      <BackLink fallbackHref={profile ? `/mps/${memberId}` : '/pmqs'} />
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', margin: '0 0 8px', color: INK }}>{answered ? `${name} at PMQs` : `Questions at PMQs by ${name}`}</h1>
       <AnswerSection id="answers-pm" title="Answers as Prime Minister" days={asPm} />
       <AnswerSection id="answers-standing-in" title="Answers standing in for the Prime Minister" days={standingIn} />

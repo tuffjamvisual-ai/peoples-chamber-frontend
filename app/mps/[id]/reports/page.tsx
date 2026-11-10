@@ -10,6 +10,7 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import { MpReportList } from '../MagazineProfileSections';
 import { displayMpName } from '@/lib/mp-name';
 
+import BackLink from '@/app/components/BackLink';
 // Every report that names an MP (owner's approval, 24 Oct 2026), the full list behind the profile's "Reports mentioning
 // this MP", newest first, from the editorial registry at build time (lib/mp-reports.ts). Rendered on first request and
 // cached like the profile; no searchParams. Not in the sitemap, and noindex, follow.
@@ -53,9 +54,7 @@ export default async function MpReportsPage({ params }: { params: Promise<{ id: 
   return (
     <OpenGovShell pageStamp="Reports">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'MPs', path: '/mps' }, { name, path: `/mps/${memberId}` }, { name: 'Reports', path: `/mps/${memberId}/reports` }])} />
-      <Link href={`/mps/${memberId}`} className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-        ← {name}
-      </Link>
+      <BackLink fallbackHref={`/mps/${memberId}`} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 6px' }}>Reports mentioning {name}</h1>
       <p style={{ fontSize: '15px', margin: '0 0 18px' }}>
         {items.length} report{items.length === 1 ? '' : 's'}, newest first.

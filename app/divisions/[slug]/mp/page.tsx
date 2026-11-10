@@ -10,6 +10,7 @@ import { fetchDivisionVotes } from '@/lib/division-votes';
 import { displayMpName } from '@/lib/mp-name';
 import { ARCHIVE_LAST_DATE } from '@/lib/historic-archive';
 
+import BackLink from '@/app/components/BackLink';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
@@ -41,7 +42,7 @@ export default async function FindMpInDivision({ params, searchParams }: { param
   return (
     <OpenGovShell pageStamp="Commons Votes">
       <p style={{ margin: '0 0 12px' }}>
-        <Link href={back} style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontFamily: MONO, fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>← {title}</Link>
+        <BackLink fallbackHref={back} />
       </p>
       <h1 style={{ fontFamily: MONO, fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 'bold', margin: '0 0 16px', color: INK }}>Find an MP in this vote</h1>
       <form method="get" action={`/divisions/${slug}/mp`} role="search" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '8px', margin: '0 0 20px' }}>

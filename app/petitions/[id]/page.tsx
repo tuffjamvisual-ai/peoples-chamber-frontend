@@ -12,6 +12,7 @@ import { PetitionCredit } from '../PetitionCredit';
 import { ShowAll } from '../../components/NoJsPager';
 import { SubFold } from '../../components/PhoneFolds';
 
+import BackLink from '@/app/components/BackLink';
 // One petition (owner, backlog item 15a, 6 Nov 2026): the title, background and details as written, its dates and count, the
 // government response in full, any debate, and signatures by constituency. Kept for a day and refreshed by /api/sync-petitions
 // when the petition changes. A petition that crosses 10,000 gets a row from the sync, and so this page, on its first visit.
@@ -93,7 +94,7 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
   return (
     <OpenGovShell pageStamp="Petition">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Petitions', path: '/petitions' }, { name: p.action, path: `/petitions/${p.id}` }])} />
-      <Link href="/petitions" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All petitions</Link>
+      <BackLink fallbackHref="/petitions" />
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 14px', overflowWrap: 'anywhere' }}>{p.action}</h1>
 
       {/* The main action (UX3a, A6): the record's facts. */}

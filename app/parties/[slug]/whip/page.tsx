@@ -17,6 +17,7 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
 import { displayMpName } from '@/lib/mp-name';
 
+import BackLink from '@/app/components/BackLink';
 export const revalidate = 21600;
 export function generateStaticParams() { return []; }
 
@@ -197,13 +198,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
   return (
     <OpenGovShell pageStamp="Parties">
-      <a
-        href={`/parties/${party.slug}`}
-        className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← {party.name}
-      </a>
+      <BackLink fallbackHref={`/parties/${party.slug}`} />
 
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
@@ -313,13 +308,7 @@ function WhipFrame({ party, children }: { party: Party; children: React.ReactNod
   const accent = party.party_colour || ACCENT;
   return (
     <OpenGovShell pageStamp="Parties">
-      <a
-        href={`/parties/${party.slug}`}
-        className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← {party.name}
-      </a>
+      <BackLink fallbackHref={`/parties/${party.slug}`} />
 
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>

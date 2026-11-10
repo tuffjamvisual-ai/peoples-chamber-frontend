@@ -9,6 +9,7 @@ import Pagination from '../../components/Pagination'
 import TransparencyClient from './TransparencyClient'
 import { PHONE } from '@/lib/breakpoints'
 import { SubFold } from '../../components/PhoneFolds'
+import BackLink from '@/app/components/BackLink';
 
 export const revalidate = 3600
 
@@ -163,13 +164,7 @@ export default async function TransparencySectionPage({
 
   return (
     <OpenGovShell pageStamp="Transparency">
-      <a
-        href="/transparency"
-        className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← Accountability
-      </a>
+      <BackLink fallbackHref="/transparency" />
 
       <header className="tr-dhead" style={{ marginBottom: '5%' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', fontWeight: 500, marginBottom: '12px', color: ACCENT }}>

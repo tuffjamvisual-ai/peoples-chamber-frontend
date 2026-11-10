@@ -2,38 +2,32 @@
 
 import { useRouter } from 'next/navigation';
 import type { CSSProperties, MouseEvent } from 'react';
+import { cameFromThisSite } from './NavTrail';
 
-// Shared back-link. Default behaviour: go to the page the user came
-// from via browser history. If they landed on this page directly
-// (history length 1 — typically external referrer like Google, an
-// inbound social-media link, or a fresh tab) it falls through to the
-// hardcoded `fallbackHref` so the link is never a dead-end click.
+// The back arrow (owner, 10 Nov 2026, T1-5u: "one back arrow, the same on every page"). Every inner page shows the same
+// "←" in the same place, the top left of the page folder (opengov-shell.css .og-back), with the accessible name "Back" and a
+// 44px tap area. A click goes to the previous page when the reader came from another opengovt page in this tab
+// (NavTrail.tsx); otherwise, and with JavaScript off, it is a plain link one level up (`fallbackHref`).
 //
-// Replaces 26 hardcoded `← Back to X` anchors across the site so the
-// reader's back-link always honours their actual reading path: arrive
-// from /your-tax-pound → /departments/treasury → click Back → land
-// back on /your-tax-pound, not always on /departments.
+// `label`, `className` and `style` are accepted from the older call sites but no longer change anything, so no page can
+// show a different back link.
 
 type Props = {
   fallbackHref: string;
-  label: string;
+  label?: string;
   className?: string;
   style?: CSSProperties;
 };
 
-export default function BackLink({ fallbackHref, label, className, style }: Props) {
+export default function BackLink({ fallbackHref }: Props) {
   const router = useRouter();
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    // Honour modifier-click (cmd/ctrl/middle) so the user can still
-    // open the fallback page in a new tab.
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+    // Modifier and middle clicks keep the browser's own behaviour (open the one-level-up page in a new tab).
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    if (!cameFromThisSite()) return; // the plain link: one level up
     e.preventDefault();
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back();
-    } else {
-      router.push(fallbackHref);
-    }
+    router.back();
   };
 
   return (
@@ -41,10 +35,11 @@ export default function BackLink({ fallbackHref, label, className, style }: Prop
       href={fallbackHref}
       rel={/^\/(login|account)(\?|$)/.test(fallbackHref) ? 'nofollow' : undefined}
       onClick={handleClick}
-      className={`og-back${className ? ` ${className}` : ''}`}
-      style={{ ...style, fontFamily: "var(--font-special-elite), 'Courier New', monospace", fontSize: 'clamp(18px, 2.2vw, 28px)' }}
+      aria-label="Back"
+      className="og-back no-hover-scale"
+      data-og-back=""
     >
-      {label}
+      <span aria-hidden="true">←</span>
     </a>
   );
 }

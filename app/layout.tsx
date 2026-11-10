@@ -1,4 +1,5 @@
 import PhoneEnhance from './components/PhoneEnhance';
+import NavTrail from './components/NavTrail';
 import { PHONE_ENHANCE_JS } from '@/lib/phone-enhance';
 import type { Metadata } from "next";
 import { Bebas_Neue } from "next/font/google";
@@ -177,6 +178,8 @@ export default function RootLayout({
         {/* Phones under 640px: tables as cards, lone links as tap targets, long lists shortened (lib/phone-enhance.ts). */}
         <script dangerouslySetInnerHTML={{ __html: PHONE_ENHANCE_JS }} />
         <PhoneEnhance />
+        {/* The pages this tab has shown, so the back arrow knows when the previous page is one of ours (BackLink.tsx). */}
+        <NavTrail />
         {/* Floating jump-to-bottom arrow on every page (styled like the Claude chat app's). */}
         <FloatingScrollDownButton />
         {/* Web Analytics and Speed Insights, loaded on the visitor's first real interaction. */}

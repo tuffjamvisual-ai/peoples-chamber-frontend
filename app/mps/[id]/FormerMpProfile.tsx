@@ -13,6 +13,7 @@ import { lastSeatLine, parliamentMemberUrl, seatYears, type FormerMp } from '@/l
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
 import HistoricRecord from './HistoricRecord';
 
+import BackLink from '@/app/components/BackLink';
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#7a1612';
@@ -32,7 +33,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
       <JsonLd data={buildMpPerson({ memberId: mp.memberId, fullName: mp.name, party: mp.party ?? null, former: true })} />
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'MPs', path: '/mps' }, { name: mp.name, path: `/mps/${mp.memberId}` }])} />
       {/* "All MPs" (UX1f, 9 Nov 2026), as on a current MP's profile: says where it leads. */}
-      <Link href="/mps" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', minHeight: '44px', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)' }}>← All MPs</Link>
+      <BackLink fallbackHref="/mps" />
       <h1 style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05, margin: '0 0 12px', color: INK, overflowWrap: 'break-word' }}>{mp.name}</h1>
       {lastSeat && (
         <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '8px', color: INK }}>

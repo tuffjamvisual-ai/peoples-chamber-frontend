@@ -5,6 +5,7 @@ import OpenHashTarget from '../../components/OpenHashTarget';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { answeredBy, archiveExchanges, longDateArchive, officialRecord, type ArchiveContribution, type ArchiveExchange, type ArchiveSession } from '@/lib/pmqs-archive';
 
+import BackLink from '@/app/components/BackLink';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const link = { color: ACCENT, textDecoration: 'underline' };
@@ -35,7 +36,7 @@ export default async function ArchiveSessionView({ session }: { session: Archive
     <OpenGovShell pageStamp="PMQs">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: "Prime Minister's Questions", path: '/pmqs' }, { name: title, path: `/pmqs/${session.date}` }])} />
       <OpenHashTarget />
-      <Link href="/pmqs" className="no-hover-scale" style={{ display: 'inline-block', marginBottom: '14px', color: INK, textDecoration: 'none' }}>← All sessions</Link>
+      <BackLink fallbackHref="/pmqs" />
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 12px', color: INK }}>
         Prime Minister&rsquo;s Questions, {title}
       </h1>

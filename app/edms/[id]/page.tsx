@@ -12,6 +12,7 @@ import { displayMpName } from '@/lib/mp-name';
 import { allEdms, edmDetail, edmState, getEdm, type Edm, type EdmSignature, type LinkedEdm } from '@/lib/edm-pages';
 import { petitionDate } from '@/lib/petition-pages';
 
+import BackLink from '@/app/components/BackLink';
 // One early day motion (owner, backlog item 15b, 6 Nov 2026): its title and text as tabled, number, date, sponsors, every signature
 // with date and party, withdrawn signatures marked, and amendments. Addressed by Parliament's motion id, because numbers repeat
 // across sessions; /edms/<number> goes to the list of motions with that number. Kept for a day and refreshed by /api/sync-edms.
@@ -76,7 +77,7 @@ export default async function EdmPage({ params }: { params: Promise<{ id: string
   return (
     <OpenGovShell pageStamp="Motion">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Early day motions', path: '/edms' }, { name: m.title, path: `/edms/${m.id}` }])} />
-      <Link href="/edms" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All early day motions</Link>
+      <BackLink fallbackHref="/edms" />
       <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 14px', overflowWrap: 'anywhere' }}>{m.title}</h1>
       {/* The main action (UX3a, A6): the record's facts. */}
       <dl data-main-action style={{ margin: '0 0 18px', fontSize: '16px', color: INK }}>

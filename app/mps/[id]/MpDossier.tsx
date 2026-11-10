@@ -5,6 +5,7 @@ import MagazineProfileSections from './MagazineProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
 import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
+import BackLink from '@/app/components/BackLink';
 // Rubber-stamp distress texture (patchy ink), matching the OpenGovShell stamps.
 const STAMP_DISTRESS = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='150'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='6' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.4 1.12'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>")`;
 
@@ -113,7 +114,6 @@ export default function MpDossier({
           .pca-mp-party { order: 2; }
           .pca-mp-constituency { order: 3; margin: 0 !important; }
           .pca-mp-constituency a { display: inline-flex; align-items: center; min-height: 44px; }
-          .mp-back-link { min-height: 44px; }
         }
         /* Desktop (owner, 7 Nov 2026, PF3 and PF4): the profile sections are pulled up 80px over the space below the header,
            so the Standards cases line would sit under the Background heading and the tab list. It keeps its place in the
@@ -127,13 +127,7 @@ export default function MpDossier({
       {/* "All MPs" above the header (UX1f, 9 Nov 2026): the list of MPs with this MP's party open. It was "← Back", which
           went back in the browser's history or, with no history (a link from elsewhere, JavaScript off), to this same
           list, so the label did not say where it led. The browser's own Back button still goes back. */}
-      <Link
-        href={backHref}
-        className="no-hover-scale mp-back-link"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', minHeight: '44px', marginTop: '-9%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← All MPs
-      </Link>
+      <BackLink fallbackHref={backHref} />
 
       {/* Header: polaroid (flat frame) + name / constituency / party */}
       <div className="pca-mp-header" style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>

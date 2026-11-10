@@ -13,6 +13,7 @@ import { displayMpName } from '@/lib/mp-name';
 import { getSeat, seatDetail, type Candidate } from '@/lib/constituency-pages';
 import { petitionDate, topPetitionsInConstituency } from '@/lib/petition-pages';
 
+import BackLink from '@/app/components/BackLink';
 // One constituency (owner, backlog item 15d, 6 Nov 2026), this Parliament only: its MP and every MP since 2024 with official dates
 // and Parliament's own end reason, the 2024 result and any byelection, its most signed petitions, and the councils overlapping it.
 // No commentary on why anyone left, and no local party donations in this version. Kept for a day.
@@ -80,7 +81,7 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
   return (
     <OpenGovShell pageStamp="Constituency">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Constituencies', path: '/constituencies' }, { name: seat.name, path: `/constituencies/${seat.slug}` }])} />
-      <Link href="/constituencies" prefetch={false} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }}>← All constituencies</Link>
+      <BackLink fallbackHref="/constituencies" />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 6px', overflowWrap: 'anywhere' }}>{seat.name}</h1>
       <p style={{ ...para, margin: '0 0 14px' }}>{seat.region ? `${seat.region}, ${seat.nation}` : seat.nation}</p>
 

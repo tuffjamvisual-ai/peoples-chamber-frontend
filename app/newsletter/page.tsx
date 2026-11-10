@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import NewsletterSignup from '../components/NewsletterSignup';
 import MarkNewsletterSubscribed from '../components/MarkNewsletterSubscribed';
+import BackLink from '@/app/components/BackLink';
 
 export const metadata: Metadata = {
   title: 'Newsletter',
@@ -28,6 +29,7 @@ export default async function NewsletterPage({ searchParams }: { searchParams: P
   const msg = status ? MESSAGES[status] : undefined;
   return (
     <OpenGovShell pageStamp="Newsletter">
+      <BackLink fallbackHref="/" />
       <article style={{ fontFamily: FONT, color: INK, maxWidth: '640px', padding: 'clamp(15px, 2vw, 24px) 0' }}>
         {status === 'confirmed' && <MarkNewsletterSubscribed />}
         {msg && (

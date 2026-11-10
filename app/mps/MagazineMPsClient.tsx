@@ -316,7 +316,7 @@ function SinglePartyView({
           transform: 'rotate(-0.2deg)',
         }}
       >
-        ← All parties
+        All parties
       </Link>
 
       <header style={{ marginBottom: '24px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '16px' }}>

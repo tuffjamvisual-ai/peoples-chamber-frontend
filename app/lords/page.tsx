@@ -4,6 +4,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { currentPeers } from '@/lib/lords';
 import LordsIndex from './LordsIndex';
+import BackLink from '@/app/components/BackLink';
 
 // House of Lords (owner's yes, 3 Nov 2026): every current member, from the peers table (lib/peers.ts, kept current by
 // /api/sync-peers, which refreshes this page when the list changes), filterable by party and type of peerage.
@@ -21,6 +22,7 @@ export default async function LordsPage() {
   const peers = await currentPeers(supabase);
   return (
     <OpenGovShell>
+      <BackLink fallbackHref="/" />
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'House of Lords', path: '/lords' }])} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>House of Lords</h1>
       <p style={{ fontSize: '15px', color: INK, margin: '0 0 18px', maxWidth: '720px', lineHeight: 1.6 }}>

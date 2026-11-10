@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import { fmtPeriod, fmtChange } from '@/lib/dashboard-format';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
+import BackLink from '@/app/components/BackLink';
 
 export const revalidate = 3600;
 
@@ -125,9 +126,7 @@ export default async function StateDashboard() {
 
   return (
     <OpenGovShell>
-      <a href="/transparency" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}>
-        ← Accountability
-      </a>
+      <BackLink fallbackHref="/transparency" />
 
       <header style={{ marginBottom: '28px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', fontWeight: 500, marginBottom: '12px', color: ACCENT }}>Dashboard</p>

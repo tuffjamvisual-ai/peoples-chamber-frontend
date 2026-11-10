@@ -311,7 +311,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         )}
 
         <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${INK_HAIRLINE}`, textAlign: 'center' }}>
-          <Link href={`/bills/${billId}`} style={{ color: INK, textDecoration: 'underline' }}>← back to the bill</Link>
+          <Link href={`/bills/${billId}`} style={{ color: INK, textDecoration: 'underline' }}>Back to the bill</Link>
         </p>
       </article>
       <ParliamentSourceCredit note={<a href={`https://bills.parliament.uk/bills/${bill.parliament_id}`} rel="noopener" style={{ color: ACCENT }}>This bill on bills.parliament.uk</a>} />
