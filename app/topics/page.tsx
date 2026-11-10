@@ -61,7 +61,7 @@ export default function TopicsIndexPage() {
                 <div style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 'bold', marginBottom: '8px' }}>
                   {t.title} <span style={{ color: ACCENT }}>→</span>
                 </div>
-                <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{firstSentence(t.blurb)}</p>
+                <p className="og-desc" style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{firstSentence(t.blurb)}</p>
               </Link>
             ))}
           </div>
