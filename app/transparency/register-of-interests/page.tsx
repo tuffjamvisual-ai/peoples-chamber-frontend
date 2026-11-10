@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { SubFold } from '../../components/PhoneFolds';
 import Pagination from '../../components/Pagination';
 import RegisterSearchClient from './RegisterSearchClient';
 import DonationsCounter from './DonationsCounter';
@@ -215,6 +216,8 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
           What MPs themselves declare to Parliament: gifts, hospitality, employment and earnings, overseas visits, land and property, shareholdings and family interests. Search {total.toLocaleString('en-GB')} declared entries across every MP, filter by category or date, and follow each entry back to the Member.
         </p>
 
+        {/* Phones (step 5, 10 Nov 2026): the note on the two registers and the donations total folded. */}
+        <SubFold label="This register and donations">
         {/* Explicit distinction from Electoral Commission donations. */}
         <div style={{ marginTop: '16px', padding: '12px 16px', border: `1px solid ${HAIRLINE}`, borderLeft: `3px solid ${ACCENT}`, background: 'rgba(107,36,23,0.04)', maxWidth: '760px' }}>
           <p style={{ margin: 0, fontSize: '15px', lineHeight: 1.65, color: INK }}>
@@ -231,6 +234,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
           entryCount={donationsTotal.entryCount}
           asOf={donationsTotal.asOf}
         />
+        </SubFold>
       </header>
 
       <RegisterSearchClient
@@ -287,7 +291,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
       )}
 
       {/* Result cards */}
-      <NoJsPager id="roi-rows" count={interests.length} rows="> *" size={10}>
+      <NoJsPager id="roi-rows" count={interests.length} rows="> *" size={10} first={2}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {interests.map((row) => {
           const mp = mpsById.get(row.member_id);

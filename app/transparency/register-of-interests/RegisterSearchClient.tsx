@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState } from 'react';
+import { SubFold } from '@/app/components/PhoneFolds';
 
 // Filter controls for the Register of Interests search page. State is held here,
 // pushed into the URL on submit so the server re-renders the results (shareable,
@@ -195,6 +196,8 @@ export default function RegisterSearchClient({ mps, buckets, initial }: Props) {
         </div>
       </div>
 
+      {/* Phones (step 5, 10 Nov 2026; the page was 5,327px): category and dates folded under the search. */}
+      <SubFold label="Category and dates">
       {/* Category chips */}
       <div>
         <span style={labelStyle}>Category</span>
@@ -231,6 +234,7 @@ export default function RegisterSearchClient({ mps, buckets, initial }: Props) {
           <input id="roi-to" type="date" value={to} onChange={(e) => setTo(e.target.value)} style={inputStyle} />
         </div>
       </div>
+      </SubFold>
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
