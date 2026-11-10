@@ -31,9 +31,11 @@ export function balanceColumns<T>(items: T[], weight: (item: T) => number): [T[]
 }
 
 // CSS for the two column grid: two columns side by side, one on phones.
-// .og-desc: a link's description, left out under 640px so an index of links is titles only on phones (step 5, 10 Nov 2026:
-// page length; /transparency was 4,401px).
-export const TWO_COLUMN_CSS = `.og-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}@media ${phoneUpTo(760)} {.og-two{grid-template-columns:1fr}}@media ${phoneUpTo(639.98)} {.og-two .og-desc{display:none}}`;
+// .og-desc and .og-short (owner, 10 Nov 2026, S5-desc): under 640px a link's full description (.og-desc) gives way to its
+// short version (.og-short), one sentence under 80 characters written from it; from 640px up only the full text shows.
+// A description short enough already has neither class and shows at every width. Listed for checking in
+// Claude outputs/audit/mp2/short-descriptions.md.
+export const TWO_COLUMN_CSS = `.og-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}.og-short{display:none}@media ${phoneUpTo(760)} {.og-two{grid-template-columns:1fr}}@media ${phoneUpTo(639.98)} {.og-two .og-desc{display:none}.og-two .og-short{display:block}}`;
 
 // For short lists of similar sized items (link lists): a plain two column grid,
 // rows side by side, no boxes. One column on phones.

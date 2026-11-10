@@ -86,10 +86,10 @@ export default async function MoneyLanding() {
         <p style={{ fontSize: '15px', marginBottom: '20px' }}>Four places where two registers name the same people or organisations.</p>
         <div className="og-two">
           {balanceColumns([
-          { href: '/donations/double-dip', label: 'Employer and donor', headline: 'MPs paid by a body that also donated to them', teaser: "Organisations listed in an MP's register both as a paying employer or client and as a donor to that MP. Each pairing comes from the MP's own declarations." },
-          { href: '/donations/government-contractors', label: 'Public contractors who donate', headline: 'Companies with public contracts that also donate', teaser: "Companies that appear both in the government contracts records and in the Electoral Commission's donations register, with the totals from each." },
-          { href: '/donations/sponsored-visits', label: 'Who paid for MPs to travel', headline: `${n.sponsored.toLocaleString()} declared paid trips`, teaser: 'Every overseas visit MPs declared as paid for by someone else, ranked by who paid, with the number of trips and their declared value.' },
-          { href: '/donors', label: 'Donor profiles', headline: "Each donor's donations, contracts and APPG funding together", teaser: "A donor's profile shows its political donations and, where the same organisation holds public contracts or funds APPGs, those records too." },
+          { href: '/donations/double-dip', label: 'Employer and donor', headline: 'MPs paid by a body that also donated to them', short: "Organisations an MP lists both as a paying employer or client and as a donor.", teaser: "Organisations listed in an MP's register both as a paying employer or client and as a donor to that MP. Each pairing comes from the MP's own declarations." },
+          { href: '/donations/government-contractors', label: 'Public contractors who donate', headline: 'Companies with public contracts that also donate', short: "Companies in both the government contracts records and the donations register.", teaser: "Companies that appear both in the government contracts records and in the Electoral Commission's donations register, with the totals from each." },
+          { href: '/donations/sponsored-visits', label: 'Who paid for MPs to travel', headline: `${n.sponsored.toLocaleString()} declared paid trips`, short: "Overseas visits MPs declared as paid for by someone else, ranked by who paid.", teaser: 'Every overseas visit MPs declared as paid for by someone else, ranked by who paid, with the number of trips and their declared value.' },
+          { href: '/donors', label: 'Donor profiles', headline: "Each donor's donations, contracts and APPG funding together", short: "A donor's political donations, with any public contracts and APPG funding.", teaser: "A donor's profile shows its political donations and, where the same organisation holds public contracts or funds APPGs, those records too." },
           ], (t) => 4 + t.teaser.length / 45).map((col, ci) => (
             <div key={ci}>{col.map((t) => <HeroTile key={t.href} {...t} />)}</div>
           ))}
@@ -103,7 +103,7 @@ export default async function MoneyLanding() {
             { href: '/donations/foreign', label: 'Money from abroad', sub: `${n.foreign.toLocaleString()} declared donations from outside the UK, by country.` },
             { href: '/donations/leadership-contests', label: 'Money in leadership races', sub: 'Donations declared for party leadership contests, by contest and candidate.' },
             { href: '/donations/constituencies', label: 'Money by constituency', sub: 'Donations to local parties and candidates, totalled by constituency.' },
-            { href: '/donations/bequest', label: 'Bequests', sub: 'Money left to parties in wills, as declared to the Electoral Commission, by party and estate.' },
+            { href: '/donations/bequest', label: 'Bequests', short: "Money left to parties in wills, by party and estate.", sub: 'Money left to parties in wills, as declared to the Electoral Commission, by party and estate.' },
             { href: '/secretariats', label: 'APPG secretariats', sub: 'The organisations that run APPG secretariats, and how many groups each runs.' },
             { href: '/appg-funders', label: `APPG funders · ${n.appgFunders}`, sub: 'Who funds APPGs, and how many groups each funds.' },
           ], (t) => 2 + t.sub.length / 45).map((col, ci) => (
@@ -116,8 +116,8 @@ export default async function MoneyLanding() {
         <h2 style={sectionH2}>Reporting and compliance</h2>
         <div className="og-two">
           {balanceColumns([
-            { href: '/donations/late-disclosed', label: 'Late disclosures', sub: 'Donations reported to the Electoral Commission long after they were accepted, with the gap in days.' },
-            { href: '/donations/impermissible', label: 'Returned donations', sub: 'Donations the Electoral Commission records as impermissible, and what happened to them.' },
+            { href: '/donations/late-disclosed', label: 'Late disclosures', short: "Donations reported long after they were accepted, with the gap in days.", sub: 'Donations reported to the Electoral Commission long after they were accepted, with the gap in days.' },
+            { href: '/donations/impermissible', label: 'Returned donations', short: "Donations recorded as impermissible, and what happened to them.", sub: 'Donations the Electoral Commission records as impermissible, and what happened to them.' },
             { href: '/donations/trust-funded', label: 'Money routed via trusts', sub: `${n.trust} declared donations from trusts, by trust and recipient.` },
           ], (t) => 2 + t.sub.length / 45).map((col, ci) => (
             <div key={ci}>{col.map((t) => <SecondaryTile key={t.href} {...t} />)}</div>
@@ -139,22 +139,25 @@ export default async function MoneyLanding() {
   );
 }
 
-function HeroTile({ href, label, headline, teaser }: { href: string; label: string; headline: string; teaser: string }) {
+function HeroTile({ href, label, headline, teaser, short }: { href: string; label: string; headline: string; teaser: string; short: string }) {
   return (
     <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '14px 0 20px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '8px', color: ACCENT, fontFamily: 'var(--font-special-elite), monospace' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', lineHeight: 1.2, marginBottom: '10px' }}>{headline}</div>
       <p className="og-desc" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{teaser}</p>
+      <p className="og-short" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{short}</p>
       <div className="og-desc" style={{ marginTop: '12px', fontSize: '15px', color: ACCENT, fontWeight: 'bold' }}>Read the full table &rarr;</div>
     </Link>
   );
 }
 
-function SecondaryTile({ href, label, sub }: { href: string; label: string; sub: string }) {
+function SecondaryTile({ href, label, sub, short }: { href: string; label: string; sub: string; short?: string }) {
   return (
     <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '12px 0 16px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold', color: ACCENT, marginBottom: '6px' }}>{label} &rarr;</div>
-      <p className="og-desc" style={{ fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{sub}</p>
+      {/* A description under 80 characters shows as it is at every width; a longer one has a short version for phones. */}
+      <p className={short ? 'og-desc' : undefined} style={{ fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{sub}</p>
+      {short && <p className="og-short" style={{ fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{short}</p>}
     </Link>
   );
 }

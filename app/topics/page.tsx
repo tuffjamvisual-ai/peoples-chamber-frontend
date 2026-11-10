@@ -20,6 +20,22 @@ const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONO = 'var(--font-special-elite), monospace';
 
+// Phones (owner, 10 Nov 2026, S5-desc): a short version of a card's sentence, one sentence under 80 characters written
+// from it, in place of the full sentence under 640px. A topic not listed here has a sentence short enough already.
+const SHORT: Record<string, string> = {
+  'housing': "How homes are planned, built, rented, bought and allocated.",
+  'immigration': "Who can come to the UK, on what terms, and how arrivals are processed.",
+  'defence': "The armed forces, equipment, bases and the UK’s military commitments abroad.",
+  'education': "Early years, schools, further education and universities.",
+  'economy-and-tax': "Taxation, public spending, borrowing and the government’s plans for growth.",
+  'welfare-and-benefits': "Pensions, disability benefits, universal credit and the safety net for low pay.",
+  'climate-and-energy': "Energy supply and prices, household bills and the UK’s emissions targets.",
+  'justice-and-policing': "The police, the courts, sentencing, prisons and the law itself.",
+  'foreign-affairs': "The UK’s relations with other countries, its alliances, treaties and aid.",
+  'constitutional-reform': "How Parliament works and how power is held to account.",
+  'culture-media-and-sport': "The BBC, Channel 4, S4C, museums, the arts, the National Lottery and sport.",
+};
+
 // First sentence of the blurb, for the index card.
 function firstSentence(s: string) {
   const m = s.match(/^.*?[.](\s|$)/);
@@ -61,7 +77,8 @@ export default function TopicsIndexPage() {
                 <div style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 'bold', marginBottom: '8px' }}>
                   {t.title} <span style={{ color: ACCENT }}>→</span>
                 </div>
-                <p className="og-desc" style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{firstSentence(t.blurb)}</p>
+                <p className={SHORT[t.slug] ? 'og-desc' : undefined} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{firstSentence(t.blurb)}</p>
+                {SHORT[t.slug] && <p className="og-short" style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{SHORT[t.slug]}</p>}
               </Link>
             ))}
           </div>
