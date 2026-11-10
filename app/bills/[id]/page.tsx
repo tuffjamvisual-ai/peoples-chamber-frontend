@@ -12,6 +12,7 @@ import { notFound } from 'next/navigation'
 import { billStageLine, NO_SUMMARY_TEXT } from '@/lib/bill-summary'
 import BillVotingClient from './BillVotingClient'
 import { NoJsFold } from '@/app/components/NoJsPager'
+import { PHONE } from '@/lib/breakpoints'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBillLegislation, buildBreadcrumbs } from '@/lib/JsonLd';
@@ -295,6 +296,22 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </div>
         )}
 
+        {/* Phones (UX2g, owner approved through Cowork, 10 Nov 2026): the sponsor with the stage and date, under the title, then
+            two jump links: the full timeline and the reader poll. The formal summary, the official record link and the full
+            sponsor block below stay; the sponsor block is left out on phones, as this line gives it. From 640px up, as before. */}
+        <style>{`.bq-phone { display: none; } @media ${PHONE} { .bq-phone { display: block; text-align: center; margin: -14px 0 14px; } .bq-wide { display: none !important; } .bq-jump { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 18px; } .bq-jump a { display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; } }`}</style>
+        <div className="bq-phone">
+          {presented && (
+            <p style={{ fontFamily: MONO, fontStyle: 'italic', fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 2px' }}>
+              Presented by {presented}{supportersLine ? `, supported by ${supportersLine}` : ''}.
+            </p>
+          )}
+          <nav aria-label="On this page" className="bq-jump" style={{ fontFamily: MONO }}>
+            {stages.length > 0 && <a href="#bill-passage">Full timeline ↓</a>}
+            <a href="#vote">Reader poll ↓</a>
+          </nav>
+        </div>
+
         {/* The official record at Parliament, for readers who want to check our page against it (BD1, audit item 6).
             Only for bills whose Parliament id we hold; it opens in the same tab. */}
         {bill.parliament_id != null && (
@@ -410,6 +427,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             additional sponsors are recorded). */}
         {presented && (
           <div
+            className="bq-wide"
             style={{
               textAlign: 'center',
               fontFamily: MONO,
@@ -622,7 +640,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
       {/* Bill passage */}
       {stages.length > 0 && (
-        <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '28px', marginBottom: '38px' }}>
+        <section id="bill-passage" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '28px', marginBottom: '38px', scrollMarginTop: '16px' }}>
           <Eyebrow>Bill passage</Eyebrow>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
             {commonsStages.length > 0 && <StageGroup label="Commons" colour={ACCENT} stages={commonsStages} cancelled={(d) => sittingCancelled(bill, d)} />}
