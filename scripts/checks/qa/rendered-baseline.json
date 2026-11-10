@@ -1,5 +1,5 @@
 {
- "about": "QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new. Time words updated by QA2a (9 Nov 2026): what is left is in Terminal 2 files, database content (editorials, reports, party pages, polls) or official text. A3 heights for article pages re measured without the article body (QA2d, 9 Nov 2026). QA3 (10 Nov 2026): time words rewritten in the database content (editorials, party_policies 71, parties green, polls 55 and 57) removed; \"present a similar problem\" (a verb) is in time_words_allow. QA4 (10 Nov 2026): A2 entries no longer found (after the MP2, UX1 and QA4 changes) removed. A6 (QA6, 10 Nov 2026): each page's first screen failures at 390 x 844, 320 x 568 and 844 x 390 when the check was added; no page marked data-main-action yet, so every page is \"no-main-action\" until UX2 marks them. QA5 (10 Nov 2026): /polls/archive height 9,478 to 9,702px (each archived poll's closed Sources fold, f84f7fea, and the longer dated poll 50 explainer); its A2 \"currently\" and /reports \"now\" stay (other rows). QA7 (10 Nov 2026): /reports \"now\" and /polls/archive \"currently\" removed (264 rewrites across all reader facing database text); what is left is official text (/petitions, /mps/206 register entries). QA8 (10 Nov 2026): A2 also catches \"this week\", \"last week\", a weekday with no date, \"ago\" (lower case) and \"weeks/months on\"; that day's hits baselined (/, /departments/defence, /reports, /polls/archive); \"This Week in Parliament\" and newspaper names (Mail on Sunday, Sun on Sunday, Express on Sunday) allowed. UX3c (10 Nov 2026): the A6 baseline is empty; no-main-action always fails. UX3 merge (10 Nov 2026): main-1280x720 baselined for the 82 pages whose main action starts below 720px on desktop (owner approved; UX4a compact masthead clears them). Phone sizes have no A6 baseline. UX4 merge (10 Nov 2026): main-1280x720 cleared on 58 pages by UX4 and removed; 24 remain (they include the desktop cookie banner, about 208px).",
+ "about": "QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new. Time words updated by QA2a (9 Nov 2026): what is left is in Terminal 2 files, database content (editorials, reports, party pages, polls) or official text. A3 heights for article pages re measured without the article body (QA2d, 9 Nov 2026). QA3 (10 Nov 2026): time words rewritten in the database content (editorials, party_policies 71, parties green, polls 55 and 57) removed; \"present a similar problem\" (a verb) is in time_words_allow. QA4 (10 Nov 2026): A2 entries no longer found (after the MP2, UX1 and QA4 changes) removed. A6 (QA6, 10 Nov 2026): each page's first screen failures at 390 x 844, 320 x 568 and 844 x 390 when the check was added; no page marked data-main-action yet, so every page is \"no-main-action\" until UX2 marks them. QA5 (10 Nov 2026): /polls/archive height 9,478 to 9,702px (each archived poll's closed Sources fold, f84f7fea, and the longer dated poll 50 explainer); its A2 \"currently\" and /reports \"now\" stay (other rows). QA7 (10 Nov 2026): /reports \"now\" and /polls/archive \"currently\" removed (264 rewrites across all reader facing database text); what is left is official text (/petitions, /mps/206 register entries). QA8 (10 Nov 2026): A2 also catches \"this week\", \"last week\", a weekday with no date, \"ago\" (lower case) and \"weeks/months on\"; that day's hits baselined (/, /departments/defence, /reports, /polls/archive); \"This Week in Parliament\" and newspaper names (Mail on Sunday, Sun on Sunday, Express on Sunday) allowed. UX3c (10 Nov 2026): the A6 baseline is empty; no-main-action always fails. UX3 merge (10 Nov 2026): main-1280x720 baselined for the 82 pages whose main action starts below 720px on desktop (owner approved; UX4a compact masthead clears them). Phone sizes have no A6 baseline. UX4 merge (10 Nov 2026): main-1280x720 cleared on 58 pages by UX4 and removed; 24 remain (they include the desktop cookie banner, about 208px). UX4k (10 Nov 2026): main-1280x720 baselined for 24 more pages after the folder masthead returned to inner pages (owner approved); T1-7 (a, b) is to take them out again.",
  "written": "2026-11-10",
  "pages": {
   "/mps/5247": {
@@ -23,15 +23,24 @@
    "height": 2359,
    "timeWords": [
     "ago"
+   ],
+   "a6": [
+    "main-1280x720"
    ]
   },
   "/divisions/pw-2022-12-12-123-commons": {
    "height": 8643,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/sections/parliament": {
    "height": 7121,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/councils/derry-city-and-strabane": {
    "height": 3573,
@@ -53,7 +62,10 @@
   },
   "/transparency/ministers-meetings": {
    "height": 6209,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/reports": {
    "height": 6642,
@@ -63,7 +75,10 @@
   },
   "/parties/green": {
    "height": 6911,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/mps": {
    "height": 2276,
@@ -85,7 +100,10 @@
   },
   "/spending": {
    "height": 5088,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/people/gavin-lambert": {
    "height": 1678,
@@ -103,7 +121,10 @@
   },
   "/transparency/press-releases": {
    "height": 5195,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/councils": {
    "height": 8962,
@@ -114,15 +135,24 @@
   },
   "/directory": {
    "height": 2384,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/laws/made-without-a-vote": {
    "height": 8399,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/bills": {
    "height": 4237,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/departments": {
    "height": 4441,
@@ -155,7 +185,10 @@
   },
   "/contact": {
    "height": 1860,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/transparency/mp-activity": {
    "height": 7283,
@@ -173,7 +206,10 @@
   },
   "/recommendations": {
    "height": 7520,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/parties/green/bio": {
    "height": 4593,
@@ -192,7 +228,10 @@
   },
   "/topics/welfare-and-benefits": {
    "height": 5908,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/bills/657/full": {
    "height": 1567,
@@ -207,7 +246,10 @@
   },
   "/laws": {
    "height": 7199,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/second-jobs": {
    "height": 3803,
@@ -230,15 +272,24 @@
   },
   "/pmqs/1961-12-07": {
    "height": 7170,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/pmqs/1991-11-05": {
    "height": 6704,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/pmqs/2015-03-18": {
    "height": 6920,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/pmqs/1945-to-1961": {
    "height": 1717,
@@ -266,7 +317,10 @@
   },
   "/mps/769": {
    "height": 1386,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/mps/2565": {
    "height": 1262,
@@ -343,7 +397,10 @@
   },
   "/divisions/pw-2019-01-15-293-commons": {
    "height": 8648,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/councils/blue-badges": {
    "height": 9089,
@@ -360,6 +417,9 @@
    "height": 4765,
    "timeWords": [
     "now"
+   ],
+   "a6": [
+    "main-1280x720"
    ]
   },
   "/petitions/700143": {
@@ -372,7 +432,10 @@
   },
   "/constituencies": {
    "height": 1720,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/constituencies/clacton": {
    "height": 5494,
@@ -384,7 +447,10 @@
   },
   "/edms": {
    "height": 4284,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/edms/65938": {
    "height": 3952,
@@ -408,7 +474,10 @@
   },
   "/divisions/pw-2013-02-05-151-commons": {
    "height": 7725,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/mps/206": {
    "height": 2805,
@@ -430,7 +499,10 @@
   },
   "/debates/2E73E779-90FC-4597-9B0C-E50391655AFD": {
    "height": 6236,
-   "timeWords": []
+   "timeWords": [],
+   "a6": [
+    "main-1280x720"
+   ]
   },
   "/mps/4128/pmqs": {
    "height": 1110,

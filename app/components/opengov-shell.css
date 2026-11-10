@@ -144,19 +144,27 @@
   .dossier-content { padding-top: 20px !important; }
 }
 
-/* ---- Compact masthead (UX4a, owner decision, 10 Nov 2026): every page but the homepage, from 768px up ----
-   The logo, the menu and the account links on one slim row in the folder's own colours, fonts and logo, instead of the
-   tall folder picture; the page's folder starts just below it, so the page itself starts higher (D1). The homepage
-   keeps the full masthead (OpenGovShell passes og-compact everywhere else). Phones keep their own one-row header. */
+/* ---- Compact folder masthead (UX4k, owner, 10 Nov 2026): every page but the homepage, from 768px up ----
+   The same folder as the homepage (the same picture, paper, tab, logo box and typefaces), only shorter: the logo and
+   the menu share one row inside the folder, under the account tab, and the page's folder starts just below that row,
+   so the page itself still starts higher than on the homepage. UX4a's flat strip above the folder is gone (owner: "why
+   has the background changed, there is a separate banner with no folder"). Positions are percentages of the folder
+   picture, whose height is 133.33% of its width. Phones keep their own one-row header. */
 @media (min-width: 768px) and (orientation: portrait), (min-width: 768px) and (min-height: 500.01px), (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 768px) and (pointer: none) {
-  .og-compact .og-header { aspect-ratio: auto !important; display: flex; align-items: center; flex-wrap: wrap; gap: 6px 20px; min-height: 96px; box-sizing: border-box; padding: 14px 28px; background: #d9b97f; border: 1px solid rgba(20, 16, 13, 0.25); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45); }
-  .og-compact .og-header-img { display: none !important; }
-  .og-compact .og-masthead-wrap { position: static !important; width: auto !important; transform: none !important; flex: 0 0 auto; }
-  .og-compact .og-masthead-wrap a > * { font-size: 40px !important; }
-  .og-compact .og-navwrap { position: static !important; width: auto !important; transform: none !important; flex: 1 1 520px; order: 2; }
-  .og-compact .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: flex-start !important; row-gap: 2px; }
-  .og-compact .ng-tab { position: static !important; transform: none !important; order: 1; margin-left: auto; }
-  .og-compact .og-dossier { margin-top: 16px !important; }
+  .og-compact .og-masthead-wrap { top: 4.2% !important; left: 5% !important; width: auto !important; }
+  .og-compact .og-masthead-wrap a > * { font-size: clamp(30px, 3.4cqw, 46px) !important; }
+  .og-compact .og-navwrap { top: 6.4% !important; left: 28% !important; width: 66% !important; transform: rotate(-2.5deg) !important; }
+  .og-compact .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: flex-start !important; row-gap: 2px; font-size: clamp(15px, 1.35cqw, 17px) !important; }
+  .og-compact .og-navwrap .ng-nav > li > a { padding: 3px 7px !important; }
+  .og-compact .og-dossier { margin-top: -110% !important; }
   /* Less space above the page inside the folder (UX4e, 10 Nov 2026): 88px, clear of the folder's tab and the page stamp. */
   .og-compact .dossier-content { padding-top: 88px; }
+}
+/* The menu wraps to three lines beside the logo below 1024px (the -110% above), two lines up to 1260px and from
+   there on, so the page's folder starts higher as the screen widens. */
+@media (min-width: 1024px) and (max-width: 1260px) {
+  .og-compact .og-dossier { margin-top: -116% !important; }
+}
+@media (min-width: 1261px) {
+  .og-compact .og-dossier { margin-top: -119.5% !important; }
 }
