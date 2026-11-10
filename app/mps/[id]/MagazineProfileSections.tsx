@@ -495,11 +495,11 @@ const newestFirst = <T extends { spells: Array<{ start: string }> }>(posts: T[])
   posts.map((p, i) => ({ p, i, key: p.spells[0]?.start ?? '' }))
     .sort((a, b) => (a.key && b.key ? b.key.localeCompare(a.key) || a.i - b.i : a.key ? -1 : b.key ? 1 : a.i - b.i))
     .map(({ p }) => p);
-// "Contested Wycombe, 1 May 1997, not elected", from the stored title with or without its date (PCL2 wrote it with
-// the date; PCL3 writes it without, keeping the day in start).
-function contestLine(e: CareerEntry): string {
+// "Contested Wycombe, not elected" (PCL3, owner, 8 Nov 2026): the day is not repeated in the title; it shows on the
+// dates line under it, as for seats. A title still in PCL2's dated wording is shown without its date too.
+function contestTitle(e: CareerEntry): string {
   const place = e.title.match(/^Contested (.+?), (?:\d{1,2} [A-Z][a-z]+ \d{4}, )?not elected$/)?.[1];
-  return place && e.start ? `Contested ${place}, ${dateLabel(e.start)}, not elected` : e.title;
+  return place ? `Contested ${place}, not elected` : e.title;
 }
 
 // "24 October 2026" from a stored YYYY-MM-DD date, read from its parts so the day never shifts with the time zone.
@@ -1794,7 +1794,14 @@ export default function MagazineProfileSections({
                             {r.endDate && r.endReason ? ` · ${r.endReason}` : ''}
                           </div>
                         </>
-                      ) : contestLine(contest as CareerEntry)}
+                      ) : (
+                        <>
+                          {contestTitle(contest as CareerEntry)}
+                          {(contest as CareerEntry).start && (
+                            <div style={{ fontSize: '15px', fontFamily: 'monospace' }}>{fmtDate((contest as CareerEntry).start as string)}</div>
+                          )}
+                        </>
+                      )}
                     </li>
                   ))
                 } />
