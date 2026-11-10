@@ -5,6 +5,7 @@
 // council_road_condition (migration 2026-10-28g), wording in lib/road-condition.ts.
 
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
+import { PHONE } from '@/lib/breakpoints';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
@@ -63,7 +64,11 @@ export default async function RoadConditionPage() {
     <OpenGovShell pageStamp="Road condition">
       <BackLink fallbackHref="/councils" label="← Back" className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }} />
-      <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
+      {/* Phones (UX2d, owner approved through Cowork, 10 Nov 2026): the road categories first, then the national figures and the
+          note that the series has ended, then "What the figures mean", closed (native details), and "About these figures".
+          CSS order only, the same with JavaScript off. From 640px up, as before. */}
+      <style>{`@media ${PHONE} { .rc-flow { display: flex; flex-direction: column; } .rc-flow > .rc-type { order: 1; } .rc-flow > .rc-nat { order: 2; } .rc-flow > .rc-mean { order: 3; } .rc-flow > .rc-about { order: 4; } }`}</style>
+      <article className="rc-flow" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
             England · Councils · Roads
@@ -73,11 +78,11 @@ export default async function RoadConditionPage() {
           </h1>
         </header>
 
-        <p style={para}>
+        <p className="rc-nat" style={para}>
           County, unitary, metropolitan and London borough councils are the highway authorities for local roads; district councils are not. These are the shares of each council&rsquo;s roads where maintenance should have been considered, in {fye(latest)}.
         </p>
         {eng && (
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
+          <ul className="rc-nat" style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
             {ROAD_TYPES.map((t) => {
               const ch = changeText(eng, engPrev, t.field);
               return (
@@ -88,14 +93,14 @@ export default async function RoadConditionPage() {
             })}
           </ul>
         )}
-        <p style={para}>{ENGLAND_NOTE}</p>
-        <p style={{ ...para, borderLeft: `3px solid ${ACCENT}`, paddingLeft: '12px' }}>
+        <p className="rc-nat" style={para}>{ENGLAND_NOTE}</p>
+        <p className="rc-nat" style={{ ...para, borderLeft: `3px solid ${ACCENT}`, paddingLeft: '12px' }}>
           <strong>The last year of this series.</strong> {LAST_YEAR_NOTE} (<a href={PUBLICATION} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>DfT, Road conditions in England to March 2026</a>.)
         </p>
 
-        <section style={section}>
+        <section className="rc-mean" style={section}>
           <h2 className="rc-h2" style={h2}>What the figures mean</h2>
-          <NoJsFold id="rc-mean" always open label="What the figures mean">
+          <NoJsFold id="rc-mean" always label="What the figures mean">
           {EXPLAINER.map((p) => <p key={p.slice(0, 20)} style={para}>{p}</p>)}
           <p style={para}>This is from the notes to DfT&rsquo;s <a href={SOURCE_PAGE} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>road condition data tables</a>.</p>
         </NoJsFold>
@@ -110,7 +115,7 @@ export default async function RoadConditionPage() {
           const flagged = list.filter((r) => notComparable(r.cur, t.field)).sort((a, b) => a.name.localeCompare(b.name));
           const none = list.filter((r) => value(r.cur, t.field) == null).sort((a, b) => a.name.localeCompare(b.name));
           return (
-            <section key={t.key} style={section}>
+            <section key={t.key} className="rc-type" style={section}>
               <h2 className="rc-h2" style={h2}>{t.label}</h2>
               <NoJsFold id={`rc-f-${t.key}`} always label={t.label}>
               <NoJsPager id={`rc-${t.key}`} count={(ranked).length} rows="> tbody > tr" size={25}>
@@ -159,7 +164,7 @@ export default async function RoadConditionPage() {
           );
         })}
 
-        <section style={section}>
+        <section className="rc-about" style={section}>
           <h2 className="rc-h2" style={h2}>About these figures</h2>
           <NoJsFold id="rc-about" always label="About these figures">
           <p style={para}>
