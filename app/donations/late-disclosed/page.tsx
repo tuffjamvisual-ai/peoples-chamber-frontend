@@ -95,7 +95,7 @@ export default async function LateDisclosedPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Recipients with the most late disclosures</h2>
-        <ShowAll id="late-recipients" count={(recipientRanked).length}>
+        <ShowAll id="late-recipients" first={3} count={(recipientRanked).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -123,7 +123,7 @@ export default async function LateDisclosedPage() {
 
       <section>
         <h2 style={sectionH2}>Longest delays · top 50</h2>
-        <ShowAll id="late-top50" count={(top50).length}>
+        <ShowAll id="late-top50" first={3} count={(top50).length}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
