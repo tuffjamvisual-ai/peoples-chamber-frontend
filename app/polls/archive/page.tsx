@@ -26,12 +26,18 @@ type Poll = {
   vote_count_yes: number
   vote_count_no: number
   explainer: string | null
+  explainer_sources: { label: string; url: string }[] | null
 }
+
+// Sources under the explainer (10 Nov 2026), in a closed "Sources" fold. Only https links with a label are shown;
+// anything else in the stored list is left out rather than linked.
+const httpsSources = (s: Poll['explainer_sources']) =>
+  (Array.isArray(s) ? s : []).filter((x) => x && typeof x.url === 'string' && x.url.startsWith('https://') && typeof x.label === 'string' && x.label.trim())
 
 export default async function ArchivedPollsPage() {
   const { data, error: dataErr } = await supabase
     .from('polls')
-    .select('id, question, constituency, vote_count_yes, vote_count_no, explainer')
+    .select('id, question, constituency, vote_count_yes, vote_count_no, explainer, explainer_sources')
     .eq('archived', true)
     .order('id', { ascending: false })
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/polls/archive polls: ${dataErr.message}`);
@@ -97,6 +103,17 @@ export default async function ArchivedPollsPage() {
                 <p style={{ fontSize: '15px', lineHeight: 1.7, color: INK_SOFT, maxWidth: '760px' }}>
                   {p.explainer}
                 </p>
+              )}
+              {/* A closed native fold, so the page (already about 9,500px on phones) grows by one line per poll. */}
+              {httpsSources(p.explainer_sources).length > 0 && (
+                <details style={{ fontSize: '15px', lineHeight: 1.7, color: INK_SOFT, maxWidth: '760px' }}>
+                  <summary style={{ cursor: 'pointer', minHeight: '44px', display: 'flex', alignItems: 'center', fontFamily: MONO }}>Sources</summary>
+                  <ul style={{ margin: '0 0 8px', paddingLeft: '20px' }}>
+                    {httpsSources(p.explainer_sources).map((x) => (
+                      <li key={x.url}><a href={x.url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.label}</a></li>
+                    ))}
+                  </ul>
+                </details>
               )}
             </article>
           )
