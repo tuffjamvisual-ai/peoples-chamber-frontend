@@ -96,6 +96,8 @@ export default async function MoneyLanding() {
         </div>
       </section>
 
+      {/* Phones (owner, 10 Nov 2026, S5-fold): a closed native fold labelled with the heading and count; from 640px up as before. */}
+      <SubFold label="Sector and contest pivots (6)">
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>Sector and contest pivots</h2>
         <div className="og-two">
@@ -111,7 +113,10 @@ export default async function MoneyLanding() {
           ))}
         </div>
       </section>
+      </SubFold>
 
+      {/* Phones (owner, 10 Nov 2026, S5-fold): a closed native fold labelled with the heading and count; from 640px up as before. */}
+      <SubFold label="Reporting and compliance (3)">
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>Reporting and compliance</h2>
         <div className="og-two">
@@ -124,6 +129,7 @@ export default async function MoneyLanding() {
           ))}
         </div>
       </section>
+      </SubFold>
 
       <section style={{ fontSize: '15px', lineHeight: 1.65, borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '14px' }}>
         <strong>What none of this is.</strong> A pattern visible on more than one public register is not evidence of wrongdoing. UK MPs are legally allowed to take outside employment income, attend visits paid for by foreign governments, accept political donations, and officer All-Party Parliamentary Groups provided each is declared on its appropriate register. UK companies are legally allowed to bid for public contracts and donate to political parties provided each is declared. What none of this is is hidden. What much of it has been until now is unfindable. Putting it in one place is the work.
