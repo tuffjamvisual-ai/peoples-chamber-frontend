@@ -218,6 +218,10 @@ export default function PollsClient() {
         <span style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 1 }}>
           {filtered.length.toLocaleString()} shown
         </span>
+        {/* One line on integrity beside the controls; the full explanation is in the closed fold after the polls (UX4d). */}
+        <span style={{ flex: '1 1 100%', fontSize: '15px', color: INK }}>
+          One person, one vote, one account. <a href="#polls-about" onClick={() => { const d = document.getElementById('polls-about'); if (d instanceof HTMLDetailsElement) d.open = true; }} style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>How votes are protected</a>
+        </span>
       </div>
 
       {loading ? (
@@ -254,7 +258,8 @@ export default function PollsClient() {
             ))}
           </div>
           </ShowAll>
-          <style dangerouslySetInnerHTML={{ __html: `.polls-archive-phone { display: none; } @media ${phoneUpTo(639.98)} { .polls-archive-phone { display: block; margin: 4px 0 16px; font-size: 15px; color: #14100d; text-decoration: underline; text-underline-offset: 3px; } }` }} />
+          {/* The archive link after the polls, at every width (phones since 4 Nov 2026; desktop since UX4d, 10 Nov 2026). */}
+          <style dangerouslySetInnerHTML={{ __html: `.polls-archive-phone { display: block; margin: 4px 0 16px; font-size: 15px; color: #14100d; text-decoration: underline; text-underline-offset: 3px; }` }} />
           <a href="/polls/archive" className="polls-archive-phone no-hover-scale">View archived polls →</a>
           {filtered.length === 0 && (
             <div style={{ textAlign: 'center', padding: '48px 0', color: INK_SOFT }}>
