@@ -431,11 +431,17 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // the votes by year count both sources, so the current votes' years are read too (only their dates).
   const pArchiveVotes = memberVoteSummary(memberId);
   const pRegisterHistory = registerHistory(memberId);
-  const pCurrentYears = readAll<{ division_date: string }>(() => supabase.from('mp_division_votes'), {
-    columns: 'division_date', filter: (q) => q.eq('member_id', memberId), orderBy: 'id', label: `/mps/${memberId} vote years`,
+  // PERF1 (10 Nov 2026): the date and division number only, in the order of the natural key index
+  // (member_id, division_date_only, division_number), so Postgres answers from the index without reading the table:
+  // about 20 disk pages and 3 to 11 ms instead of one page per vote (up to 1,800 pages, 924 ms, and timeouts when many
+  // MP pages render at once). division_date_only is division_date's day; no row has either column null.
+  const pCurrentYears = readAll<{ division_date_only: string }>(() => supabase.from('mp_division_votes'), {
+    columns: 'division_date_only, division_number',
+    filter: (q) => q.eq('member_id', memberId).not('division_date_only', 'is', null).not('division_number', 'is', null),
+    orderBy: [{ column: 'division_date_only' }, { column: 'division_number' }], label: `/mps/${memberId} vote years`,
   }).then((rows) => {
     const per = new Map<number, number>();
-    for (const r of rows) { const y = Number(String(r.division_date).slice(0, 4)); if (y) per.set(y, (per.get(y) ?? 0) + 1); }
+    for (const r of rows) { const y = Number(String(r.division_date_only).slice(0, 4)); if (y) per.set(y, (per.get(y) ?? 0) + 1); }
     return [...per.entries()].map(([year, count]) => ({ year, count }));
   });
   const pConduct = Promise.resolve(
