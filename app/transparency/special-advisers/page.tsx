@@ -13,6 +13,7 @@ import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { SubFold } from '../../components/PhoneFolds';
 import SeeAlso from '../../components/SeeAlso';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
@@ -245,6 +246,8 @@ export default async function SpecialAdvisersPage() {
       <QuarterSections quarters={quarters} roster={roster} gifts={gifts} hosps={hosps} meets={meets} deptSlugs={deptSlugs} />
       </NoJsFold>
 
+      {/* Phones (owner, 10 Nov 2026, S5-fold): See also in a closed native fold; from 640px up as before. */}
+      <SubFold label="See also (5)">
       <SeeAlso links={[
         { href: '/transparency/revolving-door', label: 'Revolving Door', note: 'Former ministers and officials taking outside jobs, and the conditions attached' },
         { href: '/lobbying', label: 'Lobbying', note: 'Who meets ministers most, and which lobbying firms act for which clients' },
@@ -252,6 +255,7 @@ export default async function SpecialAdvisersPage() {
         { href: '/transparency/hospitality', label: "Ministers' hospitality", note: 'Gifts, hospitality and travel accepted by ministers' },
         { href: '/departments', label: 'All government departments', note: 'Ministers, budgets, staff and record for each department' },
       ]} />
+      </SubFold>
 
       {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
       <ArticleEndSignup source="data-special-advisers" line={DATA_SIGNUP_LINE} />
