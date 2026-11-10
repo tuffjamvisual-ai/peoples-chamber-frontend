@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
+import { SubFold } from '../components/PhoneFolds';
 import SectionLinks from '../components/SectionLinks';
 import JsonLd from '@/lib/JsonLd';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns'
@@ -55,6 +57,10 @@ const SECTIONS: { slug: string; title: string; description: string; short: strin
   { slug: 'councils',            title: 'Local Councils',                  short: "All 382 UK principal councils, with leadership, finance and council tax.", description: 'Every UK principal local authority, 382 in total, with leadership, finance, council tax and editorial assessment for each.', href: '/councils' },
 ]
 
+function Fold({ first, count, children }: { first: boolean; count: number; children: ReactNode }) {
+  return first ? <>{children}</> : <SubFold label={`More datasets (${count})`}>{children}</SubFold>;
+}
+
 export default function TransparencyHubPage() {
   return (
     <OpenGovShell pageStamp="Transparency">
@@ -89,6 +95,9 @@ export default function TransparencyHubPage() {
       <div className="og-two">
         {balanceColumns(SECTIONS.map((s, i) => ({ s, i })), ({ s }) => 4 + s.description.length / 45).map((col, ci) => (
           <div key={ci}>
+            {/* Phones (owner, 10 Nov 2026, S5-fold): the first column open, the second in a closed native fold labelled with
+                its count (the list has no headings); from 640px up both columns as before. */}
+            <Fold first={ci === 0} count={col.length}>
             {col.map(({ s, i }) => (
               <Link
                 key={s.slug}
@@ -106,6 +115,7 @@ export default function TransparencyHubPage() {
                 <p className="og-short" style={{ fontSize: '15px', lineHeight: 1.6 }}>{s.short}</p>
               </Link>
             ))}
+            </Fold>
           </div>
         ))}
       </div>
