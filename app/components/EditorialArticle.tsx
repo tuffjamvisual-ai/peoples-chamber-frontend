@@ -20,6 +20,7 @@ import type { Block, EditorialEntry } from '@/lib/editorials/types';
 import ContentBadge from './ContentBadge';
 import ShareButton from './ShareButton';
 import { readingLabel } from '@/lib/reading-time';
+import { PHONE } from '@/lib/breakpoints';
 import { standfirstRepeatsOpening } from '@/lib/editorials/standfirst';
 import { phonePlan, type Chain } from '@/lib/editorials/phone-folds';
 import OpenHashTarget from './OpenHashTarget';
@@ -63,7 +64,10 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
       )}
 
       <div {...(basePath === '/editorials' ? { 'data-report-page': '' } : {})} style={{ fontFamily: 'var(--font-special-elite), monospace', width: '100%' }}>
-        <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
+        {/* Phones (UX2n, owner approved through Cowork, 10 Nov 2026): "View sources" straight under the headline, above the
+            standfirst, which is unchanged. CSS order, the same with JavaScript off; from 640px up, as before. */}
+        <style>{`@media ${PHONE} { .art-head { display: flex; flex-direction: column; } .art-head > .art-sf { order: 2; } .art-head > .art-after { order: 3; } .art-head > .art-actions { order: 1; margin-top: 0; } }`}</style>
+        <header className="art-head" style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
           <ContentBadge kind={piece.kind} opinion={piece.opinion} />
           {piece.kicker && (
             <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '14px', color: ACCENT, fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold' }}>
@@ -75,7 +79,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           </h1>
           {/* The stored standfirst, at every width, unless it repeats the opening paragraph (owner, 5 Nov 2026). */}
           {piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body) && (
-            <p style={{ fontSize: '18px', lineHeight: 1.5, margin: '12px 0 0', color: INK }}>{piece.standfirst}</p>
+            <p className="art-sf" style={{ fontSize: '18px', lineHeight: 1.5, margin: '12px 0 0', color: INK }}>{piece.standfirst}</p>
           )}
           {/* The share control and, beside it, a link to the sources page (owner, 8 Nov 2026, SRC1), so a reader near the top
               can reach the sources without scrolling to the "Sources (N)" line further down, which stays. The link shows at
@@ -88,16 +92,16 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               )}
             </div>
           )}
-          <div style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <div className="art-after" style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             By {piece.authorByline}
           </div>
           {piece.publishedAt && (
-            <div style={{ marginTop: '8px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            <div className="art-after" style={{ marginTop: '8px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
               {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {readingLabel(piece)}
             </div>
           )}
           {piece.opinion && (
-            <div style={{ marginTop: '20px', borderLeft: `4px solid ${ACCENT}`, background: 'rgba(107,36,23,0.06)', padding: '10px 14px' }}>
+            <div className="art-after" style={{ marginTop: '20px', borderLeft: `4px solid ${ACCENT}`, background: 'rgba(107,36,23,0.06)', padding: '10px 14px' }}>
               <span style={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>Commentary</span>
               <span style={{ display: 'block', fontSize: '15px', color: INK, marginTop: '4px', fontStyle: 'italic', lineHeight: 1.5 }}>
                 This is an opinion piece. It reflects the author&rsquo;s view and is not one of our investigations, which are checked against the facts.

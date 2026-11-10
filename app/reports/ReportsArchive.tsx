@@ -4,6 +4,7 @@ import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import ContinueToArticle from '../components/ContinueToArticle';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // The /reports archive (23 Oct 2026): search, topic and type filters and 20 a page, all on the client. Every report
 // is rendered into the page's HTML by the server; the client only hides the ones that do not match or are on another
@@ -132,6 +133,10 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
 
   return (
     <>
+      {/* Phones (UX2n, owner approved through Cowork, 10 Nov 2026): topic and type share one row (a narrow phone puts the
+          search above them; held sideways all three fit on one row), and smaller gaps above the first report. From 640px up,
+          as before. */}
+      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(639.98)} { .reports-filters { gap: 8px !important; } .reports-filters > select { flex: 1 1 8em; min-width: 0; min-height: 44px; } .reports-filters > input, .reports-filters > select { font-size: 16px !important; } .reports-filters { margin-bottom: 6px !important; } .reports-count { margin-bottom: 8px !important; } .reports-mh { padding-bottom: 4px !important; } .reports-card { padding-top: 12px !important; } .reports-type { margin-bottom: 4px !important; } }` }} />
       <div className="reports-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', alignItems: 'baseline' }}>
         <input aria-label="Search reports" type="search" placeholder="Search reports…" value={state.q}
           onChange={(e) => update({ q: e.target.value })} style={{ ...field, flex: '1 1 280px', maxWidth: '420px' }} />
@@ -145,7 +150,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
         </select>
       </div>
 
-      <p aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK, margin: '0 0 16px' }}>
+      <p aria-live="polite" className="reports-count" style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK, margin: '0 0 16px' }}>
         {state.q.trim() ? `${count} report${count === 1 ? '' : 's'} matching "${state.q.trim()}"` : `${count} report${count === 1 ? '' : 's'}`}
       </p>
 
@@ -162,7 +167,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
           const shown = m.idx.some((i) => visible[i]);
           return (
             <section key={m.key} className="reports-month" style={{ display: shown ? 'block' : 'none' }}>
-              <h2 style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 'bold', color: INK, borderBottom: `1px solid ${INK_HAIRLINE}`, padding: mi === firstShownMonth ? '0 0 8px' : '28px 0 8px', margin: 0 }}>
+              <h2 className="reports-mh" style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 'bold', color: INK, borderBottom: `1px solid ${INK_HAIRLINE}`, padding: mi === firstShownMonth ? '0 0 8px' : '28px 0 8px', margin: 0 }}>
                 {m.label}
               </h2>
               <NoJsFold id={`rf-${m.key}`} always label={`${m.idx.length} ${m.idx.length === 1 ? 'report' : 'reports'}`} open={mi === 0}>
@@ -178,7 +183,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
                       style={{ display: visible[i] ? 'flex' : 'none', flexDirection: 'column', height: '100%', padding: '22px 0', borderBottom: `1px solid ${HAIRLINE}`, textDecoration: 'none', color: INK }}
                     >
                       {/* The type, then the piece's own kicker when it says something the type does not. */}
-                      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, fontWeight: 'bold', marginBottom: '8px' }}>
+                      <div className="reports-type" style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, fontWeight: 'bold', marginBottom: '8px' }}>
                         {e.type}
                         {e.kicker && e.kicker.toLowerCase() !== e.type.toLowerCase() ? ` · ${e.kicker}` : ''}
                       </div>
