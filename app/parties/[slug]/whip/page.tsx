@@ -230,7 +230,8 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
         <h2 style={sectionH2}>MPs who voted against most of their party most often</h2>
         <p style={{ fontSize: '15px', marginBottom: '14px' }}>MPs with at least 20 votes as a {party.name} MP. A division where the party split exactly evenly counts for no one. Each name links to the MP; the divisions listed are their most recent votes against the party.</p>
         {topRebels.length === 0 && <p style={{ fontSize: '15px' }}>No {party.name} MP has voted against most of the party since the July 2024 election.</p>}
-        <NoJsPager id="whip-rebels" count={topRebels.length} rows="> *" size={8}>
+        {/* Phones: the first 2 (step 5, 10 Nov 2026: page length). */}
+        <NoJsPager id="whip-rebels" first={2} count={topRebels.length} rows="> *" size={8}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {topRebels.map((r, i) => {
             const shown = r.rebelDivs.slice(0, DIVS_PER_REBEL);
