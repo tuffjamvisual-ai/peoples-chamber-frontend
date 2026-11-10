@@ -12,6 +12,7 @@ import { SEARCH_NOTE_JS } from '@/lib/search-note';
 import { searchContent, searchCouncils, searchConstituencies, searchPeers, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult, type ConstituencySearchResult, type PeerSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
 import { suggestQuery } from '@/lib/search-suggest';
+import { didYouMean, KIND_LABEL } from '@/lib/did-you-mean';
 import { searchVocabulary } from '@/lib/search-vocabulary';
 import { cachedOrganisationList, searchOrganisations, type OrgListRow } from '@/lib/organisations';
 import { phoneUpTo } from '@/lib/breakpoints';
@@ -349,6 +350,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const suggestionHref = suggestion
     ? `/search?${new URLSearchParams({ q: suggestion, ...(type !== 'all' ? { type } : {}), ...(dept ? { dept } : {}), ...(sort === 'newest' ? { sort } : {}) }).toString()}`
     : null;
+  // And the closest MP, constituency, council or donor names (UX4j, lib/did-you-mean.ts): each links to its page.
+  const names = q.length >= 3 && isEmpty ? await didYouMean(q) : [];
 
   return (
     <OpenGovShell>
@@ -403,7 +406,20 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {q.length >= 2 && isEmpty && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
           <p style={{ fontSize: '17px', color: INK, marginBottom: '6px' }}>No results for &ldquo;{q}&rdquo;</p>
-          {suggestion && suggestionHref && (
+          {names.length > 0 && (
+            <p style={{ fontSize: '17px', color: INK, margin: '0 0 10px' }}>
+              Did you mean <Link href={names[0].href} className="og-tap" style={{ color: ACCENT, fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{names[0].name}</Link> ({KIND_LABEL[names[0].kind]})?
+            </p>
+          )}
+          {names.length > 1 && (
+            <p style={{ fontSize: '15px', color: INK, margin: '0 0 10px', lineHeight: 1.8 }}>
+              Other close names:{' '}
+              {names.slice(1).map((n, i) => (
+                <span key={n.href}>{i > 0 && ', '}<Link href={n.href} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{n.name}</Link> ({KIND_LABEL[n.kind]})</span>
+              ))}
+            </p>
+          )}
+          {suggestion && suggestionHref && names.length === 0 && (
             <p style={{ fontSize: '17px', color: INK, margin: '0 0 10px' }}>
               Did you mean <Link href={suggestionHref} className="og-tap" style={{ color: ACCENT, fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{suggestion}</Link>?
             </p>
