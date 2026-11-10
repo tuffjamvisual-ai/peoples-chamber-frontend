@@ -12,10 +12,11 @@
 //       (elements marked data-article-body: editorials, briefings, press releases; owner, 9 Nov 2026, QA2d). Baseline: audit/mp2's
 //       page-lengths.csv when MP2 writes it, else page-length-baseline.json (measured when this check was added).
 //   A6  first screen on phones (QA6, owner, 10 Nov 2026): the page's main action, the element marked data-main-action (the
-//       search field, postcode field, first question or first record), must start above 700px at 390 x 844 and above 520px
-//       at 320 x 568; at 844 x 390 the h1 and the main action must both start within 390px. Measured from the top of the
-//       page as it opens, JavaScript on. Each page's failures are codes (no-main-action, main-hidden, main-390x844,
-//       main-320x568, h1-844x390, main-844x390, no-h1); today's are in the baseline (a6), so only a new code blocks.
+//       search field, postcode field, first question or first record), must start above 760px at 430 x 932 (UX3h), above
+//       700px at 390 x 844 and above 520px at 320 x 568; at 844 x 390 the h1 and the main action must both start within
+//       390px. Measured from the top of the page as it opens, JavaScript on. Each page's failures are codes (no-main-action,
+//       main-hidden, main-430x932, main-390x844, main-320x568, h1-844x390, main-844x390, no-h1); today's are in the
+//       baseline (a6), so only a new code blocks.
 //       Desktop (owner, 10 Nov 2026): at 1280 x 720 the main action, and the first result where a page marks one with
 //       data-first-result, must start above 720px (codes main-1280x720, first-1280x720).
 //   A4  official record links: each bill page links to bills.parliament.uk for that bill, each division page to
@@ -44,7 +45,9 @@ const JSON_OUT = arg('--json', null);
 const LIMIT_PX = 2500;
 const GROWTH_PX = 200;
 // A6 (QA6): viewport, and the most px from the top of the page at which the main action (and, landscape, the h1) may start.
+// 430 x 932, a large phone (UX3h, owner approved, 10 Nov 2026): the main action above 760px.
 const A6_VIEWS = [
+  { name: '430x932', width: 430, height: 932, main: 760 },
   { name: '390x844', width: 390, height: 844, main: 700 },
   { name: '320x568', width: 320, height: 568, main: 520 },
   { name: '844x390', width: 844, height: 390, main: 390, h1: 390 },
@@ -165,7 +168,7 @@ async function main() {
     } catch (e) { r.error = e.message.split('\n')[0]; }
     results.push(r);
   }
-  // A6: the same pages at three phone sizes, one context each.
+  // A6: the same pages at four phone sizes and one desktop size, one context each.
   for (const v of A6_VIEWS) {
     const c = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: !v.desktop, hasTouch: !v.desktop });
     await c.route('**/*', (q) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(q.request().url()) ? q.abort() : q.continue()));

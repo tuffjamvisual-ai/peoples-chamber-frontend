@@ -27,6 +27,7 @@ import PageShell from '@/app/components/PageShell';
 
 The QA1 rendered checks, run by the pre-push hook, measure `data-main-action` on one page of each type. This is check A6 in `scripts/checks/qa/rendered-checks.mjs`. The main action must start:
 
+- above 760px at 430 x 932;
 - above 700px at 390 x 844;
 - above 520px at 320 x 568;
 - within 390px at 844 x 390, where the `h1` must start within 390px too.
