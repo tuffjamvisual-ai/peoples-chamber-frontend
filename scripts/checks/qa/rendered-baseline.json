@@ -1,5 +1,5 @@
 {
- "about": "QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new. Time words updated by QA2a (9 Nov 2026): what is left is in Terminal 2 files, database content (editorials, reports, party pages, polls) or official text. A3 heights for article pages re measured without the article body (QA2d, 9 Nov 2026). QA3 (10 Nov 2026): time words rewritten in the database content (editorials, party_policies 71, parties green, polls 55 and 57) removed; \"present a similar problem\" (a verb) is in time_words_allow. QA4 (10 Nov 2026): A2 entries no longer found (after the MP2, UX1 and QA4 changes) removed. A6 (QA6, 10 Nov 2026): each page's first screen failures at 390 x 844, 320 x 568 and 844 x 390 when the check was added; no page marked data-main-action yet, so every page is \"no-main-action\" until UX2 marks them. QA5 (10 Nov 2026): /polls/archive height 9,478 to 9,702px (each archived poll's closed Sources fold, f84f7fea, and the longer dated poll 50 explainer); its A2 \"currently\" and /reports \"now\" stay (other rows). QA7 (10 Nov 2026): /reports \"now\" and /polls/archive \"currently\" removed (264 rewrites across all reader facing database text); what is left is official text (/petitions, /mps/206 register entries). QA8 (10 Nov 2026): A2 also catches \"this week\", \"last week\", a weekday with no date, \"ago\" (lower case) and \"weeks/months on\"; that day's hits baselined (/, /departments/defence, /reports, /polls/archive); \"This Week in Parliament\" and newspaper names (Mail on Sunday, Sun on Sunday, Express on Sunday) allowed. UX3c (10 Nov 2026): the A6 baseline is empty; no-main-action always fails. UX3 merge (10 Nov 2026): main-1280x720 baselined for the 82 pages whose main action starts below 720px on desktop (owner approved; UX4a compact masthead clears them). Phone sizes have no A6 baseline.",
+ "about": "QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new. Time words updated by QA2a (9 Nov 2026): what is left is in Terminal 2 files, database content (editorials, reports, party pages, polls) or official text. A3 heights for article pages re measured without the article body (QA2d, 9 Nov 2026). QA3 (10 Nov 2026): time words rewritten in the database content (editorials, party_policies 71, parties green, polls 55 and 57) removed; \"present a similar problem\" (a verb) is in time_words_allow. QA4 (10 Nov 2026): A2 entries no longer found (after the MP2, UX1 and QA4 changes) removed. A6 (QA6, 10 Nov 2026): each page's first screen failures at 390 x 844, 320 x 568 and 844 x 390 when the check was added; no page marked data-main-action yet, so every page is \"no-main-action\" until UX2 marks them. QA5 (10 Nov 2026): /polls/archive height 9,478 to 9,702px (each archived poll's closed Sources fold, f84f7fea, and the longer dated poll 50 explainer); its A2 \"currently\" and /reports \"now\" stay (other rows). QA7 (10 Nov 2026): /reports \"now\" and /polls/archive \"currently\" removed (264 rewrites across all reader facing database text); what is left is official text (/petitions, /mps/206 register entries). QA8 (10 Nov 2026): A2 also catches \"this week\", \"last week\", a weekday with no date, \"ago\" (lower case) and \"weeks/months on\"; that day's hits baselined (/, /departments/defence, /reports, /polls/archive); \"This Week in Parliament\" and newspaper names (Mail on Sunday, Sun on Sunday, Express on Sunday) allowed. UX3c (10 Nov 2026): the A6 baseline is empty; no-main-action always fails. UX3 merge (10 Nov 2026): main-1280x720 baselined for the 82 pages whose main action starts below 720px on desktop (owner approved; UX4a compact masthead clears them). Phone sizes have no A6 baseline. UX4 merge (10 Nov 2026): main-1280x720 cleared on 58 pages by UX4 and removed; 24 remain (they include the desktop cookie banner, about 208px).",
  "written": "2026-11-10",
  "pages": {
   "/mps/5247": {
@@ -11,10 +11,7 @@
   },
   "/editorials/upk2tz9zw9": {
    "height": 2039,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/": {
    "height": 5278,
@@ -26,31 +23,19 @@
    "height": 2359,
    "timeWords": [
     "ago"
-   ],
-   "a6": [
-    "main-1280x720"
    ]
   },
   "/divisions/pw-2022-12-12-123-commons": {
    "height": 8643,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/sections/parliament": {
    "height": 7121,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/councils/derry-city-and-strabane": {
    "height": 3573,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/transparency/special-advisers": {
    "height": 8214,
@@ -68,33 +53,21 @@
   },
   "/transparency/ministers-meetings": {
    "height": 6209,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/reports": {
    "height": 6642,
    "timeWords": [
     "this week"
-   ],
-   "a6": [
-    "main-1280x720"
    ]
   },
   "/parties/green": {
    "height": 6911,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/mps": {
    "height": 2276,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/debates/8FEA59EC-19CA-43B1-BA41-80B7DB394D54": {
    "height": 5233,
@@ -112,10 +85,7 @@
   },
   "/spending": {
    "height": 5088,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/people/gavin-lambert": {
    "height": 1678,
@@ -133,10 +103,7 @@
   },
   "/transparency/press-releases": {
    "height": 5195,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/councils": {
    "height": 8962,
@@ -147,38 +114,23 @@
   },
   "/directory": {
    "height": 2384,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/laws/made-without-a-vote": {
    "height": 8399,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/bills": {
    "height": 4237,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/departments": {
    "height": 4441,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/bills/657": {
    "height": 2836,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/commission": {
    "height": 2766,
@@ -203,10 +155,7 @@
   },
   "/contact": {
    "height": 1860,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/transparency/mp-activity": {
    "height": 7283,
@@ -224,24 +173,15 @@
   },
   "/recommendations": {
    "height": 7520,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/parties/green/bio": {
    "height": 4593,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/second-jobs/labour": {
    "height": 5160,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/transparency/ministerial-directions": {
    "height": 5810,
@@ -252,17 +192,11 @@
   },
   "/topics/welfare-and-benefits": {
    "height": 5908,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/bills/657/full": {
    "height": 1567,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/donors": {
    "height": 6673,
@@ -273,10 +207,7 @@
   },
   "/laws": {
    "height": 7199,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/second-jobs": {
    "height": 3803,
@@ -287,17 +218,11 @@
   },
   "/search?q=nhs": {
    "height": 3678,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/polls": {
    "height": 8622,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/pmqs": {
    "height": 6581,
@@ -305,80 +230,47 @@
   },
   "/pmqs/1961-12-07": {
    "height": 7170,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/pmqs/1991-11-05": {
    "height": 6704,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/pmqs/2015-03-18": {
    "height": 6920,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/pmqs/1945-to-1961": {
    "height": 1717,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/pmqs/1945-to-1961/1949-04-26": {
    "height": 3344,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/pmqs/1945-to-1961/1960-02-18": {
    "height": 4322,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/pmqs/1945-to-1961/1961-07-18": {
    "height": 4609,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/pmqs/1945-to-1961/1946-03-11": {
    "height": 4147,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/mps/185/pmqs": {
    "height": 2955,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/mps/769": {
    "height": 1386,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/mps/2565": {
    "height": 1262,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/standards": {
    "height": 4672,
@@ -389,38 +281,23 @@
   },
   "/editorials/se9k4m2xq7": {
    "height": 2197,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/editorials/bg9k4mxw2q": {
    "height": 2234,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/editorials/mi5k7qxw9n": {
    "height": 2272,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/editorials/hx7n4qw2mk": {
    "height": 2365,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/editorials/whr8acs2gf": {
    "height": 2197,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/parties/labour/money": {
    "height": 9642,
@@ -433,24 +310,15 @@
    "height": 9702,
    "timeWords": [
     "ago"
-   ],
-   "a6": [
-    "main-1280x720"
    ]
   },
   "/donations/impermissible": {
    "height": 9280,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/donations/trust-funded": {
    "height": 9342,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/transparency/revolving-door": {
    "height": 9222,
@@ -475,10 +343,7 @@
   },
   "/divisions/pw-2019-01-15-293-commons": {
    "height": 8648,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/councils/blue-badges": {
    "height": 9089,
@@ -489,18 +354,12 @@
   },
   "/donations/leadership-contests": {
    "height": 9061,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/petitions": {
    "height": 4765,
    "timeWords": [
     "now"
-   ],
-   "a6": [
-    "main-1280x720"
    ]
   },
   "/petitions/700143": {
@@ -509,45 +368,27 @@
   },
   "/petitions/750050": {
    "height": 4327,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/constituencies": {
    "height": 1720,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/constituencies/clacton": {
    "height": 5494,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/constituencies/arbroath-and-broughty-ferry": {
    "height": 4001,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/edms": {
    "height": 4284,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/edms/65938": {
    "height": 3952,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/edms/62415": {
    "height": 4597,
@@ -555,17 +396,11 @@
   },
   "/questions": {
    "height": 4755,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/questions/department/science-innovation-and-technology": {
    "height": 4063,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/questions/1951193": {
    "height": 4901,
@@ -573,10 +408,7 @@
   },
   "/divisions/pw-2013-02-05-151-commons": {
    "height": 7725,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/mps/206": {
    "height": 2805,
@@ -598,10 +430,7 @@
   },
   "/debates/2E73E779-90FC-4597-9B0C-E50391655AFD": {
    "height": 6236,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   },
   "/mps/4128/pmqs": {
    "height": 1110,
@@ -609,10 +438,7 @@
   },
   "/mps/8/pmqs": {
    "height": 1707,
-   "timeWords": [],
-   "a6": [
-    "main-1280x720"
-   ]
+   "timeWords": []
   }
  }
 }
