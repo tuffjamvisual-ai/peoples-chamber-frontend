@@ -70,8 +70,9 @@ function groupByMonth(items: Release[]): Map<string, Release[]> {
 // The plain list of release rows (shared by the month-grouped and single-day
 // views). Each row links to its on-site /news/[slug] page.
 function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: string }) {
+  // Phones: the first 2 (step 5, 10 Nov 2026: page length).
   return (
-    <ShowAll id="press-releases" count={(items).length} rows="> li">
+    <ShowAll id="press-releases" first={2} count={(items).length} rows="> li">
     <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
       {items.map((r) => {
         const slug = slugFromGovUrl(r.gov_url);
