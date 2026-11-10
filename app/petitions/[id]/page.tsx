@@ -9,6 +9,8 @@ import { markedCutTitle } from '@/lib/seo-title';
 import { asSentence, wholeSentences } from '@/lib/meta-description';
 import { getPetition, isRevisedResponse, ourDebateGuid, petitionConstituencies, petitionDate, type PetitionConstituency } from '@/lib/petition-pages';
 import { PetitionCredit } from '../PetitionCredit';
+import { ShowAll } from '../../components/NoJsPager';
+import { SubFold } from '../../components/PhoneFolds';
 
 // One petition (owner, backlog item 15a, 6 Nov 2026): the title, background and details as written, its dates and count, the
 // government response in full, any debate, and signatures by constituency. Kept for a day and refreshed by /api/sync-petitions
@@ -118,7 +120,8 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
             </p>
           )}
           {p.government_response_summary && <div style={{ fontWeight: 'bold' }}><AsWritten text={p.government_response_summary} /></div>}
-          {p.government_response_details && <AsWritten text={p.government_response_details} />}
+          {/* Phones (step 5, 10 Nov 2026; the page was 5,578px): the summary shows and the full response is folded. */}
+          {p.government_response_details && <SubFold label="The full response"><AsWritten text={p.government_response_details} /></SubFold>}
         </>
       ) : <p style={para}>The government has not responded yet.</p>}
 
@@ -139,7 +142,7 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
           {p.debate_overview && (
             <>
               {!p.debated_on && p.debate_outcome_at && <p style={{ ...para, fontWeight: 'bold' }}>Petitions Committee, {petitionDate(p.debate_outcome_at)}</p>}
-              <AsWritten text={p.debate_overview} />
+              <SubFold label="The Committee's overview"><AsWritten text={p.debate_overview} /></SubFold>
             </>
           )}
         </>
@@ -149,7 +152,7 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
         <>
           <h2 style={h2}>Signatures by constituency</h2>
           <p style={{ ...para, fontSize: '15px' }}>Each constituency links to its MP&rsquo;s page.</p>
-          <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>{top.map((c) => <Row key={c.gss} c={c} />)}</ol>
+          <ShowAll id="pet-top" count={top.length} rows="> li"><ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>{top.map((c) => <Row key={c.gss} c={c} />)}</ol></ShowAll>
           {rest.length > 0 && (
             <details className="mc-more">
               <summary>Show the other {n0(rest.length)} {rest.length === 1 ? 'constituency' : 'constituencies'}</summary>
