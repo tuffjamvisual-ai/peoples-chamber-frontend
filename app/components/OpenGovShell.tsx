@@ -44,9 +44,10 @@ export default function OpenGovShell({
   preload('/folders-900.webp', { as: 'image', media: wideFrom(480).split(', ').map((q) => `${q} and (max-width: 640px)`).join(', ') });
   const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, border: '0.07em solid #7a1612', padding: '0.14em 0.32em 0.06em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#7a1612', fontSize: 'clamp(24px, 4.6vw, 64px)' };
   return (
-    // og-compact: the shorter folder masthead from 768px up on every page but the homepage (UX4k, owner, 10 Nov 2026).
+    // One masthead on every page (T1-5m, owner, 10 Nov 2026: "it should be consistent"): the homepage's folder masthead
+    // everywhere; the shorter inner variant (UX4a, UX4k) is gone. Phones keep their own one-row header.
     <div
-      className={brandAsHeading ? 'ng-page' : 'ng-page og-compact'}
+      className="ng-page"
       style={{ minHeight: '100vh', margin: 0, backgroundColor: '#140d07', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3vh 0 8vh' }}
     >
       {/* Folders-pile backdrop, pinned to the viewport. */}
