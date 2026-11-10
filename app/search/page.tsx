@@ -27,7 +27,7 @@ const TYPE_META: Record<string, { label: string; color: string }> = {
   pressRelease: { label: 'Release',       color: '#1a5c36' },
   briefing:     { label: 'Report',        color: '#1a3a6e' },
   bill:         { label: 'Bill',          color: '#5c2a7a' },
-  division:     { label: 'Division',      color: '#7a5c12' },
+  division:     { label: 'Commons vote',  color: '#7a5c12' },
   mp:           { label: 'MP',            color: '#14100d' },
 };
 const COUNCIL_META = { label: 'Council', color: '#1a5c5c' };
@@ -372,7 +372,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           Search
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
-          Reports, press releases, bills, votes, constituencies, MPs, peers, councils, donors and organisations, searched together.
+          Reports, press releases, bills, parliamentary votes, constituencies, MPs, peers, councils, donors and organisations, searched together.
         </p>
       </header>
 

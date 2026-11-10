@@ -34,7 +34,7 @@ export const NAV: NavItem[] = [
     { group: 'Parliament', label: 'Early Day Motions', href: '/edms', desc: 'Every early day motion tabled in the House of Commons since the July 2024 general election, with its text, sponsors, signatures and amendments.' },
     { group: 'Parliament', label: 'Standards Cases', href: '/standards', desc: 'Decisions published by the Parliamentary Commissioner for Standards: allegations rectified, not upheld and reported to the Committee on Standards.' },
     { group: 'Parliament', label: 'Petitions', href: '/petitions', desc: 'Every UK Parliament petition since the July 2024 general election with 10,000 signatures or more: the government response, any debate, and signatures by constituency.' },
-    { group: 'Parliament', label: 'Divisions', href: '/divisions', desc: 'Recorded votes in the House of Commons back to October 2004, with how the House divided.' },
+    { group: 'Parliament', label: 'Parliamentary Votes', href: '/divisions', desc: 'Recorded votes in the House of Commons back to October 2004, with how the House divided.' },
     { group: 'Parliament', label: 'Press Releases', href: '/transparency/press-releases', desc: 'UK Government department press releases from 2007 to today, plus Commons select committee reports.' },
     { group: 'Parliament', label: 'Laws', href: '/laws', desc: 'Acts of the UK Parliament that have received Royal Assent, with original sponsor and stage history.' },
     { group: 'Parliament', label: 'Laws Made Without a Vote', href: '/laws/made-without-a-vote', desc: PAGE_DESCRIPTIONS['/laws/made-without-a-vote'] },
@@ -92,16 +92,18 @@ export const NAV: NavItem[] = [
     { group: 'Money & Power', label: 'Ministers Hospitality', href: '/transparency/hospitality', desc: PAGE_DESCRIPTIONS['/transparency/hospitality'] },
   ] },
   { label: 'Reports', href: '/reports' },
-  { label: 'Vote', href: '/polls', page: '/sections/vote', children: [
+  // "Reader Polls" and "Parliamentary Votes" (UX1d, 9 Nov 2026): the audit found "Vote" and "Votes" side by side in
+  // the menu, one our readers' polls and the other MPs' recorded votes.
+  { label: 'Reader Polls', href: '/polls', page: '/sections/vote', children: [
     { label: "opengovt Polls", href: '/polls', desc: 'Polls on issues in Parliament and government. Have your say and see the results.' },
-    { label: 'Vote on Bills', href: '/bills', desc: VOTE_ON_BILLS_DESCRIPTION },
+    { label: 'Reader Polls on Bills', href: '/bills', desc: VOTE_ON_BILLS_DESCRIPTION },
   ] },
   { label: 'Commission', href: '/commission' },
   { label: 'Contact', href: '/contact' },
 ];
 
 // The "In this section" row on a landing page (SectionLinks.tsx). `section` is a top level item (Topics, Local,
-// Accountability, Vote) or, under Parliament, one of its groups (MPs, Parliament, Parties, Departments): those rows
+// Accountability, Reader Polls) or, under Parliament, one of its groups (MPs, Parliament, Parties, Departments): those rows
 // list their own group's links and end with "All of Parliament" (report 62).
 export const PARLIAMENT_GROUPS = ['MPs', 'Parliament', 'Parties', 'Departments'];
 export function sectionRow(section: string): { label: string; links: NavLink[] } | undefined {
@@ -127,7 +129,7 @@ export const PHONE_MENU_GROUPS: { label: string; links: NavLink[] }[] = [
     { label: 'MPs', href: '/mps' },
     { label: 'Lords', href: '/lords' },
     { label: 'Bills', href: '/bills' },
-    { label: 'Votes', href: '/divisions' },
+    { label: 'Parliamentary votes', href: '/divisions' },
     { label: 'Parties', href: '/parties' },
     { label: 'Find your MP', href: '/find-your-mp' },
     { label: 'Constituencies', href: '/constituencies' },
@@ -144,7 +146,7 @@ export const PHONE_MENU_GROUPS: { label: string; links: NavLink[] }[] = [
   { label: 'Search and tools', links: [
     { label: 'Search', href: '/search' },
     { label: 'Directory', href: '/directory' },
-    { label: 'Vote', href: '/sections/vote' },
+    { label: 'Reader polls', href: '/sections/vote' },
     { label: 'Contact', href: '/contact' },
   ] },
 ];

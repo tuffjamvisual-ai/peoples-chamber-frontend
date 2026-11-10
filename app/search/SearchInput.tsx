@@ -22,7 +22,7 @@ const TYPES = [
   { value: 'editorial',    label: 'Reports' },
   { value: 'pressRelease', label: 'Releases' },
   { value: 'bill',         label: 'Bills' },
-  { value: 'division',     label: 'Divisions' },
+  { value: 'division',     label: 'Parliamentary votes' },
   { value: 'constituency', label: 'Constituencies' },
   { value: 'mp',           label: 'MPs' },
   { value: 'peer',         label: 'Peers' },

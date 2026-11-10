@@ -60,7 +60,7 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Parliament Section', href: '/sections/parliament', desc: 'Everything on MPs, bills, votes, parties and departments in one list.' },
   { name: 'Local Section', href: '/sections/local', desc: 'Councils and sewage spills in your area, in one list.' },
   { name: 'Accountability Section', href: '/sections/accountability', desc: 'Registers of interests, expenses, lobbying, donations and contracts, in one list.' },
-  { name: 'Vote Section', href: '/sections/vote', desc: 'opengovt polls and voting on bills, in one list.' },
+  { name: 'Reader Polls', href: '/sections/vote', desc: 'opengovt reader polls, on issues and on bills, in one list.' },
   { name: 'Your Area', href: '/your-area', desc: 'Your MP, your council and the latest local figures for your area, from a postcode or town.' },
   // The menu lists it as Recommendations while the tracker is public (4 Nov 2026); this is its full name.
   ...(RECOMMENDATIONS_PUBLIC ? [{ name: 'Public Accounts Committee Recommendations', href: '/recommendations', desc: 'What the Public Accounts Committee recommended, what the government said it would do and by when, and what happened next.' }] : []),

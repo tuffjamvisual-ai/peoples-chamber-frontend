@@ -434,7 +434,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         <div style={{ position: 'relative', padding: '0 4px' }}>
           <div style={{ textAlign: 'center', marginBottom: '22px' }}>
             <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
-              Reader ballot · opengovt
+              Reader poll · opengovt
             </div>
             <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 'bold', margin: '10px 0 0', lineHeight: 1.15 }}>
               How would you vote on this bill?
@@ -549,7 +549,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       {billVotes.length > 0 && (
         <section aria-labelledby="bill-commons-votes" style={{ marginBottom: '34px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
           <h2 id="bill-commons-votes" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 12px' }}>
-            Commons votes on this bill
+            Parliamentary votes in the Commons
           </h2>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.7, color: INK }}>
             {billVotes.map((d) => (
@@ -755,7 +755,7 @@ function LordsVotesSection({ divisions }: { divisions: LordsDivision[] }) {
   const rest = divisions.slice(LORDS_SHOWN_OPEN)
   return (
     <section style={{ marginBottom: '38px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
-      <Eyebrow>How the Lords voted</Eyebrow>
+      <Eyebrow>Parliamentary votes in the Lords</Eyebrow>
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 6px' }}>
         {divisions.length.toLocaleString()} formal {divisions.length === 1 ? 'vote' : 'votes'} in the House of Lords on this bill, newest first.
       </p>

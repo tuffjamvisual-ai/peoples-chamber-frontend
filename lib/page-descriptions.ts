@@ -62,7 +62,7 @@ export const PARTY_NAMES: Record<string, string> = {
   'your-party': 'Your Party',
 };
 
-// "Vote on Bills" (the Vote section) opens /bills, the same page as "Bills", so its row describes the voting itself rather
+// "Reader Polls on Bills" (the Reader Polls section) opens /bills, the same page as "Bills", so its row describes the voting itself rather
 // than repeating the bill list's description. The bill pages offer Aye and No (Abstain was removed on 30 May 2026).
 export const VOTE_ON_BILLS_DESCRIPTION =
   'Sign in to vote Aye or No on any bill going through Parliament, see how opengovt users voted, and change your vote while the bill is still live.';
