@@ -40,6 +40,7 @@ import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-pages';
 import { councilForConstituency } from '@/lib/related-links';
+import { handled, orNull } from '@/lib/settle';
 
 
 // Shared MP-row fetch. generateMetadata and the page component run as
@@ -88,21 +89,8 @@ type EdmJoined = {
   amendment_to_motion_id: number | null;
 };
 
-// Reads started early and awaited later (PERF, 10 Nov 2026). A promise that rejects before the code reaches its await
-// was an unhandledRejection, and that ended the whole Node.js process: on 8 Nov 16:08 GMT one slow "vote years" read
-// took down every page the same instance was serving. handled() marks a promise as handled at once, so it can no longer
-// end the process, but it still throws where it is awaited (for reads whose failure should keep the last good page).
-// orNull() is for the extra parts of a section: a failed read is logged and that part is left out.
-function handled<T>(promise: Promise<T>): Promise<T> {
-  promise.catch(() => {});
-  return promise;
-}
-function orNull<T>(promise: Promise<T>, label: string): Promise<T | null> {
-  return promise.catch((e) => {
-    console.error(`${label}:`, e instanceof Error ? e.message : String(e));
-    return null;
-  });
-}
+// Reads started early and awaited later use handled() and orNull() (lib/settle.ts, 10 Nov 2026): on 8 Nov 16:08 GMT one
+// slow "vote years" read rejected before its await and ended the whole Node.js process.
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
