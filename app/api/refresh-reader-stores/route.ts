@@ -10,7 +10,8 @@ export const maxDuration = 300;
 // sync refreshes what it wrote straight away; this catches anything written another way (a script, a manual fix,
 // a sync whose refresh failed). One at a time, so the database is not asked for all of them at once.
 
-const STORES: StoreRefresh[] = ['refresh_bill_stores', 'refresh_vote_counts', 'refresh_press_release_stats'];
+// refresh_pac_status (PERF step 4, 10 Nov 2026): the stored copy of the PAC recommendations status that lib/pac.ts reads.
+const STORES: StoreRefresh[] = ['refresh_bill_stores', 'refresh_vote_counts', 'refresh_press_release_stats', 'refresh_pac_status'];
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;

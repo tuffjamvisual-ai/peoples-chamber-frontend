@@ -140,8 +140,13 @@ ${apply ? 'COMMIT' : 'ROLLBACK'};
   console.log(`  rows before ${JSON.stringify(before)}`);
   console.log(`  rows after  ${JSON.stringify(after)}${apply ? '' : ' (rolled back)'}`);
   console.log(`load-treasury-minutes: ${changed} rows ${apply ? 'written' : 'would be written'}`);
-  // After an apply, refresh the cached recommendations pages (lib/pac.ts reads under the 'pac' tag).
+  // After an apply, refresh the stored status copy pages read (PERF step 4, 10 Nov 2026), then the cached
+  // recommendations pages (lib/pac.ts reads under the 'pac' tag).
   if (apply) {
+    // Its own psql call: psql() above exits on an error, and a failed refresh must not skip the page refresh below.
+    const rs = spawnSync('psql', [process.env.DATABASE_URL, '-X', '-At', '-v', 'ON_ERROR_STOP=1', '-c', 'SELECT public.refresh_pac_status();'], { encoding: 'utf8' });
+    if (rs.status === 0) console.log(`  stored status copy refreshed: ${rs.stdout.trim()} rows`);
+    else console.error('  the stored status copy did not refresh; run: psql "$DATABASE_URL" -c "SELECT public.refresh_pac_status();"');
     const r = spawnSync('node', ['scripts/revalidate.js', '--tag', 'pac'], { encoding: 'utf8' });
     console.log(`  refresh: ${(r.stdout || r.stderr || '').trim()}`);
     if (r.status !== 0) console.error('  the refresh failed; run it again: node scripts/revalidate.js --tag pac');

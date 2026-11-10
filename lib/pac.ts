@@ -87,8 +87,10 @@ const forcedFailure = () => process.env.PAC_TEST_FAIL_STATUS_READ === '1';
 async function readStatus(): Promise<StatusRow[]> {
   for (let attempt = 0; ; attempt++) {
     try {
-      if (forcedFailure()) throw new Error('pac: reading pac_recommendation_status: forced failure (PAC_TEST_FAIL_STATUS_READ=1)');
-      statusLastGood = await readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id');
+      if (forcedFailure()) throw new Error('pac: reading pac_recommendation_status_stored: forced failure (PAC_TEST_FAIL_STATUS_READ=1)');
+      // The stored copy (PERF step 4, 10 Nov 2026): 977 rows in under 1 ms, instead of working the view out (1 to 8 s).
+      // refresh_pac_status() refreshes it daily (/api/refresh-reader-stores) and after each PAC load.
+      statusLastGood = await readAll<StatusRow>('pac_recommendation_status_stored', STATUS_COLUMNS, 'recommendation_id');
       return statusLastGood;
     } catch (e) {
       if (attempt >= 1) {
