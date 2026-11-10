@@ -162,9 +162,14 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   // /bills/[id]/full (lib/bill-text.ts: a week under bill:<id>, refreshed when the Publications count changes); if it
   // cannot be read the link shows without a version.
   let fullBillVersion: string | null = null
+  // Parliament's documents for the bill, when the Bills API answered (UX1f, 9 Nov 2026): with no text published the page
+  // says so instead of linking to an empty full bill page; null when it could not be read, so the link stays.
+  let publishedDocs: number | null = null
   if (bill.parliament_id != null) {
     try {
-      const latest = latestText(await getBillPublications(billId, bill.parliament_id))
+      const pubs = await getBillPublications(billId, bill.parliament_id)
+      const latest = latestText(pubs)
+      publishedDocs = latest ? null : pubs.length
       if (latest) {
         const d = latest.date ? new Date(`${latest.date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : ''
         fullBillVersion = `${latest.label}${d ? `, ${d}` : ''}`
@@ -360,11 +365,26 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             than out to bills.parliament.uk so the reader stays in our
             shell. Visible for every bill in the table — universal
             parliament_id coverage. */}
-        {bill.parliament_id != null && (
+        {bill.parliament_id != null && publishedDocs != null && (
+          <div style={{ textAlign: 'center', margin: '0 auto 26px', maxWidth: '46em' }}>
+            <p style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK, margin: 0 }}>
+              Bill text not published
+            </p>
+            {publishedDocs > 0 && (
+              <a href={`/bills/${billId}/full`} style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontFamily: MONO, fontSize: '15px', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+                {publishedDocs === 1 ? 'The one document Parliament has published →' : `The ${publishedDocs.toLocaleString('en-GB')} documents Parliament has published →`}
+              </a>
+            )}
+          </div>
+        )}
+        {bill.parliament_id != null && publishedDocs == null && (
           <div style={{ textAlign: 'center', margin: '0 auto 26px', maxWidth: '46em' }}>
             <a
               href={`/bills/${billId}/full`}
               style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                minHeight: '44px',
                 fontFamily: MONO,
                 fontSize: 'clamp(15px, 1.05vw, 15px)',
                 letterSpacing: '0.08em',
@@ -377,7 +397,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               See full bill →
             </a>
             {fullBillVersion && (
-              <p style={{ fontFamily: MONO, fontSize: '15px', margin: '6px 0 0', color: INK }}>{fullBillVersion}</p>
+              <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0', color: INK }}>{fullBillVersion}</p>
             )}
           </div>
         )}

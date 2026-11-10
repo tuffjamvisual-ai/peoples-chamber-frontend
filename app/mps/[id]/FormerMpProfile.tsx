@@ -7,7 +7,6 @@
 import StandardsCasesLine from '../../components/StandardsCasesLine';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
-import BackLink from '../../components/BackLink';
 import JsonLd, { buildBreadcrumbs, buildMpPerson } from '@/lib/JsonLd';
 import type { RelatedLink } from '@/lib/related-links';
 import { lastSeatLine, parliamentMemberUrl, seatYears, type FormerMp } from '@/lib/former-mps';
@@ -32,7 +31,8 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
       {/* Person (owner's brief, 3 Nov 2026): a former member, so name, url and sameAs only (lib/JsonLd.tsx). */}
       <JsonLd data={buildMpPerson({ memberId: mp.memberId, fullName: mp.name, party: mp.party ?? null, former: true })} />
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'MPs', path: '/mps' }, { name: mp.name, path: `/mps/${mp.memberId}` }])} />
-      <BackLink fallbackHref="/mps" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)' }} />
+      {/* "All MPs" (UX1f, 9 Nov 2026), as on a current MP's profile: says where it leads. */}
+      <Link href="/mps" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', minHeight: '44px', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)' }}>← All MPs</Link>
       <h1 style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05, margin: '0 0 12px', color: INK, overflowWrap: 'break-word' }}>{mp.name}</h1>
       {lastSeat && (
         <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '8px', color: INK }}>

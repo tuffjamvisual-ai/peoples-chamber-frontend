@@ -3,7 +3,6 @@ import StandardsCasesLine from '../../components/StandardsCasesLine';
 import Link from 'next/link';
 import MagazineProfileSections from './MagazineProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
-import BackLink from '../../components/BackLink';
 import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 // Rubber-stamp distress texture (patchy ink), matching the OpenGovShell stamps.
@@ -125,18 +124,16 @@ export default function MpDossier({
         }
       `}</style>
 
-      {/* Back-to-party link above the header. Uses the shared BackLink
-          client component so it honours browser history (router.back())
-          and only falls through to the /mps?expand=<party> destination
-          if the user landed here directly. Previously this was a plain
-          <a> that always dumped the user on /mps regardless of where
-          they came from. */}
-      <BackLink
-        fallbackHref={backHref}
-        label="← Back"
+      {/* "All MPs" above the header (UX1f, 9 Nov 2026): the list of MPs with this MP's party open. It was "← Back", which
+          went back in the browser's history or, with no history (a link from elsewhere, JavaScript off), to this same
+          list, so the label did not say where it led. The browser's own Back button still goes back. */}
+      <Link
+        href={backHref}
         className="no-hover-scale mp-back-link"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-9%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      />
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', minHeight: '44px', marginTop: '-9%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← All MPs
+      </Link>
 
       {/* Header: polaroid (flat frame) + name / constituency / party */}
       <div className="pca-mp-header" style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
