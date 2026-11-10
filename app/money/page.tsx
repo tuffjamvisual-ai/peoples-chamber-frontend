@@ -10,6 +10,7 @@
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { SubFold } from '../components/PhoneFolds';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
@@ -128,9 +129,12 @@ export default async function MoneyLanding() {
         <strong>What none of this is.</strong> A pattern visible on more than one public register is not evidence of wrongdoing. UK MPs are legally allowed to take outside employment income, attend visits paid for by foreign governments, accept political donations, and officer All-Party Parliamentary Groups provided each is declared on its appropriate register. UK companies are legally allowed to bid for public contracts and donate to political parties provided each is declared. What none of this is is hidden. What much of it has been until now is unfindable. Putting it in one place is the work.
       </section>
 
+      {/* Folded on phones (step 5, 10 Nov 2026: page length). */}
+      <SubFold label="Sources">
       <p style={{ fontSize: '15px', marginTop: '24px' }}>
         Sources, in order: Electoral Commission donations register, Find a Tender (gov.uk contract notices), parliament.uk Register of Members&rsquo; Financial Interests, mySociety APPG membership dataset, gov.uk transparency feeds. All five refresh on weekly or daily crons. Each figure on this page is derived from current data; click through to any tile for the underlying rows.
       </p>
+      </SubFold>
     </OpenGovShell>
   );
 }
@@ -140,8 +144,8 @@ function HeroTile({ href, label, headline, teaser }: { href: string; label: stri
     <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '14px 0 20px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '8px', color: ACCENT, fontFamily: 'var(--font-special-elite), monospace' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', lineHeight: 1.2, marginBottom: '10px' }}>{headline}</div>
-      <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{teaser}</p>
-      <div style={{ marginTop: '12px', fontSize: '15px', color: ACCENT, fontWeight: 'bold' }}>Read the full table &rarr;</div>
+      <p className="og-desc" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{teaser}</p>
+      <div className="og-desc" style={{ marginTop: '12px', fontSize: '15px', color: ACCENT, fontWeight: 'bold' }}>Read the full table &rarr;</div>
     </Link>
   );
 }
@@ -150,7 +154,7 @@ function SecondaryTile({ href, label, sub }: { href: string; label: string; sub:
   return (
     <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '12px 0 16px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold', color: ACCENT, marginBottom: '6px' }}>{label} &rarr;</div>
-      <p style={{ fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{sub}</p>
+      <p className="og-desc" style={{ fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{sub}</p>
     </Link>
   );
 }
