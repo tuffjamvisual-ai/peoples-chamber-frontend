@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SubFold } from '../components/PhoneFolds';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
@@ -102,12 +103,15 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
             <section key={outcome} aria-labelledby={`sc-${OUTCOME_KEY[outcome]}`}>
               <h2 id={`sc-${OUTCOME_KEY[outcome]}`} style={h2}>{SECTION_TITLE[outcome]}</h2>
               {outcome === 'Rectified' && (
+                // Folded on phones (step 5, 10 Nov 2026: page length).
+                <SubFold label="What rectification means">
                 <p style={p}>
                   The Commissioner may conclude a case by rectification. Under <a href={SO_150} rel="noopener" style={link}>Standing Order No. 150</a>,
                   paragraph (4)(a), that applies &ldquo;in any case where the Member concerned has agreed that he has failed to register or declare an
                   interest, if it is the Commissioner&apos;s opinion that the interest involved is minor, or the failure was inadvertent, and the Member
                   concerned has taken such action by way of rectification as the Commissioner may have required&rdquo;.
                 </p>
+                </SubFold>
               )}
               {outcome === 'Not upheld' && <p style={p}>In each case listed, the Commissioner did not uphold the allegation.</p>}
               {outcome === 'Reported to the Committee on Standards' && (
