@@ -102,7 +102,8 @@ export default async function MadeWithoutAVotePage({ searchParams }: { searchPar
       </p>
       {rows.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px' }}>No instruments match these filters.</p>}
 
-      <NoJsPager id="mwv-rows" count={(rows).length} rows="> li" size={25}>
+      {/* Phones: the first 2 (step 5, 10 Nov 2026: page length). */}
+      <NoJsPager id="mwv-rows" first={2} count={(rows).length} rows="> li" size={25}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {rows.map((r) => (
           <li key={r.api_id} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' }}>
