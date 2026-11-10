@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { track } from '@vercel/analytics';
 import { CONSENT_EVENT, readConsent, writeConsent } from '@/lib/cookie-consent';
-import { phoneUpTo } from '@/lib/breakpoints';
+import { phoneUpTo, PHONE } from '@/lib/breakpoints';
 
 const INK = '#14100d';
 const PAPER = '#fbf4e6';
@@ -30,6 +30,23 @@ const link: React.CSSProperties = { color: INK, textDecoration: 'underline' };
 // cookies" link, and "Accept analytics" and "Reject analytics" side by side, each on one line and 44px tall.
 const BANNER_CSS = `
 .og-cookie-banner .og-cb-short, .og-cookie-banner .og-cb-narrow { display: none; }
+.og-cb-form { display: contents; }
+/* Phones (UX2o, owner approved through Cowork, 10 Nov 2026): fixed at the foot of the screen, out of the page flow, so it
+   never pushes the page down, and at most 120px tall at 320px wide: the heading is kept for screen readers, one short
+   sentence with the "View cookies" link, then Accept and Reject side by side, equal, 44px tall. The page gets the same
+   space at its foot so nothing ends up behind the banner. From 640px up, at the top of the page as before. */
+@media ${PHONE} {
+  .og-cookie-banner { position: fixed !important; left: 0; right: 0; bottom: 0; z-index: 50; border-bottom: none !important; border-top: 2px solid ${INK}; padding: 8px 12px !important; box-shadow: 0 -2px 8px rgba(20,16,13,0.15); }
+  .og-cookie-banner h2 { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0 !important; }
+  .og-cookie-banner .og-cb-long, .og-cookie-banner .og-cb-wide, .og-cookie-banner .og-cb-link, .og-cookie-banner .og-cb-short-full { display: none !important; }
+  .og-cookie-banner .og-cb-short { display: block; font-size: 15px !important; line-height: 1.35 !important; margin-bottom: 6px !important; }
+  .og-cookie-banner .og-cb-narrow { display: inline; }
+  .og-cookie-banner .og-cb-actions { gap: 8px !important; margin-top: 0 !important; flex-wrap: nowrap !important; }
+  .og-cookie-banner .og-cb-btn { flex: 1 1 0; min-width: 0; min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 0 6px !important; }
+  body:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set) body:has(.og-cookie-banner) { padding-bottom: 130px; }
+  html:has(#og-cookies-done:target) .og-cookie-banner { display: none !important; }
+  html:has(#og-cookies-done:target) body { padding-bottom: 0; }
+}
 @media ${phoneUpTo(479)} {
   .og-cookie-banner { padding: 8px 12px !important; }
   .og-cookie-banner h2 { font-size: 16px !important; line-height: 1.25 !important; margin-bottom: 4px !important; }
@@ -70,6 +87,9 @@ export default function CookieBanner() {
   };
 
   return (
+    <>
+    {/* With JavaScript off, a choice comes back to this page with #og-cookies-done, which hides the banner here (UX2o). */}
+    <i id="og-cookies-done" aria-hidden style={{ position: 'absolute', top: 0 }} />
     <div
       className="og-cookie-banner"
       data-state={state}
@@ -99,21 +119,27 @@ export default function CookieBanner() {
             {/* Phones under 480px (owner, 4 Nov 2026): one sentence ending in the "View cookies" link, and shorter button
                 labels (globals.css shows one wording or the other; wider screens keep theirs). */}
             <p className="og-cb-short" style={text}>
-              We use essential cookies to run the site, and we&rsquo;d like analytics cookies to see how it&rsquo;s used.{' '}
+              {/* Phones (UX2o): the shorter sentence keeps the banner within 120px at 320px wide; the essential cookies line is on /cookies. */}
+              <span className="og-cb-short-full">We use essential cookies to run the site, and we&rsquo;d like analytics cookies to see how it&rsquo;s used. </span>
+              <span className="og-cb-short-phone">Can we use analytics cookies to see how opengovt is used?</span>{' '}
               <Link href="/cookies" className="focus-ring og-cb-inline" style={link}>View cookies</Link>
             </p>
+            {/* With JavaScript off the two buttons post the choice (app/api/cookie-choice); with it on, they save it here. */}
+            <form method="post" action="/api/cookie-choice" className="og-cb-form" onSubmit={(e) => e.preventDefault()}>
             <div className="og-cb-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginTop: '6px' }}>
-              <button type="button" className="focus-ring og-cb-btn" style={button} onClick={() => choose(true)}>
+              <button type="submit" name="analytics" value="yes" className="focus-ring og-cb-btn" style={button} onClick={(e) => { e.preventDefault(); choose(true); }}>
                 <span className="og-cb-wide">Accept additional cookies</span><span className="og-cb-narrow">Accept analytics</span>
               </button>
-              <button type="button" className="focus-ring og-cb-btn" style={button} onClick={() => choose(false)}>
+              <button type="submit" name="analytics" value="no" className="focus-ring og-cb-btn" style={button} onClick={(e) => { e.preventDefault(); choose(false); }}>
                 <span className="og-cb-wide">Reject additional cookies</span><span className="og-cb-narrow">Reject analytics</span>
               </button>
               <Link href="/cookies" className="focus-ring og-cb-link" style={{ ...link, fontFamily: MONO, fontSize: '16px' }}>View cookies</Link>
             </div>
+            </form>
           </>
         )}
       </div>
     </div>
+    </>
   );
 }
