@@ -8,6 +8,7 @@ import { QUESTION_DEPARTMENTS, departmentBySlug } from '@/lib/question-departmen
 import { QUESTION_PAGE_SIZE, questionDepartmentStats, questionPeople, searchQuestions, type QuestionStatus } from '@/lib/question-pages';
 import QuestionItems from './QuestionItems';
 import NoJsPager from '@/app/components/NoJsPager';
+import { wideFrom } from '@/lib/breakpoints';
 
 // Written questions this Parliament (owner, backlog item 15c, 6 Nov 2026): search by words, MP or peer, department and date, newest first,
 // 25 at a time. A plain form and links, so it all works with JavaScript off. Filter links are nofollow, so crawlers do not read every
@@ -68,6 +69,17 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   };
   const moreHref = more ? href({ before: more, at: String(at + QUESTION_PAGE_SIZE) }) : null;
   const person = memberParam ? byId.get(memberParam) : null;
+  // The filters in use, each with a link that removes it (UX4c).
+  const fmt = (d: string) => { const t = new Date(`${d}T00:00:00Z`); return isNaN(t.getTime()) ? d : t.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }); };
+  const chips: { key: string; label: string; href: string }[] = [
+    ...(words ? [{ key: 'words', label: `Words: ${words}`, href: href({ words: null }) }] : []),
+    ...(who ? [{ key: 'who', label: `MP or peer: ${who}`, href: href({ who: null }) }] : []),
+    ...(person ? [{ key: 'member', label: `Asked by ${person.name}`, href: href({ member: null }) }] : []),
+    ...(dept ? [{ key: 'department', label: `Department: ${dept.name}`, href: href({ department: null }) }] : []),
+    ...(from ? [{ key: 'from', label: `Tabled from ${fmt(from)}`, href: href({ from: null }) }] : []),
+    ...(to ? [{ key: 'to', label: `Tabled to ${fmt(to)}`, href: href({ to: null }) }] : []),
+    ...(status ? [{ key: 'status', label: STATUSES.find((c) => c.key === status)?.label ?? status, href: href({ status: null }) }] : []),
+  ];
 
   return (
     <OpenGovShell>
@@ -78,10 +90,17 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
         Questions MPs and peers table for a written answer from a government department, since the July 2024 general election.
       </p>
 
-      <form action="/questions" method="get" role="search" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', margin: '0 0 12px', maxWidth: '720px' }}>
-        <div style={{ gridColumn: '1 / -1' }}><label htmlFor="q-words" style={labelStyle}>Words</label><input data-main-action id="q-words" type="search" name="words" defaultValue={words} style={field} /></div>
-        <div style={{ gridColumn: '1 / -1' }}><label htmlFor="q-who" style={labelStyle}>MP or peer</label><input id="q-who" type="search" name="who" defaultValue={who} style={field} /></div>
-        <div style={{ gridColumn: '1 / -1' }}>
+      {/* UX4c (owner approved, 10 Nov 2026): words and MP or peer side by side from 1024px; department and dates under "More
+          filters", a native fold, closed unless one of them is set (its fields submit either way); the filters in use as
+          chips above the results, each a link that removes it. Works with JavaScript off. */}
+      <style>{`.qf { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0 0 12px; max-width: 900px; } .qf > .qf-full { grid-column: 1 / -1; } .qf-more > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 15px; font-weight: bold; color: ${INK}; } .qf-more-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding: 4px 0 8px; } .qf-more-grid > .qf-full { grid-column: 1 / -1; } .q-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; padding: 0; } .q-chips a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 12px; box-sizing: border-box; font-size: 15px; color: ${INK}; background: rgba(122,22,18,0.08); border: 1px solid ${ACCENT}; text-decoration: none; } @media ${wideFrom(1024)} { .qf { grid-template-columns: 1fr 1fr auto; align-items: end; } .qf > .qf-go { grid-column: auto; order: 3; } .qf > .qf-more { order: 4; } }`}</style>
+      <form action="/questions" method="get" role="search" className="qf">
+        <div><label htmlFor="q-words" style={labelStyle}>Words</label><input data-main-action id="q-words" type="search" name="words" defaultValue={words} style={field} /></div>
+        <div><label htmlFor="q-who" style={labelStyle}>MP or peer</label><input id="q-who" type="search" name="who" defaultValue={who} style={field} /></div>
+        <details className="qf-more qf-full" open={!!(dept || from || to)}>
+          <summary>More filters{dept || from || to ? ` (${[dept, from, to].filter(Boolean).length} set)` : ''}</summary>
+          <div className="qf-more-grid">
+        <div className="qf-full">
           <label htmlFor="q-department" style={labelStyle}>Department</label>
           <select id="q-department" name="department" defaultValue={dept?.slug ?? ''} style={field}>
             <option value="">All departments</option>
@@ -90,10 +109,18 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
         </div>
         <div><label htmlFor="q-from" style={labelStyle}>Tabled from</label><input id="q-from" type="date" name="from" defaultValue={from} style={field} /></div>
         <div><label htmlFor="q-to" style={labelStyle}>Tabled to</label><input id="q-to" type="date" name="to" defaultValue={to} style={field} /></div>
+          </div>
+        </details>
         {status && <input type="hidden" name="status" value={status} />}
         {memberParam && <input type="hidden" name="member" value={memberParam} />}
-        <div style={{ gridColumn: '1 / -1' }}><button type="submit" style={{ minHeight: '44px', padding: '8px 20px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button></div>
+        <div className="qf-full qf-go"><button type="submit" style={{ minHeight: '44px', padding: '8px 20px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button></div>
       </form>
+
+      {chips.length > 0 && (
+        <ul aria-label="Filters in use" className="q-chips">
+          {chips.map((c) => <li key={c.key}><a href={c.href} rel="nofollow" className="no-hover-scale">{c.label}<span aria-hidden>✕</span><span className="sr-only"> (remove)</span></a></li>)}
+        </ul>
+      )}
 
       <ul aria-label="Filters" style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', padding: 0 }}>
         {STATUSES.map((c) => {
