@@ -1,4 +1,5 @@
 import MoreChain from '../components/MoreChain';
+import { NoJsFold } from '../components/NoJsPager';
 import PreFixedQuestions from './PreFixedQuestions';
 import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel, type ListedSession } from '@/lib/pmqs-archive';
 import type { PmqsSet } from '@/lib/pmqs';
@@ -44,6 +45,8 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
       ))}
       <PreFixedQuestions />
       <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '28px 0 10px' }}>Our count against the Commons Library</h3>
+      {/* Folded on phones (step 5, 10 Nov 2026: the page was 5,098px). */}
+      <NoJsFold id="pmqs-count-f" always label={`The ${totals.length.toLocaleString('en-GB')} Prime Ministers`}>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
         <thead>
           <tr>
@@ -64,6 +67,7 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
           ))}
         </tbody>
       </table>
+      </NoJsFold>
     </section>
   );
 }

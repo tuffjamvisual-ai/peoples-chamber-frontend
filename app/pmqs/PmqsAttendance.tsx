@@ -2,7 +2,8 @@
 // with four wrong member ids corrected (corrections_to_source in the data file). The file is kept as prepared; the one
 // name Parliament spells differently is corrected here.
 import Link from 'next/link';
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import data from '@/lib/data/pmqs-attendance-2026-11-04.json';
 
 const INK = '#14100d';
@@ -35,6 +36,8 @@ export default function PmqsAttendance() {
       <h2 id="pmqs-attendance" style={h2}>PMQs attendance since 1979</h2>
 
       <h3 style={h3}>Attendance by Prime Minister</h3>
+      {/* Folded on phones (step 5, 10 Nov 2026: the page was 5,098px). */}
+      <NoJsFold id="pmqs-pms-f" always label={`The ${data.attendance.length.toLocaleString('en-GB')} Prime Ministers`}>
       <NoJsPager id="pmqs-pms" count={data.attendance.length} rows="> tbody > tr" size={25} cards={[null, 'Sessions', 'Attended', 'Missed', 'Per cent missed']} title={1}>
       <table style={table}>
         <thead>
@@ -59,6 +62,7 @@ export default function PmqsAttendance() {
         </tbody>
       </table>
       </NoJsPager>
+      </NoJsFold>
 
       {/* A native fold, closed, at every width (owner, 6 Nov 2026). */}
       <details className="pa-fold" style={{ marginTop: '28px' }}>
@@ -114,10 +118,13 @@ export default function PmqsAttendance() {
       </div>
       </details>
 
+      {/* The note and source folded on phones (step 5, 10 Nov 2026: page length). */}
+      <SubFold label="Note and source">
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '20px 0 0' }}>{data.source.note_1}.</p>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '12px 0 0' }}>
         <a href={data.source.url} rel="noopener" style={{ color: ACCENT, textDecoration: 'underline' }}>{CREDIT}</a>
       </p>
+      </SubFold>
     </section>
   );
 }
