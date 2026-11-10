@@ -208,7 +208,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By donor type</h2>
         <p style={{ fontSize: '15px', marginBottom: '10px' }}>The most diagnostic single decomposition. Tells you who actually owns the party.</p>
-        <NoJsPager id="pm-type" count={typeRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>
+        <NoJsPager id="pm-type" first={2} count={typeRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -236,6 +236,8 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
         <h2 style={sectionH2}>Year by year</h2>
         <p style={{ fontSize: '15px', marginBottom: '10px' }}>Declared total per calendar year. Totals usually spike in election years and in years when the leader changes.</p>
         <NoJsFold id="pm-years-fold" label="Show each year">
+        {/* Folded on phones (step 5, 10 Nov 2026: the page was 4,509px), as are the accounting units and the top donors. */}
+        <NoJsFold id="pm-years-f" always label={`The ${yearRows.length.toLocaleString('en-GB')} years`}>
         <NoJsPager id="pm-years" count={yearRows.length} rows="> tbody > tr" size={25}>
         <table style={tableStyle}>
           <thead>
@@ -261,12 +263,14 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
         </table>
         </NoJsPager>
         </NoJsFold>
+        </NoJsFold>
       </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Where the money landed · accounting unit</h2>
         <p style={{ fontSize: '15px', marginBottom: '10px' }}>Money that lands at Central HQ funds the party machine. Money that lands at a constituency association funds a single seat. The mix tells you whether the party is centrally bankrolled or locally rooted.</p>
         <NoJsFold id="pm-where-fold" label="Show each accounting unit">
+        <NoJsFold id="pm-where-f" always label={`The ${unitRows.length.toLocaleString('en-GB')} units`}>
         <NoJsPager id="pm-where" count={unitRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>
         <table style={tableStyle}>
           <thead>
@@ -289,6 +293,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
         </NoJsFold>
       </section>
 
@@ -321,6 +326,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Top 30 donors · lifetime</h2>
+        <NoJsFold id="pm-donors-f" always label={`The ${donorRanked.slice(0, 30).length.toLocaleString('en-GB')} donors`}>
         <NoJsPager id="pm-donors" count={donorRanked.slice(0, 30).length} rows="> tbody > tr" size={25} cards={[null, null, 'Type', 'Donations', 'Lifetime total']} title={2}>
         <table style={tableStyle}>
           <thead>
@@ -347,6 +353,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
       </section>
 
       <p style={{ fontSize: '15px', marginTop: '24px' }}>
