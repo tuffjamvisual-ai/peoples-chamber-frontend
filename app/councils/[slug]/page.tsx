@@ -341,7 +341,10 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           fontFamily: SERIF,
         }}
       >
+        {/* Phones (UX2f): a smaller gap under the header, so political control starts on the first screen held sideways too. */}
+        <style>{`@media ${phoneUpTo(639.98)} { .cp-head { margin-bottom: 12px !important; } }`}</style>
         <header
+          className="cp-head"
           style={{
             borderTop: `1.5px solid ${INK}`,
             borderBottom: `1.5px solid ${INK}`,
@@ -386,7 +389,11 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             { id: 'sewage', label: 'Sewage', rotate: '0.07deg' },
           ]}
           slots={{
-            overview: <>
+            overview: <div className="ov-flow">
+              {/* Phones (UX2f, owner approved through Cowork, 10 Nov 2026): political control and the key figures first; the
+                  opening sentence and the Wikipedia background (a closed fold) after them. CSS order; from 640px up as before. */}
+              <style>{`@media ${phoneUpTo(639.98)} { .ov-flow { display: flex; flex-direction: column; } .ov-flow > .ov-about { order: 1; } .ov-flow > style { display: none; } }`}</style>
+              <div className="ov-about">
               {/* Opening sentence (owner, 7 Nov 2026, L2): what the council is and its ONS code, from the council's own row. */}
               {c.gss_code && (
                 <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 16px', maxWidth: '46em', color: INK }}>
@@ -408,6 +415,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 )}
                 </SubFold>
               )}
+              </div>
 
               {hasLeadership && (
                 <Section title="Political Control & Leadership" date={councilUpdated} source="councils.updated_at"
@@ -537,7 +545,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   </NoJsFold>
                 </section>
               )}
-            </>,
+            </div>,
             money: <>
               {hasFinance && (
                 <Section title="Finance" date={councilTax ? `Period ${councilTax.year.replace('-', '/')}` : councilUpdated} source={councilTax ? undefined : 'councils.updated_at'}>
@@ -626,6 +634,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             </>,
           }}
           slug={c.slug}
+          shortcuts={['overview', 'money', 'ratings']}
           lazyTabs={lazyTabs}
           welfare={showsWelfare(c.gss_code) ? (
             <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>

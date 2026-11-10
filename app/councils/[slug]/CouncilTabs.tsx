@@ -27,7 +27,10 @@ type Tab = { id: string; label: string; rotate: string };
 const ACCENT = '#7a1612';
 const INK = '#14100d';
 
-export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare }: { tabs: Tab[]; slots: Record<string, ReactNode>; slug: string; lazyTabs: string[]; welfare: ReactNode }) {
+// Phones (UX2f, owner approved through Cowork, 10 Nov 2026): a few sections as shortcuts (`shortcuts`), then one closed
+// native fold, "Council sections", with every section; choosing one closes the fold and brings that section's content to
+// the top of the screen. From 640px up every section is in the row or sidebar, as before.
+export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare, shortcuts = [] }: { tabs: Tab[]; slots: Record<string, ReactNode>; slug: string; lazyTabs: string[]; welfare: ReactNode; shortcuts?: string[] }) {
   const [active, setActive] = useState<string>(tabs[0]?.id ?? '');
   const [panelHtml, setPanelHtml] = useState<Record<string, string>>({});
   const [panelFailed, setPanelFailed] = useState<string | null>(null);
@@ -136,8 +139,14 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare }: { 
     }
   }, [active, visible]);
 
+  const sectionsRef = useRef<HTMLDetailsElement | null>(null);
   const choose = (id: string) => {
     setActive(id);
+    // Phones: close "Council sections" and bring the chosen section's content into view at the top of the screen.
+    if (window.matchMedia(phoneUpTo(639.98)).matches) {
+      if (sectionsRef.current) sectionsRef.current.open = false;
+      requestAnimationFrame(() => panelRefs.current[id]?.scrollIntoView({ block: 'start' }));
+    }
     try {
       window.history.replaceState(null, '', `#${id}`);
     } catch {
@@ -161,6 +170,38 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare }: { 
     );
   };
 
+  const tabButton = (t: Tab, className?: string) => {
+    const isActive = t.id === active;
+    return (
+      <button
+        key={t.id}
+        type="button"
+        className={className}
+        data-council-tab={t.id}
+        aria-pressed={isActive}
+        onClick={() => choose(t.id)}
+        style={{
+          padding: '12px 16px',
+          border: 'none',
+          borderLeft: isActive ? `4px solid ${ACCENT}` : '4px solid transparent',
+          background: isActive ? 'rgba(122,22,18,0.08)' : 'transparent',
+          boxShadow: isActive ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
+          fontWeight: isActive ? 'bold' : 'normal',
+          fontSize: '15px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: INK,
+          fontFamily: 'var(--font-special-elite), monospace',
+          transform: `rotate(${t.rotate})`,
+          textAlign: 'left',
+          cursor: 'pointer',
+        }}
+      >
+        {t.label}
+      </button>
+    );
+  };
+
   const hideEmptyCss = tabs
     .map((t) => `.council-tabs:has(#council-panel-${t.id}:empty) [data-council-tab="${t.id}"]{display:none}`)
     .join('');
@@ -180,45 +221,32 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare }: { 
           .council-tabs nav { flex-direction:column; overflow:visible; border-bottom:none; padding:8px; -webkit-mask-image:none !important; mask-image:none !important; }
           .council-tabs nav button { white-space:normal; }
         }
+        .council-tabs .ct-sections { display: none; }
         @media ${phoneUpTo(639.98)} {
-          .council-tabs nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; -webkit-mask-image: none !important; mask-image: none !important; }
-          .council-tabs nav button { white-space: normal; width: 100%; min-width: 0; padding: 10px 8px !important; letter-spacing: 0.02em !important; overflow-wrap: anywhere; transform: none !important; }
+          .council-tabs nav { display: flex; flex-wrap: wrap; gap: 4px; overflow: visible; -webkit-mask-image: none !important; mask-image: none !important; }
+          .council-tabs nav > button { flex: 0 1 auto; min-height: 44px; }
+          .council-tabs nav > button:not(.ct-short) { display: none !important; }
+          .council-tabs nav button { white-space: normal; min-width: 0; padding: 10px 8px !important; letter-spacing: 0.02em !important; overflow-wrap: anywhere; transform: none !important; }
+          .council-tabs { gap: 6px !important; }
+          .council-tabs .ct-sections { display: block; flex: 1 1 12em; }
+          .council-tabs .ct-sections > summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 4px; cursor: pointer; list-style: none; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: ${INK}; }
+          .council-tabs .ct-sections > summary::-webkit-details-marker { display: none; }
+          .council-tabs .ct-sections > summary::after { content: '+'; font-size: 20px; color: ${ACCENT}; }
+          .council-tabs .ct-sections[open] > summary::after { content: '\\2212'; }
+          .council-tabs .ct-sections > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px 0 8px; }
+          .council-tabs .ct-sections button { width: 100%; min-height: 44px; }
+          .council-tabs > div > [role=region] { scroll-margin-top: 8px; }
         }
         ${hideEmptyCss}
       `}</style>
       <aside>
         <div ref={floatRef} style={{ transform: floatOffset ? `translateY(${floatOffset}px)` : undefined, willChange: 'transform' }}>
         <nav ref={navRef} aria-label="Council information" className={moreRight ? 'more-right' : undefined}>
-          {tabs.filter((t) => visible.includes(t.id)).map((t) => {
-            const isActive = t.id === active;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                data-council-tab={t.id}
-                aria-pressed={isActive}
-                onClick={() => choose(t.id)}
-                style={{
-                  padding: '12px 16px',
-                  border: 'none',
-                  borderLeft: isActive ? `4px solid ${ACCENT}` : '4px solid transparent',
-                  background: isActive ? 'rgba(122,22,18,0.08)' : 'transparent',
-                  boxShadow: isActive ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
-                  fontWeight: isActive ? 'bold' : 'normal',
-                  fontSize: '15px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: INK,
-                  fontFamily: 'var(--font-special-elite), monospace',
-                  transform: `rotate(${t.rotate})`,
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                }}
-              >
-                {t.label}
-              </button>
-            );
-          })}
+          {tabs.filter((t) => visible.includes(t.id)).map((t) => tabButton(t, shortcuts.includes(t.id) ? 'ct-short' : undefined))}
+          <details ref={sectionsRef} className="ct-sections">
+            <summary>Council sections ({tabs.filter((t) => visible.includes(t.id)).length})</summary>
+            <div>{tabs.filter((t) => visible.includes(t.id)).map((t) => tabButton(t))}</div>
+          </details>
         </nav>
         </div>
       </aside>
