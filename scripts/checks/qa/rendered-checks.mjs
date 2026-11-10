@@ -10,6 +10,11 @@
 //   A3  phone length: at 375px, as the page first opens (folds closed), at most 2,500px tall, not counting article text
 //       (elements marked data-article-body: editorials, briefings, press releases; owner, 9 Nov 2026, QA2d). Baseline: audit/mp2's
 //       page-lengths.csv when MP2 writes it, else page-length-baseline.json (measured when this check was added).
+//   A6  first screen on phones (QA6, owner, 10 Nov 2026): the page's main action, the element marked data-main-action (the
+//       search field, postcode field, first question or first record), must start above 700px at 390 x 844 and above 520px
+//       at 320 x 568; at 844 x 390 the h1 and the main action must both start within 390px. Measured from the top of the
+//       page as it opens, JavaScript on. Each page's failures are codes (no-main-action, main-hidden, main-390x844,
+//       main-320x568, h1-844x390, main-844x390, no-h1); today's are in the baseline (a6), so only a new code blocks.
 //   A4  official record links: each bill page links to bills.parliament.uk for that bill, each division page to
 //       votes.parliament.uk for that division (ids read from the database).
 // A2 and A3 found problems on pages that existed before the check; those are in rendered-baseline.json and are
@@ -35,6 +40,12 @@ const WRITE = argv.includes('--write-baseline');
 const JSON_OUT = arg('--json', null);
 const LIMIT_PX = 2500;
 const GROWTH_PX = 200;
+// A6 (QA6): viewport, and the most px from the top of the page at which the main action (and, landscape, the h1) may start.
+const A6_VIEWS = [
+  { name: '390x844', width: 390, height: 844, main: 700 },
+  { name: '320x568', width: 320, height: 568, main: 520 },
+  { name: '844x390', width: 844, height: 390, main: 390, h1: 390 },
+];
 const EXPECTED_A4_DIVISIONS = true;
 const BASELINE_FILE = path.join(HERE, 'rendered-baseline.json');
 const MP2_CSV = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/audit/mp2/page-lengths.csv';
@@ -109,6 +120,15 @@ async function officialLink(urlPath) {
   return null;
 }
 
+// A6: the measured position behind a code, for the report.
+function a6Detail(r, code) {
+  const m = /^(main|h1)-(\d+x\d+)$/.exec(code);
+  if (!m) return '';
+  const v = A6_VIEWS.find((x) => x.name === m[2]);
+  const at = r.a6Tops?.[m[2]]?.[m[1]];
+  return ` (starts at ${at}px, limit ${m[1] === 'h1' ? v.h1 : v.main}px)`;
+}
+
 async function main() {
   const list = pages();
   const extra = ALL ? [] : [{ route: '/bills/[id]', url: '/bills/3942' }, { route: '/bills/[id]', url: '/bills/4080' }, { route: '/divisions/[slug]', url: '/divisions/pw-2019-01-15-293-commons' }];
@@ -118,7 +138,7 @@ async function main() {
   await ctx.route('**/*', (r) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(r.request().url()) ? r.abort() : r.continue()));
   const page = await ctx.newPage();
   for (const p of [...list, ...extra]) {
-    const r = { route: p.route, url: p.url, status: null, height: null, timeWords: [], link: null, dates: [] };
+    const r = { route: p.route, url: p.url, status: null, height: null, timeWords: [], link: null, dates: [], a6: null, a6Tops: null };
     try {
       const res = await fetch(BASE + p.url, { redirect: 'manual', signal: AbortSignal.timeout(60000) });
       r.status = res.status;
@@ -136,11 +156,36 @@ async function main() {
     } catch (e) { r.error = e.message.split('\n')[0]; }
     results.push(r);
   }
+  // A6: the same pages at three phone sizes, one context each.
+  for (const v of A6_VIEWS) {
+    const c = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+    await c.route('**/*', (q) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(q.request().url()) ? q.abort() : q.continue()));
+    const pg = await c.newPage();
+    for (const r of results) {
+      if (r.status !== 200 || r.height == null) continue;
+      try {
+        await pg.goto(BASE + r.url, { waitUntil: 'load', timeout: 60000 });
+        await pg.waitForTimeout(300);
+        const t = await pg.evaluate(() => {
+          const top = (el) => (el && el.getClientRects().length ? Math.round(el.getBoundingClientRect().top + window.scrollY) : null);
+          const main = document.querySelector('[data-main-action]');
+          return { main: main ? top(main) : undefined, h1: top(document.querySelector('h1')) };
+        });
+        r.a6 ??= []; r.a6Tops ??= {};
+        r.a6Tops[v.name] = t;
+        if (t.main === undefined) { if (!r.a6.includes('no-main-action')) r.a6.push('no-main-action'); }
+        else if (t.main === null) { if (!r.a6.includes('main-hidden')) r.a6.push('main-hidden'); }
+        else if (t.main >= v.main) r.a6.push(`main-${v.name}`);
+        if (v.h1 != null) { if (t.h1 == null) r.a6.push('no-h1'); else if (t.h1 >= v.h1) r.a6.push(`h1-${v.name}`); }
+      } catch (e) { r.a6 ??= []; r.a6.push(`error-${v.name}`); }
+    }
+    await c.close();
+  }
   await browser.close();
 
   if (WRITE) {
     const b = { about: 'QA1 rendered checks baseline: page heights at 375px and the time words found when the check was added (or last accepted). A run fails on anything new.', written: new Date().toISOString().slice(0, 10), pages: {} };
-    for (const r of results) if (r.height != null || r.timeWords.length) b.pages[r.url] = { height: r.height, timeWords: r.timeWords.map((w) => w.split(':')[0]) };
+    for (const r of results) if (r.height != null || r.timeWords.length) b.pages[r.url] = { height: r.height, timeWords: r.timeWords.map((w) => w.split(':')[0]), ...(r.a6?.length ? { a6: r.a6 } : {}) };
     fs.writeFileSync(BASELINE_FILE, JSON.stringify(b, null, 1) + '\n');
     console.log(`rendered checks: baseline written for ${Object.keys(b.pages).length} pages`);
   }
@@ -166,6 +211,12 @@ async function main() {
       if ((b.timeWords ?? []).includes(word)) expected.push(`A2 ${r.url}: ${w}`);
       else fails.push(`A2 ${r.url}: ${w} (new)`);
     }
+    for (const code of r.a6 ?? []) {
+      const line = `A6 ${r.url}: ${code}${a6Detail(r, code)}`;
+      if (code.startsWith('error-')) fails.push(`${line} (could not measure)`);
+      else if ((b.a6 ?? []).includes(code)) expected.push(line);
+      else fails.push(`${line} (new)`);
+    }
     for (const d of r.dates) if (d.stale) expected.push(`date ${r.url}: "Updated ${d.date}" is ${d.age} days old, over ${d.limit} for ${d.judgedBy === 'source' ? d.source : "this page's data"} (data, reported only)`);
     if (r.link && !r.link.found) {
       const line = `A4 ${r.url}: no link to ${r.link.href ?? `Parliament's record (${r.link.error ?? 'id not found'})`}`;
@@ -182,11 +233,13 @@ async function main() {
     date_lines: results.reduce((n, r) => n + r.dates.length, 0),
     date_lines_by_source: results.reduce((n, r) => n + r.dates.filter((d) => d.judgedBy === 'source').length, 0),
     dates_stale: results.reduce((n, r) => n + r.dates.filter((d) => d.stale).length, 0),
+    a6_pages_failing: results.filter((r) => r.a6?.length).length,
+    a6_main_action_marked: results.filter((r) => r.a6Tops && Object.values(r.a6Tops).some((t) => t.main !== undefined)).length,
     new_problems: fails.length,
     expected: expected.length,
   };
   if (JSON_OUT) fs.writeFileSync(JSON_OUT, JSON.stringify({ summary, fails, expected, results }, null, 1));
-  console.log(`rendered checks (A2 time words, A3 phone length, A4 official links): ${JSON.stringify(summary)}`);
+  console.log(`rendered checks (A2 time words, A3 phone length, A4 official links, A6 first screen): ${JSON.stringify(summary)}`);
   for (const e of expected) console.log(`  expected: ${e}`);
   for (const f of fails) console.log(`  FAIL ${f}`);
   return fails.length ? 1 : 0;

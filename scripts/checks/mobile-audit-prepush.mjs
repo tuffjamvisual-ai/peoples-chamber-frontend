@@ -65,7 +65,7 @@ try {
     code = 0;
     fs.writeFileSync(passedFile, sha);
   } catch {
-    console.error('Push refused: the fast mobile audit (checks a, b, c or h), a reader journey (e, g), the sitemap dates check or the QA1 rendered checks (A2, A3, A4) failed, above. Fix them, commit and push again.');
+    console.error('Push refused: the fast mobile audit (checks a, b, c or h), a reader journey (e, g), the sitemap dates check or the QA1 rendered checks (A2, A3, A4, A6) failed, above. Fix them, commit and push again.');
     const lines = errorLines();
     console.error(`Server log: ${serverLog}${lines.length ? `; its error lines:\n  ${lines.join('\n  ')}` : ' (no error lines)'}`);
   }
