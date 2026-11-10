@@ -10,7 +10,7 @@
 // direct-bank-transfer donations where permissibility couldn't be
 // verified inside the 30-day statutory window.
 
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -173,6 +173,8 @@ export default async function ImpermissiblePage() {
 
       <section>
         <h2 style={sectionH2}>Largest impermissible donations</h2>
+        {/* Folded on phones (step 5, 10 Nov 2026: the page was 3,505px). */}
+        <NoJsFold id="imperm-2-f" always label={`The ${largest.length.toLocaleString('en-GB')} largest`}>
         <NoJsPager id="imperm-2" count={(largest).length} rows="> tbody > tr" size={25} cards={[null, 'Recipient', 'Returned', 'Amount', 'Reason']} title={1}>
         <table style={tableStyle}>
           <thead>
@@ -201,6 +203,7 @@ export default async function ImpermissiblePage() {
           </tbody>
         </table>
         </NoJsPager>
+        </NoJsFold>
       </section>
 
 </OpenGovShell>
