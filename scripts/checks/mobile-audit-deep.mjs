@@ -48,9 +48,12 @@ const fastPages = () => {
   const all = allPages();
   return fs.readFileSync(path.join(HERE, 'mobile-audit-fast.txt'), 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#')).map((t) => all.find((p) => p.route === t)).filter(Boolean);
 };
-async function pool(items, n, fn) {
+// One page at a time whatever a caller asks (owner, 10 Nov 2026): a local build reads the production database, so our
+// own checks must never add to a burst of page loads (PERF).
+const PAGES_AT_ONCE = 1;
+async function pool(items, _n, fn) {
   let i = 0;
-  await Promise.all(Array.from({ length: n }, async () => { while (i < items.length) { const it = items[i++]; await fn(it); } }));
+  await Promise.all(Array.from({ length: PAGES_AT_ONCE }, async () => { while (i < items.length) { const it = items[i++]; await fn(it); } }));
 }
 const guard = async (page) => {
   await page.route('**/*', (route) => {

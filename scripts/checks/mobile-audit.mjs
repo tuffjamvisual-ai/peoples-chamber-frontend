@@ -36,7 +36,9 @@ const LIMIT = opt('limit') ? Number(opt('limit')) : null;
 const ENGINE = opt('engine') === 'webkit' ? webkit : chromium;
 const WIDTHS = FAST ? [375] : opt('widths') ? opt('widths').split(',').map(Number) : [360, 375, 414];
 const HEIGHT = 812;
-const CONCURRENCY = Number(opt('concurrency') ?? 4);
+// One page at a time (owner, 10 Nov 2026): a local build reads the production database, so our own checks must never
+// add to a burst of page loads (PERF). --concurrency still raises it by hand, against a quiet database only.
+const CONCURRENCY = Number(opt('concurrency') ?? 1);
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 const WARN_HEIGHT = 9000, MAX_HEIGHT = 10000; // owner, 5 Nov 2026: warn, then fail, at 375px as the page first opens
 

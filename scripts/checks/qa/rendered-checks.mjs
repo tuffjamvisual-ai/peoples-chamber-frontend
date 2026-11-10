@@ -133,6 +133,8 @@ function a6Detail(r, code) {
 }
 
 async function main() {
+  // One page at a time, in every pass (owner, 10 Nov 2026): a local build reads the production database, so our own
+  // checks must never add to a burst of page loads. Keep it so: no Promise.all over pages here.
   const list = pages();
   const extra = ALL ? [] : [{ route: '/bills/[id]', url: '/bills/3942' }, { route: '/bills/[id]', url: '/bills/4080' }, { route: '/divisions/[slug]', url: '/divisions/pw-2019-01-15-293-commons' }];
   const results = [];
