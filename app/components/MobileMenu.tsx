@@ -4,8 +4,7 @@
 // header is one row, the wordmark with a search icon and a menu icon, and the menu icon opens a full screen panel
 // listing the top level sections as large links (10 of the 11 in NAV, as Commission is the button), with "Commission research" as the one call to action,
 // first in the panel with "Get the weekly email" so both show without scrolling on a 320 by 740 phone (MOB1, 8 Nov 2026). Each section's
-// landing page lists that section's pages ("In this section", SectionLinks.tsx), so every page in the desktop dropdowns
-// is two taps away. Hidden from 768px up (opengov-shell.css), where the desktop header and dropdowns are unchanged.
+// page (/sections/<slug>) lists that section's pages, so every page in the desktop menu is two taps away. Hidden from 768px up (opengov-shell.css), where the desktop header and dropdowns are unchanged.
 //
 // The panel closes on a link, the X, Escape and the browser's Back button. Opening it adds a history entry that keeps
 // Next.js's own router state (a bare entry would make Next.js reload the page on Back); a link first removes that entry,

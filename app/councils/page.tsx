@@ -13,7 +13,6 @@ import LastUpdated from '../components/LastUpdated';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import SectionLinks from '../components/SectionLinks';
 import CouncilSearch from '../components/CouncilSearch';
 import PhoneMore from '../components/PhoneMore';
 import PhoneGroup from '../components/PhoneGroup';
@@ -88,7 +87,6 @@ export default async function CouncilsIndex() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />
-      <SectionLinks section="Local" />
       {/* No parchment card: content sits directly on the page, like the
           council, department and MP pages. */}
       {/* Phones (UX2l, owner approved through Cowork, 10 Nov 2026): the postcode lookup first, then shortcuts to each nation,

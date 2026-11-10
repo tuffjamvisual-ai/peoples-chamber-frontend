@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import PollsClient from './PollsClient'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
-import SectionLinks from '../components/SectionLinks';
 import { PHONE } from '@/lib/breakpoints';
 import VotingIntegrity from '../components/VotingIntegrity';
 
@@ -22,7 +21,6 @@ export default function PollsPage() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
-      <SectionLinks section="Reader Polls" />
 
       {/* At every width (UX2b phones, 10 Nov 2026; UX4d desktop, owner approved, 10 Nov 2026): one line saying these are reader
           polls; then the search and sort (with a one line integrity statement beside them) and the polls, in PollsClient;

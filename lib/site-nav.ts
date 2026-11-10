@@ -1,7 +1,7 @@
 // The site's main menu (25 Oct 2026, reports 47 and 60): the 11 top level sections and each section's links. One list
 // for the desktop header (OpenGovShell.tsx, no dropdowns since report 60), the phone menu panel (MobileMenu.tsx), the
-// section pages (app/sections/[slug]/page.tsx) and the "In this section" rows on the section landing pages
-// (SectionLinks.tsx), so they cannot drift apart.
+// section pages (app/sections/[slug]/page.tsx), so they cannot drift apart. The "In this section" rows on the section
+// landing pages were removed (owner, 10 Nov 2026, T1-5s: "all it does is add fat to the pages").
 import { topics } from '@/lib/topics';
 import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES, RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 import { PAGE_DESCRIPTIONS, partyDescription, PARTY_NAMES, VOTE_ON_BILLS_DESCRIPTION } from '@/lib/page-descriptions';
@@ -101,20 +101,6 @@ export const NAV: NavItem[] = [
   { label: 'Commission', href: '/commission' },
   { label: 'Contact', href: '/contact' },
 ];
-
-// The "In this section" row on a landing page (SectionLinks.tsx). `section` is a top level item (Topics, Local,
-// Accountability, Reader Polls) or, under Parliament, one of its groups (MPs, Parliament, Parties, Departments): those rows
-// list their own group's links and end with "All of Parliament" (report 62).
-export const PARLIAMENT_GROUPS = ['MPs', 'Parliament', 'Parties', 'Departments'];
-export function sectionRow(section: string): { label: string; links: NavLink[] } | undefined {
-  if (PARLIAMENT_GROUPS.includes(section)) {
-    const parliament = NAV.find((n) => n.label === 'Parliament')!;
-    const links = parliament.children!.filter((c) => c.group === section);
-    return { label: section, links: [...links, { label: 'All of Parliament', href: parliament.page! }] };
-  }
-  const item = NAV.find((n) => n.label === section);
-  return item?.children?.length ? { label: item.label, links: item.children } : undefined;
-}
 
 // The phone menu under 640px, in four groups (owner, 4 Nov 2026). Section pages not listed here are linked from each
 // section's own pages; Home is the wordmark; Commission is the menu's button. From 640px to 767px the menu is still the

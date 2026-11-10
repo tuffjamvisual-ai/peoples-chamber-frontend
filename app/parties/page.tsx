@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import SectionLinks from '../components/SectionLinks';
 import { NAV } from '@/lib/site-nav';
 import { PAGE_DESCRIPTIONS, PARTY_NAMES, partyDescription } from '@/lib/page-descriptions';
 import { normaliseParty } from '@/lib/party-helpers';
@@ -62,7 +61,6 @@ export default async function PartiesIndexPage() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
-      <SectionLinks section="Parties" />
 
       <header style={{ marginBottom: '4%' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
