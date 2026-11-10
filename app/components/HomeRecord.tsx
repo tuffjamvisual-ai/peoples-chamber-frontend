@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ShowAll } from './NoJsPager';
 import { archiveSessions } from '@/lib/pmqs-archive';
 import { pmqsSet } from '@/lib/pmqs';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
@@ -34,9 +35,12 @@ export default async function HomeRecord() {
   return (
     <section className="og-record" aria-labelledby="og-record-head" style={{ margin: '20px 0 8px', paddingTop: '14px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
       <h2 id="og-record-head" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: INK, margin: '0 0 10px' }}>The record, going back decades</h2>
+      {/* Phones (step 5, 10 Nov 2026: page length): the first 3, then "Show all <N>". */}
+      <ShowAll id="og-record" count={items.length} rows="> li" first={3}>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontFamily: 'var(--font-special-elite), monospace' }}>
         {items.map((item, i) => <li key={i} style={{ marginBottom: '10px' }}><p style={para}>{item}</p></li>)}
       </ul>
+      </ShowAll>
     </section>
   );
 }

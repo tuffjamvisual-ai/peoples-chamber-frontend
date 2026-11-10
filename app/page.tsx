@@ -9,6 +9,7 @@ import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
 import AreaSearch from './components/AreaSearch';
 import HomeRecord from './components/HomeRecord';
+import { ShowAll } from './components/NoJsPager';
 import NewsletterSignup from './components/NewsletterSignup';
 import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
 import { loadLatestWhitehall } from '@/lib/press-releases-latest';
@@ -244,6 +245,8 @@ export default async function HomePage() {
                   <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
                     Government press releases, published as issued
                   </p>
+                  {/* Phones (step 5, 10 Nov 2026: page length): the 3 newest, then "Show all <N>". */}
+                  <ShowAll id="og-whitehall" count={whitehallItems.length} rows="> li" first={3}>
                   <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                     {whitehallItems.map(({ slug, title, organisation, publishedAt }) => (
                       <li key={slug} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0' }}>
@@ -258,6 +261,7 @@ export default async function HomePage() {
                       </li>
                     ))}
                   </ol>
+                  </ShowAll>
                 </section>
               )}
             </div>
