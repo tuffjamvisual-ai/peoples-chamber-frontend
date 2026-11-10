@@ -139,7 +139,7 @@ export default async function DonorsIndex() {
         </tbody>
       </table>
       </NoJsPager>
-      <PhoneMore selector="#donors-list" total={top.length} />
+      <PhoneMore selector="#donors-list" total={top.length} first={5} />
 
 <section aria-labelledby="public-funding" style={{ marginTop: '32px', borderTop: `2px solid ${INK}`, paddingTop: '16px', fontFamily: 'var(--font-special-elite), monospace' }}>
         <h2 id="public-funding" style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px' }}>Public funding (not private donors)</h2>

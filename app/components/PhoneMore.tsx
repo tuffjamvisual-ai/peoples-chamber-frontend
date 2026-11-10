@@ -16,11 +16,15 @@ type Props = {
   step?: number;
   /** While a filter is on, every match shows and there is no button. */
   off?: boolean;
+  /** Items shown before the first press, when not `step` (MP2f-11, 10 Nov 2026: 5 on the lists that also carry NoJsPager's
+   *  "Show all" for JavaScript off, so the page stays as short as it was). Each press then adds `step`. */
+  first?: number;
 };
 
-export default function PhoneMore({ selector, total, step = 25, off = false }: Props) {
-  const [shown, setShown] = useState(step);
-  if (off || total <= step) return null;
+export default function PhoneMore({ selector, total, step = 25, off = false, first }: Props) {
+  const start = first ?? step;
+  const [shown, setShown] = useState(start);
+  if (off || total <= start) return null;
   const css = `@media ${phoneUpTo(639.98)} { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
   const left = total - shown;
   return (

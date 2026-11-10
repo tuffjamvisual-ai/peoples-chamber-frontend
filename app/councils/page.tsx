@@ -192,7 +192,7 @@ export default async function CouncilsIndex() {
                         ))}
                       </ul>
                       </NoJsPager>
-                      <PhoneMore selector={`#${`councils-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}`} total={items.length} />
+                      <PhoneMore selector={`#${`councils-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}`} total={items.length} first={5} />
                     </div>
                   );
                 })}

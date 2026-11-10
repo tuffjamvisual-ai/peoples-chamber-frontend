@@ -160,7 +160,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             })}
           </ul>
           </NoJsPager>
-          <PhoneMore selector="#revolving-list" total={rows.length} />
+          <PhoneMore selector="#revolving-list" total={rows.length} first={2} />
         </>
       ) : section === 'ministers-meetings' ? (
         <>

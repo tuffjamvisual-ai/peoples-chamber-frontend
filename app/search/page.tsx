@@ -507,7 +507,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
             {results.map((r, i) => <ResultRow key={i} r={r} />)}
           </ol>
           </NoJsPager>
-          <PhoneMore selector="#results-all" total={results.length} step={10} />
+          <PhoneMore selector="#results-all" total={results.length} first={5} step={25} />
         </section>
       )}
 
