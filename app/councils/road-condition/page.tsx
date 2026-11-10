@@ -6,6 +6,7 @@
 
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { PHONE } from '@/lib/breakpoints';
+import CouncilSearch from '../../components/CouncilSearch';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
@@ -64,12 +65,13 @@ export default async function RoadConditionPage() {
     <OpenGovShell>
       <BackLink fallbackHref="/councils" label="← Back" className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }} />
-      {/* Phones (UX2d, owner approved through Cowork, 10 Nov 2026): the road categories first, then the national figures and the
-          note that the series has ended, then "What the figures mean", closed (native details), and "About these figures".
-          CSS order only, the same with JavaScript off. From 640px up, as before. */}
-      <style>{`@media ${PHONE} { .rc-flow { display: flex; flex-direction: column; } .rc-flow > .rc-type { order: 1; } .rc-flow > .rc-nat { order: 2; } .rc-flow > .rc-mean { order: 3; } .rc-flow > .rc-about { order: 4; } }`}</style>
+      {/* At every width (UX2d phones; UX4f desktop, owner approved, 10 Nov 2026): "Find a council" (postcode or name) and links
+          to each road category, then the road categories with their council tables, then the national figures and the note
+          that the series has ended, "What the figures mean" (a closed fold on phones) and "About these figures". CSS order,
+          the same with JavaScript off; nothing is removed. */}
+      <style>{`.rc-flow { display: flex; flex-direction: column; } .rc-flow > .rc-type { order: 1; } .rc-flow > .rc-nat { order: 2; } .rc-flow > .rc-mean { order: 3; } .rc-flow > .rc-about { order: 4; } .rc-find { max-width: 46em; margin: 0 0 4px; } .rc-jump { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 4px 0 0; font-family: ${MONO}; font-size: 15px; } .rc-jump a { display: inline-flex; align-items: center; min-height: 44px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; } .rc-type { scroll-margin-top: 16px; } @media ${PHONE} { .rc-find { margin-bottom: 8px; } }`}</style>
       <article className="rc-flow" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
-        <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
+        <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '16px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
             England · Councils · Roads
           </div>
@@ -77,6 +79,17 @@ export default async function RoadConditionPage() {
             Road Condition by Council
           </h1>
         </header>
+
+        {/* The main action (UX4f): find a council (its page has its road figures), and links to each road category below. */}
+        <div className="rc-find">
+          <div data-main-action>
+            <div style={{ fontFamily: MONO, fontSize: '15px', marginBottom: '8px', color: INK }}>Find a council by postcode or name</div>
+            <CouncilSearch />
+          </div>
+          <nav aria-label="Road categories" className="rc-jump">
+            {ROAD_TYPES.map((t) => <a key={t.key} href={`#road-${t.key}`}>{t.label}</a>)}
+          </nav>
+        </div>
 
         <p className="rc-nat" style={para}>
           County, unitary, metropolitan and London borough councils are the highway authorities for local roads; district councils are not. These are the shares of each council&rsquo;s roads where maintenance should have been considered, in {fye(latest)}.
@@ -115,7 +128,7 @@ export default async function RoadConditionPage() {
           const flagged = list.filter((r) => notComparable(r.cur, t.field)).sort((a, b) => a.name.localeCompare(b.name));
           const none = list.filter((r) => value(r.cur, t.field) == null).sort((a, b) => a.name.localeCompare(b.name));
           return (
-            <section key={t.key} className="rc-type" style={section}>
+            <section key={t.key} id={`road-${t.key}`} className="rc-type" style={section}>
               <h2 className="rc-h2" style={h2}>{t.label}</h2>
               <NoJsFold id={`rc-f-${t.key}`} always label={t.label}>
               <NoJsPager id={`rc-${t.key}`} count={(ranked).length} rows="> tbody > tr" size={25}>
