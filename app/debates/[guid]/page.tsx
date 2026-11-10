@@ -3,6 +3,7 @@ import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem, pagesByHeight } from '@/a
 import { splitAnswer } from '@/lib/answer-html';
 import { Fragment, cache } from 'react';
 import ReadNext from '../../components/ReadNext';
+import OnThisPage from '../../components/OnThisPage';
 import { debateReadNext } from '@/lib/read-next';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -408,7 +409,12 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         <p style={{ maxWidth: '46em', margin: '0 auto 20px', fontSize: '16px', lineHeight: 1.7, color: INK }}>{opening}</p>
       )}
 
+      {/* Phones (step 5, 10 Nov 2026; the long-article rule): the transcript as before, the summary and Read next folded,
+          and a list of the page's parts at the top. */}
+      {groups.length > 0 && <OnThisPage items={[{ href: '#debate-text', label: 'The debate' }, { href: '#dbs-f', label: 'At a glance' }, { href: '#dbrn-f', label: 'Read next' }]} />}
+      <NoJsFold id="dbs-f" always label="At a glance: date, speakers and votes">
       <DebateSummary date={ov?.Date ? fmtDate(ov.Date) : null} house={ov?.House ?? null} location={ov?.Location ?? null} speakers={speakers} words={words} votes={votes} />
+      </NoJsFold>
 
       {about && (
         <section style={{ maxWidth: '46em', margin: '0 auto 7%', borderLeft: `2px solid ${ACCENT}`, paddingLeft: '16px' }}>
@@ -421,7 +427,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         </section>
       )}
 
-      <div style={{ maxWidth: '46em', margin: '0 auto' }}>
+      <div id="debate-text" style={{ maxWidth: '46em', margin: '0 auto', scrollMarginTop: '24px' }}>
         {groups.length === 0 ? (
           <p style={{ fontFamily: MONO, fontSize: '15px' }}>No transcript text is available for this debate.</p>
         ) : (
@@ -463,7 +469,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(5, debateScreens[0] ?? 5)} />
           </>
         )}
-        {groups.length > 0 && <ReadNext links={readNext} />}
+        {groups.length > 0 && <NoJsFold id="dbrn-f" always label="Read next"><ReadNext links={readNext} /></NoJsFold>}
       </div>
 
       <nav aria-label="Adjacent debates" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', maxWidth: '46em', margin: '40px auto 0', borderTop: '1px solid rgba(20,16,13,0.25)', paddingTop: '18px' }}>
