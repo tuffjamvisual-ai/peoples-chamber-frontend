@@ -46,6 +46,8 @@ const LEAGUE_CSS = `@media ${wideFrom(768).split(', ').map((q) => `${q} and (max
   // Under 640px (owner, 4 Nov 2026) area cards replace the table, from the same rows, so tables and sort orders still apply.
   + ' .sew-cards { display: none; }'
   + ` @media ${phoneUpTo(639.98)} { .sew-league { display: none; } .sew-cards { display: block; list-style: none; margin: 0; padding: 0; }`
+  // The seven table buttons in two columns on phones (step 5, 10 Nov 2026: seven full width buttons were 364px).
+  + ' .sew-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .sew-tabs > button { margin: 0 !important; min-height: 44px; text-align: left; line-height: 1.25; }'
   + ' .sew-card { border-top: 1px solid rgba(20,16,13,0.25); } .sew-card:last-child { border-bottom: 1px solid rgba(20,16,13,0.25); }'
   + ' .sew-card summary { display: block; min-height: 44px; padding: 10px 26px 10px 0; position: relative; cursor: pointer; list-style: none; }'
   + ' .sew-card summary::-webkit-details-marker { display: none; }'
@@ -242,7 +244,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           League tables: most sewage spills
         </h2>
-        <div role="tablist" aria-label="Choose a table" style={{ marginBottom: '6px' }}>
+        <div role="tablist" aria-label="Choose a table" className="sew-tabs" style={{ marginBottom: '10px' }}>
           {tables.map((t) => (
             <button key={t.id} type="button" role="tab" aria-selected={t.id === table?.id} onClick={() => { setTableId(t.id); setShowAll(false); }} style={btn(t.id === table?.id)}>
               {t.label}
@@ -295,7 +297,8 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
           </table>
         </PhoneTable>
         </div>
-        <NoJsPager id="sew-league" count={visible.length} rows="> li" size={25}>
+        {/* Phones: the first 3, then "Show all" (step 5, 10 Nov 2026: page length). */}
+        <NoJsPager id="sew-league" count={visible.length} rows="> li" size={25} first={3}>
         <ol className="sew-cards" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
           {visible.map((r, i) => (
             <li key={r.code} className="sew-card">

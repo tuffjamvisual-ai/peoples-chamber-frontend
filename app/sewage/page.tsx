@@ -19,6 +19,8 @@ import {
 import type { AreaTotal, SourceStats } from '@/lib/sewage';
 import type { CSSProperties } from 'react';
 import PhoneTable from '../components/PhoneTable';
+import { ShowAll, NoJsFold } from '../components/NoJsPager';
+import { SubFold } from '../components/PhoneFolds';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 export const revalidate = 21600;
@@ -161,6 +163,9 @@ export default async function SewagePage() {
           {/* Under 640px (owner, 4 Nov 2026): cards like the league tables (their styles are in SewageExplorer.tsx); from 640px
               the table, whose company column stays put while the figures scroll up to 768px (report 47). */}
           <style>{`@media ${phoneUpTo(639.98)} { .sew-co-table { display: none; } }`}</style>
+          {/* Phones (step 5, 10 Nov 2026; the page was 6,311px): folded, then the first 5 companies and "Show all <N>". */}
+          <NoJsFold id="sew-co-f" always label={`The ${companies.length.toLocaleString('en-GB')} companies`}>
+          <ShowAll id="sew-co" count={companies.length} rows="> li">
           <ol className="sew-cards" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
             {companies.map((c, i) => (
               <li key={`${c.nation}-${c.company}`} className="sew-card">
@@ -178,6 +183,8 @@ export default async function SewagePage() {
               </li>
             ))}
           </ol>
+          </ShowAll>
+          </NoJsFold>
           <div className="sew-co-table">
           <PhoneTable sticky={1}>
             <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%', minWidth: '600px' }}>
@@ -211,6 +218,7 @@ export default async function SewagePage() {
 
         <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
           <h2 style={h2}>How these figures are made</h2>
+          <SubFold label="Read how they are made">
           <p style={para}>
             England: every storm overflow in the Environment Agency’s {eaYear} annual return ({fmtInt(ea.length)} overflows). Each one is placed in its council area and Westminster constituency from the grid reference of its outlet, using Office for National Statistics boundaries (July 2024 constituencies, May 2026 council areas). {fmtInt(eaTidal)} outlets lie below the high tide line and are placed using the boundaries that extend out to sea. {fmtInt(eaOffshore)} lie further out and are counted with the nearest council area and constituency within 15 km; two of these were checked by hand and placed by the location of their treatment works instead (Ryde, Isle of Wight, and Hayle, Cornwall), because the nearest shore was a different area.
             {eaUnplaced.length > 0 && ` ${fmtInt(eaUnplaced.length)} overflow${eaUnplaced.length === 1 ? ' could not be placed because its published grid reference is not valid' : 's could not be placed because their published grid references are not valid'} (${eaUnplaced.join(', ')}); ${eaUnplaced.length === 1 ? 'it is' : 'they are'} included in the national and company totals but not in any area.`}
@@ -234,6 +242,7 @@ export default async function SewagePage() {
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
             Sources: Environment Agency, Event Duration Monitoring storm overflow annual return {eaYear}, and Office for National Statistics boundaries, both licensed under the Open Government Licence v3.0 (contains OS data © Crown copyright and database right 2026). Scottish Water, Reported Overflow Event Data to SEPA and Non-Reported Overflow Event Data (2026), licensed under the Open Government Licence. NI Water, Event Duration Monitor data, as published by NI Water.
           </p>
+          </SubFold>
         </section>
       </article>
       <LastUpdated sourceKey="sewage_overflows" />
