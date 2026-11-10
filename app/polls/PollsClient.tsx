@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import Toast from '../components/Toast'
-import PhoneMore from '../components/PhoneMore'
+import { ShowAll } from '../components/NoJsPager'
+import { SubFold } from '../components/PhoneFolds'
 import { phoneUpTo } from '@/lib/breakpoints';
 
 type Poll = {
@@ -220,6 +221,10 @@ export default function PollsClient() {
         </div>
       ) : (
         <>
+          {/* Phones (step 5, 10 Nov 2026; the page was 8,622px with 7 polls of about 1,100px each): the 2 newest polls, then
+              "Show all <N>" (a native details, ShowAll), each poll's background and sources folded (SubFold). A search
+              shows every match. From 640px up, as before. */}
+          <ShowAll id="polls" count={search ? 0 : filtered.length} rows="> *" first={2}>
           <div
             id="polls-list"
             data-own-more
@@ -243,8 +248,7 @@ export default function PollsClient() {
               />
             ))}
           </div>
-          {/* Phones (under 640px, owner, 4 Nov 2026): the 7 newest polls, then Show more, then the archive (7, not 10: the 10,000px rule, 5 Nov 2026). */}
-          <PhoneMore selector="#polls-list" total={filtered.length} step={7} off={!!search} />
+          </ShowAll>
           <style dangerouslySetInnerHTML={{ __html: `.polls-archive-phone { display: none; } @media ${phoneUpTo(639.98)} { .polls-archive-phone { display: block; margin: 4px 0 16px; font-size: 15px; color: #14100d; text-decoration: underline; text-underline-offset: 3px; } }` }} />
           <a href="/polls/archive" className="polls-archive-phone no-hover-scale">View archived polls →</a>
           {filtered.length === 0 && (
@@ -324,6 +328,8 @@ function PollCard({
           {poll.question}
         </h3>
 
+        {(poll.explainer || poll.explainer_sources?.length || poll.explainer_checked) ? (
+        <SubFold label="About this poll">
         {poll.explainer && (
           <p style={{ fontSize: '15px', lineHeight: 1.5, color: INK_SOFT, margin: 0 }}>
             {poll.explainer}
@@ -342,6 +348,8 @@ function PollCard({
             )}
             {poll.explainer_checked && <>Facts checked {new Date(poll.explainer_checked).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}.</>}
           </p>
+        ) : null}
+        </SubFold>
         ) : null}
 
         <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
