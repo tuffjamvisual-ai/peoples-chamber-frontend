@@ -126,7 +126,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
         </p>
       ) : section === 'revolving-door' ? (
         <>
-          <NoJsPager id="tr-revolving" count={(rows).length} rows="> li" size={25}>
+          <NoJsPager id="tr-revolving" first={2} count={(rows).length} rows="> li" size={25}>
           <ul id="revolving-list" data-own-more className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const personName = (row.person_name as string) || '(unknown)'
