@@ -54,9 +54,9 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
 }
 
 // How many items fit as a page opens: their heights at 375px, up to `room`. 6,800 is the opening at every width (the old
-// 10,000px rule). For the 2,500px phone length (UX5, T1-6, 11 Nov 2026) pass PHONE_ROOM: the estimates run about twice the
-// measured height, so that opens with about 1,300px of items.
-export const PHONE_ROOM = 2600;
+// 10,000px rule). For the 2,500px phone length (UX5, T1-6, 11 Nov 2026) pass PHONE_ROOM: about 1,300px of items, which
+// leaves room for the rest of a PMQs session page (the estimates are within about 15 per cent of the measured heights).
+export const PHONE_ROOM = 1300;
 export function openingCount(heights: number[], room = 6800): number {
   let px = 0, n = 0;
   for (const h of heights) {
