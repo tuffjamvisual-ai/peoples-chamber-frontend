@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import { cache } from 'react';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
@@ -135,7 +136,6 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
               <p style={para}>Debated on {petitionDate(p.debated_on)}.</p>
               <ul style={{ listStyle: 'none', margin: '0 0 12px', padding: 0, fontSize: '16px' }}>
                 {debateGuid && <li><Link href={`/debates/${debateGuid}`} prefetch={false} style={link}>Read the debate</Link></li>}
-                {p.debate_transcript_url && <li><a href={p.debate_transcript_url} target="_blank" rel="noopener noreferrer" style={link}>The debate on Hansard</a></li>}
               </ul>
             </>
           ) : p.scheduled_debate_date ? (
@@ -164,8 +164,12 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
         </>
       )}
 
-      <p style={{ fontSize: '16px', margin: '24px 0 0' }}><a href={p.url} target="_blank" rel="noopener noreferrer" style={link}>The official petition on petition.parliament.uk</a></p>
       <PetitionCredit />
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside; the official record is in the page's one Sources fold. */}
+      <PageSources sources={[
+        p.url && { label: 'The petition on UK Parliament\u2019s petitions website', href: p.url },
+        p.debate_transcript_url && { label: 'The debate in Hansard', href: p.debate_transcript_url },
+      ]} />
     </OpenGovShell>
   );
 }

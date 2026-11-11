@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
@@ -129,8 +130,8 @@ export default async function RefusedExpensesPage() {
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '12px', maxWidth: '60ch' }}>
           Every claim IPSA refused, and every amount repaid, by MPs serving now, in the IPSA records we hold
           {firstYear && lastYear ? <> ({yearLabel(firstYear)} to {yearLabel(lastYear)}{isPartial(lastYear) ? ', the last a part year' : ''})</> : null}, and why.
-          IPSA publishes new claims about every two months. Source:{' '}
-          <a href="https://www.theipsa.org.uk/" style={{ color: ACCENT }}>Independent Parliamentary Standards Authority</a>.
+          IPSA publishes new claims about every two months. Source: Independent Parliamentary Standards Authority (in
+          Sources at the end of the page).
         </p>
       </header>
 
@@ -218,6 +219,8 @@ export default async function RefusedExpensesPage() {
         </NoJsFold>
       </section>
 
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
+      <PageSources sources={[{ label: 'Independent Parliamentary Standards Authority (IPSA)', href: 'https://www.theipsa.org.uk/' }]} />
     </OpenGovShell>
   );
 }

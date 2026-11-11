@@ -3,6 +3,7 @@
 // API (lib/parliament-sessions.ts).
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { getParliamentSessions, sessionDates, sessionTitle, SESSIONS_SOURCE_URL } from '@/lib/parliament-sessions';
@@ -66,9 +67,11 @@ export default async function BillSessionsPage() {
 
       <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '24px', maxWidth: '720px' }}>
         Our bill records start in the 2004/05 session, but the two earliest sessions hold only five bills: ones that were
-        carried over into later sessions and became Acts, such as the Crossrail Act 2008. Session names and dates:{' '}
-        <a href={SESSIONS_SOURCE_URL} style={{ color: ACCENT }} rel="noopener">UK Parliament calendar</a>. Bills: UK Parliament Bills API.
+        carried over into later sessions and became Acts, such as the Crossrail Act 2008. Session names and dates: UK
+        Parliament calendar. Bills: UK Parliament Bills API.
       </p>
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
+      <PageSources sources={[{ label: 'Session names and dates: UK Parliament calendar', href: SESSIONS_SOURCE_URL }]} />
     </OpenGovShell>
   );
 }

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import { cache } from 'react';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import ConstituencyPetitions from '../../mps/[id]/ConstituencyPetitions';
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-function Result({ heading, date, url, summary, figures, candidates }: { heading: string; date: string; url: string; summary: string; figures: { electorate: number; valid: number; invalid: number; turnout: number; majority: number }; candidates: Candidate[] }) {
+function Result({ heading, date, summary, figures, candidates }: { heading: string; date: string; url?: string; summary: string; figures: { electorate: number; valid: number; invalid: number; turnout: number; majority: number }; candidates: Candidate[] }) {
   return (
     <>
       <h2 style={h2}>{heading}</h2>
@@ -65,7 +66,6 @@ function Result({ heading, date, url, summary, figures, candidates }: { heading:
           <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '4px 0' }}><dt style={{ fontWeight: 'bold' }}>{k}</dt><dd style={{ margin: 0 }}>{v}</dd></div>
         ))}
       </dl>
-      <p style={{ fontSize: '16px', margin: 0 }}><a href={url} target="_blank" rel="noopener noreferrer" style={link}>The result on the Commons Library&rsquo;s site</a></p>
     </>
   );
 }
@@ -128,6 +128,11 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
       </ul>
 
       <PetitionCredit />
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside; each result on the Commons Library’s site is in the page's one Sources fold. */}
+      <PageSources sources={[
+        seat.result_url && { label: '2024 general election result, House of Commons Library', href: seat.result_url },
+        ...byelections.map((b) => b.url && { label: `${petitionDate(b.election_date)!.replace(/^\d+ /, '')} byelection result, House of Commons Library`, href: b.url }),
+      ]} />
     </OpenGovShell>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import { cache } from 'react';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import { notFound, redirect } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import MoreChain from '../../components/MoreChain';
@@ -134,7 +135,8 @@ export default async function EdmPage({ params }: { params: Promise<{ id: string
         </>
       )}
 
-      <p style={{ fontSize: '16px', margin: '24px 0 0' }}><a href={`https://edm.parliament.uk/early-day-motion/${m.id}`} target="_blank" rel="noopener noreferrer" style={link}>The official motion on edm.parliament.uk</a></p>
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside; the official record is in the page's one Sources fold. */}
+      <PageSources sources={[{ label: 'The motion on UK Parliament\u2019s Early Day Motions website', href: `https://edm.parliament.uk/early-day-motion/${m.id}` }]} />
     </OpenGovShell>
   );
 }

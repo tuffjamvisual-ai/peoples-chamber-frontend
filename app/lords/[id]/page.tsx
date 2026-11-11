@@ -1,6 +1,7 @@
 import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -173,9 +174,6 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
               </ul>
             </section>
           ))}
-          <p style={{ fontSize: '15px', margin: '8px 0 0' }}>
-            <a href={parliamentRegisterUrl(memberId)} target="_blank" rel="noopener noreferrer" style={link}>Official register of interests</a>
-          </p>
           {interestsUpdated && <RecordDate text={`Updated ${interestsUpdated}`} source="peer_registered_interests.last_seen_date" />}
         </div>
     ),
@@ -246,10 +244,11 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
           </p>
           {p.start_date && <p style={{ fontSize: '15px', margin: '0 0 4px' }}>{p.is_current ? 'Sitting since' : 'Sat from'} {fmt(p.start_date)}{!p.is_current && p.end_date ? ` to ${fmt(p.end_date)}` : ''}</p>}
           {status && <p style={{ fontSize: '15px', fontWeight: 'bold', color: ACCENT, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{status}</p>}
-          <p style={{ fontSize: '15px', margin: '6px 0 0' }}>
-            <a href={parliamentProfileUrl(memberId)} target="_blank" rel="noopener noreferrer" style={link}>Official Parliament profile</a>
-            {wasMp && <> · <Link href={`/mps/${memberId}`} style={link}>Record as an MP</Link></>}
-          </p>
+          {wasMp && (
+            <p style={{ fontSize: '15px', margin: '6px 0 0' }}>
+              <Link href={`/mps/${memberId}`} style={link}>Record as an MP</Link>
+            </p>
+          )}
         </div>
       </header>
 
@@ -258,6 +257,12 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
 
       {/* Under 480px each section folds away, as on MP pages; from 480px up they read as before. */}
       <PhoneFolds folds={folds} />
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The peer's profile and register at Parliament are in
+          this one Sources fold; each vote stays on its row. */}
+      <PageSources sources={[
+        { label: 'Profile on UK Parliament\u2019s Members website', href: parliamentProfileUrl(memberId) },
+        interests.length > 0 && { label: 'Register of Lords\u2019 Interests on UK Parliament\u2019s Members website', href: parliamentRegisterUrl(memberId) },
+      ]} />
     </OpenGovShell>
   );
 }

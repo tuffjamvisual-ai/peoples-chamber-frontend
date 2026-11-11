@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
@@ -75,7 +76,7 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 24px', color: INK }}>
         {exchanges.length}{speakerStandsIn
           ? ' questions. Where the Speaker stepped in and no answer was given, the Speaker\u2019s words are shown. The Speaker\u2019s other interventions, shouted asides and points of order are left out'
-          : ' questions. The Speaker\u2019s interventions, shouted asides and points of order are left out'}{session.hansardUrl ? <>: <a href={session.hansardUrl} rel="noopener" style={link}>read the full record in Hansard</a></> : ''}.
+          : ' questions. The Speaker\u2019s interventions, shouted asides and points of order are left out'}{session.hansardUrl ? '; the full record in Hansard is in Sources at the end of the page' : ''}.
       </p>
       <OpenHashTarget />
       <MoreChain mainAction ordered phoneOnly style={{ color: INK }} first={openingCount(exchanges.map((e) => 120 + textHeightAt375(e.question) + e.answers.reduce((px, a) => px + textHeightAt375(a), 0) + (e.speaker.length ? 150 : 0)))} items={exchanges.map((e) => (
@@ -102,6 +103,9 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
             {e.hansardUrl && <p style={{ fontSize: '15px', margin: 0 }}><a href={e.hansardUrl} rel="noopener" style={link}>Official Hansard record</a></p>}
           </li>
         ))} />
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The session's full Hansard record is in this one
+          Sources fold; each exchange's own Hansard record stays on its row. */}
+      <PageSources sources={[session.hansardUrl && { label: 'The full session in Hansard', href: session.hansardUrl }]} />
     </OpenGovShell>
   );
 }

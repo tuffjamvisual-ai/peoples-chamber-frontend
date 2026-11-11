@@ -3,6 +3,7 @@ import { SubFold } from '../components/PhoneFolds';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import PageSources from '../components/PageSources';
 import {
   STANDARDS, OUTCOMES, OUTCOME_PAGE, OUTCOME_KEY, byPeriodNewestFirst, profileHref, membersWithCases,
   type StandardsCase, type StandardsOutcome,
@@ -94,8 +95,8 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
           upheld and those reported to the Committee on Standards. Names are as the Commissioner lists them. Each links to the decision as published.
         </p>
         <p style={p}>
-          Source: <a href={STANDARDS.sourceUrl} rel="noopener" style={link}>Allegations and complaints against MPs</a>, Parliamentary Commissioner
-          for Standards, UK Parliament. Lists collected on 7 November 2026.
+          Source: Allegations and complaints against MPs, Parliamentary Commissioner for Standards, UK Parliament (in Sources at
+          the end of the page). Lists collected on 7 November 2026.
         </p>
         </SubFold>
 
@@ -109,7 +110,7 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
                 // Folded on phones (step 5, 10 Nov 2026: page length).
                 <SubFold label="What rectification means">
                 <p style={p}>
-                  The Commissioner may conclude a case by rectification. Under <a href={SO_150} rel="noopener" style={link}>Standing Order No. 150</a>,
+                  The Commissioner may conclude a case by rectification. Under Standing Order No. 150 (in Sources at the end of the page),
                   paragraph (4)(a), that applies &ldquo;in any case where the Member concerned has agreed that he has failed to register or declare an
                   interest, if it is the Commissioner&apos;s opinion that the interest involved is minor, or the failure was inadvertent, and the Member
                   concerned has taken such action by way of rectification as the Commissioner may have required&rdquo;.
@@ -120,7 +121,6 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
               {outcome === 'Reported to the Committee on Standards' && (
                 <p style={p}>In each case listed, the Commissioner reported the case to the Committee on Standards. The Committee&apos;s report sets out its findings.</p>
               )}
-              <p style={{ ...p, margin: '0 0 8px' }}><a href={OUTCOME_PAGE[outcome]} rel="noopener" style={tap}>The Commissioner&apos;s list</a></p>
               {groups.map((g, gi) => {
                 const key = `${OUTCOME_KEY[outcome]}-${g.period}`;
                 const pages = Math.max(1, Math.ceil(g.items.length / PER_PAGE));
@@ -155,6 +155,13 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
           </section>
         ))}
       </div>
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The Commissioner's pages and Standing Order No. 150 are
+          in this one Sources fold; each decision and report stays on its row. */}
+      <PageSources sources={[
+        { label: 'Allegations and complaints against MPs, Parliamentary Commissioner for Standards', href: STANDARDS.sourceUrl },
+        ...OUTCOMES.map((o) => ({ label: `The Commissioner\u2019s list: ${SECTION_TITLE[o]}`, href: OUTCOME_PAGE[o] })),
+        { label: 'Standing Order No. 150 (Parliamentary Commissioner for Standards)', href: SO_150 },
+      ]} />
     </OpenGovShell>
   );
 }
