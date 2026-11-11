@@ -15,7 +15,7 @@ export default function PageSources({ sources, marginTop = '32px', children }: {
   const list = sources.filter((s): s is PageSource => !!s && !!s.href && !seen.has(s.href) && !!seen.add(s.href));
   if (list.length === 0) return null;
   return (
-    <details className="og-sources" data-og-sources="" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: INK, marginTop, marginBottom: '18px' }}>
+    <details id="page-sources" className="og-sources" data-og-sources="" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: INK, marginTop, marginBottom: '18px' }}>
       <summary style={{ cursor: 'pointer', minHeight: '44px', display: 'flex', alignItems: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
         Sources ({list.length})
       </summary>

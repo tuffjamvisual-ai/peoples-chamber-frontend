@@ -114,12 +114,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) return {}
-  const { data: bill, error } = await supabase.from('bill').select('title, hidden_reason').eq('id', billId).single()
+  const { data: bill, error } = await supabase.from('bill').select('title, hidden_reason, is_act').eq('id', billId).single()
   if (error && error.code !== 'PGRST116') throw new Error(`full bill metadata: ${error.message}`)
   if (!bill || bill.hidden_reason) return {}
+  // An Act's page holds the last bill text (T1-AUD3).
+  const what = bill.is_act ? 'bill text' : 'full text'
   return {
-    title: namedTitle(bill.title, (n) => [`${n}: full text`, n]),
-    description: `The full text of the ${bill.title}, with a contents list of its clauses, and every document Parliament has published for it.`,
+    title: namedTitle(bill.title, (n) => [`${n}: ${what}`, n]),
+    description: bill.is_act
+      ? `The last bill text of the ${bill.title}, with a contents list of its clauses, a link to the Act as enacted and every document Parliament has published for it.`
+      : `The full text of the ${bill.title}, with a contents list of its clauses, and every document Parliament has published for it.`,
     alternates: { canonical: `/bills/${billId}/full` },
   }
 }
@@ -199,10 +203,17 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       <article style={{ padding: 0, color: INK, fontFamily: MONO }}>
         <header style={{ marginBottom: '28px' }}>
           {/* T1-5x (owner, 10 Nov 2026): the bill's title in the h1; the back link is the one link to the bill. */}
-          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.4vw, 40px)', fontWeight: 'bold', lineHeight: 1.15, margin: '0 0 10px' }}>{bill.title}: full text</h1>
+          {/* An Act's page holds the last bill text, not the Act (T1-AUD3, owner 11 Nov 2026): it says so in the title, names the
+              bill version, and points to the Act as enacted (on legislation.gov.uk, in Sources: only sources link outside). */}
+          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.4vw, 40px)', fontWeight: 'bold', lineHeight: 1.15, margin: '0 0 10px' }}>{bill.title}: {act ? 'bill text' : 'full text'}</h1>
+          {act && (
+            <p style={{ fontFamily: MONO, fontSize: '16px', margin: '0 0 10px' }}>
+              <a href="#page-sources" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px', fontWeight: 'bold' }}>Read the Act as enacted</a> (legislation.gov.uk, in Sources at the end of the page)
+            </p>
+          )}
           {latest && (
             <p style={{ fontFamily: MONO, fontSize: '16px', fontWeight: 'bold', margin: '0 0 14px' }}>
-              {latest.label}{latest.date ? `, ${fmtLongDate(latest.date)}` : ''}
+              Text as of: {latest.label}{latest.date ? `, ${fmtLongDate(latest.date)}` : ''}
             </p>
           )}
           {bill.long_title && (
@@ -210,7 +221,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           )}
           {act && (
             <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, margin: '14px 0 0' }}>
-              This bill is now an Act. The text below is the last version of the bill; the Act as passed is in Sources at the end of the page.
+              This bill is now an Act. The text below is the last version of the bill, not the Act as enacted.
             </p>
           )}
         </header>
@@ -307,7 +318,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       {/* EL1 (owner, 10 Nov 2026): outside links only in the one Sources fold (the PDF when there is no web text, and the
           bill's page at Parliament); each publication in "Other documents" is that row's own document and stays. */}
       <PageSources sources={[
-        act && { label: 'The Act as passed, on legislation.gov.uk', href: act.url },
+        act && { label: 'Read the Act as enacted, on legislation.gov.uk', href: act.url },
         !text && latest?.pdf && { label: `The bill as Parliament\u2019s PDF${latest.label ? ` (${latest.label})` : ''}`, href: latest.pdf.url },
         bill.parliament_id != null && { label: 'This bill on UK Parliament\u2019s Bills website', href: `https://bills.parliament.uk/bills/${bill.parliament_id}` },
       ]} />
