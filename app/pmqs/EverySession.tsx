@@ -1,5 +1,7 @@
 import MoreChain from '../components/MoreChain';
-import { NoJsFold } from '../components/NoJsPager';
+import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem } from '../components/NoJsPager';
+import { SubFold } from '../components/PhoneFolds';
+import { phoneUpTo } from '@/lib/breakpoints';
 import PreFixedQuestions from './PreFixedQuestions';
 import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel, type ListedSession } from '@/lib/pmqs-archive';
 import type { PmqsSet } from '@/lib/pmqs';
@@ -27,8 +29,11 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
         {sessions.length.toLocaleString('en-GB')} sessions from 24 October 1961 to {longDateArchive(sessions[0].date)}, by Prime Minister, newest first. A session on the day the office changed hands counts for the outgoing Prime Minister.
       </p>
+      {/* UX5 (T1-6, 11 Nov 2026): on phones the first four Prime Ministers, then "Show all", and the questions before
+          1961 in one closed fold; from 640px up, as before. */}
+      <NoJsPager id="pmqs-pms" count={groups.length} size={groups.length} first={4} />
       {groups.map((g, i) => (
-        <details key={g.pm} className="pa-fold" open={i === 0}>
+        <details key={g.pm} className={`pa-fold ${njpItem('pmqs-pms')}`} open={i === 0}>
           <summary>{primeMinisterLabel(g.pm)}: {g.count.toLocaleString('en-GB')} {g.count === 1 ? 'session' : 'sessions'}</summary>
           {g.years.map((y, j) => (
             <details key={y.year} className="pa-fold pa-year" open={i === 0 && j === 0}>
@@ -43,7 +48,11 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
           ))}
         </details>
       ))}
-      <PreFixedQuestions />
+      <NoJsPagerLinks id="pmqs-pms" count={groups.length} size={groups.length} first={4} />
+      <div className="pfq-wrap">
+        <style>{`@media ${phoneUpTo(639.98)} { .pfq-wrap .pf-sb > #before-fixed-pmqs { display: none; } }`}</style>
+        <SubFold label="Questions to the Prime Minister, 1945 to 1961"><PreFixedQuestions /></SubFold>
+      </div>
       <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '28px 0 10px' }}>Our count against the Commons Library</h3>
       {/* Folded on phones (step 5, 10 Nov 2026: the page was 5,098px). */}
       <NoJsFold id="pmqs-count-f" always label={`The ${totals.length.toLocaleString('en-GB')} Prime Ministers`}>
