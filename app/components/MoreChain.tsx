@@ -50,8 +50,10 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
   return <>{list(items.slice(0, opening), !phoneOnly, mainAction)}{rest(opening)}</>;
 }
 
-// How many items fit as a page opens: their heights at 375px, up to the room the page leaves within the 10,000px limit.
-export function openingCount(heights: number[], room = 6800): number {
+// How many items fit as a page opens: their heights at 375px, up to the room the page leaves within the phone length.
+// 2,600 for the 2,500px limit (UX5, T1-6, 11 Nov 2026; 6,800 was for the old 10,000px rule): the estimates run about
+// twice the measured height, so this opens a PMQs session with about 1,300px of exchanges before "Show more".
+export function openingCount(heights: number[], room = 2600): number {
   let px = 0, n = 0;
   for (const h of heights) {
     px += h;
