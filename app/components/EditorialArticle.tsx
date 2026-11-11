@@ -6,11 +6,8 @@ import { Fragment } from 'react';
 import Link from 'next/link';
 import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
-import RelatedLinks from './RelatedLinks';
-import ReadNext from './ReadNext';
 import type { ReadNextLink } from '@/lib/read-next';
 import ExploreNext from './ExploreNext';
-import RelatedLine from './RelatedLine';
 import type { RelatedLink } from '@/lib/related-links';
 import type { ReactNode } from 'react';
 import KeyStat from './KeyStat';
@@ -23,8 +20,6 @@ import { PHONE } from '@/lib/breakpoints';
 import { standfirstRepeatsOpening } from '@/lib/editorials/standfirst';
 import { phonePlan, type Chain } from '@/lib/editorials/phone-folds';
 import OpenHashTarget from './OpenHashTarget';
-import { NoJsFold } from './NoJsPager';
-import OnThisPage from './OnThisPage';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -34,12 +29,6 @@ const ACCENT = '#7a1612';
 export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [], related, banner, sourcesHref }: { banner?: ReactNode; sourcesHref?: string; related?: RelatedLink[]; piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
   const sources = piece.evidence?.recordsReviewed ?? [];
   const showStandfirst = !!piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body);
-  const onThisPage = (
-    <OnThisPage items={[
-      { href: '#article-text', label: `The ${basePath === '/editorials' ? 'report' : 'briefing'}` },
-      { href: '#art-more', label: 'Explore the data and more reports' },
-    ]} />
-  );
   return (
     <OpenGovShell pageStamp={stamp}>
       {banner}
@@ -87,17 +76,14 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           {showStandfirst && (
             <p data-main-action className="art-sf" style={{ fontSize: '18px', lineHeight: 1.5, margin: '12px 0 0', color: INK }}>{piece.standfirst}</p>
           )}
-          {/* The share control (phones, JavaScript on). One Sources list per report, at the end of the article (owner,
-              10 Nov 2026, T1-5r): the "View sources (N)" link that sat here (SRC1) and the "Sources (N)" entry in "On this
-              page" are gone. */}
-          {basePath === '/editorials' && (
-            <div className="art-actions">
-              <ShareButton title={piece.headline} />
+          {/* One Sources list per report, at the end of the article (owner, 10 Nov 2026, T1-5r). The share control ("Copy
+              link") is at the end of the article (T1-5x, owner 10 Nov 2026). No "By opengovt" line: every report is by
+              opengovt; another author is still named. */}
+          {piece.authorByline && !/^opengovt$/i.test(piece.authorByline.trim()) && (
+            <div className="art-after" style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              By {piece.authorByline}
             </div>
           )}
-          <div className="art-after" style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            By {piece.authorByline}
-          </div>
           {piece.publishedAt && (
             <div className="art-after" style={{ marginTop: '8px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
               {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {readingLabel(piece)}
@@ -113,16 +99,10 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
         </header>
 
-        {/* Long articles on phones (owner, 9 Nov 2026; step 5, 10 Nov 2026): the article text stays whole and what is around it
-            folds, with this list of the page's parts at the top. Under 640px only. */}
-        {/* Without a standfirst (it repeats the opening), the list follows the opening paragraph instead (UX3b, 10 Nov 2026),
-            so the text starts on the first screen (A6), as the standfirst does on other reports. */}
-        {showStandfirst && onThisPage}
-
         {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
         {/* The main action (UX3a, A6): the standfirst when it shows, otherwise the start of the text. */}
         <article id="article-text" data-own-folds="" data-article-body="" data-main-action={showStandfirst ? undefined : ''} style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
-          <ReportBody body={piece.body} afterFirst={showStandfirst ? undefined : onThisPage} />
+          <ReportBody body={piece.body} />
           {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
           {piece.updateNote && piece.updateNote.length > 0 && (
             <section aria-labelledby="article-updates" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
@@ -141,31 +121,18 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
             </p>
           )}
-          {/* Read next once, after the sources and before the evidence (no newsletter form in the article: T1-5x, owner, 10 Nov 2026) (owner's request, 25 Oct 2026; order 30 Oct 2026).
-              Reports pass `related` instead (owner's brief, 3 Nov 2026): the compact one line Related block takes the
-              Read next box's place, merged into it rather than added (app/components/RelatedLine.tsx). */}
-          {related ? <RelatedLine links={related} /> : <ReadNext links={readNext} />}
+          {basePath === '/editorials' && (
+            <div className="art-actions" style={{ margin: '0 0 16px' }}>
+              <ShareButton title={piece.headline} />
+            </div>
+          )}
+          {/* The one Related list (T1-5x S6): the piece's related links or Read next, then the data and more reports, at most 3. */}
+          <ExploreNext piece={piece} lead={related ?? readNext} />
         </article>
 
       </div>
 
 
-      {/* What follows the article, folded on phones (step 5, 10 Nov 2026). */}
-      <NoJsFold id="art-more" always label="Explore the data and more reports">
-      {/* Reports with the compact Related line (owner's brief, 3 Nov 2026) do not repeat its MPs in a second "Related"
-          section: one related block per page. Briefings keep this section. */}
-      {!related && (
-        <RelatedLinks
-          variant="editorial"
-          relatedDeptSlugs={piece.relatedDeptSlugs}
-          relatedMemberIds={piece.relatedMemberIds}
-          relatedBillIds={piece.relatedBillIds}
-          relatedProgrammeSlugs={piece.relatedProgrammeSlugs}
-        />
-      )}
-
-      <ExploreNext piece={piece} />
-      </NoJsFold>
 
     </OpenGovShell>
   );
