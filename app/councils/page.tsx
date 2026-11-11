@@ -127,9 +127,8 @@ export default async function CouncilsIndex() {
             color: INK,
           }}
         >
-          Every UK principal authority, county councils, district councils, unitaries, metropolitan
-          and London boroughs, and Northern Irish councils. 382 in total. Click any council to read
-          who runs it, how much it spends, and what it does.
+          Every UK principal authority: county and district councils, unitaries, metropolitan and London
+          boroughs, and Northern Irish councils, with who runs each, what it spends and what it does.
         </p>
 
         <div data-main-action className="cn-find" style={{ maxWidth: '46em', margin: '0 auto 28px' }}>
