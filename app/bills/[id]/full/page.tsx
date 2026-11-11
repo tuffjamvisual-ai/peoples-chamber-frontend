@@ -11,7 +11,6 @@ import type { Metadata } from 'next'
 import { namedTitle } from '@/lib/seo-title'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import OpenGovShell from '../../../components/OpenGovShell'
 import BackLink from '../../../components/BackLink';
 import PageSources from '@/app/components/PageSources';
@@ -199,10 +198,8 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
 
       <article style={{ padding: 0, color: INK, fontFamily: MONO }}>
         <header style={{ marginBottom: '28px' }}>
-          <p style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>
-            <Link href={`/bills/${billId}`} style={{ color: ACCENT }}>{bill.title}</Link>
-          </p>
-          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.4vw, 40px)', fontWeight: 'bold', lineHeight: 1.15, margin: '0 0 10px' }}>The full bill</h1>
+          {/* T1-5x (owner, 10 Nov 2026): the bill's title in the h1; the back link is the one link to the bill. */}
+          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.4vw, 40px)', fontWeight: 'bold', lineHeight: 1.15, margin: '0 0 10px' }}>{bill.title}: full text</h1>
           {latest && (
             <p style={{ fontFamily: MONO, fontSize: '16px', fontWeight: 'bold', margin: '0 0 14px' }}>
               {latest.label}{latest.date ? `, ${fmtLongDate(latest.date)}` : ''}
@@ -306,9 +303,6 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           </section>
         )}
 
-        <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${INK_HAIRLINE}`, textAlign: 'center' }}>
-          <Link href={`/bills/${billId}`} style={{ color: INK, textDecoration: 'underline' }}>Back to the bill</Link>
-        </p>
       </article>
       {/* EL1 (owner, 10 Nov 2026): outside links only in the one Sources fold (the PDF when there is no web text, and the
           bill's page at Parliament); each publication in "Other documents" is that row's own document and stays. */}
