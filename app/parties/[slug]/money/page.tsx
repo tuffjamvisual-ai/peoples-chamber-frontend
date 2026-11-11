@@ -22,6 +22,7 @@ import { sectorForDonor } from '@/lib/donor-sectors';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
 import { SubFold } from '../../../components/PhoneFolds';
+import AboutThisData from '../../../components/AboutThisData';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 import BackLink from '@/app/components/BackLink';
@@ -195,19 +196,12 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
           Who actually funds the {party.name}
         </h1>
         <div style={{ height: '4px', background: accent, width: '80px', marginBottom: '12px' }} />
-        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
-        <SubFold label="About these figures">
-        <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '60ch' }}>
-          Every declared donation to the {party.name} on the Electoral Commission register, aggregated by year, by donor type, by sector and by accounting unit. The headline number on the policy page is &pound;{Math.round(total).toLocaleString()} across {donations.length.toLocaleString()} declared donations from {distinctDonors.toLocaleString()} distinct donors. The figures below are the decomposition.
-        </p>
-        </SubFold>
       </header>
 
       <PartySidebar party={party} active="money">
 
       <section data-main-action style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By donor type</h2>
-        <p style={{ fontSize: '15px', marginBottom: '10px' }}>The most diagnostic single decomposition. Tells you who actually owns the party.</p>
         <NoJsPager id="pm-type" first={2} count={typeRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>
         <table style={tableStyle}>
           <thead>
@@ -234,7 +228,6 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Year by year</h2>
-        <p style={{ fontSize: '15px', marginBottom: '10px' }}>Declared total per calendar year. Totals usually spike in election years and in years when the leader changes.</p>
         <NoJsFold id="pm-years-fold" label="Show each year">
         {/* Folded on phones (step 5, 10 Nov 2026: the page was 4,509px), as are the accounting units and the top donors. */}
         <NoJsFold id="pm-years-f" always label={`The ${yearRows.length.toLocaleString('en-GB')} years`}>
@@ -268,7 +261,6 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Where the money landed · accounting unit</h2>
-        <p style={{ fontSize: '15px', marginBottom: '10px' }}>Money that lands at Central HQ funds the party machine. Money that lands at a constituency association funds a single seat. The mix tells you whether the party is centrally bankrolled or locally rooted.</p>
         <NoJsFold id="pm-where-fold" label="Show each accounting unit">
         <NoJsFold id="pm-where-f" always label={`The ${unitRows.length.toLocaleString('en-GB')} units`}>
         <NoJsPager id="pm-where" count={unitRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>
@@ -302,7 +294,6 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
           {/* UX5 (T1-6, 11 Nov 2026): on phones a closed fold named by this heading, which is hidden there; from 640px up, as before. */}
           <SubFold label="Top funding sectors" summary={`${sectorRows.length}`}>
           <h2 className="pm-fold-h" style={sectionH2}>Top funding sectors</h2>
-          <p style={{ fontSize: '15px', marginBottom: '10px' }}>Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included; this view shows which parts of the economy fund the party.</p>
           <ShowAll id="party-money-sectors" count={(sectorRows).length}>
           <table style={tableStyle}>
             <thead>
@@ -364,6 +355,12 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
         Every year on record, all accounting units. Includes both monetary donations and benefits in kind.
       </p>
 
+      {/* T1-5x (owner, 10 Nov 2026): what the figures are and how they are read, in one closed block; helper lines cut. */}
+      <AboutThisData>
+        <p>Every declared donation to the {party.name} on the Electoral Commission register, aggregated by year, by donor type, by sector and by accounting unit. The headline number on the policy page is &pound;{Math.round(total).toLocaleString()} across {donations.length.toLocaleString()} declared donations from {distinctDonors.toLocaleString()} distinct donors. The figures below are the decomposition.</p>
+        <p>Year by year: the declared total per calendar year; totals usually spike in election years and when the leader changes. Accounting unit: money at Central HQ funds the party machine, money at a constituency association funds a single seat.</p>
+        <p>Sectors: Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included; this view shows which parts of the economy fund the party.</p>
+      </AboutThisData>
       </PartySidebar>
 
     </OpenGovShell>
