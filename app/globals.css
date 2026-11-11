@@ -437,3 +437,14 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
   .ng-page select, .ng-page input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), .ng-page textarea { min-height: 44px; }
   .ng-page input[type="checkbox"], .ng-page input[type="radio"] { width: 24px; height: 24px; }
 }
+/* AboutThisData (T1-5x S7, owner 10 Nov 2026): one closed block after the main content, at every width. */
+.og-about { border-top: 1px dashed rgba(20,16,13,0.3); border-bottom: 1px dashed rgba(20,16,13,0.3); margin: 28px 0 8px; max-width: 760px; color: #14100d; }
+.og-about > summary { list-style: none; cursor: pointer; }
+.og-about > summary::-webkit-details-marker { display: none; }
+.og-about > summary::after { content: none !important; }
+.og-about-sum { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 6px 2px; font-size: 15px; font-weight: bold; }
+.og-about-mark { flex: 0 0 auto; font-size: 20px; line-height: 1; color: #7a1612; }
+.og-about-mark::before { content: '+'; }
+.og-about[open] .og-about-mark::before { content: '\2212'; }
+.og-about-body { padding: 4px 2px 14px; font-size: 15px; line-height: 1.6; }
+.og-about-body p { margin: 0 0 10px; }
