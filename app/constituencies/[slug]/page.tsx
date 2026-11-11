@@ -47,7 +47,7 @@ function Result({ heading, date, summary, figures, candidates, fold = false }: {
     <>
       <h2 style={h2}>{heading}</h2>
       <p style={para}>{petitionDate(date)}. {summary}.</p>
-      <NoJsPager id={`cand-${candidates[0]?.election_id ?? heading.replace(/[^a-zA-Z0-9]+/g, '-')}`} count={candidates.length} rows="> li" size={25}>
+      <NoJsPager id={`cand-${candidates[0]?.election_id ?? heading.replace(/[^a-zA-Z0-9]+/g, '-')}`} count={candidates.length} rows="> li" size={25} first={3}>
       <ol style={{ listStyle: 'none', margin: '0 0 12px', padding: 0 }}>
         {candidates.map((c) => (
           <li key={`${c.election_id}-${c.position}`} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', borderBottom: LINE, color: INK }}>
