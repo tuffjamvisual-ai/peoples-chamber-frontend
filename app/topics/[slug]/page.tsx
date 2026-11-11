@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import ServiceIndicator, { servicesForTopic } from '../../components/ServiceIndicator';
 import BackLink from '../../components/BackLink';
+import { SubFold } from '../../components/PhoneFolds';
 import { getTopic, topics, topicBillArgs, newestPerTitle, wholeWordsPattern, matchWords } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import { editorialSet } from '@/lib/editorials-source';
@@ -141,7 +142,10 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           {topic.title}
         </h1>
+        {/* UX5 (T1-6, 11 Nov 2026): on phones the topic's introduction is a closed fold; from 640px up, as before. */}
+        <SubFold label="About this topic">
         <p style={{ fontSize: '17px', lineHeight: 1.75, maxWidth: '760px', color: INK }}>{topic.blurb}</p>
+        </SubFold>
       </header>
 
       {/* Department assessment */}
