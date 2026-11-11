@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { showNewResults } from '@/lib/show-new-results';
 import { QUESTIONS_PER_PAGE, type WrittenQuestion } from '@/lib/mp-written-questions';
 
 // The list on /mps/[id]/questions (owner, 3 Nov 2026): page 1 of all questions comes from the cached page; other pages
@@ -28,6 +29,11 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const pages = Math.max(1, Math.ceil(total / QUESTIONS_PER_PAGE));
 
+  // After a new page of questions is in, the reader is taken to it (T1-MOB2: lib/show-new-results.ts).
+  const resultsRef = useRef<HTMLParagraphElement>(null);
+  const moved = useRef(false);
+  useEffect(() => { if (moved.current) { moved.current = false; showNewResults(resultsRef.current); } }, [page, department, rows]);
+
   async function load(nextPage: number, nextDepartment: string) {
     setStatus('loading');
     try {
@@ -40,6 +46,7 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
       setPage(nextPage);
       setDepartment(nextDepartment);
       setStatus('idle');
+      moved.current = true;
     } catch {
       setStatus('error');
     }
@@ -58,7 +65,7 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
         {departments.map((d) => <option key={d.name} value={d.name}>{d.name} ({d.count.toLocaleString('en-GB')})</option>)}
       </select>
 
-      <p aria-live="polite" style={{ margin: '0 0 8px' }}>
+      <p ref={resultsRef} aria-live="polite" style={{ margin: '0 0 8px', scrollMarginTop: '16px' }}>
         {status === 'loading' ? 'Loading…' : status === 'error' ? 'Sorry, the questions could not be loaded. Please try again.' : `${total.toLocaleString('en-GB')} question${total === 1 ? '' : 's'}${department ? ` to ${department}` : ''}, newest first. Page ${page} of ${pages}.`}
       </p>
 
