@@ -7,6 +7,7 @@ import StandardsFindings, { type ConductFinding } from './StandardsFindings';
 import { pmqsLinks, type PmqsCounts } from '@/lib/pmqs-counts';
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { showNewResults } from '@/lib/show-new-results';
 import Link from 'next/link';
 import PageSources from '@/app/components/PageSources';
 import MoneyCountUp from '../../components/MoneyCountUp';
@@ -743,7 +744,11 @@ export default function MagazineProfileSections({
   const [vQuery, setVQuery] = useState<string>(voteQuery);
   const [vSearchInput, setVSearchInput] = useState<string>(voteQuery);
   const [vLoading, setVLoading] = useState(false);
-  const loadVotes = async (page: number, query: string) => {
+  // After a new page of votes or a search is in, the reader is taken to the results (T1-MOB2 (2): lib/show-new-results.ts).
+  const voteResultsRef = useRef<HTMLParagraphElement>(null);
+  const voteMoved = useRef(false);
+  useEffect(() => { if (voteMoved.current) { voteMoved.current = false; showNewResults(voteResultsRef.current); } }, [voteList, vPage, vQuery]);
+  const loadVotes = async (page: number, query: string, quiet = false) => {
     setVLoading(true);
     try {
       const res = await fetch(`/api/mps/${memberId}/votes?page=${page}&q=${encodeURIComponent(query)}`);
@@ -752,12 +757,30 @@ export default function MagazineProfileSections({
       setVoteTotal(d.total ?? 0);
       setVPage(page);
       setVQuery(query);
+      // The search and page live in the address (T1-MOB2 (3)), so Back from a division restores them and the open
+      // Voting record section; replaceState, so paging adds no history entries.
+      const u = new URL(window.location.href);
+      if (query) u.searchParams.set('vq', query); else u.searchParams.delete('vq');
+      if (page > 1) u.searchParams.set('vp', String(page)); else u.searchParams.delete('vp');
+      u.searchParams.set('section', 'voting');
+      window.history.replaceState(window.history.state, '', u.toString());
+      if (!quiet) voteMoved.current = true;
     } catch {
       /* leave the current list in place on a failed fetch */
     } finally {
       setVLoading(false);
     }
   };
+  // A search or page in the address (?vq=, ?vp=; T1-MOB2 (3)), as after Back from a division: load it once on arrival.
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const q = (sp.get('vq') ?? '').slice(0, 100);
+    const p = Math.max(1, parseInt(sp.get('vp') ?? '1', 10) || 1);
+    if (!q && p === 1) return;
+    const t = setTimeout(() => { void loadVotes(p, q, true).then(() => setVSearchInput(q)); }, 0);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // JS-driven float (opt-in). CSS sticky can't work under a transformed ancestor, so when
   // jsSticky is on we translate the sidebar down to keep it pinned ~24px from the top,
@@ -1256,7 +1279,7 @@ export default function MagazineProfileSections({
               )}
             </form>
 
-            <p style={{ marginBottom: '16px' }}>
+            <p ref={voteResultsRef} id="mp-vote-results" style={{ marginBottom: '16px', scrollMarginTop: '16px' }}>
               {vQuery ? (
                 <>
                   <strong>{voteTotal.toLocaleString()}</strong>{' '}
