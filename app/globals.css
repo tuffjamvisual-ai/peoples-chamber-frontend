@@ -196,6 +196,8 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .mc-n-phone { display: inline; }
   .mc-n-wide { display: none; }
   .mc-first:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+6) { display: none !important; }
+  /* MoreChain phoneFirst (UX5, T1-6, 11 Nov 2026): fewer than five of the opening list, for long items. */
+  .mc-first.mc-pf1:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+2), .mc-first.mc-pf2:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+3), .mc-first.mc-pf3:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4), .mc-first.mc-pf4:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+5) { display: none !important; }
 }
 /* Long lists and sections on phones with JavaScript off (app/components/NoJsPager.tsx). Nothing here changes any other view. */
 .njp-a, .njp-nav, .njf { display: none; }

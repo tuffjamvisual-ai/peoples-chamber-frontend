@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import PageSources from '@/app/components/PageSources';
 import OpenGovShell from '../../components/OpenGovShell';
-import MoreChain, { openingCount, textHeightAt375 } from '../../components/MoreChain';
+import MoreChain, { openingCount, PHONE_ROOM, textHeightAt375 } from '../../components/MoreChain';
 import OpenHashTarget from '../../components/OpenHashTarget';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { answeredBy, archiveExchanges, longDateArchive, officialRecord, type ArchiveContribution, type ArchiveExchange, type ArchiveSession } from '@/lib/pmqs-archive';
@@ -47,7 +47,8 @@ export default async function ArchiveSessionView({ session }: { session: Archive
         {session.exchanges} {session.exchanges === 1 ? 'contribution' : 'contributions'} in the record (in Sources at the end of the page).
       </p>
       <div style={{ color: INK }}>
-        <MoreChain mainAction ordered first={openingCount(exchanges.map(heightAt375))} items={exchanges.map((e) => (
+        {/* Phones: as many exchanges as fit the 2,500px length (UX5, T1-6, 11 Nov 2026); wider, as before. */}
+        <MoreChain mainAction ordered first={openingCount(exchanges.map(heightAt375))} phoneFirst={openingCount(exchanges.map(heightAt375), PHONE_ROOM)} items={exchanges.map((e) => (
           <li key={e.lead.order} id={`r-${e.lead.order}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
             <Name c={e.lead} />
             <p style={body}>{e.lead.text}</p>

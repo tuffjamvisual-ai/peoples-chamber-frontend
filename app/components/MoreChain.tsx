@@ -15,14 +15,17 @@ const PHONE_FIRST = 5;
 
 // first: how many items show as the page opens, when fewer than a step, so a page of long items stays within the 10,000px limit.
 // mainAction (UX3a): the first list carries data-main-action, the page's main action that the A6 check measures.
-type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean; mainAction?: boolean };
+// phoneFirst (UX5, T1-6, 11 Nov 2026): how many of the opening list show on phones, in place of PHONE_FIRST, for items too
+// long for five to fit the 2,500px phone length. Nothing changes from 640px up.
+type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean; mainAction?: boolean; phoneFirst?: number };
 
-export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false, mainAction = false }: Props) {
+export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false, mainAction = false, phoneFirst = PHONE_FIRST }: Props) {
+  const pf = Math.max(1, Math.min(phoneFirst, PHONE_FIRST));
   const opening = Math.max(1, Math.min(first ?? step, step));
   const Tag = ordered ? 'ol' : 'ul';
-  const list = (some: ReactNode[], firstList = false, mark = false) => <Tag className={[className, firstList ? 'mc-first' : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
+  const list = (some: ReactNode[], firstList = false, mark = false) => <Tag className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
   if (items.length <= opening) {
-    if (phoneOnly || items.length <= PHONE_FIRST) return list(items, false, mainAction);
+    if (phoneOnly || items.length <= pf) return list(items, false, mainAction);
     return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary>Show all {items.length.toLocaleString('en-GB')}</summary></details></>;
   }
   const label = (from: number) => (
@@ -30,7 +33,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
     <summary>
       <span>
         Show more ({from === opening && !phoneOnly
-          ? <><span className="mc-n-wide">{(items.length - from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{(items.length - Math.min(PHONE_FIRST, from)).toLocaleString('en-GB')}</span></>
+          ? <><span className="mc-n-wide">{(items.length - from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{(items.length - Math.min(pf, from)).toLocaleString('en-GB')}</span></>
           : (items.length - from).toLocaleString('en-GB')} left)
       </span>
     </summary>
@@ -50,10 +53,11 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
   return <>{list(items.slice(0, opening), !phoneOnly, mainAction)}{rest(opening)}</>;
 }
 
-// How many items fit as a page opens: their heights at 375px, up to the room the page leaves within the phone length.
-// 2,600 for the 2,500px limit (UX5, T1-6, 11 Nov 2026; 6,800 was for the old 10,000px rule): the estimates run about
-// twice the measured height, so this opens a PMQs session with about 1,300px of exchanges before "Show more".
-export function openingCount(heights: number[], room = 2600): number {
+// How many items fit as a page opens: their heights at 375px, up to `room`. 6,800 is the opening at every width (the old
+// 10,000px rule). For the 2,500px phone length (UX5, T1-6, 11 Nov 2026) pass PHONE_ROOM: the estimates run about twice the
+// measured height, so that opens with about 1,300px of items.
+export const PHONE_ROOM = 2600;
+export function openingCount(heights: number[], room = 6800): number {
   let px = 0, n = 0;
   for (const h of heights) {
     px += h;
