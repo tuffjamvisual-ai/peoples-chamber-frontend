@@ -3,7 +3,7 @@ import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem, pagesByHeight } from '@/a
 import { splitAnswer } from '@/lib/answer-html';
 import { Fragment, cache } from 'react';
 import ReadNext from '../../components/ReadNext';
-import OnThisPage from '../../components/OnThisPage';
+import AboutThisData from '../../components/AboutThisData';
 import { debateReadNext } from '@/lib/read-next';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -384,14 +384,12 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
 
       <header style={{ marginBottom: '6%' }}>
         <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>
-          Hansard{ov?.House ? ` · ${ov.House}` : ''}{ov?.Date ? ` · ${fmtDate(ov.Date)}` : ''}
+          {/* T1-5x S8 (owner, 10 Nov 2026): House and date only; "Hansard" is in Sources and the place in At a glance. */}
+          {[ov?.House, ov?.Date ? fmtDate(ov.Date) : null].filter(Boolean).join(' · ')}
         </div>
         <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.4vw, 42px)', fontWeight: 600, lineHeight: 1.15, margin: 0, color: INK }}>
           {ov?.Title?.trim() || 'Debate'}
         </h1>
-        {ov?.Location && (
-          <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: INK, marginTop: '8px' }}>{ov.Location}</div>
-        )}
         {/* Phones (UX3b, 10 Nov 2026): more than one vote folds into "Votes in this debate (N)", so the debate starts on the
             first screen (A6). From 640px up, as before. */}
         {divisionIds.length > 1 && (
@@ -426,12 +424,6 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         <p data-main-action style={{ maxWidth: '46em', margin: '0 auto 20px', fontSize: '16px', lineHeight: 1.7, color: INK }}>{opening}</p>
       )}
 
-      {/* Phones (step 5, 10 Nov 2026; the long-article rule): the transcript as before, the summary and Read next folded,
-          and a list of the page's parts at the top. */}
-      {groups.length > 0 && <OnThisPage items={[{ href: '#debate-text', label: 'The debate' }, { href: '#dbs-f', label: 'At a glance' }, { href: '#dbrn-f', label: 'Read next' }]} />}
-      <NoJsFold id="dbs-f" always label="At a glance: date, speakers and votes">
-      <DebateSummary date={ov?.Date ? fmtDate(ov.Date) : null} house={ov?.House ?? null} location={ov?.Location ?? null} speakers={speakers} words={words} votes={votes} />
-      </NoJsFold>
 
       {about && (
         <section data-main-action={opening ? undefined : ''} style={{ maxWidth: '46em', margin: '0 auto 7%', borderLeft: `2px solid ${ACCENT}`, paddingLeft: '16px' }}>
@@ -443,6 +435,14 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           </p>
         </section>
       )}
+
+      {/* T1-5x (owner, 10 Nov 2026): "At a glance" and "Who spoke" in one block, closed at every width, after the summary,
+          so the debate starts sooner; no "On this page" list. Speakers are linked once, in "Who spoke". */}
+      <div style={{ maxWidth: '46em', margin: '0 auto 24px' }}>
+        <AboutThisData id="dbs-f" label="At a glance: date, speakers and votes">
+          <DebateSummary date={ov?.Date ? fmtDate(ov.Date) : null} house={ov?.House ?? null} location={ov?.Location ?? null} speakers={speakers} words={words} votes={votes} />
+        </AboutThisData>
+      </div>
 
       <div data-main-action={opening || about ? undefined : ''} id="debate-text" style={{ maxWidth: '46em', margin: '0 auto', scrollMarginTop: '24px' }}>
         {groups.length === 0 ? (
@@ -463,13 +463,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
             >
               {g.speaker && (
                 <div style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: ACCENT, marginBottom: '8px', letterSpacing: '0.02em' }}>
-                  {g.memberId && linkable.has(g.memberId) ? (
-                    <Link href={`/mps/${g.memberId}`} style={{ color: ACCENT, textDecoration: 'none' }} className="no-hover-scale">
-                      {g.speaker}
-                    </Link>
-                  ) : (
-                    g.speaker
-                  )}
+                  {g.speaker}
                 </div>
               )}
               {(() => {
@@ -486,7 +480,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(2, debateScreens[0] ?? 2)} />
           </>
         )}
-        {groups.length > 0 && <NoJsFold id="dbrn-f" always label="Read next"><ReadNext links={readNext} /></NoJsFold>}
+        {groups.length > 0 && <NoJsFold id="dbrn-f" always label="Read next"><ReadNext links={readNext.slice(0, 3)} /></NoJsFold>}
       </div>
 
       <nav aria-label="Adjacent debates" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', maxWidth: '46em', margin: '40px auto 0', borderTop: '1px solid rgba(20,16,13,0.25)', paddingTop: '18px' }}>
