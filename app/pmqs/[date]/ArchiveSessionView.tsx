@@ -2,7 +2,6 @@ import Link from 'next/link';
 import PageSources from '@/app/components/PageSources';
 import OpenGovShell from '../../components/OpenGovShell';
 import MoreChain, { openingCount, PHONE_ROOM, textHeightAt375 } from '../../components/MoreChain';
-import OpenHashTarget from '../../components/OpenHashTarget';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { answeredBy, archiveExchanges, longDateArchive, officialRecord, type ArchiveContribution, type ArchiveExchange, type ArchiveSession } from '@/lib/pmqs-archive';
 
@@ -39,7 +38,6 @@ export default async function ArchiveSessionView({ session }: { session: Archive
   return (
     <OpenGovShell pageStamp="PMQs">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: "Prime Minister's Questions", path: '/pmqs' }, { name: title, path: `/pmqs/${session.date}` }])} />
-      <OpenHashTarget />
       <BackLink fallbackHref="/pmqs" />
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 12px', color: INK }}>
         Prime Minister&rsquo;s Questions, {title}

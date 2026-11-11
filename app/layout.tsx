@@ -11,6 +11,7 @@ import FloatingScrollDownButton from "./components/FloatingScrollDownButton";
 import DeferredAnalytics from "./components/DeferredAnalytics";
 import CookieBanner from "./components/CookieBanner";
 import SkipLink from "./components/SkipLink";
+import OpenHashTarget from "./components/OpenHashTarget";
 import PostHogLoader from "./components/PostHogLoader";
 import { CONSENT_HEAD_SCRIPT } from "@/lib/cookie-consent";
 import { phoneUpTo } from '@/lib/breakpoints';
@@ -169,6 +170,8 @@ export default function RootLayout({
         {/* GOV.UK style cookie banner, first after the skip link so keyboard users reach it next (owner, 29 Oct 2026). */}
         <CookieBanner />
         <AuthProvider>
+          {/* Shortcuts into closed folds open them, site wide (T1-MOB). */}
+          <OpenHashTarget />
           {children}
           {/* Newsletter strip hidden (owner, 31 Oct 2026); the component is kept in app/components/NewsletterStrip.tsx to bring back later. */}
         </AuthProvider>

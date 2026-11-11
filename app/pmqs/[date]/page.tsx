@@ -9,7 +9,6 @@ import { answeredBy, archiveSessionOn } from '@/lib/pmqs-archive';
 import MoreChain, { openingCount, PHONE_ROOM, textHeightAt375 } from '../../components/MoreChain';
 // The list folds on phones only, so its opening is for the 2,500px phone length (UX5, T1-6, 11 Nov 2026).
 const phoneOpening = (heights: number[]) => openingCount(heights, PHONE_ROOM);
-import OpenHashTarget from '../../components/OpenHashTarget';
 import ArchiveSessionView from './ArchiveSessionView';
 
 import BackLink from '@/app/components/BackLink';
@@ -83,7 +82,6 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
           ? ' questions. Where the Speaker stepped in and no answer was given, the Speaker\u2019s words are shown. The Speaker\u2019s other interventions, shouted asides and points of order are left out'
           : ' questions. The Speaker\u2019s interventions, shouted asides and points of order are left out'}{session.hansardUrl ? '; the full record in Hansard is in Sources at the end of the page' : ''}.
       </p>
-      <OpenHashTarget />
       <MoreChain mainAction ordered phoneOnly style={{ color: INK }} first={phoneOpening(exchanges.map((e) => 120 + textHeightAt375(e.question) + e.answers.reduce((px, a) => px + textHeightAt375(a), 0) + (e.speaker.length ? 150 : 0)))} items={exchanges.map((e) => (
           <li key={e.id} id={`q-${e.id}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
             <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>{firstMention(e.asker.id) ? <Link href={`/mps/${e.asker.id}`} style={link}>{e.asker.name}</Link> : e.asker.name}</p>

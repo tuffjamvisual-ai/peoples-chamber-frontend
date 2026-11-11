@@ -19,7 +19,6 @@ import { readingLabel } from '@/lib/reading-time';
 import { PHONE } from '@/lib/breakpoints';
 import { standfirstRepeatsOpening } from '@/lib/editorials/standfirst';
 import { phonePlan, type Chain } from '@/lib/editorials/phone-folds';
-import OpenHashTarget from './OpenHashTarget';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -179,7 +178,6 @@ function ReportBody({ body, afterFirst }: { body: Block[]; afterFirst?: ReactNod
   );
   return (
     <>
-      <OpenHashTarget />
       {rest(plan.lead)}
       {plan.sections.map((s) => {
         const i = at++;
