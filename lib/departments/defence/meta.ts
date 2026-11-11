@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Military Justice',
     'Overseas Bases'
   ],
-  description: 'In charge of Britain\'s armed forces, the nuclear deterrent, and the running argument about whether 2% of GDP is enough.',
+  description: 'In charge of Britain\'s armed forces, the nuclear deterrent, and the running argument about whether 2 per cent of GDP is enough.',
   streetContext: '',
 };
 

@@ -38,6 +38,26 @@ export function interfaceTexts(src: string, fileName: string): { line: number; t
   return out;
 }
 
+// Department wording kept as data, not JSX (QA1 A5 extended, 11 Nov 2026, after "2% of GDP" on /departments/defence got
+// past it): the string values of the fields shown on the page, in lib/departments/<slug>/meta.ts.
+export const DATA_TEXT_FILES = /^lib\/departments\/[^/]+\/meta\.ts$/;
+const DATA_TEXT_KEYS = new Set(['name', 'shortName', 'description', 'streetContext']);
+
+export function dataTexts(src: string, fileName: string): { line: number; text: string }[] {
+  const sf = ts.createSourceFile(fileName, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const out: { line: number; text: string }[] = [];
+  const visit = (n: ts.Node): void => {
+    if (ts.isPropertyAssignment(n) && DATA_TEXT_KEYS.has(n.name.getText(sf).replace(/['"]/g, ''))
+      && (ts.isStringLiteral(n.initializer) || ts.isNoSubstitutionTemplateLiteral(n.initializer))) {
+      const t = n.initializer.text.replace(/\s+/g, ' ').trim();
+      if (/[A-Za-z]{2}/.test(t)) out.push({ line: sf.getLineAndCharacterOfPosition(n.initializer.getStart(sf)).line + 1, text: t });
+    }
+    ts.forEachChild(n, visit);
+  };
+  visit(sf);
+  return out;
+}
+
 // JSX text is split around {expressions}, so a {value}% shows as a text node starting "%": that is checked too.
 export function checkText(text: string, allow: string[]): TextFinding['rule'][] {
   const rules: TextFinding['rule'][] = [];
@@ -50,7 +70,7 @@ function walk(dir: string, out: string[]): void {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
     if (e.isDirectory()) walk(p, out);
-    else if (e.name.endsWith('.tsx')) out.push(p);
+    else if (e.name.endsWith('.tsx') || e.name === 'meta.ts') out.push(p);
   }
 }
 
@@ -67,7 +87,10 @@ export function scanInterfaceText(root: string): TextFinding[] {
   for (const f of files) {
     const rel = path.relative(root, f).split(path.sep).join('/');
     if (skip.some((s) => rel === s || rel.startsWith(s))) continue;
-    for (const { line, text } of interfaceTexts(fs.readFileSync(f, 'utf8'), rel)) {
+    const isData = rel.endsWith('.ts');
+    if (isData && !DATA_TEXT_FILES.test(rel)) continue;
+    const src = fs.readFileSync(f, 'utf8');
+    for (const { line, text } of isData ? dataTexts(src, rel) : interfaceTexts(src, rel)) {
       for (const rule of checkText(text, allow)) out.push({ file: rel, line, rule, text: text.slice(0, 90) });
     }
   }

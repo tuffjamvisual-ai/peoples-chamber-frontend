@@ -1,5 +1,5 @@
 // QA1 A5 (owner approved, 9 Nov 2026): house style on interface text, in the test run so a new breach fails it.
-// Wording written into components (JSX text, string children, title, aria-label, alt, placeholder) has no hyphen or dash
+// Wording written into components (and the shown fields of lib/departments/<slug>/meta.ts, 11 Nov 2026) (JSX text, string children, title, aria-label, alt, placeholder) has no hyphen or dash
 // in our own words (scripts/style-dash.ts, shared with the editorial publish check) and says "per cent", not "%".
 // Exceptions: scripts/checks/qa/house-style-exceptions.json. Known findings when the check was added are in
 // scripts/checks/qa/house-style-baseline.json and do not fail; fixing one means removing it there. A finding not in the
@@ -10,7 +10,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { checkText, findingKey, interfaceTexts, scanInterfaceText } from './qa/interface-text';
+import { checkText, dataTexts, findingKey, interfaceTexts, scanInterfaceText } from './qa/interface-text';
 
 const ROOT = path.join(__dirname, '..', '..');
 const BASELINE = path.join(ROOT, 'scripts/checks/qa/house-style-baseline.json');
@@ -42,4 +42,11 @@ test('only wording is read: style blocks, class names and code are not', () => {
   const src = `export default function P() { return (<div className="full-width"><style>{'.a { max-width: 10% }'}</style><p title="A well-run test">Text {n}% of all</p></div>); }`;
   const texts = interfaceTexts(src, 'x.tsx').map((t) => t.text);
   assert.deepEqual(texts, ['A well-run test', 'Text', '% of all']);
+});
+
+test('department wording kept as data: the shown fields of meta.ts are read, other fields are not', () => {
+  const src = `const meta = { slug: 'a-b', ministerPhoto: 'x-1.jpg', description: 'Whether 2% of GDP is enough', streetContext: '' };`;
+  const texts = dataTexts(src, 'lib/departments/x/meta.ts').map((t) => t.text);
+  assert.deepEqual(texts, ['Whether 2% of GDP is enough']);
+  assert.deepEqual(checkText(texts[0], []), ['percent']);
 });
