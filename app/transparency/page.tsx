@@ -86,9 +86,7 @@ export default function TransparencyHubPage() {
           {SECTIONS.length} datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed and the full local council register. Each section links to a searchable list of the underlying records.
         </p>
         </SubFold>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px' }}>
-          {SECTIONS.length} datasets · drawn from public registers
-        </p>
+        {/* T1-5x S8 (owner, 10 Nov 2026): no kicker line and no "Dataset · 01" numbering. */}
       </header>
 
       {/* Two balanced columns, no boxes; reading order runs down the left column, then the right. */}
@@ -106,9 +104,6 @@ export default function TransparencyHubPage() {
                 className="t-card no-hover-scale"
                 style={{ display: 'block', padding: '14px 0 18px', borderTop: '1px solid rgba(20,16,13,0.25)', color: INK, textDecoration: 'none' }}
               >
-                <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '8px' }}>
-                  Dataset · {String(i + 1).padStart(2, '0')}
-                </div>
                 <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
                   {s.title} <span >→</span>
                 </h2>
