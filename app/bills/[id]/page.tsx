@@ -17,6 +17,7 @@ import BackLink from '../../components/BackLink';
 import JsonLd, { buildBillLegislation, buildBreadcrumbs } from '@/lib/JsonLd';
 import RelatedLinks from '@/app/components/RelatedLinks';
 import LastUpdated from '@/app/components/LastUpdated';
+import PageSources from '@/app/components/PageSources';
 import type { Metadata } from 'next'
 import FollowButton from '@/app/components/FollowButton';
 import { getBillPublications, latestText } from '@/lib/bill-text';
@@ -296,20 +297,15 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         )}
 
         {/* At every width (UX2g phones; UX4g desktop, owner approved, 10 Nov 2026): under the stage and date, the sponsor, the
-            official record at Parliament (BD1: only for bills whose Parliament id we hold; same tab), then two jump links: the
+            then two jump links: the
             full timeline and the reader poll (which follows the parliamentary record). The formal summary and the full bill
             link stay below; the sponsor block lower down is left out, as this line gives it. */}
-        <style>{`.bq-phone { display: block; text-align: center; margin: -14px 0 14px; } .bq-wide { display: none !important; } .bq-jump { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 18px; } .bq-jump a, .bq-rec a { display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; }`}</style>
+        <style>{`.bq-phone { display: block; text-align: center; margin: -14px 0 14px; } .bq-wide { display: none !important; } .bq-jump { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 18px; } .bq-jump a { display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; }`}</style>
         <div className="bq-phone">
           {presented && (
             <p style={{ fontFamily: MONO, fontStyle: 'italic', fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 2px' }}>
               Presented by {presented}{supportersLine ? `, supported by ${supportersLine}` : ''}.
             </p>
-          )}
-          {bill.parliament_id != null && (
-            <div className="bq-rec" style={{ fontFamily: MONO }}>
-              <a href={`https://bills.parliament.uk/bills/${bill.parliament_id}`}>View the official Parliament record</a>
-            </div>
           )}
           <nav aria-label="On this page" className="bq-jump" style={{ fontFamily: MONO }}>
             {stages.length > 0 && <a href="#bill-passage">Full timeline ↓</a>}
@@ -678,6 +674,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </section>
         );
       })()}
+
+      {/* EL1 (owner, 10 Nov 2026): the official record at Parliament is in the page's one Sources fold, not a link above. */}
+      <PageSources sources={[bill.parliament_id != null && { label: 'This bill on UK Parliament\u2019s Bills website', href: `https://bills.parliament.uk/bills/${bill.parliament_id}` }]} />
 
       </article>
 

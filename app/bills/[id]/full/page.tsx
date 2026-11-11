@@ -14,7 +14,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import OpenGovShell from '../../../components/OpenGovShell'
 import BackLink from '../../../components/BackLink';
-import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
+import PageSources from '@/app/components/PageSources';
 import { getBillPublications, getBillText, latestText, actLink, inlineGroupCount, type ApiPublication as TextPublication, type TocEntry } from '@/lib/bill-text';
 import BillTextGroups from './BillTextGroups';
 import { phoneUpTo } from '@/lib/breakpoints';
@@ -213,8 +213,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           )}
           {act && (
             <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, margin: '14px 0 0' }}>
-              This bill is now an Act. The text below is the last version of the bill; the Act as passed is on{' '}
-              <a href={act.url} rel="noopener" style={{ color: ACCENT }}>legislation.gov.uk</a>.
+              This bill is now an Act. The text below is the last version of the bill; the Act as passed is in Sources at the end of the page.
             </p>
           )}
         </header>
@@ -253,14 +252,11 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           </>
         ) : latest?.pdf ? (
           <section style={{ margin: '0 0 36px' }}>
-            <a href={latest.pdf.url} rel="noopener" className="no-hover-scale" style={{ display: 'inline-block', fontFamily: MONO, fontSize: '17px', fontWeight: 'bold', color: '#fff', background: ACCENT, padding: '12px 20px', textDecoration: 'none' }}>
-              Read the bill (PDF)
-            </a>
-            <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, margin: '10px 0 0', maxWidth: '46em' }}>
+            <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, margin: 0, maxWidth: '46em' }}>
               {latest.label}{latest.date ? `, ${fmtLongDate(latest.date)}` : ''}{latest.pdf.bytes ? `, ${fmtSize(latest.pdf.bytes)}` : ''}.{' '}
               {latest.html
-                ? 'Parliament’s website did not let us load this version as a web page, so it is linked as Parliament’s PDF.'
-                : 'Parliament has published this version as a PDF only.'}
+                ? 'Parliament’s website did not let us load this version as a web page; Parliament’s PDF is in Sources at the end of the page.'
+                : 'Parliament has published this version as a PDF only; it is in Sources at the end of the page.'}
             </p>
           </section>
         ) : !apiError ? (
@@ -314,7 +310,13 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           <Link href={`/bills/${billId}`} style={{ color: INK, textDecoration: 'underline' }}>Back to the bill</Link>
         </p>
       </article>
-      <ParliamentSourceCredit note={<a href={`https://bills.parliament.uk/bills/${bill.parliament_id}`} rel="noopener" style={{ color: ACCENT }}>This bill on bills.parliament.uk</a>} />
+      {/* EL1 (owner, 10 Nov 2026): outside links only in the one Sources fold (the PDF when there is no web text, and the
+          bill's page at Parliament); each publication in "Other documents" is that row's own document and stays. */}
+      <PageSources sources={[
+        act && { label: 'The Act as passed, on legislation.gov.uk', href: act.url },
+        !text && latest?.pdf && { label: `The bill as Parliament\u2019s PDF${latest.label ? ` (${latest.label})` : ''}`, href: latest.pdf.url },
+        bill.parliament_id != null && { label: 'This bill on UK Parliament\u2019s Bills website', href: `https://bills.parliament.uk/bills/${bill.parliament_id}` },
+      ]} />
     </OpenGovShell>
   )
 }
