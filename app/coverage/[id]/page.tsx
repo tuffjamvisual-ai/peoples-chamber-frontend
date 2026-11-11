@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
+import PageSources from '../../components/PageSources';
 
 export const revalidate = 60
 
@@ -70,6 +71,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
   if (!Number.isFinite(n)) notFound()
   const row = await getRow(n)
   if (!row) notFound()
+  const ownOldStory = /^https?:\/\/(www\.)?thepeopleschamber\.uk\//.test(row.source_url)
 
   const dateLabel = row.published_at
     ? new Date(row.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -128,24 +130,17 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
           </section>
         )}
 
-        {/* Outbound link to source — large, unmissable */}
-        <a
-          href={row.source_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block mt-4 px-6 py-3 text-[15px] font-bold uppercase tracking-[0.15em] hover:opacity-90 transition-opacity"
-          style={{ background: ACCENT, color: '#f4ecd8' }}
-        >
-          {/* The address on these rows is still the site's old name: the link stays, the old name does not show (owner, 5 Nov 2026). */}
-          {outletName(row.source_outlet) === 'opengovt' ? 'Read the full story' : `Read full story at ${new URL(row.source_url).hostname.replace(/^www\./, '')}`} →
-        </a>
+        {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The story's own page is in the Sources fold below.
+            Our own old stories (thepeopleschamber.uk) have no matching opengovt.uk page, so they are not linked (owner,
+            11 Nov 2026: change to the matching page, or remove if there is none). */}
+        {!ownOldStory && <PageSources marginTop="24px" sources={[{ label: `The full story at ${new URL(row.source_url).hostname.replace(/^www\./, '')}`, href: row.source_url }]} />}
 
         <footer
           className="mt-10 pt-5 text-[15px] uppercase tracking-[0.2em] text-[#14100d]/60"
           style={{ borderTop: `1px solid ${INK}33` }}
         >
           Headline and standfirst quoted under fair dealing for news reporting (CDPA s.30(2)). The full
-          story remains the property of {outletName(row.source_outlet)}; click through to read it.
+          story remains the property of {outletName(row.source_outlet)}{ownOldStory ? '.' : '; it is linked in Sources above.'}
         </footer>
       </article>
     </OpenGovShell>
