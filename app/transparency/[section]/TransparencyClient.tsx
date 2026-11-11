@@ -317,7 +317,9 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                   {!acceptedDate && receivedDate && <span>Received {receivedDate}</span>}
                   {donationType && <span>· {donationType}</span>}
                   {nature && <span>· {nature}</span>}
-                  {reportingPeriod && <span>· Reported {reportingPeriod}</span>}
+                  {/* The Electoral Commission's reporting period, not the date reported (T1-AUD3, owner 11 Nov 2026). */}
+                  {reportingPeriod && <span>· Reporting period: {reportingPeriod}</span>}
+                  {reportedDate && <span>· Reported to the Electoral Commission: {reportedDate}</span>}
                 </div>
 
                 {flags.length > 0 && (
@@ -353,7 +355,8 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     {cashValue && cashValue !== amount && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Cash value</dt><dd className="text-[#14100d]">{cashValue}</dd></>)}
                     {nonCashValue && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Non cash value</dt><dd className="text-[#14100d]">{nonCashValue}</dd></>)}
                     {receivedDate && receivedDate !== acceptedDate && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Received</dt><dd className="text-[#14100d]">{receivedDate}</dd></>)}
-                    {reportedDate && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Reported to EC</dt><dd className="text-[#14100d]">{reportedDate}</dd></>)}
+                    {reportedDate && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Reported to the Electoral Commission</dt><dd className="text-[#14100d]">{reportedDate}</dd></>)}
+                    {reportingPeriod && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Reporting period</dt><dd className="text-[#14100d]">{reportingPeriod}</dd></>)}
                     {mannerInWhichMade && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Manner</dt><dd className="text-[#14100d]">{mannerInWhichMade}</dd></>)}
                     {purposeOfVisit && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Purpose of visit</dt><dd className="text-[#14100d]">{purposeOfVisit}</dd></>)}
                     {positionStandingFor && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Position standing for</dt><dd className="text-[#14100d]">{positionStandingFor}</dd></>)}

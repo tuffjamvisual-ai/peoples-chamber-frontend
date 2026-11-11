@@ -130,7 +130,7 @@ export default async function LateDisclosedPage() {
               <th style={{ padding: '8px 6px' }}>Donor</th>
               <th style={{ padding: '8px 6px' }}>Recipient</th>
               <th style={{ padding: '8px 6px' }}>Accepted</th>
-              <th style={{ padding: '8px 6px' }}>Reported</th>
+              <th style={{ padding: '8px 6px' }}>Reported to the Electoral Commission</th>
               <th style={{ padding: '8px 6px', textAlign: 'right' }}>Gap</th>
               <th style={{ padding: '8px 6px', textAlign: 'right' }}>Amount</th>
             </tr>

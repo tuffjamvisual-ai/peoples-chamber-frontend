@@ -3229,7 +3229,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
     <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(140px, max-content) 1fr', gap: '2px 16px', margin: '8px 0 4px 8px', padding: '8px 12px', background: 'rgba(20,16,13,0.04)', border: '1px solid rgba(20,16,13,0.1)' }}>
       <Row label="Accepted" value={fmtDate(d.accepted_date)} />
       <Row label="Received" value={fmtDate(d.received_date)} />
-      <Row label="Reported" value={fmtDate(d.reported_date)} />
+      <Row label="Reported to the Electoral Commission" value={fmtDate(d.reported_date)} />
       {d.published_date && <Row label="Published" value={fmtDate(d.published_date)} />}
       {d.dealt_with_date && <Row label="Dealt with" value={fmtDate(d.dealt_with_date)} />}
       <Row label="Amount" value={fmtMoney(Number(d.amount) || 0)} />
