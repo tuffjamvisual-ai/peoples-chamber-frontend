@@ -10,7 +10,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { departments } from '@/lib/departments';
 import { fetchDirections, sortKey, dateLine, ministerLine, letterLinks, departmentsAtTheTime } from '@/lib/ministerial-directions';
-import { SubFold } from '../../components/PhoneFolds';
+import AboutThisData from '../../components/AboutThisData';
 
 export const revalidate = 86400;
 
@@ -30,18 +30,23 @@ const linkStyle = { color: INK, textDecoration: 'underline', textUnderlineOffset
 
 // The department as GOV.UK named it at the time, as text, with today's department page linked alongside
 // (owner's decision, 20 Oct 2026). Where the name then is today's name, the name itself is the link.
-function DepartmentLine({ d, deptName }: { d: Awaited<ReturnType<typeof fetchDirections>>[number]; deptName: Map<string, string> }) {
+// Each department page is linked once on the page, on its first direction (T1-5x, owner 10 Nov 2026); `linked` holds the
+// slugs already linked, in the page's order.
+function DepartmentLine({ d, deptName, linked }: { d: Awaited<ReturnType<typeof fetchDirections>>[number]; deptName: Map<string, string>; linked: Set<string> }) {
   const then = departmentsAtTheTime(d);
   const today = d.dept_slugs.map((s) => ({ slug: s, name: deptName.get(s) ?? s }));
+  const firstTime = new Set(today.filter((x) => !linked.has(x.slug)).map((x) => x.slug));
+  for (const x of today) linked.add(x.slug);
+  const dept = (x: { slug: string; name: string }) => (firstTime.has(x.slug) ? <Link href={`/departments/${x.slug}`} style={linkStyle}>{x.name}</Link> : x.name);
   const unchanged = then.length === today.length && then.every((t) => today.some((x) => sameName(t, x.name)));
   return (
     <p style={{ margin: '4px 0 0', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
       {unchanged ? (
-        <>Department: {today.map((x, i) => <span key={x.slug}>{i > 0 && ', '}<Link href={`/departments/${x.slug}`} style={linkStyle}>{x.name}</Link></span>)}</>
+        <>Department: {today.map((x, i) => <span key={x.slug}>{i > 0 && ', '}{dept(x)}</span>)}</>
       ) : (
         <>
           Department at the time: {then.join(', ')}
-          {today.length > 0 && <> · Today: {today.map((x, i) => <span key={x.slug}>{i > 0 && ', '}<Link href={`/departments/${x.slug}`} style={linkStyle}>{x.name}</Link></span>)}</>}
+          {today.length > 0 && <> · Today: {today.map((x, i) => <span key={x.slug}>{i > 0 && ', '}{dept(x)}</span>)}</>}
         </>
       )}
     </p>
@@ -59,6 +64,7 @@ export default async function MinisterialDirectionsPage() {
   }
   const years = [...byYear.keys()].sort().reverse();
   const first = years[years.length - 1];
+  const linkedDepts = new Set<string>();
 
   return (
     <OpenGovShell pageStamp="Transparency">
@@ -69,12 +75,6 @@ export default async function MinisterialDirectionsPage() {
         <h1 style={{ fontFamily: MONO, fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.15 }}>
           When ministers overrule their officials on spending
         </h1>
-        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
-        <SubFold label="What a ministerial direction is">
-        <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch' }}>
-          Each department has an accounting officer, usually its permanent secretary, who answers to Parliament for how its money is spent. When they object that spending would break the rules or not be value for money, the minister can tell them in writing to go ahead anyway. That instruction is a ministerial direction. Both letters go to the National Audit Office and the Public Accounts Committee, and the government publishes them.
-        </p>
-        </SubFold>
         <p style={{ marginTop: '14px', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>
           {all.length} directions published, {first} to {years[0]}
         </p>
@@ -96,7 +96,7 @@ export default async function MinisterialDirectionsPage() {
                 <p style={{ margin: '4px 0 0', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
                   {dateLine(d)} · {ministerLine(d)}
                 </p>
-                <DepartmentLine d={d} deptName={deptName} />
+                <DepartmentLine d={d} deptName={deptName} linked={linkedDepts} />
                 <p style={{ margin: '4px 0 0', fontFamily: MONO, fontSize: '15px' }}>
                   {letterLinks(d).map((l, i) => (
                     <span key={l.url}>{i > 0 && ' · '}<a data-og-row-source="" href={l.url} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{l.label}</a></span>
@@ -111,9 +111,11 @@ export default async function MinisterialDirectionsPage() {
         </section>
       ))}
 
-      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
-        Source: GOV.UK, Ministerial directions (in Sources at the end of the page). Dates given and ministers are read from the letters, with the name as signed; GOV.UK&rsquo;s tag is used only where the letter gives no name. Where the letter shows no date, the publication date is shown. GOV.UK says none were published between 2011 and 2014.
-      </p>
+      {/* T1-5x S7 (owner, 10 Nov 2026): what a direction is and how the list is read, in one closed block after the list. */}
+      <AboutThisData>
+        <p>Each department has an accounting officer, usually its permanent secretary, who answers to Parliament for how its money is spent. When they object that spending would break the rules or not be value for money, the minister can tell them in writing to go ahead anyway. That instruction is a ministerial direction. Both letters go to the National Audit Office and the Public Accounts Committee, and the government publishes them.</p>
+        <p>Source: GOV.UK, Ministerial directions (in Sources at the end of the page). Dates given and ministers are read from the letters, with the name as signed; GOV.UK&rsquo;s tag is used only where the letter gives no name. Where the letter shows no date, the publication date is shown. GOV.UK says none were published between 2011 and 2014.</p>
+      </AboutThisData>
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold; each direction's letters and GOV.UK page stay on its row. */}
       <PageSources sources={[{ label: 'GOV.UK, Ministerial directions', href: 'https://www.gov.uk/government/collections/ministerial-directions' }]} />
     </OpenGovShell>
