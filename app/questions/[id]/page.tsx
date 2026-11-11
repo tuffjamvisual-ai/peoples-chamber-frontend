@@ -87,7 +87,9 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
           <h2 style={h2}>{q.date_answer_corrected ? 'Corrected answer' : 'Answer'}</h2>
           {q.date_answer_corrected && <p style={{ ...para, fontWeight: 'bold' }}>Corrected on {petitionDate(q.date_answer_corrected)}.</p>}
           {(() => {
-            const { first, rest } = splitAnswer(answerHtml(q.answer_html));
+            // UX5 (T1-6, 11 Nov 2026): on phones the answer's first 1,500 characters, then "Continue reading" (the 2,500px
+            // phone length; 6,500 was for the old 10,000px rule). From 640px up the whole answer shows, as before.
+            const { first, rest } = splitAnswer(answerHtml(q.answer_html), 1500);
             return (
               <>
                 {first && <div className="wq-html" data-og-citations="" dangerouslySetInnerHTML={{ __html: first }} />}
