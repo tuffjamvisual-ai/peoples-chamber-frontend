@@ -336,9 +336,12 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
         />
       )}
 
-      <p style={{ marginTop: '28px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, maxWidth: '760px' }}>
+      {/* UX5 (T1-6, 11 Nov 2026): on phones the source note is a closed fold; from 640px up, as before. */}
+      <div style={{ marginTop: '28px' }}><SubFold label="About the source">
+      <p style={{ marginTop: 0, fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, maxWidth: '760px' }}>
         Source: the Register of Members&rsquo; Financial Interests, published by the House of Commons and synced from the Parliament Members API. Entries are the Members&rsquo; own declarations. Covers 588 of 650 current MPs; the remainder have no registrable interests recorded.
       </p>
+      </SubFold></div>
       <LastUpdated sourceKey="registered_interests" />
     </OpenGovShell>
   );
