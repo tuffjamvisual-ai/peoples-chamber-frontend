@@ -146,8 +146,11 @@ const COUNCIL_LAZY_TABS = JSON.parse(/COUNCIL_LAZY_TABS = (\[[^\]]*\])/.exec(fs.
 async function openCouncilTabs(page) {
   const opened = [], failed = [];
   for (const id of COUNCIL_LAZY_TABS) {
-    const btn = page.locator(`[data-council-tab="${id}"]`).first();
-    if (!(await btn.count()) || !(await btn.isVisible())) continue;
+    // The tab list is in the page twice, one copy for each width; on phones it is inside the closed "sections" fold,
+    // which a reader opens first.
+    await page.evaluate(() => document.querySelectorAll('details.ct-sections').forEach((d) => { d.open = true; }));
+    const btn = page.locator(`[data-council-tab="${id}"]:visible`).first();
+    if (!(await btn.count())) continue;
     await btn.click();
     try {
       await page.waitForFunction((t) => { const el = document.getElementById(`council-panel-${t}`); return !!el && !el.querySelector('[data-panel-loading]') && el.childElementCount > 0; }, id, { timeout: 60000 });
