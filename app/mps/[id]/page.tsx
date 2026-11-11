@@ -35,8 +35,6 @@ import { displayMpName } from '@/lib/mp-name';
 import { readAll, inList } from '@/lib/read-all';
 import { recipientIsMp, lastNamePrefilter } from '@/lib/mp-recipient-match';
 import { storedSpellings } from '@/lib/donor-registry';
-import ArticleEndSignup from '../../components/ArticleEndSignup';
-import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-pages';
 import { councilForConstituency } from '@/lib/related-links';
@@ -881,16 +879,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         reports: mpReports,
         lastUpdated: allSectionDates,
       }}
-      footer={
-        <>
-        {/* MP1 (owner, 7 Nov 2026): every block that sat below the sections is now part of its section (votes 2004 to 2016 in
-            Voting record, register history in Registered interests, constituency petitions in Petitions, the early day motions link
-            in Early day motions). The hidden Related box for search engines and the Related line are removed: hidden text for search
-            engines breaks Google's spam rules. Only the newsletter box stays here. */}
-        {/* Newsletter sign-up at the end of the profile, for readers who are not signed in (report 81). */}
-        <ArticleEndSignup source="data-mp-profile" line={DATA_SIGNUP_LINE} />
-        </>
-      }
+      // T1-5x (owner, 10 Nov 2026): no newsletter box in the profile; the site's newsletter strip is the one offer.
     />
     </>
   );

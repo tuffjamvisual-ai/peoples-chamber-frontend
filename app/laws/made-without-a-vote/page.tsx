@@ -3,8 +3,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import ArticleEndSignup from '../../components/ArticleEndSignup';
-import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { PROCEDURE_MEANING } from '@/lib/parliament-si-treaties';
 import { listSis, siYear, siDepartments, fmtDate, PER_PAGE, type SiFlag } from '@/lib/si-treaties-data';
@@ -144,7 +142,6 @@ export default async function MadeWithoutAVotePage({ searchParams }: { searchPar
       )}
 
       <ParliamentSourceCredit api="Statutory Instruments API" note="Instruments laid before Parliament only; some instruments are never laid." />
-      <ArticleEndSignup source="data-laws-without-a-vote" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

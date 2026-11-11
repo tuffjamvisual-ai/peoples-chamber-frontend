@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { textReadingLabel } from '@/lib/reading-time';
 
 const INK = '#14100d';
@@ -59,8 +58,7 @@ export default function BriefingArticle({ b, slug, banner, sourcesHref }: { b: B
         ))}
       </article>
 
-      {/* Newsletter sign-up after the briefing text, for readers who are not signed in (report 81). */}
-      <div style={{ maxWidth: '680px' }}><ArticleEndSignup source="article-end-briefings-db" /></div>
+      
 
       {/* Sources checked by the automated fact-check pipeline: one link to /briefings/<slug>/sources, which lists
           them (23 Oct 2026). */}

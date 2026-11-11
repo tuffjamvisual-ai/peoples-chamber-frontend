@@ -7,8 +7,6 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ArticleEndSignup from '../components/ArticleEndSignup';
-import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { cachedOrganisationList, searchOrganisations, normaliseCompanyNumber, type OrgListRow } from '@/lib/organisations';
 import { phoneUpTo } from '@/lib/breakpoints';
@@ -155,7 +153,6 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
         </nav>
       )}
 
-      <ArticleEndSignup source="data-organisations" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

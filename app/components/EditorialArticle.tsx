@@ -8,7 +8,6 @@ import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
 import RelatedLinks from './RelatedLinks';
 import ReadNext from './ReadNext';
-import ArticleEndSignup from './ArticleEndSignup';
 import type { ReadNextLink } from '@/lib/read-next';
 import ExploreNext from './ExploreNext';
 import RelatedLine from './RelatedLine';
@@ -142,9 +141,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
             </p>
           )}
-          {/* Newsletter sign-up after the sources, for readers who are not signed in (report 80). */}
-          <ArticleEndSignup source={`article-end-${basePath.slice(1)}`} />
-          {/* Read next once, after the sign up and before the evidence (owner's request, 25 Oct 2026; order 30 Oct 2026).
+          {/* Read next once, after the sources and before the evidence (no newsletter form in the article: T1-5x, owner, 10 Nov 2026) (owner's request, 25 Oct 2026; order 30 Oct 2026).
               Reports pass `related` instead (owner's brief, 3 Nov 2026): the compact one line Related block takes the
               Read next box's place, merged into it rather than added (app/components/RelatedLine.tsx). */}
           {related ? <RelatedLine links={related} /> : <ReadNext links={readNext} />}

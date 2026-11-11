@@ -3,8 +3,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ArticleEndSignup from '../components/ArticleEndSignup';
-import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { listTreaties, treatyYear, fmtDate, scrutinyLabel, PER_PAGE } from '@/lib/si-treaties-data';
 import ParliamentSourceCredit from '../components/ParliamentSourceCredit';
@@ -84,7 +82,6 @@ export default async function TreatiesPage({ searchParams }: { searchParams: Pro
       )}
 
       <ParliamentSourceCredit api="Treaties API" />
-      <ArticleEndSignup source="data-treaties" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

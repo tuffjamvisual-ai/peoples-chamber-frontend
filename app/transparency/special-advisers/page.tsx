@@ -17,8 +17,6 @@ import BackLink from '../../components/BackLink';
 import { SubFold } from '../../components/PhoneFolds';
 import SeeAlso from '../../components/SeeAlso';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
-import ArticleEndSignup from '../../components/ArticleEndSignup';
-import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import SpadSource, { spadReleaseSource } from '../../components/SpadSource';
 import { areaForPost } from '@/lib/spad-minister-status';
 import { SPAD_LIST_ANCHOR, longDate, totalsLine, buildBackground, plainName, quarterEndDate, monthYearLabel, type SpadRow, type SpadReleaseRow, type SpadInterestRow, type SpadHistoryRow, type SpadPostRow, type SpadBackground, type SpadMinisterStatus, type SpadMinisterInfo } from '@/lib/spad-display';
@@ -267,8 +265,6 @@ export default async function SpecialAdvisersPage() {
         { label: 'UK Parliament Members API (posts and dates)', href: 'https://members-api.parliament.uk/' },
       ]} />
 
-      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
-      <ArticleEndSignup source="data-special-advisers" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

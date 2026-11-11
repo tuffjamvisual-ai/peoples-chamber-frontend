@@ -30,8 +30,6 @@ import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
 import { loadCouncilByelections, resultSentence, jointRunnersUp, contextSentence } from '@/lib/council-byelections';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
-import ArticleEndSignup from '../../components/ArticleEndSignup';
-import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 export const revalidate = 604800;  // a week (owner, 30 Oct 2026, cache Stage 2a part 4): the council syncs refresh the council routes on a real new release
@@ -660,8 +658,6 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           ...(c.gss_code?.startsWith('N09') ? niWelfare.sources.map((x) => ({ label: `Welfare: ${x.label}`, href: x.url })) : []),
         ]} />
       </article>
-      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
-      <ArticleEndSignup source="data-council-page" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

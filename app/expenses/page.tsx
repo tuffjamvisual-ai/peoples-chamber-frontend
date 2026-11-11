@@ -10,8 +10,6 @@ import BackLink from '../components/BackLink';
 import { latestExpensesYear as latestYear, expensesYearShort as yearShort, expensesYearLong as yearLong } from '@/lib/expenses-year';
 import { displayMpName } from '@/lib/mp-name';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
-import ArticleEndSignup from '../components/ArticleEndSignup';
-import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { ShowAll } from '../components/NoJsPager';
 
@@ -331,8 +329,6 @@ export default async function ExpensesPage() {
       </section>
 
       <LastUpdated sourceKey="mp_expenses" />
-      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
-      <ArticleEndSignup source="data-expenses" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

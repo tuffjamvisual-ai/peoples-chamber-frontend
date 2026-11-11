@@ -17,8 +17,6 @@ import CouncilSearch from '../components/CouncilSearch';
 import PhoneMore from '../components/PhoneMore';
 import PhoneGroup from '../components/PhoneGroup';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
-import ArticleEndSignup from '../components/ArticleEndSignup';
-import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import { PHONE } from '@/lib/breakpoints';
 
 export const revalidate = 21600;
@@ -214,8 +212,6 @@ export default async function CouncilsIndex() {
         </div>
       </article>
       <LastUpdated sourceKey="councils" />
-      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
-      <ArticleEndSignup source="data-councils" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }
