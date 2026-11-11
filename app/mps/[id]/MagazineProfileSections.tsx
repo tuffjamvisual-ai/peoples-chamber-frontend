@@ -745,9 +745,16 @@ export default function MagazineProfileSections({
   const [vSearchInput, setVSearchInput] = useState<string>(voteQuery);
   const [vLoading, setVLoading] = useState(false);
   // After a new page of votes or a search is in, the reader is taken to the results (T1-MOB2 (2): lib/show-new-results.ts).
+  // Prev and Next go to the "showing 21 to 40" heading inside the Older votes fold, above the paged list (Cowork, 12 Nov
+  // 2026); a search goes to the count above the list.
   const voteResultsRef = useRef<HTMLParagraphElement>(null);
-  const voteMoved = useRef(false);
-  useEffect(() => { if (voteMoved.current) { voteMoved.current = false; showNewResults(voteResultsRef.current); } }, [voteList, vPage, vQuery]);
+  const votePageRef = useRef<HTMLParagraphElement>(null);
+  const voteMoved = useRef<'page' | 'search' | null>(null);
+  useEffect(() => {
+    const m = voteMoved.current; if (!m) return;
+    voteMoved.current = null;
+    showNewResults(m === 'page' && votePageRef.current ? votePageRef.current : voteResultsRef.current);
+  }, [voteList, vPage, vQuery]);
   const loadVotes = async (page: number, query: string, quiet = false) => {
     setVLoading(true);
     try {
@@ -764,7 +771,7 @@ export default function MagazineProfileSections({
       if (page > 1) u.searchParams.set('vp', String(page)); else u.searchParams.delete('vp');
       u.searchParams.set('section', 'voting');
       window.history.replaceState(window.history.state, '', u.toString());
-      if (!quiet) voteMoved.current = true;
+      if (!quiet) voteMoved.current = query === vQuery ? 'page' : 'search';
     } catch {
       /* leave the current list in place on a failed fetch */
     } finally {
@@ -1339,11 +1346,13 @@ export default function MagazineProfileSections({
                     </div>
                   </li>
               );
-              const recent = voteList.slice(0, RECENT_VOTES);
-              const older = voteList.slice(RECENT_VOTES);
+              // From page 2 the whole page of votes is in the Older votes fold, under its "Showing 21 to 40" heading (so the
+              // heading names exactly the list beneath it); page 1 keeps its most recent votes in view (T1-MOB2).
+              const recent = vPage === 1 ? voteList.slice(0, RECENT_VOTES) : [];
+              const older = vPage === 1 ? voteList.slice(RECENT_VOTES) : voteList;
               return (
                 <>
-                  <ul style={voteUl}>{recent.map(voteItem)}</ul>
+                  {recent.length > 0 && <ul style={voteUl}>{recent.map(voteItem)}</ul>}
                   {/* Empty-state when a search returns nothing. */}
                   {vQuery && voteList.length === 0 && !vLoading && (
                     <p style={{ marginTop: '20px', fontStyle: 'italic' }}>
@@ -1356,6 +1365,11 @@ export default function MagazineProfileSections({
                   )}
                   {(older.length > 0 || voteTotal > votesPerPage || !!votingArchive) && (
                     <SubFold label="Older votes and every vote by year" summary={voteTotal > RECENT_VOTES ? `${(voteTotal - Math.min(RECENT_VOTES, voteList.length)).toLocaleString('en-GB')} more` : null}>
+                      {voteTotal > votesPerPage && (
+                        <p ref={votePageRef} id="mp-vote-page" style={{ fontWeight: 'bold', margin: '4px 0 8px', scrollMarginTop: '16px' }}>
+                          Showing {(votesPerPage * (vPage - 1) + (vPage === 1 ? Math.min(RECENT_VOTES, voteList.length) : 0) + 1).toLocaleString('en-GB')} to {Math.min(votesPerPage * vPage, voteTotal).toLocaleString('en-GB')} of {voteTotal.toLocaleString('en-GB')}{vQuery ? ` matching \u201c${vQuery}\u201d` : ''}
+                        </p>
+                      )}
                       {older.length > 0 && <ul style={voteUl}>{older.map(voteItem)}</ul>}
                       {voteTotal > votesPerPage && (() => {
                         const totalPages = Math.ceil(voteTotal / votesPerPage);
