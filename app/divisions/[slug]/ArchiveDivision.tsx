@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { phoneUpTo } from '@/lib/breakpoints';
+import { SubFold } from '../../components/PhoneFolds';
 import OpenGovShell from '@/app/components/OpenGovShell';
 import BackLink from '@/app/components/BackLink';
 import PageSources from '@/app/components/PageSources';
@@ -87,10 +89,14 @@ export default async function ArchiveDivisionPage({ d }: { d: Division }) {
         </ul>
         {nb.sameDay.length > 0 && (
           <>
-            <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '14px 0 6px' }}>Other votes that day</h3>
+            {/* UX5 (T1-6, 11 Nov 2026): on phones a closed fold named by this heading, which is hidden there; from 640px up, as before. */}
+            <style>{`@media ${phoneUpTo(639.98)} { .dv-sameday-h { display: none; } }`}</style>
+            <h3 className="dv-sameday-h" style={{ fontSize: '15px', fontWeight: 'bold', margin: '14px 0 6px' }}>Other votes that day</h3>
+            <SubFold label="Other votes that day" summary={`${nb.sameDay.length}`}>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {nb.sameDay.map((r) => <li key={r.number}>Division {r.number}: <Link href={divisionHref(r.date, r.number)} style={link}>{r.title}</Link></li>)}
             </ul>
+            </SubFold>
           </>
         )}
       </nav>
