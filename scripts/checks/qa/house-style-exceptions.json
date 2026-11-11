@@ -11,7 +11,8 @@
   "find-tender.service.gov.uk",
   "Sub-regional fuel poverty data",
   "State-funded schools inspections and outcomes",
-  "Non-Reported Overflow Event Data"
+  "Non-Reported Overflow Event Data",
+  "A - Z Directory"
  ],
  "skip_files": [
   "app/internal/",
@@ -46,5 +47,8 @@
   "/edms/[id]",
   "/questions/[id]",
   "/transparency/register-of-interests"
- ]
+ ],
+ "allow_notes": {
+  "A - Z Directory": "Owner's decision, 11 Nov 2026 (T1-AZ): the menu link to /directory, this exact label only."
+ }
 }

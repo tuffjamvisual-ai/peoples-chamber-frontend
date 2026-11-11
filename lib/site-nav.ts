@@ -15,10 +15,11 @@ import { PAGE_DESCRIPTIONS, partyDescription, PARTY_NAMES, VOTE_ON_BILLS_DESCRIP
 // (the 15 parties).
 export type NavLink = { label: string; href: string; desc?: string; group?: string; compact?: boolean };
 export type NavItem = { label: string; href: string; page?: string; children?: NavLink[] };
+// The link to /directory reads 'A - Z Directory' everywhere (owner, 11 Nov 2026, T1-AZ), dash and spaces exactly so.
 export const NAV: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Search', href: '/search' },
-  { label: 'Directory', href: '/directory' },
+  { label: 'A - Z Directory', href: '/directory' },
   { label: 'Topics', href: '/topics', page: '/topics', children: topics.map((t) => ({ label: t.title, href: `/topics/${t.slug}` })) },
   // MPs, Parties and Departments are groups of Parliament since 25 Oct 2026 (owner's decision, report 62).
   { label: 'Parliament', href: '/bills', page: '/sections/parliament', children: [
@@ -131,7 +132,7 @@ export const PHONE_MENU_GROUPS: { label: string; links: NavLink[] }[] = [
   ] },
   { label: 'Search and tools', links: [
     { label: 'Search', href: '/search' },
-    { label: 'Directory', href: '/directory' },
+    { label: 'A - Z Directory', href: '/directory' },
     { label: 'Reader polls', href: '/sections/vote' },
     { label: 'Contact', href: '/contact' },
   ] },

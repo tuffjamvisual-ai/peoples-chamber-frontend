@@ -22,7 +22,7 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Commissioned Report Sample', href: '/commission/sample', desc: 'A sample commissioned report: Pride in Place money in Thamesmead Birchmere Park, with its findings, sources and data.' },
   { name: 'Constituency Donations', href: '/donations/constituencies', desc: 'Every constituency association ranked by the donations it declared.' },
   { name: 'Council Search', href: '/councils/search', desc: 'Find a council by name, town or postcode.' },
-  { name: 'Directory', href: '/directory', desc: 'Everything on opengovt, A to Z.' },
+  { name: 'A - Z Directory', href: '/directory', desc: 'Everything on opengovt, A to Z.' },
   { name: 'Donate', href: '/donate', desc: 'Make a single donation to help keep opengovt free and independent.' },
   { name: 'Donations by Trusts', href: '/donations/trust-funded', desc: 'Political donations made through a trust rather than a named person, with who set up the trust.' },
   { name: 'Donations Disclosed Late', href: '/donations/late-disclosed', desc: 'Donations reported to the Electoral Commission more than 90 days after they were accepted.' },
