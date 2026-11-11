@@ -13,6 +13,7 @@ import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import ArticleEndSignup from '../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { ShowAll } from '../components/NoJsPager';
 
 export async function generateMetadata(): Promise<Metadata> {
   const year = await latestYear();
@@ -219,6 +220,8 @@ export default async function ExpensesPage() {
           .pca-cols { column-count: 1 !important; column-rule: none !important; }
         }
       `}</style>
+      {/* UX5 (T1-6, 11 Nov 2026): on phones the first five, then "Show all" (a native fold); from 640px up, as before. */}
+      <ShowAll id="ex-top" count={top.length} rows="> li">
       <ol
         data-main-action
         className="pca-cols"
@@ -244,6 +247,7 @@ export default async function ExpensesPage() {
           />
         ))}
       </ol>
+      </ShowAll>
       <div className="ex-stats-p" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', margin: '16px 0 0' }}>
           <Stat label="Top 10 combined" value={fmtMoney(grandTotal)} />
           <Stat label="Average" value={top.length ? fmtMoney(grandTotal / top.length) : '£0'} />
@@ -261,7 +265,8 @@ export default async function ExpensesPage() {
           dividers — reads as a dense classified-section feature
           rather than a wide-line magazine article. Drop cap on the
           opening letter for the broadsheet feature feel. */}
-      <section style={{ marginTop: '40px', borderTop: `2px solid ${INK}`, borderBottom: `2px solid ${INK}`, padding: '24px 0' }}>
+      {/* The feature is article text: never folded, and not counted in the phone length (QA2d; T1-6, 11 Nov 2026). */}
+      <section data-article-body="" style={{ marginTop: '40px', borderTop: `2px solid ${INK}`, borderBottom: `2px solid ${INK}`, padding: '24px 0' }}>
         <p
           style={{
             fontSize: '15px',
