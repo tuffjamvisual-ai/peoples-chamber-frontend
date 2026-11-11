@@ -43,7 +43,8 @@ function combine(rows: Row[], codes: string[], measure: string, fye: number): Fi
 
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
 const fmtPct = (p: number | null) => (p == null ? 'n/a' : `${p.toFixed(1)}%`);
-const fyLabel = (fye: number) => `${fye - 1}-${String(fye).slice(2)}`;
+// "2024 to 2025" (house style, T1-5x).
+const fyLabel = (fye: number) => `${fye - 1} to ${fye}`;
 
 // Shared by this section and the area summary (/your-area), so both show the same figure.
 export async function loadChildPoverty(gssCodes: string[]) {

@@ -1,4 +1,5 @@
 import { billSummary } from '@/lib/bill-summary';
+import { yearSpan } from '@/lib/year-span';
 import type { Metadata } from 'next';
 import { fitTitle, titleWithin } from '@/lib/seo-title';
 import { asSentence, ledBy, sentencesOf } from '@/lib/meta-description';
@@ -39,7 +40,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (bill.introduced_session_id != null) {
     const { data: sess, error: sessErr } = await supabase.from('parliament_sessions').select('name').eq('id', bill.introduced_session_id).maybeSingle();
     if (sessErr) throw new Error(`/bills/[id] parliament_sessions: ${sessErr.message}`);
-    sessionName = (sess?.name as string | null) || null;
+    // "2026 to 2027", not "2026-27" (house style, T1-5x).
+    sessionName = sess?.name ? yearSpan(sess.name as string) : null;
   }
   const stageDay = bill.stage_date ? new Date(bill.stage_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : null;
 

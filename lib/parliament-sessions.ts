@@ -5,6 +5,7 @@
 import { supabase } from './supabase';
 import { billStatus } from '@/lib/bill-status';
 
+import { yearSpan } from '@/lib/year-span';
 export type ParliamentSession = {
   id: number;
   name: string;               // '2026-27'
@@ -37,7 +38,7 @@ export type SessionBill = {
 export const SESSIONS_SOURCE_URL = 'https://whatson-api.parliament.uk/calendar/sessions/list.json';
 
 export function sessionTitle(s: { id: number; name?: string | null }): string {
-  return s.name ? `${s.name} session` : `Session ${s.id}`;
+  return s.name ? `${yearSpan(s.name)} session` : `Session ${s.id}`;
 }
 
 const fmt = (d: string | null) =>
