@@ -21,6 +21,7 @@ import PageSources from '@/app/components/PageSources';
 import type { Metadata } from 'next'
 import FollowButton from '@/app/components/FollowButton';
 import { getBillPublications, latestText } from '@/lib/bill-text';
+import AboutThisData from '@/app/components/AboutThisData';
 import Link from 'next/link';
 import { editorialsForBill } from '@/lib/editorials-source';
 import { billDivisions, divisionHref } from '@/lib/division-links';
@@ -616,8 +617,8 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
             {votingClosed && <BillVotingClient billId={billId} closed />}
 
-            <details style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK_SOFT }}>
-              <summary style={{ cursor: 'pointer', color: INK, fontWeight: 'bold' }}>How reader voting works</summary>
+            {/* The site's shared fold, its + marker on the right (Cowork, 11 Nov 2026). */}
+            <AboutThisData id="how-reader-voting" label="How reader voting works">
               <p style={{ margin: '8px 0 0' }}>
                 Reader votes are cast on this site by visitors who chose to vote, one vote for each account. They are not a poll of the public, and they have no effect in Parliament.
               </p>
@@ -627,7 +628,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               <p style={{ margin: '8px 0 0' }}>
                 The official figures are how MPs voted in the House of Commons division named here, from Parliament&rsquo;s own record.
               </p>
-            </details>
+            </AboutThisData>
 
             {democraticGap !== null && (
               <div style={{ borderLeft: `3px solid ${outcomeMismatch ? WARN : ACCENT}`, padding: '12px 18px', background: CREAM_DEEP }}>
