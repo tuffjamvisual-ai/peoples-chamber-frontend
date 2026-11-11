@@ -80,7 +80,7 @@ export async function codesForPoint(lat: number, lon: number): Promise<AreaCodes
   return toCodes(list[0]);
 }
 
-export type Place = { name: string; label: string; lat: number; lon: number };
+export type Place = { name: string; label: string; lat: number; lon: number; town?: boolean };
 
 type PlaceResult = {
   name_1?: string; name_2?: string | null; local_type?: string;
@@ -93,27 +93,37 @@ const TYPE_ORDER = ['City', 'Town', 'Suburban Area', 'Village', 'Hamlet', 'Other
 const norm = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
 
 export async function findPlaces(q: string): Promise<Place[]> {
+  return (await findPlaceMatches(q)).exact;
+}
+
+// The exact matches as findPlaces gives them, and the settlements whose names only start with what was typed ("Clacton"
+// finds "Clacton-on-Sea"), for "Did you mean" (T1-MP, 11 Nov 2026). One request either way.
+export async function findPlaceMatches(q: string): Promise<{ exact: Place[]; near: Place[] }> {
   const query = q.trim();
   if (query.length < 2 || query.length > 60) throw new LookupError('invalid', 'Enter a postcode or a town name.');
   const { body } = await getJson(`${BASE}/places?q=${encodeURIComponent(query)}&limit=100`);
   const list = (body?.result ?? []) as PlaceResult[];
   const want = norm(query);
-  const hits = (Array.isArray(list) ? list : [])
+  const settlements = (Array.isArray(list) ? list : [])
     .filter((p) => p.local_type && TYPE_ORDER.includes(p.local_type) && p.latitude != null && p.longitude != null)
-    .filter((p) => norm(p.name_1 ?? '') === want || norm(p.name_2 ?? '') === want)
     .sort((a, b) => TYPE_ORDER.indexOf(a.local_type!) - TYPE_ORDER.indexOf(b.local_type!));
-  const seen = new Set<string>();
-  const out: Place[] = [];
-  for (const p of hits) {
-    const name = norm(p.name_1 ?? '') === want ? p.name_1! : p.name_2!;
-    const where = p.district_borough || p.county_unitary || p.region || p.country || '';
-    const label = where && norm(where) !== norm(name) ? `${name}, ${where}` : `${name}${p.country ? `, ${p.country}` : ''}`;
-    if (seen.has(label)) continue;
-    seen.add(label);
-    out.push({ name, label, lat: Number(p.latitude), lon: Number(p.longitude) });
-    if (out.length >= 12) break;
-  }
-  return out;
+  const isExact = (p: PlaceResult) => norm(p.name_1 ?? '') === want || norm(p.name_2 ?? '') === want;
+  const toPlaces = (rows: PlaceResult[], most: number, exact: boolean) => {
+    const seen = new Set<string>();
+    const out: Place[] = [];
+    for (const p of rows) {
+      const name = exact && norm(p.name_1 ?? '') !== want ? p.name_2! : p.name_1!;
+      if (!name) continue;
+      const where = p.district_borough || p.county_unitary || p.region || p.country || '';
+      const label = where && norm(where) !== norm(name) ? `${name}, ${where}` : `${name}${p.country ? `, ${p.country}` : ''}`;
+      if (seen.has(label)) continue;
+      seen.add(label);
+      out.push({ name, label, lat: Number(p.latitude), lon: Number(p.longitude), town: p.local_type === 'Town' });
+      if (out.length >= most) break;
+    }
+    return out;
+  };
+  return { exact: toPlaces(settlements.filter(isExact), 12, true), near: toPlaces(settlements.filter((p) => !isExact(p)), 5, false) };
 }
 
 // A typed name that is a council's name (with or without "Council", "City Council"

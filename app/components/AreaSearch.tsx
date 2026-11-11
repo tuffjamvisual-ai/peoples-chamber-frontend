@@ -1,6 +1,7 @@
 'use client';
 
-// Homepage "Your area" search: a postcode, town or council name.
+// Homepage "Find your local council" search: a postcode, town or council name (councils only, owner, 11 Nov 2026, T1-MP;
+// no exact match lists suggestions of councils and places).
 // Submitting sends a postcode or town to /api/area/lookup: a postcode or a single
 // matching town goes straight to /your-area; several towns with the same name are
 // listed for the reader to pick from. While typing a name, matching councils are
@@ -19,6 +20,7 @@ const MONO = "var(--font-special-elite), monospace";
 type Area = { kind: 'area'; place: string | null; councilCode: string | null; constituencyCode: string | null };
 type Choice = { name: string; label: string; lat: number; lon: number };
 type CouncilHit = { slug: string; name: string; typeLabel: string | null; country?: string | null };
+type Suggestion = { kind: string; name: string; href: string; tag: string | null };
 const POSTCODE_LIKE = /^[A-Za-z]{1,2}\d/;
 
 // tight: pull the box up under the site search on the homepage.
@@ -30,6 +32,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [choices, setChoices] = useState<Choice[]>([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [councils, setCouncils] = useState<CouncilHit[]>([]);
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLElement>(null);
@@ -71,13 +74,13 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
   }, []);
 
   function go(a: Area) {
-    if (!a.councilCode && !a.constituencyCode) {
-      setError('We could not find a council or constituency for that search. Try a postcode.');
+    // Councils only (T1-MP, 11 Nov 2026): the results address carries the council, not the constituency.
+    if (!a.councilCode) {
+      setError('We could not find a council for that search. Try a postcode.');
       return;
     }
     const p = new URLSearchParams();
-    if (a.councilCode) p.set('council', a.councilCode);
-    if (a.constituencyCode) p.set('constituency', a.constituencyCode);
+    p.set('council', a.councilCode);
     if (a.place) p.set('place', a.place);
     router.push(`/your-area?${p.toString()}`);
   }
@@ -93,6 +96,9 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
         if (councils.length > 0) setOpen(true);
         return;
       }
+      // No exact match: suggestions of councils and places, or the "No council or place matches" message
+      // (lib/area-resolve.ts; T1-MP, 11 Nov 2026).
+      if (j.kind === 'suggest') { setError(j.message as string); setSuggestions((j.suggestions || []) as Suggestion[]); setChoices([]); setOpen(false); return; }
       if (j.kind === 'choices') { setChoices(j.choices as Choice[]); setOpen(false); return; }
       setChoices([]);
       go(j as Area);
@@ -108,6 +114,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
     const text = (inputRef.current?.value ?? q).trim();
     if (!text) return;
     setChoices([]);
+    setSuggestions([]);
     setOpen(false);
     lookup(`/api/area/lookup?q=${encodeURIComponent(text)}`);
   }
@@ -129,7 +136,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
             onChange={(e) => { setQ(e.target.value); setError(null); }}
             onFocus={() => councils.length > 0 && setOpen(true)}
             autoComplete="postal-code"
-            placeholder={placeholder ?? 'Your area: enter a postcode, town or council to see your MP, council and local figures'}
+            placeholder={placeholder ?? 'Your area: enter a postcode, town or council to see your council and local figures'}
             className={label ? 'og-search-input' : undefined}
             style={{
               width: '100%', padding: label ? '12px 36px 12px 14px' : '12px 48px 12px 14px', fontFamily: MONO, fontSize: '15px', color: INK,
@@ -164,6 +171,16 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
         )}
       </form>
       {error && <p role="alert" style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, margin: '8px 0 0' }}>{error}</p>}
+      {suggestions.length > 0 && (
+        <ul style={{ listStyle: 'none', padding: 0, margin: '4px 0 0' }}>
+          {suggestions.map((g) => (
+            // The link stays inline, so a long name wraps with its tag after it; its padding makes the tap 44px tall.
+            <li key={g.href} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: '24px', color: INK, padding: '6px 0', margin: 0 }}>
+              <a href={g.href} style={{ color: INK, textDecoration: 'underline', padding: '10px 0' }}>{g.name}</a>{g.tag ? ` (${g.tag})` : ''}
+            </li>
+          ))}
+        </ul>
+      )}
       {choices.length > 0 && (
         <div style={{ marginTop: '10px' }}>
           <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }}>More than one place has that name. Which one?</p>

@@ -1,6 +1,7 @@
-// /your-area: everything Open Govt holds for one council area and constituency,
-// reached from the homepage "Your area" search (postcode or town). The address
-// carries ONS codes only (?council=&constituency=&place=), never a postcode.
+// /your-area: everything Open Govt holds for one council area, reached from the homepage "Find your local council" search
+// (a postcode, town or council). Councils only (owner, 11 Nov 2026, T1-MP: MPs are found through Search opengovt): no MP,
+// constituency or petitions block. The address carries ONS codes only (?council=&place=), never a postcode; an old
+// address's ?constituency= is ignored.
 //
 // Each topic shows the same headline figure its full section shows first, read by
 // the same loader the section uses, and links to that section. Topics with no
@@ -10,9 +11,9 @@ import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { POSTCODE_RE, cleanPostcode, codesForPostcode, codesForPoint, findPlaces, findCouncilByName, LookupError } from '@/lib/area-lookup';
+import { codesForPoint, LookupError } from '@/lib/area-lookup';
+import { resolveArea, type Suggestion } from '@/lib/area-resolve';
 import type { AreaCodes, Place } from '@/lib/area-lookup';
-import { normaliseParty } from '@/lib/party-helpers';
 import OpenGovShell from '../components/OpenGovShell';
 import AreaSearch from '../components/AreaSearch';
 import { loadCrime } from '../components/CouncilCrimeSection';
@@ -28,20 +29,19 @@ import { getAreaTotals, getCouncilRefs, countyTotals, latestYears, nationOfCode,
 import { getLeagueData, bandLabel, ordinal } from '@/lib/council-league';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
-import { displayMpName } from '@/lib/mp-name';
 import BackLink from '@/app/components/BackLink';
 
 export const dynamic = 'force-dynamic';
 
 // The page itself is indexable (owner's brief, 3 Nov 2026: index, follow, canonical, in the sitemap); any search or
 // result view (a postcode or town search, a place, coordinates, or a council or constituency) stays noindex, follow.
-const RESULT_PARAMS = ['q', 'place', 'lat', 'lon', 'council', 'constituency'];
+const RESULT_PARAMS = ['q', 'place', 'lat', 'lon', 'council', 'constituency']; // constituency: old addresses, still noindex
 export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
   const sp = await searchParams;
   const resultView = Object.keys(sp).some((k) => RESULT_PARAMS.includes(k) || sp[k] !== undefined);
   return {
     title: 'Your area',
-    description: 'Your MP, your council and the latest local figures for your area, from a postcode or town.',
+    description: 'Your council and the latest local figures for your area, from a postcode, town or council.',
     alternates: { canonical: '/your-area' },
     robots: resultView ? { index: false, follow: true } : { index: true, follow: true },
   };
@@ -81,7 +81,7 @@ function Shell({ children }: { children: ReactNode }) {
       {children}
       <div style={{ marginTop: '32px', maxWidth: '640px' }}>
         <p style={{ ...para, marginBottom: '8px' }}>Search another area</p>
-        <AreaSearch />
+        <AreaSearch placeholder="Postcode, town or council" />
       </div>
     </OpenGovShell>
   );
@@ -91,48 +91,49 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
   const sp = await searchParams;
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? '';
   const councilCode = GSS.test(one(sp.council)) ? one(sp.council) : null;
-  const constituencyCode = GSS.test(one(sp.constituency)) ? one(sp.constituency) : null;
   const place = one(sp.place).replace(/[^\p{L}\p{N} '’.,()-]/gu, '').slice(0, 60) || null;
 
-  if (!councilCode && !constituencyCode) {
+  if (!councilCode) {
     // A search sent without the page script (?q=, or ?lat=&lon=&place= after picking
     // a place): look it up here and go to the codes address, never keeping the postcode.
     const q = one(sp.q).trim().slice(0, 60);
     const lat = Number(one(sp.lat)), lon = Number(one(sp.lon));
     let target: (AreaCodes & { place: string | null }) | null = null;
     let choices: Place[] = [];
+    let suggestions: Suggestion[] = [];
     let message: string | null = null;
     try {
       if (one(sp.lat) && one(sp.lon)) {
         target = { ...(await codesForPoint(lat, lon)), place };
       } else if (q) {
-        if (POSTCODE_RE.test(cleanPostcode(q))) {
-          target = { ...(await codesForPostcode(q)), place: null };
-        } else {
-          const council = await findCouncilByName(q);
-          if (council) {
-            target = { councilCode: council.gss_code, councilName: council.name, constituencyCode: null, constituencyName: null, place: null };
-          } else {
-            const places = await findPlaces(q);
-            if (places.length === 1) target = { ...(await codesForPoint(places[0].lat, places[0].lon)), place: places[0].name };
-            else if (places.length > 1) choices = places;
-            else message = 'No town, village or council has that name. Check the spelling or enter a postcode.';
-          }
-        }
+        // The same lookup as the homepage box (lib/area-resolve.ts; T1-MP, 11 Nov 2026).
+        const r = await resolveArea(q);
+        if (r.kind === 'area') target = r;
+        else if (r.kind === 'choices') choices = r.choices;
+        else if (r.kind === 'suggest') { message = r.message; suggestions = r.suggestions; }
+        else message = r.message;
       }
     } catch (e) {
       message = e instanceof LookupError ? e.message : 'Lookup is unavailable right now. Please try again.';
     }
-    if (target && (target.councilCode || target.constituencyCode)) {
+    if (target && target.councilCode) {
       const p = new URLSearchParams();
       if (target.councilCode) p.set('council', target.councilCode);
-      if (target.constituencyCode) p.set('constituency', target.constituencyCode);
       if (target.place) p.set('place', target.place);
       redirect(`/your-area?${p.toString()}`);
     }
     return (
       <Shell>
         {message && <p style={{ ...para, color: ACCENT }}>{message}</p>}
+        {suggestions.length > 0 && (
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px' }}>
+            {suggestions.map((g) => (
+              <li key={g.href} style={{ ...para, lineHeight: '24px', margin: 0, padding: '6px 0' }}>
+                <a href={g.href} style={{ ...link, padding: '10px 0' }}>{g.name}</a>{g.tag ? ` (${g.tag})` : ''}
+              </li>
+            ))}
+          </ul>
+        )}
         {choices.length > 0 ? (
           <>
             <p style={para}>More than one place has that name. Which one?</p>
@@ -145,13 +146,13 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
             </ul>
           </>
         ) : (
-          !message && <p style={para}>Enter a postcode, town or council to see your MP, your council and the latest figures for your area.</p>
+          !message && <p style={para}>Enter a postcode, town or council to see your council and the latest figures for your area.</p>
         )}
       </Shell>
     );
   }
 
-  // Council, its county (two tier areas) and the MP.
+  // Council and its county (two tier areas).
   const { data: councilRow, error: councilErr } = councilCode
     ? await supabase.from('councils').select('slug, name, short_name, type, type_label, political_control, parent_slug, population, gss_code').eq('gss_code', councilCode).maybeSingle()
     : { data: null, error: null };
@@ -163,33 +164,6 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     if (error) throw new Error(`your-area county lookup failed: ${error.message}`);
     county = data as Council | null;
   }
-  let mp: { member_id: number; name: string; display_name: string | null; party: string | null; constituency: string | null } | null = null;
-  let constituencyName: string | null = null;
-  if (constituencyCode) {
-    const { data, error } = await supabase.from('mps').select('member_id, name, display_name, party, constituency, current_member').eq('constituency_gss_code', constituencyCode).order('current_member', { ascending: false }).limit(5);
-    if (error) throw new Error(`your-area MP lookup failed: ${error.message}`);
-    const rows = (data ?? []) as Array<{ member_id: number; name: string; display_name: string | null; party: string | null; constituency: string | null; current_member: boolean | null }>;
-    mp = rows.find((r) => r.current_member) ?? null;
-    constituencyName = mp?.constituency ?? rows[0]?.constituency ?? null;
-  }
-
-  // A council searched by name has no single constituency: list the MPs for every
-  // constituency that overlaps it (ONS constituency to council lookup). Barnsley and
-  // Sheffield are held under their pre-2025 codes in councils, so both are tried.
-  let areaMps: { member_id: number; name: string; display_name: string | null; party: string | null; constituency: string | null }[] = [];
-  if (!constituencyCode && council?.gss_code) {
-    const alias: Record<string, string> = { E08000016: 'E08000038', E08000019: 'E08000039' };
-    const codes = [council.gss_code, alias[council.gss_code]].filter(Boolean) as string[];
-    const col = council.type === 'county' ? 'county_gss_code' : 'council_gss_code';
-    const { data: geo, error: geoErr } = await supabase.from('welfare_constituency_geography').select('constituency_gss_code').in(col, codes).limit(500);
-    if (geoErr) throw new Error(`your-area constituency list failed: ${geoErr.message}`);
-    const pcons = [...new Set(((geo ?? []) as { constituency_gss_code: string }[]).map((g) => g.constituency_gss_code))];
-    if (pcons.length) {
-      const { data: m, error: mErr } = await supabase.from('mps').select('member_id, name, display_name, party, constituency').in('constituency_gss_code', pcons).eq('current_member', true).order('constituency');
-      if (mErr) throw new Error(`your-area MP list failed: ${mErr.message}`);
-      areaMps = (m ?? []) as typeof areaMps;
-    }
-  }
 
   // County councils: district figures are summed, as on the county's own page.
   let districtCodes: string[] = [];
@@ -199,20 +173,6 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     districtCodes = ((kids ?? []) as { gss_code: string | null }[]).map((k) => k.gss_code).filter((g): g is string => !!g);
   }
 
-  // Petitions most signed in the constituency (petition.parliament.uk, petitions that
-  // reached 10,000 signatures only, as on the MP profile's Petitions tab).
-  type PetitionRow = { petition_id: number; signature_count: number; petitions: { action: string; state: string; url: string } | null };
-  let petitions: PetitionRow[] = [];
-  if (constituencyCode) {
-    const { data, error } = await supabase
-      .from('petition_constituency_signatures')
-      .select('petition_id, signature_count, petitions(action, state, url)')
-      .eq('constituency_gss_code', constituencyCode)
-      .order('signature_count', { ascending: false })
-      .limit(3);
-    if (error) console.error('your-area petitions:', error.message);
-    else petitions = ((data ?? []) as unknown as PetitionRow[]).filter((r) => r.petitions?.action);
-  }
 
   const code = council?.gss_code ?? null;
   const summed = council?.type === 'county' ? districtCodes : code ? [code] : [];
@@ -239,7 +199,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
   const missing: string[] = [];
   // Why a topic has no figures here, where the reason is the source's coverage
   // (the same nation checks the loaders apply). Otherwise no reason is given.
-  const areaCode = code ?? constituencyCode ?? '';
+  const areaCode = code ?? '';
   const nation = areaCode[0];
   const NATION_NAME: Record<string, string> = { E: 'England', W: 'Wales', S: 'Scotland', N: 'Northern Ireland' };
   const reasonFor = (title: string): string | null => {
@@ -332,11 +292,11 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     ],
   }));
 
-  // Sewage: council area and constituency, ranked as on /sewage.
+  // Sewage: the council area, ranked as on /sewage.
   const sewageLines: ReactNode[] = [];
   if (sewageTotals) {
     const years = latestYears(sewageTotals);
-    const rankFor = (type: 'council' | 'constituency', c: string | null) => {
+    const rankFor = (type: 'council', c: string | null) => {
       if (!c) return null;
       const nation = nationOfCode(c);
       const year = nation ? years[nation] : null;
@@ -347,33 +307,13 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
       return r ? { r, year } : null;
     };
     const sc = rankFor('council', code);
-    const sk = rankFor('constituency', constituencyCode);
     if (sc) sewageLines.push(<p key="a" style={big}><strong>{n0(sc.r.spill_hours)}</strong> hours of sewage spills in {sc.r.area_name}, {sc.year}</p>, <p key="b" style={para}>{n0(sc.r.overflows)} storm overflows · {sewageOrdinal(sc.r.rank)} most of {n0(sc.r.of)} {council?.type === 'county' ? 'county council areas' : 'council areas'}</p>);
-    if (sk) sewageLines.push(<p key="c" style={para}>{sk.r.area_name} constituency: {n0(sk.r.spill_hours)} hours from {n0(sk.r.overflows)} overflows · {sewageOrdinal(sk.r.rank)} most of {n0(sk.r.of)}</p>);
   }
   const sewageQs = new URLSearchParams();
   if (code) sewageQs.set('council', code);
-  if (constituencyCode) sewageQs.set('constituency', constituencyCode);
   add('Sewage spills', sewageLines.length > 0, () => ({ key: 'sewage', href: `/sewage?${sewageQs.toString()}#your-area`, linkText: 'Sewage spills in full', lines: sewageLines }));
 
-  if (constituencyCode) {
-    const where = mp?.constituency ?? constituencyName ?? 'this constituency';
-    add('Petitions', petitions.length > 0, () => ({
-      key: 'petitions', href: mp ? `/mps/${mp.member_id}#petitions` : 'https://petition.parliament.uk/', linkText: mp ? `Petitions in ${where} in full` : 'Parliament petitions site',
-      lines: [
-        <p key="h" style={{ ...para, marginBottom: '8px' }}>Most signed in {where}</p>,
-        <ol key="l" style={{ margin: '0 0 6px', paddingLeft: '20px' }}>
-          {petitions.map((p) => (
-            <li key={p.petition_id} style={{ ...para, marginBottom: '6px' }}>
-              <a href={`/petitions/${p.petition_id}`} style={{ color: INK }}>{p.petitions!.action}</a>
-              <br />{n0(p.signature_count)} signatures here · {p.petitions!.state === 'open' ? 'open' : 'closed'}
-            </li>
-          ))}
-        </ol>,
-        <p key="n" style={{ ...para, fontSize: '15px' }}>Petitions that reached 10,000 signatures since the July 2024 general election.</p>,
-      ],
-    }));
-  }
+
 
   // League table hidden (lib/feature-flags.ts): no area rating card, and the county card keeps only its Ofsted grade.
   const leagueRow = league ? [...league.rows, ...league.separate].find((r) => r.code === code) : null;
@@ -431,30 +371,6 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
           so a short item never leaves a gap beside a long one. One column on phones. */}
       <style>{TWO_COLUMN_CSS}</style>
       <div className="og-two" style={{ marginBottom: '8px' }}>
-        <section style={{ borderTop: `3px solid ${ACCENT}`, padding: '14px 0 18px' }}>
-          <h2 style={h2}>{!constituencyCode && areaMps.length > 1 ? 'MPs for this area' : 'Your MP'}</h2>
-          {!constituencyCode && areaMps.length > 0 ? (
-            <>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 6px' }}>
-                {areaMps.map((m) => (
-                  <li key={m.member_id} style={{ ...para, marginBottom: '4px' }}>
-                    <a href={`/mps/${m.member_id}`} style={{ color: INK }}><strong>{displayMpName(m.display_name || m.name)}</strong></a> · {normaliseParty(m.party)} · {m.constituency}
-                  </li>
-                ))}
-              </ul>
-              {areaMps.length > 1 && <p style={para}>Constituencies that cover part of {council?.name}. Enter a postcode to find your own MP.</p>}
-            </>
-          ) : mp ? (
-            <>
-              <p style={big}><a href={`/mps/${mp.member_id}`} style={{ color: INK }}><strong>{displayMpName(mp.display_name || mp.name)}</strong></a></p>
-              <p style={para}>{normaliseParty(mp.party)} · {mp.constituency}</p>
-              <p style={para}><a href={`/mps/${mp.member_id}`} style={link}>Votes, expenses, interests and speeches</a></p>
-            </>
-          ) : (
-            <p style={para}>{constituencyName ? `No sitting MP is listed for ${constituencyName}.` : constituencyCode ? 'We could not match a constituency for this area.' : 'Enter a postcode to find your MP.'}</p>
-          )}
-        </section>
-
         <section style={{ borderTop: `3px solid ${ACCENT}`, padding: '14px 0 18px' }}>
           <h2 style={h2}>Your council</h2>
           {council ? (

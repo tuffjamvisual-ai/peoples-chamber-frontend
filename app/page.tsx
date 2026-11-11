@@ -163,10 +163,11 @@ export default async function HomePage() {
                   fold (the SubFold after the rail opens); the newsletter block is one line linking to the sign-up page
                   (/newsletter), and a link to #newsletter still shows the block. From 640px up the page is unchanged. */}
               {/* The two finders side by side (UX1b, 9 Nov 2026; the audit found the postcode box below the fold and unlabelled
-                  as the way to find an MP): the main search, then "Find your MP or council (postcode)". They run across
+                  as the way to find an MP): the main search, then "Find your local council" (councils only, owner, 11 Nov 2026, T1-MP). They run across
                   the full width above the lead story and the rail, so on a 1280 x 720 screen both are in the first screen
-                  above the research promotion (UX1c). Each column is at least 280px, so they stack on phones. */}
-              <style>{`.og-finders { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px 20px; align-items: end; margin-bottom: 28px; } .og-finders > form, .og-finders > section { margin: 0 !important; }`}</style>
+                  above the research promotion (UX1c). Each column is at least 280px, so they stack on phones. Aligned to the top
+                  (T1-MPb, 11 Nov 2026), so suggestions under the council box grow below it and the search box never moves. */}
+              <style>{`.og-finders { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px 20px; align-items: start; margin-bottom: 28px; } .og-finders > form, .og-finders > section { margin: 0 !important; }`}</style>
               <div className="og-finders">
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
                 <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt</label>
@@ -212,7 +213,7 @@ export default async function HomePage() {
                 </div>
               </form>
 
-              <AreaSearch label="Find your MP or council (postcode)" placeholder="Postcode, town or council" />
+              <AreaSearch label="Find your local council" placeholder="Postcode, town or council" />
               </div>
               <div className="og-lead">
             <div className="og-main">
