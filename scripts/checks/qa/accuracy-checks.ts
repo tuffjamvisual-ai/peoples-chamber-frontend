@@ -2,8 +2,8 @@
 // are caught by us, not by readers. Run daily with the full rendered checks (rendered-checks-daily.mjs, 05:17) against the
 // live site, one page load a second at most; by hand against a local build:
 //   npx tsx --tsconfig tsconfig.json scripts/checks/qa/accuracy-checks.ts --base http://localhost:3199 [--only A11,A14] [--json out.json]
-// A11 finds itself: every bill in the current session, every sitting MP, every council and every constituency is
-//     returned by its own page's finder (/bills?q=, /mps?q=, /councils/search?q=, /constituencies?q=) on the first page.
+// A11 finds itself: a sample of 50 bills in the current session, sitting MPs, councils and constituencies (every one with
+//     --all) is returned by its own page's finder (/bills?q=, /mps?q=, /councils/search?q=, /constituencies?q=) on the first page.
 // A12 labels match the source: on 50 contracts, 50 donations and 20 divisions every label checked names the source field
 //     it shows (the notice type and "changed to" only for a value change; the reporting period and the date reported to
 //     the Electoral Commission; the official Aye and No totals).
@@ -26,6 +26,10 @@ const arg = (k: string, d: string | null = null) => { const i = argv.indexOf(k);
 const BASE = (arg('--base', 'http://localhost:3000') as string).replace(/\/$/, '');
 const ONLY = (arg('--only') ?? 'A11,A12,A13,A14').split(',');
 const JSON_OUT = arg('--json');
+// A11 checks a sample of 50 records of each kind (the standing rule: at most 50 sample pages per page type); --all checks
+// every record, only with Cowork's go-ahead.
+const A11_ALL = argv.includes('--all');
+const A11_N = 50;
 const LIVE = /opengovt\.uk$/.test(new URL(BASE).hostname);
 
 for (const line of fs.readFileSync(path.join(ROOT, '.env.local'), 'utf8').split('\n')) {
@@ -34,8 +38,10 @@ for (const line of fs.readFileSync(path.join(ROOT, '.env.local'), 'utf8').split(
 }
 const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
 
+// One page load a second at most, against the live site and a local build alike: a local build reads the production
+// database, and an unpaced run of every finder (about 1,900 loads) on 11 Nov 2026 overlapped a 16 minute database outage.
 let last = 0;
-async function pace() { if (!LIVE) return; const w = last + 1000 - Date.now(); if (w > 0) await new Promise((r) => setTimeout(r, w)); last = Date.now(); }
+async function pace() { const w = last + 1000 - Date.now(); if (w > 0) await new Promise((r) => setTimeout(r, w)); last = Date.now(); }
 async function load(p: Page, url: string) { await pace(); return p.goto(BASE + url, { waitUntil: 'domcontentloaded', timeout: 60000 }); }
 async function all<T>(q: () => any, size = 1000): Promise<T[]> {
   const out: T[] = [];
@@ -80,11 +86,11 @@ async function a11(p: Page) {
       if (!ok) { n[kind][1]++; fails.push(`A11 ${kind} "${label}": ${url} does not list ${href}`); }
     } catch (e) { n[kind][1]++; fails.push(`A11 ${kind} "${label}": ${url} did not load (${(e as Error).message.split('\n')[0]})`); }
   };
-  for (const b of bills) await check('bill', `/bills?q=${encodeURIComponent(b.title)}`, `/bills/${b.bill_id}`, b.title);
-  for (const c of councils) await check('council', `/councils/search?q=${encodeURIComponent(c.name)}`, `/councils/${c.slug}`, c.name);
-  for (const s of seats) await check('constituency', `/constituencies?q=${encodeURIComponent(s.name)}`, `/constituencies/${s.slug}`, s.name);
+  for (const b of A11_ALL ? bills : sample(bills, A11_N)) await check('bill', `/bills?q=${encodeURIComponent(b.title)}`, `/bills/${b.bill_id}`, b.title);
+  for (const c of A11_ALL ? councils : sample(councils, A11_N)) await check('council', `/councils/search?q=${encodeURIComponent(c.name)}`, `/councils/${c.slug}`, c.name);
+  for (const s of A11_ALL ? seats : sample(seats, A11_N)) await check('constituency', `/constituencies?q=${encodeURIComponent(s.name)}`, `/constituencies/${s.slug}`, s.name);
   // MPs: /mps filters in the browser, so one load and the address's ?q= for each name.
-  for (const m of mps) {
+  for (const m of A11_ALL ? mps : sample(mps, A11_N)) {
     const name = (m.display_name || m.name).trim();
     await check('mp', `/mps?q=${encodeURIComponent(name)}`, `/mps/${m.member_id}`, name);
   }
