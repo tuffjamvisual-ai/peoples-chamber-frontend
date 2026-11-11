@@ -63,8 +63,6 @@
   .og-masthead { flex-direction: column; align-items: flex-start; gap: 8px; }
   .og-nav { justify-content: flex-start; }
   .og-sub { display: none; }
-  /* Clear the "Front Page" stamp, which sits over the first line on narrow screens. */
-  .og-intro-line { padding-top: 26px; }
 }
 
 /* Labels above the homepage search boxes (job 76): the small heading style, on its own line. */

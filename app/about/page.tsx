@@ -12,7 +12,9 @@ export const metadata: Metadata = {
 // Aligned 2026-07-11 to the clean, longer About text on the homepage (the old
 // version carried self-referential tells the reporting-texture rule bans).
 const paragraphs = [
-  `opengovt tracks how power is used in Britain.`,
+  // The homepage introduction, moved here when it was removed from the homepage (owner, 11 Nov 2026); it replaces the
+  // shorter opening line "opengovt tracks how power is used in Britain" (Cowork, 11 Nov 2026).
+  `opengovt is an independent record of how power is exercised across Britain, from Westminster to local councils. Search what governments and politicians promised, what decisions were made, how public money was spent and what happened next. Follow the evidence. Examine the record.`,
   `We record how MPs vote, what they declare, what they earn outside Parliament and what they claim in expenses. We also compare what councils charge residents with what they provide in return.`,
   `The record is drawn from named public sources: Hansard for divisions and debates, the Register of Members' Financial Interests for declarations, House of Commons data for expenses, the Electoral Commission for donations, Companies House for directorships, and government statistics for departmental performance. Each figure links back to where it came from.`,
   `MP profiles use caricatures instead of official portraits because politics already comes with enough image management. We are not here to add to it.`,

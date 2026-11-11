@@ -136,7 +136,7 @@ export default async function HomePage() {
     <>
       <OpenGovShell pageStamp="Front Page" brandAsHeading>
               {/* Under 640px (owner, 4 Nov 2026; current coverage first, 8 Nov 2026, HP1b): the two searches, the first
-                  investigation, This week in Parliament, then the first sentence of the introduction with the archive
+                  investigation, This week in Parliament, then the archive
                   ("The record, going back decades"), the other reports, Latest from Whitehall and the rest of the rail in
                   their order (the Bills tracker card where it was). CSS order only, so it is the same with JavaScript off.
                   From 640px up, as before. */}
@@ -147,13 +147,11 @@ export default async function HomePage() {
                 .og-main > .og-lead-story { order: 2; }
                 .og-lead-story .og-lede { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
                 .og-rail > a.og-card[href="/this-week"] { order: 3; }
-                .og-main > .og-intro-line { order: 4; padding-top: 0 !important; }
                 .og-main > .og-record-f { order: 4; }
                 .og-finders { margin-bottom: 12px !important; }
                 .og-rail > * { order: 8; }
                 .og-rail > .og-brief { order: 6; }
                 .og-main > .og-whitehall-f { order: 7; }
-                .og-intro-line .og-intro-s ~ .og-intro-s, .og-intro-line .og-intro-br { display: none !important; }
                 .og-brief > :not(.og-head) { display: none !important; }
                 .og-rail > #newsletter:not(:target) { display: none !important; }
                 .og-rail > .og-news-line { display: block !important; }
@@ -216,11 +214,6 @@ export default async function HomePage() {
               </div>
               <div className="og-lead">
             <div className="og-main">
-              <p className="og-intro-line" style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: 'clamp(16px, 1.9vw, 22px)', letterSpacing: '0.01em', color: '#14100d', marginBottom: '18px', lineHeight: 1.45 }}>
-                <span className="og-intro-s">opengovt is an independent record of how power is exercised across Britain, from Westminster to local councils.</span><br className="og-intro-br" />
-                <span className="og-intro-s">Search what governments and politicians promised, what decisions were made, how public money was spent and what happened next.</span><br className="og-intro-br" />
-                <span className="og-intro-s">Follow the evidence. Examine the record.</span>
-              </p>
 
 
               <HomeRecord />

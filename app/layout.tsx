@@ -129,9 +129,6 @@ const PHONE_CSS = `@media ${phoneUpTo(639.98)} {
   ${BODY_TEXT} [style*="uppercase"] { font-family: var(--font-special-elite), monospace !important; font-size: 15px !important; }
 }
 @media ${phoneUpTo(479)} {
-  .og-intro-s { display: block; margin-bottom: 12px; }
-  .og-intro-s:last-child { margin-bottom: 0; }
-  .og-intro-br { display: none; }
   .dossier-frame .d-top { aspect-ratio: 1023 / 80 !important; }
 }`;
 
