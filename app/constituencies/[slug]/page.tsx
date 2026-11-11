@@ -98,7 +98,6 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
           <p style={{ ...para, margin: '0 0 2px', fontWeight: 'bold' }}><Link href={`/mps/${current.member_id}`} prefetch={false} style={{ ...link, fontWeight: 'bold' }}>{displayMpName(current.name)}</Link></p>
           {current.party && <p style={para}>{current.party}</p>}
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            <li><Link href={`/mps/${current.member_id}#voting`} prefetch={false} style={link}>Latest votes</Link></li>
             {current.questions > 0 && <li><Link href={`/mps/${current.member_id}/questions`} prefetch={false} style={link}>Written questions</Link></li>}
             {current.motions > 0 && <li><Link href={`/edms?member=${current.member_id}`} prefetch={false} style={link}>Early day motions</Link></li>}
           </ul>
@@ -109,7 +108,8 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
       <ul style={{ listStyle: 'none', margin: '0 0 10px', padding: 0 }}>
         {terms.map((t) => (
           <li key={`${t.member_id}-${t.start_date}`} style={{ padding: '8px 0', borderBottom: LINE, fontSize: '16px', color: INK }}>
-            {t.has_page ? <Link href={`/mps/${t.member_id}`} prefetch={false} style={link}>{displayMpName(t.name)}</Link> : <span style={{ fontWeight: 'bold' }}>{displayMpName(t.name)}</span>}
+            {/* The current MP is linked once, in the card above (T1-5x). */}
+            {t.has_page && t.member_id !== current?.member_id ? <Link href={`/mps/${t.member_id}`} prefetch={false} style={link}>{displayMpName(t.name)}</Link> : <span style={{ fontWeight: 'bold' }}>{displayMpName(t.name)}</span>}
             <span style={{ display: 'block', fontSize: '15px' }}>
               {t.end_date ? `${petitionDate(t.start_date)} to ${petitionDate(t.end_date)}` : `Since ${petitionDate(t.start_date)}`}
               {t.end_reason ? `. ${t.end_reason}` : ''}
