@@ -11,6 +11,8 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { fmtMoney, loadAll, slugToLabel } from '../_lib/data';
 import { displayMpName } from '@/lib/mp-name';
+import { ShowAll } from '@/app/components/NoJsPager';
+import { SubFold } from '../../components/PhoneFolds';
 
 export function generateStaticParams() { return []; }
 export const revalidate = 86400;
@@ -102,6 +104,9 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
           .pca-sj-row:hover { background: rgba(122,22,18,0.08); }
           .pca-sj-row:hover [data-pca-leader] { border-bottom-color: rgba(122,22,18,0.55); }
         `}</style>
+        {/* UX5 (T1-6, 11 Nov 2026): on phones the first five MPs, then "Show all" (a native fold), and the methodology in a
+            closed fold as on /second-jobs; from 640px up, as before. */}
+        <ShowAll id="sj-party-mps" count={items.length} rows="> li">
         <ol
           style={{
             listStyle: 'none',
@@ -175,14 +180,17 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
             );
           })}
         </ol>
+        </ShowAll>
 
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
+          <SubFold label="Methodology">
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’
           Register of Financial Interests (members-api.parliament.uk) for current MPs
           only. Totals are the sum of single “Payment: £X” amounts in registered
           payment entries. Regular pay (an amount a month, a quarter or a year) is
           listed separately on each MP’s page with its period and is not added to the
           total or to other rates. Ranges and roles without a figure are not summed.
+          </SubFold>
         </section>
 
       </article>
