@@ -1,3 +1,4 @@
+import { SubFold } from '../components/PhoneFolds';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
@@ -55,9 +56,12 @@ export default function TopicsIndexPage() {
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           Policy Topics
         </h1>
+        {/* UX5 (T1-6, 11 Nov 2026): on phones the introduction is a closed fold; from 640px up, as before. */}
+        <SubFold label="About these topics">
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK }}>
           Each topic gathers everything the site holds on a policy area in one place: the department responsible and how it is performing, the most recent Commons votes, the bills going through Parliament, the MPs scrutinising it hardest, the editorials, and how opengovt users have voted.
         </p>
+        </SubFold>
       </header>
 
       {/* Two balanced columns, no boxes. */}
