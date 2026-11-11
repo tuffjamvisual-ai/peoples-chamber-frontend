@@ -35,12 +35,6 @@ const CHANNELS: { label: string; body: string; subject: string; href?: string }[
     subject: 'Press enquiry',
   },
   {
-    label: 'Commission research',
-    body: 'Need a specific question answered from the public record? Commission a sourced research report.',
-    subject: 'Commission research',
-    href: '/commission',
-  },
-  {
     label: 'General',
     body: 'Anything else: feedback on the site, a feature you would like to see, or just to say hello.',
     subject: 'Hello',

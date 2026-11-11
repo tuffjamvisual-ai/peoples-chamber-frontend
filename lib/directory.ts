@@ -18,8 +18,6 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Bills by Session', href: '/bills/sessions', desc: 'Every bill since the 2006 to 2007 session: which became law, which were withdrawn or ran out of time.' },
   { name: 'Cookie Details', href: '/cookies/details', desc: 'Every cookie opengovt sets, what it does and how long it is kept.' },
   { name: 'Cookies', href: '/cookies', desc: 'Choose which cookies opengovt may use, and change your choice at any time.' },
-  { name: 'Commission Terms', href: '/commission/terms', desc: 'The terms that apply when you commission research from opengovt.' },
-  { name: 'Commissioned Report Sample', href: '/commission/sample', desc: 'A sample commissioned report: Pride in Place money in Thamesmead Birchmere Park, with its findings, sources and data.' },
   { name: 'Constituency Donations', href: '/donations/constituencies', desc: 'Every constituency association ranked by the donations it declared.' },
   { name: 'Council Search', href: '/councils/search', desc: 'Find a council by name, town or postcode.' },
   { name: 'A - Z Directory', href: '/directory', desc: 'Everything on opengovt, A to Z.' },
@@ -106,7 +104,6 @@ const ALSO_KNOWN_AS: [string, string][] = [
   ['Road Condition', '/councils/road-condition'],
   ['Local Councils', '/councils'],
   ['Benefits Spending', '/tools/welfare'],
-  ['Research Commissions', '/commission'],
   ['Manifestos', '/parties/manifestos'],
   ['Political Parties', '/parties'],
 ];

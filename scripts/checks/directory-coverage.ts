@@ -10,6 +10,8 @@ import { DIRECTORY } from '@/lib/directory';
 import { RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 
 const EXCLUDED: Record<string, string> = {
+  '/commission/terms': 'reached from /commission (T1-5x, owner 10 Nov 2026: commission in the directory once)',
+  '/commission/sample': 'reached from /commission (T1-5x, owner 10 Nov 2026: commission in the directory once)',
   '/account': 'account page', '/login': 'sign in', '/signup': 'sign up', '/reset-password': 'password reset',
   '/preferences': 'member preferences', '/admin/users': 'admin', '/internal/humaniser': 'internal tool',
   '/donate/thank-you': 'shown after paying', '/template': 'template', '/folder-bg': 'design test',
