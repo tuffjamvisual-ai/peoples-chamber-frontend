@@ -8,6 +8,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, BudgetReached, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { noteChanged } from '@/lib/refresh-count';
+import { REQUEST_MS, withRetries, BillNotFoundError, ApiRefused } from '@/lib/bill-sponsors-retries';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -46,8 +47,6 @@ const RUN_CAP = 1500; // bills read from the queue per run; the time budget usua
 // retries, RETRY_WAITS_MS apart, inside the run's time budget: with no time for another try, the bill counts as failed
 // as before. Only a timeout, no answer or a 5xx is retried. Bills that failed last time now really do go last, after
 // the weekly pass, so that their retries cannot use up the time the pass needs.
-const REQUEST_MS = 30_000;
-const RETRY_WAITS_MS = [5_000, 15_000, 30_000];
 const SLOW_STOP_AFTER = 5;
 const PARLIAMENT_API = 'https://bills-api.parliament.uk/api/v1/Bills';
 // sync_cursor rows. SINCE: when the last finished run started. FULL: the weekly pass, open or last started.
@@ -81,39 +80,9 @@ type StoredSponsor = {
 
 type Fetched = { items: StoredSponsor[]; billTypeId: number | null; departments: string[] };
 
-// The Bills API no longer has the bill (404): handled like the stages sync (lib/bill-stages.ts BillNotFoundError).
-class BillNotFoundError extends Error {
-  constructor(parliamentId: number) {
-    super(`Bills API 404 for bill ${parliamentId}`);
-    this.name = 'BillNotFoundError';
-  }
-}
-
-// Any other refusal (4xx): asking again would get the same answer.
-class ApiRefused extends Error {}
-
-// Runs one Parliament read, trying again after a timeout, no answer or a 5xx. A 429 or the end of the run's time on the
-// first try stops the run as usual; if the time ends on a retry, the error the bill actually had is what counts.
-async function withRetries<T>(read: () => Promise<T>, budget: SyncBudget): Promise<T> {
-  let lastError: unknown = null;
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await read();
-    } catch (err) {
-      if (err instanceof BudgetReached && lastError) throw lastError;
-      if (isPoliteStop(err) || err instanceof BillNotFoundError || err instanceof ApiRefused) throw err;
-      lastError = err;
-      const wait = RETRY_WAITS_MS[attempt];
-      if (wait === undefined || budget.stopStarting(wait + 1_000)) throw err;
-      console.warn(`[sync-bill-sponsors] try ${attempt + 1} failed (${(err as Error).message}); trying again in ${wait / 1000}s`);
-      await sleep(wait);
-    }
-  }
-}
-
 async function fetchSponsors(parliamentId: number, budget: SyncBudget): Promise<Fetched> {
-  const j = await withRetries(async () => {
-    const res = await politeFetch(`${PARLIAMENT_API}/${parliamentId}`, {}, { budget, timeoutMs: REQUEST_MS });
+  const j = await withRetries(async (timeoutMs) => {
+    const res = await politeFetch(`${PARLIAMENT_API}/${parliamentId}`, {}, { budget, timeoutMs });
     if (res.status === 404) throw new BillNotFoundError(parliamentId);
     if (res.status >= 500) throw new Error(`Bills API ${res.status}`);
     if (!res.ok) throw new ApiRefused(`Bills API ${res.status}`);
