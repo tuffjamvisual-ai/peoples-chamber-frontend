@@ -1,4 +1,5 @@
 import NoJsPager from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import { cache } from 'react';
@@ -40,8 +41,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-function Result({ heading, date, summary, figures, candidates }: { heading: string; date: string; url?: string; summary: string; figures: { electorate: number; valid: number; invalid: number; turnout: number; majority: number }; candidates: Candidate[] }) {
-  return (
+function Result({ heading, date, summary, figures, candidates, fold = false }: { heading: string; date: string; url?: string; summary: string; figures: { electorate: number; valid: number; invalid: number; turnout: number; majority: number }; candidates: Candidate[]; fold?: boolean }) {
+  const winner = candidates.find((c) => c.position === 1);
+  const body = (
     <>
       <h2 style={h2}>{heading}</h2>
       <p style={para}>{petitionDate(date)}. {summary}.</p>
@@ -61,13 +63,18 @@ function Result({ heading, date, summary, figures, candidates }: { heading: stri
         ))}
       </ol>
       </NoJsPager>
+      <SubFold label="Majority, turnout and electorate">
       <dl style={{ margin: '0 0 8px', fontSize: '16px', color: INK }}>
         {([['Majority', n0(figures.majority)], ['Turnout', pct(figures.turnout)], ['Electorate', n0(figures.electorate)], ['Valid votes', n0(figures.valid)], ['Rejected ballots', n0(figures.invalid)]] as [string, string][]).map(([k, v]) => (
           <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '4px 0' }}><dt style={{ fontWeight: 'bold' }}>{k}</dt><dd style={{ margin: 0 }}>{v}</dd></div>
         ))}
       </dl>
+      </SubFold>
     </>
   );
+  // UX5 (T1-6, 11 Nov 2026): on phones an earlier election is a closed fold, the latest stays open; from 640px up, as before.
+  if (!fold) return body;
+  return <SubFold label={heading} summary={winner ? [winner.given_name, winner.family_name].filter(Boolean).join(' ') : null}>{body}</SubFold>;
 }
 
 export default async function ConstituencyPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -112,14 +119,15 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
       </ul>
       {resigned && <p style={{ ...para, fontSize: '15px' }}>Taking the Chiltern Hundreds (or the Manor of Northstead) is the formal way an MP resigns.</p>}
 
-      <Result heading="2024 general election" date="2024-07-04" url={seat.result_url} summary={seat.result_summary} candidates={general}
+      <Result fold={byelections.length > 0} heading="2024 general election" date="2024-07-04" url={seat.result_url} summary={seat.result_summary} candidates={general}
         figures={{ electorate: seat.electorate, valid: seat.valid_votes, invalid: seat.invalid_votes, turnout: seat.turnout_pct, majority: seat.majority }} />
-      {byelections.map((b) => (
-        <Result key={b.election_id} heading={`${petitionDate(b.election_date)!.replace(/^\d+ /, '')} byelection`} date={b.election_date} url={b.url} summary={b.result_summary} candidates={candidates.filter((c) => c.election_id === b.election_id)}
+      {byelections.map((b, bi) => (
+        <Result fold={bi < byelections.length - 1} key={b.election_id} heading={`${petitionDate(b.election_date)!.replace(/^\d+ /, '')} byelection`} date={b.election_date} url={b.url} summary={b.result_summary} candidates={candidates.filter((c) => c.election_id === b.election_id)}
           figures={{ electorate: b.electorate, valid: b.valid_votes, invalid: b.invalid_votes, turnout: b.turnout_pct, majority: b.majority }} />
       ))}
 
-      {petitions.petitions.length > 0 && <div style={{ marginTop: '28px' }}><ConstituencyPetitions top={petitions} gss={seat.ons_code} /></div>}
+      {/* UX5 (T1-6): on phones the petitions are a closed fold; from 640px up, as before. */}
+      {petitions.petitions.length > 0 && <div style={{ marginTop: '28px' }}><SubFold label="Petitions in this constituency"><ConstituencyPetitions top={petitions} gss={seat.ons_code} /></SubFold></div>}
 
       <h2 style={h2}>{allCouncils.length === 1 ? 'Council' : 'Councils'}</h2>
       <p style={{ ...para, fontSize: '15px' }}>Councils with wards in this seat, from the ONS lookup of May 2025. Some may cover only a small part of it.</p>
