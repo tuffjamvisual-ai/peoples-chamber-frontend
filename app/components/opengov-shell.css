@@ -3,9 +3,20 @@
    account tab) and the dossier expanding folder (per-page stamp + content slot).
    Page content goes in .dossier-content. ng-/og-/dossier- prefixed. */
 
-/* ---- Folders-pile backdrop, from 768px up. Under 768px the phone layout shows no desk (below), so the 900px copy that
-   480 to 640px wide screens used is no longer needed (T1-768b, 11 Nov 2026). ---- */
-.og-backdrop { background-image: url(/folders.webp); }
+/* ---- Folders-pile backdrop (the desk), from 1024px up only (T1-DESK, owner 11 Nov 2026: "the desktop background of old
+   folders should only be visible on the desktop version"). Under 1024px it is not set, so it is not downloaded. ---- */
+@media (min-width: 1024px) { .og-backdrop { background-image: url(/folders.webp); } }
+
+/* ---- Tablets, 768 to 1023px (T1-DESK, owner 11 Nov 2026: "why is the folder not filling the whole screen"): no desk; the
+   folder fills the screen. The page behind the folder is the folder's own paper (folder-mid.webp, already used by the
+   folder, widened so its edges fall off screen), with no padding above or below and the shell the full width, so no
+   desk or black band shows anywhere. The masthead, menu, tab, stamp and back arrow are as before. ---- */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  html:has(.ng-page) { background-color: #d8b97c; }
+  .og-backdrop { display: none !important; }
+  .ng-page { padding: 0 !important; background: #d8b97c url(/folder-mid.webp) repeat-y center top / 116% auto !important; }
+  .og-shell-inner { width: 100vw !important; }
+}
 
 /* ---- Nav bar (real links; no dropdowns since report 60) ---- */
 .ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; font-family: var(--font-special-elite), monospace; text-transform: uppercase; letter-spacing: 0.04em; color: #14100d; font-size: clamp(15px, 1.3cqw, 15px); text-shadow: 0.7px 0.7px 0 rgba(20, 16, 13, 0.42), -0.3px 0.2px 0.4px rgba(20, 16, 13, 0.24), 0 0 1.6px rgba(20, 16, 13, 0.3); }

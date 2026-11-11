@@ -40,7 +40,8 @@ export default function OpenGovShell({
   // download with the HTML instead (25 Oct 2026, report 43); each width gets only the file its stylesheet uses.
   // Under 768px the desk backdrop is not shown at all (owner, 3 Nov 2026: the folder is the page on phones; under 480px
   // until T1-768b, 11 Nov 2026), so it is not preloaded there, and the 900px copy for 480 to 640px is gone.
-  preload('/folders.webp', { as: 'image', media: wideFrom(768), fetchPriority: 'high' });
+  // From 1024px only since T1-DESK (owner, 11 Nov 2026): tablets show no desk.
+  preload('/folders.webp', { as: 'image', media: wideFrom(1024), fetchPriority: 'high' });
   const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, border: '0.07em solid #7a1612', padding: '0.14em 0.32em 0.06em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#7a1612', fontSize: 'clamp(24px, 4.6vw, 64px)' };
   return (
     // One masthead on every page (T1-5m, owner, 10 Nov 2026: "it should be consistent"): the homepage's folder masthead
