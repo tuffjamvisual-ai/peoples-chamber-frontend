@@ -13,6 +13,7 @@ import DonorSearch from './DonorSearch';
 import PhoneMore from '../components/PhoneMore';
 import '../components/phone-table.css';
 import { SubFold } from '../components/PhoneFolds';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export const revalidate = 86400;
 
@@ -146,7 +147,10 @@ export default async function DonorsIndex() {
       <PhoneMore selector="#donors-list" total={top.length} first={5} />
 
 <section aria-labelledby="public-funding" style={{ marginTop: '32px', borderTop: `2px solid ${INK}`, paddingTop: '16px', fontFamily: 'var(--font-special-elite), monospace' }}>
-        <h2 id="public-funding" style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px' }}>Public funding (not private donors)</h2>
+        {/* UX5 (T1-6, 11 Nov 2026): on phones a closed fold named by this heading, which is hidden there (a link to
+            #public-funding opens it); from 640px up, as before. */}
+        <SubFold label="Public funding (not private donors)">
+        <h2 id="public-funding" className="dn-fold-h" style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px' }}>Public funding (not private donors)</h2>
         <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
           Money from public bodies, recorded by the Electoral Commission alongside donations: parliamentary funding for opposition parties (Short Money and its equivalents in the Lords and devolved parliaments), Electoral Commission policy development grants, and other public payments such as HMRC and council payments. These are not private donors.
         </p>
@@ -163,6 +167,8 @@ export default async function DonorsIndex() {
         </ul>
         </NoJsPager>
         {publicOthers > 0 && <p style={{ fontSize: '15px', margin: '12px 0 0' }}>Plus {publicOthers} smaller entries under other names.</p>}
+        </SubFold>
+        <style>{`@media ${phoneUpTo(639.98)} { .dn-fold-h { display: none; } }`}</style>
       </section>
     </OpenGovShell>
   );
