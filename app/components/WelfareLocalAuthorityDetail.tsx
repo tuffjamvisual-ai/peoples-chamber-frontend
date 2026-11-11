@@ -195,7 +195,7 @@ type NiPayload = {
 
 type Payload = FullPayload | PartialPayload | NiPayload
 
-export default function WelfareLocalAuthorityDetail({ gss, embedded }: { gss: string; embedded?: boolean }) {
+export default function WelfareLocalAuthorityDetail({ gss, embedded, sourcesInFold }: { gss: string; embedded?: boolean; sourcesInFold?: boolean }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [payload, setPayload] = useState<Payload | null>(null)
@@ -241,7 +241,7 @@ export default function WelfareLocalAuthorityDetail({ gss, embedded }: { gss: st
         fontFamily: SERIF,
       }}
     >
-      {payload.scope === 'full' ? <FullView payload={payload} embedded={embedded} /> : payload.scope === 'ni' ? <NiView payload={payload} /> : <PartialView payload={payload} embedded={embedded} />}
+      {payload.scope === 'full' ? <FullView payload={payload} embedded={embedded} /> : payload.scope === 'ni' ? <NiView payload={payload} sourcesInFold={sourcesInFold} /> : <PartialView payload={payload} embedded={embedded} />}
     </article>
   )
 }
@@ -413,7 +413,7 @@ function DataRow({ label, value, sub, valueColour }: { label: string; value: Rea
 
 const monthYear = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' }) : '')
 
-function NiView({ payload }: { payload: NiPayload }) {
+function NiView({ payload, sourcesInFold }: { payload: NiPayload; sourcesInFold?: boolean }) {
   const m = payload.method
   const basis: Record<string, string> = {
     uc: `Northern Ireland's Universal Credit spend (${formatCount(m.uc.households)} households in payment × £${formatCount(m.uc.meanMonthly)} a month average) shared by this council's share of claimants`,
@@ -455,10 +455,12 @@ function NiView({ payload }: { payload: NiPayload }) {
 
       <section style={{ marginBottom: '8px' }}>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: 0 }}>
+          {/* On the council page (EL1) the sources are in the page's one Sources fold; here a plain line says so. */}
+          {sourcesInFold ? <>Sources: Department for Communities and NISRA benefit statistics, listed in Sources at the end of the page</> : <>
           Sources:{' '}
           {payload.sources.map((x, i) => (
             <span key={x.url}>{i > 0 ? '; ' : ''}<a href={x.url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.label}</a></span>
-          ))}
+          ))}</>}
           . Open Government Licence v3.0.
         </p>
       </section>

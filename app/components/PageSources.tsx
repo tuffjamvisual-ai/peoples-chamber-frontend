@@ -10,7 +10,7 @@ const INK = '#14100d';
 const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 
-export default function PageSources({ sources, marginTop = '32px', children }: { sources: (PageSource | null | false | undefined)[]; marginTop?: string; children?: React.ReactNode }) {
+export default function PageSources({ sources, marginTop = '32px', children }: { sources: (PageSource | null | false | undefined | '' | 0)[]; marginTop?: string; children?: React.ReactNode }) {
   const seen = new Set<string>();
   const list = sources.filter((s): s is PageSource => !!s && !!s.href && !seen.has(s.href) && !!seen.add(s.href));
   if (list.length === 0) return null;

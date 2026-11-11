@@ -16,6 +16,11 @@ const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 const SOURCE_URL = 'https://www.lgo.org.uk/information-centre/reports/annual-review-reports/local-government-complaint-reviews';
 const GUIDE_URL = 'https://www.lgo.org.uk/information-centre/reports/annual-review-reports/interpreting-local-authority-statistics';
+// EL1 (owner, 10 Nov 2026): the council page lists these in its one Sources fold.
+export const OMBUDSMAN_SOURCES = [
+  { label: 'Local Government and Social Care Ombudsman, annual review data', href: SOURCE_URL },
+  { label: 'The Ombudsman\u2019s guide to reading these figures', href: GUIDE_URL },
+];
 
 type Row = {
   year: string;
@@ -167,8 +172,8 @@ export default async function CouncilOmbudsmanSection({ gssCode }: { gssCode: st
         <P>Change on {prev!.year}: {changes.map(([label, t]) => `${label} ${t}`).join('; ')}.</P>
       )}
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
-        Source: <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Local Government and Social Care Ombudsman, annual review data {cur.year}</a>{' '}
-        (1 April to 31 March; <a href={GUIDE_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>how to read these figures</a>).
+        Source: Local Government and Social Care Ombudsman, annual review data {cur.year} (1 April to 31 March), with its
+        guide to reading these figures, in Sources at the end of the page.
         {' '}© Commission for Local Administration in England. &ldquo;Investigated&rdquo; (upheld plus not upheld) and the changes on {prev ? prev.year : 'the year before'} are our sums from the published figures.
       </p>
     </section>

@@ -17,6 +17,9 @@ import { SHOW_COUNCIL_FOUNDED } from '@/lib/feature-flags';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import PageSources from '../../components/PageSources';
+import { OMBUDSMAN_SOURCES } from '../../components/CouncilOmbudsmanSection';
+import niWelfare from '@/lib/data/ni-welfare.json';
 import CouncilTabs from './CouncilTabs';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
 import { Dated, recordText, showsWelfare, tabsWithContent } from './panels';
@@ -272,7 +275,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null || councilTax != null;
   const hasLeadership = c.political_control != null || c.chief_exec != null || c.chief_exec_note != null || c.leader_source_url != null || byelections.length > 0;
   const hasOverview =
-    c.population != null || (SHOW_COUNCIL_FOUNDED && c.founded_year != null) || c.website_url != null;
+    c.population != null || (SHOW_COUNCIL_FOUNDED && c.founded_year != null);
 
   // Public health metrics: same county exclusion as welfare — upper-tier
   // counties have no row of their own in council_public_health_metrics
@@ -409,8 +412,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0), so it is credited. */}
                 {c.wikipedia_url && (
                   <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, margin: '-20px auto 28px', maxWidth: '46em', color: INK_SOFT }}>
-                    From <a href={c.wikipedia_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>Wikipedia</a>,
-                    {' '}under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>CC BY-SA 4.0</a>.
+                    From Wikipedia, under CC BY-SA 4.0 (in Sources at the end of the page).
                   </p>
                 )}
                 </SubFold>
@@ -472,23 +474,14 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
 
               {hasOverview && (
-                <Section title="Overview" fold="Population, website and more" date={c.population_year ? `Period ${c.population_year}` : councilUpdated} source={c.population_year ? undefined : 'councils.updated_at'}>
+                <Section title="Overview" fold="Population and more" date={c.population_year ? `Period ${c.population_year}` : councilUpdated} source={c.population_year ? undefined : 'councils.updated_at'}>
                   <DataRow
                     label={c.population_year ? `Population (${c.population_year} estimate)` : 'Population'}
                     value={c.population?.toLocaleString('en-GB') ?? null}
-                    sub={c.population_source ? (c.population_source_url
-                      ? <>Source: <a href={c.population_source_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>{c.population_source}</a></>
-                      : `Source: ${c.population_source}`) : null}
+                    sub={c.population_source ? `Source: ${c.population_source}` : null}
                   />
                   {/* Founded year: hidden (owner's decision, 20 Oct 2026; SHOW_COUNCIL_FOUNDED). */}
                   {SHOW_COUNCIL_FOUNDED && <DataRow label="Founded" value={c.founded_year?.toString() ?? null} />}
-                  {c.website_url && (
-                    <DataRow label="Website" value={
-                      <a href={c.website_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>
-                        {c.website_url.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '')}
-                      </a>
-                    } />
-                  )}
                 </Section>
               )}
 
@@ -641,7 +634,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
                 Welfare spending
               </h2>
-              <WelfareLocalAuthorityDetail gss={c.gss_code} embedded />
+              <WelfareLocalAuthorityDetail gss={c.gss_code} embedded sourcesInFold />
               <RecordDate text={welfareDate} source="welfare_local_authority_summary.updated_at" />
             </section>
           ) : null}
@@ -650,6 +643,22 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
         {/* The compact Related line at the end of the main content (owner's brief, 3 Nov 2026): up to three reports
             that link to this council; nothing when there are none (lib/related-links.ts). */}
         <RelatedLine links={await councilRelated(c.slug)} />
+
+        {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The council's own website, Wikipedia (the
+            description and its CC BY-SA 4.0 licence, the chief executive, some leaders), the population estimate, the
+            Ombudsman's figures and Northern Ireland's welfare sources are in this one Sources fold. Each byelection's
+            declaration and each rating's source stay on their rows. */}
+        <PageSources sources={[
+          c.website_url && { label: `${c.name}\u2019s own website`, href: c.website_url },
+          c.population_source && c.population_source_url && { label: `Population: ${c.population_source}`, href: c.population_source_url },
+          c.leader_source_url && { label: `${c.leader_role ?? 'Leader'}: ${/^https:\/\/en\.wikipedia\.org\//.test(c.leader_source_url) ? 'Wikipedia' : c.name}`, href: c.leader_source_url },
+          c.leader_second_source_url && { label: `${c.leader_role ?? 'Leader'}: ${c.name}`, href: c.leader_second_source_url },
+          c.chief_exec_source_url && { label: 'Chief executive: Wikipedia', href: c.chief_exec_source_url },
+          c.wikipedia_url && { label: `${c.name} on Wikipedia (the description above)`, href: c.wikipedia_url },
+          c.wikipedia_url && { label: 'Wikipedia text licence: CC BY-SA 4.0', href: 'https://creativecommons.org/licenses/by-sa/4.0/' },
+          ...(/^E/.test(c.gss_code ?? '') ? OMBUDSMAN_SOURCES : []),
+          ...(c.gss_code?.startsWith('N09') ? niWelfare.sources.map((x) => ({ label: `Welfare: ${x.label}`, href: x.url })) : []),
+        ]} />
       </article>
       {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
       <ArticleEndSignup source="data-council-page" line={DATA_SIGNUP_LINE} />
@@ -874,9 +883,7 @@ function leaderValue(c: CouncilFull): string {
   return since ? `${who} (since ${since})` : who;
 }
 function leaderSource(c: CouncilFull): React.ReactNode {
-  const link = (href: string, text: string) => (
-    <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>{text}</a>
-  );
+  const link = (_href: string, text: string) => text;
   const src = c.leader_source_url as string;
   const wiki = /^https:\/\/en\.wikipedia\.org\//.test(src);
   return (
@@ -897,7 +904,7 @@ function chiefExecSource(c: CouncilFull): React.ReactNode {
   const checked = c.chief_exec_checked_on ? longDate(c.chief_exec_checked_on) : null;
   return (
     <>
-      Source: <a href={c.chief_exec_source_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>Wikipedia</a>
+      Source: Wikipedia
       {checked && <>, checked {checked}</>}
     </>
   );
