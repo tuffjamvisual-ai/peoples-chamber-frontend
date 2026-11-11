@@ -22,6 +22,7 @@ import { sectorForDonor } from '@/lib/donor-sectors';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
 import { SubFold } from '../../../components/PhoneFolds';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 import BackLink from '@/app/components/BackLink';
 export const revalidate = 21600;
@@ -298,7 +299,9 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       {sectorRows.length > 0 && (
         <section style={{ marginBottom: '32px' }}>
-          <h2 style={sectionH2}>Top funding sectors</h2>
+          {/* UX5 (T1-6, 11 Nov 2026): on phones a closed fold named by this heading, which is hidden there; from 640px up, as before. */}
+          <SubFold label="Top funding sectors" summary={`${sectorRows.length}`}>
+          <h2 className="pm-fold-h" style={sectionH2}>Top funding sectors</h2>
           <p style={{ fontSize: '15px', marginBottom: '10px' }}>Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included; this view shows which parts of the economy fund the party.</p>
           <ShowAll id="party-money-sectors" count={(sectorRows).length}>
           <table style={tableStyle}>
@@ -320,6 +323,8 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
             </tbody>
           </table>
           </ShowAll>
+          </SubFold>
+          <style>{`@media ${phoneUpTo(639.98)} { .pm-fold-h { display: none; } }`}</style>
         </section>
       )}
 
