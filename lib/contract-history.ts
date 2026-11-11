@@ -78,7 +78,7 @@ export function buildHistories(notices: Notice[], kinds: Map<string, ChangeKind>
       h.termination = { date: n.published_at, endDate: n.end_date, finalValue: n.value_type === 'final' ? n.value : null, reason: n.termination_reason, url: n.source_url };
       continue;
     }
-    const kind = changeKind(n.change_reason ?? n.change_description, n.value, old ?? latest(h));
+    const kind = changeKind(n.change_reason ?? n.change_description, n.value, old ?? latest(h), n.notice_type);
     kinds.set(n.release_id, kind);
     h.changes.push({ date: n.published_at, oldValue: kind.kind === 'value_change' ? old : null, newValue: n.value, reason: n.change_reason, repeats: 1, url: n.source_url, kind });
   }

@@ -20,3 +20,9 @@ test('a new value is a value change', () => {
   assert.equal(changeKind('Extension of term by six months.', 120, 100).kind, 'value_change');
   assert.equal(changeKind(null, 120, null).kind, 'value_change');
 });
+
+test('a contract details notice that updates a contract is an update, not a value change', () => {
+  assert.deepEqual(changeKind('Inclusion of Lot B', 500000, null, 'UK7'), { kind: 'update', label: 'Contract details updated' });
+  assert.equal(changeKind('Extension of term.', 120, 100, 'UK10').kind, 'value_change');
+  assert.equal(changeKind('Extension of term.', 120, 100, null).kind, 'value_change'); // older rules: no form code
+});
