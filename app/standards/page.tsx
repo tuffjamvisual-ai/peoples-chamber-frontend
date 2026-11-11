@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { SubFold } from '../components/PhoneFolds';
+import { ShowAll } from '../components/NoJsPager';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
@@ -131,7 +132,10 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
                 return (
                   <details key={g.period} id={key} className="pa-fold" open={(si === 0 && gi === 0) || page > 1}>
                     <summary>{g.period}: {g.items.length} {g.items.length === 1 ? 'case' : 'cases'}</summary>
+                    {/* UX5 (T1-6, 11 Nov 2026): on phones the first five cases, then "Show all"; from 640px up, as before. */}
+                    <ShowAll id={`sc-${key.replace(/[^a-zA-Z0-9-]+/g, '-')}`} count={shown.length} rows="> li">
                     <ul className="sc-list">{shown.map((c) => <CaseItem key={caseId(c)} c={c} />)}</ul>
+                    </ShowAll>
                     {pages > 1 && (
                       <nav className="sc-pager" aria-label={`${SECTION_TITLE[outcome]}, ${g.period}, pages`}>
                         {page > 1 && <Link href={pageHref(page - 1)} prefetch={false} style={tap}>Previous</Link>}
