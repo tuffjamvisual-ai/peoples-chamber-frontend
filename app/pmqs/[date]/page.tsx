@@ -60,6 +60,9 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
   }
   const exchanges = await pmqsExchanges(session);
   const speakerStandsIn = exchanges.some((e) => e.speaker.length > 0);
+  // Each MP linked once per session (T1-5x, owner 10 Nov 2026): the first time they appear; plain text after.
+  const linkedOnce = new Set<number>([session.answeredBy.id, ...(session.opposition ? [session.opposition.id] : [])]);
+  const firstMention = (id: number) => (linkedOnce.has(id) ? false : (linkedOnce.add(id), true));
   return (
     <OpenGovShell pageStamp="PMQs">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: "Prime Minister's Questions", path: '/pmqs' }, { name: longDate(date), path: `/pmqs/${date}` }])} />
@@ -83,7 +86,7 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
       <OpenHashTarget />
       <MoreChain mainAction ordered phoneOnly style={{ color: INK }} first={phoneOpening(exchanges.map((e) => 120 + textHeightAt375(e.question) + e.answers.reduce((px, a) => px + textHeightAt375(a), 0) + (e.speaker.length ? 150 : 0)))} items={exchanges.map((e) => (
           <li key={e.id} id={`q-${e.id}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
-            <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}><Link href={`/mps/${e.asker.id}`} style={link}>{e.asker.name}</Link></p>
+            <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>{firstMention(e.asker.id) ? <Link href={`/mps/${e.asker.id}`} style={link}>{e.asker.name}</Link> : e.asker.name}</p>
             <p style={body}>{e.question}</p>
             {e.answers.length > 0 && (
               <div style={{ margin: '10px 0 8px', paddingLeft: '12px', borderLeft: `3px solid ${ACCENT}` }}>

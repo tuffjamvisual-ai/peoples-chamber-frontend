@@ -1,4 +1,4 @@
-import { SubFold } from '../../../components/PhoneFolds';
+import AboutThisData from '@/app/components/AboutThisData';
 import { Fragment } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -47,7 +47,8 @@ export async function generateMetadata({ params }: { params: Promise<{ date: str
   };
 }
 
-function Speaker({ row }: { row: PreFixedRow }) {
+// The opengovt profile is linked once per day (T1-5x, owner 10 Nov 2026): `profile` is false after the first.
+function Speaker({ row, profile = true }: { row: PreFixedRow; profile?: boolean }) {
   if (!row.speaker_as_printed && !row.question_number) return null;
   return (
     <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>
@@ -55,7 +56,7 @@ function Speaker({ row }: { row: PreFixedRow }) {
       {row.speaker_as_printed && (row.person_url
         ? <a data-og-row-source="" href={row.person_url} rel="noopener" className="og-tap" style={link}>{row.speaker_as_printed}</a>
         : row.speaker_as_printed)}
-      {row.member_id != null && <> <Link href={`/mps/${row.member_id}`} prefetch={false} className="og-tap" style={{ ...link, fontWeight: 'normal' }}>opengovt profile</Link></>}
+      {profile && row.member_id != null && <> <Link href={`/mps/${row.member_id}`} prefetch={false} className="og-tap" style={{ ...link, fontWeight: 'normal' }}>opengovt profile</Link></>}
     </p>
   );
 }
@@ -79,6 +80,9 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
   const title = heading(date, day.questions);
   // Each contribution is one row of the list, the exchange's heading sitting on its first, so a long day is cut into screens by height.
   const items = day.exchanges.flatMap((e) => e.rows.map((row, i) => ({ e, row, first: i === 0 })));
+  // Where each member's opengovt profile is linked: their first row of the day only (T1-5x).
+  const profileFirst = new Map<number, number>();
+  items.forEach(({ row }, i) => { if (row.member_id != null && !profileFirst.has(row.member_id)) profileFirst.set(row.member_id, i); });
   const screens = pagesByHeight(items.map(({ row, first }) => Math.min(row.text.length, OPENS) * 0.75 + 110 + (first ? 190 : 0)), 4000, 25);
   return (
     <OpenGovShell pageStamp="PMQs">
@@ -86,12 +90,12 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
       <BackLink fallbackHref="/pmqs#before-fixed-pmqs" />
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 12px', color: INK }}>{title}</h1>
       <div style={{ color: INK }}>
-        {day.unconfirmed && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px', fontWeight: 'bold' }}>{UNCONFIRMED_NOTE}</p>}
         <div>
           {/* On phones the first screen at most, never more than before (MP2f-9). */}
           {/* UX5 (T1-6, 11 Nov 2026): on phones the first three questions, then "Show all" (five before). */}
           <NoJsPager id="pq-day" count={items.length} sizes={screens} first={Math.min(3, screens[0] ?? 3)} />
           {items.map(({ e, row, first }, i) => {
+            const profile = row.member_id != null && profileFirst.get(row.member_id) === i;
             const [start, rest] = opening(row.text);
             const answer = row.kind !== 'question' && !!row.speaker_as_printed;
             return (
@@ -99,7 +103,7 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
                 <div className={njpItem('pq-day')} data-main-action={i === 0 ? '' : undefined} style={{ marginBottom: '14px' }}>
                   {first && <ExchangeHead e={e} />}
                   <div style={answer ? { paddingLeft: '12px', borderLeft: `3px solid ${ACCENT}` } : undefined}>
-                    <Speaker row={row} />
+                    <Speaker row={row} profile={profile} />
                     <p style={body}>{start}</p>
                     {rest && <NoJsFold id={`pq-row-${i}`} always label="Continue reading"><p style={body}>{rest}</p></NoJsFold>}
                   </div>
@@ -109,13 +113,12 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
           })}
           <NoJsPagerLinks id="pq-day" count={items.length} sizes={screens} first={Math.min(3, screens[0] ?? 3)} />
         </div>
-        <section aria-label="Notes" style={{ marginTop: '28px', paddingTop: '14px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
-          {/* UX5 (T1-6, 11 Nov 2026): on phones the notes are a closed fold; from 640px up, as before. */}
-          <SubFold label="Notes on these questions">
+        {/* T1-5x S7 (owner, 10 Nov 2026): the notes, and the note on an unconfirmed date, in one closed About this data. */}
+        <AboutThisData>
+          {day.unconfirmed && <p>{UNCONFIRMED_NOTE}</p>}
           {day.exchanges.some((e) => e.experiment) && <ExperimentNote />}
           <PreFixedNotes answeredBySomeoneElse={answeredBySomeoneElse} />
-          </SubFold>
-        </section>
+        </AboutThisData>
       </div>
     </OpenGovShell>
   );

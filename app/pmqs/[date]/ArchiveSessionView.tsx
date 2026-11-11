@@ -15,12 +15,13 @@ const nameLine = { fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' };
 
 // A speaker's name: to their MP page if they have one, else Parliament's page for their member id, which says it leaves
 // the site, else their Historic Hansard page, else plain text.
-function Name({ c }: { c: ArchiveContribution }) {
+// Linked once per session (T1-5x, owner 10 Nov 2026): `linked` is false after a speaker's first appearance.
+function Name({ c, linked = true }: { c: ArchiveContribution; linked?: boolean }) {
   if (!c.name) return null;
   return (
     <p style={nameLine}>
-      {!c.href ? c.name : c.site === 'opengovt' ? <Link href={c.href} className="og-tap" style={link}>{c.name}</Link> : <a data-og-row-source="" href={c.href} rel="noopener" className="og-tap" style={link}>{c.name}</a>}
-      {c.site === 'parliament' && <span style={{ fontWeight: 'normal' }}> (on parliament.uk)</span>}
+      {!c.href || !linked ? c.name : c.site === 'opengovt' ? <Link href={c.href} className="og-tap" style={link}>{c.name}</Link> : <a data-og-row-source="" href={c.href} rel="noopener" className="og-tap" style={link}>{c.name}</a>}
+      {linked && c.href && c.site === 'parliament' && <span style={{ fontWeight: 'normal' }}> (on parliament.uk)</span>}
     </p>
   );
 }
@@ -33,6 +34,8 @@ export default async function ArchiveSessionView({ session }: { session: Archive
   const exchanges = await archiveExchanges(session.date);
   const record = officialRecord(session.date);
   const title = longDateArchive(session.date);
+  const seen = new Set<string>();
+  const once = (c: ArchiveContribution) => (!c.href || seen.has(c.href) ? false : (seen.add(c.href), true));
   return (
     <OpenGovShell pageStamp="PMQs">
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: "Prime Minister's Questions", path: '/pmqs' }, { name: title, path: `/pmqs/${session.date}` }])} />
@@ -50,11 +53,11 @@ export default async function ArchiveSessionView({ session }: { session: Archive
         {/* Phones: as many exchanges as fit the 2,500px length (UX5, T1-6, 11 Nov 2026); wider, as before. */}
         <MoreChain mainAction ordered first={openingCount(exchanges.map(heightAt375))} phoneFirst={openingCount(exchanges.map(heightAt375), PHONE_ROOM)} items={exchanges.map((e) => (
           <li key={e.lead.order} id={`r-${e.lead.order}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
-            <Name c={e.lead} />
+            <Name c={e.lead} linked={once(e.lead)} />
             <p style={body}>{e.lead.text}</p>
             {e.answers.map((a) => (
               <div key={a.order} id={`r-${a.order}`} style={{ margin: '10px 0 8px', paddingLeft: '12px', borderLeft: `3px solid ${ACCENT}` }}>
-                <Name c={a} />
+                <Name c={a} linked={once(a)} />
                 <p style={body}>{a.text}</p>
               </div>
             ))}
