@@ -106,26 +106,21 @@ export default function MpActivityTable({ rows, firstRank, total, view, party, q
   const td: React.CSSProperties = { padding: '9px 10px', borderBottom: `1px solid ${HAIRLINE}`, fontSize: '15px', color: INK }
   const num: React.CSSProperties = { ...td, textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 'bold' }
   const button = (active: boolean): React.CSSProperties => ({ display: 'inline-block', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '7px 14px', textDecoration: 'none', background: active ? ACCENT : 'transparent', color: active ? '#fff' : ACCENT })
-  const group: React.CSSProperties = { display: 'inline-flex', border: `1px solid ${ACCENT}`, borderRadius: '3px', overflow: 'hidden' }
   const field: React.CSSProperties = { fontFamily: MONO, fontSize: '15px', padding: '6px 10px', border: `1px solid ${ACCENT}`, borderRadius: '3px', background: 'transparent', color: INK }
 
-  const viewLink = (v: ViewKey) => (
-    <Link key={v} href={activityHref(v, party, q)} style={button(view === v)} aria-current={view === v ? 'page' : undefined}>
-      {VIEWS[v].label}
-    </Link>
-  )
   const last = firstRank + rows.length - 1
 
   return (
     <div>
-      {/* Controls: links keep the party and search and go back to page 1; the form keeps the view. */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 16px', alignItems: 'center', marginBottom: '12px' }}>
-        <div style={group}>{(['most-active', 'fewest-contributions'] as const).map(viewLink)}</div>
-        <div style={group}>{(['most-questions', 'fewest-questions'] as const).map(viewLink)}</div>
-        <div style={group}>{(['most-words', 'name'] as const).map(viewLink)}</div>
-      </div>
+      {/* Controls (T1-5x, owner 10 Nov 2026): one Sort select with the party and search, in one GET form; the six view
+          buttons that repeated the column heading sorts are gone (the column headings still sort). */}
       <form data-main-action method="get" action={BASE} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 16px', alignItems: 'center', marginBottom: '12px' }}>
-        {view !== DEFAULT_VIEW && <input type="hidden" name="view" value={view} />}
+        <label style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.06em', color: INK }}>
+          Sort:{' '}
+          <select name="view" defaultValue={view} style={{ ...field, cursor: 'pointer' }}>
+            {(Object.keys(VIEWS) as ViewKey[]).map((v) => <option key={v} value={v}>{VIEWS[v].label}</option>)}
+          </select>
+        </label>
         <label style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.06em', color: INK }}>
           Party:{' '}
           <select name="party" defaultValue={party ?? ''} style={{ ...field, cursor: 'pointer' }}>
