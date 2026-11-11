@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SubFold } from '../components/PhoneFolds';
 import { ShowAll } from '../components/NoJsPager';
+import { phoneUpTo } from '@/lib/breakpoints';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
@@ -61,6 +62,10 @@ function caseHref(c: StandardsCase): string {
   const page = Math.floor(inGroup.indexOf(c) / PER_PAGE) + 1;
   return page > 1 ? `/standards?${OUTCOME_KEY[c.outcome]}-${c.period}=${page}#${caseId(c)}` : `#${caseId(c)}`;
 }
+function SectionFold({ fold, label, children }: { fold: boolean; label: string; children: React.ReactNode }) {
+  return fold ? <SubFold label={label}>{children}</SubFold> : <>{children}</>;
+}
+
 function CaseItem({ c }: { c: StandardsCase }) {
   return (
     <li id={caseId(c)}>
@@ -106,7 +111,10 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
           const groups = byPeriodNewestFirst(STANDARDS.cases.filter((c) => c.outcome === outcome));
           return (
             <section key={outcome} data-main-action={si === 0 ? '' : undefined} aria-labelledby={`sc-${OUTCOME_KEY[outcome]}`}>
-              <h2 id={`sc-${OUTCOME_KEY[outcome]}`} style={h2}>{SECTION_TITLE[outcome]}</h2>
+              {/* UX5 (T1-6, 11 Nov 2026): on phones the sections after the first are closed folds named by their headings,
+                  which are hidden there; a link to a case or a period opens its fold. From 640px up, as before. */}
+              <SectionFold fold={si > 0} label={SECTION_TITLE[outcome]}>
+              <h2 id={`sc-${OUTCOME_KEY[outcome]}`} className={si > 0 ? 'sc-fold-h' : undefined} style={h2}>{SECTION_TITLE[outcome]}</h2>
               {outcome === 'Rectified' && (
                 // Folded on phones (step 5, 10 Nov 2026: page length).
                 <SubFold label="What rectification means">
@@ -146,9 +154,11 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
                   </details>
                 );
               })}
+              </SectionFold>
             </section>
           );
         })}
+        <style>{`@media ${phoneUpTo(639.98)} { .sc-fold-h { display: none; } }`}</style>
         {/* One block per matched member, shown only when the address names it (/standards#nigel-farage), with or without JavaScript.
             It points to the member's cases above rather than repeating them, and sits at the end so that hiding it again moves nothing above it; a browser opens the fold a case sits in when it is
             linked to, with or without JavaScript. */}
