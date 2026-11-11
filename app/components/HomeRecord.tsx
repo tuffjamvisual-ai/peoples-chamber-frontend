@@ -1,49 +1,23 @@
 import Link from 'next/link';
-import { SubFold } from './PhoneFolds';
-import { archiveSessions } from '@/lib/pmqs-archive';
-import { pmqsSet } from '@/lib/pmqs';
-import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 
 const INK = '#14100d';
-const para = { fontSize: '16px', lineHeight: 1.6, color: INK, margin: 0 };
-const link = { color: INK, textDecoration: 'underline' };
 
-// The homepage's "The record, going back decades" (owner, 6 Nov 2026). Items are added only when they are live. The PMQs count is read live,
-// as /pmqs counts it: the current sessions and the archive. If that read fails the sentence goes without the count, and the page still shows.
-export default async function HomeRecord() {
-  const sessions = await Promise.all([pmqsSet(), archiveSessions()]).then(([set, archive]) => set.sessions.length + archive.length).catch(() => null);
-  const before = await preFixedSummary().catch(() => null);
-  const items = [
-    <Link key="pmqs" href="/pmqs" prefetch={false} style={link}>
-      Every Prime Minister&rsquo;s Questions since October 1961{sessions ? `: ${sessions.toLocaleString('en-GB')} sessions,` : ','} from Macmillan to Burnham, with every question and answer as Hansard recorded it.
-    </Link>,
-    ...(before ? [
-      <Link key="pre1961" href="/pmqs#before-fixed-pmqs" prefetch={false} style={link}>
-        Questions to the Prime Minister from 1945 to 1961: {before.questions.toLocaleString('en-GB')} questions on {before.days.toLocaleString('en-GB')} days, before PMQs had a fixed time.
-      </Link>,
-    ] : []),
-    <Link key="petitions" href="/petitions" prefetch={false} style={link}>Every petition since the July 2024 general election that reached 10,000 signatures, with the government&rsquo;s full response.</Link>,
-    <span key="seats">
-      <Link href="/constituencies" prefetch={false} style={link}>Every constituency&rsquo;s 2024 result and byelections</Link>,{' '}
-      <Link href="/edms" prefetch={false} style={link}>every early day motion</Link>, and{' '}
-      <Link href="/mps" prefetch={false} style={link}>every MP&rsquo;s votes, questions and interests</Link>.
-    </span>,
-    <Link key="votes" href="/divisions/year/2004" prefetch={false} className="og-tap" style={link}>Commons votes back to October 2004</Link>,
-    <Link key="register" href="/register-history" prefetch={false} className="og-tap" style={link}>Register of Members&rsquo; Financial Interests back to 2000</Link>,
-    <Link key="questions" href="/questions" prefetch={false} style={link}>Every written question and answer since the July 2024 general election, including corrected answers and what they first said.</Link>,
-  ];
-  // Phones (owner, 10 Nov 2026, S5-home2): the section is in a closed native fold labelled with its heading and item count
-  // (SubFold), opened in full; from 640px up it shows as before. The wrapper carries the homepage's phone order.
+// The homepage's "The record, going back decades" (owner, 6 Nov 2026). Owner, 11 Nov 2026: the seven items are gone; the
+// section is its heading and one link, "Search the archives", at every width (on phones no fold, just the two lines).
+// Each archive the items linked to is still linked from the menu, the directory or its section page (/pmqs and
+// /pmqs/1945-to-1961, /petitions, /constituencies, /edms, /mps, /divisions with every year from 2004, /register-history,
+// /questions). The link goes to plain /search: search has no filter for these historic records yet. The wrapper keeps the
+// homepage's phone order (app/page.tsx .og-record-f). The same rule and gap below the link as above the heading (Cowork,
+// 11 Nov 2026), phone and desktop.
+export default function HomeRecord() {
   return (
     <div className="og-record-f">
-    <SubFold label={`The record, going back decades (${items.length})`}>
-    <section className="og-record" aria-labelledby="og-record-head" style={{ margin: '20px 0 8px', paddingTop: '14px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
-      <h2 id="og-record-head" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: INK, margin: '0 0 10px' }}>The record, going back decades</h2>
-      <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontFamily: 'var(--font-special-elite), monospace' }}>
-        {items.map((item, i) => <li key={i} style={{ marginBottom: '10px' }}><p style={para}>{item}</p></li>)}
-      </ul>
-    </section>
-    </SubFold>
+      <section className="og-record" aria-labelledby="og-record-head" style={{ margin: '20px 0', padding: '14px 0', borderTop: '2px solid rgba(20,16,13,0.18)', borderBottom: '2px solid rgba(20,16,13,0.18)' }}>
+        <h2 id="og-record-head" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: INK, margin: '0 0 10px' }}>The record, going back decades</h2>
+        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.6, margin: 0 }}>
+          <Link href="/search" prefetch={false} className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Search the archives &rarr;</Link>
+        </p>
+      </section>
     </div>
   );
 }
