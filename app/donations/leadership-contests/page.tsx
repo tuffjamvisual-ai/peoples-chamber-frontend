@@ -15,6 +15,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
+import AboutThisData from '@/app/components/AboutThisData';
 
 export const revalidate = 86400;
 
@@ -109,20 +110,21 @@ export default async function LeadershipContestsPage() {
 
   const totalAll = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
 
+  // Each donor page linked once on the page, the first time the donor appears (T1-5x, owner 10 Nov 2026).
+  const linkedDonors = new Set<string>();
+  const linkOnce = (slug: string | null | undefined) => !!slug && !linkedDonors.has(slug) && !!linkedDonors.add(slug);
   return (
     <OpenGovShell>
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
-          Money in leadership races · Donations for a named post
-        </p>
+        {/* T1-5x S8 (owner, 10 Nov 2026): no kicker repeating the title. */}
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           Donations to UK party leadership candidates
         </h1>
         {/* The main action (UX3a, A6): the headline result. */}
         <p data-main-action style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {rows.length} declared donations totalling &pound;{Math.round(totalAll).toLocaleString()} were given for a specific position the recipient was standing for. Leadership contests in the two main parties dominate the total: the 2016 Owen Smith challenge to Jeremy Corbyn raised &pound;400k+ from a clearly identified donor list; the 2022 Conservative race after Boris Johnson&rsquo;s resignation funnelled a similar sum into the Truss and Sunak camps. These are the gifts the donor wrote into the contest itself, not generic party support.
+          {rows.length} declared donations totalling &pound;{Math.round(totalAll).toLocaleString()} were given for a specific position the recipient was standing for.
         </p>
       </header>
 
@@ -154,7 +156,7 @@ export default async function LeadershipContestsPage() {
                     <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(cand.total).toLocaleString()}</td>
                     <td style={{ padding: '6px', fontSize: '15px' }}>
                       {cand.topDonor ? (
-                        donorPageSlug(cand.topDonor) ? <Link href={`/donors/${donorPageSlug(cand.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{cand.topDonor}</Link> : <>{cand.topDonor}</>
+                        linkOnce(donorPageSlug(cand.topDonor)) ? <Link href={`/donors/${donorPageSlug(cand.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{cand.topDonor}</Link> : <>{cand.topDonor}</>
                       ) : <span ></span>}
                       {cand.topAmount > 0 && <span style={{ fontFamily: 'monospace', marginLeft: '6px' }}>£{Math.round(cand.topAmount).toLocaleString()}</span>}
                     </td>
@@ -188,7 +190,7 @@ export default async function LeadershipContestsPage() {
               <tr key={r.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
-                    donorPageSlug(r.donor_name) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link> : <>{r.donor_name}</>
+                    linkOnce(donorPageSlug(r.donor_name)) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link> : <>{r.donor_name}</>
                   ) : <span >(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
@@ -203,6 +205,8 @@ export default async function LeadershipContestsPage() {
         </NoJsFold>
       </section>
 
+      {/* T1-5x S10 (owner, 10 Nov 2026): the intro is one line; the rest is here. */}
+      <AboutThisData><p>Leadership contests in the two main parties dominate the total: the 2016 Owen Smith challenge to Jeremy Corbyn raised &pound;400k+ from a clearly identified donor list; the 2022 Conservative race after Boris Johnson&rsquo;s resignation funnelled a similar sum into the Truss and Sunak camps. These are the gifts the donor wrote into the contest itself, not generic party support.</p></AboutThisData>
 </OpenGovShell>
   );
 }

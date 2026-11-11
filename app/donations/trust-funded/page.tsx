@@ -18,6 +18,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
+import AboutThisData from '@/app/components/AboutThisData';
 
 export const revalidate = 86400;
 
@@ -83,20 +84,21 @@ export default async function TrustFundedPage() {
     .sort((a, b) => (a.accepted_date! < b.accepted_date! ? 1 : -1))
     .slice(0, 30);
 
+  // Each donor page linked once on the page, the first time the donor appears (T1-5x, owner 10 Nov 2026).
+  const linkedDonors = new Set<string>();
+  const linkOnce = (slug: string | null | undefined) => !!slug && !linkedDonors.has(slug) && !!linkedDonors.add(slug);
   return (
     <OpenGovShell>
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
-          Shield for beneficial ownership · Trust donations
-        </p>
+        {/* T1-5x S8 (owner, 10 Nov 2026): no kicker repeating the title. */}
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           UK political donations routed through a trust
         </h1>
         {/* The main action (UX3a, A6): the headline result. */}
         <p data-main-action style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {rows.length} declared donations totalling &pound;{Math.round(totalAll).toLocaleString()} list a trust as the donor rather than a named individual or company. The Electoral Commission requires the trust creator&rsquo;s name and status to be recorded, but the working capital and the active beneficial chain stay one step removed from the public register. The list runs from the late Victorian Liberal Club bequests still paying out today to modern opaque vehicles.
+          {rows.length} declared donations totalling &pound;{Math.round(totalAll).toLocaleString()} list a trust as the donor rather than a named individual or company.
         </p>
       </header>
 
@@ -154,7 +156,7 @@ export default async function TrustFundedPage() {
               <tr key={r.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
-                    donorPageSlug(r.donor_name) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.trust_name}</Link> : <>{r.trust_name}</>
+                    linkOnce(donorPageSlug(r.donor_name)) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.trust_name}</Link> : <>{r.trust_name}</>
                   ) : <strong>{r.trust_name}</strong>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
@@ -168,6 +170,8 @@ export default async function TrustFundedPage() {
         </NoJsFold>
       </section>
 
+      {/* T1-5x S10 (owner, 10 Nov 2026): the intro is one line; the rest is here. */}
+      <AboutThisData><p>The Electoral Commission requires the trust creator&rsquo;s name and status to be recorded, but the working capital and the active beneficial chain stay one step removed from the public register. The list runs from the late Victorian Liberal Club bequests still paying out today to modern opaque vehicles.</p></AboutThisData>
 </OpenGovShell>
   );
 }
