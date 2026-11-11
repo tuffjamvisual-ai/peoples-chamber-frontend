@@ -346,7 +346,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     className="cursor-pointer text-[15px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block"
                     style={{ fontFamily: 'var(--font-special-elite), monospace' }}
                   >
-                    Full record ▾
+                    Full record<span className="og-fold-mark" aria-hidden="true" />
                   </summary>
                   <dl
                     className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.65]"
@@ -431,7 +431,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                   )}
                   <details className="mt-3">
                     <summary className="cursor-pointer text-[15px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
-                      Record identifiers ▾
+                      Record identifiers<span className="og-fold-mark" aria-hidden="true" />
                     </summary>
                     <dl className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.65]" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                       {ocid       && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">OCID</dt><dd className="text-[#14100d] font-mono break-all">{ocid}</dd></>)}

@@ -37,7 +37,7 @@ export default function PollsPage() {
       <PollsClient />
 
       <details id="polls-about" className="pl-about">
-        <summary>About these polls and voting integrity</summary>
+        <summary>About these polls and voting integrity<span className="og-fold-mark" aria-hidden="true" /></summary>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Have your say on issues in Parliament and government. These polls show the views of opengovt users who choose to vote. They are not votes in Parliament or scientific opinion polls. Log in or create an account to vote, then see the results.
         </p>

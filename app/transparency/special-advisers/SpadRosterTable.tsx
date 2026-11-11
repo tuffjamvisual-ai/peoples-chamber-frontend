@@ -195,7 +195,7 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
                       {r.adviser_name}
                       {hasMore && (
                         <button type="button" aria-expanded={isOpen} aria-controls={panelId} onClick={() => toggle(k)} style={{ ...marker, display: 'block' }}>
-                          {hasInterests ? `Declared interests (${bg!.interests.length})` : 'Background'} {isOpen ? '▴' : '▾'}
+                          {hasInterests ? `Declared interests (${bg!.interests.length})` : 'Background'} <span aria-hidden="true" style={{ color: '#7a1612', fontSize: '18px' }}>{isOpen ? '\u2212' : '+'}</span>
                         </button>
                       )}
                     </th>

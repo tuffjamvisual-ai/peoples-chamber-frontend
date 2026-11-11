@@ -105,7 +105,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
         <div><label htmlFor="q-words" style={labelStyle}>Words</label><input data-main-action id="q-words" type="search" name="words" defaultValue={words} aria-describedby="q-words-hint" style={field} /><span id="q-words-hint" style={{ display: 'block', fontSize: '15px', color: INK, marginTop: '4px' }}>Put words in &ldquo;quotes&rdquo; to find that exact phrase only.</span></div>
         <div><label htmlFor="q-who" style={labelStyle}>MP or peer</label><input id="q-who" type="search" name="who" defaultValue={who} style={field} /></div>
         <details className="qf-more qf-full" open={!!(dept || from || to)}>
-          <summary>More filters{dept || from || to ? ` (${[dept, from, to].filter(Boolean).length} set)` : ''}</summary>
+          <summary>More filters{dept || from || to ? ` (${[dept, from, to].filter(Boolean).length} set)` : ''}<span className="og-fold-mark" aria-hidden="true" /></summary>
           <div className="qf-more-grid">
         <div className="qf-full">
           <label htmlFor="q-department" style={labelStyle}>Department</label>

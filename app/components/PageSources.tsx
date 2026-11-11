@@ -18,6 +18,7 @@ export default function PageSources({ sources, marginTop = '32px', children }: {
     <details id="page-sources" className="og-sources" data-og-sources="" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: INK, marginTop, marginBottom: '18px' }}>
       <summary style={{ cursor: 'pointer', minHeight: '44px', display: 'flex', alignItems: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
         Sources ({list.length})
+        <span className="og-fold-mark" aria-hidden="true" />
       </summary>
       {children}
       {/* Left aligned, links as the reports' end "Sources (N)" line: accent, underlined. The typeface and size are the

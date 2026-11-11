@@ -189,11 +189,11 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
       {/* Phones (UX2h, owner approved through Cowork, 10 Nov 2026): type, department and sort in one closed native fold,
           "Filters", so the first results sit straight under the search box. The fold holds only its summary and the controls
           sit beside it (the SubFold pattern), so from 640px up they show as before and the fold is not there. */}
-      <style>{`.srch-filters { display: none; } @media ${phoneUpTo(767.98)} { .srch-filters { display: block; margin: 0 0 12px; } .srch-filters > summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 12px; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-filters > summary::-webkit-details-marker { display: none; } .srch-filters[open] .srch-mark { transform: rotate(180deg); } .srch-filters:not([open]) + .srch-fbody { display: none; } .srch-fbody .srch-fold { display: none !important; } .srch-fbody .srch-wide { display: block !important; } }`}</style>
+      <style>{`.srch-filters { display: none; } @media ${phoneUpTo(767.98)} { .srch-filters { display: block; margin: 0 0 12px; } .srch-filters > summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 12px; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-filters > summary::-webkit-details-marker { display: none; } .srch-filters:not([open]) + .srch-fbody { display: none; } .srch-fbody .srch-fold { display: none !important; } .srch-fbody .srch-wide { display: block !important; } }`}</style>
       {/* UX3e (owner approved, 10 Nov 2026): the label counts the filters in use (type and department; the sort order is
           not a filter), and the fold opens by itself when any is in use, so a reader sees what is narrowing the results. */}
       <details className="srch-filters" open={activeFilters > 0}>
-        <summary>Filters{activeFilters > 0 ? ` (${activeFilters} active)` : ''}<span className="srch-mark" aria-hidden>▾</span></summary>
+        <summary>Filters{activeFilters > 0 ? ` (${activeFilters} active)` : ''}<span className="og-fold-mark" aria-hidden="true" /></summary>
       </details>
       <div className="srch-fbody">
       <style>{`.srch-selects { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 0 0 12px; } .srch-selects label { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: ${INK}; } .srch-selects select { font-family: ${MONO}; font-size: 15px; letter-spacing: 0.06em; color: ${INK}; background: ${CREAM}; border: 1px solid ${HAIRLINE}; padding: 4px 11px; cursor: pointer; } @media ${phoneUpTo(767.98)} { .srch-selects label { width: 100%; } .srch-selects select { flex: 1 1 auto; min-width: 0; min-height: 44px; font-size: 16px; } }`}</style>
@@ -228,9 +228,9 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
       </div>
 
       {/* Phones (owner, 4 Nov 2026): the sort order folds into one control naming the current one; wider screens, as before. */}
-      <style>{`.srch-fold { display: none; } @media ${phoneUpTo(767.98)} { .srch-wide { display: none; } .srch-fold { display: block; } .srch-fold summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-fold summary::-webkit-details-marker { display: none; } .srch-fold[open] summary { margin-bottom: 10px; } .srch-fold[open] .srch-mark { transform: rotate(180deg); } }`}</style>
+      <style>{`.srch-fold { display: none; } @media ${phoneUpTo(767.98)} { .srch-wide { display: none; } .srch-fold { display: block; } .srch-fold summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid #14100d; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .srch-fold summary::-webkit-details-marker { display: none; } .srch-fold[open] summary { margin-bottom: 10px; } }`}</style>
       <details className="srch-fold">
-        <summary>Sort: {defaultSort === 'newest' ? 'Newest' : 'Best match'}<span className="srch-mark" aria-hidden>▾</span></summary>
+        <summary>Sort: {defaultSort === 'newest' ? 'Newest' : 'Best match'}<span className="og-fold-mark" aria-hidden="true" /></summary>
         {filters}
       </details>
       <div className="srch-wide">{filters}</div>

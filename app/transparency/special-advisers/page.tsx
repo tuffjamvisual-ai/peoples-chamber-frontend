@@ -214,7 +214,7 @@ export default async function SpecialAdvisersPage() {
 
           {formerRows.length > 0 && (
             <details style={{ margin: '8px 0 0' }}>
-              <summary style={{ ...groupH3, cursor: 'pointer', display: 'list-item' }}>Advisers listed at {longDate(release.as_at)} whose minister has since left ({formerRows.length})</summary>
+              <summary style={{ ...groupH3, cursor: 'pointer' }}>Advisers listed at {longDate(release.as_at)} whose minister has since left ({formerRows.length})<span className="og-fold-mark" aria-hidden="true" /></summary>
               <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '6px 0 10px' }}>
                 Special advisers&rsquo; appointments normally end when their minister leaves. Some may have been reappointed; the Cabinet Office has not yet published a new list.
               </p>

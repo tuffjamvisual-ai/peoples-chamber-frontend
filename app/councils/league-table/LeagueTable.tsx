@@ -149,7 +149,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
           style={{ fontFamily: MONO, fontSize: '15px', padding: '6px 8px', border: `1px solid ${INK}`, background: 'transparent', color: INK, width: '12em' }} />
       </div>
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 8px' }}>
-        {list.length} area{list.length === 1 ? '' : 's'} shown. Click a column heading to sort; click ▸ for the details.
+        {list.length} area{list.length === 1 ? '' : 's'} shown. Click a column heading to sort; press + for the details.
       </p>
       <div style={{ overflowX: 'auto' }}>
         <table className="lt-table" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
@@ -174,7 +174,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                   <tr>
                     <td style={td}>
                       <button type="button" aria-expanded={isOpen} aria-label={`Details for ${r.name}`} onClick={() => setOpen(isOpen ? null : r.code)}
-                        style={{ all: 'unset', cursor: 'pointer', fontFamily: MONO, padding: '0 4px' }}>{isOpen ? '▾' : '▸'}</button>
+                        style={{ all: 'unset', cursor: 'pointer', fontFamily: MONO, padding: '0 4px' }}>{isOpen ? '\u2212' : '+'}</button>
                     </td>
                     <td style={tdNum}>{rankOf(r)}</td>
                     <td style={td}>{r.href ? <a href={r.href} style={{ color: INK }}>{r.name}</a> : r.name}</td>

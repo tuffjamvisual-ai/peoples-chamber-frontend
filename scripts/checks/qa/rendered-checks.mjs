@@ -167,6 +167,34 @@ function a10Scan() {
   return { dups: [...counts].filter(([, n]) => n > 1).map(([k, n]) => `${k} x${n}`), related: lists.length + headed.length };
 }
 
+// A15 (T1-QA9, Cowork 12 Nov 2026): every fold (a native details) shows the site's one marker: + on the right, − when
+// open (as About this data, SubFold, NoJsFold). Folds that are Show more or Show all buttons are left out. A fold fails
+// when it shows the browser's own triangle, a ▶ ▾ ▸ ▼ in its label, Show or Hide words, or a + on the left.
+function a15Scan() {
+  const SKIP = '.mc-more, .rf-more, .njp-sa, .pc-d, [data-a15-skip]';
+  const shown = (el) => el.getClientRects().length > 0;
+  const plus = (c) => /^"(\+|\u2212|−)"$/.test(c || '');
+  const bad = [];
+  for (const sm of document.querySelectorAll('main details > summary')) {
+    const d = sm.parentElement;
+    if (!shown(sm) || d.matches(SKIP)) continue;
+    const cs = getComputedStyle(sm), b = getComputedStyle(sm, '::before'), a = getComputedStyle(sm, '::after');
+    const label = (sm.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40);
+    let why = null;
+    if (/[▶▾▸▼►▴]/.test(sm.textContent || '')) why = 'arrow in the label';
+    else if (cs.display === 'list-item' && cs.listStyleType !== 'none') why = "the browser's triangle";
+    else if (/^"(Show|Hide)"$/.test(a.content) || /^"(Show|Hide)"$/.test(b.content)) why = 'Show or Hide words';
+    else {
+      const mark = [...sm.querySelectorAll('[class*="mark"]')].find((m) => plus(getComputedStyle(m, '::before').content) || plus(getComputedStyle(m, '::after').content));
+      const right = mark ? mark.getBoundingClientRect().right >= sm.getBoundingClientRect().right - 48 : plus(a.content) || (plus(b.content) && Number(b.order) > 0);
+      if (!mark && !plus(a.content) && !plus(b.content)) why = 'no + marker';
+      else if (!right) why = '+ on the left';
+    }
+    if (why) bad.push(`"${label}" (${why}${d.className ? `, ${String(d.className).split(' ')[0]}` : ''})`);
+  }
+  return [...new Set(bad)].slice(0, 12);
+}
+
 function outsideLinks(licence) {
   const re = new RegExp(licence);
   const out = [];
@@ -247,6 +275,7 @@ async function main() {
         await page.waitForTimeout(300);
         r.outside = await page.evaluate(outsideLinks, A9_LICENCE.source);
         r.a10 = await page.evaluate(a10Scan);
+        r.a15 = await page.evaluate(a15Scan);
       }
       if (r.status === 200 && !extra.includes(p)) {
         // QA2d (owner, 9 Nov 2026): article text is never folded, so the limit applies to the page minus the article body.
@@ -368,6 +397,7 @@ async function main() {
     }
     for (const d of r.dates) if (d.stale) expected.push(`date ${r.url}: "Updated ${d.date}" is ${d.age} days old, over ${d.limit} for ${d.judgedBy === 'source' ? d.source : "this page's data"} (data, reported only)`);
     for (const o of r.outside ?? []) fails.push(`A9 ${r.url}: links outside the site, not as a source (${o})`);
+    for (const f of r.a15 ?? []) fails.push(`A15 ${r.url}: a fold without the site's marker: ${f}`);
     if (r.a10) {
       const ab = a10Base[r.url] ?? { dups: [], related: 1 };
       for (const d of r.a10.dups) (ab.dups.includes(d.replace(/ x\d+$/, '')) ? expected : fails).push(`A10 ${r.url}: linked more than once in the body: ${d}`);
@@ -381,6 +411,7 @@ async function main() {
     a9_pages_with_outside_links: results.filter((r) => r.outside?.length).length,
     a9_outside_links: results.reduce((n, r) => n + (r.outside?.length ?? 0), 0),
     a10_pages_with_repeats: results.filter((r) => r.a10?.dups.length).length,
+    a15_folds_without_marker: results.reduce((n, r) => n + (r.a15?.length ?? 0), 0),
     a10_pages_over_one_related: results.filter((r) => (r.a10?.related ?? 0) > 1).length,
     date_lines: results.reduce((n, r) => n + r.dates.length, 0),
     date_lines_by_source: results.reduce((n, r) => n + r.dates.filter((d) => d.judgedBy === 'source').length, 0),
@@ -391,7 +422,7 @@ async function main() {
     expected: expected.length,
   };
   if (JSON_OUT) fs.writeFileSync(JSON_OUT, JSON.stringify({ summary, fails, expected, results }, null, 1));
-  console.log(`rendered checks (A2 time words, A3 phone length, A6 first screen, A9 outside links, A10 repeated links): ${JSON.stringify(summary)}`);
+  console.log(`rendered checks (A2 time words, A3 phone length, A6 first screen, A9 outside links, A10 repeated links, A15 fold marker): ${JSON.stringify(summary)}`);
   for (const e of expected) console.log(`  expected: ${e}`);
   for (const f of fails) console.log(`  FAIL ${f}`);
   return fails.length ? 1 : 0;

@@ -101,7 +101,7 @@ export default async function RecommendationsPage({ params }: { params: Promise<
       `}</style>
       <section className="rec-page" style={{ color: INK }}>
         <details className="rec-intro">
-        <summary>About these recommendations</summary>
+        <summary>About these recommendations<span className="og-fold-mark" aria-hidden="true" /></summary>
         <p style={p}>
           The Committee of Public Accounts examines how government spends public money and makes recommendations to departments. The government answers each recommendation in a Treasury Minute, saying whether it agrees and by when it will act, and reports on the ones still open in Treasury Minutes Progress Reports.
         </p>

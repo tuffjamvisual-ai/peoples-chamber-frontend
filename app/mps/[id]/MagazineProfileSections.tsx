@@ -2850,7 +2850,7 @@ export default function MagazineProfileSections({
                               onClick={(ev) => { ev.stopPropagation(); toggle(); }}
                               style={{ background: 'none', border: 0, padding: 0, margin: 0, font: 'inherit', fontWeight: 'bold', color: 'inherit', cursor: 'pointer', textAlign: 'left' }}
                             >
-                              {fmtExpenseYear(e.year)}<span aria-hidden="true">{expanded ? ' ▾' : ' ▸'}</span>
+                              {fmtExpenseYear(e.year)}<span aria-hidden="true" style={{ color: '#7a1612', marginLeft: '8px' }}>{expanded ? '\u2212' : '+'}</span>
                               <span className="sr-only"> claims</span>
                             </button>
                           ) : fmtExpenseYear(e.year)}

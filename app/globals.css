@@ -178,7 +178,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 /* The PMQs archive: folds and Show more with no JavaScript (MoreChain.tsx). Every width. */
 .pa-fold > summary, .mc-more > summary { display: flex; align-items: center; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; list-style: none; }
 .pa-fold > summary::-webkit-details-marker, .mc-more > summary::-webkit-details-marker { display: none; }
-.pa-fold > summary::before { content: "+"; flex: none; width: 20px; color: #7a1612; }
+.pa-fold > summary::before { content: "+"; flex: none; order: 2; margin-left: auto; padding-left: 12px; font-size: 20px; line-height: 1; color: #7a1612; }
 .pa-fold[open] > summary::before { content: "\2212"; }
 .pa-fold { border-top: 1px solid rgba(20,16,13,0.25); }
 /* Written answers as published: wide tables scroll inside themselves, not the page (owner, 6 Nov 2026). */
@@ -205,7 +205,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 /* Long lists and sections on phones with JavaScript off (app/components/NoJsPager.tsx). Nothing here changes any other view. */
 .njp-a, .njp-nav, .njf { display: none; }
 .njf > summary::-webkit-details-marker { display: none; }
-.njf > summary::before { content: "+"; flex: none; width: 20px; color: #7a1612; }
+.njf > summary::before { content: "+"; flex: none; order: 2; margin-left: auto; padding-left: 12px; font-size: 20px; line-height: 1; color: #7a1612; }
 .njf[open] > summary::before { content: "\2212"; }
 @media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) { .arch-tap { display: flex; align-items: center; min-height: 44px; } }
 @media (min-width: 768px) and (orientation: portrait), (min-width: 768px) and (min-height: 500.01px), (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 768px) and (pointer: none) { .arch-row { padding: 4px 0; } }
@@ -258,8 +258,8 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .rf-d:not([open]) + .rf-b { display: none; }
   .rf-d > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 0; font-size: 18px; font-weight: bold; line-height: 1.3; cursor: pointer; list-style: none; }
   .rf-d > summary::-webkit-details-marker { display: none; }
-  .ng-page .rf-d > summary::after { content: "Show"; position: static; transform: none; height: auto; min-width: 0; flex: none; font-size: 15px; font-weight: normal; text-decoration: underline; }
-  .ng-page .rf-d[open] > summary::after { content: "Hide"; }
+  .ng-page .rf-d > summary::after { content: "+"; position: static; transform: none; height: auto; min-width: 0; flex: none; font-size: 20px; font-weight: normal; line-height: 1; color: #7a1612; }
+  .ng-page .rf-d[open] > summary::after { content: "\2212"; }
   .rf-more { border-top: 0; }
   .rf-more > summary { justify-content: center; margin: 12px 0 20px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }
   .ng-page .rf-more > summary::after { content: none; }
@@ -304,8 +304,8 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .pg-d { display: block; }
   .pg-d > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; list-style: none; border-bottom: 1px solid rgba(20, 16, 13, 0.25); }
   .pg-d > summary::-webkit-details-marker { display: none; }
-  .ng-page .pg-d > summary::after { content: "Show"; position: static; transform: none; height: auto; min-width: 0; flex: none; font-size: 15px; font-weight: normal; text-decoration: underline; color: #7a1612; }
-  .ng-page .pg-d[open] > summary::after { content: "Hide"; }
+  .ng-page .pg-d > summary::after { content: "+"; position: static; transform: none; height: auto; min-width: 0; flex: none; font-size: 20px; font-weight: normal; line-height: 1; color: #7a1612; }
+  .ng-page .pg-d[open] > summary::after { content: "\2212"; }
   .pg-b { display: block; }
   .pg-d:not([open]) + .pg-b { display: none; }
 }
@@ -448,3 +448,11 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
 .og-about[open] .og-about-mark::before { content: '\2212'; }
 .og-about-body { padding: 4px 2px 14px; font-size: 15px; line-height: 1.6; }
 .og-about-body p { margin: 0 0 10px; }
+/* One fold marker site wide (T1-QA9 A15, Cowork 12 Nov 2026): + on the right of a fold's label, − when it is open. NoJsFold
+   and the archive folds draw theirs with ::before (moved to the right with order); any other fold puts
+   <span className="og-fold-mark" aria-hidden="true" /> last in its summary. */
+.og-fold-mark { flex: none; margin-left: auto; padding-left: 12px; font-size: 20px; line-height: 1; color: #7a1612; font-weight: normal; }
+.og-fold-mark::before { content: '+'; }
+details[open] > summary > .og-fold-mark::before { content: '\2212'; }
+summary:has(> .og-fold-mark) { display: flex; align-items: center; list-style: none; }
+summary:has(> .og-fold-mark)::-webkit-details-marker { display: none; }

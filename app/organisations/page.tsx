@@ -111,9 +111,9 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
       </nav>
 
       {/* Under 640px (owner, 4 Nov 2026): the search and filters first, the introduction folded after them. */}
-      <style>{`.org-about { display: none; } @media ${phoneUpTo(767.98)} { .org-intro-wide { display: none; } .org-about { display: block; margin: 0 0 16px; } .org-about summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid ${INK}; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; cursor: pointer; list-style: none; } .org-about summary::-webkit-details-marker { display: none; } .org-about[open] .org-mark { transform: rotate(180deg); } }`}</style>
+      <style>{`.org-about { display: none; } @media ${phoneUpTo(767.98)} { .org-intro-wide { display: none; } .org-about { display: block; margin: 0 0 16px; } .org-about summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid ${INK}; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; cursor: pointer; list-style: none; } .org-about summary::-webkit-details-marker { display: none; } }`}</style>
       <details className="org-about">
-        <summary>About this list<span className="org-mark" aria-hidden>▾</span></summary>
+        <summary>About this list<span className="og-fold-mark" aria-hidden="true" /></summary>
         <p style={{ margin: '8px 0 0' }}>
           {all.length.toLocaleString('en-GB')} organisations, each on one page with its political donations, public contracts,
           government grants, meetings with ministers and consultant lobbying. {(all.length - companies).toLocaleString('en-GB')} come

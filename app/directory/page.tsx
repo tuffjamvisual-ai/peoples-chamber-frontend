@@ -33,7 +33,7 @@ const DIRECTORY_PHONE_CSS = `.dir-h-btn { display: none; }
   .dir-entry p { margin: 0 !important; }
   .dir-h-wide { display: none; }
   .dir-h-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 0; font: inherit; color: inherit; background: none; border: 0; text-align: left; cursor: pointer; }
-  .dir-h-btn[aria-expanded="true"] .dir-mark { transform: rotate(180deg); }
+  .dir-mark::before { content: '+'; } .dir-h-btn[aria-expanded="true"] .dir-mark::before { content: '\\2212'; }
   .dir-section { margin-bottom: 8px !important; }
   .dir-section h2 { padding: 0 !important; }
   #directory-list:not(.pm-all) .dir-section:not(.dir-open) > :not(h2) { display: none !important; }
@@ -79,7 +79,7 @@ export default function DirectoryPage() {
               <span className="dir-h-wide">{l}</span>
               <button type="button" className="dir-h-btn" data-letter-toggle={l} aria-expanded="false" aria-label={`${l}, ${groups.get(l)!.length} ${groups.get(l)!.length === 1 ? 'entry' : 'entries'}`}>
                 <span>{l}</span>
-                <span className="dir-mark" aria-hidden="true">▾</span>
+                <span className="dir-mark" aria-hidden="true" />
               </button>
             </h2>
             <NoJsFold id={`df-${l === '#' ? 'other' : l}`} label={`${groups.get(l)!.length} ${groups.get(l)!.length === 1 ? 'page' : 'pages'}`}>
