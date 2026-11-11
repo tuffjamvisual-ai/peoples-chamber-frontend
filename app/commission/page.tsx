@@ -6,6 +6,7 @@ import CommissionForm from './CommissionForm';
 import EnquiryLink from './EnquiryLink';
 import { COMMISSION_PRICE, COMMISSION_QUOTE } from '@/lib/commission';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { SubFold } from '../components/PhoneFolds';
 
 // Commission research (owner's brief, 24 Oct 2026; launched the same day): in the menu, the footer, the contact page
 // and the sitemap. From 3 Nov 2026 (owner) a research enquiry: the client says what they want investigated and why,
@@ -48,6 +49,7 @@ export default function CommissionPage() {
       {/* The one service card: centred at a readable width on wide screens, the full width on phones. */}
       <style>{`
         .cm-service { max-width: 560px; margin: 0 auto; }
+        @media ${phoneUpTo(639.98)} { .cm-fold-h { display: none; } }
         .cm-centred { max-width: 560px; margin-left: auto; margin-right: auto; text-align: center; }
         @media ${phoneUpTo(767)} {
           .cm-service { max-width: none; }
@@ -98,20 +100,26 @@ export default function CommissionPage() {
           <h2 style={{ ...h2, marginBottom: '6px' }}>{SERVICE.name}</h2>
           <p style={{ fontSize: '18px', fontWeight: 'bold', color: ACCENT, margin: '0 0 10px' }}>{SERVICE.price}</p>
           <p style={{ fontSize: '15px', lineHeight: 1.65, margin: '0 0 10px' }}>{SERVICE.body}</p>
-          <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>Every commission includes:</p>
+          {/* UX5 (T1-6, 11 Nov 2026): on phones this list and "How it works" are closed folds named by their headings,
+              which are hidden there; from 640px up, as before. */}
+          <SubFold label="Every commission includes">
+          <p className="cm-fold-h" style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>Every commission includes:</p>
           <ul style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px', paddingLeft: '1.4em' }}>
             {INCLUDED.map((x) => <li key={x}>{x}</li>)}
           </ul>
+          </SubFold>
           <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', margin: 'auto 0 0' }}>{SERVICE.delivery}</p>
         </div>
         <p className="cm-centred" style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '16px' }}>Prices are fixed for the scope agreed in your quote.</p>
       </section>
 
       <section aria-labelledby="cm-how" style={{ marginBottom: '5%' }}>
-        <h2 id="cm-how" style={h2}>How it works</h2>
+        <SubFold label="How it works">
+        <h2 id="cm-how" className="cm-fold-h" style={h2}>How it works</h2>
         <ol style={{ margin: 0, paddingLeft: '1.6em', fontSize: '16px', lineHeight: 1.7, maxWidth: '720px' }}>
           {STEPS.map((s) => <li key={s} style={{ marginBottom: '6px' }}>{s}</li>)}
         </ol>
+        </SubFold>
       </section>
 
       {/* The form, reached by "Start an enquiry" (#enquiry). Its heading takes focus after the jump with JavaScript on. */}
