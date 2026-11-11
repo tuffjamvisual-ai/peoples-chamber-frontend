@@ -6,7 +6,7 @@
 
 import PageSources from '@/app/components/PageSources';
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
-import { SubFold } from '@/app/components/PhoneFolds';
+import AboutThisData from '@/app/components/AboutThisData';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
@@ -100,8 +100,10 @@ export default async function BlueBadgesPage() {
           </h1>
         </header>
 
+        {/* T1-5x (owner, 10 Nov 2026): one intro line and the headline figures above the tables; who qualifies, the
+            method notes and the lost or stolen figure are in "About this data" after the tables. */}
         <p style={para}>
-          Blue Badges are disabled parking cards that councils issue to help people with mobility issues park closer to the goods and services they need to use, in DfT&rsquo;s words. They are issued by county councils, unitary councils, and metropolitan and London boroughs, not by district councils.
+          Disabled parking cards, issued by county and unitary councils and metropolitan and London boroughs (not district councils).
         </p>
 
         {eng && (
@@ -115,28 +117,6 @@ export default async function BlueBadgesPage() {
             {changeText(eng, engPrev) && <p style={{ ...para, margin: '0 0 6px' }}>Badges held: {changeText(eng, engPrev)}</p>}
           </>
         )}
-        {lostStolen?.lost != null && lostStolen.stolen != null && (
-          <p style={{ ...para, margin: '0 0 24px' }}>
-            In {yearTo(lostStolen.year)}, {(lostStolen.lost + lostStolen.stolen).toLocaleString('en-GB')} badges were reported lost or stolen in England: {lostStolen.lost.toLocaleString('en-GB')} lost and {lostStolen.stolen.toLocaleString('en-GB')} stolen (DfT). DfT does not publish these figures by council.
-          </p>
-        )}
-
-        <section style={section}>
-          <h2 style={h2}>Who qualifies</h2>
-          {/* Phones (step 5, 10 Nov 2026: page length): this explainer and the notes folded, the first table 2 rows (3 until UX5, T1-6, 11 Nov 2026), the
-              second table folded. From 640px up, as before. */}
-          <SubFold label="Read it">
-          <p style={para}>
-            Some people qualify automatically, which DfT calls &ldquo;without further assessment&rdquo;: people who get the higher rate of the mobility part of Disability Living Allowance, or who meet the moving around or journey planning criteria of Personal Independence Payment, and people who are registered blind, get the War Pensioner&rsquo;s Supplement or are covered by the Armed Forces and Reserve Forces Compensation Scheme.
-          </p>
-          <p style={para}>
-            Everyone else who applies is assessed by their council against the scheme&rsquo;s criteria, which DfT calls &ldquo;subject to further assessment&rdquo;. Since 30 August 2019 this has included people whose disabilities cannot be seen. Each council page shows how many of its badges were held each way.
-          </p>
-          <p style={para}>
-            This summary is from the notes to DfT&rsquo;s Blue Badge data tables (in Sources at the end of the page).
-          </p>
-          </SubFold>
-        </section>
 
         <section data-main-action className="bb-main" style={section}>
           <h2 style={h2}>Share of residents holding a badge</h2>
@@ -186,7 +166,7 @@ export default async function BlueBadgesPage() {
                   return (
                     <tr key={r.code}>
                       <td data-label="Rank" style={td}>{changeRanks[i] ?? 'not ranked'}</td>
-                      <td data-label="" className="pt-card-title" style={td}><Link href={`/councils/${r.slug}`} style={{ color: INK }}>{r.name}</Link></td>
+                      <td data-label="" className="pt-card-title" style={td}>{r.name}</td>
                       <td data-label="Change (per cent)" style={c ? tdNum : tdNote}>{c ? `${c.pct > 0 ? 'up' : c.pct < 0 ? 'down' : 'no change'}${c.pct ? ` ${Math.abs(c.pct).toFixed(1)}` : ''}` : 'not published'}</td>
                       <td data-label={`Badges held, ${yearOf(prevYear)} to ${yearOf(latest)}`} style={tdNote}>{r.prev ? count(r.prev, 'held') : 'not published'} to {count(r.cur, 'held')}</td>
                     </tr>
@@ -199,9 +179,24 @@ export default async function BlueBadgesPage() {
           <p style={{ ...para, marginTop: '10px' }}>England: {pctChangeText(eng ? change(eng, engPrev) : null)}.</p>
         </section>
 
-        <section style={section}>
-          <h2 style={h2}>About these figures</h2>
-          <SubFold label="Read about the figures">
+        {/* Linked once (T1-5x): each council is linked in the first table; the change table names it as plain text. */}
+        <AboutThisData>
+          <h3 style={{ fontSize: '16px', margin: '0 0 6px' }}>Who qualifies</h3>
+          <p style={para}>
+            Some people qualify automatically, which DfT calls &ldquo;without further assessment&rdquo;: people who get the higher rate of the mobility part of Disability Living Allowance, or who meet the moving around or journey planning criteria of Personal Independence Payment, and people who are registered blind, get the War Pensioner&rsquo;s Supplement or are covered by the Armed Forces and Reserve Forces Compensation Scheme.
+          </p>
+          <p style={para}>
+            Everyone else who applies is assessed by their council against the scheme&rsquo;s criteria, which DfT calls &ldquo;subject to further assessment&rdquo;. Since 30 August 2019 this has included people whose disabilities cannot be seen. Each council page shows how many of its badges were held each way.
+          </p>
+          <p style={para}>
+            This summary is from the notes to DfT&rsquo;s Blue Badge data tables (in Sources at the end of the page).
+          </p>
+          <h3 style={{ fontSize: '16px', margin: '14px 0 6px' }}>The figures</h3>
+        {lostStolen?.lost != null && lostStolen.stolen != null && (
+          <p style={{ ...para, margin: '0 0 10px' }}>
+            In {yearTo(lostStolen.year)}, {(lostStolen.lost + lostStolen.stolen).toLocaleString('en-GB')} badges were reported lost or stolen in England: {lostStolen.lost.toLocaleString('en-GB')} lost and {lostStolen.stolen.toLocaleString('en-GB')} stolen (DfT). DfT does not publish these figures by council.
+          </p>
+        )}
           <p style={para}>
             Badges held are valid badges at 31 March. Badges can also be issued to organisations that transport disabled people, and these are included. Badges issued in the year to 31 March include badges for people who did not hold one before and badges from reapplications by existing holders (badges usually last three years). {SHARE_NOTE}
             {rounded ? ` ${ROUNDING_NOTE}` : ''}
@@ -211,8 +206,7 @@ export default async function BlueBadgesPage() {
             Source: Department for Transport, {rel.label} (in Sources at the end of the page).{' '}
             <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
           </p>
-          </SubFold>
-        </section>
+        </AboutThisData>
         {/* EL1 (owner, 11 Nov 2026): the sources this page cites are linked in its one Sources fold; the Open Government
             Licence attribution stays where it is. */}
         <PageSources sources={[
