@@ -480,11 +480,6 @@
   ],
   "not_found": [
     {
-      "department": "DHSC",
-      "period": "2025/26",
-      "note": "2025/26 report not on GOV.UK yet (2024/25 was published 16 December 2025)"
-    },
-    {
       "department": "DfE",
       "period": "2025/26",
       "note": "2025/26 report not on GOV.UK yet (2024/25 was published 25 February 2026)"
