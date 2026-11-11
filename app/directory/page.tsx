@@ -10,7 +10,6 @@ import { DIRECTORY, LETTERS, directoryLetter } from '@/lib/directory';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import DirectoryFilter from './DirectoryFilter';
 import PhoneMore from '../components/PhoneMore';
-import Unavailable from '../components/Unavailable';
 import { phoneUpTo, PHONE } from '@/lib/breakpoints';
 
 export const metadata: Metadata = {
@@ -56,7 +55,7 @@ export default function DirectoryPage() {
       <header style={{ marginBottom: '18px' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 10px', lineHeight: 1.1 }}>Directory</h1>
         <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '46em', margin: 0 }}>
-          Everything on opengovt, A to Z: every section and list on the site, {DIRECTORY.length.toLocaleString('en-GB')} entries. Some pages are listed under more than one name.
+          Everything on opengovt, A to Z: every section and list on the site, {DIRECTORY.length.toLocaleString('en-GB')} entries. Some pages are also listed under another name, which points to the one that links.
         </p>
       </header>
 
@@ -66,9 +65,8 @@ export default function DirectoryPage() {
       <style>{`@media ${PHONE} { .dir-top { display: flex; flex-direction: column; } .dir-top > .dir-find { order: -1; } }`}</style>
       <div className="dir-top">
       <nav aria-label="Jump to a letter" className="dir-letters" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', margin: '0 0 16px', fontFamily: MONO, fontSize: '16px' }}>
-        {letters.map((l) => groups.has(l)
-          ? <a key={l} href={`#letter-${l === '#' ? 'other' : l}`} data-letter-link={l} className="no-hover-scale" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', color: ACCENT, border: `1px solid ${HAIRLINE}`, textDecoration: 'none', fontWeight: 'bold' }}>{l}</a>
-          : <Unavailable key={l} note="no entries" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', border: '1px dashed transparent' }}>{l}</Unavailable>)}
+        {/* Letters with no entries are not shown (T1-5x, owner 10 Nov 2026). */}
+        {letters.filter((l) => groups.has(l)).map((l) => <a key={l} href={`#letter-${l === '#' ? 'other' : l}`} data-letter-link={l} className="no-hover-scale" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', color: ACCENT, border: `1px solid ${HAIRLINE}`, textDecoration: 'none', fontWeight: 'bold' }}>{l}</a>)}
       </nav>
 
       <div className="dir-find"><DirectoryFilter /></div>
@@ -88,8 +86,17 @@ export default function DirectoryPage() {
             <ul data-own-more style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {groups.get(l)!.map((e) => (
                 <li key={`${e.name}|${e.href}`} className="dir-entry" data-entry={`${e.name} ${e.desc}`.toLowerCase()} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '9px 0' }}>
-                  <Link href={e.href} style={{ fontSize: '17px', fontWeight: 'bold', color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', overflowWrap: 'anywhere' }}>{e.name}</Link>
-                  {e.desc && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '3px 0 0', color: INK, maxWidth: '52em' }}>{e.desc}</p>}
+                  {e.see ? (
+                    <>
+                      <span style={{ fontSize: '17px', fontWeight: 'bold', color: INK, overflowWrap: 'anywhere' }}>{e.name}</span>
+                      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '3px 0 0', color: INK, maxWidth: '52em' }}>Listed as {e.see}.</p>
+                    </>
+                  ) : (
+                    <>
+                      <Link href={e.href} style={{ fontSize: '17px', fontWeight: 'bold', color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', overflowWrap: 'anywhere' }}>{e.name}</Link>
+                      {e.desc && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '3px 0 0', color: INK, maxWidth: '52em' }}>{e.desc}</p>}
+                    </>
+                  )}
                 </li>
               ))}
             </ul>

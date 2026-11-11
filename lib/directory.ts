@@ -8,7 +8,9 @@ import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { topics } from '@/lib/topics';
 import { RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 
-export type DirectoryEntry = { name: string; href: string; desc: string };
+// `see`: another name for a page already listed (T1-5x, owner 10 Nov 2026: one name is the link, the others are plain
+// text pointing to it); the entry it names is the one that links.
+export type DirectoryEntry = { name: string; href: string; desc: string; see?: string };
 
 // Pages the menu does not list, with a plain one line description.
 const EXTRA: DirectoryEntry[] = [
@@ -142,9 +144,11 @@ function build(): DirectoryEntry[] {
   for (const [name, href] of ALSO_KNOWN_AS) add(name, href);
   // Fill any entry added before its page's description was known, then drop exact repeats (same name and page).
   const seen = new Set<string>();
+  const primary = new Map<string, string>(); // page -> the name that links (the first added: menu, then extras, then aliases)
   return out
     .map((e) => ({ ...e, desc: e.desc || descFor.get(e.href) || '' }))
     .filter((e) => { const k = `${sortKey(e.name)}|${e.href}`; if (seen.has(k)) return false; seen.add(k); return true; })
+    .map((e) => { const p = primary.get(e.href); if (!p) { primary.set(e.href, e.name); return e; } return { ...e, see: p }; })
     .sort((a, b) => sortKey(a.name).localeCompare(sortKey(b.name), 'en-GB'));
 }
 
