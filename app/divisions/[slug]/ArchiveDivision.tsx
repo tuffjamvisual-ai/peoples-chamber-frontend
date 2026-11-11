@@ -1,9 +1,8 @@
 import Link from 'next/link';
-import { phoneUpTo } from '@/lib/breakpoints';
-import { SubFold } from '../../components/PhoneFolds';
 import OpenGovShell from '@/app/components/OpenGovShell';
 import BackLink from '@/app/components/BackLink';
 import PageSources from '@/app/components/PageSources';
+import AboutThisData from '@/app/components/AboutThisData';
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { partyColourForMember } from '@/lib/party-helpers';
 import { divisionHref, yearHref } from '@/lib/division-links';
@@ -45,10 +44,9 @@ export default async function ArchiveDivisionPage({ d }: { d: Division }) {
       <BackLink fallbackHref={yearHref(year)} label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: '15px', minHeight: '44px' }} />
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '32px', marginBottom: '32px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', transform: 'rotate(-0.2deg)' }}>
-          UK Parliament · Commons Division {d.division_number} · {archiveDate(date)}
+          Division {d.division_number} · {archiveDate(date)}
         </p>
         <h1 style={{ fontFamily: TYPE, fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.15, overflowWrap: 'anywhere' }}>{title}</h1>
-        <p style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '12px' }}>{ARCHIVE_NOTE}</p>
       </header>
 
       <p data-main-action style={{ fontFamily: TYPE, fontSize: 'clamp(15px, 1.7vw, 18px)', marginBottom: d.count_note ? '12px' : '32px', lineHeight: 1.6, transform: 'rotate(-0.15deg)' }}>
@@ -79,26 +77,18 @@ export default async function ArchiveDivisionPage({ d }: { d: Division }) {
         </div>
       </section>
 
-      <nav aria-label="More votes" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, marginTop: '36px', paddingTop: '20px', fontSize: '15px', lineHeight: 1.8 }}>
-        <h2 style={{ fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>More votes</h2>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {nb.previous && <li>Previous vote: <Link href={divisionHref(nb.previous.date, nb.previous.number)} style={link}>{nb.previous.title}</Link> ({archiveDate(nb.previous.date)})</li>}
-          {nb.next && <li>Next vote: <Link href={divisionHref(nb.next.date, nb.next.number)} style={link}>{nb.next.title}</Link> ({archiveDate(nb.next.date)})</li>}
-          <li><Link href={yearHref(year)} style={link}>Every Commons vote in {year}</Link> · <Link href="/divisions" style={link}>All divisions</Link></li>
-        </ul>
-        {nb.sameDay.length > 0 && (
-          <>
-            {/* UX5 (T1-6, 11 Nov 2026): on phones a closed fold named by this heading, which is hidden there; from 640px up, as before. */}
-            <style>{`@media ${phoneUpTo(767.98)} { .dv-sameday-h { display: none; } }`}</style>
-            <h3 className="dv-sameday-h" style={{ fontSize: '15px', fontWeight: 'bold', margin: '14px 0 6px' }}>Other votes that day</h3>
-            <SubFold label="Other votes that day" summary={`${nb.sameDay.length}`}>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {nb.sameDay.map((r) => <li key={r.number}>Division {r.number}: <Link href={divisionHref(r.date, r.number)} style={link}>{r.title}</Link></li>)}
-            </ul>
-            </SubFold>
-          </>
-        )}
-      </nav>
+      {/* Related (T1-5x, owner 10 Nov 2026): the votes before and after; the year (the back link's page) and the other
+          votes that day are not repeated. The archive note is in "About this data". */}
+      {(nb.previous || nb.next) && (
+        <nav aria-label="Related" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, marginTop: '36px', paddingTop: '20px', fontSize: '15px', lineHeight: 1.8 }}>
+          <h2 style={{ fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>Related</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {nb.previous && <li>Previous vote: <Link href={divisionHref(nb.previous.date, nb.previous.number)} style={link}>{nb.previous.title}</Link> ({archiveDate(nb.previous.date)})</li>}
+            {nb.next && <li>Next vote: <Link href={divisionHref(nb.next.date, nb.next.number)} style={link}>{nb.next.title}</Link> ({archiveDate(nb.next.date)})</li>}
+          </ul>
+        </nav>
+      )}
+      <AboutThisData><p>{ARCHIVE_NOTE}</p></AboutThisData>
       {/* EL1 (owner, 10 Nov 2026): the official record is in the page's one Sources fold. Commons Votes starts in 2016, so
           for the archive it is Hansard for the sitting day, which prints this division's lists (UX1e). */}
       <PageSources sources={[{ label: `Hansard for ${archiveDate(date)}, which prints this division`, href: `https://hansard.parliament.uk/Commons/${date}` }]} />

@@ -19,15 +19,13 @@ import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
-import { phoneUpTo } from '@/lib/breakpoints';
-import { SubFold } from '../../components/PhoneFolds';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import PageSources from '@/app/components/PageSources';
 import { normaliseParty } from '@/lib/party-helpers';
 import RelatedLinks from '../../components/RelatedLinks';
 import { displayMpName } from '@/lib/mp-name';
-import { divisionHref, divisionNeighbours, yearHref } from '@/lib/division-links';
+import { divisionHref, divisionNeighbours } from '@/lib/division-links';
 import { fetchDivisionVotes, divisionTally, isRebel, type Vote as DivisionVote } from '@/lib/division-votes';
 import { ARCHIVE_LAST_DATE, archiveDate, archiveDivision, archiveNeighbours, archiveTitle } from '@/lib/historic-archive';
 import ArchiveDivisionPage from './ArchiveDivision';
@@ -369,7 +367,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
             transform: 'rotate(-0.2deg)',
           }}
         >
-          UK Parliament · Commons Division {divisionNumber} · {dateLabel}
+          Division {divisionNumber} · {dateLabel}
         </p>
         <h1
           style={{
@@ -495,35 +493,22 @@ export default async function DivisionDetailPage({ params }: PageProps) {
       )}
 
 
-      {/* More votes (owner, 31 Oct 2026): plain links to the votes before and after this one, others that day, its year,
-          its bill and the full list, so a crawler that reaches one division can reach them all. */}
+      {/* Related (T1-5x, owner 10 Nov 2026; More votes, owner 31 Oct 2026): one list of at most three, the votes before and
+          after this one and its bill, so a crawler that reaches one division can still reach them all. The year (the back
+          link's page) and the other votes that day are not repeated here. */}
       {await (async () => {
         const nb = await neighboursP;
-        const year = Number(dateOnly.slice(0, 4));
         const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' };
+        const items = [
+          nb.previous && <li key="p">Previous vote: <Link href={divisionHref(nb.previous.date, nb.previous.number)} style={link}>{nb.previous.title}</Link> ({nb.previous.date === dateOnly ? `division ${nb.previous.number}` : nb.previous.date})</li>,
+          nb.next && <li key="n">Next vote: <Link href={divisionHref(nb.next.date, nb.next.number)} style={link}>{nb.next.title}</Link> ({nb.next.date === dateOnly ? `division ${nb.next.number}` : nb.next.date})</li>,
+          billId != null && billTitle && <li key="b">The bill: <Link href={`/bills/${billId}`} style={link}>{billTitle}</Link></li>,
+        ].filter(Boolean);
+        if (!items.length) return null;
         return (
-          <nav aria-label="More votes" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, marginTop: '36px', paddingTop: '20px', fontSize: '15px', lineHeight: 1.7, color: INK }}>
-            <h2 style={{ fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>More votes</h2>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {nb.previous && <li>Previous vote: <Link href={divisionHref(nb.previous.date, nb.previous.number)} style={link}>{nb.previous.title}</Link> ({nb.previous.date === dateOnly ? `division ${nb.previous.number}` : nb.previous.date})</li>}
-              {nb.next && <li>Next vote: <Link href={divisionHref(nb.next.date, nb.next.number)} style={link}>{nb.next.title}</Link> ({nb.next.date === dateOnly ? `division ${nb.next.number}` : nb.next.date})</li>}
-              {billId != null && billTitle && <li>The bill: <Link href={`/bills/${billId}`} style={link}>{billTitle}</Link></li>}
-              <li><Link href={yearHref(year)} style={link}>Every Commons vote in {year}</Link> · <Link href="/divisions" style={link}>All divisions</Link></li>
-            </ul>
-            {nb.sameDay.length > 0 && (
-              <>
-                {/* UX5 (T1-6, 11 Nov 2026): on phones a closed fold named by this heading, which is hidden there; from 640px up, as before. */}
-            <style>{`@media ${phoneUpTo(767.98)} { .dv-sameday-h { display: none; } }`}</style>
-            <h3 className="dv-sameday-h" style={{ fontSize: '15px', fontWeight: 'bold', margin: '14px 0 6px' }}>Other votes that day</h3>
-            <SubFold label="Other votes that day" summary={`${nb.sameDay.length}`}>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {nb.sameDay.map((d) => (
-                    <li key={d.number}>Division {d.number}: <Link href={divisionHref(d.date, d.number)} style={link}>{d.title}</Link></li>
-                  ))}
-                </ul>
-            </SubFold>
-              </>
-            )}
+          <nav aria-label="Related" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, marginTop: '36px', paddingTop: '20px', fontSize: '15px', lineHeight: 1.7, color: INK }}>
+            <h2 style={{ fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>Related</h2>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>{items}</ul>
           </nav>
         );
       })()}
