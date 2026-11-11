@@ -95,7 +95,7 @@ type StaffPerson = {
 };
 
 // showRoles (owner, 4 Nov 2026): under 640px, each minister's GOV.UK role title under their name, one to a line.
-const ROLES_CSS = `.dept-role { display: none; } @media ${phoneUpTo(639.98)} { .dept-role { display: block; } .dept-role-list { grid-template-columns: minmax(0, 1fr) !important; row-gap: 10px !important; } }`;
+const ROLES_CSS = `.dept-role { display: none; } @media ${phoneUpTo(767.98)} { .dept-role { display: block; } .dept-role-list { grid-template-columns: minmax(0, 1fr) !important; row-gap: 10px !important; } }`;
 
 function StaffGroup({
   label,

@@ -28,7 +28,7 @@ const MONO = 'var(--font-special-elite), monospace';
 // up with the 44px letters. Each letter is folded closed until its heading or its letter in the A to Z bar is tapped
 // (owner, 4 Nov 2026; DirectoryFilter.tsx), with every entry still in the page; without JavaScript all of them show.
 const DIRECTORY_PHONE_CSS = `.dir-h-btn { display: none; }
-@media ${phoneUpTo(639.98)} {
+@media ${phoneUpTo(767.98)} {
   .dir-letters { align-items: center; }
   .dir-entry { padding: 0 0 9px !important; }
   .dir-entry p { margin: 0 !important; }

@@ -99,7 +99,7 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
       </form>
 
       {/* Under 640px only: from 640px up the page is as it was. */}
-      <style>{`.org-filters, .org-phone { display: none; } @media ${phoneUpTo(639.98)} { .org-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; } .org-phone { display: block; } .org-wide { display: none; } }`}</style>
+      <style>{`.org-filters, .org-phone { display: none; } @media ${phoneUpTo(767.98)} { .org-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; } .org-phone { display: block; } .org-wide { display: none; } }`}</style>
       <nav className="org-filters" aria-label="Filter organisations">
         {[{ key: '', label: 'All' }, ...FILTERS].map((f) => {
           const on = (filter?.key ?? '') === f.key;
@@ -113,7 +113,7 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
       </nav>
 
       {/* Under 640px (owner, 4 Nov 2026): the search and filters first, the introduction folded after them. */}
-      <style>{`.org-about { display: none; } @media ${phoneUpTo(639.98)} { .org-intro-wide { display: none; } .org-about { display: block; margin: 0 0 16px; } .org-about summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid ${INK}; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; cursor: pointer; list-style: none; } .org-about summary::-webkit-details-marker { display: none; } .org-about[open] .org-mark { transform: rotate(180deg); } }`}</style>
+      <style>{`.org-about { display: none; } @media ${phoneUpTo(767.98)} { .org-intro-wide { display: none; } .org-about { display: block; margin: 0 0 16px; } .org-about summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid ${INK}; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; cursor: pointer; list-style: none; } .org-about summary::-webkit-details-marker { display: none; } .org-about[open] .org-mark { transform: rotate(180deg); } }`}</style>
       <details className="org-about">
         <summary>About this list<span className="org-mark" aria-hidden>▾</span></summary>
         <p style={{ margin: '8px 0 0' }}>

@@ -42,7 +42,7 @@ const CSS = `
 .dr-more > summary { cursor: pointer; display: flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 12px 0; border: 1px solid #14100d; font-size: 15px; font-weight: bold; width: fit-content; }
 .dr-pledges { margin: 0; padding: 0; list-style: none; }
 .dr-pledges li { padding: 8px 0; border-bottom: 1px dotted rgba(20,16,13,0.3); font-size: 15px; line-height: 1.5; }
-@media ${phoneUpTo(639.98)} {
+@media ${phoneUpTo(767.98)} {
   .dr-infold > .dr-group { display: none; }
   .dr-src a { display: inline-flex; align-items: center; min-height: 44px; }
   .dr-pledges a { display: inline-flex; align-items: center; min-height: 44px; }

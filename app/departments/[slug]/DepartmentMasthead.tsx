@@ -35,7 +35,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
     <>
       {/* Department head — title shown under the name (sos.role), so no separate label. */}
       {/* Under 640px (owner, 4 Nov 2026): the photo small beside the name, as on MP pages. The page's zoom is 1.18, so 61px shows at 72px. */}
-      <style>{`@media ${phoneUpTo(639.98)} {
+      <style>{`@media ${phoneUpTo(767.98)} {
         .dept-head-row { flex-wrap: nowrap !important; gap: 12px !important; align-items: flex-start !important; }
         .dept-polaroid { width: 61px !important; padding: 0 !important; margin: 0 !important; transform: none !important; box-shadow: none !important; }
         .dept-polaroid > img:first-child, .dept-polaroid > div[aria-hidden] { width: 61px !important; height: 61px !important; font-size: 28px !important; }

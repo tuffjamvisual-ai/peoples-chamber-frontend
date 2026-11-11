@@ -97,7 +97,7 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
       </header>
 
       {/* Under 640px (owner, 4 Nov 2026) the box comes after the list. */}
-      <style>{`.vi-phone { display: none; } @media ${phoneUpTo(639.98)} { .vi-wide { display: none; } .vi-phone { display: block; margin-top: 24px; } }`}</style>
+      <style>{`.vi-phone { display: none; } @media ${phoneUpTo(767.98)} { .vi-wide { display: none; } .vi-phone { display: block; margin-top: 24px; } }`}</style>
       <div className="vi-wide"><VotingIntegrity /></div>
 
       <style>{`

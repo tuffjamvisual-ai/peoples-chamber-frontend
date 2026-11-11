@@ -66,7 +66,7 @@ const KEYS: (keyof State)[] = ['q', 'dept', 'rating', 'year', 'evaluation'];
 // and the page was 7,567px). Every project is still in the HTML, and from 640px up all of them show as before.
 const PHONE_PAGE = 4;
 const CARD_CSS = `.mpb-card, .mpb-phone-name { display: none; }
-@media ${phoneUpTo(639.98)} {
+@media ${phoneUpTo(767.98)} {
   body:has(.njp-sa-mpb:not([open])) .mpb-over { display: none !important; }
   .mpb-phone-name { display: inline; }
   .mpb-wide { display: none; }

@@ -143,7 +143,7 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare, shor
   const choose = (id: string) => {
     setActive(id);
     // Phones: close "Council sections" and bring the chosen section's content into view at the top of the screen.
-    if (window.matchMedia(phoneUpTo(639.98)).matches) {
+    if (window.matchMedia(phoneUpTo(767.98)).matches) {
       if (sectionsRef.current) sectionsRef.current.open = false;
       requestAnimationFrame(() => panelRefs.current[id]?.scrollIntoView({ block: 'start' }));
     }
@@ -222,7 +222,7 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare, shor
           .council-tabs nav button { white-space:normal; }
         }
         .council-tabs .ct-sections { display: none; }
-        @media ${phoneUpTo(639.98)} {
+        @media ${phoneUpTo(767.98)} {
           .council-tabs nav { display: flex; flex-wrap: wrap; gap: 4px; overflow: visible; -webkit-mask-image: none !important; mask-image: none !important; }
           .council-tabs nav > button { flex: 0 1 auto; min-height: 44px; }
           .council-tabs nav > button:not(.ct-short) { display: none !important; }

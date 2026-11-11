@@ -25,7 +25,7 @@ export default function PhoneMore({ selector, total, step = 25, off = false, fir
   const start = first ?? step;
   const [shown, setShown] = useState(start);
   if (off || total <= start) return null;
-  const css = `@media ${phoneUpTo(639.98)} { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
+  const css = `@media ${phoneUpTo(767.98)} { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
   const left = total - shown;
   return (
     <>

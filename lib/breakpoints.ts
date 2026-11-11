@@ -11,7 +11,7 @@
 /** A touch phone held sideways. */
 export const LANDSCAPE_PHONE = '(orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse)';
 
-/** The phone layout up to `maxWidth` px wide, and on any phone held sideways: `@media ${phoneUpTo(639.98)} { ... }`. */
+/** The phone layout up to `maxWidth` px wide, and on any phone held sideways: `@media ${phoneUpTo(767.98)} { ... }`. */
 export const phoneUpTo = (maxWidth: number) => `(max-width: ${maxWidth}px), ${LANDSCAPE_PHONE}`;
 
 /** The opposite: from `minWidth` px wide, except a phone held sideways. Written without `not` so that every browser reads
@@ -21,5 +21,6 @@ export const wideFrom = (minWidth: number) =>
     .map((c) => `(min-width: ${minWidth}px) and ${c}`)
     .join(', ');
 
-/** The main phone layout (under 640px, or sideways): folds, phone tables, the phone script. */
-export const PHONE = phoneUpTo(639.98);
+/** The main phone layout (under 768px, or sideways): folds, phone tables, the phone script. Under 640px until T1-768
+ *  (owner rule, 10 Nov 2026: phone means under 768px; changed 11 Nov 2026), so tablets of 640 to 767px get it too. */
+export const PHONE = phoneUpTo(767.98);

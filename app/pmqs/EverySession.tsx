@@ -50,7 +50,7 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
       ))}
       <NoJsPagerLinks id="pmqs-pms" count={groups.length} size={groups.length} first={4} />
       <div className="pfq-wrap">
-        <style>{`@media ${phoneUpTo(639.98)} { .pfq-wrap .pf-sb > #before-fixed-pmqs { display: none; } }`}</style>
+        <style>{`@media ${phoneUpTo(767.98)} { .pfq-wrap .pf-sb > #before-fixed-pmqs { display: none; } }`}</style>
         <SubFold label="Questions to the Prime Minister, 1945 to 1961"><PreFixedQuestions /></SubFold>
       </div>
       <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '28px 0 10px' }}>Our count against the Commons Library</h3>

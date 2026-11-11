@@ -64,7 +64,7 @@ const PHONE_FOLDS: Array<{ id: string; label: string; sections: SectionId[] }> =
   { id: 'background', label: 'Background and biography', sections: ['career', 'bio'] },
   { id: 'contact', label: 'Contact', sections: ['contact'] },
 ];
-const PHONE_MAX = 639;
+const PHONE_MAX = 767; // the MP page folds under 768px, as every page does (T1-768, 11 Nov 2026; 639 before)
 
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
@@ -2943,7 +2943,7 @@ export default function MagazineProfileSections({
         /* Tabs with JavaScript off, from 640px (owner, 8 Nov 2026, TB1; backlog item 25): each sidebar item is a link to its
            #section-<id>. A section that is the address's target is shown, and while one is (or holds the target, as with
            #register-history or a pager screen), the open tab gives way to it. With JavaScript on the tabs work as before. */
-        @media ${wideFrom(640)} {
+        @media ${wideFrom(768)} {
           html:not(.og-js) .mp-sections-content .pf-off:target { display: block !important; }
           html:not(.og-js) .mp-sections-content:has(.pf-off:target, .pf-off :target) :is(.pf-sec, .pf-sub):not(.pf-off):not(:target):not(:has(:target)) { display: none !important; }
         }
@@ -2954,7 +2954,7 @@ export default function MagazineProfileSections({
           html:not(.og-js) .mp-sections-grid:has(.pf-off:target, .pf-off :target) .mp-sections-nav a[data-active="true"] > span { border-left-color: transparent !important; background: transparent !important; box-shadow: none !important; font-weight: normal !important; }
           ${sections.map((s) => `html:not(.og-js) .mp-sections-grid:has(#section-${s.id}:target, #section-${s.id} :target) .mp-sections-nav a[data-section="${s.id}"] > span { border-left-color: #7a1612 !important; background: rgba(122,22,18,0.08) !important; box-shadow: inset 1px 0 2px rgba(0,0,0,0.05) !important; font-weight: bold !important; }`).join('\n          ')}
         }
-        @media ${wideFrom(640).split(', ').map((q) => `${q} and (max-width: 1023px)`).join(', ')}{
+        @media ${wideFrom(768).split(', ').map((q) => `${q} and (max-width: 1023px)`).join(', ')}{
           html:not(.og-js) .mp-sections-grid:has(.pf-off:target, .pf-off :target) .mp-sections-nav a[data-active="true"] > span { border-bottom-color: transparent !important; background: transparent !important; font-weight: normal !important; }
           ${sections.map((s) => `html:not(.og-js) .mp-sections-grid:has(#section-${s.id}:target, #section-${s.id} :target) .mp-sections-nav a[data-section="${s.id}"] > span { border-bottom-color: #7a1612 !important; background: rgba(122,22,18,0.08) !important; font-weight: bold !important; }`).join('\n          ')}
         }
@@ -2982,7 +2982,7 @@ export default function MagazineProfileSections({
         }
         @media ${phoneUpTo(479)} { .mp-sections-nav [data-section] { display: none !important; } }
         .mp-reports-phone { display: none; }
-        @media ${phoneUpTo(639.98)} {
+        @media ${phoneUpTo(767.98)} {
           .mp-reports-wide { display: none; }
           .mp-reports-phone { display: block; }
           .mp-reports-phone > section { margin-top: 8px !important; }
@@ -2993,7 +2993,7 @@ export default function MagazineProfileSections({
           .mp-sections-nav .mp-follow-chip { flex: 0 0 auto; width: auto !important; min-height: 44px; margin: 0 !important; padding: 6px 14px !important; border: 1px solid #14100d !important; box-shadow: none !important; background: transparent !important; color: #14100d !important; font-weight: normal !important; font-size: 15px !important; text-align: center !important; text-transform: none !important; letter-spacing: normal !important; }
         }
         .mp-col-inline { display: none; }
-        @media ${phoneUpTo(639.98)} { .mp-vote-title, .mp-vote-title > a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; } }
+        @media ${phoneUpTo(767.98)} { .mp-vote-title, .mp-vote-title > a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; } }
         @container (max-width: 560px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
       `}</style>
       <aside className="lg:col-span-1" style={{ marginLeft: '-13%' }}>

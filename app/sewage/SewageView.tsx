@@ -134,7 +134,7 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
           </h1>
           {/* One line on what the page is, from 640px up (UX4e); the full introduction is in "National totals" below. Phones keep
               their first screen as it was (UX2e). */}
-          <style>{`@media ${phoneUpTo(639.98)} { .sew-oneline { display: none; } }`}</style>
+          <style>{`@media ${phoneUpTo(767.98)} { .sew-oneline { display: none; } }`}</style>
           <p className="sew-oneline" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.5, color: INK, margin: '8px 0 0' }}>How long storm overflows spilled sewage, by area and water company.</p>
         </header>
 
@@ -167,7 +167,7 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
           <h2 style={h2}>Water companies</h2>
           {/* Under 640px (owner, 4 Nov 2026): cards like the league tables (their styles are in SewageExplorer.tsx); from 640px
               the table, whose company column stays put while the figures scroll up to 768px (report 47). */}
-          <style>{`@media ${phoneUpTo(639.98)} { .sew-co-table { display: none; } }`}</style>
+          <style>{`@media ${phoneUpTo(767.98)} { .sew-co-table { display: none; } }`}</style>
           {/* Phones (step 5, 10 Nov 2026; the page was 6,311px): folded, then the first 5 companies and "Show all <N>". */}
           <NoJsFold id="sew-co-f" always label={`The ${companies.length.toLocaleString('en-GB')} companies`}>
           <ShowAll id="sew-co" count={companies.length} rows="> li">

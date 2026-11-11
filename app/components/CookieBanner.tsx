@@ -50,7 +50,7 @@ const BANNER_CSS = `
    "View cookies", then Accept and Reject side by side, the same size, 44px tall. The heading is kept for screen
    readers. From 1024px the long button labels and the two-part sentence; from 640 to 1023px the shorter ones. The page
    gets the same space at its foot so nothing ends up behind the bar. */
-@media ${wideFrom(640)} {
+@media ${wideFrom(768)} {
   .og-cookie-banner { position: fixed !important; left: 0; right: 0; bottom: 0; z-index: 50; border-bottom: none !important; border-top: 2px solid ${INK}; padding: 10px 24px !important; box-shadow: 0 -2px 10px rgba(20,16,13,0.18); }
   .og-cookie-banner .og-cb-inner, .og-cookie-banner .og-cb-confirm { display: flex; align-items: center; gap: 12px 24px; }
   .og-cookie-banner h2 { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0 !important; }
@@ -60,7 +60,7 @@ const BANNER_CSS = `
   .og-cookie-banner .og-cb-btn { min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 6px 14px !important; flex: none; }
   body:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set) body:has(.og-cookie-banner) { padding-bottom: 96px; }
 }
-@media ${wideFrom(640)} {
+@media ${wideFrom(768)} {
   .og-cookie-banner .og-cb-wide, .og-cookie-banner .og-cb-short-full { display: none; }
   .og-cookie-banner .og-cb-narrow, .og-cookie-banner .og-cb-short-phone { display: inline; }
 }

@@ -35,7 +35,7 @@ const files = [...walk(path.join(ROOT, 'app')), ...walk(path.join(ROOT, 'lib'))]
   .filter((f) => !DEMO.test(f) && f !== 'lib/breakpoints.ts');
 
 const allowedCss = new Set<string>([LANDSCAPE_PHONE]);
-for (const n of ['479', '639.98', '640', '760', '767', '768']) allowedCss.add(phoneUpTo(Number(n)));
+for (const n of ['479', '639.98', '640', '760', '767', '767.98', '768']) allowedCss.add(phoneUpTo(Number(n))); // 767.98: the phone layout since T1-768
 for (const n of ['640', '641', '761', '768']) allowedCss.add(wideFrom(Number(n)));
 
 let cssQueries = 0, codeQueries = 0;

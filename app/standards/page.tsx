@@ -158,7 +158,7 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
             </section>
           );
         })}
-        <style>{`@media ${phoneUpTo(639.98)} { .sc-fold-h { display: none; } }`}</style>
+        <style>{`@media ${phoneUpTo(767.98)} { .sc-fold-h { display: none; } }`}</style>
         {/* One block per matched member, shown only when the address names it (/standards#nigel-farage), with or without JavaScript.
             It points to the member's cases above rather than repeating them, and sits at the end so that hiding it again moves nothing above it; a browser opens the fold a case sits in when it is
             linked to, with or without JavaScript. */}

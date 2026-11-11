@@ -161,7 +161,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
    sit in the base layer, so a page's own display (a flex row, a block link) wins and only plain inline links become
    boxes. Nothing here applies from 640px up. */
 @layer base {
-  @media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+  @media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
     .ng-page a:not(p a, blockquote a, figcaption a, footer a),
     .ng-page button:not(footer button),
     .ng-page summary:not(footer summary),
@@ -191,7 +191,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .mc-more[open] > summary { display: none; }
 /* MoreChain on phones (MP2f): the first 5 of the opening list until the first "Show more" opens; its count from there. */
 .mc-phone, .mc-n-phone { display: none; }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .mc-phone { display: block; }
   .mc-n-phone { display: inline; }
   .mc-n-wide { display: none; }
@@ -204,9 +204,9 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .njf > summary::-webkit-details-marker { display: none; }
 .njf > summary::before { content: "+"; flex: none; width: 20px; color: #7a1612; }
 .njf[open] > summary::before { content: "\2212"; }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) { .arch-tap { display: flex; align-items: center; min-height: 44px; } }
-@media (min-width: 640px) and (orientation: portrait), (min-width: 640px) and (min-height: 500.01px), (min-width: 640px) and (hover: hover), (min-width: 640px) and (pointer: fine), (min-width: 640px) and (pointer: none) { .arch-row { padding: 4px 0; } }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) { .arch-tap { display: flex; align-items: center; min-height: 44px; } }
+@media (min-width: 768px) and (orientation: portrait), (min-width: 768px) and (min-height: 500.01px), (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 768px) and (pointer: none) { .arch-row { padding: 4px 0; } }
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   html:not(.og-js) .njp-a, .njp-a.njp-on { display: block; height: 0; }
   html:not(.og-js) .njp-nav, .njp-nav.njp-on { justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0 14px; font-size: 15px; color: #14100d; }
   html:not(.og-js) .njp-nav a, .njp-nav.njp-on a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; color: #14100d; font-weight: bold; text-decoration: none; }
@@ -216,8 +216,8 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 /* SubFold (app/components/PhoneFolds.tsx) on any page (MP2f, 9 Nov 2026): its rules were only in PhoneFolds' own styles,
    so a SubFold on a page without PhoneFolds did not fold. The same rules, here once. */
 .pf-sd { display: none; }
-@media (min-width: 640px) and (orientation: portrait), (min-width: 640px) and (min-height: 500.01px), (min-width: 640px) and (hover: hover), (min-width: 640px) and (pointer: fine), (min-width: 640px) and (pointer: none) { .pf-sb { display: contents; } }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (min-width: 768px) and (orientation: portrait), (min-width: 768px) and (min-height: 500.01px), (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 768px) and (pointer: none) { .pf-sb { display: contents; } }
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .pf-sd { display: block; border-top: 1px dashed rgba(20,16,13,0.3); }
   .pf-sd > summary { display: block; list-style: none; cursor: pointer; }
   .pf-sd > summary::-webkit-details-marker { display: none; }
@@ -233,7 +233,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 }
 /* NoJsPager "Show all" (MP2f, 9 Nov 2026): on phones, a native <details> after a long list's first rows; nothing from 640px up. */
 .njp-sa { display: none; }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .njp-sa { display: block; margin: 10px 0 14px; }
   .njp-sa > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; }
   .njp-sa > summary::-webkit-details-marker { display: none; }
@@ -241,14 +241,14 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .njp-sa[open] .njp-sa-less { display: inline; }
 }
 /* NoJsPager `wide` (PC4): the same paging from 640px up, for lists paged at every width. */
-@media (min-width: 640px) and (orientation: portrait), (min-width: 640px) and (min-height: 500.01px), (min-width: 640px) and (hover: hover), (min-width: 640px) and (pointer: fine), (min-width: 640px) and (pointer: none) {
+@media (min-width: 768px) and (orientation: portrait), (min-width: 768px) and (min-height: 500.01px), (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 768px) and (pointer: none) {
   .njp-a.njp-w { display: block; height: 0; }
   .njp-nav.njp-w { justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0 14px; font-size: 15px; color: #14100d; }
   .njp-nav.njp-w a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; color: #14100d; font-weight: bold; text-decoration: none; }
 }
 .rf-d { display: none; }
 .rf-b, .rf-h { display: contents; }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .rf-h { display: none; }
   .rf-d { display: block; border-top: 1px solid rgba(20,16,13,0.25); }
   .rf-b { display: block; }
@@ -264,7 +264,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 }
 .pc-d { display: none; }
 .pc-b { display: contents; }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .pc-d { display: block; }
   .pc-b { display: block; }
   .pc-d:not([open]) + .pc-b { display: none; }
@@ -273,7 +273,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .pc-d > summary::-webkit-details-marker { display: none; }
   .pc-wide { display: none; }
 }
-@media (min-width: 640px) and (orientation: portrait), (min-width: 640px) and (min-height: 500.01px), (min-width: 640px) and (hover: hover), (min-width: 640px) and (pointer: fine), (min-width: 640px) and (pointer: none) { .pc-narrow { display: none; } }
+@media (min-width: 768px) and (orientation: portrait), (min-width: 768px) and (min-height: 500.01px), (min-width: 768px) and (hover: hover), (min-width: 768px) and (pointer: fine), (min-width: 768px) and (pointer: none) { .pc-narrow { display: none; } }
 .pa-list li { padding: 10px 0; border-bottom: 1px solid rgba(20,16,13,0.25); font-size: 15px; line-height: 1.6; }
 .pa-list a { color: #7a1612; text-decoration: underline; font-weight: bold; }
 /* "Skip to main content" (A11Y1): off screen until it has focus, then a clear box at the top left, above everything. */
@@ -287,7 +287,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 /* The share control's wrapper under an investigation's headline adds no box of its own (the "View sources (N)" link that
    sat beside it went on 10 Nov 2026, T1-5r: the sources are listed once, at the end of the article). */
 .art-actions { display: contents; }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   html.og-js .art-share { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
   .art-share button { min-height: 44px; padding: 8px 18px; border: 1px solid #14100d; border-radius: 0; background: transparent; color: #14100d; font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer; }
   .art-share [role="status"]:not(:empty) { font-size: 15px; color: #14100d; }
@@ -297,7 +297,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 /* PhoneGroup.tsx: from 640px up the fold line is not there and its content sits as if nothing wrapped it. */
 .pg-d { display: none; }
 .pg-b { display: contents; }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .pg-d { display: block; }
   .pg-d > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; list-style: none; border-bottom: 1px solid rgba(20, 16, 13, 0.25); }
   .pg-d > summary::-webkit-details-marker { display: none; }
@@ -306,7 +306,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .pg-b { display: block; }
   .pg-d:not([open]) + .pg-b { display: none; }
 }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* The shared phone table (lib/phone-enhance.ts): one card per row, the first column as the title, then "label: value". */
   .ng-page table[data-pt-table="cards"] { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; overflow: visible !important; border: 0 !important; table-layout: auto !important; }
   .ng-page table[data-pt-table="cards"] > thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -367,7 +367,7 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
 
 /* ---- Phones (owner, 5 Nov 2026). Under 640px, and a phone on its side (a touch screen under 500px tall, whatever its
    width, so never a desktop window). */
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* iPhone zooms in on any field under 16px. */
   input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea { font-size: 16px !important; }
   /* Safari ignores height on a native dropdown: its own look off, and an arrow drawn in. An inline background keeps its colour. */
@@ -387,7 +387,7 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
   .pca-row [data-pca-leader] { display: none !important; }
   .pca-row span { white-space: normal !important; }
 }
-@media (max-width: 639.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* Nothing is wider than its box, at any text size. */
   .ng-page input:not([type="checkbox"]):not([type="radio"]), .ng-page select, .ng-page textarea { max-width: 100% !important; min-width: 0 !important; }
   .ng-page form label { max-width: 100%; min-width: 0; }

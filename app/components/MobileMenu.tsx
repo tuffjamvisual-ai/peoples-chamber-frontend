@@ -26,7 +26,7 @@ const PANEL_ID = 'og-menu-panel';
 const ACCOUNT_CSS = '.og-menu-account a { display: inline-block; box-sizing: border-box; min-height: 44px; line-height: 24px; }';
 // Under 640px the links are in four groups (owner, 4 Nov 2026; lib/site-nav.ts); from 640px to 767px the flat list stays.
 const GROUPS_CSS = `.og-menu-groups { display: none; }
-@media ${phoneUpTo(639.98)} {
+@media ${phoneUpTo(767.98)} {
   .og-menu-flat { display: none; }
   .og-menu-groups { display: block; width: 100%; box-sizing: border-box; padding: 0 16px; text-align: left; }
   .og-menu-group + .og-menu-group { margin-top: 12px; }

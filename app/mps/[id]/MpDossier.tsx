@@ -104,7 +104,7 @@ export default function MpDossier({
         }
         /* Under 640px (owner, 4 Nov 2026): a small photo, then name, party and constituency, so the headline figures below
            show on the first screen. */
-        @media ${phoneUpTo(639.98)} {
+        @media ${phoneUpTo(767.98)} {
           .pca-mp-header { flex-direction: row !important; align-items: center !important; gap: 12px !important; margin-bottom: 12px !important; }
           .pca-mp-photo { margin: 0 !important; padding: 4px !important; transform: none !important; }
           .pca-mp-photo img, .pca-mp-photo > div { width: 72px !important; height: 72px !important; }
@@ -154,7 +154,7 @@ export default function MpDossier({
               priority
               // The width it shows at (owner, 7 Nov 2026, Z2), so phones fetch a small copy: 72px under 640px, 200px to 760px,
               // 260px above (turned 12 degrees there, so it measures about 308px across). Keep in step with the media rules above.
-              sizes="(max-width: 639.98px) 72px, (max-width: 760px) 200px, 260px"
+              sizes="(max-width: 767.98px) 72px, (max-width: 760px) 200px, 260px"
               style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
             />
           ) : (

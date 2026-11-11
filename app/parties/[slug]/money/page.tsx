@@ -324,7 +324,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
           </table>
           </ShowAll>
           </SubFold>
-          <style>{`@media ${phoneUpTo(639.98)} { .pm-fold-h { display: none; } }`}</style>
+          <style>{`@media ${phoneUpTo(767.98)} { .pm-fold-h { display: none; } }`}</style>
         </section>
       )}
 

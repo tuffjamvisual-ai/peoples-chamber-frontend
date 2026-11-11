@@ -91,7 +91,7 @@ export default function DepartmentTabs({
         .dept-fold { display: none; }
         html:not(.og-js) .pca-dept-tabs aside { display: none !important; }
         html:not(.og-js) .dept-slot { display: block !important; }
-        @media ${phoneUpTo(639.98)} {
+        @media ${phoneUpTo(767.98)} {
           .pca-dept-tabs { gap: 4px !important; }
           .pca-dept-tabs aside nav { display: none !important; }
           .dept-pick { display: block; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: #14100d; }

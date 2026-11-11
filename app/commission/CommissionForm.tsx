@@ -70,7 +70,7 @@ const CORRECT_MESSAGE = 'Please correct the highlighted fields.';
 
 const STEP_CSS = `
   .cm-phone, .cm-phone-inline { display: none; }
-  @media ${phoneUpTo(639.98)} {
+  @media ${phoneUpTo(767.98)} {
     .cm-form .cm-phone { display: block; }
     .cm-form .cm-phone-inline { display: inline; }
     .cm-form fieldset { border: none !important; margin: 0 !important; padding: 0 !important; }

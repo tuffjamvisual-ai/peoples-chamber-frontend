@@ -219,7 +219,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 rotation and no negative margins, so nothing is pushed past the screen's edge, and the sections start below the
                 opening without the desktop's upward nudge or zoom. From 640px up nothing changes. */}
             <style>{`
-              @media ${phoneUpTo(639.98)} {
+              @media ${phoneUpTo(767.98)} {
                 .pp-header { flex-direction: row !important; align-items: center !important; gap: 12px !important; margin-bottom: 12px !important; }
                 .pp-photo { margin: 0 !important; padding: 4px !important; transform: none !important; }
                 .pp-photo img, .pp-photo > div { width: 72px !important; height: 72px !important; font-size: 32px !important; }

@@ -168,7 +168,7 @@ export default async function DonorsIndex() {
         </NoJsPager>
         {publicOthers > 0 && <p style={{ fontSize: '15px', margin: '12px 0 0' }}>Plus {publicOthers} smaller entries under other names.</p>}
         </SubFold>
-        <style>{`@media ${phoneUpTo(639.98)} { .dn-fold-h { display: none; } }`}</style>
+        <style>{`@media ${phoneUpTo(767.98)} { .dn-fold-h { display: none; } }`}</style>
       </section>
     </OpenGovShell>
   );

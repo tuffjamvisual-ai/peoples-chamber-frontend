@@ -99,7 +99,7 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
           </h1>
         </header>
 
-        <style>{`.cs-phone { display: none; } @media ${phoneUpTo(639.98)} { .cs-phone { display: block; } .cs-wide { display: none; } }`}</style>
+        <style>{`.cs-phone { display: none; } @media ${phoneUpTo(767.98)} { .cs-phone { display: block; } .cs-wide { display: none; } }`}</style>
         <div className="cs-phone">
           <CouncilSearch key={q} initialQuery={q} noMatchText="No council has that name. Try your postcode instead." />
           <p style={{ fontFamily: MONO, fontSize: '15px', margin: '14px 0 28px' }}>

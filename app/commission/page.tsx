@@ -49,7 +49,7 @@ export default function CommissionPage() {
       {/* The one service card: centred at a readable width on wide screens, the full width on phones. */}
       <style>{`
         .cm-service { max-width: 560px; margin: 0 auto; }
-        @media ${phoneUpTo(639.98)} { .cm-fold-h { display: none; } }
+        @media ${phoneUpTo(767.98)} { .cm-fold-h { display: none; } }
         .cm-centred { max-width: 560px; margin-left: auto; margin-right: auto; text-align: center; }
         @media ${phoneUpTo(767)} {
           .cm-service { max-width: none; }
@@ -59,7 +59,7 @@ export default function CommissionPage() {
         .cm-act { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 44px; padding: 8px 20px; border: 2px solid ${ACCENT}; font-size: 16px; font-weight: bold; line-height: 1.25; text-align: center; text-decoration: none; }
         .cm-act-go { background: ${ACCENT}; color: #f4e8d4 !important; }
         .cm-act-see { background: transparent; color: ${ACCENT} !important; }
-        @media ${phoneUpTo(639.98)} {
+        @media ${phoneUpTo(767.98)} {
           /* A smaller gap above the actions (UX3b, 10 Nov 2026), so "Start an enquiry" starts on the first screen (A6). Spacing only. */
           .cm-acts { flex-direction: column; margin-top: 2px; }
           .cm-act { width: 100%; }

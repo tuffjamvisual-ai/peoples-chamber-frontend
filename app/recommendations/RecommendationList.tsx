@@ -39,7 +39,7 @@ function matches(r: ListReport | undefined, filter: string) {
 // Phone cards (owner, 4 Nov 2026, under 640px): a search box, and each recommendation as a card that opens to its history,
 // read from /api/recommendations/... when opened.
 const CARD_CSS = `.rec-card { display: none; } .rec-search { display: block; }
-@media ${phoneUpTo(639.98)} {
+@media ${phoneUpTo(767.98)} {
   .rec-wide { display: none; }
   .rec-card { display: block; }
   .rec-card > summary { display: block; min-height: 44px; padding: 0 26px 0 0; position: relative; cursor: pointer; list-style: none; }

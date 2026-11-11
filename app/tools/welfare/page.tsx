@@ -22,7 +22,7 @@ export default function WelfareExplorerPage() {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
       {/* Under 640px (owner, 4 Nov 2026): the title, the searches, then the introduction. */}
-      <style>{`@media ${phoneUpTo(639.98)} {
+      <style>{`@media ${phoneUpTo(767.98)} {
         .wf-page { display: flex; flex-direction: column; }
         .wf-head { display: contents; }
         .wf-title { order: 1; }

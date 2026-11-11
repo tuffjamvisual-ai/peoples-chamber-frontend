@@ -48,7 +48,7 @@ export function pagesByHeight(heights: number[], room: number, most = Infinity):
 
 export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, first = PHONE_FIRST, ownMore = false, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; first?: number; ownMore?: boolean; children?: ReactElement<{ className?: string }> }) {
   const split = sizes ?? Array.from({ length: Math.ceil(count / size) }, () => size);
-  const cardCss = cards ? `@media ${phoneUpTo(639.98)} {${cards.map((label, i) => (label ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${i + 1})::before{content:${JSON.stringify(`${label}: `)};font-weight:bold}` : '')).join('')}${title ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${title}){font-weight:bold;font-size:16px}` : ''}}` : '';
+  const cardCss = cards ? `@media ${phoneUpTo(767.98)} {${cards.map((label, i) => (label ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${i + 1})::before{content:${JSON.stringify(`${label}: `)};font-weight:bold}` : '')).join('')}${title ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${title}){font-weight:bold;font-size:16px}` : ''}}` : '';
   const cardClass = cards ? `njc njc-${id}` : '';
   const cardStyle = cards ? <style dangerouslySetInnerHTML={{ __html: cardCss }} /> : null;
   // Phones: the first rows, then "Show all" (MP2f).
@@ -60,7 +60,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
   // for JavaScript off only (html:not(.og-js)); without it they hold either way, as before.
   const jsOff = ownMore ? 'html:not(.og-js) ' : '';
   const phoneCss = showAll
-    ? `@media ${phoneUpTo(639.98)} {${rows ? `${jsOff}${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${jsOff}${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}}`
+    ? `@media ${phoneUpTo(767.98)} {${rows ? `${jsOff}${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${jsOff}${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}}`
     : '';
   const phoneStyle = phoneCss ? <style dangerouslySetInnerHTML={{ __html: phoneCss }} /> : null;
   const ownList = (extra: string) => children ? cloneElement(children as ReactElement<{ className?: string; 'data-own-more'?: string }>, { className: [children.props.className, extra, cardClass].filter(Boolean).join(' '), ...(showAll ? { 'data-own-more': '' } : {}) }) : null;
@@ -85,7 +85,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
     <>
       {cardStyle}
       {/* Paging: from 640px up for a wide list; on phones only where "Show all" does not apply (MP2f). */}
-      <style dangerouslySetInnerHTML={{ __html: wide && always ? (showAll ? `@media ${wideFrom(640)} {${css}}` : css) : showAll ? '' : `@media ${phoneUpTo(639.98)} {${css}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: wide && always ? (showAll ? `@media ${wideFrom(768)} {${css}}` : css) : showAll ? '' : `@media ${phoneUpTo(767.98)} {${css}}` }} />
       {phoneStyle}
       {nums.map((k) => <i key={k} id={`${id}-p${k}`} className={`njp-a${always ? ' njp-on' : ''}${wide && always ? ' njp-w' : ''}`} />)}
       {/* The same links above the rows: shown and hidden by the same rules as those below, as they share their classes. With `items`, the rows
@@ -132,7 +132,7 @@ export function NoJsPagerLinks({ id, count, size = 25, sizes, first = PHONE_FIRS
 export function NoJsFold({ id, label, open = false, always = false, children }: { id: string; label: ReactNode; open?: boolean; always?: boolean; children: ReactNode }) {
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(639.98)} {${always ? 'html' : 'html:not(.og-js)'} #${id}:not([open]) ~ *:not(#${id}-end):not(#${id}-end ~ *){display:none!important}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(767.98)} {${always ? 'html' : 'html:not(.og-js)'} #${id}:not([open]) ~ *:not(#${id}-end):not(#${id}-end ~ *){display:none!important}}` }} />
       <details id={id} className={always ? 'njf njf-on' : 'njf'} open={open}><summary>{label}</summary></details>
       {children}
       <i id={`${id}-end`} className="njp-a" />

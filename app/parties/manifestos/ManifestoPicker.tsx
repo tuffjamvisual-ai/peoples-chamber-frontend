@@ -9,7 +9,7 @@ import { ShowAll } from '@/app/components/NoJsPager';
 
 const CSS = `
 .mf-controls, .mf-policy { display: none; }
-@media ${phoneUpTo(639.98)} {
+@media ${phoneUpTo(767.98)} {
   .mf-controls { display: block; margin-bottom: 18px; }
   .mf-root[data-mode="policy"] .mf-policy { display: block; }
   .mf-root[data-mode="policy"] .mf-party { display: none; }

@@ -187,7 +187,7 @@ export default async function ExpensesPage() {
 
         {/* Phones (UX3b, 10 Nov 2026): the three figures follow the ten MPs (the copy after the list), so the list starts on
             the first screen (A6). From 640px up, here as before. */}
-        <style>{`.ex-stats-p { display: none; } @media ${phoneUpTo(639.98)} { .ex-stats-w { display: none !important; } .ex-stats-p { display: grid; } }`}</style>
+        <style>{`.ex-stats-p { display: none; } @media ${phoneUpTo(767.98)} { .ex-stats-w { display: none !important; } .ex-stats-p { display: grid; } }`}</style>
         <div
           className="ex-stats-w"
           style={{

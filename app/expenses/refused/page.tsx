@@ -322,7 +322,7 @@ function MpHead({ totalLabel }: { totalLabel: string }) {
 // than SHOWN gets a phone only "Show all".
 const PHONE_SHOWN = 5;
 const MP_TABLE_CSS = `.rr-more-phone { display: none; }
-@media ${phoneUpTo(639.98)} {
+@media ${phoneUpTo(767.98)} {
   .rr-mp:has(> details:not([open])):not(:has(:target)) > .rr-scroll tbody > tr:nth-child(n+${PHONE_SHOWN + 1}) { display: none; }
   .rr-more-phone { display: block; }
 }`;

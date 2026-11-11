@@ -35,7 +35,7 @@ export function balanceColumns<T>(items: T[], weight: (item: T) => number): [T[]
 // short version (.og-short), one sentence under 80 characters written from it; from 640px up only the full text shows.
 // A description short enough already has neither class and shows at every width. Listed for checking in
 // Claude outputs/audit/mp2/short-descriptions.md.
-export const TWO_COLUMN_CSS = `.og-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}.og-short{display:none}@media ${phoneUpTo(760)} {.og-two{grid-template-columns:1fr}}@media ${phoneUpTo(639.98)} {.og-two .og-desc{display:none}.og-two .og-short{display:block}}`;
+export const TWO_COLUMN_CSS = `.og-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}.og-short{display:none}@media ${phoneUpTo(760)} {.og-two{grid-template-columns:1fr}}@media ${phoneUpTo(767.98)} {.og-two .og-desc{display:none}.og-two .og-short{display:block}}`;
 
 // For short lists of similar sized items (link lists): a plain two column grid,
 // rows side by side, no boxes. One column on phones.

@@ -109,7 +109,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK, margin: 0 }}>{intro(item.label)}</p>
       </header>
 
-      <style>{TWO_COLUMN_GRID_CSS + COMPACT_CSS + `@media ${phoneUpTo(639.98)} { .sec-group .pf-sb > h2 { display: none; } }`}</style>
+      <style>{TWO_COLUMN_GRID_CSS + COMPACT_CSS + `@media ${phoneUpTo(767.98)} { .sec-group .pf-sb > h2 { display: none; } }`}</style>
       {/* With more than two groups (Parliament), a row of links to each group first. */}
       {grouped.length > 2 && (
         <nav aria-label="On this page" style={{ margin: '0 0 22px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.5 }}>

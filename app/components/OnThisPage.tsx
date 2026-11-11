@@ -10,7 +10,7 @@ const HAIRLINE = 'rgba(20,16,13,0.25)';
 export default function OnThisPage({ items }: { items: { href: string; label: string }[] }) {
   return (
     <>
-      <style>{`.art-otp { display: none; } @media ${phoneUpTo(639.98)} { .art-otp { display: block; margin: 0 0 14px; padding: 8px 0; border-top: 1px solid ${HAIRLINE}; border-bottom: 1px solid ${HAIRLINE}; } .art-otp { display: flex !important; flex-wrap: wrap; align-items: center; column-gap: 16px; } .art-otp > p { margin: 0 !important; } .art-otp ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; column-gap: 16px; } .art-otp a { display: flex; align-items: center; min-height: 44px; font-size: 15px; color: ${INK}; text-decoration: underline; text-underline-offset: 3px; } }`}</style>
+      <style>{`.art-otp { display: none; } @media ${phoneUpTo(767.98)} { .art-otp { display: block; margin: 0 0 14px; padding: 8px 0; border-top: 1px solid ${HAIRLINE}; border-bottom: 1px solid ${HAIRLINE}; } .art-otp { display: flex !important; flex-wrap: wrap; align-items: center; column-gap: 16px; } .art-otp > p { margin: 0 !important; } .art-otp ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; column-gap: 16px; } .art-otp a { display: flex; align-items: center; min-height: 44px; font-size: 15px; color: ${INK}; text-decoration: underline; text-underline-offset: 3px; } }`}</style>
       <nav className="art-otp" aria-label="On this page">
         <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 2px', color: INK }}>On this page</p>
         <ul>

@@ -46,7 +46,7 @@ const FIRST = 50;
 const LEAGUE_CSS = `@media ${wideFrom(768).split(', ').map((q) => `${q} and (max-width: 1439.98px)`).join(', ')} { .sew-league .pt-box { overflow-x: auto; } .sew-league table { min-width: 0 !important; } .sew-league td.sew-company { white-space: normal !important; } }`
   // Under 640px (owner, 4 Nov 2026) area cards replace the table, from the same rows, so tables and sort orders still apply.
   + ' .sew-cards { display: none; }'
-  + ` @media ${phoneUpTo(639.98)} { .sew-league { display: none; } .sew-cards { display: block; list-style: none; margin: 0; padding: 0; }`
+  + ` @media ${phoneUpTo(767.98)} { .sew-league { display: none; } .sew-cards { display: block; list-style: none; margin: 0; padding: 0; }`
   // The seven table buttons in two columns on phones (step 5, 10 Nov 2026: seven full width buttons were 364px).
   + ' .sew-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .sew-tabs > button { margin: 0 !important; min-height: 44px; text-align: left; line-height: 1.25; }'
   + ' .sew-card { border-top: 1px solid rgba(20,16,13,0.25); } .sew-card:last-child { border-bottom: 1px solid rgba(20,16,13,0.25); }'
@@ -61,7 +61,7 @@ const LEAGUE_CSS = `@media ${wideFrom(768).split(', ').map((q) => `${q} and (max
   + ' .sew-tabs, .sew-sorts { display: none !important; } .sew-pick { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 10px 16px; margin: 0 0 8px; }'
   + ' .sew-pick label { display: block; font-size: 15px; } .sew-pick select { display: block; width: 100%; min-height: 44px; margin-top: 4px; font-size: 16px; padding: 6px 8px; border: 1px solid #14100d; background: transparent; color: #14100d; border-radius: 0; }'
   + ' .sew-pick button { min-height: 44px; font-size: 16px; } html.og-js .sew-pick button { display: none; }'
-  + ` @media ${phoneUpTo(639.98)} { .sew-pick { grid-template-columns: 1fr; } }`;
+  + ` @media ${phoneUpTo(767.98)} { .sew-pick { grid-template-columns: 1fr; } }`;
 
 const fmtInt = (v: number) => Math.round(v).toLocaleString('en-GB');
 const ordinal = (k: number) => {
@@ -221,7 +221,7 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
     <div className="sew-root">
       <section id="your-area" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '16px', marginBottom: '8px' }}>
         {/* From 640px the heading sits on the same row as the form (UX4e, 10 Nov 2026). */}
-        <style>{`.sew-area-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; } .sew-area-row > h2 { margin: 0 !important; } @media ${phoneUpTo(639.98)} { .sew-area-row { display: block; } .sew-area-row > h2 { margin: 0 0 14px !important; } }`}</style>
+        <style>{`.sew-area-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; } .sew-area-row > h2 { margin: 0 !important; } @media ${phoneUpTo(767.98)} { .sew-area-row { display: block; } .sew-area-row > h2 { margin: 0 0 14px !important; } }`}</style>
         <div className="sew-area-row">
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           Your area

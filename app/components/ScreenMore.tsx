@@ -25,7 +25,7 @@ export default function ScreenMore({ id, sizes }: { id: string; sizes: number[] 
   if (sizes.length <= 1) return null;
   const shown = sizes.slice(0, screens).reduce((a, b) => a + b, 0);
   const total = sizes.reduce((a, b) => a + b, 0);
-  const css = `@media ${phoneUpTo(639.98)} {html.og-js .njp-i-${id}:nth-child(n+${shown + 1} of .njp-i-${id}){display:none!important}}`;
+  const css = `@media ${phoneUpTo(767.98)} {html.og-js .njp-i-${id}:nth-child(n+${shown + 1} of .njp-i-${id}){display:none!important}}`;
   return (
     <>
       {screens < sizes.length && <style dangerouslySetInnerHTML={{ __html: css }} />}

@@ -515,7 +515,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
             {nb.sameDay.length > 0 && (
               <>
                 {/* UX5 (T1-6, 11 Nov 2026): on phones a closed fold named by this heading, which is hidden there; from 640px up, as before. */}
-            <style>{`@media ${phoneUpTo(639.98)} { .dv-sameday-h { display: none; } }`}</style>
+            <style>{`@media ${phoneUpTo(767.98)} { .dv-sameday-h { display: none; } }`}</style>
             <h3 className="dv-sameday-h" style={{ fontSize: '15px', fontWeight: 'bold', margin: '14px 0 6px' }}>Other votes that day</h3>
             <SubFold label="Other votes that day" summary={`${nb.sameDay.length}`}>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
