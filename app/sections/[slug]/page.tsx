@@ -110,18 +110,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
       </header>
 
       <style>{TWO_COLUMN_GRID_CSS + COMPACT_CSS + `@media ${phoneUpTo(767.98)} { .sec-group .pf-sb > h2 { display: none; } }`}</style>
-      {/* With more than two groups (Parliament), a row of links to each group first. */}
-      {grouped.length > 2 && (
-        <nav aria-label="On this page" style={{ margin: '0 0 22px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.5 }}>
-          <span style={{ textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '15px', marginRight: '8px' }}>On this page</span>
-          {grouped.map((g, i) => (
-            <span key={g.title} style={{ whiteSpace: 'nowrap' }}>
-              {i > 0 && <span aria-hidden style={{ margin: '0 6px' }}>·</span>}
-              <a href={`#${anchor(g.title!)}`} className="no-hover-scale" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '4px 0' }}>{g.title}</a>
-            </span>
-          ))}
-        </nav>
-      )}
+      {/* No "On this page" list (T1-5x, owner 10 Nov 2026): the groups follow straight on. */}
       {grouped.map((g, gi) => (
         <section key={g.title ?? 'all'} data-main-action={gi === 0 ? '' : undefined} aria-label={g.title ?? undefined} className="sec-group" style={{ marginBottom: '28px' }}>
           <GroupFold fold={gi > 0 && !!g.title} label={g.title ?? ''} count={g.links.length}>
