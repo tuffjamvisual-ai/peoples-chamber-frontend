@@ -7,6 +7,7 @@ import { namedTitle } from '@/lib/seo-title';
 import { countOf, ledBy } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
@@ -105,7 +106,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
           <dt style={{ fontWeight: 'bold' }}>Companies House</dt>
           <dd style={{ margin: 0, overflowWrap: 'anywhere' }}>
             {org.company_number
-              ? <a href={companiesHouseUrl(org.company_number)} rel="noopener" style={{ color: ACCENT }}>{org.company_number}</a>
+              ? <>{org.company_number} (in Sources at the end of the page)</>
               : 'No number recorded'}
           </dd>
           {org.name_variants && org.name_variants.length > 0 && (<>
@@ -143,7 +144,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                   {d.donation_action ? ` (${d.donation_action.toLowerCase()})` : ''}
                   <div style={sub}>
                     {[d.donation_type_label || d.nature, d.donor_name !== org.name ? `given as “${d.donor_name}”` : null].filter(Boolean).join(' · ')}
-                    {d.ec_ref && <> · <a href={ecDonationSearchUrl(d.ec_ref)} rel="noopener" style={{ color: ACCENT }}>Electoral Commission record {d.ec_ref}</a></>}
+                    {d.ec_ref && <> · <a data-og-row-source="" href={ecDonationSearchUrl(d.ec_ref)} rel="noopener" style={{ color: ACCENT }}>Electoral Commission record {d.ec_ref}</a></>}
                   </div>
                 </li>
               ))}
@@ -186,7 +187,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                 <li key={g.identifier} style={item}>
                   <span style={{ fontWeight: 'bold' }}>{fmtDay(g.award_date)}</span> · {g.amount != null ? money(g.amount) : 'value not given'} from {g.funder_name || 'a funder not named'}
                   <div style={sub}>
-                    {g.title || g.scheme_title || 'Untitled grant'} · <a href={grantNavUrl(g.identifier)} rel="noopener" style={{ color: ACCENT }}>360Giving record</a>
+                    {g.title || g.scheme_title || 'Untitled grant'} · <a data-og-row-source="" href={grantNavUrl(g.identifier)} rel="noopener" style={{ color: ACCENT }}>360Giving record</a>
                   </div>
                 </li>
               ))}
@@ -237,7 +238,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
             {byName.map((n) => (
               <span key={n.url}>
                 {' '}{byName.length === 1 ? 'One contract notice' : 'A contract notice'} gave a Companies House number that doesn&rsquo;t exist; it names the
-                supplier as {n.name} and is included on that basis (<a href={n.url} style={{ color: 'inherit', textDecoration: 'underline' }}>the notice on Find a Tender</a>).
+                supplier as {n.name} and is included on that basis (<a data-og-row-source="" href={n.url} style={{ color: 'inherit', textDecoration: 'underline' }}>the notice on Find a Tender</a>).
               </span>
             ))}
             {' '}{byName.length ? 'Otherwise nothing' : 'Nothing'} is linked by name alone, so two organisations with the same name but
@@ -250,6 +251,9 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
           </p>
         </section>
       </article>
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
+          Sources fold; each donation's, contract's and grant's record stays on its row. */}
+      <PageSources sources={[org.company_number && { label: `Companies House record, company ${org.company_number}`, href: companiesHouseUrl(org.company_number) }]} />
     </OpenGovShell>
   );
 }

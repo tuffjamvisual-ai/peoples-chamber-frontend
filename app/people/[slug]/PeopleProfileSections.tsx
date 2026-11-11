@@ -189,6 +189,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                   )}
                   {role.body && (
                     <div
+                      data-og-citations=""
                       style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '12px' }}
                       dangerouslySetInnerHTML={{ __html: role.body }}
                     />
