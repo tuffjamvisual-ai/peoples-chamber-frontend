@@ -21,6 +21,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import PageSources from '@/app/components/PageSources';
 import { normaliseParty } from '@/lib/party-helpers';
 import RelatedLinks from '../../components/RelatedLinks';
 import { displayMpName } from '@/lib/mp-name';
@@ -402,7 +403,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         style={{
           fontFamily: 'var(--font-special-elite), monospace',
           fontSize: 'clamp(15px, 1.7vw, 18px)',
-          marginBottom: cvaId != null ? '4px' : '32px',
+          marginBottom: '32px',
           lineHeight: 1.6,
           transform: 'rotate(-0.15deg)',
         }}
@@ -419,16 +420,6 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         {tellers.length > 0 && <>{'  ·  '}{tellers.length} tellers (not counted)</>}
         {boths.length > 0 && <>{'  ·  '}{boths.length} both</>}
       </p>
-      {/* The official record beside the result (UX1e, 9 Nov 2026), as on the bill page: Parliament's own page for this
-          division, from its Commons Votes division id (every division after the archive has one). */}
-      {cvaId != null && (
-        <p style={{ margin: '0 0 16px' }}>
-          <a href={`https://votes.parliament.uk/votes/commons/division/${cvaId}`} style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-            Official Parliament record
-          </a>
-        </p>
-      )}
-
       {description && (
         <section style={{ marginBottom: '28px' }}>
           <h2 style={sectionH2}>What this vote was about</h2>
@@ -532,6 +523,9 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           </nav>
         );
       })()}
+
+      {/* EL1 (owner, 10 Nov 2026): Parliament's own page for this division (UX1e) is in the page's one Sources fold. */}
+      <PageSources sources={[cvaId != null && { label: 'This division on UK Parliament\u2019s Commons Votes website', href: `https://votes.parliament.uk/votes/commons/division/${cvaId}` }]} />
 
       {/* B4 — bill + department related links via exact normalized title match */}
       <RelatedLinks variant="division" divisionTitle={title} />
