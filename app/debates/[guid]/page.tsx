@@ -480,7 +480,8 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(2, debateScreens[0] ?? 2)} />
           </>
         )}
-        {groups.length > 0 && <NoJsFold id="dbrn-f" always label="Read next"><ReadNext links={readNext.slice(0, 3)} /></NoJsFold>}
+        {/* The same closed fold as At a glance, its + on the right (T1-5x, Cowork 11 Nov 2026). */}
+        {groups.length > 0 && readNext.length > 0 && <AboutThisData id="dbrn-f" label="Read next"><ReadNext links={readNext.slice(0, 3)} /></AboutThisData>}
       </div>
 
       <nav aria-label="Adjacent debates" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', maxWidth: '46em', margin: '40px auto 0', borderTop: '1px solid rgba(20,16,13,0.25)', paddingTop: '18px' }}>
