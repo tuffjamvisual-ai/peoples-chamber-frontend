@@ -9,7 +9,7 @@ import { displayMpName } from '@/lib/mp-name';
 
 export const QUESTION_PAGE_SIZE = 25;
 export type QuestionStatus = 'answered' | 'unanswered' | 'holding' | 'corrected' | 'withdrawn';
-export type QuestionFilters = { words?: string; memberIds?: number[]; bodyId?: number; from?: string; to?: string; status?: QuestionStatus | null; uin?: string };
+export type QuestionFilters = { words?: string; memberIds?: number[]; bodyId?: number; from?: string; to?: string; status?: QuestionStatus | null; uin?: string; notIds?: number[] };
 const LIST = 'id, uin, house, date_tabled, date_answered, heading, answering_body_id, asking_member_id, is_withdrawn, date_holding_answer, date_answer_corrected';
 export type QuestionRow = { id: number; uin: string; house: string; date_tabled: string; date_answered: string | null; heading: string | null; answering_body_id: number | null; asking_member_id: number | null; is_withdrawn: boolean | null; date_holding_answer: string | null; date_answer_corrected: string | null };
 
@@ -55,7 +55,7 @@ export const questionPeople = unstable_cache(async (): Promise<Person[]> => {
 }, ['question-people'], { revalidate: 86400 });
 
 // One screen of questions, newest first, after `before` (date_id of the last row shown), and the total when it is the first screen.
-export async function searchQuestions(f: QuestionFilters, before: string | null, wantTotal: boolean): Promise<{ rows: QuestionRow[]; more: string | null; total: number | null }> {
+export async function searchQuestions(f: QuestionFilters, before: string | null, wantTotal: boolean, pageSize = QUESTION_PAGE_SIZE): Promise<{ rows: QuestionRow[]; more: string | null; total: number | null }> {
   let q = db.from('parliament_written_questions').select(LIST, wantTotal ? { count: 'exact' } : undefined);
   if (f.status === 'withdrawn') q = q.eq('is_withdrawn', true);
   else q = q.eq('is_withdrawn', false);
@@ -69,14 +69,15 @@ export async function searchQuestions(f: QuestionFilters, before: string | null,
   if (f.from) q = q.gte('date_tabled', f.from);
   if (f.to) q = q.lte('date_tabled', f.to);
   if (f.uin) q = q.ilike('uin', f.uin);
+  if (f.notIds?.length) q = q.not('id', 'in', `(${f.notIds.join(',')})`);
   const m = before?.match(/^(\d{4}-\d{2}-\d{2})_(\d{1,10})$/);
   if (m) q = q.or(`date_tabled.lt.${m[1]},and(date_tabled.eq.${m[1]},id.lt.${m[2]})`);
-  const { data, error, count } = await q.order('date_tabled', { ascending: false }).order('id', { ascending: false }).limit(QUESTION_PAGE_SIZE + 1);
+  const { data, error, count } = await q.order('date_tabled', { ascending: false }).order('id', { ascending: false }).limit(pageSize + 1);
   if (error) throw new Error(`questions: ${error.message}`);
   const all = (data ?? []) as unknown as QuestionRow[];
-  const rows = all.slice(0, QUESTION_PAGE_SIZE);
+  const rows = all.slice(0, pageSize);
   const last = rows[rows.length - 1];
-  return { rows, more: all.length > QUESTION_PAGE_SIZE && last ? `${last.date_tabled}_${last.id}` : null, total: wantTotal ? count ?? null : null };
+  return { rows, more: all.length > pageSize && last ? `${last.date_tabled}_${last.id}` : null, total: wantTotal ? count ?? null : null };
 }
 
 export type Attachment = { url?: string; title?: string; fileType?: string; fileSizeBytes?: number };
@@ -86,4 +87,16 @@ export async function getQuestion(id: number): Promise<Question | null> {
   const { data, error } = await db.from('parliament_written_questions').select(`${LIST}, question_text, answer_html, answer_text, original_answer_html, answering_member_id, answering_body, attachments, url`).eq('id', id).maybeSingle();
   if (error) throw new Error(`question ${id}: ${error.message}`);
   return data as unknown as Question | null;
+}
+
+// T1-MOB2 (4), owner 11 Nov 2026: a search of two or more words, not already in quotes, shows the questions with those
+// words as one exact phrase first ("Public Duty Costs Allowance" found 63 questions, newest first, none of the first
+// with the phrase). At most PHRASE_MAX of them, newest first; the other matches follow without them.
+import { phraseOf, PHRASE_MAX } from '@/lib/question-phrase';
+export { PHRASE_MAX };
+export async function phraseQuestions(f: QuestionFilters): Promise<QuestionRow[]> {
+  const phrase = phraseOf(f.words);
+  if (!phrase) return [];
+  const { rows } = await searchQuestions({ ...f, words: `"${phrase}"` }, null, false, PHRASE_MAX);
+  return rows;
 }

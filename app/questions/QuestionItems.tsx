@@ -16,11 +16,11 @@ export const questionState = (q: QuestionRow) => {
 
 // A screen of questions and Show more. Show more moves on 25 and lands on the first of them; it is an ordinary link, so it works with
 // JavaScript off and crawlers can reach every question. data-own-more stops lib/phone-enhance.ts folding the list again.
-export default function QuestionItems({ rows, people, showDepartment = true, moreHref, moreLabel }: { rows: QuestionRow[]; people: Map<number, Person>; showDepartment?: boolean; moreHref: string | null; moreLabel: string }) {
+export default function QuestionItems({ rows, people, showDepartment = true, moreHref, moreLabel, listId = 'questions-list' }: { rows: QuestionRow[]; people: Map<number, Person>; showDepartment?: boolean; moreHref: string | null; moreLabel: string; listId?: string }) {
   return (
     <>
-      <ShowAll id="questions-list" count={(rows).length} rows="> li">
-      <ul id="questions-list" data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+      <ShowAll id={listId} count={(rows).length} rows="> li">
+      <ul id={listId} data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {rows.map((q) => (
           <li key={q.id} style={{ borderBottom: '1px solid rgba(20,16,13,0.25)' }}>
             <Link href={`/questions/${q.id}`} prefetch={false} className="no-hover-scale" style={{ display: 'block', minHeight: '44px', padding: '12px 0', color: INK, textDecoration: 'none' }}>
@@ -36,7 +36,7 @@ export default function QuestionItems({ rows, people, showDepartment = true, mor
       </ShowAll>
       {moreHref && (
         <p style={{ margin: '12px 0 0' }}>
-          <a href={`${moreHref}#questions-list`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '44px', padding: '8px 12px', border: `1px solid ${INK}`, fontSize: '15px', fontWeight: 'bold', color: INK, textDecoration: 'none' }}>{moreLabel}</a>
+          <a href={`${moreHref}#${listId}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '44px', padding: '8px 12px', border: `1px solid ${INK}`, fontSize: '15px', fontWeight: 'bold', color: INK, textDecoration: 'none' }}>{moreLabel}</a>
         </p>
       )}
     </>

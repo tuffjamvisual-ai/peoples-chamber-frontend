@@ -7,6 +7,7 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { QUESTION_DEPARTMENTS, departmentBySlug } from '@/lib/question-departments';
 import { QUESTION_PAGE_SIZE, questionDepartmentStats, questionPeople, searchQuestions, type QuestionStatus } from '@/lib/question-pages';
 import QuestionItems from './QuestionItems';
+import { phraseQuestions, PHRASE_MAX } from '@/lib/question-pages';
 import NoJsPager from '@/app/components/NoJsPager';
 import { wideFrom } from '@/lib/breakpoints';
 
@@ -57,7 +58,13 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
 
   const noPerson = !!who && named.length === 0;
   const anyFilter = !!(words || memberIds || dept || from || to || status || uin);
-  const { rows, more, total } = noPerson ? { rows: [], more: null, total: 0 } : await searchQuestions({ words: words || undefined, memberIds, bodyId: dept?.id, from, to, status, uin }, before, anyFilter && !before);
+  const filters = { words: words || undefined, memberIds, bodyId: dept?.id, from, to, status, uin };
+  // Exact phrase first (T1-MOB2 (4)): the questions with the words as one phrase lead the first page; every page of the
+  // other matches leaves them out, so none shows twice.
+  const phrase = noPerson ? [] : await phraseQuestions(filters);
+  const { rows, more, total: rest } = noPerson ? { rows: [], more: null, total: 0 } : await searchQuestions({ ...filters, notIds: phrase.map((r) => r.id) }, before, anyFilter && !before);
+  const total = rest == null ? null : rest + phrase.length;
+  const phraseShown = before ? [] : phrase;
   const count = anyFilter ? (s.at ? null : total) : stats.reduce((n, r) => n + r.asked, 0);
 
   const href = (over: Partial<Record<keyof Search, string | null>>) => {
@@ -95,7 +102,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
           chips above the results, each a link that removes it. Works with JavaScript off. */}
       <style>{`.qf { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0 0 12px; max-width: 900px; } .qf > .qf-full { grid-column: 1 / -1; } .qf-more > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 15px; font-weight: bold; color: ${INK}; } .qf-more-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding: 4px 0 8px; } .qf-more-grid > .qf-full { grid-column: 1 / -1; } .q-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; padding: 0; } .q-chips a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 12px; box-sizing: border-box; font-size: 15px; color: ${INK}; background: rgba(122,22,18,0.08); border: 1px solid ${ACCENT}; text-decoration: none; } @media ${wideFrom(1024)} { .qf { grid-template-columns: 1fr 1fr auto; align-items: end; } .qf > .qf-go { grid-column: auto; order: 3; } .qf > .qf-more { order: 4; } }`}</style>
       <form action="/questions" method="get" role="search" className="qf">
-        <div><label htmlFor="q-words" style={labelStyle}>Words</label><input data-main-action id="q-words" type="search" name="words" defaultValue={words} style={field} /></div>
+        <div><label htmlFor="q-words" style={labelStyle}>Words</label><input data-main-action id="q-words" type="search" name="words" defaultValue={words} aria-describedby="q-words-hint" style={field} /><span id="q-words-hint" style={{ display: 'block', fontSize: '15px', color: INK, marginTop: '4px' }}>Put words in &ldquo;quotes&rdquo; to find that exact phrase only.</span></div>
         <div><label htmlFor="q-who" style={labelStyle}>MP or peer</label><input id="q-who" type="search" name="who" defaultValue={who} style={field} /></div>
         <details className="qf-more qf-full" open={!!(dept || from || to)}>
           <summary>More filters{dept || from || to ? ` (${[dept, from, to].filter(Boolean).length} set)` : ''}</summary>
@@ -139,9 +146,16 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
       </p>
       {who && named.length > 1 && <p style={{ fontSize: '15px', color: INK, margin: '0 0 8px' }}>Matches {named.length === 50 ? 'the first 50 people' : `${named.length} people`} with that name.</p>}
 
-      {rows.length === 0
+      {phraseShown.length > 0 && (
+        <>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: INK, margin: '16px 0 6px' }}>With the exact phrase &ldquo;{words}&rdquo; ({n0(phraseShown.length)}{phraseShown.length === PHRASE_MAX ? ', the newest' : ''})</h2>
+          <QuestionItems rows={phraseShown} people={byId} moreHref={null} moreLabel="" listId="questions-phrase" />
+          {rows.length > 0 && <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: INK, margin: '22px 0 6px' }}>Other questions with these words</h2>}
+        </>
+      )}
+      {rows.length === 0 && phraseShown.length === 0
         ? <p style={{ fontSize: '16px', color: INK, margin: '16px 0' }}>{noPerson ? 'No MP or peer has that name.' : 'No questions match.'}</p>
-        : <QuestionItems rows={rows} people={byId} moreHref={moreHref} moreLabel="Show more" />}
+        : rows.length > 0 && <QuestionItems rows={rows} people={byId} moreHref={moreHref} moreLabel="Show more" />}
       {before && <p style={{ margin: '12px 0 0', fontSize: '15px' }}><a href={href({})} style={{ display: 'inline-block', padding: '12px 0', color: INK, textDecoration: 'underline' }}>Back to the newest</a></p>}
 
       <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: INK, margin: '28px 0 8px' }}>By department</h2>
