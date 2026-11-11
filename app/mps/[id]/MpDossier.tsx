@@ -122,10 +122,13 @@ export default function MpDossier({
         @media ${wideFrom(761)} {
           .mp-standards-line { position: relative; top: -56px; }
         }
-        /* T1-MPH (Cowork, 11 Nov 2026): from 768px up the Standards cases line starts where the name does (the name block
-           sits 4 per cent left of the page column). */
+        /* T1-MPH (Cowork, 11 Nov 2026): from 768px up the Standards cases line is in the header's left column, under the
+           party line; under 768px it stays below the header, as before. */
+        .mp-std-head { display: none; }
         @media ${wideFrom(768)} {
-          .mp-standards-line { margin-left: -4% !important; }
+          .mp-std-head { display: block; margin-top: 6px; }
+          .mp-std-head .mp-standards-line { position: static; top: auto; margin: 0 !important; }
+          .mp-std-page { display: none; }
         }
       `}</style>
 
@@ -223,11 +226,13 @@ export default function MpDossier({
               )}
             </div>
           )}
+          <div className="mp-std-head"><StandardsCasesLine memberId={memberId} /></div>
         </div>
       </div>
 
-      {/* Commissioner for Standards cases (owner, 7 Nov 2026, T1): one line, at every width, for a member with any. */}
-      <StandardsCasesLine memberId={memberId} />
+      {/* Commissioner for Standards cases (owner, 7 Nov 2026, T1): one line, at every width, for a member with any. From
+          768px up it is shown in the header instead (T1-MPH). */}
+      <div className="mp-std-page"><StandardsCasesLine memberId={memberId} /></div>
 
       {/* Full interactive profile sections (scaled up via zoom to restore text size). */}
       <div className="pca-sections" style={{ zoom: 1.18 }}>

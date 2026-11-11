@@ -2959,6 +2959,9 @@ export default function MagazineProfileSections({
           ${sections.map((s) => `html:not(.og-js) .mp-sections-grid:has(#section-${s.id}:target, #section-${s.id} :target) .mp-sections-nav a[data-section="${s.id}"] > span { border-bottom-color: #7a1612 !important; background: rgba(122,22,18,0.08) !important; font-weight: bold !important; }`).join('\n          ')}
         }
         @media (max-width: 1023px){
+          /* Inside the folder (T1-MPH, Cowork 11 Nov 2026): the desktop sidebar's -13% pull to the left put the row past the
+             folder's left edge from 768 to 1023px. */
+          .mp-sections-grid > aside { margin-left: 0 !important; }
           .mp-sections-nav { flex-direction: row !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-right: 0 !important; padding: 4px 0 0 !important; gap: 2px !important; border-bottom: 1px solid rgba(20,16,13,0.2); }
           .mp-sections-nav::-webkit-scrollbar { display: none; }
           .mp-sections-nav.more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
