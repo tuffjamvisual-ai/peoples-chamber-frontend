@@ -156,7 +156,7 @@ export default async function CouncilElectionSection({ gssCode, councilName }: {
                 w.turnout_pct != null ? `turnout ${Number(w.turnout_pct).toFixed(1)}%` : 'turnout not published',
                 w.ballots_rejected != null ? `${n0(w.ballots_rejected)} rejected ballots` : null,
               ].filter(Boolean).join(' · ')}
-              {' · '}<a href={w.source_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT }}>official result</a>
+              {' · '}<a data-og-row-source="" href={w.source_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT }}>official result</a>
             </p>
           </details>
         );

@@ -64,7 +64,7 @@ function CaseItem({ c }: { c: StandardsCase }) {
   return (
     <li id={caseId(c)}>
       <div style={{ fontWeight: 'bold' }}><ListedName c={c} /></div>
-      <a href={c.documentUrl} rel="noopener" style={tap}>{readLabel(c)}</a>
+      <a data-og-row-source="" href={c.documentUrl} rel="noopener" style={tap}>{readLabel(c)}</a>
     </li>
   );
 }
@@ -151,7 +151,7 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
         {members.map((m) => (
           <section key={m.slug} id={m.slug} className="sc-member" aria-label={`Cases naming ${m.listed}`}>
             <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 6px' }}>{m.listed}</h2>
-            <ul className="sc-list">{m.cases.map((c) => <li key={caseId(c)}><a href={caseHref(c)} style={tap}>{SECTION_TITLE[c.outcome]}, {c.period}</a></li>)}</ul>
+            <ul className="sc-list">{m.cases.map((c) => <li key={caseId(c)}><a data-og-row-source="" href={caseHref(c)} style={tap}>{SECTION_TITLE[c.outcome]}, {c.period}</a></li>)}</ul>
           </section>
         ))}
       </div>

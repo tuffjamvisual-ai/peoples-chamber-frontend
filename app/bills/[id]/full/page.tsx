@@ -282,7 +282,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                         return (
                           <li key={p.id} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'baseline', gap: '4px 16px', borderBottom: `1px dotted ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
                             <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-                              <a href={publicationHref(p, bill.parliament_id)} target="_blank" rel="noopener noreferrer" className="focus-ring"
+                              <a data-og-row-source="" href={publicationHref(p, bill.parliament_id)} target="_blank" rel="noopener noreferrer" className="focus-ring"
                                 style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.5, color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', overflowWrap: 'anywhere' }}>
                                 {p.title || '(untitled publication)'}
                                 <span className="sr-only"> (opens on Parliament&rsquo;s website)</span>

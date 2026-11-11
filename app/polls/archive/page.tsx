@@ -114,7 +114,7 @@ export default async function ArchivedPollsPage() {
               )}
               {/* A closed native fold, so the page (already about 9,500px on phones) grows by one line per poll. */}
               {httpsSources(p.explainer_sources).length > 0 && (
-                <details style={{ fontSize: '15px', lineHeight: 1.7, color: INK_SOFT, maxWidth: '760px' }}>
+                <details data-og-citations="" style={{ fontSize: '15px', lineHeight: 1.7, color: INK_SOFT, maxWidth: '760px' }}>
                   <summary style={{ cursor: 'pointer', minHeight: '44px', display: 'flex', alignItems: 'center', fontFamily: MONO }}>Sources</summary>
                   <ul style={{ margin: '0 0 8px', paddingLeft: '20px' }}>
                     {httpsSources(p.explainer_sources).map((x) => (

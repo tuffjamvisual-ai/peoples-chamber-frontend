@@ -90,11 +90,11 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
             const { first, rest } = splitAnswer(answerHtml(q.answer_html));
             return (
               <>
-                {first && <div className="wq-html" dangerouslySetInnerHTML={{ __html: first }} />}
+                {first && <div className="wq-html" data-og-citations="" dangerouslySetInnerHTML={{ __html: first }} />}
                 {rest && (
                   <>
                     <details className="rf-d"><summary>Continue reading</summary></details>
-                    <div className="rf-b"><div className="wq-html" dangerouslySetInnerHTML={{ __html: rest }} /></div>
+                    <div className="rf-b"><div className="wq-html" data-og-citations="" dangerouslySetInnerHTML={{ __html: rest }} /></div>
                   </>
                 )}
               </>
@@ -103,7 +103,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
           {q.original_answer_html && (
             <details className="pa-fold" style={{ marginTop: '12px' }}>
               <summary>Original answer</summary>
-              <div className="wq-html" dangerouslySetInnerHTML={{ __html: answerHtml(q.original_answer_html) }} />
+              <div className="wq-html" data-og-citations="" dangerouslySetInnerHTML={{ __html: answerHtml(q.original_answer_html) }} />
             </details>
           )}
         </>
@@ -114,7 +114,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
           <h2 style={h2}>Attachments</h2>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {q.attachments.filter((a) => a.url).map((a) => (
-              <li key={a.url}><a href={a.url} target="_blank" rel="noopener noreferrer" style={blockLink}>{a.title || 'Attachment'}{a.fileType || a.fileSizeBytes ? ` (${[a.fileType, fileSize(a.fileSizeBytes)].filter(Boolean).join(', ')})` : ''}</a></li>
+              <li key={a.url}><a data-og-row-source="" href={a.url} target="_blank" rel="noopener noreferrer" style={blockLink}>{a.title || 'Attachment'}{a.fileType || a.fileSizeBytes ? ` (${[a.fileType, fileSize(a.fileSizeBytes)].filter(Boolean).join(', ')})` : ''}</a></li>
             ))}
           </ul>
         </>

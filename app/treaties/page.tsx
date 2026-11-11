@@ -67,7 +67,7 @@ export default async function TreatiesPage({ searchParams }: { searchParams: Pro
             <div style={{ fontFamily: MONO, fontSize: '15px', marginTop: '3px', color: t.scrutiny_concluded ? INK : ACCENT }}>
               {scrutinyLabel(t, today)}{t.committee_reports?.length ? ` · ${t.committee_reports.length} committee ${t.committee_reports.length === 1 ? 'item' : 'items'}` : ''}
             </div>
-            {t.govuk_url && <a href={t.govuk_url} rel="noopener" style={{ display: 'inline-block', fontFamily: MONO, fontSize: '15px', color: ACCENT, marginTop: '4px' }}>The treaty on GOV.UK</a>}
+            {t.govuk_url && <a data-og-row-source="" href={t.govuk_url} rel="noopener" style={{ display: 'inline-block', fontFamily: MONO, fontSize: '15px', color: ACCENT, marginTop: '4px' }}>The treaty on GOV.UK</a>}
           </li>
         ))}
       </ol>

@@ -368,7 +368,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     {companyRegNumber && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Company no.</dt><dd className="text-[#14100d]">{companyRegNumber}</dd></>)}
                     {addressParts.length > 0 && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Donor address</dt><dd className="text-[#14100d]">{addressParts.join(', ')}</dd></>)}
                     {explanatoryNotes && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC notes</dt><dd className="text-[#14100d] whitespace-pre-line">{explanatoryNotes}</dd></>)}
-                    {ecRef && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC reference</dt><dd className="text-[#14100d] font-mono"><a href={ecDonationSearchUrl(ecRef)} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{ecRef} ↗</a></dd></>)}
+                    {ecRef && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC reference</dt><dd className="text-[#14100d] font-mono"><a data-og-row-source="" href={ecDonationSearchUrl(ecRef)} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{ecRef} ↗</a></dd></>)}
                     {donorSlug && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Donor profile</dt><dd className="text-[#14100d]"><Link href={`/donors/${donorSlug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{donor}</Link></dd></>)}
                   </dl>
                 </details>

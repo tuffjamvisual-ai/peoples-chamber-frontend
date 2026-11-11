@@ -99,9 +99,9 @@ export default async function MinisterialDirectionsPage() {
                 <DepartmentLine d={d} deptName={deptName} />
                 <p style={{ margin: '4px 0 0', fontFamily: MONO, fontSize: '15px' }}>
                   {letterLinks(d).map((l, i) => (
-                    <span key={l.url}>{i > 0 && ' · '}<a href={l.url} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{l.label}</a></span>
+                    <span key={l.url}>{i > 0 && ' · '}<a data-og-row-source="" href={l.url} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{l.label}</a></span>
                   ))}
-                  {' · '}<a href={d.govuk_url} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>GOV.UK page</a>
+                  {' · '}<a data-og-row-source="" href={d.govuk_url} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>GOV.UK page</a>
                 </p>
               </li>
             ))}

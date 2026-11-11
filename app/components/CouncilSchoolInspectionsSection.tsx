@@ -176,7 +176,7 @@ export default async function CouncilSchoolInspectionsSection({
   const hasPredecessor = schools.some((s) => latest(s).predecessor);
 
   const link = (s: School, text: string) =>
-    s.web_link ? <a href={s.web_link} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{text}</a> : text;
+    s.web_link ? <a data-og-row-source="" href={s.web_link} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{text}</a> : text;
 
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>

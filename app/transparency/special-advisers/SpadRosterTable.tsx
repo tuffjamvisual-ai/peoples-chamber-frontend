@@ -41,7 +41,7 @@ function BackgroundPanel({ name, bg }: { name: string; bg: SpadBackground }) {
                   {CATEGORY_LABEL[i.category] ?? i.category} · {i.department}, {i.period}{i.end_date_text ? ` (${i.end_date_text})` : ''}
                 </span>
                 <q style={{ display: 'block', margin: '2px 0' }}>{i.entry_text}</q>
-                <a href={i.source_url} rel="noopener" style={linkStyle}>{i.source_title}{i.source_page ? `, page ${i.source_page} of the PDF` : ''}</a>
+                <a data-og-row-source="" href={i.source_url} rel="noopener" style={linkStyle}>{i.source_title}{i.source_page ? `, page ${i.source_page} of the PDF` : ''}</a>
               </li>
             ))}
           </ul>
@@ -53,7 +53,7 @@ function BackgroundPanel({ name, bg }: { name: string; bg: SpadBackground }) {
           <ul style={{ margin: 0, paddingLeft: '18px' }}>
             {bg.history.map((h) => (
               <li key={`${h.title}|${h.from}`} style={{ padding: '2px 0' }}>
-                {historyLine(h)} (<a href={h.source_url} rel="noopener" style={linkStyle}>list</a>)
+                {historyLine(h)} (<a data-og-row-source="" href={h.source_url} rel="noopener" style={linkStyle}>list</a>)
               </li>
             ))}
           </ul>
@@ -72,7 +72,7 @@ function BackgroundPanel({ name, bg }: { name: string; bg: SpadBackground }) {
                     {p.conditions_text.split('\n').map((c) => <li key={c}><q>{c}</q></li>)}
                   </ul>
                 )}
-                <a href={p.source_url} rel="noopener" style={linkStyle}>ACOBA advice letter on GOV.UK</a>
+                <a data-og-row-source="" href={p.source_url} rel="noopener" style={linkStyle}>ACOBA advice letter on GOV.UK</a>
               </li>
             ))}
           </ul>

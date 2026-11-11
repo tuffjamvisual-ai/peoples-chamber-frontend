@@ -60,7 +60,7 @@ function List({ heading, items, more }: { heading: string; items: Item[]; more?:
             </Link>
             {i.later && (
               <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.5, marginTop: '3px', color: INK, overflowWrap: 'anywhere' }}>
-                {i.later.map((s, k) => (s.href ? <a key={k} href={s.href} style={link}>{s.text}</a> : <span key={k}>{s.text}</span>))}
+                {i.later.map((s, k) => (s.href ? <a data-og-row-source="" key={k} href={s.href} style={link}>{s.text}</a> : <span key={k}>{s.text}</span>))}
               </span>
             )}
           </li>

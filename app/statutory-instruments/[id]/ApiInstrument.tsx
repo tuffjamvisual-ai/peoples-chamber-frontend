@@ -50,7 +50,7 @@ export default function ApiInstrument({ si, versions }: { si: SiRow; versions: S
         ))}
       </dl>
       {si.legislation_url && (
-        <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 24px' }}><a href={si.legislation_url} rel="noopener" style={{ color: ACCENT }}>Read it on legislation.gov.uk</a></p>
+        <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 24px' }}><a data-og-row-source="" href={si.legislation_url} rel="noopener" style={{ color: ACCENT }}>Read it on legislation.gov.uk</a></p>
       )}
 
       <section aria-labelledby="si-timeline">
@@ -61,7 +61,7 @@ export default function ApiInstrument({ si, versions }: { si: SiRow; versions: S
               <li key={i} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '8px 0', fontSize: '15px', lineHeight: 1.5 }}>
                 <span style={{ fontFamily: MONO, fontWeight: 'bold' }}>{fmtDate(s.date)}{s.date && s.date > today ? ' (to come)' : ''}</span>
                 {s.houses?.length ? <span style={{ fontFamily: MONO }}> · {s.houses.join(' and ')}</span> : null}
-                <div style={{ overflowWrap: 'anywhere' }}>{s.link ? <a href={s.link} rel="noopener" style={{ color: INK }}>{s.step}</a> : s.step}</div>
+                <div style={{ overflowWrap: 'anywhere' }}>{s.link ? <a data-og-row-source="" href={s.link} rel="noopener" style={{ color: INK }}>{s.step}</a> : s.step}</div>
               </li>
             ))}
           </ol>

@@ -199,7 +199,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
                     <span style={{ fontFamily: 'var(--font-special-elite), monospace', whiteSpace: 'nowrap' }}>{fmt(v.division_date)}</span>
                     {' · '}<strong>{v.vote === 'content' ? 'Content' : v.vote === 'not_content' ? 'Not content' : v.vote}</strong>
                     <div>
-                      <a href={lordsDivisionUrl(v.division_id)} target="_blank" rel="noopener noreferrer" style={link}>{(v.title || `Division ${v.division_id}`).trim()}</a>
+                      <a data-og-row-source="" href={lordsDivisionUrl(v.division_id)} target="_blank" rel="noopener noreferrer" style={link}>{(v.title || `Division ${v.division_id}`).trim()}</a>
                       {v.bill_id && <> · <Link href={`/bills/${v.bill_id}`} style={link}>the bill</Link></>}
                     </div>
                   </li>

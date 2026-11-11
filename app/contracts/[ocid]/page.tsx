@@ -212,7 +212,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
                 <ul style={list}>
                   {h.changes.map((c) => (
                     <li key={c.url} style={{ marginBottom: '8px' }}>
-                      <a href={c.url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(c.date)}</a>
+                      <a data-og-row-source="" href={c.url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(c.date)}</a>
                       {' · '}
                       {c.oldValue != null && c.newValue != null
                         ? <>{gbp(c.oldValue)} → {gbp(c.newValue)} ({signed(c.newValue - c.oldValue)})</>
@@ -229,7 +229,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
 
             {h.termination && (
               <p style={{ ...figure, background: CREAM, padding: '10px 12px' }}>
-                <strong>Termination:</strong> <a href={h.termination.url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(h.termination.date)}</a>.
+                <strong>Termination:</strong> <a data-og-row-source="" href={h.termination.url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(h.termination.date)}</a>.
                 {h.termination.endDate && <> Ended {fmtDay(h.termination.endDate)}.</>}
                 {h.termination.finalValue != null && <> Final value {gbp(h.termination.finalValue)}.</>}
                 {h.termination.reason && <> Reason: &ldquo;{short(h.termination.reason)}&rdquo;</>}
@@ -244,7 +244,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
       <section style={{ marginBottom: '24px' }}>
         <h2 style={sectionH2}>Performance</h2>
         {performance.length
-          ? <ul style={list}>{performance.map((p) => <li key={p.release_id}><a href={p.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(p.published_at)} · Contract performance notice</a></li>)}</ul>
+          ? <ul style={list}>{performance.map((p) => <li key={p.release_id}><a data-og-row-source="" href={p.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(p.published_at)} · Contract performance notice</a></li>)}</ul>
           : <p style={{ fontSize: '15px' }}>No performance notices have been published.</p>}
       </section>
 
@@ -254,7 +254,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
         <ul style={list}>
           {timeline.map((n) => (
             <li key={n.release_id} style={{ marginBottom: '6px' }}>
-              <a href={n.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(n.published_at)} · {noticeName(n)}</a>
+              <a data-og-row-source="" href={n.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(n.published_at)} · {noticeName(n)}</a>
               {n.value != null && n.value_type !== 'none' && <> · {n.value_type === 'estimated' ? `estimated ${gbp(n.value)}` : n.value_type === 'framework_maximum' ? `${gbp(n.value)} framework maximum` : n.value_type === 'final' ? `final value ${gbp(n.value)}` : n.value_type === 'change_new' ? `changed to ${gbp(n.value)}` : gbp(n.value)}</>}
             </li>
           ))}

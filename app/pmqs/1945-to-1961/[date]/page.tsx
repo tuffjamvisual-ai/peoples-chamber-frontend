@@ -52,7 +52,7 @@ function Speaker({ row }: { row: PreFixedRow }) {
     <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>
       {row.question_number && <>{row.question_number} </>}
       {row.speaker_as_printed && (row.person_url
-        ? <a href={row.person_url} rel="noopener" className="og-tap" style={link}>{row.speaker_as_printed}</a>
+        ? <a data-og-row-source="" href={row.person_url} rel="noopener" className="og-tap" style={link}>{row.speaker_as_printed}</a>
         : row.speaker_as_printed)}
       {row.member_id != null && <> <Link href={`/mps/${row.member_id}`} prefetch={false} className="og-tap" style={{ ...link, fontWeight: 'normal' }}>opengovt profile</Link></>}
     </p>
@@ -65,7 +65,7 @@ function ExchangeHead({ e }: { e: PreFixedExchange }) {
       {e.experiment && <p style={{ fontSize: '15px', fontWeight: 'bold', color: ACCENT, margin: '0 0 4px' }}>The 3.15 p.m. experiment</p>}
       <h2 style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1.35, margin: '0 0 4px', overflowWrap: 'anywhere' }}>{e.section}</h2>
       {e.privateNotice && <p style={{ fontSize: '15px', margin: '0 0 4px' }}>By private notice</p>}
-      {e.url && <p style={{ fontSize: '15px', margin: '0 0 4px' }}><a href={e.url} rel="noopener" className="og-tap" style={link}>{e.reference ?? 'Read this in Historic Hansard'}</a></p>}
+      {e.url && <p style={{ fontSize: '15px', margin: '0 0 4px' }}><a data-og-row-source="" href={e.url} rel="noopener" className="og-tap" style={link}>{e.reference ?? 'Read this in Historic Hansard'}</a></p>}
     </div>
   );
 }

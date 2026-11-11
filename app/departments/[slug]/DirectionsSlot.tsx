@@ -21,7 +21,7 @@ export function DirectionsSlot({ directions }: { directions: Direction[] }) {
             <p style={{ fontSize: '15px', margin: '3px 0 0', lineHeight: 1.5 }}>Department at the time: {departmentsAtTheTime(d).join(', ')}</p>
             <p style={{ fontSize: '15px', margin: '3px 0 0' }}>
               {letterLinks(d).map((l, i) => (
-                <span key={l.url}>{i > 0 && ' · '}<a href={l.url} style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{l.label}</a></span>
+                <span key={l.url}>{i > 0 && ' · '}<a data-og-row-source="" href={l.url} style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{l.label}</a></span>
               ))}
             </p>
           </li>

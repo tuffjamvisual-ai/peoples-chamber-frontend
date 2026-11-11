@@ -1014,7 +1014,7 @@ export default function MagazineProfileSections({
                   const sources = timelineSources(timeline);
                   if (sources.length === 0) return null;
                   return (
-                    <details style={{ fontSize: '15px', color: '#14100d', marginBottom: '18px' }}>
+                    <details data-og-citations="" style={{ fontSize: '15px', color: '#14100d', marginBottom: '18px' }}>
                       <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '15px' }}>
                         Sources ({sources.length})
                       </summary>
@@ -1102,7 +1102,7 @@ export default function MagazineProfileSections({
                   </p>
                 )}
                 {bio?.bio_sources && bio.bio_sources.length > 0 && (
-                  <details>
+                  <details data-og-citations="">
                     <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '15px' }}>
                       Sources ({bio.bio_sources.length})
                     </summary>
@@ -1532,7 +1532,7 @@ export default function MagazineProfileSections({
           const item = (e: MpEdmEntry) => (
             <li key={`${e.role}-${e.id}`} style={{ padding: '11px 0', borderBottom: inkDivider }}>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                <a href={`https://edm.parliament.uk/early-day-motion/${e.id}`} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{e.title}</a>
+                <a data-og-row-source="" href={`https://edm.parliament.uk/early-day-motion/${e.id}`} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{e.title}</a>
                 {e.role === 'sponsor' && <span style={chip}>Sponsor</span>}
                 {e.isPrayer && <span style={chip}>Prayer against regulations</span>}
                 {e.isAmendment && <span style={chip}>Amendment</span>}

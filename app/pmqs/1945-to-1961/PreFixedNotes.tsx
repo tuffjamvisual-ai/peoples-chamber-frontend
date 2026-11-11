@@ -6,7 +6,7 @@ export function ExperimentNote() {
   return (
     <p style={note}>
       <strong>The 3.15 p.m. experiment.</strong> The Speaker told the House on 24 October 1961 that on 18 July he had announced that &ldquo;the Prime Minister was willing to try the experiment of answering his Questions on Tuesdays and Thursdays at 3.15 p.m.&rdquo;{' '}
-      Source: <a href={SPEAKER_URL} rel="noopener" className="og-tap" style={{ color: ACCENT, textDecoration: 'underline' }}>HC Deb 24 October 1961 vol 646 cc740-1</a>
+      Source: <a data-og-citations="" href={SPEAKER_URL} rel="noopener" className="og-tap" style={{ color: ACCENT, textDecoration: 'underline' }}>HC Deb 24 October 1961 vol 646 cc740-1</a>
     </p>
   );
 }

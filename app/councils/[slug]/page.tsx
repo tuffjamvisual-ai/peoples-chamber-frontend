@@ -441,7 +441,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                                 {resultSentence(r, c.gss_code.startsWith('S12'))}
                                 {jointRunnersUp(r) && <> {jointRunnersUp(r)}</>}
                                 {context && <span style={{ display: 'block' }}>{context}</span>}
-                                <span style={{ display: 'block' }}><a href={r.declaration_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Declaration of result</a></span>
+                                <span style={{ display: 'block' }}><a data-og-row-source="" href={r.declaration_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Declaration of result</a></span>
                               </li>
                             );
                           })}

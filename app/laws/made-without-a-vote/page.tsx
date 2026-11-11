@@ -126,7 +126,7 @@ export default async function MadeWithoutAVotePage({ searchParams }: { searchPar
               </div>
             )}
             {r.legislation_url && (
-              <a href={r.legislation_url} rel="noopener" style={{ display: 'inline-block', fontFamily: MONO, fontSize: '15px', color: ACCENT, marginTop: '4px' }}>Read it on legislation.gov.uk</a>
+              <a data-og-row-source="" href={r.legislation_url} rel="noopener" style={{ display: 'inline-block', fontFamily: MONO, fontSize: '15px', color: ACCENT, marginTop: '4px' }}>Read it on legislation.gov.uk</a>
             )}
           </li>
         ))}

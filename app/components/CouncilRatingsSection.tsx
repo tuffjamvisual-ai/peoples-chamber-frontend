@@ -92,7 +92,7 @@ function FinanceHealth({ events, reserves, name }: { events: FinanceEvent[]; res
         <ul style={{ ...para, paddingLeft: '1.2em' }}>
           {events.map((e) => (
             <li key={`${e.event_type}-${e.period}`} style={{ marginBottom: '4px' }}>
-              {eventLabel(e)} · <a href={e.source_url} style={{ color: INK }} rel="noopener noreferrer" target="_blank">source</a>
+              {eventLabel(e)} · <a data-og-row-source="" href={e.source_url} style={{ color: INK }} rel="noopener noreferrer" target="_blank">source</a>
             </li>
           ))}
         </ul>

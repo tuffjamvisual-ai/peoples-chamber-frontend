@@ -1,5 +1,5 @@
-// QA1 A2, A3 and A4 (owner approved, 9 Nov 2026): rules checked on a built site. Reads only: it loads pages from a local
-// build and reads two ids from the database; it writes nothing but its report. Run by the pre-push check
+// QA1 A2, A3, A6 and A9 (owner approved, 9 to 11 Nov 2026): rules checked on a built site. Reads only: it loads pages
+// from a local build; it writes nothing but its report. Run by the pre-push check
 // (scripts/checks/mobile-audit-prepush.mjs) against the commit being pushed, or by hand against a running build:
 //   node scripts/checks/qa/rendered-checks.mjs --base http://localhost:3000 [--all] [--write-baseline] [--json <file>]
 // Pages: one example of each page type in scripts/checks/mobile-audit-fast.txt (--all: every type in
@@ -24,12 +24,15 @@
 //       as a returning reader sees the page. A separate first-visit pass, with no choice made, checks at each size that
 //       the cookie banner (fixed to the foot of the screen at every width) does not cover the main action as the page
 //       opens (code banner-<size>).
-//   A4  official record links: each bill page links to bills.parliament.uk for that bill, each division page to
-//       votes.parliament.uk for that division (ids read from the database).
+//   A9  only sources link outside (EL1, owner, 10 and 11 Nov 2026; T1-5c): a link to another site may only be in the
+//       page's Sources fold (data-og-sources, app/components/PageSources.tsx), a row's own official document (marked
+//       data-og-row-source), inline citations in article or biography text (inside data-article-body or
+//       data-og-citations), the footer licence line, a licence or data attribution (a licence address, rel="license" or
+//       data-og-attribution), or mailto. Each other one is a failure, always (no baseline).
+//       A4 (official record links on bill and division pages) was dropped by T1-5c: those links are in the Sources fold.
 // A2 and A3 found problems on pages that existed before the check; those are in rendered-baseline.json and are
 // expected: a run fails only on a new one (a page over the limit that was not, or longer than its baseline by more than
-// 200px; a time word on a page that did not have it). A4 for divisions is an expected failure until division pages link
-// to Parliament's record (EXPECTED_A4_DIVISIONS below); A4 for bills is a hard rule.
+// 200px; a time word on a page that did not have it).
 // Dates (QA2c): each "Updated" line is judged against the limit of the source it names (record-dates.mjs) and reported
 // with the counts; a stale date is data, not code, so it is listed but never refuses a push (the weekly live check and
 // the freshness monitor report data age).
@@ -58,7 +61,6 @@ const A6_VIEWS = [
   { name: '844x390', width: 844, height: 390, main: 390, h1: 390 },
   { name: '1280x720', width: 1280, height: 720, main: 720, first: 720, desktop: true },
 ];
-const EXPECTED_A4_DIVISIONS = true;
 const BASELINE_FILE = path.join(HERE, 'rendered-baseline.json');
 const MP2_CSV = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/audit/mp2/page-lengths.csv';
 
@@ -111,28 +113,19 @@ export function timeWords(text) {
   return out;
 }
 
-async function rest(pathAndQuery) {
-  if (fs.existsSync(path.join(ROOT, '.env.local')) && !process.env.SUPABASE_SECRET_KEY) process.loadEnvFile(path.join(ROOT, '.env.local'));
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) throw new Error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY missing');
-  const res = await fetch(`${url}/rest/v1/${pathAndQuery}`, { headers: { apikey: key, authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(20000) });
-  if (!res.ok) throw new Error(`database read ${res.status}`);
-  return res.json();
-}
-
-// The official record each bill or division page must link to, from the database.
-async function officialLink(urlPath) {
-  let m = /^\/bills\/(\d+)$/.exec(urlPath);
-  if (m) {
-    const [b] = await rest(`bill?select=parliament_id&id=eq.${m[1]}`);
-    return b?.parliament_id ? { kind: 'bill', href: `https://bills.parliament.uk/bills/${b.parliament_id}` } : null;
+// A9 (T1-5c): every link to another site on the page that is not in an allowed place, as "host: label".
+export const A9_LICENCE = /^https?:\/\/(www\.)?(nationalarchives\.gov\.uk\/doc\/open-government-licence|creativecommons\.org\/licenses|parliament\.uk\/site-information\/copyright-parliament\/open-parliament-licence)/i;
+function outsideLinks(licence) {
+  const re = new RegExp(licence);
+  const out = [];
+  for (const a of document.querySelectorAll('a[href]')) {
+    let u; try { u = new URL(a.getAttribute('href'), location.href); } catch { continue; }
+    if (!/^https?:$/.test(u.protocol) || u.host === location.host || /(^|\.)opengovt\.uk$/.test(u.hostname)) continue;
+    if (a.closest('[data-og-sources], footer, [data-og-row-source], [data-article-body], [data-og-citations], [data-og-attribution]')) continue;
+    if (re.test(u.href) || (a.getAttribute('rel') ?? '').split(/\s+/).includes('license')) continue;
+    out.push(`${u.hostname.replace(/^www\./, '')}: ${(a.getAttribute('aria-label') || a.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 60)}`);
   }
-  m = /^\/divisions\/pw-(\d{4}-\d{2}-\d{2})-(\d+)(?:-commons)?$/.exec(urlPath);
-  if (m) {
-    const [d] = await rest(`commons_division_totals?select=division_id&division_number=eq.${m[2]}&division_date=eq.${m[1]}&limit=1`).catch(() => []);
-    return { kind: 'division', href: d?.division_id ? `https://votes.parliament.uk/Votes/Commons/Division/${d.division_id}` : null };
-  }
-  return null;
+  return [...new Set(out)];
 }
 
 // A6: the measured position behind a code, for the report.
@@ -151,24 +144,26 @@ async function main() {
   // checks must never add to a burst of page loads. Keep it so: no Promise.all over pages here.
   const list = pages();
   const extra = ALL ? [] : [{ route: '/bills/[id]', url: '/bills/3942' }, { route: '/bills/[id]', url: '/bills/4080' }, { route: '/divisions/[slug]', url: '/divisions/pw-2019-01-15-293-commons' }];
+  // The extra pages (once A4's bill and division samples) are loaded for A9 like the others.
   const results = [];
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 375, height: 812 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   await ctx.route('**/*', (r) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(r.request().url()) ? r.abort() : r.continue()));
   const page = await ctx.newPage();
   for (const p of [...list, ...extra]) {
-    const r = { route: p.route, url: p.url, status: null, height: null, timeWords: [], link: null, dates: [], a6: null, a6Tops: null };
+    const r = { route: p.route, url: p.url, status: null, height: null, timeWords: [], outside: [], dates: [], a6: null, a6Tops: null };
     try {
       const res = await fetch(BASE + p.url, { redirect: 'manual', signal: AbortSignal.timeout(60000) });
       r.status = res.status;
       const html = res.status === 200 ? await res.text() : '';
       if (html && !(exceptions.time_words_skip_routes ?? []).includes(p.route)) r.timeWords = timeWords(visibleText(html));
       if (html) r.dates = judgeDates(recordDates(html), p.route, SOURCES).map((d) => ({ ...d, date: d.date.toISOString().slice(0, 10) }));
-      const want = await officialLink(p.url).catch((e) => ({ kind: 'error', href: null, error: e.message }));
-      if (want) r.link = { ...want, found: want.href ? html.includes(want.href) : false };
-      if (res.status === 200 && !extra.includes(p)) {
+      if (res.status === 200) {
         await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
         await page.waitForTimeout(300);
+        r.outside = await page.evaluate(outsideLinks, A9_LICENCE.source);
+      }
+      if (res.status === 200 && !extra.includes(p)) {
         // QA2d (owner, 9 Nov 2026): article text is never folded, so the limit applies to the page minus the article body.
         r.height = await page.evaluate(() => Math.round(document.documentElement.scrollHeight - [...document.querySelectorAll('[data-article-body]')].reduce((n, el) => n + el.getBoundingClientRect().height, 0)));
       }
@@ -269,18 +264,14 @@ async function main() {
       else fails.push(`${line} (new)`);
     }
     for (const d of r.dates) if (d.stale) expected.push(`date ${r.url}: "Updated ${d.date}" is ${d.age} days old, over ${d.limit} for ${d.judgedBy === 'source' ? d.source : "this page's data"} (data, reported only)`);
-    if (r.link && !r.link.found) {
-      const line = `A4 ${r.url}: no link to ${r.link.href ?? `Parliament's record (${r.link.error ?? 'id not found'})`}`;
-      if (r.link.kind === 'division' && EXPECTED_A4_DIVISIONS) expected.push(line);
-      else fails.push(line);
-    }
+    for (const o of r.outside ?? []) fails.push(`A9 ${r.url}: links outside the site, not as a source (${o})`);
   }
   const summary = {
     pages: results.length,
     a2_pages_with_time_words: results.filter((r) => r.timeWords.length).length,
     a3_over_limit: results.filter((r) => r.height != null && r.height > LIMIT_PX).length,
-    a4_checked: results.filter((r) => r.link).length,
-    a4_missing: results.filter((r) => r.link && !r.link.found).length,
+    a9_pages_with_outside_links: results.filter((r) => r.outside?.length).length,
+    a9_outside_links: results.reduce((n, r) => n + (r.outside?.length ?? 0), 0),
     date_lines: results.reduce((n, r) => n + r.dates.length, 0),
     date_lines_by_source: results.reduce((n, r) => n + r.dates.filter((d) => d.judgedBy === 'source').length, 0),
     dates_stale: results.reduce((n, r) => n + r.dates.filter((d) => d.stale).length, 0),
@@ -290,7 +281,7 @@ async function main() {
     expected: expected.length,
   };
   if (JSON_OUT) fs.writeFileSync(JSON_OUT, JSON.stringify({ summary, fails, expected, results }, null, 1));
-  console.log(`rendered checks (A2 time words, A3 phone length, A4 official links, A6 first screen): ${JSON.stringify(summary)}`);
+  console.log(`rendered checks (A2 time words, A3 phone length, A6 first screen, A9 outside links): ${JSON.stringify(summary)}`);
   for (const e of expected) console.log(`  expected: ${e}`);
   for (const f of fails) console.log(`  FAIL ${f}`);
   return fails.length ? 1 : 0;

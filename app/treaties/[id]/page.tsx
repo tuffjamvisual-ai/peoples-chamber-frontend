@@ -61,7 +61,7 @@ export default async function TreatyPage({ params }: { params: Promise<{ id: str
           <div key={k} style={{ display: 'contents' }}><dt style={{ fontWeight: 'bold' }}>{k}</dt><dd style={{ margin: 0, overflowWrap: 'anywhere' }}>{v}</dd></div>
         ))}
       </dl>
-      {t.govuk_url && <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 24px' }}><a href={t.govuk_url} rel="noopener" style={{ color: ACCENT }}>The treaty and its explanatory memorandum on GOV.UK</a></p>}
+      {t.govuk_url && <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 24px' }}><a data-og-row-source="" href={t.govuk_url} rel="noopener" style={{ color: ACCENT }}>The treaty and its explanatory memorandum on GOV.UK</a></p>}
 
       <section aria-labelledby="treaty-committees" style={{ marginBottom: '24px' }}>
         <h2 id="treaty-committees" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', margin: '0 0 8px' }}>Committee work</h2>
@@ -71,7 +71,7 @@ export default async function TreatyPage({ params }: { params: Promise<{ id: str
             {t.committee_reports.map((c, i) => (
               <li key={i} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '8px 0', fontSize: '15px', lineHeight: 1.5 }}>
                 <span style={{ fontFamily: MONO, fontWeight: 'bold' }}>{fmtDate(c.date)}</span>
-                <div style={{ overflowWrap: 'anywhere' }}>{c.link ? <a href={c.link} rel="noopener" style={{ color: INK }}>{c.step}</a> : c.step}</div>
+                <div style={{ overflowWrap: 'anywhere' }}>{c.link ? <a data-og-row-source="" href={c.link} rel="noopener" style={{ color: INK }}>{c.step}</a> : c.step}</div>
               </li>
             ))}
           </ul>
@@ -87,7 +87,7 @@ export default async function TreatyPage({ params }: { params: Promise<{ id: str
             {t.timeline.map((s, i) => (
               <li key={i} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '8px 0', fontSize: '15px', lineHeight: 1.5 }}>
                 <span style={{ fontFamily: MONO, fontWeight: 'bold' }}>{fmtDate(s.date)}{s.date && s.date > today ? ' (to come)' : ''}</span>
-                <div style={{ overflowWrap: 'anywhere' }}>{s.link ? <a href={s.link} rel="noopener" style={{ color: INK }}>{s.step}</a> : s.step}</div>
+                <div style={{ overflowWrap: 'anywhere' }}>{s.link ? <a data-og-row-source="" href={s.link} rel="noopener" style={{ color: INK }}>{s.step}</a> : s.step}</div>
               </li>
             ))}
           </ol>

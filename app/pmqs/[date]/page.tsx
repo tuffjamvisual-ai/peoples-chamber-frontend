@@ -95,12 +95,12 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
                 {e.speaker.map((w, i) => (
                   <div key={i}>
                     <p style={body}>{w.text}</p>
-                    {w.url && <p style={{ fontSize: '15px', margin: '0 0 8px' }}><a href={w.url} rel="noopener" style={link}>The Speaker&rsquo;s words in Hansard</a></p>}
+                    {w.url && <p style={{ fontSize: '15px', margin: '0 0 8px' }}><a data-og-row-source="" href={w.url} rel="noopener" style={link}>The Speaker&rsquo;s words in Hansard</a></p>}
                   </div>
                 ))}
               </div>
             )}
-            {e.hansardUrl && <p style={{ fontSize: '15px', margin: 0 }}><a href={e.hansardUrl} rel="noopener" style={link}>Official Hansard record</a></p>}
+            {e.hansardUrl && <p style={{ fontSize: '15px', margin: 0 }}><a data-og-row-source="" href={e.hansardUrl} rel="noopener" style={link}>Official Hansard record</a></p>}
           </li>
         ))} />
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The session's full Hansard record is in this one

@@ -10,7 +10,7 @@ const INK = '#14100d';
 export default function AppgSource({ style }: { style?: React.CSSProperties }) {
   const link: React.CSSProperties = { color: INK, textDecoration: 'underline' };
   return (
-    <p style={{ fontSize: '15px', color: INK, lineHeight: 1.55, margin: '12px 0 0', ...style }}>
+    <p data-og-attribution="" style={{ fontSize: '15px', color: INK, lineHeight: 1.55, margin: '12px 0 0', ...style }}>
       Source:{' '}
       <a href={APPG_DATASET_URL} target="_blank" rel="noopener noreferrer" style={link}>mySociety APPG dataset</a>{' '}
       (<a href={CC_BY_URL} target="_blank" rel="noopener noreferrer license" style={link}>CC BY 4.0</a>)

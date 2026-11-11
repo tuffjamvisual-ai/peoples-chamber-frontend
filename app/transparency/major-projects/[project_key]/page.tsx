@@ -94,7 +94,7 @@ export default async function MajorProjectPage({ params }: Props) {
           {e.stated ? (
             <>Evaluation plan (the department&rsquo;s own statement, {e.dataAsAt}):{' '}
               {e.parts.map((x, i) => (
-                <span key={i}>{i > 0 && ' · '}{x.href ? <a href={x.href} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.text}</a> : x.text}</span>
+                <span key={i}>{i > 0 && ' · '}{x.href ? <a data-og-row-source="" href={x.href} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.text}</a> : x.text}</span>
               ))}
             </>
           ) : <>Evaluation plan: not stated in the {e.dataAsAt} report</>}
@@ -121,7 +121,7 @@ export default async function MajorProjectPage({ params }: Props) {
             <p style={{ fontSize: '15px', margin: '8px 0 0' }}>No commentary in the file for this year.</p>
           )}
           <p style={{ fontSize: '15px', margin: '8px 0 0' }}>
-            Source: <a href={REPORT_PAGES[y.report_year]?.url} style={{ color: INK }}>{REPORT_PAGES[y.report_year]?.title}</a> (<a href={y.source_url} style={{ color: INK }}>data</a>)
+            Source: <a data-og-row-source="" href={REPORT_PAGES[y.report_year]?.url} style={{ color: INK }}>{REPORT_PAGES[y.report_year]?.title}</a> (<a data-og-row-source="" href={y.source_url} style={{ color: INK }}>data</a>)
           </p>
         </details>
       ))}

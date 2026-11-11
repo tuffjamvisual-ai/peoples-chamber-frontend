@@ -64,7 +64,7 @@ function laterSource(url: string | null, publisher: string | null, title: string
 }
 const listWords = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
-const linked = (parts: StatusLink[]) => parts.map((s, i) => (s.href ? <a key={i} href={s.href} style={link}>{s.text}</a> : <span key={i}>{s.text}</span>));
+const linked = (parts: StatusLink[]) => parts.map((s, i) => (s.href ? <a data-og-row-source="" key={i} href={s.href} style={link}>{s.text}</a> : <span key={i}>{s.text}</span>));
 
 // A target set after the Treasury Minutes, in a department's letter (pac_target_updates): the last entry in the
 // timeline, as "Revised in a letter from the Ministry of Justice, 23 July 2026". Not a Treasury Minute or progress report.
@@ -74,7 +74,7 @@ function TargetUpdate({ row, docs }: { row: StatusRow; docs: SourceDocument[] })
   return (
     <li style={{ borderLeft: '2px solid rgba(20,16,13,0.25)', padding: '0 0 18px 16px', margin: 0 }}>
       <span style={{ display: 'block', ...small, fontSize: '16px', fontWeight: 600 }}>
-        <a href={source.href} style={link}>{source.text}</a>
+        <a data-og-row-source="" href={source.href} style={link}>{source.text}</a>
       </span>
       {row.target_source_title && (
         <span style={{ display: 'block', ...small, marginTop: '4px' }}>
@@ -104,7 +104,7 @@ function Event({ e, open }: { e: EventRow & { document: SourceDocument }; open: 
   return (
     <li style={{ borderLeft: '2px solid rgba(20,16,13,0.25)', padding: '0 0 18px 16px', margin: 0 }}>
       <span style={{ display: 'block', ...small, fontSize: '16px', fontWeight: 600 }}>
-        <a href={pdf} style={link}>{documentWords(e.document)}</a>{e.page ? `, PDF page ${e.page}` : ''}
+        <a data-og-row-source="" href={pdf} style={link}>{documentWords(e.document)}</a>{e.page ? `, PDF page ${e.page}` : ''}
       </span>
       {e.response && <span style={{ display: 'block', ...small, marginTop: '4px' }}>Response: {RESPONSE[e.response] ?? `“${e.response}”`}</span>}
       {lines.map((l) => <span key={l} style={{ display: 'block', ...small }}>{l}</span>)}
@@ -181,7 +181,7 @@ export default async function RecommendationPage({ params }: { params: Promise<P
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {evidence.map((e) => (
               <li key={e.id} style={{ ...small, fontSize: '16px', marginBottom: '8px' }}>
-                <a href={e.evidence_url} style={link}>{e.evidence_title}</a>
+                <a data-og-row-source="" href={e.evidence_url} style={link}>{e.evidence_title}</a>
                 {e.publisher ? `, ${e.publisher}` : ''}{e.delivered_on ? `, ${dayMonthYear(e.delivered_on)}` : ''}{e.note && e.note !== shows ? `. ${e.note}` : ''}
               </li>
             ))}

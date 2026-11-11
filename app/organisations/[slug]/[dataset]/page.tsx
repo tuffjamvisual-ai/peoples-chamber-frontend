@@ -96,7 +96,7 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
             <span style={{ fontWeight: 'bold' }}>{fmtDay(c.awarded_date)}</span> · {c.is_framework ? `framework, up to ${c.value != null ? money(c.value) : 'a value not published'}` : c.value != null ? money(c.value) : 'value not published'} · {buyerLabel(c.dept_slug)}
             <div style={sub}>
               {c.title || 'Untitled contract'} · supplier named as “{c.supplier}”
-              {c.ocid && <> · <a href={findTenderUrl(c.ocid)} rel="noopener" style={{ color: ACCENT }}>Find a Tender record</a></>}
+              {c.ocid && <> · <a data-og-row-source="" href={findTenderUrl(c.ocid)} rel="noopener" style={{ color: ACCENT }}>Find a Tender record</a></>}
             </div>
           </li>
         ))}
