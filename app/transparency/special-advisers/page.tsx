@@ -14,7 +14,7 @@ import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { SubFold } from '../../components/PhoneFolds';
+import AboutThisData from '../../components/AboutThisData';
 import SeeAlso from '../../components/SeeAlso';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import SpadSource, { spadReleaseSource } from '../../components/SpadSource';
@@ -167,15 +167,6 @@ export default async function SpecialAdvisersPage() {
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.15 }}>
           Who advises Whitehall, and what they declared
         </h1>
-        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
-        <SubFold label="About special advisers and this page">
-        <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch' }}>
-          Special Advisers are political appointees paid out of public funds. They are not civil servants, not ministers and not elected. They write speeches, brief ministers, set tone, and often drive policy. Their conduct sits outside the MPs&rsquo; Register of Interests and outside the standard civil service rules.
-        </p>
-        <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', marginTop: '12px' }}>
-          Once a year the Cabinet Office publishes every special adviser by name, with the minister who appointed them and their pay band. The Cabinet Office and the major Whitehall departments also publish a quarterly return of each Special Adviser&rsquo;s gifts, hospitality, and meetings with senior media figures. This page brings both together; every quarter is kept from April to June 2026 on.
-        </p>
-        </SubFold>
       </header>
 
       {release && appointments.length > 0 && (
@@ -189,12 +180,6 @@ export default async function SpecialAdvisersPage() {
           {/* Folded on phones with JavaScript on as well (step 5, 10 Nov 2026: the page was 8,214px with it on, 3,601px off). The notes on how
               the list is made are inside it. */}
           <NoJsFold id="spf-posts" always label="Each Cabinet post and its advisers">
-          <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 14px' }}>
-            One row per appointment: an adviser who works for two ministers is listed under each. Salaries are published only from £81,000, in bands of £5,000. Ministers with an opengovt page are linked; members of the Lords have none.
-          </p>
-          <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 14px' }}>
-            Declared interests are published by each department, not by the adviser. Every special adviser declares their interests to the permanent secretary of their department, who decides which are relevant enough to publish and how any conflict is managed, for example by a recusal: the adviser stays out of the matters named. The Cabinet Office publishes its advisers&rsquo; interests separately each year; most other departments print them inside their annual report and accounts. Each entry below is quoted word for word and linked to the document it comes from.
-          </p>
           {!known && <SpadRosterTable rows={appointments} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="a" anchorNames={tableAnchors.all} />}
           {known && (
             <>
@@ -223,9 +208,6 @@ export default async function SpecialAdvisersPage() {
                   )}
                 </div>
               ))}
-              <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '10px 0 18px' }}>
-                Posts and dates: UK Parliament Members API (in Sources at the end of the page), checked every week.
-              </p>
             </>
           )}
           </NoJsFold>
@@ -248,16 +230,21 @@ export default async function SpecialAdvisersPage() {
       <QuarterSections quarters={quarters} roster={roster} gifts={gifts} hosps={hosps} meets={meets} deptSlugs={deptSlugs} />
       </NoJsFold>
 
-      {/* Phones (owner, 10 Nov 2026, S5-fold): See also in a closed native fold; from 640px up as before. */}
-      <SubFold label="See also (5)">
-      <SeeAlso links={[
+      {/* T1-5x S7 (owner, 10 Nov 2026): what special advisers are and how the list is read, in one closed block. */}
+      <AboutThisData>
+        <p>Special Advisers are political appointees paid out of public funds. They are not civil servants, not ministers and not elected. They write speeches, brief ministers, set tone, and often drive policy. Their conduct sits outside the MPs&rsquo; Register of Interests and outside the standard civil service rules.</p>
+        <p>Once a year the Cabinet Office publishes every special adviser by name, with the minister who appointed them and their pay band. The Cabinet Office and the major Whitehall departments also publish a quarterly return of each Special Adviser&rsquo;s gifts, hospitality, and meetings with senior media figures. This page brings both together; every quarter is kept from April to June 2026 on.</p>
+        <p>One row per appointment: an adviser who works for two ministers is listed under each. Salaries are published only from £81,000, in bands of £5,000. Ministers with an opengovt page are linked; members of the Lords have none.</p>
+        <p>Declared interests are published by each department, not by the adviser. Every special adviser declares their interests to the permanent secretary of their department, who decides which are relevant enough to publish and how any conflict is managed, for example by a recusal: the adviser stays out of the matters named. The Cabinet Office publishes its advisers&rsquo; interests separately each year; most other departments print them inside their annual report and accounts. Each entry below is quoted word for word and linked to the document it comes from.</p>
+        <p>Posts and dates: UK Parliament Members API (in Sources at the end of the page), checked every week.</p>
+      </AboutThisData>
+
+      {/* The one Related list, at most three (T1-5x, owner 10 Nov 2026). */}
+      <SeeAlso heading="Related" links={[
         { href: '/transparency/revolving-door', label: 'Revolving Door', note: 'Former ministers and officials taking outside jobs, and the conditions attached' },
-        { href: '/lobbying', label: 'Lobbying', note: 'Who meets ministers most, and which lobbying firms act for which clients' },
         { href: '/transparency/ministers-meetings', label: "Ministers' meetings", note: 'Every published meeting between ministers and outside organisations' },
         { href: '/transparency/hospitality', label: "Ministers' hospitality", note: 'Gifts, hospitality and travel accepted by ministers' },
-        { href: '/departments', label: 'All government departments', note: 'Ministers, budgets, staff and record for each department' },
       ]} />
-      </SubFold>
 
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside; each adviser's own source stays on its row, in the page's one Sources fold. */}
       <PageSources sources={[

@@ -175,7 +175,10 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
             </tr>
           </thead>
           <tbody>
-            {(() => { const used = new Set<string>(); return shown.map((r) => {
+            {(() => { const used = new Set<string>(); const linkedMps = new Set<number>(); return shown.map((r) => {
+              // Each minister linked once per table, on their first row; in a post's own (compact) table not at all, as the post
+              // line above it links them (T1-5x, owner 10 Nov 2026).
+              const linkMp = !compact && r.minister_member_id != null && !linkedMps.has(r.minister_member_id) && !!linkedMps.add(r.minister_member_id);
               const anchor = anchorNames.includes(r.adviser_name) && !used.has(r.adviser_name) && !!used.add(r.adviser_name) ? adviserAnchor(r.adviser_name) : undefined;
               const name = shownName(r);
               const gone = left(r);
@@ -197,7 +200,7 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
                       )}
                     </th>
                     <td style={{ ...td, minWidth: '14em' }}>
-                      {name && (r.minister_member_id != null
+                      {name && (linkMp
                         ? <Link href={`/mps/${r.minister_member_id}`} style={{ ...linkStyle, fontWeight: 'bold' }}>{name}</Link>
                         : <span style={{ fontWeight: 'bold' }}>{name}</span>)}
                       {gone && <span> {leftLabel(gone)}</span>}
