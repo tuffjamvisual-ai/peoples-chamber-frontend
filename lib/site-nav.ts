@@ -2,7 +2,6 @@
 // for the desktop header (OpenGovShell.tsx, no dropdowns since report 60), the phone menu panel (MobileMenu.tsx), the
 // section pages (app/sections/[slug]/page.tsx), so they cannot drift apart. The "In this section" rows on the section
 // landing pages were removed (owner, 10 Nov 2026, T1-5s: "all it does is add fat to the pages").
-import { topics } from '@/lib/topics';
 import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES, RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 import { PAGE_DESCRIPTIONS, partyDescription, PARTY_NAMES, VOTE_ON_BILLS_DESCRIPTION } from '@/lib/page-descriptions';
 
@@ -20,7 +19,8 @@ export const NAV: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Search', href: '/search' },
   { label: 'A - Z Directory', href: '/directory' },
-  { label: 'Topics', href: '/topics', page: '/topics', children: topics.map((t) => ({ label: t.title, href: `/topics/${t.slug}` })) },
+  // No Topics in the menu (owner, 11 Nov 2026, T1-TOP): /topics and every topic page stay, reached from the A - Z
+  // Directory, reports, the /reports topic filter, search and the sitemap.
   // MPs, Parties and Departments are groups of Parliament since 25 Oct 2026 (owner's decision, report 62).
   { label: 'Parliament', href: '/bills', page: '/sections/parliament', children: [
     { group: 'MPs', label: 'Find Your MP', href: '/find-your-mp', desc: 'Enter your postcode to find your MP, their voting record, expenses, declared interests and contributions.' },
@@ -110,7 +110,6 @@ export const PHONE_MENU_GROUPS: { label: string; links: NavLink[] }[] = [
   { label: 'Read', links: [
     { label: 'Reports', href: '/reports' },
     { label: 'This week', href: '/this-week' },
-    { label: 'Topics', href: '/topics' },
   ] },
   { label: 'Politicians and Parliament', links: [
     { label: 'MPs', href: '/mps' },

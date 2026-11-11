@@ -132,7 +132,6 @@ function build(): DirectoryEntry[] {
   for (const item of NAV) {
     if (item.children?.length) {
       for (const c of item.children) {
-        if (item.label === 'Topics') continue; // the topics are added below with their own lines
         add(c.label, c.href, c.desc);
       }
     } else {
