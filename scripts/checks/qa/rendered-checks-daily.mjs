@@ -1,4 +1,4 @@
-// The full rendered checks once a day against the live site (owner approved, 11 Nov 2026): A2, A3, A6 at all five sizes
+// The full rendered checks, then the accuracy checks A11 to A14, once a day against the live site (owner approved, 11 Nov 2026): A2, A3, A6 at all five sizes
 // with the first-visit banner pass (www.opengovt.uk, the site's own host; opengovt.uk redirects there), and A9 with every council tab opened. One page load or tab click a second at most.
 // The result is appended to Claude outputs/STATUS.md as one line; any new problem is named there for Cowork to make a job.
 // Run at 05:17 UK time by launchd (scripts/launchd/uk.opengovt.daily-qa.plist); by hand:
@@ -41,3 +41,22 @@ try {
 }
 fs.appendFileSync(STATUS, `${ukTime()} ${line}\n`);
 console.log(line);
+
+// The accuracy checks A11 to A14 (T1-QA9, Cowork 11 and 12 Nov 2026, accuracy first), against the same live site, one
+// page load a second; one more STATUS line, any new problem named for Cowork to make a job.
+const aJson = path.join(dir, `accuracy-${day}.json`);
+const aStart = Date.now();
+const a = spawnSync('npx', ['tsx', '--tsconfig', 'tsconfig.json', 'scripts/checks/qa/accuracy-checks.ts', '--base', 'https://www.opengovt.uk', '--json', aJson], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64e6 });
+fs.writeFileSync(path.join(dir, `accuracy-${day}.log`), `${a.stdout ?? ''}\n${a.stderr ?? ''}`);
+let aLine;
+try {
+  const { summary, fails } = JSON.parse(fs.readFileSync(aJson, 'utf8'));
+  const mins = Math.round((Date.now() - aStart) / 60000);
+  aLine = fails.length
+    ? `DAILY-ACCURACY NEW PROBLEMS (for Cowork to make a job): ${mins} min, ${fails.length} new: ${fails.slice(0, 5).join('; ')}${fails.length > 5 ? `; and ${fails.length - 5} more` : ''}. Full list: audit/daily-qa/accuracy-${day}.json`
+    : `DAILY-ACCURACY PASS: A11 to A14 on the live site, ${mins} min, 0 new problems: ${JSON.stringify(summary)}`;
+} catch {
+  aLine = `DAILY-ACCURACY BLOCKED: the accuracy checks did not finish (exit ${a.status}); log: audit/daily-qa/accuracy-${day}.log`;
+}
+fs.appendFileSync(STATUS, `${ukTime()} ${aLine}\n`);
+console.log(aLine);

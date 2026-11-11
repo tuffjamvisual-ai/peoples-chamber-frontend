@@ -106,7 +106,7 @@ function parseCsv(text) {
   return body.filter((r) => r.length > 1).map((r) => Object.fromEntries(head.map((h, k) => [h, r[k]])));
 }
 
-function pages() {
+export function pages() {
   const all = parseCsv(fs.readFileSync(path.join(ROOT, 'scripts/checks/mobile-audit-pages.csv'), 'utf8')).map((r) => ({ route: r.route, url: r.example_url }));
   const first = new Map();
   for (const p of all) if (!first.has(p.route)) first.set(p.route, p);

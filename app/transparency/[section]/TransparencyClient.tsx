@@ -298,7 +298,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             if (trustName) flags.push({ label: 'Trust structure', tone: 'info' })
 
             return (
-              <li key={i} className="p-5 border-l-2 border-l-[#14100d]">
+              <li key={i} data-donation-id={row.id != null ? String(row.id) : undefined} className="p-5 border-l-2 border-l-[#14100d]">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
                   <h3 className="text-[#14100d] text-base sm:text-lg font-bold leading-snug tracking-tight">{recipient}</h3>
                   {amount && (
