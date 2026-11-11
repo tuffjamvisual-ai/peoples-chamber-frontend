@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The daily live rendered checks (owner approved, 11 Nov 2026) at 05:17 by this Mac's clock (UK time). A run missed while
+     the Mac slept starts when it wakes. Install: cp to ~/Library/LaunchAgents and launchctl bootstrap gui/$(id -u) <file>. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>uk.opengovt.daily-qa</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string><string>-lc</string>
+    <string>cd /Users/johnnybot/peoples-chamber-frontend &amp;&amp; node scripts/checks/qa/rendered-checks-daily.mjs</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>17</integer></dict>
+  <key>StandardOutPath</key><string>/Volumes/GoliathSSD/opengovt-work/claude-tmp/daily-qa-launchd.log</string>
+  <key>StandardErrorPath</key><string>/Volumes/GoliathSSD/opengovt-work/claude-tmp/daily-qa-launchd.log</string>
+</dict>
+</plist>

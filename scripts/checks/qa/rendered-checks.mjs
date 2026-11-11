@@ -1,7 +1,12 @@
 // QA1 A2, A3, A6 and A9 (owner approved, 9 to 11 Nov 2026): rules checked on a built site. Reads only: it loads pages
 // from a local build; it writes nothing but its report. Run by the pre-push check
 // (scripts/checks/mobile-audit-prepush.mjs) against the commit being pushed, or by hand against a running build:
-//   node scripts/checks/qa/rendered-checks.mjs --base http://localhost:3000 [--all] [--write-baseline] [--json <file>]
+//   node scripts/checks/qa/rendered-checks.mjs --base http://localhost:3000 [--all] [--push] [--write-baseline] [--json <file>]
+// --push (owner approved, 11 Nov 2026): the pre-push run. A6 at 375 x 812 and 1280 x 720 only, no first-visit banner
+// pass, and A9 on the sample pages without opening every council tab; A2 and A3 as always. The full run (A6 at the five
+// sizes, the banner pass, every council tab) is the daily one against the live site (rendered-checks-daily.mjs, 05:17).
+// --base https://opengovt.uk: the live site. Pages are loaded in the browser only (the site refuses plain fetches), one
+// navigation or tab click a second at most.
 // Pages: one example of each page type in scripts/checks/mobile-audit-fast.txt (--all: every type in
 // mobile-audit-pages.csv), the examples taken from mobile-audit-pages.csv as the mobile audit does.
 //   A2  no time relative word in what readers see: "present", "now", "currently", "this Parliament", "to date", "so far",
@@ -54,17 +59,33 @@ const BASE = arg('--base', 'http://localhost:3000').replace(/\/$/, '');
 const ALL = argv.includes('--all');
 const WRITE = argv.includes('--write-baseline');
 const JSON_OUT = arg('--json', null);
+const PUSH = argv.includes('--push');
+const LIVE = /^https:\/\/(www\.)?opengovt\.uk$/.test(BASE);
+// Requests the checks never let through: analytics always; the live site too when checking a local build.
+const BLOCK = LIVE ? /posthog|vercel-insights|_vercel\/(insights|speed)/ : /opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/;
+// Live: at most one page load or tab click a second (live page fetches rule).
+let lastHit = 0;
+async function pace() {
+  if (!LIVE) return;
+  const wait = lastHit + 1000 - Date.now();
+  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+  lastHit = Date.now();
+}
 const LIMIT_PX = 2500;
 const GROWTH_PX = 200;
 // A6 (QA6): viewport, and the most px from the top of the page at which the main action (and, landscape, the h1) may start.
 // 430 x 932, a large phone (UX3h, owner approved, 10 Nov 2026): the main action above 760px.
-const A6_VIEWS = [
+const A6_ALL = [
   { name: '430x932', width: 430, height: 932, main: 760 },
   { name: '390x844', width: 390, height: 844, main: 700 },
   { name: '320x568', width: 320, height: 568, main: 520 },
   { name: '844x390', width: 844, height: 390, main: 390, h1: 390 },
   { name: '1280x720', width: 1280, height: 720, main: 720, first: 720, desktop: true },
 ];
+// The push run's phone size (owner approved, 11 Nov 2026): 375 x 812, the main action above 668px (the 144px that the
+// 390 x 844 rule keeps below the limit).
+const A6_PUSH = [{ name: '375x812', width: 375, height: 812, main: 668 }, A6_ALL.find((v) => v.name === '1280x720')];
+const A6_VIEWS = PUSH ? A6_PUSH : A6_ALL;
 const BASELINE_FILE = path.join(HERE, 'rendered-baseline.json');
 const MP2_CSV = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/audit/mp2/page-lengths.csv';
 
@@ -156,6 +177,7 @@ async function openCouncilTabs(page) {
     await page.evaluate(() => document.querySelectorAll('details.ct-sections').forEach((d) => { d.open = true; }));
     const btn = page.locator(`[data-council-tab="${id}"]:visible`).first();
     if (!(await btn.count())) continue;
+    await pace();
     await btn.click();
     try {
       await page.waitForFunction((t) => { const el = document.getElementById(`council-panel-${t}`); return !!el && !el.querySelector('[data-panel-loading]') && el.childElementCount > 0; }, id, { timeout: 60000 });
@@ -176,26 +198,36 @@ async function main() {
   const results = [];
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 375, height: 812 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
-  await ctx.route('**/*', (r) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(r.request().url()) ? r.abort() : r.continue()));
+  await ctx.route('**/*', (r) => (BLOCK.test(r.request().url()) ? r.abort() : r.continue()));
   const page = await ctx.newPage();
   for (const p of [...list, ...extra]) {
     const r = { route: p.route, url: p.url, status: null, height: null, timeWords: [], outside: [], dates: [], a6: null, a6Tops: null };
     try {
-      const res = await fetch(BASE + p.url, { redirect: 'manual', signal: AbortSignal.timeout(60000) });
-      r.status = res.status;
-      const html = res.status === 200 ? await res.text() : '';
+      let html = '', loaded = false;
+      if (LIVE) {
+        // The live site: the page as the browser gets it (a redirect counts as not 200, as with redirect: 'manual').
+        await pace();
+        const resp = await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
+        r.status = resp ? (resp.request().redirectedFrom() ? 308 : resp.status()) : null;
+        html = r.status === 200 ? await resp.text() : '';
+        loaded = true;
+      } else {
+        const res = await fetch(BASE + p.url, { redirect: 'manual', signal: AbortSignal.timeout(60000) });
+        r.status = res.status;
+        html = res.status === 200 ? await res.text() : '';
+      }
       if (html && !(exceptions.time_words_skip_routes ?? []).includes(p.route)) r.timeWords = timeWords(visibleText(html));
       if (html) r.dates = judgeDates(recordDates(html), p.route, SOURCES).map((d) => ({ ...d, date: d.date.toISOString().slice(0, 10) }));
-      if (res.status === 200) {
-        await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
+      if (r.status === 200) {
+        if (!loaded) await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
         await page.waitForTimeout(300);
         r.outside = await page.evaluate(outsideLinks, A9_LICENCE.source);
       }
-      if (res.status === 200 && !extra.includes(p)) {
+      if (r.status === 200 && !extra.includes(p)) {
         // QA2d (owner, 9 Nov 2026): article text is never folded, so the limit applies to the page minus the article body.
         r.height = await page.evaluate(() => Math.round(document.documentElement.scrollHeight - [...document.querySelectorAll('[data-article-body]')].reduce((n, el) => n + el.getBoundingClientRect().height, 0)));
       }
-      if (res.status === 200) {
+      if (r.status === 200 && !PUSH) {
         // A9 on a council page's detail tabs (T1-5c, Cowork, 11 Nov 2026): they load only when opened, so each one is
         // opened here, after the length is measured, and its links checked as the reader then sees them.
         const tabs = await openCouncilTabs(page);
@@ -211,11 +243,12 @@ async function main() {
     const c = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: !v.desktop, hasTouch: !v.desktop });
     // A returning reader: the cookie choice is made, so no banner (T1-7ab).
     await c.addCookies([{ name: 'og_cookies_policy', value: encodeURIComponent(JSON.stringify({ analytics: false })), url: BASE }]);
-    await c.route('**/*', (q) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(q.request().url()) ? q.abort() : q.continue()));
+    await c.route('**/*', (q) => (BLOCK.test(q.request().url()) ? q.abort() : q.continue()));
     const pg = await c.newPage();
     for (const r of results) {
       if (r.status !== 200 || r.height == null) continue;
       try {
+        await pace();
         await pg.goto(BASE + r.url, { waitUntil: 'load', timeout: 60000 });
         await pg.waitForTimeout(300);
         const t = await pg.evaluate(() => {
@@ -235,13 +268,15 @@ async function main() {
       } catch (e) { r.a6 ??= []; r.a6.push(`error-${v.name}`); }
     }
     await c.close();
-    // First visit (no cookie choice yet): the banner must not cover the main action as the page opens.
+    // First visit (no cookie choice yet): the banner must not cover the main action as the page opens. Not at push.
+    if (PUSH) continue;
     const fv = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: !v.desktop, hasTouch: !v.desktop });
-    await fv.route('**/*', (q) => (/opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/.test(q.request().url()) ? q.abort() : q.continue()));
+    await fv.route('**/*', (q) => (BLOCK.test(q.request().url()) ? q.abort() : q.continue()));
     const fp = await fv.newPage();
     for (const r of results) {
       if (r.status !== 200 || r.height == null) continue;
       try {
+        await pace();
         await fp.goto(BASE + r.url, { waitUntil: 'load', timeout: 60000 });
         await fp.waitForTimeout(300);
         const x = await fp.evaluate(() => {

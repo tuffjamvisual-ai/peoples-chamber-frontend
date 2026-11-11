@@ -4,6 +4,12 @@
 // It builds that commit in a temporary worktree, so the working tree and any running server are left alone, and takes
 // several minutes. It only runs when a pushed commit changes what pages render (app, lib, public, next.config), and once
 // per commit: pushing the same commit to main after work does not run it again.
+// 11 Nov 2026 (owner approved): a push whose changes are only under app/api/, scripts/ or data files is not checked (app/api
+// is left out of PAGE_CODE below; scripts and data files were never in it); anything else under app, lib, public or
+// next.config still runs the full check. The build reuses the main checkout's .next/cache/turbopack (the build cache only,
+// never .next/cache/fetch-cache, which can hold old database answers), and the rendered checks run with --push (A6 at
+// 375 x 812 and 1280 x 720, no first-visit banner pass, no council tab opening); the full rendered checks run daily
+// against the live site (scripts/checks/qa/rendered-checks-daily.mjs).
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -11,7 +17,7 @@ import { execFileSync, spawn } from 'child_process';
 
 const git = (...a) => execFileSync('git', a, { encoding: 'utf8' }).trim();
 const ZERO = /^0+$/;
-const PAGE_CODE = ['app', 'lib', 'public', 'next.config.ts', 'next.config.js', 'next.config.mjs'];
+const PAGE_CODE = ['app', 'lib', 'public', 'next.config.ts', 'next.config.js', 'next.config.mjs', ':(exclude)app/api'];
 const passedFile = path.join(git('rev-parse', '--git-dir'), 'mobile-audit-passed');
 
 const refs = fs.readFileSync(0, 'utf8').trim().split('\n').filter(Boolean).map((l) => l.split(' '));
@@ -49,6 +55,11 @@ try {
   run('git', ['worktree', 'add', '-q', '--detach', wt, sha]);
   run('cp', [process.platform === 'darwin' ? '-cR' : '-R', 'node_modules', path.join(wt, 'node_modules')]);
   fs.copyFileSync('.env.local', path.join(wt, '.env.local'));
+  // The build cache only (owner approved, 11 Nov 2026); a copy, so the check's build never changes the main checkout's.
+  if (fs.existsSync('.next/cache/turbopack')) {
+    fs.mkdirSync(path.join(wt, '.next/cache'), { recursive: true });
+    run('cp', [process.platform === 'darwin' ? '-cR' : '-R', '.next/cache/turbopack', path.join(wt, '.next/cache/turbopack')]);
+  }
   const env = { ...process.env, RECOMMENDATIONS_PUBLIC: '1' };
   execFileSync('npx', ['next', 'build'], { cwd: wt, env, stdio: ['ignore', 'ignore', 'inherit'] });
   const port = 3198;
@@ -61,7 +72,7 @@ try {
     run('node', ['scripts/checks/mobile-audit-deep.mjs', '--base', base, '--section', 'journeys', '--engines', 'chromium', '--journeys', 'e,g', '--out', path.join(os.tmpdir(), 'opengovt-audit-journeys')], { cwd: wt, env });
     run('node', ['scripts/checks/sitemap-dates-check.mjs', '--base', base], { cwd: wt, env });
     // QA1 (owner approved, 9 Nov 2026): A2 time words, A3 phone length 2,500px, A6 first screen, A9 only sources link outside (T1-5c); only new problems fail (A9 always).
-    run('node', ['scripts/checks/qa/rendered-checks.mjs', '--base', base], { cwd: wt, env });
+    run('node', ['scripts/checks/qa/rendered-checks.mjs', '--base', base, '--push'], { cwd: wt, env });
     code = 0;
     fs.writeFileSync(passedFile, sha);
   } catch {
