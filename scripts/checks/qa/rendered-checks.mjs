@@ -8,6 +8,8 @@
 //       "this week", "last week", a weekday with no date ("on Friday"), "ago", "weeks on", "months on"
 //       in the page's visible text. Allowed phrases: time_words_allow in house-style-exceptions.json; page types that show the
 //       official record word for word (Hansard, petitions, motions, written questions) are skipped: time_words_skip_routes.
+//       On other pages, official text quoted word for word is marked data-og-official and only that text is left out
+//       (GOV.UK press release titles and summaries on /transparency/press-releases).
 //   A3  phone length: at 375px, as the page first opens (folds closed), at most 2,500px tall, not counting article text
 //       (elements marked data-article-body: editorials, briefings, press releases; owner, 9 Nov 2026, QA2d). Baseline: audit/mp2's
 //       page-lengths.csv when MP2 writes it, else page-length-baseline.json (measured when this check was added).
@@ -99,6 +101,9 @@ export function visibleText(html) {
   return html
     .replace(/<(script|style|template|noscript)\b[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<head\b[\s\S]*?<\/head>/i, ' ')
+    // Official text quoted word for word inside a page of ours (data-og-official, on an element that cannot contain another of
+    // its own kind, such as a <p>): left out, so A2 still checks the rest of the page (T1-6, Cowork, 11 Nov 2026).
+    .replace(/<(\w+)\b[^>]*\sdata-og-official\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;|&#160;/g, ' ').replace(/&amp;/g, '&').replace(/&rsquo;|&#x27;|&#39;/g, "'").replace(/&ldquo;|&rdquo;|&quot;/g, '"').replace(/&[a-z]+;|&#\d+;/g, ' ')
     .replace(/\s+/g, ' ');

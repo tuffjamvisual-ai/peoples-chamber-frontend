@@ -92,7 +92,10 @@ function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: st
               {r.organisation || fallbackOrg}
               {r.published_at ? ` · ${fmtDate(r.published_at)}` : ''}
             </div>
+            {/* The title and summary are GOV.UK's own words, quoted as published: data-og-official, so QA1 A2 leaves them
+                out and still checks our wording on the page (Cowork, 11 Nov 2026). */}
             <p
+              data-og-official=""
               style={{
                 fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '15px',
@@ -106,6 +109,7 @@ function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: st
             </p>
             {r.description && (
               <p
+                data-og-official=""
                 style={{
                   fontFamily: 'var(--font-special-elite), monospace',
                   fontSize: '15px',
