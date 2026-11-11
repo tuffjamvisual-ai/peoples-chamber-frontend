@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import AboutThisData from '../components/AboutThisData';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
@@ -89,11 +90,8 @@ export default async function EdmsPage({ searchParams }: { searchParams: Promise
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Early day motions', path: '/edms' }])} />
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', marginBottom: '6px', color: INK, textDecoration: 'none', fontSize: '15px' }} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 8px' }}>{memberName ? `Early day motions: ${memberName}` : 'Early day motions'}</h1>
-      <p style={{ fontSize: '16px', color: INK, margin: '0 0 8px', maxWidth: '720px', lineHeight: 1.6 }}>
+      <p style={{ fontSize: '16px', color: INK, margin: '0 0 16px', maxWidth: '720px', lineHeight: 1.6 }}>
         Motions MPs have tabled in the House of Commons since the July 2024 general election. Few are debated; other MPs sign them to show support.
-      </p>
-      <p style={{ fontSize: '15px', color: INK, margin: '0 0 16px', maxWidth: '720px', lineHeight: 1.6 }}>
-        Open means tabled this session and not withdrawn. Closed means tabled in an earlier session.
       </p>
 
       <form action="/edms" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', maxWidth: '720px' }}>
@@ -142,6 +140,10 @@ export default async function EdmsPage({ searchParams }: { searchParams: Promise
           <a href={`${href({ show: String(show + STEP) })}#m${show + 1}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '44px', padding: '8px 12px', border: `1px solid ${INK}`, fontSize: '15px', fontWeight: 'bold', color: INK, textDecoration: 'none' }}>Show more ({n0(list.length - show)} left)</a>
         </p>
       )}
+      {/* T1-5x (owner, 10 Nov 2026): the key to Open and Closed, after the list. */}
+      <AboutThisData>
+        <p>Open means tabled this session and not withdrawn. Closed means tabled in an earlier session.</p>
+      </AboutThisData>
     </OpenGovShell>
   );
 }
