@@ -7,7 +7,7 @@ import VotingIntegrity from '../components/VotingIntegrity';
 import AboutThisData from '../components/AboutThisData';
 import Link from 'next/link';
 import { getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle, type SessionBillGroup } from '@/lib/parliament-sessions';
-import { billTitleMatches, BILL_QUERY_MAX } from '@/lib/bill-search';
+import { BILL_QUERY_MAX, findSessionBills } from '@/lib/bill-search';
 import { wideFrom } from '@/lib/breakpoints';
 import { ShowAll } from '@/app/components/NoJsPager';
 
@@ -19,23 +19,31 @@ export const BILLS_PER_PAGE = 60;
 // cards (BillsGrid, BillsGridMobile), so a reader can find a bill by name. Each item is the title, linking to the
 // bill's page, and one line: the current stage and the house it is in.
 // "Find a bill" (owner, 8 Nov 2026, BS1): with q (from /bills?q=, served by /bills/search) only the bills whose title
-// matches, from the whole list, A to Z and 60 a page as usual; the form is a plain GET, so it works with JavaScript off.
+// matches, from every bill in the current session whatever its status (T1-MOB2), A to Z and 60 a page as usual; the
+// form is a plain GET, so it works with JavaScript off.
 export default async function BillsListing({ page, q = '' }: { page: number; q?: string }) {
-  const [{ bills, totalCount }, sessions] = await Promise.all([
-    getBillsPage(page, BILLS_PER_PAGE, 'title', q ? (title) => billTitleMatches(title, q) : undefined),
+  const [{ bills: going, totalCount: goingCount }, sessions] = await Promise.all([
+    getBillsPage(page, BILLS_PER_PAGE, 'title', undefined),
     getParliamentSessions(),
   ]);
   const current = sessions.find((s) => s.is_current);
-  // "The 2026-27 session has 188 bills: 183 going through Parliament, ...", counted exactly as /bills/sessions/<id>.
+  // "The 2026 to 2027 session has 188 bills: 183 going through Parliament, ...", counted exactly as /bills/sessions/<id>.
   const sessionCounts: Partial<Record<SessionBillGroup, number>> = {};
   let sessionTotal = 0;
-  if (current) {
-    for (const b of await getSessionBills(current.id)) {
-      const g = sessionBillGroup(b, current.id, true);
-      sessionCounts[g] = (sessionCounts[g] || 0) + 1;
-      sessionTotal++;
-    }
+  const sessionBills = current ? await getSessionBills(current.id) : [];
+  for (const b of sessionBills) {
+    const g = sessionBillGroup(b, current!.id, true);
+    sessionCounts[g] = (sessionCounts[g] || 0) + 1;
+    sessionTotal++;
   }
+  // Find a bill (T1-MOB2 (1), owner 11 Nov 2026: the full title of a withdrawn bill found nothing): a search covers every
+  // bill in the current session, whatever its status (going through Parliament, withdrawn, defeated, an Act), and each
+  // result says its status. Without a search the list is the bills going through Parliament, as before.
+  const found = q ? findSessionBills(sessionBills, q) : null;
+  const totalCount = found ? found.length : goingCount;
+  const bills = found
+    ? found.slice((page - 1) * BILLS_PER_PAGE, page * BILLS_PER_PAGE)
+    : going.map((b) => ({ id: b.id, title: b.title, line: [b.current_stage?.trim(), b.current_house].filter(Boolean).join(', ') }));
   const sessionParts = [
     `${(sessionCounts.current || 0).toLocaleString()} going through Parliament`,
     sessionCounts.law ? `${sessionCounts.law.toLocaleString()} ${sessionCounts.law === 1 ? 'has' : 'have'} become law` : '',
@@ -83,6 +91,11 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
             <Link href="/bills">Clear search</Link>
           </p>
         )}
+        {q && (
+          <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 14px' }}>
+            This searches every bill in the {current ? sessionTitle(current) : 'current session'}, whatever its status; earlier sessions are in the <Link href="/bills/sessions" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>archive of bills by session</Link>.
+          </p>
+        )}
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           The bills before UK Parliament in the {current ? sessionTitle(current) : 'current session'}: introduced in it or carried over into it.
         </p>
@@ -107,9 +120,9 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
         </p>
       )}
       <ShowAll id="bills-az" count={(bills).length} rows="> li">
-      <ol className="bills-az" aria-label="Bills going through Parliament, A to Z">
+      <ol className="bills-az" aria-label={q ? 'Bills that match, A to Z' : 'Bills going through Parliament, A to Z'}>
         {bills.map((b) => {
-          const line = [b.current_stage?.trim(), b.current_house].filter(Boolean).join(', ');
+          const line = b.line;
           return (
             <li key={b.id}>
               <Link href={`/bills/${b.id}`}>{b.title}</Link>

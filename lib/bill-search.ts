@@ -2,6 +2,8 @@
 // matter and neither does punctuation: apostrophes are dropped ("Childrens" finds "Children's") and any other mark is a
 // space, so "lords" finds "[Lords]" and "high speed" finds "High Speed Rail (Crewe - Manchester)". A title matches when
 // its words contain the reader's words in the same order. The text is at most 100 characters.
+import { billStatus, type BillFlags } from '@/lib/bill-status';
+
 export const BILL_QUERY_MAX = 100;
 
 export function normaliseTitle(s: string): string {
@@ -20,4 +22,13 @@ export function billTitleMatches(title: string, query: string): boolean {
   const q = normaliseTitle(query).trim();
   if (!q) return false;
   return normaliseTitle(title).includes(q);
+}
+
+// T1-MOB2 (1), owner 11 Nov 2026: Find a bill covers every bill in the session, whatever its status, and says it. Each
+// result's line: the stage while it is going through Parliament, else "Act of Parliament", "Withdrawn", "Defeated" ...
+export function findSessionBills<B extends BillFlags & { bill_id: number; title: string; current_stage: string | null }>(bills: B[], query: string): { id: number; title: string; line: string }[] {
+  return bills.filter((b) => billTitleMatches(b.title, query)).map((b) => {
+    const st = billStatus(b, {});
+    return { id: b.bill_id, title: b.title, line: st.kind === 'in_progress' ? (b.current_stage?.trim() || st.label) : st.kind === 'law' ? 'Act of Parliament' : st.label };
+  });
 }
