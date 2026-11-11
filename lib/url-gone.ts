@@ -18,7 +18,9 @@ export const DEPARTMENT_SLUGS = new Set([
 
 export type GoneAction = { kind: 'pass' } | { kind: 'redirect'; location: string } | { kind: 'gone' };
 const PASS: GoneAction = { kind: 'pass' };
-const TIMEOUT_MS = 3000;
+// 5 s (T1-DF (e), Cowork, 11 Nov 2026; 3 s before): the check runs in iad1 against a database in Europe, and a 3 s limit
+// still timed out about once a day on press_releases. A timeout lets the page through (PASS, not cached), never marks it gone.
+const TIMEOUT_MS = 5000;
 const TTL_MS = 60 * 60 * 1000;
 const MAX_CACHED = 5000;
 const cache = new Map<string, { at: number; action: GoneAction }>();
