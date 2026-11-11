@@ -11,7 +11,7 @@ import { longDate, pmqsSet } from '@/lib/pmqs';
 import { archiveRole, longDateArchive, memberArchive, type MemberContribution } from '@/lib/pmqs-archive';
 import { lookupMember, memberName } from '@/lib/former-mps';
 import { idsFor } from '@/lib/historic-archive';
-import NoJsPager, { pagesByHeight } from '../../../components/NoJsPager';
+import NoJsPager, { NoJsPagerLinks, njpItem, pagesByHeight } from '../../../components/NoJsPager';
 
 import BackLink from '@/app/components/BackLink';
 // Every question an MP has asked at Prime Minister's Questions since July 2024 (owner, 5 Nov 2026), newest first, then
@@ -136,8 +136,10 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
           <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
             {askedInArchive.length.toLocaleString('en-GB')} {answered ? (askedInArchive.length === 1 ? 'question' : 'questions') : (askedInArchive.length === 1 ? 'question or answer' : 'questions and answers')} at <Link href="/pmqs" style={{ color: ACCENT, textDecoration: 'underline' }}>Prime Minister&rsquo;s Questions</Link> before July 2024, by year.
           </p>
+          {/* UX5 (T1-6, 11 Nov 2026): on phones the first five years, then "Show all"; from 640px up, as before. */}
+          <NoJsPager id="pa-years" count={archiveYears.length} size={archiveYears.length} first={5} />
           {archiveYears.map((y) => (
-            <details key={y.year} className="pa-fold">
+            <details key={y.year} className={`pa-fold ${njpItem('pa-years')}`}>
               <summary>{y.year}: {y.rows.length.toLocaleString('en-GB')}</summary>
               <NoJsPager id={`pa-${y.year}`} always count={y.rows.length} rows="> li" sizes={pagesByHeight(y.rows.map((r) => rowHeight(r.text)), 4000, 25)}>
                 <ul className="pa-list" data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -151,6 +153,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
               </NoJsPager>
             </details>
           ))}
+          <NoJsPagerLinks id="pa-years" count={archiveYears.length} size={archiveYears.length} first={5} />
         </section>
       )}
       </div>
