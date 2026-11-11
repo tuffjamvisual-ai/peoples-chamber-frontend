@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PhoneFolds from '../../../components/PhoneFolds';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import { departments } from '@/lib/departments';
@@ -94,8 +95,7 @@ export default async function RecommendationsPage({ params }: { params: Promise<
         .rec-page { display: flex; flex-direction: column; }
         .rec-all { order: 1; }
         .rec-intro { order: 2; margin-top: 24px; }
-        .rec-status { order: 3; }
-        .rec-moved { order: 4; }
+        .rec-more { order: 3; }
         .rec-all > h2:first-child { margin-top: 0 !important; }
         .rec-intro > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 16px; font-weight: bold; color: ${INK}; }
       `}</style>
@@ -110,6 +110,11 @@ export default async function RecommendationsPage({ params }: { params: Promise<
         </p>
         </details>
 
+        {/* UX5 (T1-6, 11 Nov 2026): on phones the status summary and the most moved targets are closed folds, so the page
+            opens within the phone length; from 480px up they show as before. Folded, nothing cut. */}
+        <div className="rec-more">
+        <PhoneFolds showContents={false} folds={[
+          { id: 'status', label: 'Where the recommendations stand', summary: `${total.toLocaleString('en-GB')} in all`, node: (
         <div className="rec-status">
         <h2 style={h2}>Where the recommendations stand</h2>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, maxWidth: '40em' }}>
@@ -126,7 +131,8 @@ export default async function RecommendationsPage({ params }: { params: Promise<
         </ul>
 
         </div>
-
+          ) },
+          { id: 'moved', label: 'Most moved targets', summary: `${moved.length.toLocaleString('en-GB')} recommendations`, node: (
         <div className="rec-moved">
         <h2 style={h2}>Most moved targets</h2>
         <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -141,7 +147,9 @@ export default async function RecommendationsPage({ params }: { params: Promise<
             </li>
           ))}
         </ol>
-
+        </div>
+          ) },
+        ]} />
         </div>
 
         <div className="rec-all">
