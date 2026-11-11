@@ -2,9 +2,8 @@
 // bar. The search bar's typeahead dropdown already lets a visitor click
 // straight through to a single council, but this page is the destination when
 // they press Enter/Search instead — same role as /tools/welfare/search plays
-// for the welfare explorer's search bar. Under 640px (owner, 4 Nov 2026) the
-// same search box is on the page itself, with a link to every council; from
-// 640px up the page is as it was.
+// for the welfare explorer's search bar. The same search box is on the page
+// itself at every width, with a link to every council (T1-AUD3, 11 Nov 2026).
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -12,7 +11,6 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import CouncilSearch from '../../components/CouncilSearch';
-import { phoneUpTo } from '@/lib/breakpoints';
 
 export const dynamic = 'force-dynamic';
 
@@ -99,31 +97,17 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
           </h1>
         </header>
 
-        <style>{`.cs-phone { display: none; } @media ${phoneUpTo(767.98)} { .cs-phone { display: block; } .cs-wide { display: none; } }`}</style>
-        <div className="cs-phone">
-          <CouncilSearch key={q} initialQuery={q} noMatchText="No council has that name. Try your postcode instead." />
-          <p style={{ fontFamily: MONO, fontSize: '15px', margin: '14px 0 28px' }}>
-            <Link href="/councils" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '10px 0' }}>Browse all councils</Link>
-          </p>
-        </div>
-
-        {!q && (
-          <p className="cs-wide" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK_SOFT, margin: 0 }}>
-            Enter a council or area name from the homepage search bar, or{' '}
-            <Link href="/councils" style={{ color: INK, textDecoration: 'underline' }}>browse the full list</Link>.
-          </p>
-        )}
+        {/* The search box at every width (T1-AUD3, owner 11 Nov 2026: the directory's Council Search entry showed no
+            search on desktop), with the link to every council. */}
+        <CouncilSearch key={q} initialQuery={q} noMatchText="No council has that name. Try your postcode instead." />
+        <p style={{ fontFamily: MONO, fontSize: '15px', margin: '14px 0 28px' }}>
+          <Link href="/councils" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '10px 0' }}>Browse all councils</Link>
+        </p>
 
         {q && results.length === 0 && (
-          <>
-            <p className="cs-wide" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK_SOFT, margin: 0 }}>
-              No councils matched &ldquo;{q}&rdquo;. Try a different spelling, or{' '}
-              <Link href="/councils" style={{ color: INK, textDecoration: 'underline' }}>browse the full list</Link>.
-            </p>
-            <p className="cs-phone" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK_SOFT, margin: 0 }}>
-              No councils matched &ldquo;{q}&rdquo;. Try your postcode instead.
-            </p>
-          </>
+          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK_SOFT, margin: 0 }}>
+            No councils matched &ldquo;{q}&rdquo;. Try a different spelling, or your postcode.
+          </p>
         )}
 
         {results.length > 0 && (
