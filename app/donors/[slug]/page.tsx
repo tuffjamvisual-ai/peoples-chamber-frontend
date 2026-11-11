@@ -8,6 +8,7 @@ import NoJsPager from '@/app/components/NoJsPager';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
@@ -441,7 +442,7 @@ export default async function DonorPage({ params }: PageProps) {
             <span style={{ fontSize: '15px', padding: '3px 8px', border: `1px solid ${sector.colour}`, color: sector.colour }}>{sector.label}</span>
           )}
           {crn && (
-            <a href={`https://find-and-update.company-information.service.gov.uk/company/${crn}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>Companies House {crn} ↗</a>
+            <span style={{ fontSize: '15px', padding: '3px 8px', border: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>Companies House {crn}</span>
           )}
         </div>
         {sampleAddress && <p style={{ fontSize: '15px', marginTop: '8px' }}>{sampleAddress}</p>}
@@ -517,7 +518,7 @@ export default async function DonorPage({ params }: PageProps) {
               {background.profile.facts.filter((f) => f.label === label).map((f, i) => (
                 <p key={i} style={{ margin: '0 0 10px', maxWidth: '70ch', overflowWrap: 'anywhere' }}>
                   {f.text}{' '}
-                  <span style={{ whiteSpace: 'normal' }}>
+                  <span data-og-citations="" style={{ whiteSpace: 'normal' }}>
                     Source:{' '}
                     <a href={f.source.url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{f.source.title}</a>
                   </span>
@@ -690,7 +691,7 @@ export default async function DonorPage({ params }: PageProps) {
                       {c.ocid && (
                         <>
                           <br />
-                          <a href={`https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(c.ocid)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>View on Find a Tender ↗</a>
+                          <a data-og-row-source="" href={`https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(c.ocid)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>View on Find a Tender ↗</a>
                         </>
                       )}
                     </td>
@@ -792,7 +793,7 @@ export default async function DonorPage({ params }: PageProps) {
                     <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.amount)}</td>
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>
                       {d.ec_ref ? (
-                        <a href={ecDonationSearchUrl(d.ec_ref)} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{d.ec_ref} ↗</a>
+                        <a data-og-row-source="" href={ecDonationSearchUrl(d.ec_ref)} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{d.ec_ref} ↗</a>
                       ) : 'n/a'}
                     </td>
                   </tr>
@@ -805,6 +806,9 @@ export default async function DonorPage({ params }: PageProps) {
       </section>
       </SubFold>
 
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
+          Sources fold; each donation's Electoral Commission reference and each contract's notice stay on their rows. */}
+      <PageSources sources={[crn && { label: `Companies House record, company ${crn}`, href: `https://find-and-update.company-information.service.gov.uk/company/${crn}` }]} />
     </OpenGovShell>
   );
 }
