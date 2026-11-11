@@ -127,12 +127,14 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
           old "Browse all bills" index, so this page has one going-through-Parliament figure. The archive links every
           bill page; the sitemap lists the indexable ones. */}
       <nav aria-label="More bills" style={{ borderTop: '1px solid rgba(20,16,13,0.18)', marginTop: '40px', paddingTop: '20px', display: 'flex', flexWrap: 'wrap', gap: '12px 32px', fontSize: '17px' }}>
-        <Link href="/bills/sessions" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Acts, withdrawn bills and earlier sessions (archive)</Link>
         <Link href="/laws" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Acts of Parliament</Link>
       </nav>
 
       {/* T1-5x (owner, 10 Nov 2026): how votes here are kept honest, in About this data (it is on each bill page too). */}
-      <AboutThisData><VotingIntegrity plain /></AboutThisData>
+      <AboutThisData>
+        <p>Acts, withdrawn bills and bills from earlier sessions are in the{' '}<Link href="/bills/sessions" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>archive of bills by session</Link>.</p>
+        <VotingIntegrity plain />
+      </AboutThisData>
     </OpenGovShell>
   );
 }
