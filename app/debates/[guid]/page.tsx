@@ -28,7 +28,9 @@ import { SubFold } from '../../components/PhoneFolds';
 // per-debate traffic. Speaker names link to their on-site MP profile where we
 // hold one, and the previous/next debate links stay on site.
 export const revalidate = 86400;
-const SPEECH_OPENS = 2000;
+// On phones a long speech opens with its first 600 characters, then "Continue reading", and the debate with its first two
+// speeches, then "Show all" (UX5, T1-6, 11 Nov 2026: the 2,500px phone length; 2,000 and five before). Wider: as before.
+const SPEECH_OPENS = 600;
 
 export async function generateStaticParams() {
   const { data, error } = await supabase
@@ -450,7 +452,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         ) : (
           <>
           {/* On phones the first screen at most, never more than before (MP2f-9). */}
-          <NoJsPager id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(5, debateScreens[0] ?? 5)} />
+          <NoJsPager id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(2, debateScreens[0] ?? 2)} />
           {groups.map((g, i) => (
             <Fragment key={i}>
             <div
@@ -483,7 +485,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
             </div>
             </Fragment>
           ))}
-          <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(5, debateScreens[0] ?? 5)} />
+          <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(2, debateScreens[0] ?? 2)} />
           </>
         )}
         {groups.length > 0 && <NoJsFold id="dbrn-f" always label="Read next"><ReadNext links={readNext} /></NoJsFold>}
