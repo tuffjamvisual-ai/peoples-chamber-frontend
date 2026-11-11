@@ -307,7 +307,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           )}
           <nav aria-label="On this page" className="bq-jump" style={{ fontFamily: MONO }}>
             {stages.length > 0 && <a href="#bill-passage">Full timeline ↓</a>}
-            <a href="#vote">Reader poll ↓</a>
+            <a href="#vote">{votingClosed ? 'Reader poll result ↓' : 'Reader poll ↓'}</a>
           </nav>
         </div>
 
@@ -540,7 +540,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               Reader poll · opengovt
             </div>
             <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 'bold', margin: '10px 0 0', lineHeight: 1.15 }}>
-              How would you vote on this bill?
+              {votingClosed ? 'Reader poll result' : 'How would you vote on this bill?'}
             </h2>
             {!votingClosed && (
               <div style={{ fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', letterSpacing: '0.04em', color: INK_SOFT, marginTop: '8px' }}>
@@ -549,8 +549,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             )}
           </div>
 
-          {/* Closed bills (an Act, withdrawn or defeated) take no vote changes (report 53). */}
-          <BillVotingClient billId={billId} closed={votingClosed} />
+          {/* Closed bills (an Act, withdrawn or defeated) take no vote changes (report 53). A closed poll shows its tally first
+              and the reader's own final vote after it, with no voting controls (T1-MOB, owner 11 Nov 2026). */}
+          {!votingClosed && <BillVotingClient billId={billId} closed={false} />}
 
           {/* The count so far */}
           <div style={{ borderTop: `1px solid ${INK}`, marginTop: '24px', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
@@ -612,6 +613,8 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
                 {commonsDivisionDate ? `, ${commonsDivisionDate}` : ''}
               </p>
             ) : null}
+
+            {votingClosed && <BillVotingClient billId={billId} closed />}
 
             <details style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK_SOFT }}>
               <summary style={{ cursor: 'pointer', color: INK, fontWeight: 'bold' }}>How reader voting works</summary>
