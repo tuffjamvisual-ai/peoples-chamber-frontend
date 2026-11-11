@@ -74,7 +74,8 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { e.preventDefault(); closeMenu(); return; }
       if (e.key !== 'Tab' || !panelRef.current) return;
-      const items = [...panelRef.current.querySelectorAll<HTMLElement>('a[href], button')];
+      // Only what shows at this width (the flat list and the groups are toggled by CSS), in the order it shows.
+      const items = [...panelRef.current.querySelectorAll<HTMLElement>('a[href], button')].filter((el) => el.offsetParent !== null);
       if (!items.length) return;
       const first = items[0], last = items[items.length - 1];
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -88,8 +89,9 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
     if (gap > 0) html.style.paddingRight = `${gap}px`;
     window.addEventListener('popstate', onPop);
     document.addEventListener('keydown', onKey);
-    // The first link that shows at this width (the flat list and the groups are toggled by CSS).
-    [...(panelRef.current?.querySelectorAll<HTMLElement>('a[href]') ?? [])].find((a) => a.offsetParent !== null)?.focus();
+    // Focus starts on Close menu, the first control in the panel (T1-MOB, owner 11 Nov 2026, accessibility); Tab then
+    // follows the visible order and Escape closes and returns focus to Menu.
+    panelRef.current?.querySelector<HTMLElement>('.og-menu-close')?.focus();
     const button = buttonRef.current;
     return () => {
       window.removeEventListener('popstate', onPop);
