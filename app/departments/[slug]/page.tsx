@@ -19,6 +19,9 @@ import { fetchMajorProjects } from '@/lib/major-projects';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import OpenGovShell from '../../components/OpenGovShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
+import PageSources from '@/app/components/PageSources';
+import { govukSlugs } from '@/lib/govuk-slugs';
+import { foiSource } from '@/lib/foi-statistics';
 import { createClient } from '@supabase/supabase-js';
 import { fetchWithoutEmDashes } from '@/lib/no-em-dash';
 import { editorialsBySlug } from '@/lib/editorials-source';
@@ -175,7 +178,6 @@ export default async function DepartmentPage({ params }: PageProps) {
     const agSlug = o.url.split('/government/organisations/')[1] || '';
     return { name: o.name, acronym: o.acronym, slug: agSlug, description: descBySlug.get(agSlug) || '', hasPage: descBySlug.has(agSlug) };
   });
-  const socialMedia = govukData.socialMedia || [];
   const pressPhone = govukData.pressPhone || '';
   const reportText = (contextData.street_context || dept.streetContext) ?? '';
 
@@ -304,9 +306,9 @@ export default async function DepartmentPage({ params }: PageProps) {
     slots.transparency = <TransparencySlot foi={foi} meetings={meetings} />;
   }
 
-  if (pressPhone || socialMedia.length > 0) {
+  if (pressPhone) {
     tabs.push({ id: 'contact', label: 'Contact', rotate: '-0.1deg' });
-    slots.contact = <ContactSlot socialMedia={socialMedia} pressPhone={pressPhone} />;
+    slots.contact = <ContactSlot pressPhone={pressPhone} />;
   }
 
   return (
@@ -380,6 +382,14 @@ export default async function DepartmentPage({ params }: PageProps) {
             which preserves the GSC Soft 404 fix for the report text. */}
         <DepartmentTabs tabs={tabs} slots={slots} />
       </div>
+
+      {/* EL1 (owner, 10 Nov 2026): the department's GOV.UK page (ministers, officials, agencies, press office) and the
+          Freedom of Information statistics, in the page's one Sources fold. Each ministerial direction's letters and each
+          recommendation's response stay on their rows. */}
+      <PageSources sources={[
+        !!govukSlugs[slug] && { label: `${dept.name} on GOV.UK`, href: `https://www.gov.uk/government/organisations/${govukSlugs[slug]}` },
+        foi.length > 0 && { label: foiSource(foi[0].latest).label, href: foiSource(foi[0].latest).url },
+      ]} />
 
     </OpenGovShell>
   );

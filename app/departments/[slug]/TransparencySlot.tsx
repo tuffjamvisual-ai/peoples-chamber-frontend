@@ -90,7 +90,7 @@ export function TransparencySlot({ foi, meetings }: { foi: DeptFoi[]; meetings: 
             <Link href={FOI_PAGE} className="underline">All 39 bodies in the statistics, {periodName(foi[0].latest.period)} →</Link>
           </P>
           <p className="text-[#14100d] text-[15px] leading-[1.6] mb-6">
-            Source: <a href={foiSource(foi[0].latest).url} target="_blank" rel="noopener noreferrer" className="underline">{foiSource(foi[0].latest).label}</a>.
+            Source: {foiSource(foi[0].latest).label} (in Sources at the end of the page).
             Contains public sector information licensed under the Open Government Licence v3.0.
           </p>
         </>
