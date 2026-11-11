@@ -122,6 +122,11 @@ export default function MpDossier({
         @media ${wideFrom(761)} {
           .mp-standards-line { position: relative; top: -56px; }
         }
+        /* T1-MPH (Cowork, 11 Nov 2026): from 768px up the Standards cases line starts where the name does (the name block
+           sits 4 per cent left of the page column). */
+        @media ${wideFrom(768)} {
+          .mp-standards-line { margin-left: -4% !important; }
+        }
       `}</style>
 
       {/* "All MPs" above the header (UX1f, 9 Nov 2026): the list of MPs with this MP's party open. It was "← Back", which
@@ -136,7 +141,9 @@ export default function MpDossier({
           style={{
             position: 'relative',
             flex: '0 0 auto',
-            marginTop: '-7%',
+            // 64px lower than before (T1-MPH, Cowork 11 Nov 2026), so the folder's MP PROFILE stamp covers none of the photo
+            // from 768px up (it overlapped by 12px at 768 and 53px at 1280 and 1920). Phones set their own margin below.
+            marginTop: 'calc(-7% + 64px)',
             marginRight: '-8%',
             background: '#ebe5d8',
             padding: '12px 12px 48px 12px',
