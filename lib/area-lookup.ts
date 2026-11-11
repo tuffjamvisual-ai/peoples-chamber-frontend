@@ -12,6 +12,7 @@
 // only). The town centre point is turned into codes by finding the nearest
 // postcode to it (/postcodes?lon&lat, within 2 km).
 
+import { ilikeWords } from '@/lib/ilike-words';
 import { supabase } from '@/lib/supabase';
 
 export const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/;
@@ -134,13 +135,15 @@ const bare = (s: string) => norm(s.replace(COUNCIL_WORDS, ' ').replace(/\b(city 
 export async function findCouncilByName(q: string): Promise<{ gss_code: string; name: string } | null> {
   const want = bare(q);
   if (want.length < 2) return null;
-  const safe = q.replace(/[%_,()]/g, '').trim();
+  const safe = q.replace(/[%_,()]/g, ' ').replace(/\s+/g, ' ').trim();
   if (safe.length < 2) return null;
   const core = safe.replace(COUNCIL_WORDS, ' ').replace(/\s+/g, ' ').trim() || safe;
+  // Words in order, any punctuation between (T1-QA9 A11: "Bournemouth, Christchurch and Poole" found nothing).
+  const pat = ilikeWords(core);
   const { data, error } = await supabase
     .from('councils')
     .select('gss_code, name, short_name')
-    .or(`name.ilike.%${core}%,short_name.ilike.%${core}%`)
+    .or(`name.ilike.${pat},short_name.ilike.${pat}`)
     .not('gss_code', 'is', null)
     .limit(30);
   if (error) throw new LookupError('unavailable', 'Lookup is unavailable right now. Please try again.');

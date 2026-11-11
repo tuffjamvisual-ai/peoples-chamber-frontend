@@ -8,6 +8,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { ilikeWords } from '@/lib/ilike-words';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import CouncilSearch from '../../components/CouncilSearch';
@@ -40,9 +41,10 @@ async function search(q: string): Promise<Council[]> {
   if (q.trim().length < 2) return [];
   // Same sanitisation as /api/councils/search, for the same reason:
   // strip characters with special meaning in PostgREST's ilike/or syntax.
-  const safe = q.trim().replace(/[%_,()]/g, '');
+  // Words in order, any punctuation between (lib/ilike-words.ts, T1-QA9 A11).
+  const pattern = ilikeWords(q);
+  const safe = pattern.replace(/%/g, '');
   if (safe.length < 2) return [];
-  const pattern = `%${safe}%`;
   const { data, error } = await supabase
     .from('councils')
     .select('slug, name, short_name, type_label, country')

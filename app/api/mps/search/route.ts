@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { ilikeWords } from '@/lib/ilike-words';
 import { displayMpName } from '@/lib/mp-name';
 
 export const dynamic = 'force-dynamic';
@@ -23,11 +24,12 @@ export async function GET(req: NextRequest) {
   // syntax (% and _ are ilike wildcards, commas and parentheses
   // separate/group .or() conditions) — same sanitisation already used by
   // app/api/councils/search/route.ts and app/mps/[id]/page.tsx.
-  const safe = q.replace(/[%_,()]/g, '');
+  // Words in order, any punctuation between (lib/ilike-words.ts, T1-QA9 A11).
+  const pattern = ilikeWords(q);
+  const safe = pattern.replace(/%/g, '');
   if (safe.length < 2) {
     return NextResponse.json({ results: [] });
   }
-  const pattern = `%${safe}%`;
 
   const { data, error } = await supabase
     .from('mps')

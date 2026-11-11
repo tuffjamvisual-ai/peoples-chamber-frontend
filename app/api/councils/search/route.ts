@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { ilikeWords } from '@/lib/ilike-words';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,11 +25,12 @@ export async function GET(req: NextRequest) {
   // can't break the filter string or search with an unintended wildcard.
   // Same sanitisation app/mps/[id]/page.tsx already applies for the same
   // reason.
-  const safe = q.replace(/[%_,()]/g, '');
+  // Words in order, any punctuation between (lib/ilike-words.ts, T1-QA9 A11).
+  const pattern = ilikeWords(q);
+  const safe = pattern.replace(/%/g, '');
   if (safe.length < 2) {
     return NextResponse.json({ results: [] });
   }
-  const pattern = `%${safe}%`;
 
   const { data, error } = await supabase
     .from('councils')
