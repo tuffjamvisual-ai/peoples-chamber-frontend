@@ -5,6 +5,8 @@
    literal hyphens already in words (e.g. Barros-Curtis) are unaffected. */
 html { -webkit-hyphens: none; hyphens: none; }
 
+/* LAYOUT-LOCK START (scripts/checks/layout-lock.txt): a change between these markers needs "Layout change approved" and
+   the JOBS.md job id in the commit message. */
 /* Reserve the vertical scrollbar gutter permanently so switching between tall
    and short content (e.g. the MP profile section tabs) does not toggle the
    scrollbar on and off. Without this, that toggle changes the viewport width
@@ -16,6 +18,7 @@ html { scrollbar-gutter: stable; }
    viewport edge and, with almost no side gutter on phones, the whole page
    scrolls sideways and looks tilted. Clip that horizontal overflow site-wide. */
 html, body { max-width: 100%; overflow-x: hidden; }
+/* LAYOUT-LOCK END */
 
 /* Wide data tables (donations / transparency / mp-activity) have no room to
    breathe on a phone. On narrow screens let each table scroll horizontally

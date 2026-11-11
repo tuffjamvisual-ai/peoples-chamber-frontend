@@ -14,6 +14,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { execFileSync, spawn } from 'child_process';
+import { checkRange } from './layout-lock.mjs';
 
 const git = (...a) => execFileSync('git', a, { encoding: 'utf8' }).trim();
 const ZERO = /^0+$/;
@@ -28,6 +29,22 @@ for (const [, local, , remote] of refs) {
   if (ZERO.test(remote)) { try { from = git('merge-base', local, 'origin/main'); } catch { from = null; } }
   const changed = from ? git('diff', '--name-only', `${from}..${local}`, '--', ...PAGE_CODE) : 'unknown';
   if (changed) shas.add(local);
+}
+// Layout lock (owner approved, 11 Nov 2026), on every push, before anything is skipped: a commit that changes a file in
+// scripts/checks/layout-lock.txt needs "Layout change approved" and the JOBS.md job id in its message.
+{
+  const refused = [];
+  for (const [, local, , remote] of refs) {
+    if (ZERO.test(local)) continue;
+    let from = remote;
+    if (ZERO.test(remote)) { try { from = git('merge-base', local, 'origin/main'); } catch { from = null; } }
+    refused.push(...checkRange(from, local));
+  }
+  if (refused.length) {
+    for (const r of refused) console.error(`Layout lock: ${r}`);
+    console.error('Push refused: a shared layout file changed (scripts/checks/layout-lock.txt). Put "Layout change approved" and the JOBS.md job id in that commit\'s message once the change is approved.');
+    process.exit(1);
+  }
 }
 const passed = fs.existsSync(passedFile) ? fs.readFileSync(passedFile, 'utf8').trim() : '';
 const todo = [...shas].filter((s) => s !== passed);

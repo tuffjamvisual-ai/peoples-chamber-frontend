@@ -1,0 +1,21 @@
+# Layout lock (owner approved, 11 Nov 2026). The pre-push check refuses a push with a commit that changes any of these,
+# unless that commit's message contains "Layout change approved" and the JOBS.md job id, e.g.
+#   Layout change approved (T1-768b)
+# One path per line. "path#LAYOUT-LOCK" locks only the text between /* LAYOUT-LOCK START */ and /* LAYOUT-LOCK END */
+# markers in that file. Checked by scripts/checks/layout-lock.mjs.
+
+# Folder shell, masthead and phone header (the slim header is in the shell's CSS)
+app/components/OpenGovShell.tsx
+app/components/opengov-shell.css
+# Back arrow
+app/components/BackLink.tsx
+# Menu (desktop and phone) and the account tab in the header
+app/components/HeaderNav.tsx
+app/components/MobileMenu.tsx
+app/components/AccountTab.tsx
+# Breakpoints
+lib/breakpoints.ts
+# globals.css: the shell rules only (scrollbar gutter, the sideways clip of the tilted shell)
+app/globals.css#LAYOUT-LOCK
+# This list
+scripts/checks/layout-lock.txt
