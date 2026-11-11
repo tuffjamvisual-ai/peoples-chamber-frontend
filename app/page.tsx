@@ -153,11 +153,13 @@ export default async function HomePage() {
                 .og-rail > .og-brief { order: 6; }
                 .og-main > .og-whitehall-f { order: 7; }
                 .og-brief > :not(.og-head) { display: none !important; }
+                .og-rail > a.og-card:not([href="/this-week"]) > :not(.og-head) { display: none !important; }
                 .og-rail > #newsletter:not(:target) { display: none !important; }
                 .og-rail > .og-news-line { display: block !important; }
               }`}</style>
               {/* Phones only (owner, 10 Nov 2026, S5-home; the page was 4,689px at 375px): folded, nothing cut. The other
-                  reports show their headlines only, which are the links; the research promotion is in a closed native
+                  reports show their headlines only, which are the links, and so do the four promotion cards (Bills tracker, expenses,
+                  manifestos, departments; UX5, T1-6, 11 Nov 2026); the research promotion is in a closed native
                   fold (the SubFold after the rail opens); the newsletter block is one line linking to the sign-up page
                   (/newsletter), and a link to #newsletter still shows the block. From 640px up the page is unchanged. */}
               {/* The two finders side by side (UX1b, 9 Nov 2026; the audit found the postcode box below the fold and unlabelled
