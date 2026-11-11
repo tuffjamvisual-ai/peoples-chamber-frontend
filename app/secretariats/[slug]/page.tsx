@@ -12,6 +12,7 @@ import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -176,9 +177,6 @@ export default async function SecretariatPage({ params }: PageProps) {
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
           {canonicalName}
         </h1>
-        {sampleSecretariatUrl && (
-          <a href={sampleSecretariatUrl} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, fontSize: '15px', textDecoration: 'underline' }}>{sampleSecretariatUrl} ↗</a>
-        )}
       </header>
 
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
@@ -230,11 +228,6 @@ export default async function SecretariatPage({ params }: PageProps) {
                     {aFunders.length > 6 && <span > +{aFunders.length - 6} more</span>}
                   </div>
                 )}
-                {a.website_url && (
-                  <div style={{ marginTop: '6px' }}>
-                    <a href={a.website_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>Group website ↗</a>
-                  </div>
-                )}
               </li>
             );
           })}
@@ -246,6 +239,12 @@ export default async function SecretariatPage({ params }: PageProps) {
       {/* Read next at the end of the page, after every section (owner's request, 25 Oct 2026). */}
       <ReadNext links={nextLinks} />
 
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The secretariat's and each group's website are in this
+          one Sources fold; the register's licence credit (AppgSource) stays with the list. */}
+      <PageSources sources={[
+        sampleSecretariatUrl && { label: `${canonicalName}\u2019s website`, href: sampleSecretariatUrl },
+        ...appgs.map((a) => a.website_url && { label: `${a.title}: the group\u2019s website`, href: a.website_url }),
+      ]} />
     </OpenGovShell>
   );
 }
