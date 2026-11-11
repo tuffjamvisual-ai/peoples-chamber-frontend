@@ -108,8 +108,10 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
         ))}
       </dl>
 
-      {p.background && <><h2 style={h2}>Background</h2><AsWritten text={p.background} /></>}
-      {p.additional_details && <><h2 style={h2}>Details</h2><AsWritten text={p.additional_details} /></>}
+      {/* The petition's own words are its text, like an article's: never folded and not counted in the phone length
+          (QA2d; UX5, T1-6, 11 Nov 2026). */}
+      {p.background && <><h2 style={h2}>Background</h2><div data-article-body=""><AsWritten text={p.background} /></div></>}
+      {p.additional_details && <><h2 style={h2}>Details</h2><div data-article-body=""><AsWritten text={p.additional_details} /></div></>}
 
       <h2 style={h2}>Government response</h2>
       {p.government_response_details || p.government_response_summary ? (
