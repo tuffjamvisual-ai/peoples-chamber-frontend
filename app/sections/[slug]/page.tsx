@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
+import { phoneUpTo } from '@/lib/breakpoints';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -7,6 +9,7 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { SECTION_PAGES, type NavLink } from '@/lib/site-nav';
 import { TWO_COLUMN_GRID_CSS } from '@/lib/balance-columns';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 
 // Section pages (owner's design, 25 Oct 2026, report 60): a top level menu item opens its own page listing every link in
 // that section, instead of a hover dropdown. Built from lib/site-nav.ts, the same list as the header, the phone panel and
@@ -75,6 +78,14 @@ function groups(links: NavLink[]): { title: string | null; links: NavLink[] }[] 
   return out;
 }
 
+// UX5 (T1-6, 11 Nov 2026): on phones each group after the first (Parliament: Parliament, Parties, Departments) is a closed
+// fold named by its heading, so the page opens within the phone length; the first group holds the main action and stays
+// open. From 640px up the groups show as before (SubFold's content is display: contents there). Folded, nothing cut.
+function GroupFold({ fold, label, count, children }: { fold: boolean; label: string; count: number; children: ReactNode }) {
+  if (!fold) return <>{children}</>;
+  return <SubFold label={label} summary={`${count} ${count === 1 ? 'page' : 'pages'}`}>{children}</SubFold>;
+}
+
 export default async function SectionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const s = find(slug);
@@ -98,7 +109,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK, margin: 0 }}>{intro(item.label)}</p>
       </header>
 
-      <style>{TWO_COLUMN_GRID_CSS + COMPACT_CSS}</style>
+      <style>{TWO_COLUMN_GRID_CSS + COMPACT_CSS + `@media ${phoneUpTo(639.98)} { .sec-group .pf-sb > h2 { display: none; } }`}</style>
       {/* With more than two groups (Parliament), a row of links to each group first. */}
       {grouped.length > 2 && (
         <nav aria-label="On this page" style={{ margin: '0 0 22px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.5 }}>
@@ -112,7 +123,10 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
         </nav>
       )}
       {grouped.map((g, gi) => (
-        <section key={g.title ?? 'all'} data-main-action={gi === 0 ? '' : undefined} id={g.title ? anchor(g.title) : undefined} aria-label={g.title ?? undefined} style={{ marginBottom: '28px', scrollMarginTop: '16px' }}>
+        <section key={g.title ?? 'all'} data-main-action={gi === 0 ? '' : undefined} aria-label={g.title ?? undefined} className="sec-group" style={{ marginBottom: '28px' }}>
+          <GroupFold fold={gi > 0 && !!g.title} label={g.title ?? ''} count={g.links.length}>
+          {/* The address of the group is inside the fold, so a link to it ("On this page") opens the fold on phones. */}
+          <span id={g.title ? anchor(g.title) : undefined} style={{ display: 'block', scrollMarginTop: '16px' }} />
           {g.title && (
             <h2 style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: INK, margin: '0 0 6px' }}>{g.title}</h2>
           )}
@@ -150,6 +164,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
               ))}
             </div>
           )}
+          </GroupFold>
         </section>
       ))}
     </OpenGovShell>
