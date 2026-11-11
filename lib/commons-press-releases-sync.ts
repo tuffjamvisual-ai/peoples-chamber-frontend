@@ -15,6 +15,11 @@
 // 4 Nov 2026 (owner): 20 s was shorter than a cold answer, and three pages given up on at 20 s each filled the budget, so
 // a run could end with no page read (HTTP 504). Each request now gets 45 s, in a 100 s budget and a 120 s function limit,
 // so the first page's cold answer is waited for and the pages after it answer at once.
+// 11 Nov 2026 (T1-DF, Cowork): the newest 60 publications of every type were about one day of output, mostly
+// correspondence, evidence and Lords papers, so a Commons report published between runs could be missed. Each request now
+// asks only for Reports and Special Reports (PublicationTypeIds 1 and 12), newest first, so the same 60 reach back about
+// six weeks across both Houses. The API has no House filter; Commons is still picked out here (isReport). No start date is
+// sent, so the request URL stays the same between runs and the API's cached answer stays warm.
 
 import { ItemFailures } from '@/lib/sync-item-failures';
 import { revalidatePath, noteChanged } from '@/lib/refresh-count';
@@ -24,7 +29,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export const COMMITTEES_API = 'https://committees-api.parliament.uk/api/Publications';
 export const CURSOR_ROUTE = '/api/sync-commons-press-releases';
 const PAGE_SIZE = 20;
-const PAGES = 3;                          // the newest 60 publications, as before
+const PAGES = 3;                          // the newest 60 reports (both Houses), about six weeks
 export const BUDGET_MS = 100_000;         // the function's limit is 120 s (maxDuration); keep 20 s in hand
 export const API_TIMEOUT_MS = 45_000;     // per request: long enough for a cold answer (see below)
 const MIN_REQUEST_MS = 3_000;             // do not start a request with less time than this left
@@ -32,6 +37,18 @@ const WRITE_RESERVE_MS = 3_000;           // kept back for the page's database w
 const CURSOR_MAX_AGE_MS = 24 * 60 * 60 * 1000; // an older saved position is dropped and a new pass started
 
 const REPORT_TYPES = new Set(['Report', 'Special Report']);
+// The Committees API's ids for those two types (GET /api/PublicationType: 1 Report, 12 Special Report).
+export const REPORT_TYPE_IDS = [1, 12];
+
+// The request for one page: Reports and Special Reports only, newest first.
+export function publicationsUrl(skip: number, take = PAGE_SIZE): string {
+  const q = new URLSearchParams();
+  for (const id of REPORT_TYPE_IDS) q.append('PublicationTypeIds', String(id));
+  q.set('SortOrder', 'PublicationDateDescending');
+  q.set('take', String(take));
+  q.set('skip', String(skip));
+  return `${COMMITTEES_API}?${q}`;
+}
 
 type Publication = {
   id: number;
@@ -131,7 +148,7 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     const t0 = Date.now();
     try {
-      const res = await fetchFn(`${COMMITTEES_API}?${new URLSearchParams({ take: String(PAGE_SIZE), skip: String(skip) })}`, {
+      const res = await fetchFn(publicationsUrl(skip), {
         headers: { Accept: 'application/json', 'User-Agent': 'PeoplesChamber/1.0' },
         signal: ctrl.signal,
       });
