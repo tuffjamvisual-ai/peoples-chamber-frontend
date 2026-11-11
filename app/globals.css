@@ -131,7 +131,7 @@ a:hover {
 .og-strip-input { flex: 1 1 auto; min-width: 0; font-size: 16px; line-height: 1.15; padding: 4px 8px; background: #fbf4e6; box-sizing: border-box; }
 .og-strip-submit { flex: 0 0 auto; font-size: 15px; line-height: 1.15; padding: 4px 12px; }
 .og-strip-close { grid-area: close; width: 28px; height: 28px; padding: 0; border: none; background: none; font-size: 22px; line-height: 1; cursor: pointer; }
-@media (max-width: 640px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) { .og-strip { width: calc(min(94vw, 1144px) * 0.92); } }
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) { .og-strip { width: calc(min(94vw, 1144px) * 0.92); } }
 /* At 360 px and below the folder is narrow: 6 px sides and slightly tighter spacing on an error keep the longest message
    ("We could not send the confirmation email. Please try again later.") to two lines, so the strip stays under 80 px. */
 @media (max-width: 360px) { .og-strip-inner { padding-left: 6px; padding-right: 6px; } .og-strip-text[role=alert] { letter-spacing: -0.02em; } }

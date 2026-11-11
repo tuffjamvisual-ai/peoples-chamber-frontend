@@ -38,10 +38,9 @@ export default function OpenGovShell({
   // The folders backdrop is a CSS background (opengov-shell.css), so the browser only asked for it once the stylesheet
   // had arrived, and on desktop it is the largest thing painted (the LCP). Preloading it from the page head starts the
   // download with the HTML instead (25 Oct 2026, report 43); each width gets only the file its stylesheet uses.
-  preload('/folders.webp', { as: 'image', media: wideFrom(641), fetchPriority: 'high' });
-  // Under 480px the desk backdrop is not shown at all (owner, 3 Nov 2026: the folder is the page on phones), so it is
-  // not preloaded there either.
-  preload('/folders-900.webp', { as: 'image', media: wideFrom(480).split(', ').map((q) => `${q} and (max-width: 640px)`).join(', ') });
+  // Under 768px the desk backdrop is not shown at all (owner, 3 Nov 2026: the folder is the page on phones; under 480px
+  // until T1-768b, 11 Nov 2026), so it is not preloaded there, and the 900px copy for 480 to 640px is gone.
+  preload('/folders.webp', { as: 'image', media: wideFrom(768), fetchPriority: 'high' });
   const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, border: '0.07em solid #7a1612', padding: '0.14em 0.32em 0.06em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#7a1612', fontSize: 'clamp(24px, 4.6vw, 64px)' };
   return (
     // One masthead on every page (T1-5m, owner, 10 Nov 2026: "it should be consistent"): the homepage's folder masthead
@@ -59,10 +58,10 @@ export default function OpenGovShell({
         <div className="og-header" style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448', containerType: 'inline-size' }}>
           {/* Phones (25 Oct 2026, report 43): sizes says 60vw below 640px so a 3x phone takes the 800px file (72 KB) and
               a 2x phone the 600px one (16 KB), not the full 1086px file (128 KB); still about twice the shown width. */}
-          {/* Under 480px the picture is hidden (opengov-shell.css) but a hidden img still downloads: an empty one takes its place there. */}
+          {/* Under 768px the picture is hidden (opengov-shell.css) but a hidden img still downloads: an empty one takes its place there. */}
           <picture>
-          <source media={phoneUpTo(479)} srcSet="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" />
-          <img className="og-header-img" src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="(max-width: 640px) 60vw, min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
+          <source media={phoneUpTo(767.98)} srcSet="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" />
+          <img className="og-header-img" src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="(max-width: 767.98px) 60vw, min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
           </picture>
 
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
@@ -97,8 +96,8 @@ export default function OpenGovShell({
           </div>
 
           {pageStamp && (
-            <div style={{ position: 'absolute', top: '2.4cqw', right: '4.5%', zIndex: 4, pointerEvents: 'none', ...stampStyle }}>
-              <span style={{ display: 'inline-block', border: '0.07em solid #7a1612', padding: '0.16em 0.36em 0.08em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#7a1612', fontSize: 'clamp(18px, 4cqw, 52px)' }}>{pageStamp}</span>
+            <div className="og-stamp" style={{ position: 'absolute', top: '2.4cqw', right: '4.5%', zIndex: 4, pointerEvents: 'none', ...stampStyle }}>
+              <span className="og-stamp-text" style={{ display: 'inline-block', border: '0.07em solid #7a1612', padding: '0.16em 0.36em 0.08em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#7a1612', fontSize: 'clamp(18px, 4cqw, 52px)' }}>{pageStamp}</span>
             </div>
           )}
 

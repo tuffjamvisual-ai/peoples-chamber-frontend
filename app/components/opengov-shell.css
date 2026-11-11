@@ -3,9 +3,9 @@
    account tab) and the dossier expanding folder (per-page stamp + content slot).
    Page content goes in .dossier-content. ng-/og-/dossier- prefixed. */
 
-/* ---- Folders-pile backdrop: a 900px copy for phones (27 KiB instead of 155 KiB) ---- */
+/* ---- Folders-pile backdrop, from 768px up. Under 768px the phone layout shows no desk (below), so the 900px copy that
+   480 to 640px wide screens used is no longer needed (T1-768b, 11 Nov 2026). ---- */
 .og-backdrop { background-image: url(/folders.webp); }
-@media (min-width: 480px) and (max-width: 640px) { .og-backdrop { background-image: url(/folders-900.webp); } }
 
 /* ---- Nav bar (real links; no dropdowns since report 60) ---- */
 .ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; font-family: var(--font-special-elite), monospace; text-transform: uppercase; letter-spacing: 0.04em; color: #14100d; font-size: clamp(15px, 1.3cqw, 15px); text-shadow: 0.7px 0.7px 0 rgba(20, 16, 13, 0.42), -0.3px 0.2px 0.4px rgba(20, 16, 13, 0.24), 0 0 1.6px rgba(20, 16, 13, 0.3); }
@@ -118,12 +118,14 @@
   .og-menu-sep { display: inline-block; width: 1px; height: 1em; background: currentColor; opacity: 0.5; margin: 0 6px; }
 }
 
-/* ---- Phones under 480px (owner, 3 Nov 2026; GOV.UK Design System approach: small screens first, one column) ----
+/* ---- Phones under 768px (owner, 3 Nov 2026, under 480px; under 768px since T1-768b, 11 Nov 2026, as the phone layout is
+   under 768px: tablets of 480 to 767px had the folder on the desk, with the menu icon clipped by the tab, the back arrow on
+   the folder's edge and the desk ending in a black band) (GOV.UK Design System approach: small screens first, one column) ----
    The folder is the page: no desk backdrop (not shown, so not downloaded: the image is only set on the element above
-   480px, and OpenGovShell preloads it only from 480px), the folder's paper edge to edge, a short header bar, and the
+   768px, and OpenGovShell preloads it only from 768px), the folder's paper edge to edge, a short header bar, and the
    folder's top strip with its tab and the page stamp kept. Content runs at 12px from each side (over 92 per cent of
-   the screen). Nothing here applies from 480px up. */
-@media (max-width: 479px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+   the screen). Nothing here applies from 768px up. */
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .og-backdrop { display: none !important; background-image: none !important; }
   .ng-page { padding: 0 !important; background-color: #e1c495 !important; }
   .og-shell-inner { width: 100% !important; }
@@ -136,6 +138,10 @@
   .dossier-frame { filter: none; }
   .dossier-frame .d-mid, .dossier-frame .d-bottom { display: none; }
   .dossier-content { padding: 44px 12px 28px !important; }
+  /* The page stamp at its 375px size in the row above the content, at every phone width: from 480 to 767px it grew with
+     the folder and ran into the first line (the homepage's "Find your local council" at 767px; T1-768b, 11 Nov 2026). */
+  .og-stamp { top: 9px !important; }
+  .og-stamp-text { font-size: 18px !important; }
   .og-footer-links a { display: inline-flex; align-items: center; min-height: 44px; }
 }
 
