@@ -1,3 +1,4 @@
+import { SubFold } from '../../../components/PhoneFolds';
 import { Fragment } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -109,8 +110,11 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
           <NoJsPagerLinks id="pq-day" count={items.length} sizes={screens} first={Math.min(3, screens[0] ?? 3)} />
         </div>
         <section aria-label="Notes" style={{ marginTop: '28px', paddingTop: '14px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
+          {/* UX5 (T1-6, 11 Nov 2026): on phones the notes are a closed fold; from 640px up, as before. */}
+          <SubFold label="Notes on these questions">
           {day.exchanges.some((e) => e.experiment) && <ExperimentNote />}
           <PreFixedNotes answeredBySomeoneElse={answeredBySomeoneElse} />
+          </SubFold>
         </section>
       </div>
     </OpenGovShell>
