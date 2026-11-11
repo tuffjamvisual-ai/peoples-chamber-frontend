@@ -94,7 +94,9 @@ export default async function EdmPage({ params }: { params: Promise<{ id: string
       {parent && <><h2 style={h2}>Amends</h2><Motion m={parent} /></>}
 
       <h2 style={h2}>Motion</h2>
-      <p style={para}>{m.motion_text}</p>
+      {/* The motion's own words are its text, like an article's: never folded and not counted in the phone length (QA2d;
+          UX5, T1-6, 11 Nov 2026). */}
+      <p data-article-body="" style={para}>{m.motion_text}</p>
 
       {primary && (
         <>
