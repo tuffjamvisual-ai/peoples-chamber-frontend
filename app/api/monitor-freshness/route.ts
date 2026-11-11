@@ -5,6 +5,7 @@ import { sendFreshnessAlert, sendDatabaseSizeAlert, sendBioReviewAlert, sendSewa
 import { getDatabaseSize } from '@/lib/database-size';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { lastFireAtOrBefore } from '@/lib/cron-schedule';
+import { checkedSchedules, scheduleSince } from '@/lib/cron-since';
 import { cycleHours } from '@/lib/sync-cycles';
 import type { CycleState } from '@/lib/sync-heartbeat';
 import vercelConfig from '../../../vercel.json';
@@ -114,32 +115,11 @@ async function GET_impl(req: Request) {
   // Every cron and workflow step, whether or not it feeds a source above: a 5xx last run, or a cron with no run since
   // its last scheduled time.
   const alerted = new Set(alerts.map((a) => a.route));
-  const cronRoutes = new Map<string, string>();
-  for (const c of vercelConfig.crons) if (!c.path.includes('?')) cronRoutes.set(c.path, c.schedule);
+  const cronRoutes = checkedSchedules(vercelConfig.crons);
   const HEARTBEATS_ADDED = new Date('2026-10-21T20:00:00Z');
-  // The crons were restaggered on 27 Oct 2026 (job 79). A due time before then belongs to the old schedule, when the
-  // job ran at a different minute, so it is not checked against the new one.
-  const SCHEDULES_CHANGED = new Date('2026-10-27T04:00:00Z');
-  // When each recently added cron went live (its deploy was Ready). Until its first scheduled run after that, a cron
-  // has not missed anything, so a due time before it is not checked (owner, 27 Oct 2026). Add a cron here when it is
-  // added to vercel.json.
-  const CRON_ADDED: Record<string, string> = {
-    '/api/send-member-digests': '2026-10-27T12:34:22Z',               // job 74; first run 28 Oct 07:24 UTC
-    '/api/sweep-electoral-commission-donations': '2026-10-27T12:56:53Z', // first run 27 Oct 21:17 UTC
-    '/api/sync-statutory-instruments-treaties': '2026-10-27T13:26:54Z',  // first run 28 Oct 02:45 UTC
-    '/api/sync-spad-roster': '2026-10-28T08:20:29Z',                 // special advisers job; first run Tue 3 Nov 11:36 UTC
-    '/api/sync-blue-badges': '2026-10-28T13:00:00Z',                 // Blue Badges job (pushed 28 Oct); first run Wed 4 Nov 11:57 UTC
-    '/api/sync-children-in-care': '2026-10-28T17:00:00Z',            // children in care job (pushed 28 Oct); first run Thu 29 Oct 11:47 UTC
-    '/api/sync-road-condition': '2026-10-28T17:00:00Z',              // road condition job (pushed 28 Oct); first run Fri 30 Oct 11:53 UTC
-    '/api/sync-parliament-archive': '2026-10-29T22:00:00Z',          // Parliament archive backfill (pushed 29 Oct); every 10 minutes
-    '/api/sync-peers': '2026-11-04T00:00:00Z',                      // House of Lords job (pushed 3 Nov); first run 4 Nov 17:53 UTC
-    // A changed schedule counts as added (working rule 6): JF2a moved sync-connectivity from the 1st of the month to
-    // Mondays; it went live with the JF2 deploy (Ready 9 Nov 20:08 UTC), so 9 Nov 10:41 was never due. First run 16 Nov.
-    '/api/sync-connectivity': '2026-11-09T20:08:26Z',
-    // Cache Stage 2b (committed to the work branch 30 Oct 2026; live at the next "go live"). This date covers a go live
-    // on 30 or 31 Oct: the 31 Oct 05:15 run is not checked, the 1 Nov run is. A later go live moves it in that push.
-    '/api/refresh-nightly-pages': '2026-10-31T05:45:00Z',            // nightly page refresh; first checked run 1 Nov 05:15 UTC
-  };
+  // A due time before the cron's current schedule went live belongs to the old schedule (or to before the cron existed),
+  // so it is not checked (T1-DF (c), 11 Nov 2026: lib/cron-since.ts and scripts/data/cron-schedules.json, which replace
+  // the hand-kept list of added crons and the 27 Oct restagger date; both are folded into that file).
   // Run expected, zero rows normal: alerted only for a missed run or a failed one, never for a run of zero rows.
   // The reshuffle tick changes nothing unless reshuffle mode is on.
   const ZERO_ROWS_NORMAL = new Set(['/api/sync-reshuffle-tick']);
@@ -149,8 +129,8 @@ async function GET_impl(req: Request) {
     const due = lastFireAtOrBefore(schedule, new Date(now.getTime() - 30 * 60_000));
     const h = hb.get(route);
     if (!due || (h && new Date(h.last_ran_at) >= due)) continue;
-    if (due < SCHEDULES_CHANGED) continue;
-    if (CRON_ADDED[route] && due < new Date(CRON_ADDED[route])) continue;
+    const since = scheduleSince(route, schedule);
+    if (!since || due < since) continue;
     // Crons given a heartbeat on 21 Oct 2026 have no row until their first run since then.
     if (!h && due < HEARTBEATS_ADDED) continue;
     missedRuns.push({ route, due: due.toISOString(), lastRanAt: h?.last_ran_at ?? null });

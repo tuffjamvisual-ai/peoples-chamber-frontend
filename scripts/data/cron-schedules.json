@@ -1,0 +1,253 @@
+{
+  "_note": "T1-DF (c), 11 Nov 2026: each vercel.json cron (no query string) with its schedule and the time from which that schedule is checked (when it went live, never before 27 Oct 2026 04:00 UTC, the job 79 restagger). The freshness monitor does not alert for a due time before \"since\". When a schedule changes or a cron is added, set its schedule and since (the push time) here; until then the monitor counts the change from the build that carries it. scripts/checks/cron-since.test.ts checks this file against vercel.json.",
+  "crons": {
+    "/api/check-hand-loaded-releases": {
+      "schedule": "23 11 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/check-press-release-liveness": {
+      "schedule": "51 */2 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/cron/sync-programmes": {
+      "schedule": "27 10 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/monitor-freshness": {
+      "schedule": "3 17 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/recompute-activity-metrics": {
+      "schedule": "43 12 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/refresh-contractor-matches": {
+      "schedule": "27 3 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/refresh-nightly-pages": {
+      "schedule": "15 5 * * *",
+      "since": "2026-10-31T05:45:00Z"
+    },
+    "/api/refresh-organisation-index": {
+      "schedule": "45 4 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/refresh-reader-stores": {
+      "schedule": "29 4 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/send-member-digests": {
+      "schedule": "24 7 * * *",
+      "since": "2026-10-27T12:34:22Z"
+    },
+    "/api/sweep-electoral-commission-donations": {
+      "schedule": "17 21 * * *",
+      "since": "2026-10-27T12:56:53Z"
+    },
+    "/api/sync-agency-cache": {
+      "schedule": "43 5 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-appgs": {
+      "schedule": "47 14 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-bill-commons-votes": {
+      "schedule": "3 9 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-bill-sponsors": {
+      "schedule": "46 0,1,4,5,7,10,11,12,13,14,16,18,19,20,22,23 * * 0",
+      "since": "2026-11-04T21:00:40Z"
+    },
+    "/api/sync-bill-stages": {
+      "schedule": "35 1,7,13,19 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-blue-badges": {
+      "schedule": "57 11 * * 3",
+      "since": "2026-10-28T13:00:00Z"
+    },
+    "/api/sync-children-in-care": {
+      "schedule": "47 11 * * 4",
+      "since": "2026-10-28T17:00:00Z"
+    },
+    "/api/sync-civil-service-salaries": {
+      "schedule": "53 9 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-claimant-count": {
+      "schedule": "43 8 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-committee-memberships": {
+      "schedule": "3 13 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-committees": {
+      "schedule": "13 11 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-commons-press-releases": {
+      "schedule": "33 */2 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-commons-votes-api": {
+      "schedule": "23 9 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-connectivity": {
+      "schedule": "41 10 * * 1",
+      "since": "2026-11-09T20:08:26Z"
+    },
+    "/api/sync-debates": {
+      "schedule": "13 5 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-department-budgets": {
+      "schedule": "27 15 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-department-contacts": {
+      "schedule": "27 6 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-department-staffing": {
+      "schedule": "13 15 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-edms": {
+      "schedule": "13 7 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-electoral-commission-donations": {
+      "schedule": "13 1 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-fuel-poverty": {
+      "schedule": "23 10 * * 4",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-government-contracts": {
+      "schedule": "53 1 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-govuk-data": {
+      "schedule": "23 5 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-hansard-contributions": {
+      "schedule": "52 13 * * *",
+      "since": "2026-11-04T22:20:46Z"
+    },
+    "/api/sync-homelessness": {
+      "schedule": "25 10 * * 2",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-house-prices": {
+      "schedule": "27 8 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-lords-votes": {
+      "schedule": "27 7 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-member-biography": {
+      "schedule": "3 11,23 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-members-contributions": {
+      "schedule": "23 */6 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-ministers-bars": {
+      "schedule": "29 6 * * 2",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-ministers-hospitality": {
+      "schedule": "7 10 * * 0",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-ministers-meetings": {
+      "schedule": "33 5 * * 0",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-mp-contributions": {
+      "schedule": "43 3,9,15,21 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-mp-parties": {
+      "schedule": "27 4 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-mp-roster": {
+      "schedule": "7 4 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-mp-written-questions": {
+      "schedule": "13 3 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-parliament-archive": {
+      "schedule": "8,18,28,38,48,58 * * * *",
+      "since": "2026-10-29T22:00:00Z"
+    },
+    "/api/sync-peers": {
+      "schedule": "53 17 * * *",
+      "since": "2026-11-04T00:00:00Z"
+    },
+    "/api/sync-person-cache": {
+      "schedule": "3 7 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-petitions": {
+      "schedule": "43 6 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-press-releases": {
+      "schedule": "17 */2 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-reshuffle-tick": {
+      "schedule": "9 */2 * * *",
+      "since": "2026-11-09T20:04:38Z"
+    },
+    "/api/sync-revolving-door": {
+      "schedule": "25 6 * * 2",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-road-casualties": {
+      "schedule": "45 10 * * 5",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-road-condition": {
+      "schedule": "53 11 * * 5",
+      "since": "2026-10-28T17:00:00Z"
+    },
+    "/api/sync-school-inspections": {
+      "schedule": "43 10 * * 3",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-spad-roster": {
+      "schedule": "36 11 * * 2",
+      "since": "2026-10-28T08:22:32Z"
+    },
+    "/api/sync-spad-transparency": {
+      "schedule": "3 15 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-standards-committee": {
+      "schedule": "13 13 * * 1",
+      "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/sync-statutory-instruments-treaties": {
+      "schedule": "45 2 * * *",
+      "since": "2026-10-27T13:26:54Z"
+    },
+    "/api/sync-voting-intention": {
+      "schedule": "47 10 * * *",
+      "since": "2026-10-27T04:00:00Z"
+    }
+  }
+}

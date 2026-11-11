@@ -114,7 +114,8 @@ async function agencyRedirects() {
 const nextConfig: NextConfig = {
   // The recommendations tracker's switch (lib/feature-flags.ts), set at build time so the server and the browser (the
   // menu's current section in HeaderNav) read the same value. Not a secret; a change needs a new deploy.
-  env: { RECOMMENDATIONS_PUBLIC: process.env.RECOMMENDATIONS_PUBLIC ?? '' },
+  // CRON_BUILD_TIME (T1-DF (c)): when this build started; lib/cron-since.ts counts a cron schedule not yet recorded from it.
+  env: { RECOMMENDATIONS_PUBLIC: process.env.RECOMMENDATIONS_PUBLIC ?? '', CRON_BUILD_TIME: new Date().toISOString() },
   // Build reliability (owner's approval, 21 Oct 2026): two prerender workers instead of one per CPU, so the build does
   // not overload the database (reads queued for over 5 s and timed out at the 3 s limit).
   experimental: { cpus: 2 },
