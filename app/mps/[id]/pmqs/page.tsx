@@ -11,6 +11,7 @@ import { longDate, pmqsSet } from '@/lib/pmqs';
 import { archiveRole, longDateArchive, memberArchive, type MemberContribution } from '@/lib/pmqs-archive';
 import { lookupMember, memberName } from '@/lib/former-mps';
 import { idsFor } from '@/lib/historic-archive';
+import { failSoft } from '@/lib/fail-soft';
 import NoJsPager, { NoJsPagerLinks, njpItem, pagesByHeight } from '../../../components/NoJsPager';
 
 import BackLink from '@/app/components/BackLink';
@@ -92,7 +93,10 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const memberId = Number(id);
   if (!Number.isInteger(memberId) || memberId <= 0) notFound();
-  const [name, set, archive, profile] = await Promise.all([getMpName(memberId), pmqsSet(), memberArchive(memberId), hasProfile(memberId)]);
+  // T1-DF (b): a failed read of the 1961 to 2024 archive leaves that section out (logged, rendered again in 10 minutes)
+  // rather than taking the whole page down (/mps/5068/pmqs, 10 Nov 2026).
+  const [name, set, archiveRead, profile] = await Promise.all([getMpName(memberId), pmqsSet(), failSoft(`/mps/${memberId}/pmqs archive`, memberArchive(memberId), [] as MemberContribution[]), hasProfile(memberId)]);
+  const archive = archiveRead.value;
   const ids = idsFor(memberId);
   const questions = ids.flatMap((i) => set.byMember[i] ?? []);
   const answersOn = (role: 'prime_minister' | 'standing_in'): AnswerDay[] => {
@@ -104,6 +108,8 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
   const asPm = answersOn('prime_minister'), standingIn = answersOn('standing_in');
   const answered = asPm.length > 0 || standingIn.length > 0;
   const askedInArchive = archive.filter((r) => archiveRole(ids, r.date) === 'asked');
+  // With the archive unread and nothing else to show, the page may still exist: the error page (not cached), not a 404.
+  if (name && archiveRead.failed && questions.length === 0 && !answered) throw new Error(`/mps/${memberId}/pmqs: the archive could not be read and there is nothing else to show`);
   if (!name || (questions.length === 0 && archive.length === 0 && !answered)) notFound();
   const archiveYears = byYear<MemberContribution>(askedInArchive);
   return (
