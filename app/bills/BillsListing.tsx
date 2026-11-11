@@ -4,10 +4,11 @@ import Pagination from '../components/Pagination';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import VotingIntegrity from '../components/VotingIntegrity';
+import AboutThisData from '../components/AboutThisData';
 import Link from 'next/link';
 import { getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle, type SessionBillGroup } from '@/lib/parliament-sessions';
 import { billTitleMatches, BILL_QUERY_MAX } from '@/lib/bill-search';
-import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
+import { wideFrom } from '@/lib/breakpoints';
 import { ShowAll } from '@/app/components/NoJsPager';
 
 export const BILLS_PER_PAGE = 60;
@@ -83,11 +84,7 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
           </p>
         )}
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          The bills before UK Parliament in the {current ? sessionTitle(current) : 'current session'}: introduced in it or carried over into it. How MPs voted. How you voted. The gap between the two.
-        </p>
-        <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginTop: '8px' }}>
-          Acts, withdrawn bills and bills from earlier sessions are in the{' '}
-          <Link href="/bills/sessions" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>archive of bills by session</Link>.
+          The bills before UK Parliament in the {current ? sessionTitle(current) : 'current session'}: introduced in it or carried over into it.
         </p>
         {current && sessionTotal > 0 && (
           <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginTop: '8px' }}>
@@ -96,9 +93,6 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
         )}
       </header>
 
-      {/* Under 640px (owner, 4 Nov 2026) the box comes after the list. */}
-      <style>{`.vi-phone { display: none; } @media ${phoneUpTo(767.98)} { .vi-wide { display: none; } .vi-phone { display: block; margin-top: 24px; } }`}</style>
-      <div className="vi-wide"><VotingIntegrity /></div>
 
       <style>{`
         .bills-az { list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 48px; }
@@ -128,16 +122,17 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
       {/* A search's pages link to /bills/search directly: the site's own navigation (JavaScript on) does not go through
           the /bills?q= rewrite, and would show the plain list. */}
       <Pagination currentPage={page} totalPages={totalPages} baseUrl={q ? '/bills/search' : '/bills'} qsExtra={q ? `&q=${encodeURIComponent(q)}` : ''} />
-      <div className="vi-phone"><VotingIntegrity /></div>
 
       {/* Everything not going through Parliament now: the archive (every bill, by session) and the Acts. Replaces the
           old "Browse all bills" index, so this page has one going-through-Parliament figure. The archive links every
           bill page; the sitemap lists the indexable ones. */}
       <nav aria-label="More bills" style={{ borderTop: '1px solid rgba(20,16,13,0.18)', marginTop: '40px', paddingTop: '20px', display: 'flex', flexWrap: 'wrap', gap: '12px 32px', fontSize: '17px' }}>
-        <Link href="/bills/sessions" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Every bill, by session (archive)</Link>
+        <Link href="/bills/sessions" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Acts, withdrawn bills and earlier sessions (archive)</Link>
         <Link href="/laws" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Acts of Parliament</Link>
       </nav>
 
+      {/* T1-5x (owner, 10 Nov 2026): how votes here are kept honest, in About this data (it is on each bill page too). */}
+      <AboutThisData><VotingIntegrity plain /></AboutThisData>
     </OpenGovShell>
   );
 }
