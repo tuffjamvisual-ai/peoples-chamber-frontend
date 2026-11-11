@@ -12,8 +12,6 @@
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
-import ReadNext from '../../../components/ReadNext';
-import { partyBioNextLinks, partySecondJobs } from '@/lib/party-links';
 import { type EvidencePanelProps } from '../../../components/EvidencePanel';
 import { partyDescription } from '@/lib/page-descriptions';
 import { wholeSentences } from '@/lib/meta-description';
@@ -168,25 +166,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
             </p>
           )}
 
-          {/* cross link to the manifesto-vs-record detail page. */}
-          <section style={{ borderTop: '1px solid rgba(20,16,13,0.2)', paddingTop: '20px', marginBottom: '20px' }}>
-            <a
-              href={`/parties/${party.slug}`}
-              style={{
-                fontFamily: 'var(--font-special-elite), monospace',
-                fontSize: '15px',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: INK,
-                textDecoration: 'none',
-                borderBottom: '1px solid rgba(20,16,13,0.4)',
-                paddingBottom: '2px',
-              }}
-            >
-              {party.name}&apos;s manifesto vs record, 11 themes →
-            </a>
-          </section>
-          <ReadNext links={partyBioNextLinks(party, await partySecondJobs(party.mp_party_string))} />
+          {/* T1-5x (owner, 10 Nov 2026): no cross link or Read next here; both only repeated the party's own tabs. */}
         </div>
       </PartySidebar>
 

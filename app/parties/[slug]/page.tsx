@@ -191,7 +191,8 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
         />
         {party.recipient_name && (
           <div style={{ marginTop: '14px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
-            <Link href={`/parties/${party.slug}/money`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{fmtMoney(donationsTotal)} lifetime declared donations →</Link>
+            {/* The Money tab is the link to the detail (T1-5x: one link per destination). */}
+            {fmtMoney(donationsTotal)} lifetime declared donations
           </div>
         )}
         {secondJobs && (
