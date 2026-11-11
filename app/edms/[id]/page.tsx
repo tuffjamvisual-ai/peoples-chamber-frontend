@@ -51,7 +51,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-const Name = ({ s }: { s: Pick<EdmSignature, 'member_id' | 'member_name' | 'has_page'> }) => (s.has_page
+// `plain`: the member is already linked higher on the page (a sponsor), so here the name is plain text (T1-5x, owner
+// 10 Nov 2026: a page links a record once).
+const Name = ({ s, plain = false }: { s: Pick<EdmSignature, 'member_id' | 'member_name' | 'has_page'>; plain?: boolean }) => (s.has_page && !plain
   ? <Link href={`/mps/${s.member_id}`} prefetch={false} style={link}>{displayMpName(s.member_name)}</Link>
   : <span style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontSize: '16px' }}>{displayMpName(s.member_name)}</span>);
 
@@ -67,6 +69,8 @@ export default async function EdmPage({ params }: { params: Promise<{ id: string
   const live = signatures.filter((s) => !s.is_withdrawn);
   const primary = live.find((s) => s.member_id === m.primary_sponsor_id) ?? signatures.find((s) => s.member_id === m.primary_sponsor_id);
   const sponsors = live.filter((s) => s.sponsoring_order != null && s.sponsoring_order <= 6 && s.member_id !== m.primary_sponsor_id);
+  // Linked once (T1-5x): the primary sponsor and sponsors are linked above, so their signatures are plain text.
+  const sponsorIds = new Set<number>([...(primary ? [primary.member_id] : []), ...sponsors.map((s) => s.member_id)]);
   const withdrawn = signatures.length - live.length;
   const facts: [string, string][] = [
     ['Number', `EDM ${m.uin_with_suffix}`],
@@ -125,7 +129,7 @@ export default async function EdmPage({ params }: { params: Promise<{ id: string
             step={25}
             items={signatures.map((s) => (
               <li key={s.member_id} style={{ padding: '4px 0 8px', borderBottom: LINE, color: INK }}>
-                <Name s={s} />
+                <Name s={s} plain={sponsorIds.has(s.member_id)} />
                 <span style={{ display: 'block', fontSize: '15px' }}>
                   {s.party}
                   {s.signed_at ? ` · Signed ${petitionDate(s.signed_at.slice(0, 10))}` : ''}
