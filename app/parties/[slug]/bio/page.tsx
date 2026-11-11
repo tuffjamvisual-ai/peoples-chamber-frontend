@@ -134,7 +134,9 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
               label was removed 2026-06-03 per user request. */}
           {party.critique ? (
             <section data-main-action style={{ marginBottom: '40px' }}>
+              {/* The verdict is article text: never folded, and not counted in the phone length (QA2d; T1-6, 11 Nov 2026). */}
               <div
+                data-article-body=""
                 style={{
                   fontFamily: 'var(--font-special-elite), monospace',
                   fontSize: 'clamp(16px, 1.6vw, 18px)',
