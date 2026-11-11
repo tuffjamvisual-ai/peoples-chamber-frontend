@@ -3,6 +3,7 @@
 // the MP search and paging now happen in page.tsx; everything here is plain links and a GET form, so the controls work
 // without JavaScript and every view has its own shareable address.
 
+import NoJsPager from '../../components/NoJsPager';
 import Link from 'next/link'
 
 export type Dept = { dept: string; count: number }
@@ -151,6 +152,8 @@ export default function MpActivityTable({ rows, firstRank, total, view, party, q
       </p>
 
       <div style={{ overflowX: 'auto' }}>
+        {/* UX5 (T1-6, 11 Nov 2026): on phones the first 8 MPs, then "Show all" (a native fold); from 640px up, as before. */}
+        <NoJsPager id="mpa" count={rows.length} rows="> tbody > tr" size={rows.length} first={8}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
@@ -183,6 +186,7 @@ export default function MpActivityTable({ rows, firstRank, total, view, party, q
             ))}
           </tbody>
         </table>
+        </NoJsPager>
       </div>
     </div>
   )
