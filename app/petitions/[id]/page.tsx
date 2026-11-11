@@ -54,7 +54,7 @@ function AsWritten({ text }: { text: string }) {
   return (
     <>
       {text.split(/\r?\n\s*\r?\n/).map((block, i) => (
-        <p key={i} style={para}>
+        <p key={i} data-og-citations="" style={para}>
           {block.split(/(https?:\/\/[^\s<>]+)/g).map((part, j): ReactNode => (/^https?:\/\//.test(part)
             ? <a key={j} href={part} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{part}</a>
             : part.replace(/\r/g, '')))}

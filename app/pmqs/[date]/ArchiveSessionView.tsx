@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import OpenGovShell from '../../components/OpenGovShell';
 import MoreChain, { openingCount, textHeightAt375 } from '../../components/MoreChain';
 import OpenHashTarget from '../../components/OpenHashTarget';
@@ -18,7 +19,7 @@ function Name({ c }: { c: ArchiveContribution }) {
   if (!c.name) return null;
   return (
     <p style={nameLine}>
-      {!c.href ? c.name : c.site === 'opengovt' ? <Link href={c.href} className="og-tap" style={link}>{c.name}</Link> : <a href={c.href} rel="noopener" className="og-tap" style={link}>{c.name}</a>}
+      {!c.href ? c.name : c.site === 'opengovt' ? <Link href={c.href} className="og-tap" style={link}>{c.name}</Link> : <a data-og-row-source="" href={c.href} rel="noopener" className="og-tap" style={link}>{c.name}</a>}
       {c.site === 'parliament' && <span style={{ fontWeight: 'normal' }}> (on parliament.uk)</span>}
     </p>
   );
@@ -43,7 +44,7 @@ export default async function ArchiveSessionView({ session }: { session: Archive
       {answeredBy(session.date) && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 4px', color: INK }}>Answered by {answeredBy(session.date)}.</p>}
       {session.note && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 4px', color: INK }}>{session.note}</p>}
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 24px', color: INK }}>
-        {session.exchanges} {session.exchanges === 1 ? 'contribution' : 'contributions'} in the record: <a href={record.href} rel="noopener" style={link}>{record.label}</a>.
+        {session.exchanges} {session.exchanges === 1 ? 'contribution' : 'contributions'} in the record (in Sources at the end of the page).
       </p>
       <div style={{ color: INK }}>
         <MoreChain mainAction ordered first={openingCount(exchanges.map(heightAt375))} items={exchanges.map((e) => (
@@ -59,6 +60,9 @@ export default async function ArchiveSessionView({ session }: { session: Archive
           </li>
         ))} />
       </div>
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The sitting's record is in this one Sources fold; each
+          speaker's own page stays on its row. */}
+      <PageSources sources={[{ label: record.label.replace(/^Read the official record in /, 'The official record in '), href: record.href }]} />
     </OpenGovShell>
   );
 }

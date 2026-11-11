@@ -6,6 +6,7 @@
 // them) are part of "Time in the House of Commons".
 import StandardsCasesLine from '../../components/StandardsCasesLine';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import OpenGovShell from '../../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs, buildMpPerson } from '@/lib/JsonLd';
 import type { RelatedLink } from '@/lib/related-links';
@@ -81,12 +82,14 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
           <Link href="/mps" className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Find your current MP</Link>.
         </p>
         <p style={line}>
-          Source: <a href={parliamentMemberUrl(mp.memberId)} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>UK Parliament, {mp.name}: career</a> (Members API).
+          Source: UK Parliament, {mp.name}: career (Members API), in Sources at the end of the page.
         </p>
       </section>
 
       <StandardsFindings findings={conductFindings} />
       <HistoricRecord memberId={mp.memberId} />
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
+      <PageSources sources={[{ label: `UK Parliament, ${mp.name}: career`, href: parliamentMemberUrl(mp.memberId) }]} />
     </OpenGovShell>
   );
 }
