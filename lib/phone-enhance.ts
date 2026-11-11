@@ -179,10 +179,14 @@ window.__ogPhone=function(buttons){
 document.addEventListener('click',function(e){
   var t=e.target.closest&&e.target.closest('summary,[aria-expanded],[data-pt-fold]');
   if(t&&!t.closest('nav,.og-menu-panel,.og-mbar,footer'))opened=true;
-  if(e.target.closest&&e.target.closest('a[href]')){saveBack();window.__ogBack=null}
+  // A link within the page (#...) is not leaving it: no place to come back to (T1-MOB, 11 Nov 2026).
+  var lk=e.target.closest&&e.target.closest('a[href]');
+  if(lk&&!/^#/.test(lk.getAttribute('href')||'')){saveBack();window.__ogBack=null}
 },true);
 window.addEventListener('pagehide',saveBack);
-window.addEventListener('popstate',function(){if(location.href!==here)returning()});
+// A move within the page (only the #fragment changes, which also fires popstate) is not a return: the place is not
+// set back, or an in-page shortcut would snap back to where it was tapped (T1-MOB, 11 Nov 2026).
+window.addEventListener('popstate',function(){if(location.href.split('#')[0]!==here.split('#')[0])returning()});
 try{var nav=performance.getEntriesByType('navigation')[0];if(nav&&nav.type==='back_forward')returning()}catch(e){}
 window.__ogPhone(false);
 })();`;
