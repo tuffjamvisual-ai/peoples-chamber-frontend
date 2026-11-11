@@ -123,7 +123,7 @@ export default async function BlueBadgesPage() {
 
         <section style={section}>
           <h2 style={h2}>Who qualifies</h2>
-          {/* Phones (step 5, 10 Nov 2026: page length): this explainer and the notes folded, the first table 3 rows, the
+          {/* Phones (step 5, 10 Nov 2026: page length): this explainer and the notes folded, the first table 2 rows (3 until UX5, T1-6, 11 Nov 2026), the
               second table folded. From 640px up, as before. */}
           <SubFold label="Read it">
           <p style={para}>
@@ -141,7 +141,7 @@ export default async function BlueBadgesPage() {
         <section data-main-action className="bb-main" style={section}>
           <h2 style={h2}>Share of residents holding a badge</h2>
           {/* Phones (under 768px): one card per council (phone-table.css .pt-cards); four columns did not fit 320px. */}
-            <NoJsPager id="bb-a" first={3} count={(byShare).length} rows="> tbody > tr" size={15}>
+            <NoJsPager id="bb-a" first={2} count={(byShare).length} rows="> tbody > tr" size={15}>
             <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
               <thead>
                 <tr>
