@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { SubFold } from '../../components/PhoneFolds';
+import AboutThisData from '../../components/AboutThisData';
 import Pagination from '../../components/Pagination';
 import RegisterSearchClient from './RegisterSearchClient';
 import DonationsCounter from './DonationsCounter';
@@ -206,38 +206,14 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
       />
 
       <header style={{ marginBottom: '20px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '10px', color: INK }}>
-          Parliamentary Register
-        </p>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           Register of Members&rsquo; Financial Interests
         </h1>
-        {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
-        <SubFold label="About this register">
-        <p style={{ fontSize: '16px', lineHeight: 1.75, maxWidth: '760px', color: INK }}>
-          What MPs themselves declare to Parliament: gifts, hospitality, employment and earnings, overseas visits, land and property, shareholdings and family interests. Search {total.toLocaleString('en-GB')} declared entries across every MP, filter by category or date, and follow each entry back to the Member.
+        {/* T1-5x (owner, 10 Nov 2026): one line, and the caveat that stays visible; the rest is in About this data. */}
+        <p style={{ fontSize: '16px', lineHeight: 1.6, maxWidth: '760px', color: INK, margin: 0 }}>
+          What MPs declare to Parliament about their own interests. An interest declared is not wrongdoing.
         </p>
-        </SubFold>
 
-        {/* Phones (step 5, 10 Nov 2026): the note on the two registers and the donations total folded. */}
-        <SubFold label="This register and donations">
-        {/* Explicit distinction from Electoral Commission donations. */}
-        <div style={{ marginTop: '16px', padding: '12px 16px', border: `1px solid ${HAIRLINE}`, borderLeft: `3px solid ${ACCENT}`, background: 'rgba(107,36,23,0.04)', maxWidth: '760px' }}>
-          <p style={{ margin: 0, fontSize: '15px', lineHeight: 1.65, color: INK }}>
-            This is the <strong>parliamentary register</strong>: declarations MPs make about their own interests. It is separate from{' '}
-            <Link href="/transparency/donations" style={{ color: ACCENT, textDecoration: 'underline' }}>
-              political donations
-            </Link>{' '}
-            recorded by the Electoral Commission, which tracks money given to parties and candidates. Two different registers, two different sources.
-          </p>
-        </div>
-
-        <DonationsCounter
-          total={donationsTotal.total}
-          entryCount={donationsTotal.entryCount}
-          asOf={donationsTotal.asOf}
-        />
-        </SubFold>
       </header>
 
       <RegisterSearchClient
@@ -336,12 +312,25 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
         />
       )}
 
-      {/* UX5 (T1-6, 11 Nov 2026): on phones the source note is a closed fold; from 640px up, as before. */}
-      <div style={{ marginTop: '28px' }}><SubFold label="About the source">
-      <p style={{ marginTop: 0, fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, maxWidth: '760px' }}>
-        Source: the Register of Members&rsquo; Financial Interests, published by the House of Commons and synced from the Parliament Members API. Entries are the Members&rsquo; own declarations. Covers 588 of 650 current MPs; the remainder have no registrable interests recorded.
-      </p>
-      </SubFold></div>
+      <AboutThisData>
+        <p>What MPs themselves declare to Parliament: gifts, hospitality, employment and earnings, overseas visits, land and property, shareholdings and family interests. Search {total.toLocaleString('en-GB')} declared entries across every MP, filter by category or date, and follow each entry back to the Member.</p>
+        <div style={{ marginTop: '16px', padding: '12px 16px', border: `1px solid ${HAIRLINE}`, borderLeft: `3px solid ${ACCENT}`, background: 'rgba(107,36,23,0.04)', maxWidth: '760px' }}>
+          <p style={{ margin: 0, fontSize: '15px', lineHeight: 1.65, color: INK }}>
+            This is the <strong>parliamentary register</strong>: declarations MPs make about their own interests. It is separate from{' '}
+            <Link href="/transparency/donations" style={{ color: ACCENT, textDecoration: 'underline' }}>
+              political donations
+            </Link>{' '}
+            recorded by the Electoral Commission, which tracks money given to parties and candidates. Two different registers, two different sources.
+          </p>
+        </div>
+
+        <DonationsCounter
+          total={donationsTotal.total}
+          entryCount={donationsTotal.entryCount}
+          asOf={donationsTotal.asOf}
+        />
+        <p style={{ marginTop: '12px' }}>Source: the Register of Members&rsquo; Financial Interests, published by the House of Commons and synced from the Parliament Members API. Entries are the Members&rsquo; own declarations. Covers 588 of 650 current MPs; the remainder have no registrable interests recorded.</p>
+      </AboutThisData>
       <LastUpdated sourceKey="registered_interests" />
     </OpenGovShell>
   );
