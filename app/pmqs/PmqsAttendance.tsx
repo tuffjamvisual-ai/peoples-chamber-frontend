@@ -30,6 +30,9 @@ const table = { width: '100%', borderCollapse: 'collapse' as const, fontSize: '1
 const h2 = { fontSize: 'clamp(22px, 2.6vw, 30px)', fontWeight: 'bold', margin: '0 0 12px' };
 const h3 = { fontSize: '18px', fontWeight: 'bold', margin: '28px 0 10px' };
 
+// EL1 (owner, 10 Nov 2026): the Library's briefing is linked in the page's Sources fold.
+export const PMQS_ATTENDANCE_SOURCE = { label: "House of Commons Library, Attendance of the Prime Minister at Prime Minister's Questions since 1979 (SN04401)", href: data.source.url };
+
 export default function PmqsAttendance() {
   return (
     <section aria-labelledby="pmqs-attendance" style={{ color: INK }}>
@@ -122,7 +125,7 @@ export default function PmqsAttendance() {
       <SubFold label="Note and source">
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '20px 0 0' }}>{data.source.note_1}.</p>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '12px 0 0' }}>
-        <a href={data.source.url} rel="noopener" style={{ color: ACCENT, textDecoration: 'underline' }}>{CREDIT}</a>
+        {CREDIT} The Library&rsquo;s briefing is in Sources at the end of the page.
       </p>
       </SubFold>
     </section>

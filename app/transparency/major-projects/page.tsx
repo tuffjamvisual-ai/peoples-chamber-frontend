@@ -6,6 +6,7 @@
 // One line per project (owner's decision, 20 Oct 2026): name, latest rating, latest end date, and "Last reported"
 // for projects that have left; the history tables are on the project pages and the department tabs.
 
+import PageSources from '@/app/components/PageSources';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -91,9 +92,11 @@ export default async function MajorProjectsPage() {
       <MajorProjectsBrowser projects={lines} latestYear={latestYear} noPlanCount={noPlan.length} />
 
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
-        Sources: {Object.values(REPORT_PAGES).map((r, i) => <span key={r.url}>{i > 0 && '; '}<a href={r.url} style={{ color: INK }}>{r.title}</a></span>)}.
+        Sources: {Object.values(REPORT_PAGES).map((r) => r.title).join('; ')} (in Sources at the end of the page).
         Names, figures, dates and ratings are as the departments reported them. Where a rating, cost or date is withheld, the file&rsquo;s wording is shown.
       </p>
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
+      <PageSources sources={Object.values(REPORT_PAGES).map((r) => ({ label: r.title, href: r.url }))} />
     </OpenGovShell>
   );
 }

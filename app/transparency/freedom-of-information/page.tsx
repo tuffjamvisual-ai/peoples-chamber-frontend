@@ -1,6 +1,7 @@
 // /transparency/freedom-of-information: every body in the Cabinet Office's FOI statistics for the latest quarter
 // (foi_statistics, lib/foi-statistics.ts). Owner's decisions, 20 Oct 2026: counts as published, the 20-day figure as
 // "N of BASE (X%)" with the published percentage rounded, sortable by name, requests and answered within 20 days.
+import PageSources from '@/app/components/PageSources';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -69,11 +70,13 @@ export default async function FreedomOfInformationPage() {
         </p>
         {source && (
           <p style={{ fontSize: '15px' }}>
-            Source: <a href={source.url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{source.label}</a>.
+            Source: {source.label} (in Sources at the end of the page).
             Contains public sector information licensed under the Open Government Licence v3.0.
           </p>
         )}
       </div>
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
+      <PageSources sources={[source && { label: source.label, href: source.url }]} />
     </OpenGovShell>
   );
 }

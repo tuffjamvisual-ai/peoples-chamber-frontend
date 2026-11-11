@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import PageSources from '@/app/components/PageSources';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
@@ -65,7 +66,6 @@ export default async function DepartmentQuestions({ params, searchParams }: { pa
       <TookOnNote department={d} />
       {now.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Now part of</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{now.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
       {moved.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Functions moved to</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{moved.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
-      {d.source && <p style={{ margin: '0 0 8px' }}><a href={d.source.url} target="_blank" rel="noopener noreferrer" style={{ ...link, fontSize: '15px' }}>{d.source.label}</a></p>}
       {was.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Previously</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{was.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
       {d.page && <p style={{ margin: '4px 0 12px' }}><Link href={`/departments/${d.page}`} prefetch={false} style={link}>The department&rsquo;s page</Link></p>}
       {rows.length === 0 ? <p style={{ fontSize: '16px', color: INK }}>No questions.</p> : (
@@ -73,6 +73,8 @@ export default async function DepartmentQuestions({ params, searchParams }: { pa
           moreHref={more ? `/questions/department/${d.slug}?before=${more}&at=${at + QUESTION_PAGE_SIZE}` : null} />
       )}
       {before && <p style={{ margin: '12px 0 0', fontSize: '15px' }}><a href={`/questions/department/${d.slug}`} style={{ display: 'inline-block', padding: '12px 0', color: INK, textDecoration: 'underline' }}>Back to the newest</a></p>}
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
+      <PageSources sources={[d.source && { label: d.source.label, href: d.source.url }]} />
     </OpenGovShell>
   );
 }

@@ -2,6 +2,7 @@
 // Reads ministerial_directions (migration 2026-10-20a), loaded by scripts/import-ministerial-directions.js.
 // Grouped by year given (publication year where the letter shows no date), newest first.
 
+import PageSources from '@/app/components/PageSources';
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -111,8 +112,10 @@ export default async function MinisterialDirectionsPage() {
       ))}
 
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
-        Source: GOV.UK, <a href="https://www.gov.uk/government/collections/ministerial-directions" style={{ color: INK }}>Ministerial directions</a>. Dates given and ministers are read from the letters, with the name as signed; GOV.UK&rsquo;s tag is used only where the letter gives no name. Where the letter shows no date, the publication date is shown. GOV.UK says none were published between 2011 and 2014.
+        Source: GOV.UK, Ministerial directions (in Sources at the end of the page). Dates given and ministers are read from the letters, with the name as signed; GOV.UK&rsquo;s tag is used only where the letter gives no name. Where the letter shows no date, the publication date is shown. GOV.UK says none were published between 2011 and 2014.
       </p>
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold; each direction's letters and GOV.UK page stay on its row. */}
+      <PageSources sources={[{ label: 'GOV.UK, Ministerial directions', href: 'https://www.gov.uk/government/collections/ministerial-directions' }]} />
     </OpenGovShell>
   );
 }

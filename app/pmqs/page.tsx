@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import PageSources from '@/app/components/PageSources';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import PmqsAttendance from './PmqsAttendance';
+import PmqsAttendance, { PMQS_ATTENDANCE_SOURCE } from './PmqsAttendance';
 import EverySession from './EverySession';
 import { pmqsSet } from '@/lib/pmqs';
 
@@ -23,6 +24,8 @@ export default async function PmqsPage() {
       </h1>
       <EverySession set={set} />
       <PmqsAttendance />
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
+      <PageSources sources={[PMQS_ATTENDANCE_SOURCE]} />
     </OpenGovShell>
   );
 }

@@ -23,6 +23,7 @@ import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
 import PhoneFolds, { SubFold } from '../../components/PhoneFolds';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
+import { spadReleaseSource } from '../../components/SpadSource';
 import AppgSource, { appgAmount } from '../../components/AppgSource';
 import NoJsPager, { pagesByHeight } from '@/app/components/NoJsPager';
 
@@ -3101,6 +3102,7 @@ export default function MagazineProfileSections({
           contact?.website && { label: `${fullName || 'The MP'}\u2019s own website`, href: contact.website.match(/^https?:\/\//) ? contact.website : `https://${contact.website.replace(/^\/+/, '')}` },
           contact?.twitter && { label: `${fullName || 'The MP'} on X`, href: contact.twitter },
           has.petitions && { label: 'UK Parliament petitions website', href: 'https://petition.parliament.uk' },
+          spadAdvisers && spadReleaseSource(spadAdvisers.release.release_slug, spadAdvisers.release.source_url),
           ...appgs.flatMap((a) => [
             a.website_url && { label: `${a.title}: the group\u2019s website`, href: a.website_url },
             a.secretariat && a.secretariat_url && { label: `${a.title}: secretariat (${a.secretariat}) website`, href: a.secretariat_url },

@@ -1,4 +1,5 @@
 import { titleWithin } from '@/lib/seo-title';
+import PageSources from '@/app/components/PageSources';
 import type { Metadata } from 'next'
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions'
 import { supabase } from '@/lib/supabase'
@@ -219,13 +220,7 @@ export default async function TransparencySectionPage({
           // (app/api/sync-revolving-door), shown here as the same search on GOV.UK; the Independent Adviser's advice from
           // its one GOV.UK page (app/api/sync-ministers-bars).
           <p className="text-[#14100d] text-[15px] leading-[1.6] max-w-2xl mt-3">
-            Sources:{' '}
-            {REVOLVING_DOOR_SOURCES.map((src, i) => (
-              <span key={src.url}>
-                {i > 0 && <span aria-hidden> · </span>}
-                <a href={src.url} target="_blank" rel="noopener noreferrer" className="underline" style={{ color: ACCENT }}>{src.label}</a>
-              </span>
-            ))}
+            Sources: {REVOLVING_DOOR_SOURCES.map((src) => src.label).join(' · ')} (in Sources at the end of the page).
           </p>
         )}
           </SubFold>
@@ -300,6 +295,8 @@ export default async function TransparencySectionPage({
         baseUrl={baseUrl}
         qsExtra={searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}
       />
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
+      <PageSources sources={section === 'revolving-door' ? REVOLVING_DOOR_SOURCES.map((src) => ({ label: src.label, href: src.url })) : []} />
     </OpenGovShell>
   )
 }

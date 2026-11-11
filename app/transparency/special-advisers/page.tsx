@@ -8,6 +8,7 @@
 //     quarterly tables, from /api/sync-spad-transparency, weekly). Every quarter is kept from April to June 2026
 //     on; QuarterSections shows one at a time with a selector, the latest first.
 
+import PageSources from '@/app/components/PageSources';
 import { NoJsFold } from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
@@ -18,7 +19,7 @@ import SeeAlso from '../../components/SeeAlso';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
-import SpadSource from '../../components/SpadSource';
+import SpadSource, { spadReleaseSource } from '../../components/SpadSource';
 import { areaForPost } from '@/lib/spad-minister-status';
 import { SPAD_LIST_ANCHOR, longDate, totalsLine, buildBackground, plainName, quarterEndDate, monthYearLabel, type SpadRow, type SpadReleaseRow, type SpadInterestRow, type SpadHistoryRow, type SpadPostRow, type SpadBackground, type SpadMinisterStatus, type SpadMinisterInfo } from '@/lib/spad-display';
 import Link from 'next/link';
@@ -225,7 +226,7 @@ export default async function SpecialAdvisersPage() {
                 </div>
               ))}
               <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '10px 0 18px' }}>
-                Posts and dates: <a href="https://members-api.parliament.uk/" rel="noopener" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>UK Parliament Members API</a>, checked every week.
+                Posts and dates: UK Parliament Members API (in Sources at the end of the page), checked every week.
               </p>
             </>
           )}
@@ -259,6 +260,12 @@ export default async function SpecialAdvisersPage() {
         { href: '/departments', label: 'All government departments', note: 'Ministers, budgets, staff and record for each department' },
       ]} />
       </SubFold>
+
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside; each adviser's own source stays on its row, in the page's one Sources fold. */}
+      <PageSources sources={[
+        release && spadReleaseSource(release.release_slug, release.source_url),
+        { label: 'UK Parliament Members API (posts and dates)', href: 'https://members-api.parliament.uk/' },
+      ]} />
 
       {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
       <ArticleEndSignup source="data-special-advisers" line={DATA_SIGNUP_LINE} />
