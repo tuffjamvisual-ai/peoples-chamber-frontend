@@ -4,6 +4,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import { fmtPeriod, fmtChange } from '@/lib/dashboard-format';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 import BackLink from '@/app/components/BackLink';
+import PageSources from '@/app/components/PageSources';
 
 export const revalidate = 3600;
 
@@ -107,10 +108,7 @@ export default async function StateDashboard() {
               )}
               {r.definition_note && <div style={{ fontSize: '15px', color: INK, marginTop: '10px', lineHeight: 1.55 }}>{r.definition_note}</div>}
               <div style={{ fontSize: '15px', color: INK, marginTop: '10px' }}>
-                Source:{' '}
-                {r.source_url
-                  ? <a href={r.source_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{r.source_name}</a>
-                  : r.source_name}
+                Source: {r.source_name}
                 {checked && <> · Checked against the source on {checked}</>}
                 {COUNCIL_LINKED.has(r.service) && <> · <a href="/councils" style={{ color: ACCENT, textDecoration: 'underline' }}>by council</a></>}
               </div>
@@ -166,6 +164,8 @@ export default async function StateDashboard() {
       <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '680px', color: INK, marginTop: '32px' }}>
         Figures are for England, except the justice indicators (police, criminal courts and prisons), which cover England and Wales. Each figure is entered by hand from the source named on its card and shows the date it was last checked. Where a published measure changes, no change over the long term is shown rather than joining two different series.
       </p>
+      {/* EL1 (owner, 11 Nov 2026): the sources named on the cards are linked in this one Sources fold, in card order. */}
+      <PageSources sources={services.flatMap((s) => byService.get(s)!.map((r) => r.source_url && { label: `${SERVICE_META[s].name}: ${r.source_name}`, href: r.source_url }))} />
     </OpenGovShell>
   );
 }

@@ -4,6 +4,7 @@
 // assessed by the council, from DfT's table notes, and England's lost and stolen badges (the only lost and stolen
 // figures DfT now publishes). Data: council_blue_badges (migration 2026-10-28d), wording in lib/blue-badges.ts.
 
+import PageSources from '@/app/components/PageSources';
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { SubFold } from '@/app/components/PhoneFolds';
 import type { Metadata } from 'next';
@@ -116,7 +117,7 @@ export default async function BlueBadgesPage() {
         )}
         {lostStolen?.lost != null && lostStolen.stolen != null && (
           <p style={{ ...para, margin: '0 0 24px' }}>
-            In {yearTo(lostStolen.year)}, {(lostStolen.lost + lostStolen.stolen).toLocaleString('en-GB')} badges were reported lost or stolen in England: {lostStolen.lost.toLocaleString('en-GB')} lost and {lostStolen.stolen.toLocaleString('en-GB')} stolen (<a href={lsRel!.url} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>DfT</a>). DfT does not publish these figures by council.
+            In {yearTo(lostStolen.year)}, {(lostStolen.lost + lostStolen.stolen).toLocaleString('en-GB')} badges were reported lost or stolen in England: {lostStolen.lost.toLocaleString('en-GB')} lost and {lostStolen.stolen.toLocaleString('en-GB')} stolen (DfT). DfT does not publish these figures by council.
           </p>
         )}
 
@@ -132,7 +133,7 @@ export default async function BlueBadgesPage() {
             Everyone else who applies is assessed by their council against the scheme&rsquo;s criteria, which DfT calls &ldquo;subject to further assessment&rdquo;. Since 30 August 2019 this has included people whose disabilities cannot be seen. Each council page shows how many of its badges were held each way.
           </p>
           <p style={para}>
-            This summary is from the notes to DfT&rsquo;s <a href="https://www.gov.uk/government/statistical-data-sets/blue-badge-scheme-statistics-data-tables-dis" target="_blank" rel="noopener noreferrer" style={{ color: INK }}>Blue Badge data tables</a>.
+            This summary is from the notes to DfT&rsquo;s Blue Badge data tables (in Sources at the end of the page).
           </p>
           </SubFold>
         </section>
@@ -207,11 +208,18 @@ export default async function BlueBadgesPage() {
             {anyLow ? ` Where DfT gives no figure it describes it as ${LOW_TEXT}, and the council is not ranked.` : ''}
           </p>
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
-            Source: <a href={rel.url} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>Department for Transport, {rel.label}</a>.{' '}
+            Source: Department for Transport, {rel.label} (in Sources at the end of the page).{' '}
             <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
           </p>
           </SubFold>
         </section>
+        {/* EL1 (owner, 11 Nov 2026): the sources this page cites are linked in its one Sources fold; the Open Government
+            Licence attribution stays where it is. */}
+        <PageSources sources={[
+          { label: `Department for Transport, ${rel.label}`, href: rel.url },
+          lostStolen?.lost != null && lostStolen.stolen != null && lsRel && { label: `Department for Transport, ${lsRel.label} (badges lost or stolen)`, href: lsRel.url },
+          { label: 'Department for Transport, Blue Badge scheme statistics: data tables', href: 'https://www.gov.uk/government/statistical-data-sets/blue-badge-scheme-statistics-data-tables-dis' },
+        ]} />
       </article>
       <LastUpdated sourceKey="blue_badges" />
     </OpenGovShell>

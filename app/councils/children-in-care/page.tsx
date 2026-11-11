@@ -3,6 +3,7 @@
 // explainer of what "looked after" means, from DfE's release. Compared with England only. Data:
 // council_children_in_care (migration 2026-10-28g), wording in lib/children-in-care.ts.
 
+import PageSources from '@/app/components/PageSources';
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { SubFold } from '@/app/components/PhoneFolds';
 import type { Metadata } from 'next';
@@ -106,7 +107,7 @@ export default async function ChildrenInCarePage() {
               second table folded. From 640px up, as before. */}
           <SubFold label="Read it">
           {EXPLAINER.map((p) => <p key={p.slice(0, 20)} style={para}>{p}</p>)}
-          <p style={para}>This summary is from DfE&rsquo;s <a href={SOURCE_PAGE} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>release and its notes</a>.</p>
+          <p style={para}>This summary is from DfE&rsquo;s release and its notes (in Sources at the end of the page).</p>
           </SubFold>
         </section>
 
@@ -177,11 +178,14 @@ export default async function ChildrenInCarePage() {
             {usedSymbols.length ? ` Where DfE gives no figure it shows a symbol: ${usedSymbols.map((s) => SYMBOL_MEANING[s]).join('; ')}. A council with no figure is not ranked.` : ''}
           </p>
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
-            Source: <a href={SOURCE_PAGE} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>Department for Education, {releaseLabel(latest)}</a>.{' '}
+            Source: Department for Education, {releaseLabel(latest)} (in Sources at the end of the page).{' '}
             <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
           </p>
           </SubFold>
         </section>
+        {/* EL1 (owner, 11 Nov 2026): the sources this page cites are linked in its one Sources fold; the Open Government
+            Licence attribution stays where it is. */}
+        <PageSources sources={[{ label: `Department for Education, ${releaseLabel(latest)}`, href: SOURCE_PAGE }]} />
       </article>
       <LastUpdated sourceKey="children_in_care" />
     </OpenGovShell>
