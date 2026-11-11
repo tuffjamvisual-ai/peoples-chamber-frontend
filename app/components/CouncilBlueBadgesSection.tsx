@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import { pageDb } from '@/lib/page-reads';
+import { addPanelSource } from '@/lib/panel-sources';
 import {
   loadArea, count, shareText, change, changeText, pctChangeText, asAt, yearTo, releaseFor, OGL, OGL_URL,
   ROUNDING_NOTE, SHARE_NOTE, LOW_TEXT, RANKING_PATH, type BlueBadgeRow,
@@ -62,6 +63,7 @@ export default async function CouncilBlueBadgesSection({ gssCode, country, isDis
   const SHOWN = ['held', 'held_automatic', 'held_discretionary', 'issued'];
   const hasLow = cur.low_fields.some((f) => SHOWN.includes(f));
   const rel = releaseFor(cur.year);
+  addPanelSource({ label: `Department for Transport, ${rel.label}`, href: rel.url });
   const changeLine = changeText(cur, prev);
 
   return (
@@ -84,7 +86,7 @@ export default async function CouncilBlueBadgesSection({ gssCode, country, isDis
         <Link href={RANKING_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council in England</Link>, with who qualifies automatically and who is assessed by the council.
       </p>
       <p style={small}>
-        Source: <a href={rel.url} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>Department for Transport, {rel.label}</a>.{' '}
+        Source: Department for Transport, {rel.label} (in Sources at the end of this tab).{' '}
         <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
       </p>
     </section>

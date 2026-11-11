@@ -30,6 +30,8 @@
 //       data-og-citations), the footer licence line, a licence or data attribution (a licence address, rel="license" or
 //       data-og-attribution), or mailto. Each other one is a failure, always (no baseline).
 //       A4 (official record links on bill and division pages) was dropped by T1-5c: those links are in the Sources fold.
+//       A council page's detail tabs load when opened (panels.tsx), so on a council page each one is opened and checked;
+//       each tab lists its sources in its own Sources fold at its end (T1-5c, Cowork, 11 Nov 2026).
 // A2 and A3 found problems on pages that existed before the check; those are in rendered-baseline.json and are
 // expected: a run fails only on a new one (a page over the limit that was not, or longer than its baseline by more than
 // 200px; a time word on a page that did not have it).
@@ -139,12 +141,30 @@ function a6Detail(r, code) {
   return ` (starts at ${at ?? 'hidden'}px, limit ${m[1] === 'h1' ? v.h1 : m[1] === 'first' ? v.first : v.main}px)`;
 }
 
+// The council page's detail tabs that load when opened (lib/council-panels.ts COUNCIL_LAZY_TABS), opened one at a time.
+const COUNCIL_LAZY_TABS = JSON.parse(/COUNCIL_LAZY_TABS = (\[[^\]]*\])/.exec(fs.readFileSync(path.join(ROOT, 'lib/council-panels.ts'), 'utf8'))[1].replace(/'/g, '"'));
+async function openCouncilTabs(page) {
+  const opened = [], failed = [];
+  for (const id of COUNCIL_LAZY_TABS) {
+    const btn = page.locator(`[data-council-tab="${id}"]`).first();
+    if (!(await btn.count()) || !(await btn.isVisible())) continue;
+    await btn.click();
+    try {
+      await page.waitForFunction((t) => { const el = document.getElementById(`council-panel-${t}`); return !!el && !el.querySelector('[data-panel-loading]') && el.childElementCount > 0; }, id, { timeout: 60000 });
+      const ok = await page.evaluate((t) => !/could not be loaded/.test(document.getElementById(`council-panel-${t}`)?.textContent ?? ''), id);
+      (ok ? opened : failed).push(id);
+    } catch { failed.push(id); }
+  }
+  return { opened, failed };
+}
+
 async function main() {
   // One page at a time, in every pass (owner, 10 Nov 2026): a local build reads the production database, so our own
   // checks must never add to a burst of page loads. Keep it so: no Promise.all over pages here.
   const list = pages();
-  const extra = ALL ? [] : [{ route: '/bills/[id]', url: '/bills/3942' }, { route: '/bills/[id]', url: '/bills/4080' }, { route: '/divisions/[slug]', url: '/divisions/pw-2019-01-15-293-commons' }];
-  // The extra pages (once A4's bill and division samples) are loaded for A9 like the others.
+  const extra = ALL ? [] : [{ route: '/bills/[id]', url: '/bills/3942' }, { route: '/bills/[id]', url: '/bills/4080' }, { route: '/divisions/[slug]', url: '/divisions/pw-2019-01-15-293-commons' }, { route: '/councils/[slug]', url: '/councils/kent' }];
+  // The extra pages (once A4's bill and division samples) are loaded for A9 like the others; Kent, an English county,
+  // has every council detail tab (the fast list's council is in Northern Ireland).
   const results = [];
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 375, height: 812 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
@@ -166,6 +186,14 @@ async function main() {
       if (res.status === 200 && !extra.includes(p)) {
         // QA2d (owner, 9 Nov 2026): article text is never folded, so the limit applies to the page minus the article body.
         r.height = await page.evaluate(() => Math.round(document.documentElement.scrollHeight - [...document.querySelectorAll('[data-article-body]')].reduce((n, el) => n + el.getBoundingClientRect().height, 0)));
+      }
+      if (res.status === 200) {
+        // A9 on a council page's detail tabs (T1-5c, Cowork, 11 Nov 2026): they load only when opened, so each one is
+        // opened here, after the length is measured, and its links checked as the reader then sees them.
+        const tabs = await openCouncilTabs(page);
+        for (const t of tabs.failed) r.outside.push(`council tab "${t}" did not load`);
+        if (tabs.opened.length) r.outside = [...new Set([...r.outside, ...await page.evaluate(outsideLinks, A9_LICENCE.source)])];
+        r.councilTabs = tabs.opened;
       }
     } catch (e) { r.error = e.message.split('\n')[0]; }
     results.push(r);

@@ -5,6 +5,7 @@
 // lib/children-in-care.ts.
 
 import Link from 'next/link';
+import { addPanelSource } from '@/lib/panel-sources';
 import {
   loadArea, text, rateText, n, changeText, change, pctChangeText, asAt, yearTo, releaseLabel, SOURCE_PAGE, OGL, OGL_URL,
   RANKING_PATH, ROUNDING_NOTE,
@@ -56,6 +57,7 @@ export default async function CouncilChildrenInCareSection({ gssCode, country, i
   const outside = n(cur, 'placed_outside_area_pct');
   const engOutside = n(eng, 'placed_outside_area_pct');
 
+  addPanelSource({ label: `Department for Education, ${releaseLabel(cur.year)}`, href: SOURCE_PAGE });
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <Heading />
@@ -76,7 +78,7 @@ export default async function CouncilChildrenInCareSection({ gssCode, country, i
         <Link href={RANKING_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council in England</Link>, with what &ldquo;looked after&rdquo; means.
       </p>
       <p style={small}>
-        Source: <a href={SOURCE_PAGE} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>Department for Education, {releaseLabel(cur.year)}</a>.{' '}
+        Source: Department for Education, {releaseLabel(cur.year)} (in Sources at the end of this tab).{' '}
         <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
       </p>
     </section>

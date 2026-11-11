@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import { pageDb } from '@/lib/page-reads';
+import { addPanelSource } from '@/lib/panel-sources';
 import { changeLine, derivedNote, eligibleLine, sourceLine, UK_SCHEME_LINE, UK_SCHEME_SOURCE, type PipMobilityRow } from '@/lib/pip-mobility';
 
 const INK = '#14100d';
@@ -23,6 +24,7 @@ export default async function CouncilPipMobilitySection({ gssCode }: { gssCode: 
   const rows = (data || []) as PipMobilityRow[];
   if (!rows.length) return null;
   const cur = rows[0];
+  addPanelSource({ label: UK_SCHEME_SOURCE.label, href: UK_SCHEME_SOURCE.url });
   const yearEarlier = `${Number(cur.period.slice(0, 4)) - 1}${cur.period.slice(4, 10)}`;
   const prev = rows.find((r) => r.period.slice(0, 10) === yearEarlier);
   const change = changeLine(cur, prev);
@@ -51,7 +53,7 @@ export default async function CouncilPipMobilitySection({ gssCode }: { gssCode: 
       </p>
       <p style={small}>
         {UK_SCHEME_LINE}{' '}
-        <a href={UK_SCHEME_SOURCE.url} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{UK_SCHEME_SOURCE.label}</a>
+        Source: {UK_SCHEME_SOURCE.label} (in Sources at the end of this tab).
       </p>
       {districts.length > 0 && (
         <>

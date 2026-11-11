@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { setPageReadTimer } from '@/lib/page-reads';
 import { isCouncilLazyTab } from '@/lib/council-panels';
+import { panelSources } from '@/lib/panel-sources';
+import PageSources from '../../../../components/PageSources';
 import { loadPanelContext, panelParts } from '../../panels';
 
 // One detail tab of a council page, read by CouncilTabs when the tab is opened (owner, 4 Nov 2026). Kept and refreshed
@@ -21,5 +23,15 @@ export default async function CouncilPanel({ params }: { params: Promise<{ slug:
   const ctx = await loadPanelContext(slug);
   if (!ctx) notFound();
   const parts = panelParts(tab, ctx, <div data-welfare-slot="1" />);
-  return <div id="council-panel-body">{parts.map((p, i) => <Fragment key={i}>{p.node}</Fragment>)}</div>;
+  // Each section that shows figures adds its source as it renders (lib/panel-sources.ts). Read them first, one after
+  // another, so the tab's one Sources fold (T1-5c, 11 Nov 2026) lists them in the tab's order. The reads are the page's
+  // own, from the data cache, so rendering the sections below repeats none of them against the database.
+  for (const p of parts) await p.read();
+  const sources = [...panelSources()];
+  return (
+    <div id="council-panel-body">
+      {parts.map((p, i) => <Fragment key={i}>{p.node}</Fragment>)}
+      <PageSources sources={sources} marginTop="8px" />
+    </div>
+  );
 }
