@@ -20,10 +20,12 @@ export default function PageSources({ sources, marginTop = '32px', children }: {
         Sources ({list.length})
       </summary>
       {children}
-      <ol style={{ margin: '6px 0 0', paddingLeft: '20px', overflowWrap: 'anywhere' }}>
+      {/* Left aligned, links as the reports' end "Sources (N)" line: accent, underlined. The typeface and size are the
+          site's list text at each width (the phone body text rule in app/layout.tsx on phones, as that line has). */}
+      <ol style={{ margin: '6px 0 0', padding: 0, listStyle: 'none', overflowWrap: 'anywhere' }}>
         {list.map((s) => (
           <li key={s.href} style={{ marginBottom: '6px' }}>
-            <a href={s.href} rel="noopener noreferrer" style={{ color: ACCENT }}>{s.label}</a>
+            <a href={s.href} rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{s.label}</a>
             {s.note && <> {s.note}</>}
           </li>
         ))}
