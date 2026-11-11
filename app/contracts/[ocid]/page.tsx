@@ -13,6 +13,8 @@
 // notices give each change a new contract id, so a change joins the contract whose latest value equals the
 // change's old value, for the same supplier; one that matches nothing is shown as its own contract.
 
+import { buildHistories, type Notice } from '@/lib/contract-history';
+import type { ChangeKind } from '@/lib/contract-notice-kind';
 import NoJsPager, { NoJsPagerLinks, njpItem } from '@/app/components/NoJsPager';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
@@ -33,14 +35,6 @@ const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
-
-type Notice = {
-  ocid: string; release_id: string; notice_type: string | null; tags: string[]; published_at: string;
-  contract_key: string; award_id: string | null; title: string | null; buyer_name: string | null;
-  suppliers: { name: string }[]; is_framework: boolean; value: number | null; value_type: string;
-  value_from_text: boolean; change_description: string | null; change_reason: string | null;
-  termination_reason: string | null; end_date: string | null; status: string | null; source_url: string;
-};
 
 const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/;
 
@@ -82,74 +76,8 @@ function noticeName(n: Notice): string {
 const gbp = (v: number) => `£${Math.round(v).toLocaleString('en-GB')}`;
 const signed = (v: number) => `${v >= 0 ? '+' : '−'}£${Math.round(Math.abs(v)).toLocaleString('en-GB')}`;
 const fmtDay = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' }) : '');
-const day = (iso: string) => iso.slice(0, 10);
 // Change reasons can run to pages; the full text is on the notice.
 const short = (s: string) => (s.length > 400 ? `${s.slice(0, 400).replace(/\s+\S*$/, '')}… (full reason on the notice)` : s);
-
-type Change = { date: string; oldValue: number | null; newValue: number | null; reason: string | null; repeats: number; url: string };
-type ContractHistory = {
-  key: string; awardId: string | null; title: string | null; suppliers: string[]; isFramework: boolean;
-  awarded: { date: string; value: number | null; type: 'contract' | 'framework_maximum'; url: string } | null;
-  changes: Change[];
-  termination: { date: string; endDate: string | null; finalValue: number | null; reason: string | null; url: string } | null;
-};
-
-function buildHistories(notices: Notice[]): ContractHistory[] {
-  const byKey = new Map<string, Notice[]>();
-  for (const n of notices) if (n.contract_key) byKey.set(n.contract_key, [...(byKey.get(n.contract_key) || []), n]);
-  const histories: ContractHistory[] = [];
-  const latest = (h: ContractHistory) => (h.changes.length ? h.changes[h.changes.length - 1].newValue : h.awarded?.value ?? null);
-  const supplierOf = (rows: Notice[]) => rows.find((r) => r.suppliers?.length)?.suppliers.map((s) => s.name) || [];
-
-  // Awards and contracts first (oldest first), then changes and terminations in date order.
-  const keys = [...byKey.keys()].sort((a, b) => byKey.get(a)![0].published_at.localeCompare(byKey.get(b)![0].published_at));
-  for (const key of keys) {
-    const rows = byKey.get(key)!;
-    if (rows.some((r) => r.value_type === 'change_new')) continue;
-    const award = rows.filter((r) => r.value_type === 'contract' || r.value_type === 'framework_maximum').pop();
-    // An award notice and its contract details notice (UK6 then UK7) describe one contract: the contract carries
-    // the award's id. Keep one entry, with the later notice's suppliers (a framework's list can shrink at signing).
-    const existing = award?.award_id != null ? histories.find((h) => h.awardId === award.award_id) : undefined;
-    if (existing && award) {
-      existing.awarded = { date: existing.awarded?.date ?? award.published_at, value: award.value, type: award.value_type as 'contract' | 'framework_maximum', url: award.source_url };
-      existing.suppliers = supplierOf(rows).length ? supplierOf(rows) : existing.suppliers;
-      continue;
-    }
-    histories.push({
-      key, awardId: award?.award_id ?? null, title: rows[0].title, suppliers: supplierOf(rows), isFramework: rows.some((r) => r.value_type === 'framework_maximum'),
-      awarded: award ? { date: award.published_at, value: award.value, type: award.value_type as 'contract' | 'framework_maximum', url: award.source_url } : null,
-      changes: [], termination: null,
-    });
-  }
-  const changeRows = notices.filter((n) => n.value_type === 'change_new' || n.value_type === 'final' || (n.tags || []).includes('contractTermination'));
-  for (const n of changeRows) {
-    const rows = byKey.get(n.contract_key) || [];
-    const old = rows.find((r) => r.release_id === n.release_id && r.value_type === 'change_old')?.value ?? null;
-    // The same change published more than once on one day (DSIT published three identical notices on
-    // 23 Feb 2026) is shown once.
-    const repeat = histories.flatMap((x) => x.changes).find((c) => day(c.date) === day(n.published_at) && c.newValue === n.value && c.oldValue === old);
-    if (repeat && n.value_type === 'change_new') { repeat.repeats++; continue; }
-    // Which contract a change belongs to: the same contract id (Procurement Act notices), else the contract
-    // whose latest value is the change's old value, else one whose award or an earlier value is (older notices
-    // say "from the original value"). Several candidates: prefer the same supplier name (Find a Tender adds
-    // call-off codes such as "CO3" to it).
-    const firstWord = (s: string[]) => (s[0] || '').toLowerCase().replace(/\s+co\d+$/, '');
-    const pick = (cands: ContractHistory[]) => cands.find((x) => firstWord(x.suppliers) === firstWord(n.suppliers.map((s) => s.name))) || cands[0];
-    const values = (x: ContractHistory) => [x.awarded?.value ?? null, ...x.changes.map((c) => c.newValue)];
-    let h = histories.find((x) => x.key === n.contract_key)
-      || (old != null ? pick(histories.filter((x) => latest(x) === old)) || pick(histories.filter((x) => values(x).includes(old))) : undefined);
-    if (!h) {
-      h = { key: n.contract_key, awardId: null, title: n.title, suppliers: n.suppliers.map((s) => s.name), isFramework: false, awarded: null, changes: [], termination: null };
-      histories.push(h);
-    }
-    if (n.value_type === 'final' || (n.tags || []).includes('contractTermination')) {
-      h.termination = { date: n.published_at, endDate: n.end_date, finalValue: n.value_type === 'final' ? n.value : null, reason: n.termination_reason, url: n.source_url };
-      continue;
-    }
-    h.changes.push({ date: n.published_at, oldValue: old, newValue: n.value, reason: n.change_reason, repeats: 1, url: n.source_url });
-  }
-  return histories;
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ ocid: string }> }): Promise<Metadata> {
   const { ocid } = await params;
@@ -165,7 +93,9 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
   const notices = await loadNotices(ocid);
   if (!notices.length) notFound();
 
-  const histories = buildHistories(notices);
+  const kinds = new Map<string, ChangeKind>();
+  const hasAnyAward = notices.some((n) => n.value_type === 'contract' || n.value_type === 'framework_maximum');
+  const histories = buildHistories(notices, kinds);
   const buyer = notices.find((n) => n.buyer_name)?.buyer_name;
   // The procurement's latest name (planning notices often carry a working title).
   const title = [...notices].reverse().find((n) => n.title)?.title || 'Untitled procurement';
@@ -194,7 +124,8 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
 
       <NoJsPager id="contract-histories" count={histories.length} size={10} />
       {histories.map((h) => {
-        const latestValue = h.changes.length ? h.changes[h.changes.length - 1].newValue : null;
+        const realChanges = h.changes.filter((c) => c.kind.kind === 'value_change');
+        const latestValue = realChanges.length ? realChanges[realChanges.length - 1].newValue : null;
         return (
           <section key={h.key} className={njpItem('contract-histories')} style={{ marginBottom: '28px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '18px' }}>
             <h2 style={sectionH2}>{h.title || title}{h.suppliers.length ? ` · ${h.suppliers.length > 3 ? `${h.suppliers.length} suppliers` : h.suppliers.join(', ')}` : ''}</h2>
@@ -203,7 +134,11 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
                 ? <p style={figure}><strong>Framework, {h.suppliers.length} supplier{h.suppliers.length === 1 ? '' : 's'}.</strong>{h.awarded.value != null && <> <strong>{gbp(h.awarded.value)} potential value, not spending.</strong> This is the most that could be spent through the framework; spending appears only through call off contracts.</>}</p>
                 : <p style={figure}><strong>Award published {fmtDay(h.awarded.date)}: {h.awarded.value != null ? gbp(h.awarded.value) : 'value not published'}</strong> (contract value)</p>
             )}
-            {!h.awarded && <p style={figure}>The award is not in this record; the first notice we hold is a change.</p>}
+            {/* Only when the procurement holds no award notice at all (T1-AUD3, owner 11 Nov 2026); where it does but the change
+                names no award we can match, say that instead. */}
+            {!h.awarded && (hasAnyAward
+              ? <p style={figure}>This notice does not say which award it changes.</p>
+              : <p style={figure}>The award is not in this record; the first notice we hold is a change.</p>)}
 
             {h.changes.length > 0 && (
               <>
@@ -214,7 +149,9 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
                     <li key={c.url} style={{ marginBottom: '8px' }}>
                       <a data-og-row-source="" href={c.url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(c.date)}</a>
                       {' · '}
-                      {c.oldValue != null && c.newValue != null
+                      {c.kind.kind !== 'value_change'
+                        ? <>{c.kind.label}{c.newValue != null ? `; value as stated ${gbp(c.newValue)}, not a change` : ''}</>
+                        : c.oldValue != null && c.newValue != null
                         ? <>{gbp(c.oldValue)} → {gbp(c.newValue)} ({signed(c.newValue - c.oldValue)})</>
                         : c.newValue != null ? <>previous value not stated → {gbp(c.newValue)}</> : 'value not stated'}
                       {c.reason && <>. Reason: {short(c.reason)}</>}
@@ -254,8 +191,8 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
         <ul style={list}>
           {timeline.map((n) => (
             <li key={n.release_id} style={{ marginBottom: '6px' }}>
-              <a data-og-row-source="" href={n.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(n.published_at)} · {noticeName(n)}</a>
-              {n.value != null && n.value_type !== 'none' && <> · {n.value_type === 'estimated' ? `estimated ${gbp(n.value)}` : n.value_type === 'framework_maximum' ? `${gbp(n.value)} framework maximum` : n.value_type === 'final' ? `final value ${gbp(n.value)}` : n.value_type === 'change_new' ? `changed to ${gbp(n.value)}` : gbp(n.value)}</>}
+              <a data-og-row-source="" href={n.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(n.published_at)} · {kinds.get(n.release_id) && kinds.get(n.release_id)!.kind !== 'value_change' ? kinds.get(n.release_id)!.label : noticeName(n)}</a>
+              {n.value != null && n.value_type !== 'none' && <> · {n.value_type === 'estimated' ? `estimated ${gbp(n.value)}` : n.value_type === 'framework_maximum' ? `${gbp(n.value)} framework maximum` : n.value_type === 'final' ? `final value ${gbp(n.value)}` : n.value_type === 'change_new' ? (kinds.get(n.release_id)?.kind === 'value_change' || !kinds.has(n.release_id) ? `changed to ${gbp(n.value)}` : `value as stated ${gbp(n.value)}`) : gbp(n.value)}</>}
             </li>
           ))}
         </ul>
