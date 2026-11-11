@@ -5,6 +5,9 @@
 // --push (owner approved, 11 Nov 2026): the pre-push run. A6 at 375 x 812 and 1280 x 720 only, no first-visit banner
 // pass, and A9 on the sample pages without opening every council tab; A2 and A3 as always. The full run (A6 at the five
 // sizes, the banner pass, every council tab) is the daily one against the live site (rendered-checks-daily.mjs, 05:17).
+// A10 (T1-5x, owner 10 Nov 2026): in the page body at 375px, no internal destination linked twice (the back link,
+// pagers, letter bars and closed folds left out), and at most one Related list. Pages and links already like that when
+// the check was added are in a10-baseline.json (--write-a10-baseline); a run fails on a new one.
 // --base https://opengovt.uk: the live site. Pages are loaded in the browser only (the site refuses plain fetches), one
 // navigation or tab click a second at most.
 // Pages: one example of each page type in scripts/checks/mobile-audit-fast.txt (--all: every type in
@@ -58,6 +61,7 @@ const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] :
 const BASE = arg('--base', 'http://localhost:3000').replace(/\/$/, '');
 const ALL = argv.includes('--all');
 const WRITE = argv.includes('--write-baseline');
+const WRITE_A10 = argv.includes('--write-a10-baseline');
 const JSON_OUT = arg('--json', null);
 const PUSH = argv.includes('--push');
 const LIVE = /^https:\/\/(www\.)?opengovt\.uk$/.test(BASE);
@@ -87,6 +91,7 @@ const A6_ALL = [
 const A6_PUSH = [{ name: '375x812', width: 375, height: 812, main: 668 }, A6_ALL.find((v) => v.name === '1280x720')];
 const A6_VIEWS = PUSH ? A6_PUSH : A6_ALL;
 const BASELINE_FILE = path.join(HERE, 'rendered-baseline.json');
+const A10_BASELINE_FILE = path.join(HERE, 'a10-baseline.json');
 const MP2_CSV = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/audit/mp2/page-lengths.csv';
 
 function parseCsv(text) {
@@ -143,6 +148,25 @@ export function timeWords(text) {
 
 // A9 (T1-5c): every link to another site on the page that is not in an allowed place, as "host: label".
 export const A9_LICENCE = /^https?:\/\/(www\.)?(nationalarchives\.gov\.uk\/doc\/open-government-licence|creativecommons\.org\/licenses|parliament\.uk\/site-information\/copyright-parliament\/open-parliament-licence)/i;
+// A10: internal links in the body that go to the same place (path and query) more than once, and the Related lists.
+function a10Scan() {
+  const main = document.querySelector('main#main-content') || document.body;
+  const shown = (el) => el.getClientRects().length > 0 && !el.parentElement?.closest('details:not([open])');
+  const skip = (a) => !!a.closest('[data-og-back], [role="navigation"][aria-label^="Pages"], nav[aria-label="Pagination"], nav[aria-label="Jump to a letter"], [data-council-tab], footer');
+  const counts = new Map();
+  for (const a of main.querySelectorAll('a[href]')) {
+    if (!shown(a) || skip(a)) continue;
+    let u; try { u = new URL(a.getAttribute('href'), location.href); } catch { continue; }
+    if (u.origin !== location.origin) continue;
+    if (u.pathname === location.pathname && u.search === location.search) continue; // jumps within the page
+    const key = u.pathname + u.search;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  const lists = [...main.querySelectorAll('nav[aria-label="Related"], aside[aria-label="Explore next"]')].filter(shown);
+  const headed = [...main.querySelectorAll('h2, h3')].filter((h) => shown(h) && /^(Related|See also|Read next|More votes)$/i.test(h.textContent.trim()) && !lists.some((l) => l.contains(h)));
+  return { dups: [...counts].filter(([, n]) => n > 1).map(([k, n]) => `${k} x${n}`), related: lists.length + headed.length };
+}
+
 function outsideLinks(licence) {
   const re = new RegExp(licence);
   const out = [];
@@ -222,6 +246,7 @@ async function main() {
         if (!loaded) await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
         await page.waitForTimeout(300);
         r.outside = await page.evaluate(outsideLinks, A9_LICENCE.source);
+        r.a10 = await page.evaluate(a10Scan);
       }
       if (r.status === 200 && !extra.includes(p)) {
         // QA2d (owner, 9 Nov 2026): article text is never folded, so the limit applies to the page minus the article body.
@@ -304,6 +329,13 @@ async function main() {
     fs.writeFileSync(BASELINE_FILE, JSON.stringify(b, null, 1) + '\n');
     console.log(`rendered checks: baseline written for ${Object.keys(b.pages).length} pages`);
   }
+  if (WRITE_A10) {
+    const b = { about: 'A10 baseline (T1-5x): repeated body links and Related list counts at 375px when the check was added. A run fails on a new repeat or a second Related list.', written: new Date().toISOString().slice(0, 10), pages: {} };
+    for (const r of results) if (r.a10 && (r.a10.dups.length || r.a10.related > 1)) b.pages[r.url] = { dups: r.a10.dups.map((d) => d.replace(/ x\d+$/, '')), related: r.a10.related };
+    fs.writeFileSync(A10_BASELINE_FILE, JSON.stringify(b, null, 1) + '\n');
+    console.log(`rendered checks: A10 baseline written for ${Object.keys(b.pages).length} pages`);
+  }
+  const a10Base = fs.existsSync(A10_BASELINE_FILE) ? JSON.parse(fs.readFileSync(A10_BASELINE_FILE, 'utf8')).pages : {};
   const base = fs.existsSync(BASELINE_FILE) ? JSON.parse(fs.readFileSync(BASELINE_FILE, 'utf8')).pages : {};
   // MP2's measured lengths, when it has written them, override the baseline for the pages they cover.
   if (fs.existsSync(MP2_CSV)) for (const row of parseCsv(fs.readFileSync(MP2_CSV, 'utf8'))) {
@@ -336,6 +368,11 @@ async function main() {
     }
     for (const d of r.dates) if (d.stale) expected.push(`date ${r.url}: "Updated ${d.date}" is ${d.age} days old, over ${d.limit} for ${d.judgedBy === 'source' ? d.source : "this page's data"} (data, reported only)`);
     for (const o of r.outside ?? []) fails.push(`A9 ${r.url}: links outside the site, not as a source (${o})`);
+    if (r.a10) {
+      const ab = a10Base[r.url] ?? { dups: [], related: 1 };
+      for (const d of r.a10.dups) (ab.dups.includes(d.replace(/ x\d+$/, '')) ? expected : fails).push(`A10 ${r.url}: linked more than once in the body: ${d}`);
+      if (r.a10.related > 1) (r.a10.related <= (ab.related ?? 1) ? expected : fails).push(`A10 ${r.url}: ${r.a10.related} Related lists (at most one)`);
+    }
   }
   const summary = {
     pages: results.length,
@@ -343,6 +380,8 @@ async function main() {
     a3_over_limit: results.filter((r) => r.height != null && r.height > LIMIT_PX).length,
     a9_pages_with_outside_links: results.filter((r) => r.outside?.length).length,
     a9_outside_links: results.reduce((n, r) => n + (r.outside?.length ?? 0), 0),
+    a10_pages_with_repeats: results.filter((r) => r.a10?.dups.length).length,
+    a10_pages_over_one_related: results.filter((r) => (r.a10?.related ?? 0) > 1).length,
     date_lines: results.reduce((n, r) => n + r.dates.length, 0),
     date_lines_by_source: results.reduce((n, r) => n + r.dates.filter((d) => d.judgedBy === 'source').length, 0),
     dates_stale: results.reduce((n, r) => n + r.dates.filter((d) => d.stale).length, 0),
@@ -352,7 +391,7 @@ async function main() {
     expected: expected.length,
   };
   if (JSON_OUT) fs.writeFileSync(JSON_OUT, JSON.stringify({ summary, fails, expected, results }, null, 1));
-  console.log(`rendered checks (A2 time words, A3 phone length, A6 first screen, A9 outside links): ${JSON.stringify(summary)}`);
+  console.log(`rendered checks (A2 time words, A3 phone length, A6 first screen, A9 outside links, A10 repeated links): ${JSON.stringify(summary)}`);
   for (const e of expected) console.log(`  expected: ${e}`);
   for (const f of fails) console.log(`  FAIL ${f}`);
   return fails.length ? 1 : 0;
