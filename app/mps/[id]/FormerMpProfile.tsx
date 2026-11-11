@@ -38,7 +38,8 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
       <h1 style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05, margin: '0 0 12px', color: INK, overflowWrap: 'break-word' }}>{mp.name}</h1>
       {lastSeat && (
         <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '8px', color: INK }}>
-          {lastSeatOnly ? lastSeatLine(mp) : <>Former MP for {lastSeat.constituency}{mp.firstYear && mp.lastYear ? ` (${mp.firstYear} to ${mp.lastYear})` : ''}</>}
+          {/* T1-5x (owner, 10 Nov 2026): the seat here; the dates and the caveat once, in Time in the House of Commons. */}
+          Former MP for {lastSeat.constituency}
         </div>
       )}
       {mp.party && (
@@ -54,7 +55,7 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           Time in the House of Commons
         </h2>
-        {lastSeatOnly && lastSeat.from && <p style={line}>Dates in Parliament&rsquo;s record: {fmtDay(lastSeat.from)}{lastSeat.to ? ` to ${fmtDay(lastSeat.to)}` : ' onwards'}.</p>}
+        {lastSeatOnly && <p style={line}>{lastSeatLine(mp)}{lastSeat.from ? ` Dates in Parliament\u2019s record: ${fmtDay(lastSeat.from)}${lastSeat.to ? ` to ${fmtDay(lastSeat.to)}` : ' onwards'}.` : ''}</p>}
         {!lastSeatOnly && mp.seats.length > 0 && <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
           {mp.seats.map((s) => (
             <li key={`${s.constituency}-${s.from}`} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
@@ -78,12 +79,6 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
             ))}
           </ul>
         )}
-        <p style={line}>
-          <Link href="/mps" className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Find your current MP</Link>.
-        </p>
-        <p style={line}>
-          Source: UK Parliament, {mp.name}: career (Members API), in Sources at the end of the page.
-        </p>
       </section>
 
       <StandardsFindings findings={conductFindings} />
