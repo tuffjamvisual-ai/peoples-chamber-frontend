@@ -140,7 +140,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
         <section data-main-action aria-labelledby="mp-pmqs-archive" style={{ color: INK, marginTop: questions.length > 0 ? '32px' : 0 }}>
           <h2 id="mp-pmqs-archive" style={{ fontSize: 'clamp(22px, 2.6vw, 30px)', fontWeight: 'bold', margin: '0 0 8px' }}>In the archive, 1961 to 2024</h2>
           <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
-            {askedInArchive.length.toLocaleString('en-GB')} {answered ? (askedInArchive.length === 1 ? 'question' : 'questions') : (askedInArchive.length === 1 ? 'question or answer' : 'questions and answers')} at <Link href="/pmqs" style={{ color: ACCENT, textDecoration: 'underline' }}>Prime Minister&rsquo;s Questions</Link> before July 2024, by year.
+            {askedInArchive.length.toLocaleString('en-GB')} {answered ? (askedInArchive.length === 1 ? 'question' : 'questions') : (askedInArchive.length === 1 ? 'question or answer' : 'questions and answers')} at {questions.length > 0 ? 'Prime Minister\u2019s Questions' : <Link href="/pmqs" style={{ color: ACCENT, textDecoration: 'underline' }}>Prime Minister&rsquo;s Questions</Link>} before July 2024, by year.
           </p>
           {/* UX5 (T1-6, 11 Nov 2026): on phones the first five years, then "Show all"; from 640px up, as before. */}
           <NoJsPager id="pa-years" count={archiveYears.length} size={archiveYears.length} first={5} />
