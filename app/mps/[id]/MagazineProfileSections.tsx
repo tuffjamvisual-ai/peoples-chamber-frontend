@@ -8,6 +8,7 @@ import { pmqsLinks, type PmqsCounts } from '@/lib/pmqs-counts';
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import PageSources from '@/app/components/PageSources';
 import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
@@ -1130,8 +1131,8 @@ export default function MagazineProfileSections({
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '16px', lineHeight: '1.8' }}>
               {contact.phone && <li><strong>Phone:</strong> <span style={{ fontFamily: 'monospace' }}>{contact.phone}</span></li>}
               {contact.email && <li><strong>Email:</strong> <a href={`mailto:${contact.email}`} style={inkLink}>{contact.email}</a></li>}
-              {contact.website && <li><strong>Website:</strong> <a href={contact.website.match(/^https?:\/\//) ? contact.website : `https://${contact.website.replace(/^\/+/, '')}`} target="_blank" rel="noopener noreferrer" style={inkLink}>{contact.website}</a></li>}
-              {contact.twitter && <li><strong>X / Twitter:</strong> <a href={contact.twitter} target="_blank" rel="noopener noreferrer" style={inkLink}>{contact.twitter}</a></li>}
+              {contact.website && <li><strong>Website:</strong> {contact.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} (in Sources at the end of the page)</li>}
+              {contact.twitter && <li><strong>X / Twitter:</strong> {contact.twitter.replace(/^https?:\/\/(www\.)?(x|twitter)\.com\//, '@').replace(/\/$/, '')} (in Sources at the end of the page)</li>}
               {(contact.address_line1 || contact.postcode) && (
                 <li style={{ marginTop: '12px' }}>
                   <strong>Constituency office:</strong>
@@ -1473,7 +1474,7 @@ export default function MagazineProfileSections({
                   in sync with PETITION_SIGNATURE_THRESHOLD (lib/petitions.ts). */}
               <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.6, color: '#14100d', opacity: 1, border: '1px dashed rgba(20,16,13,0.45)', padding: '10px 12px', marginBottom: '18px' }}>
                 This shows petitions from the current Parliament on the{' '}
-                <a href="https://petition.parliament.uk" target="_blank" rel="noopener noreferrer" style={inkLink}>UK Parliament petitions website</a>{' '}
+                UK Parliament petitions website (in Sources at the end of the page){' '}
                 that reached 10,000 signatures, the point at which the government must respond. Petitions with fewer signatures are not included{constituencyPetitions ? ', apart from any among the five most signed here' : ''}. Constituency counts come from the petitions site, are based on the postcode each signer gives, and are updated daily.
               </p>
               {/* MP1 (owner, 7 Nov 2026): "Petitions in this constituency", once a block below the sections, is the same data as this
@@ -1882,9 +1883,6 @@ export default function MagazineProfileSections({
                           <div style={{ fontSize: '15px', marginTop: '4px' }}>
                             <span >Secretariat:</span>{' '}
                             <Link href={`/secretariats/${secSlug}`} style={inkLink}>{a.secretariat}</Link>
-                            {a.secretariat_url && (
-                              <> · <a href={a.secretariat_url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '15px' }}>website ↗</a></>
-                            )}
                           </div>
                         );
                       })()}
@@ -1913,11 +1911,6 @@ export default function MagazineProfileSections({
                             )}
                           </ul>
                         </details>
-                      )}
-                      {a.website_url && (
-                        <div style={{ marginTop: '4px', fontSize: '15px' }}>
-                          <a href={a.website_url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '15px' }}>Group website &rarr;</a>
-                        </div>
                       )}
                     </li>
                   ))
@@ -3101,6 +3094,18 @@ export default function MagazineProfileSections({
               )),
           }))}
         />
+        {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The MP's own website and X profile, the petitions
+            site and each APPG's and secretariat's website are in this one Sources fold; each EDM, vote and register entry
+            stays on its row, and the biography's and timeline's own Sources lists are its citations. */}
+        <PageSources sources={[
+          contact?.website && { label: `${fullName || 'The MP'}\u2019s own website`, href: contact.website.match(/^https?:\/\//) ? contact.website : `https://${contact.website.replace(/^\/+/, '')}` },
+          contact?.twitter && { label: `${fullName || 'The MP'} on X`, href: contact.twitter },
+          has.petitions && { label: 'UK Parliament petitions website', href: 'https://petition.parliament.uk' },
+          ...appgs.flatMap((a) => [
+            a.website_url && { label: `${a.title}: the group\u2019s website`, href: a.website_url },
+            a.secretariat && a.secretariat_url && { label: `${a.title}: secretariat (${a.secretariat}) website`, href: a.secretariat_url },
+          ]),
+        ]} />
       </div>
     </div>
   );
