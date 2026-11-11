@@ -10,6 +10,7 @@ import { DIRECTORY } from '@/lib/directory';
 import { RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 
 const EXCLUDED: Record<string, string> = {
+  '/programmes': 'no programmes published yet: out of the directory until it has content (T1-AUD3, owner 11 Nov 2026)',
   '/commission/terms': 'reached from /commission (T1-5x, owner 10 Nov 2026: commission in the directory once)',
   '/commission/sample': 'reached from /commission (T1-5x, owner 10 Nov 2026: commission in the directory once)',
   '/account': 'account page', '/login': 'sign in', '/signup': 'sign up', '/reset-password': 'password reset',

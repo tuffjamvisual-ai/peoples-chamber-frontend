@@ -43,7 +43,6 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Newsletter', href: '/newsletter', desc: 'opengovt Weekly: the week’s investigations and public spending stories in one email.' },
   { name: 'Past Polls', href: '/polls/archive', desc: 'Earlier opengovt polls, kept as a record with their final results.' },
   { name: 'Privacy', href: '/privacy', desc: 'What data opengovt collects, why, how it is used and your rights.' },
-  { name: 'Programmes', href: '/programmes', desc: 'Major government policy commitments, tracked over time.' },
   { name: 'Questions to the Prime Minister, 1945 to 1961', href: '/pmqs/1945-to-1961', desc: 'Questions to the Prime Minister from 1945 to 1961, before PMQs had a fixed time: what is recorded, what is not and where it comes from.' },
   { name: 'Refused Expenses', href: '/expenses/refused', desc: 'Expense claims IPSA refused and money MPs repaid, by year, by MP and by reason.' },
   { name: 'Sponsored Visits', href: '/donations/sponsored-visits', desc: 'Trips paid for by governments and groups, declared as donations in kind.' },
