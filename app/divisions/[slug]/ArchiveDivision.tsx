@@ -7,7 +7,7 @@ import PageSources from '@/app/components/PageSources';
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { partyColourForMember } from '@/lib/party-helpers';
 import { divisionHref, yearHref } from '@/lib/division-links';
-import { ARCHIVE_NOTE, HANSARD_LABEL, archiveDate, archiveNeighbours, archiveProfileHref, archiveTitle, archiveVotes, recordInconsistent, type ArchiveDivision as Division, type ArchiveVote } from '@/lib/historic-archive';
+import { ARCHIVE_NOTE, archiveDate, archiveNeighbours, archiveProfileHref, archiveTitle, archiveVotes, recordInconsistent, type ArchiveDivision as Division, type ArchiveVote } from '@/lib/historic-archive';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
@@ -43,7 +43,6 @@ export default async function ArchiveDivisionPage({ d }: { d: Division }) {
   return (
     <OpenGovShell pageStamp="Division">
       <BackLink fallbackHref={yearHref(year)} label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: '15px', minHeight: '44px' }} />
-      <p style={{ fontFamily: TYPE, fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>Source: {HANSARD_LABEL}</p>
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '32px', marginBottom: '32px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', transform: 'rotate(-0.2deg)' }}>
           UK Parliament · Commons Division {d.division_number} · {archiveDate(date)}

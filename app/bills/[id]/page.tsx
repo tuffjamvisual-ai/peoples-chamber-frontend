@@ -250,9 +250,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', transform: 'rotate(-0.2deg)' }}
       />
 
-      <p style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
-        Source: Parliament
-      </p>
+      {/* T1-5x S2 (owner, 10 Nov 2026): no boxed "Source:" tag; the source is in Sources at the end. */}
 
       {/* The whole bill page is one continuous Victorian Bill sheet: cover,
           brief, explainers, ballot, sponsor and stages all sit on the same

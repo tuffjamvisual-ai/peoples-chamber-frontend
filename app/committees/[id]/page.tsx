@@ -148,9 +148,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
         }}
       />
 
-      <p style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
-        Source: Parliament
-      </p>
+      {/* T1-5x S2 (owner, 10 Nov 2026): no boxed "Source:" tag; the source is in Sources at the end. */}
 
       <p className="text-[15px] uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT, fontFamily: MONO }}>
         {committee.category} Committee
