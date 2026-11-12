@@ -3,11 +3,12 @@
 // The desktop header's top level links (25 Oct 2026, report 60): the same row and styling as before, with no dropdowns.
 // A section with several pages links to its section page, which lists them all (lib/site-nav.ts menuHref). The item the
 // current page belongs to carries aria-current ("page" on that address itself, "true" below it).
-import { usePathname } from 'next/navigation';
+// The current item comes from the page's own path (T1-HL, 12 Nov 2026: a sync's rebuild of the front page gave '/index').
+import { usePagePath } from '@/lib/use-page-path';
 import { NAV, menuHref, currentSection } from '@/lib/site-nav';
 
 export default function HeaderNav() {
-  const pathname = usePathname() ?? '/';
+  const pathname = usePagePath();
   const current = currentSection(pathname);
   return (
     <ul className="ng-nav">

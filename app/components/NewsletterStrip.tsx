@@ -13,7 +13,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePagePath } from '@/lib/use-page-path';
 import { useAuth } from '../context/AuthContext';
 import { STRIP_EVENT, markNewsletterSubscribed, newsletterStripBlocked, closeNewsletterStrip } from '@/lib/newsletter-strip';
 
@@ -37,7 +37,7 @@ function isExcluded(pathname: string) {
 }
 
 export default function NewsletterStrip() {
-  const pathname = usePathname() || '/';
+  const pathname = usePagePath(); // the page's own path, never '/index' (T1-HL)
   const { user, authLoading } = useAuth();
   const [show, setShow] = useState(false);
   const [email, setEmail] = useState('');

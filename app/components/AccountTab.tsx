@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePagePath } from '@/lib/use-page-path';
 import { useAuth } from '../context/AuthContext';
 
 // Auth-aware account tab for the OpenGovShell header. Renders as a fragment so
@@ -14,7 +14,7 @@ const SEP = { display: 'inline-block', width: '1px', height: '0.95em', backgroun
 
 export default function AccountTab() {
   const { user, logout } = useAuth();
-  const pathname = usePathname();
+  const pathname = usePagePath(); // the page's own path, never '/index' (T1-HL)
 
   if (!user) {
     // The page the visitor is on goes with them (25 Oct 2026, report 70), so signing in, or confirming a new account's

@@ -1,5 +1,6 @@
 'use client';
 
+import { pagePath } from '@/lib/use-page-path';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, usePathname } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/react';
@@ -24,7 +25,8 @@ const VISIBLE_MS = 10_000;
 const INPUT_EVENTS = ['pointerdown', 'touchstart', 'touchmove', 'wheel', 'keydown'] as const;
 
 export default function DeferredAnalytics() {
-  const pathname = usePathname();
+  // The page's own path: a sync's rebuild of the front page reports '/index' (T1-HL, 12 Nov 2026).
+  const pathname = pagePath(usePathname());
   const params = useParams();
   const [loaded, setLoaded] = useState(false);       // the Analytics script is on the page
   const [interacted, setInteracted] = useState(false); // Speed Insights loads after the first interaction
