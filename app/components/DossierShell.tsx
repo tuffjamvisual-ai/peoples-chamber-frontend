@@ -59,26 +59,26 @@ const HOTSPOTS: Hotspot[] = [
     xPct: 35.0, yPct: 21.3, wPct: 7.0, hPct: 2.8,
     children: [
       // Manifesto Comparisons → comparison grid (/parties/manifestos since report 64; /parties is the index).
-      // Individual party links → bio page (/parties/<slug>/bio), which
+      // Individual party links → the party's page (/parties/<slug>; T1-VERD, 12 Nov 2026: the verdict page is hidden). Before:
       // shows the People's Verdict critique without the 11-theme
       // manifesto grid (that's still at /parties/<slug>). 2026-06-03.
       // MP-count desc order, matches the vertical stack on /parties.
       { label: 'Manifesto Comparisons', href: '/parties/manifestos' },
-      { label: 'Labour',                href: '/parties/labour/bio' },
-      { label: 'Conservative',          href: '/parties/conservative/bio' },
-      { label: 'Liberal Democrats',     href: '/parties/liberal-democrats/bio' },
-      { label: 'SNP',                   href: '/parties/snp/bio' },
-      { label: 'Reform UK',             href: '/parties/reform-uk/bio' },
-      { label: 'Sinn Féin',             href: '/parties/sinn-fein/bio' },
-      { label: 'Green Party',           href: '/parties/green/bio' },
-      { label: 'DUP',                   href: '/parties/dup/bio' },
-      { label: 'Plaid Cymru',           href: '/parties/plaid-cymru/bio' },
-      { label: 'SDLP',                  href: '/parties/sdlp/bio' },
-      { label: 'Alliance',              href: '/parties/alliance/bio' },
-      { label: 'UUP',                   href: '/parties/uup/bio' },
-      { label: 'TUV',                   href: '/parties/tuv/bio' },
-      { label: 'Restore Britain',       href: '/parties/restore-britain/bio' },
-      { label: 'Your Party',            href: '/parties/your-party/bio' },
+      { label: 'Labour',                href: '/parties/labour' },
+      { label: 'Conservative',          href: '/parties/conservative' },
+      { label: 'Liberal Democrats',     href: '/parties/liberal-democrats' },
+      { label: 'SNP',                   href: '/parties/snp' },
+      { label: 'Reform UK',             href: '/parties/reform-uk' },
+      { label: 'Sinn Féin',             href: '/parties/sinn-fein' },
+      { label: 'Green Party',           href: '/parties/green' },
+      { label: 'DUP',                   href: '/parties/dup' },
+      { label: 'Plaid Cymru',           href: '/parties/plaid-cymru' },
+      { label: 'SDLP',                  href: '/parties/sdlp' },
+      { label: 'Alliance',              href: '/parties/alliance' },
+      { label: 'UUP',                   href: '/parties/uup' },
+      { label: 'TUV',                   href: '/parties/tuv' },
+      { label: 'Restore Britain',       href: '/parties/restore-britain' },
+      { label: 'Your Party',            href: '/parties/your-party' },
     ],
   },
   {

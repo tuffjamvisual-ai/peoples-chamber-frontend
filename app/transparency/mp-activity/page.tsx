@@ -33,7 +33,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const isDefault = view === DEFAULT_VIEW && !party && !q && page === 1
   return {
     title: { absolute: 'MP Activity: Most Active and Fewest Commons Contributions' },
-    description: 'Every current MP ranked by how often they have spoken in Parliament this term, and how many words, taken from the official Hansard record.',
+    description: 'Every current MP ranked by how often they have spoken in Parliament since the July 2024 general election, and how many words, from the official Hansard record.',
     alternates: { canonical: '/transparency/mp-activity' },
     // Search engines index the main ranking only, and still follow the links on every other view.
     ...(isDefault ? {} : { robots: { index: false, follow: true } }),
