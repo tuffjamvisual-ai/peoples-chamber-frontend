@@ -171,7 +171,10 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
                 {m.label}
               </h2>
               <NoJsFold id={`rf-${m.key}`} always label={`${m.idx.length} ${m.idx.length === 1 ? 'report' : 'reports'}`} open={mi === 0}>
-              <NoJsPager id={`rm-${m.key}`} count={m.idx.length} rows="> a" size={12}>
+              {/* Phones (under 768px): a month's first 3 reports, then "Show all N" (owner approved 12 Nov 2026, T1-VERD: the
+                  AR7 report took the page to 2,511px at 375, over the 2,500px limit; folded, nothing removed). From 768px up
+                  nothing changes. */}
+              <NoJsPager id={`rm-${m.key}`} count={m.idx.length} rows="> a" size={12} first={3}>
               <div className="reports-month-grid">
                 {m.idx.map((i) => {
                   const e = items[i];
