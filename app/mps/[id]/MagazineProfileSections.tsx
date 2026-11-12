@@ -2950,6 +2950,10 @@ export default function MagazineProfileSections({
         @media ${phoneUpTo(767.98)} {
           .mp-sections-nav [data-section] { display: none !important; }
           .mp-sections-nav { border-bottom: none !important; }
+          /* T1-MPCLEAN (Cowork, 12 Nov 2026): with Follow this MP gone the section list holds nothing on phones, so it and
+             the column's top padding go, and "Show all sections" sits the name block's own 12px below it. */
+          .mp-sections-grid > aside { display: none !important; }
+          .mp-sections-content { padding-top: 0 !important; }
         }
         .mp-col-inline { display: none; }
         @media ${phoneUpTo(767.98)} { .mp-vote-title, .mp-vote-title > a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; } }
