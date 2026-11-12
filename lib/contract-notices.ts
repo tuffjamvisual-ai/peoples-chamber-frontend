@@ -12,6 +12,8 @@ export type NoticeRow = {
   value_type: 'estimated' | 'contract' | 'change_new' | 'change_old' | 'final' | 'framework_maximum' | 'none';
   value_from_text: boolean; change_description: string | null; change_reason: string | null;
   termination_reason: string | null; end_date: string | null; status: string | null; source_url: string;
+  // The lots the notice's award names (awards[].relatedLots; T1-LOT, migration 2026-11-12a); null where it names none.
+  lot_ids: string[] | null;
 };
 
 export function kebab(s: unknown): string {
@@ -73,6 +75,55 @@ export function correctedSupplierId(ocid: string, id: string | undefined, name: 
 export const nameBasisCorrections = (companyNumber: string | null) =>
   companyNumber ? SUPPLIER_ID_CORRECTIONS.filter((c) => c.basis === 'name' && c.corrected === `GB-COH-${companyNumber}`) : [];
 
+// The lot ids an award names, in the order given, once each; null when it names none.
+export function lotIdsOf(a: any): string[] | null {
+  const ids = Array.isArray(a?.relatedLots) ? [...new Set(a.relatedLots.filter((x: any) => x != null && String(x).trim()).map((x: any) => String(x).trim()))] as string[] : [];
+  return ids.length ? ids : null;
+}
+
+// One contract_lots row per lot in the release's tender.lots (T1-LOT, migration 2026-11-12a): the value as published.
+export type LotRow = {
+  ocid: string; lot_id: string; title: string | null; description: string | null; value: number | null; currency: string | null;
+  status: string | null; release_id: string; released_at: string;
+};
+export function lotRows(r: any): LotRow[] {
+  const ocid = r?.ocid ? String(r.ocid) : null;
+  const lots: any[] = Array.isArray(r?.tender?.lots) ? r.tender.lots : [];
+  if (!ocid || !r.id || !r.date) return [];
+  const seen = new Map<string, LotRow>();
+  for (const l of lots) {
+    if (l?.id == null || !String(l.id).trim()) continue;
+    const lot_id = String(l.id).trim();
+    seen.set(lot_id, { ocid, lot_id, title: text(l.title), description: text(l.description), value: amount(l.value), currency: l.value?.currency ?? null,
+      status: l.status ?? null, release_id: String(r.id), released_at: String(r.date) });
+  }
+  return [...seen.values()];
+}
+
+// The rows to write: per (ocid, lot), the newest release among these, and only where it is newer than (or as new as)
+// the row already stored; a page read newest first, or a backfill reading older releases, never puts back an older lot.
+// A newer release that leaves out a lot's title, description or value (award notices often give only the lot id) keeps
+// the ones already known, from this batch or from the stored row.
+type StoredLot = { ocid: string; lot_id: string; released_at: string | null; title?: string | null; description?: string | null; value?: number | null; currency?: string | null };
+export function newerLotRows(rows: LotRow[], stored: StoredLot[]): LotRow[] {
+  const ms = (s: string | null) => (s ? Date.parse(s) : -Infinity);
+  const fill = (to: LotRow, from: Partial<LotRow> | undefined): LotRow => from ? {
+    ...to, title: to.title ?? from.title ?? null, description: to.description ?? from.description ?? null,
+    value: to.value ?? from.value ?? null, currency: to.value != null ? to.currency : (from.currency ?? to.currency ?? null),
+  } : to;
+  const best = new Map<string, LotRow>();
+  for (const r of rows) {
+    const k = `${r.ocid}\u0000${r.lot_id}`;
+    const cur = best.get(k);
+    if (!cur) best.set(k, r);
+    else best.set(k, ms(r.released_at) >= ms(cur.released_at) ? fill(r, cur) : fill(cur, r));
+  }
+  const have = new Map(stored.map((s) => [`${s.ocid}\u0000${s.lot_id}`, s]));
+  return [...best.entries()]
+    .filter(([k, r]) => !have.has(k) || ms(r.released_at) >= ms(have.get(k)!.released_at))
+    .map(([k, r]) => fill(r, have.get(k) as Partial<LotRow> | undefined));
+}
+
 export function noticeRows(r: any): NoticeRow[] {
   const ocid = r?.ocid ? String(r.ocid) : null;
   if (!ocid || !r.id || !r.date) return [];
@@ -92,6 +143,7 @@ export function noticeRows(r: any): NoticeRow[] {
   const empty: Omit<NoticeRow, keyof typeof base | 'contract_key'> = {
     award_id: null, title: tender.title || null, suppliers: [], value: null, currency: null, value_type: 'none',
     value_from_text: false, change_description: null, change_reason: null, termination_reason: null, end_date: null, status: null,
+    lot_ids: null,
   };
   const out: NoticeRow[] = [];
   const awards: any[] = r.awards || [];
@@ -103,7 +155,7 @@ export function noticeRows(r: any): NoticeRow[] {
     const common = {
       ...base, ...empty, contract_key: String(c.id ?? `award:${c.awardID ?? ''}`), award_id: c.awardID != null ? String(c.awardID) : null,
       title: c.title || a?.title || tender.title || null, suppliers: supplierList(a), status: c.status || a?.status || null,
-      end_date: day(c.implementation?.endDate) || day(c.period?.endDate),
+      end_date: day(c.implementation?.endDate) || day(c.period?.endDate), lot_ids: lotIdsOf(a),
     };
     const am = (c.amendments || [])[0];
     if (c.status === 'terminated' || (r.tag || []).includes('contractTermination')) {
@@ -124,7 +176,7 @@ export function noticeRows(r: any): NoticeRow[] {
     if (contracts.some((c) => String(c.awardID) === String(a.id))) continue;
     const v = amount(a.value);
     out.push({ ...base, ...empty, contract_key: `award:${a.id ?? ''}`, award_id: a.id != null ? String(a.id) : null, title: a.title || tender.title || null,
-      suppliers: supplierList(a), status: a.status || null, value: v, currency: a.value?.currency ?? null,
+      suppliers: supplierList(a), status: a.status || null, value: v, currency: a.value?.currency ?? null, lot_ids: lotIdsOf(a),
       value_type: v == null ? 'none' : fwValue(supplierList(a).length) ? 'framework_maximum' : 'contract' });
   }
   // Planning and tender notices: the estimate for the whole procurement.

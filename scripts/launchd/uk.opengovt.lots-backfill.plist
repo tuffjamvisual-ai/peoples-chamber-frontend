@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- T1-LOT (owner approved 12 Nov 2026): the contract lots backfill, nightly at 23:05 by this Mac's clock (UK time) until
+     it reports "finished"; the script itself only works between 23:00 and 05:00 UK and sits out the 01:53 contracts sync.
+     Logs in ~/opengovt-backup/lots-backfill (launchd cannot open a log on the external drive).
+     Install (by the owner): cp to ~/Library/LaunchAgents and launchctl bootstrap gui/$(id -u) <file>.
+     Remove once finished: launchctl bootout gui/$(id -u)/uk.opengovt.lots-backfill -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>uk.opengovt.lots-backfill</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string><string>-lc</string>
+    <string>cd /Users/johnnybot/peoples-chamber-frontend &amp;&amp; node --experimental-strip-types --no-warnings scripts/backfill-contract-lots.mjs --write</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>23</integer><key>Minute</key><integer>5</integer></dict>
+  <key>StandardOutPath</key><string>/Users/johnnybot/opengovt-backup/lots-backfill/launchd.log</string>
+  <key>StandardErrorPath</key><string>/Users/johnnybot/opengovt-backup/lots-backfill/launchd.log</string>
+</dict>
+</plist>

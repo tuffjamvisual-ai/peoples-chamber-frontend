@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
-import { noticeRows, uniqueNoticeRows, type NoticeRow } from '@/lib/contract-notices';
+import { noticeRows, uniqueNoticeRows, lotRows, newerLotRows, type NoticeRow } from '@/lib/contract-notices';
 import { walkFeed, readState, type WalkState, type PageResult } from './feed-walk';
 
 export const dynamic = 'force-dynamic';
@@ -180,7 +180,7 @@ async function GET_impl(req: Request) {
     start = readState(cur?.cursor, (cur?.updated_at as string | undefined) ?? null);
   }
   let upserted = 0, skippedBad = 0, noticesWritten = 0, noticesFailed = 0, scanned = 0;
-  let rateLimitWaits = 0, duplicatesDropped = 0;
+  let rateLimitWaits = 0, duplicatesDropped = 0, lotsWritten = 0, lotsFailed = 0;
 
   async function upsertRow(row: ContractRow): Promise<boolean> {
     const { error } = await supabase.from('government_contracts').upsert(row, { onConflict: 'ocid,award_id,contract_id' });
@@ -227,6 +227,22 @@ async function GET_impl(req: Request) {
       if (nErr) { noticesFailed += batch.length; console.error(`[contracts] contract_notices batch failed: ${nErr.message}`); }
       else noticesWritten += batch.length;
     }
+    // The procurement's lots as published (T1-LOT, migration 2026-11-12a); a lot already stored from a newer release is kept.
+    const lots = releases.flatMap((r: any) => lotRows(r));
+    if (lots.length) {
+      const ocids = [...new Set(lots.map((l) => l.ocid))];
+      const { data: stored, error: sErr } = await supabase.from('contract_lots').select('ocid, lot_id, released_at, title, description, value, currency').in('ocid', ocids);
+      if (sErr) { lotsFailed += lots.length; console.error(`[contracts] contract_lots read failed: ${sErr.message}`); }
+      else {
+        const write = newerLotRows(lots, (stored ?? []) as Parameters<typeof newerLotRows>[1]);
+        for (let i = 0; i < write.length; i += 200) {
+          const batch = write.slice(i, i + 200);
+          const { error: lErr } = await supabase.from('contract_lots').upsert(batch, { onConflict: 'ocid,lot_id' });
+          if (lErr) { lotsFailed += batch.length; console.error(`[contracts] contract_lots batch failed: ${lErr.message}`); }
+          else lotsWritten += batch.length;
+        }
+      }
+    }
   }
 
   const walk = await walkFeed(start, {
@@ -244,6 +260,7 @@ async function GET_impl(req: Request) {
     if (cErr) console.error(`[contracts] could not save the walk state: ${cErr.message}`);
   }
   if (noticesFailed) console.error(`[contracts] ${noticesFailed} contract_notices rows not written (contracts saved)`);
+  if (lotsFailed) console.error(`[contracts] ${lotsFailed} contract_lots rows not written (contracts saved)`);
 
   // Success when contracts were saved, or when there was nothing new and nothing failed. The contractor totals are
   // refreshed by /api/refresh-contractor-matches.
@@ -252,8 +269,8 @@ async function GET_impl(req: Request) {
   // clean 200 when contracts were saved or nothing was written badly.
   const politeStop = !!pagesError && /HTTP 429|time budget|page limit/.test(pagesError);
   const status = upserted > 0 || (skippedBad === 0 && (!pagesError || politeStop)) ? 200 : 502;
-  return NextResponse.json({ ok: status === 200 && noticesFailed === 0 && !walk.partial, partial: walk.partial, scanned, rows_written: upserted, skippedBad, duplicates_dropped: duplicatesDropped,
-    notices_written: noticesWritten, notices_failed: noticesFailed, pagesError, rate_limit_waits: rateLimitWaits,
+  return NextResponse.json({ ok: status === 200 && noticesFailed === 0 && lotsFailed === 0 && !walk.partial, partial: walk.partial, scanned, rows_written: upserted, skippedBad, duplicates_dropped: duplicatesDropped,
+    notices_written: noticesWritten, notices_failed: noticesFailed, lots_written: lotsWritten, lots_failed: lotsFailed, pagesError, rate_limit_waits: rateLimitWaits,
     pages: walk.pages, caught_up_to_newest: walk.caughtUp, newest_read: walk.state.newestRead, saved_positions: walk.state.pending.length,
     resumed_positions: walk.resumedGaps, dropped_positions: walk.droppedGaps, cursor_saved: cursorSaved,
     windowDays, maxPages, syncedAt: now }, { status });
