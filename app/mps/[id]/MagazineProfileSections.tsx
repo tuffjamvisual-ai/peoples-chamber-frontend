@@ -1047,6 +1047,7 @@ export default function MagazineProfileSections({
                     <details data-og-citations="" style={{ fontSize: '15px', color: '#14100d', marginBottom: '18px' }}>
                       <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '15px' }}>
                         Sources ({sources.length})
+                        <span className="og-fold-mark" aria-hidden="true" />
                       </summary>
                       <ol style={{ margin: '10px 0 0', paddingLeft: '20px', lineHeight: 1.55, overflowWrap: 'anywhere' }}>
                         {sources.map((src) => (
@@ -1135,6 +1136,7 @@ export default function MagazineProfileSections({
                   <details data-og-citations="">
                     <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '15px' }}>
                       Sources ({bio.bio_sources.length})
+                      <span className="og-fold-mark" aria-hidden="true" />
                     </summary>
                     <ol style={{ margin: '10px 0 0', paddingLeft: '20px', lineHeight: 1.55 }}>
                       {bio.bio_sources.map((src, i) => (
@@ -3015,6 +3017,8 @@ export default function MagazineProfileSections({
           .mp-sections-nav { gap: 0 !important; padding: 4px 4px 8px !important; margin-right: 12px !important; }
           .mp-sections-nav a[data-section] > span { padding: 7px 8px !important; white-space: nowrap; letter-spacing: 0 !important; line-height: 1.3; }
           .mp-sections-nav .mp-follow-chip { margin-top: 10px !important; white-space: nowrap; letter-spacing: 0.02em !important; }
+          .mp-sections-content { padding-top: 10px !important; }
+          .mp-sections-content .pf-sub > h2 { margin-bottom: 10px !important; }
         }
         @media ${phoneUpTo(479)} { .mp-sections-nav [data-section] { display: none !important; } }
         .mp-reports-phone { display: none; }

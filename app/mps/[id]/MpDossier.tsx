@@ -130,6 +130,19 @@ export default function MpDossier({
           .mp-std-head .mp-standards-line { position: static; top: auto; margin: 0 !important; }
           .mp-std-page { display: none; }
         }
+        /* T1-SIDE (owner approved, 12 Nov 2026): from 1024px a tighter header, so the first section's first lines start on
+           the first screen at 1280 x 720 and 1024 x 768: the photo about a fifth smaller (208px, 16px higher than T1-MPH put
+           it and still clear of the MP PROFILE stamp, its paperclip scaled with it) and smaller gaps between the name,
+           constituency and party. */
+        @media (min-width: 1024px) {
+          .pca-mp-photo { padding: 10px 10px 30px 10px !important; margin-top: calc(-7% + 48px) !important; }
+          .pca-mp-photo .pca-paperclip { width: 52px !important; height: auto !important; top: -24px !important; right: -4px !important; }
+          .pca-mp-photo img:not(.pca-paperclip), .pca-mp-photo > div { width: 208px !important; height: 208px !important; }
+          .pca-mp-header { margin-bottom: calc(1% + 46px) !important; }
+          .pca-mp-bio { margin-top: 3% !important; }
+          .pca-mp-bio h1 { margin: 0 0 2% !important; }
+          .pca-mp-constituency { margin-bottom: 1.5% !important; }
+        }
       `}</style>
 
       {/* "All MPs" above the header (UX1f, 9 Nov 2026): the list of MPs with this MP's party open. It was "← Back", which
@@ -164,7 +177,7 @@ export default function MpDossier({
               priority
               // The width it shows at (owner, 7 Nov 2026, Z2), so phones fetch a small copy: 72px under 640px, 200px to 760px,
               // 260px above (turned 12 degrees there, so it measures about 308px across). Keep in step with the media rules above.
-              sizes="(max-width: 767.98px) 72px, (max-width: 760px) 200px, 260px"
+              sizes="(max-width: 767.98px) 72px, (max-width: 760px) 200px, (min-width: 1024px) 208px, 260px"
               style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
             />
           ) : (
