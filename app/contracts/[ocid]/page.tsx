@@ -13,7 +13,8 @@
 // notices give each change a new contract id, so a change joins the contract whose latest value equals the
 // change's old value, for the same supplier; one that matches nothing is shown as its own contract.
 
-import { buildHistories, type Notice } from '@/lib/contract-history';
+import { buildHistories, sameLot, type Notice } from '@/lib/contract-history';
+import { lotLabel, hasSeveralLots, namesLot, type LotTitle } from '@/lib/contract-lot-label';
 import type { ChangeKind } from '@/lib/contract-notice-kind';
 import NoJsPager, { NoJsPagerLinks, njpItem } from '@/app/components/NoJsPager';
 import { namedTitle } from '@/lib/seo-title';
@@ -38,18 +39,28 @@ const ACCENT = '#7a1612';
 
 const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/;
 
+const NOTICE_COLUMNS = 'ocid, release_id, notice_type, tags, published_at, contract_key, award_id, title, buyer_name, suppliers, is_framework, value, value_type, value_from_text, change_description, change_reason, termination_reason, end_date, status, source_url';
 const loadNotices = unstable_cache(
   async (ocid: string): Promise<Notice[]> => {
-    const { data, error } = await supabase
-      .from('contract_notices')
-      .select('ocid, release_id, notice_type, tags, published_at, contract_key, award_id, title, buyer_name, suppliers, is_framework, value, value_type, value_from_text, change_description, change_reason, termination_reason, end_date, status, source_url')
-      .eq('ocid', ocid)
-      .order('published_at')
-      .limit(5000);
+    const read = (cols: string) => supabase.from('contract_notices').select(cols).eq('ocid', ocid).order('published_at').order('contract_key').limit(5000);
+    let { data, error } = await read(`${NOTICE_COLUMNS}, lot_ids`);
+    // Without lot_ids (migration 2026-11-12a undone) the page shows no lot labels rather than failing.
+    if (error && /lot_ids/.test(error.message)) ({ data, error } = await read(NOTICE_COLUMNS));
     if (error) throw new Error(`/contracts/[ocid] contract_notices: ${error.message}`);
-    return (data || []) as Notice[];
+    return (data || []) as unknown as Notice[];
   },
-  ['contract-notices-v1'],
+  ['contract-notices-v2'],
+  { revalidate: 86400, tags: ['contract-notices'] },
+);
+
+// The procurement's lots as published (T1-LOT); none when the table is missing or the read fails.
+const loadLots = unstable_cache(
+  async (ocid: string): Promise<LotTitle[]> => {
+    const { data, error } = await supabase.from('contract_lots').select('lot_id, title').eq('ocid', ocid).order('lot_id');
+    if (error) { console.error(`/contracts/[ocid] contract_lots: ${error.message}`); return []; }
+    return (data || []) as LotTitle[];
+  },
+  ['contract-lots-v1'],
   { revalidate: 86400, tags: ['contract-notices'] },
 );
 
@@ -83,22 +94,34 @@ export async function generateMetadata({ params }: { params: Promise<{ ocid: str
   const { ocid } = await params;
   if (!OCID_RE.test(ocid)) return {};
   const notices = await loadNotices(ocid);
-  const title = [...notices].reverse().find((n) => n.title)?.title;
+  const title = [...notices].reverse().find((n) => n.title && !n.contract_key)?.title || [...notices].reverse().find((n) => n.title)?.title;
   return title ? { title: namedTitle(title, (n) => [`${n}: contract history`, n]), alternates: { canonical: `/contracts/${ocid}` } } : {};
 }
 
 export default async function ContractHistoryPage({ params }: { params: Promise<{ ocid: string }> }) {
   const { ocid } = await params;
   if (!OCID_RE.test(ocid)) notFound();
-  const notices = await loadNotices(ocid);
+  const [notices, lots] = await Promise.all([loadNotices(ocid), loadLots(ocid)]);
   if (!notices.length) notFound();
+  // Lot labels only where the procurement has more than one lot (T1-LOT); a notice's lots are those of all its rows.
+  const severalLots = hasSeveralLots(lots, notices.map((n) => n.lot_ids));
+  const label = (ids: string[] | null | undefined) => (severalLots ? lotLabel(ids, lots) : null);
+  const releaseLots = new Map<string, string[]>();
+  for (const n of notices) for (const id of n.lot_ids ?? []) { const l = releaseLots.get(n.release_id) ?? []; if (!l.includes(id)) releaseLots.set(n.release_id, [...l, id]); }
+  const isAward = (n: Notice) => n.value_type === 'contract' || n.value_type === 'framework_maximum';
+  // A notice that publishes several awards or contracts (one per lot or supplier): the list gives their number, not one
+  // of their values, which read as the whole notice's (T1-LOT, 12 Nov 2026).
+  const releaseParts = new Map<string, Set<string>>();
+  for (const n of notices) if (n.contract_key && n.value_type !== 'change_old' && (n.value != null || n.suppliers?.length)) releaseParts.set(n.release_id, (releaseParts.get(n.release_id) ?? new Set()).add(n.contract_key));
+  const partsOf = (n: Notice) => releaseParts.get(n.release_id)?.size ?? 0;
 
   const kinds = new Map<string, ChangeKind>();
-  const hasAnyAward = notices.some((n) => n.value_type === 'contract' || n.value_type === 'framework_maximum');
+  const hasAnyAward = notices.some(isAward);
   const histories = buildHistories(notices, kinds);
   const buyer = notices.find((n) => n.buyer_name)?.buyer_name;
   // The procurement's latest name (planning notices often carry a working title).
-  const title = [...notices].reverse().find((n) => n.title)?.title || 'Untitled procurement';
+  // The procurement-level title (planning and tender notices) first: an award's title can be one lot's ("Lot 8 - ...").
+  const title = [...notices].reverse().find((n) => n.title && !n.contract_key)?.title || [...notices].reverse().find((n) => n.title)?.title || 'Untitled procurement';
   const estimate = notices.filter((n) => n.value_type === 'estimated' || (n.value_type === 'framework_maximum' && !n.contract_key)).pop();
   const performance = notices.filter((n) => n.notice_type === 'UK9');
   // The notice list shows each notice once, with its own figure and label.
@@ -129,6 +152,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
         return (
           <section key={h.key} className={njpItem('contract-histories')} style={{ marginBottom: '28px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '18px' }}>
             <h2 style={sectionH2}>{h.title || title}{h.suppliers.length ? ` · ${h.suppliers.length > 3 ? `${h.suppliers.length} suppliers` : h.suppliers.join(', ')}` : ''}</h2>
+            {label(h.lotIds) && !namesLot(h.title || title, h.lotIds) && <p style={lotLine}>{label(h.lotIds)}</p>}
             {h.awarded && (
               h.awarded.type === 'framework_maximum'
                 ? <p style={figure}><strong>Framework, {h.suppliers.length} supplier{h.suppliers.length === 1 ? '' : 's'}.</strong>{h.awarded.value != null && <> <strong>{gbp(h.awarded.value)} potential value, not spending.</strong> This is the most that could be spent through the framework; spending appears only through call off contracts.</>}</p>
@@ -136,7 +160,12 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
             )}
             {/* Only when the procurement holds no award notice at all (T1-AUD3, owner 11 Nov 2026); where it does but the change
                 names no award we can match, say that instead. */}
-            {!h.awarded && (hasAnyAward
+            {/* Per lot where the change names one (T1-LOT): an award for that lot in the record, or none. */}
+            {!h.awarded && (label(h.lotIds)
+              ? notices.some((n) => isAward(n) && sameLot(n.lot_ids, h.lotIds))
+                ? <p style={figure}>This notice does not say which award for {label(h.lotIds)} it changes.</p>
+                : <p style={figure}>The award for {label(h.lotIds)} is not in this record; the first notice we hold for it is a change.</p>
+              : hasAnyAward
               ? <p style={figure}>This notice does not say which award it changes.</p>
               : <p style={figure}>The award is not in this record; the first notice we hold is a change.</p>)}
 
@@ -192,7 +221,9 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
           {timeline.map((n) => (
             <li key={n.release_id} style={{ marginBottom: '6px' }}>
               <a data-og-row-source="" href={n.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(n.published_at)} · {kinds.get(n.release_id) && kinds.get(n.release_id)!.kind !== 'value_change' ? kinds.get(n.release_id)!.label : noticeName(n)}</a>
-              {n.value != null && n.value_type !== 'none' && <> · {n.value_type === 'estimated' ? `estimated ${gbp(n.value)}` : n.value_type === 'framework_maximum' ? `${gbp(n.value)} framework maximum` : n.value_type === 'final' ? `final value ${gbp(n.value)}` : n.value_type === 'change_new' ? (kinds.get(n.release_id)?.kind === 'value_change' || !kinds.has(n.release_id) ? `changed to ${gbp(n.value)}` : `value as stated ${gbp(n.value)}`) : gbp(n.value)}</>}
+              {partsOf(n) > 1 && <> · {partsOf(n)} {n.value_type === 'change_new' ? 'contracts changed' : n.contract_key.startsWith('award:') ? 'awards' : 'contracts'}</>}
+              {partsOf(n) <= 1 && n.value != null && n.value_type !== 'none' && <> · {n.value_type === 'estimated' ? `estimated ${gbp(n.value)}` : n.value_type === 'framework_maximum' ? `${gbp(n.value)} framework maximum` : n.value_type === 'final' ? `final value ${gbp(n.value)}` : n.value_type === 'change_new' ? (kinds.get(n.release_id)?.kind === 'value_change' || !kinds.has(n.release_id) ? `changed to ${gbp(n.value)}` : `value as stated ${gbp(n.value)}`) : gbp(n.value)}</>}
+              {label(releaseLots.get(n.release_id)) && <> · {label(releaseLots.get(n.release_id))}</>}
             </li>
           ))}
         </ul>
@@ -206,6 +237,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
 
 const sectionH2: React.CSSProperties = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '21px', fontWeight: 'bold', marginBottom: '10px', overflowWrap: 'anywhere' };
 const h3: React.CSSProperties = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '17px', fontWeight: 'bold', margin: '12px 0 6px' };
+const lotLine: React.CSSProperties = { fontSize: '15px', fontWeight: 'bold', margin: '0 0 6px' };
 const figure: React.CSSProperties = { fontSize: '16px', lineHeight: 1.6, margin: '6px 0' };
 const list: React.CSSProperties = { fontSize: '15px', lineHeight: 1.6, paddingLeft: '18px' };
 const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline' };

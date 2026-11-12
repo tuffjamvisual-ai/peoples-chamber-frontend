@@ -8,13 +8,17 @@ export type Notice = {
   suppliers: { name: string }[]; is_framework: boolean; value: number | null; value_type: string;
   value_from_text: boolean; change_description: string | null; change_reason: string | null;
   termination_reason: string | null; end_date: string | null; status: string | null; source_url: string;
+  lot_ids?: string[] | null; // the lots the notice's award names (T1-LOT); missing on rows stored before 12 Nov 2026 until backfilled
 };
+
+// Two notices are about the same lot when the lots they name overlap.
+export const sameLot = (a: string[] | null | undefined, b: string[] | null | undefined) => !!a?.length && !!b?.length && a.some((x) => b.includes(x));
 
 const day = (iso: string) => iso.slice(0, 10);
 
 export type Change = { date: string; oldValue: number | null; newValue: number | null; reason: string | null; repeats: number; url: string; kind: ChangeKind };
 export type ContractHistory = {
-  key: string; awardId: string | null; title: string | null; suppliers: string[]; isFramework: boolean;
+  key: string; awardId: string | null; title: string | null; suppliers: string[]; isFramework: boolean; lotIds: string[] | null;
   awarded: { date: string; value: number | null; type: 'contract' | 'framework_maximum'; url: string } | null;
   changes: Change[];
   termination: { date: string; endDate: string | null; finalValue: number | null; reason: string | null; url: string } | null;
@@ -28,6 +32,7 @@ export function buildHistories(notices: Notice[], kinds: Map<string, ChangeKind>
   const valueChanges = (h: ContractHistory) => h.changes.filter((c) => c.kind.kind === 'value_change');
   const latest = (h: ContractHistory) => { const v = valueChanges(h); return v.length ? v[v.length - 1].newValue : h.awarded?.value ?? null; };
   const supplierOf = (rows: Notice[]) => rows.find((r) => r.suppliers?.length)?.suppliers.map((s) => s.name) || [];
+  const lotsOf = (rows: Notice[]) => rows.find((r) => r.lot_ids?.length)?.lot_ids ?? null;
 
   // Awards and contracts first (oldest first), then changes and terminations in date order.
   const keys = [...byKey.keys()].sort((a, b) => byKey.get(a)![0].published_at.localeCompare(byKey.get(b)![0].published_at));
@@ -43,10 +48,11 @@ export function buildHistories(notices: Notice[], kinds: Map<string, ChangeKind>
     if (existing && award) {
       existing.awarded = { date: existing.awarded?.date ?? award.published_at, value: award.value, type: award.value_type as 'contract' | 'framework_maximum', url: award.source_url };
       existing.suppliers = supplierOf(rows).length ? supplierOf(rows) : existing.suppliers;
+      existing.lotIds ??= lotsOf(rows);
       continue;
     }
     histories.push({
-      key, awardId: award?.award_id ?? null, title: rows[0].title, suppliers: supplierOf(rows), isFramework: rows.some((r) => r.value_type === 'framework_maximum'),
+      key, awardId: award?.award_id ?? null, title: rows[0].title, suppliers: supplierOf(rows), isFramework: rows.some((r) => r.value_type === 'framework_maximum'), lotIds: lotsOf(rows),
       awarded: award ? { date: award.published_at, value: award.value, type: award.value_type as 'contract' | 'framework_maximum', url: award.source_url } : null,
       changes: [], termination: null,
     });
@@ -69,9 +75,15 @@ export function buildHistories(notices: Notice[], kinds: Map<string, ChangeKind>
     let h = histories.find((x) => x.key === n.contract_key)
       // The same contract id (award:1 and 1 are one contract: its award and its details notice), T1-AUD3.
       || (n.award_id != null ? histories.find((x) => x.awardId === n.award_id) : undefined)
+      // The award for the same lot (T1-LOT), when the change names one; several awards for that lot: by value, then supplier.
+      || (n.lot_ids?.length ? (() => {
+        const forLot = histories.filter((x) => x.awarded && sameLot(x.lotIds, n.lot_ids));
+        if (forLot.length <= 1) return forLot[0];
+        return (old != null ? pick(forLot.filter((x) => latest(x) === old)) : undefined) || pick(forLot);
+      })() : undefined)
       || (old != null ? pick(histories.filter((x) => latest(x) === old)) || pick(histories.filter((x) => values(x).includes(old))) : undefined);
     if (!h) {
-      h = { key: n.contract_key, awardId: null, title: n.title, suppliers: n.suppliers.map((s) => s.name), isFramework: false, awarded: null, changes: [], termination: null };
+      h = { key: n.contract_key, awardId: null, title: n.title, suppliers: n.suppliers.map((s) => s.name), isFramework: false, lotIds: n.lot_ids ?? null, awarded: null, changes: [], termination: null };
       histories.push(h);
     }
     if (n.value_type === 'final' || (n.tags || []).includes('contractTermination')) {
