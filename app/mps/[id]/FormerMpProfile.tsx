@@ -1,16 +1,15 @@
 // Basic page for a former MP who is not in our mps table (lib/former-mps.ts; owner's decision, 28 Oct 2026). Same
 // heading style as a former member's full profile in MpDossier ("Former MP for X (2015 to 2024)"), with every seat
-// held and the dates, from Parliament's Members API. The full Parliament record is linked as the source. Any Standards
+// held and the dates, from Parliament's Members API. No Sources fold (T1-MPCLEAN2, owner 12 Nov 2026). Any Standards
 // findings follow (3 Nov 2026). Nothing sits below the sections (owner, 8 Nov 2026, FM1, as MP1 did for sitting MPs): the
 // links the Related line held (their record at Prime Minister's Questions, their House of Lords page, reports that name
 // them) are part of "Time in the House of Commons".
 import StandardsCasesLine from '../../components/StandardsCasesLine';
 import Link from 'next/link';
-import PageSources from '@/app/components/PageSources';
 import OpenGovShell from '../../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs, buildMpPerson } from '@/lib/JsonLd';
 import type { RelatedLink } from '@/lib/related-links';
-import { lastSeatLine, parliamentMemberUrl, seatYears, type FormerMp } from '@/lib/former-mps';
+import { lastSeatLine, seatYears, type FormerMp } from '@/lib/former-mps';
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
 import HistoricRecord from './HistoricRecord';
 
@@ -83,8 +82,6 @@ export default function FormerMpProfile({ mp, conductFindings = [], related = []
 
       <StandardsFindings findings={conductFindings} />
       <HistoricRecord memberId={mp.memberId} />
-      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
-      <PageSources sources={[{ label: `UK Parliament, ${mp.name}: career`, href: parliamentMemberUrl(mp.memberId) }]} />
     </OpenGovShell>
   );
 }

@@ -42,9 +42,9 @@
 //       A4 (official record links on bill and division pages) was dropped by T1-5c: those links are in the Sources fold.
 //       A council page's detail tabs load when opened (panels.tsx), so on a council page each one is opened and checked;
 //       each tab lists its sources in its own Sources fold at its end (T1-5c, Cowork, 11 Nov 2026).
-//       MP profiles have no Sources fold at all (T1-MPCLEAN, owner 12 Nov 2026): on an MP's profile (the sections of
-//       MagazineProfileSections) a Sources fold or citations list (data-og-sources, data-og-citations) is a failure, and
-//       a link to another site inside one no longer counts as allowed.
+//       MP profiles have no Sources fold at all (T1-MPCLEAN and T1-MPCLEAN2, owner 12 Nov 2026): on any /mps/<id> page
+//       (a sitting or former MP's profile, or a former MP's basic page) a Sources fold or citations list (data-og-sources,
+//       data-og-citations) is a failure, and a link to another site inside one no longer counts as allowed.
 // A2 and A3 found problems on pages that existed before the check; those are in rendered-baseline.json and are
 // expected: a run fails only on a new one (a page over the limit that was not, or longer than its baseline by more than
 // 200px; a time word on a page that did not have it).
@@ -201,8 +201,8 @@ function a15Scan() {
 function outsideLinks(licence) {
   const re = new RegExp(licence);
   const out = [];
-  // MP profiles (T1-MPCLEAN): no Sources fold, so nothing is allowed for being inside one.
-  const mpProfile = /^\/mps\/\d+\/?$/.test(location.pathname) && !!document.querySelector('.mp-sections-content');
+  // MP profiles and former MPs' basic pages (T1-MPCLEAN, T1-MPCLEAN2): no Sources fold, so nothing is allowed for being inside one.
+  const mpProfile = /^\/mps\/\d+\/?$/.test(location.pathname);
   if (mpProfile) for (const el of document.querySelectorAll('[data-og-sources], [data-og-citations]')) out.push(`a Sources fold on an MP profile (${(el.querySelector('summary')?.textContent || el.tagName).trim().replace(/\s+/g, ' ').slice(0, 40)})`);
   for (const a of document.querySelectorAll('a[href]')) {
     let u; try { u = new URL(a.getAttribute('href'), location.href); } catch { continue; }

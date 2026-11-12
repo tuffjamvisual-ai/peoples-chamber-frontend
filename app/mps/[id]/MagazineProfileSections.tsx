@@ -2026,7 +2026,7 @@ export default function MagazineProfileSections({
                 )}
                 <li style={{ marginTop: '16px', fontSize: '15px', color: '#14100d' }}>
                   {earnings.public_spend_year
-                    ? <>Public spend (IPSA, {earnings.public_spend_year}): {fmtMoney(earnings.public_spend)}</>
+                    ? <>Public spend (IPSA, {fmtExpenseYear(earnings.public_spend_year)}): {fmtMoney(earnings.public_spend)}</>
                     : <>Public spend (IPSA): none published yet</>}
                 </li>
               </ul>
