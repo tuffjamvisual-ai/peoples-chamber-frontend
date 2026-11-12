@@ -35,11 +35,6 @@ const TYPE_META: Record<string, { label: string; color: string }> = {
 const COUNCIL_META = { label: 'Council', color: '#1a5c5c' };
 const SEAT_META = { label: 'Constituency', color: '#2a4a6e' };
 
-const POPULAR = [
-  'knife crime', 'small boats', 'NHS', 'energy bills',
-  'income tax', 'immigration', 'renters', 'grooming gangs',
-];
-
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric',
@@ -551,32 +546,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         </ResultGroup>
       )}
 
-      {!q && (
-        <div>
-          <p style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '12px', letterSpacing: '0.05em' }}>
-            POPULAR SEARCHES
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {POPULAR.map((term) => (
-              <Link
-                key={term}
-                href={`/search?q=${encodeURIComponent(term)}`}
-                style={{
-                  padding: '6px 13px',
-                  fontFamily: MONO,
-                  fontSize: '15px',
-                  color: '#14100d',
-                  border: `1px solid ${HAIRLINE}`,
-                  textDecoration: 'none',
-                  display: 'inline-block',
-                }}
-              >
-                {term}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* T1-DECLUT item 1 (owner, 12 Nov 2026): no 'Popular searches' block; it was a fixed list, not real data. */}
       {q && <p className="srch-intro-p" style={{ fontSize: '16px', lineHeight: 1.8, color: '#14100d', marginTop: '28px' }}>{SEARCHED}</p>}
     </OpenGovShell>
   );

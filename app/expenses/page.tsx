@@ -152,18 +152,7 @@ export default async function ExpensesPage() {
       />
 
       <header style={{ marginBottom: '5%' }}>
-        <p
-          style={{
-            fontSize: '15px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.3em',
-            fontWeight: 'bold',
-            marginBottom: '12px',
-            color: ACCENT,
-          }}
-        >
-          opengovt · Expenses
-        </p>
+        {/* T1-DECLUT item 2 (owner, 12 Nov 2026): no eyebrow line repeating the section under the folder stamp. */}
         <h1
           style={{
             fontSize: 'clamp(28px, 4vw, 46px)',

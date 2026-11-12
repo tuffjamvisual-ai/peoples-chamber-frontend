@@ -35,9 +35,7 @@ export default function DonationsExplainer() {
       />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', transform: 'rotate(-0.2deg)' }}>
-          Explainer · UK political donations
-        </p>
+        {/* T1-DECLUT item 2 (owner, 12 Nov 2026): no eyebrow line repeating the section under the folder stamp. */}
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15, transform: 'rotate(-0.3deg)' }}>
           How UK political donations work, and why the system fails
         </h1>

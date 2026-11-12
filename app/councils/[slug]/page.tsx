@@ -359,8 +359,11 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             {c.type_label} · {c.country}
             {parent && (
               <>
-                {' · '}
-                <a href={`/councils/${parent.slug}`} style={{ color: INK_SOFT, textDecoration: 'underline' }}>
+                {/* Phones (T1-DECLUT, owner 12 Nov 2026): 'Part of ...' wrapped to its own line and left the dot at the end of
+                    the first ('District Council · England ·'), so on phones it is its own line with no dot. */}
+                <style>{`@media ${phoneUpTo(639.98)} { .cn-sep { display: none; } .cn-parent { display: block; } }`}</style>
+                <span className="cn-sep">{' · '}</span>
+                <a className="cn-parent" href={`/councils/${parent.slug}`} style={{ color: INK_SOFT, textDecoration: 'underline' }}>
                   Part of {parent.short_name || parent.name}
                 </a>
               </>

@@ -125,9 +125,7 @@ export default async function EarningsPage() {
           <strong> Public spend</strong> is a separate column showing what IPSA reimburses for staff, office,
           travel and accommodation; it does <em>not</em> go into the MP&apos;s pocket.
         </p>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px' }}>
-          opengovt · MP Earnings
-        </p>
+        {/* T1-DECLUT item 2 (owner, 12 Nov 2026): no eyebrow line repeating the section under the folder stamp. */}
       </header>
 
       <EarningsTable rows={top} year={YEAR_LABEL} />

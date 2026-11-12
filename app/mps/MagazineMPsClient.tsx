@@ -204,11 +204,12 @@ function SearchInput({
         >
           {pcErr ? pcErr : `Finding the MP for ${cleanPc}…`}
         </p>
-      ) : (
+      ) : searchTerm.trim() ? (
+        // Only while the list is being filtered (T1-DECLUT item 3, owner 12 Nov 2026): '650 of 650 MPs' said nothing.
         <p style={{ marginTop: '8px', fontSize: '15px' }}>
           {count} of {total} {label}
         </p>
-      )}
+      ) : null}
     </div>
   );
 }
