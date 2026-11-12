@@ -12,7 +12,7 @@
   </array>
   <key>StartCalendarInterval</key>
   <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>17</integer></dict>
-  <key>StandardOutPath</key><string>/Volumes/GoliathSSD/opengovt-work/claude-tmp/daily-qa-launchd.log</string>
-  <key>StandardErrorPath</key><string>/Volumes/GoliathSSD/opengovt-work/claude-tmp/daily-qa-launchd.log</string>
+  <key>StandardOutPath</key><string>/Users/johnnybot/opengovt-backup/daily-qa/launchd.log</string>
+  <key>StandardErrorPath</key><string>/Users/johnnybot/opengovt-backup/daily-qa/launchd.log</string>
 </dict>
 </plist>
