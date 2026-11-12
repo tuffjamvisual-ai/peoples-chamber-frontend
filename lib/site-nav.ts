@@ -26,7 +26,7 @@ export const NAV: NavItem[] = [
     { group: 'MPs', label: 'Find Your MP', href: '/find-your-mp', desc: 'Enter your postcode to find your MP, their voting record, expenses, declared interests and contributions.' },
     { group: 'MPs', label: 'All MPs', href: '/mps', desc: 'Profiles of all 650 UK MPs: voting records, expenses, registered interests and contact details.' },
     { group: 'MPs', label: 'Constituencies', href: '/constituencies', desc: 'All 650 UK parliamentary constituencies by nation and region: the MP, the 2024 result, byelections, petitions and councils.' },
-    { group: 'MPs', label: 'MP Activity', href: '/transparency/mp-activity', desc: 'Every current MP ranked by how often they have spoken in Parliament this term, from Hansard.' },
+    { group: 'MPs', label: 'MP Activity', href: '/transparency/mp-activity', desc: 'Every current MP ranked by how often they have spoken in Parliament since the July 2024 general election, from Hansard.' },
     { group: 'MPs', label: 'MP Earnings', href: '/earnings', desc: 'Every MP\'s personal earnings (salary, ministerial pay, outside earnings) beside their public spend.' },
     { group: 'Parliament', label: 'Bills', href: '/bills', desc: 'The bills going through Parliament: stage, sponsor, how MPs voted and how opengovt users voted.' },
     { group: 'Parliament', label: 'Prime Minister\'s Questions', href: '/pmqs', desc: 'Prime Minister\'s Questions: every session since 1961, and the Prime Minister\'s attendance since 1979.' },
