@@ -231,7 +231,7 @@ async function GET_impl(req: Request) {
     const lots = releases.flatMap((r: any) => lotRows(r));
     if (lots.length) {
       const ocids = [...new Set(lots.map((l) => l.ocid))];
-      const { data: stored, error: sErr } = await supabase.from('contract_lots').select('ocid, lot_id, released_at, title, description, value, currency').in('ocid', ocids);
+      const { data: stored, error: sErr } = await supabase.from('contract_lots').select('ocid, lot_id, released_at, title, description, value, currency, status, release_id').in('ocid', ocids);
       if (sErr) { lotsFailed += lots.length; console.error(`[contracts] contract_lots read failed: ${sErr.message}`); }
       else {
         const write = newerLotRows(lots, (stored ?? []) as Parameters<typeof newerLotRows>[1]);

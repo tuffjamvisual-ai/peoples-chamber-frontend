@@ -118,6 +118,16 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
   const kinds = new Map<string, ChangeKind>();
   const hasAnyAward = notices.some(isAward);
   const histories = buildHistories(notices, kinds);
+  // Lots that have an award entry with no supplier and no value, and no award with either (Cowork, 12 Nov 2026): listed
+  // in lot order with the histories, never left out.
+  const awardedLots = new Set(notices.filter((n) => isAward(n) && (n.value != null || n.suppliers?.length)).flatMap((n) => n.lot_ids ?? []));
+  const unawardedLots = severalLots
+    ? [...new Set(notices.filter((n) => n.award_id != null && n.value == null && !n.suppliers?.length).flatMap((n) => n.lot_ids ?? []))].filter((id) => !awardedLots.has(id))
+    : [];
+  type Entry = { h: (typeof histories)[number] } | { lot: string };
+  const lotOrder = (ids: string[] | null | undefined) => (ids?.length ? ids[0].replace(/^lot\s*/i, '') : '\uffff');
+  const entries: Entry[] = [...histories.map((h) => ({ h })), ...unawardedLots.map((lot) => ({ lot }))];
+  if (severalLots) entries.sort((a, b) => lotOrder('h' in a ? a.h.lotIds : [a.lot]).localeCompare(lotOrder('h' in b ? b.h.lotIds : [b.lot]), 'en', { numeric: true }));
   const buyer = notices.find((n) => n.buyer_name)?.buyer_name;
   // The procurement's latest name (planning notices often carry a working title).
   // The procurement-level title (planning and tender notices) first: an award's title can be one lot's ("Lot 8 - ...").
@@ -145,8 +155,15 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
         )}
       </header>
 
-      <NoJsPager id="contract-histories" count={histories.length} size={10} />
-      {histories.map((h) => {
+      <NoJsPager id="contract-histories" count={entries.length} size={10} />
+      {entries.map((e) => {
+        if (!('h' in e)) return (
+          <section key={`lot-${e.lot}`} className={njpItem('contract-histories')} style={{ marginBottom: '28px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '18px' }}>
+            <h2 style={sectionH2}>{lotLabel([e.lot], lots)}</h2>
+            <p style={figure}>No supplier or value published for this lot.</p>
+          </section>
+        );
+        const h = e.h;
         const realChanges = h.changes.filter((c) => c.kind.kind === 'value_change');
         const latestValue = realChanges.length ? realChanges[realChanges.length - 1].newValue : null;
         return (
@@ -205,7 +222,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
           </section>
         );
       })}
-      <NoJsPagerLinks id="contract-histories" count={histories.length} size={10} />
+      <NoJsPagerLinks id="contract-histories" count={entries.length} size={10} />
 
       <section style={{ marginBottom: '24px' }}>
         <h2 style={sectionH2}>Performance</h2>
@@ -223,7 +240,10 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
               <a data-og-row-source="" href={n.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(n.published_at)} · {kinds.get(n.release_id) && kinds.get(n.release_id)!.kind !== 'value_change' ? kinds.get(n.release_id)!.label : noticeName(n)}</a>
               {partsOf(n) > 1 && <> · {partsOf(n)} {n.value_type === 'change_new' ? 'contracts changed' : n.contract_key.startsWith('award:') ? 'awards' : 'contracts'}</>}
               {partsOf(n) <= 1 && n.value != null && n.value_type !== 'none' && <> · {n.value_type === 'estimated' ? `estimated ${gbp(n.value)}` : n.value_type === 'framework_maximum' ? `${gbp(n.value)} framework maximum` : n.value_type === 'final' ? `final value ${gbp(n.value)}` : n.value_type === 'change_new' ? (kinds.get(n.release_id)?.kind === 'value_change' || !kinds.has(n.release_id) ? `changed to ${gbp(n.value)}` : `value as stated ${gbp(n.value)}`) : gbp(n.value)}</>}
-              {label(releaseLots.get(n.release_id)) && <> · {label(releaseLots.get(n.release_id))}</>}
+              {/* Several awards where some of the notice's lots have none published: say how many of each, not 'All 8 lots'. */}
+              {partsOf(n) > 1 && (releaseLots.get(n.release_id) ?? []).some((id) => unawardedLots.includes(id))
+                ? <> across {releaseLots.get(n.release_id)!.length} lots</>
+                : label(releaseLots.get(n.release_id)) && <> · {label(releaseLots.get(n.release_id))}</>}
             </li>
           ))}
         </ul>

@@ -1,8 +1,9 @@
 // Backfill contract lots (T1-LOT, owner approved 12 Nov 2026; migration 2026-11-12a) for the procurements in our record
 // with more than one award, where a lot tells readers which part of the procurement each award or change is for.
 //
-//   pass 1  for each such procurement, its newest release with an award: tender.lots go to contract_lots, and every
-//           stored notice row of an award that release names gets that award's lots (awards[].relatedLots).
+//   pass 1  for each such procurement, its newest tender (or planning) notice, for the lots' titles and values, then its
+//           newest release with an award: tender.lots go to contract_lots, and every stored notice row of an award that
+//           release names gets that award's lots (awards[].relatedLots). About 15,600 fetches over several nights.
 //   pass 2  only the stored award releases whose award is still without lots after pass 1, one fetch each.
 //
 // Night only (Protect the live database): it will not start, and it stops, outside 23:00 to 05:00 UK time (the daily
@@ -63,10 +64,14 @@ function psqlJson(sql) {
 let state = fs.existsSync(STATE) ? JSON.parse(fs.readFileSync(STATE, 'utf8')) : null;
 if (!state) {
   if (!process.env.DATABASE_URL) { console.error('DATABASE_URL is needed for the work list'); process.exit(1); }
-  const list = psqlJson(`with m as (select ocid from contract_notices where award_id is not null group by ocid having count(distinct award_id) > 1)
-    select json_agg(json_build_object('ocid', ocid, 'release', release_id) order by ocid) from (
-      select distinct on (n.ocid) n.ocid, n.release_id from m join contract_notices n using (ocid)
-      where n.award_id is not null order by n.ocid, n.published_at desc) x`);
+  // Per procurement: its newest award release, and its newest procurement-level notice (tender or planning), whose
+  // tender.lots carry the lot titles that award notices usually leave out (Cowork, 12 Nov 2026).
+  const list = psqlJson(`with m as (select ocid from contract_notices where award_id is not null group by ocid having count(distinct award_id) > 1),
+    a as (select distinct on (n.ocid) n.ocid, n.release_id from m join contract_notices n using (ocid)
+      where n.award_id is not null order by n.ocid, n.published_at desc),
+    t as (select distinct on (n.ocid) n.ocid, n.release_id from m join contract_notices n using (ocid)
+      where n.contract_key = '' order by n.ocid, n.published_at desc)
+    select json_agg(json_build_object('ocid', a.ocid, 'release', a.release_id, 'tender', t.release_id) order by a.ocid) from a left join t using (ocid)`);
   state = { created: new Date().toISOString(), pass: 1, queue: list, done: 0, fetched: 0, lotsWritten: 0, noticeRowsLabelled: 0, nights: 0, notFound: 0 };
   fs.writeFileSync(STATE, JSON.stringify(state));
 }
@@ -103,7 +108,7 @@ async function store(release) {
   const awards = (release.awards || []).map((a) => ({ id: a.id != null ? String(a.id) : null, lots: lotIdsOf(a) })).filter((a) => a.id && a.lots);
   if (!WRITE) return { lots: lots.length, labelled: awards.length };
   if (lots.length) {
-    const { data: stored, error } = await db.from('contract_lots').select('ocid, lot_id, released_at, title, description, value, currency').eq('ocid', release.ocid);
+    const { data: stored, error } = await db.from('contract_lots').select('ocid, lot_id, released_at, title, description, value, currency, status, release_id').eq('ocid', release.ocid);
     if (error) throw new Stop(`contract_lots read: ${error.message}`);
     const write = newerLotRows(lots, stored ?? []);
     if (write.length) { const { error: e } = await db.from('contract_lots').upsert(write, { onConflict: 'ocid,lot_id' }); if (e) throw new Stop(`contract_lots upsert: ${e.message}`); }
@@ -141,6 +146,14 @@ try {
     if (state.fetched - fetched0 >= LIMIT) { stopReason = `--limit ${LIMIT} reached`; break; }
     const item = state.queue[state.done];
     if (state.pass === 1) seen.add(item.release);
+    // The tender notice first (its lots carry titles), once per procurement; item.tenderDone survives a stop between the two.
+    if (item.tender && !item.tenderDone) {
+      const t = await getRelease(item.tender);
+      if (!t) state.notFound++;
+      else { const r = await store(t); state.tendersRead = (state.tendersRead || 0) + 1; if (!WRITE) console.log(`  ${item.ocid} ${item.tender} (tender): ${r.lots} lots`); }
+      item.tenderDone = true;
+      if (!ANY_TIME && (!inNight() || inSyncWindow())) continue;
+    }
     const rel = await getRelease(item.release);
     if (!rel) state.notFound++;
     else { const r = await store(rel); if (!WRITE) console.log(`  ${item.ocid} ${item.release}: ${r.lots} lots, ${r.labelled} awards with lots`); }
@@ -154,4 +167,4 @@ try {
   save();
 }
 const mins = Math.round((Date.now() - t0) / 60000);
-report(`T1-LOT backfill ${WRITE ? '' : '(dry run) '}night ${state.nights}: pass ${state.pass}, ${state.done} of ${state.queue.length} done (${state.done - (state.pass === 1 ? done0 : 0)} tonight), ${state.fetched - fetched0} fetches in ${mins} min; totals: ${state.lotsWritten} lots stored, ${state.noticeRowsLabelled} notice rows given their lots, ${state.notFound} releases not found; stopped: ${stopReason}`);
+report(`T1-LOT backfill ${WRITE ? '' : '(dry run) '}night ${state.nights}: pass ${state.pass}, ${state.done} of ${state.queue.length} done (${state.done - (state.pass === 1 ? done0 : 0)} tonight), ${state.fetched - fetched0} fetches in ${mins} min; totals: ${state.tendersRead || 0} tender notices read, ${state.lotsWritten} lot rows written, ${state.noticeRowsLabelled} notice rows given their lots, ${state.notFound} releases not found; stopped: ${stopReason}`);

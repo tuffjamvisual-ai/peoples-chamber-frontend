@@ -103,10 +103,12 @@ export function lotRows(r: any): LotRow[] {
 // The rows to write: per (ocid, lot), the newest release among these, and only where it is newer than (or as new as)
 // the row already stored; a page read newest first, or a backfill reading older releases, never puts back an older lot.
 // A newer release that leaves out a lot's title, description or value (award notices often give only the lot id) keeps
-// the ones already known, from this batch or from the stored row.
-type StoredLot = { ocid: string; lot_id: string; released_at: string | null; title?: string | null; description?: string | null; value?: number | null; currency?: string | null };
+// the ones already known; an older release (the tender notice, which names the lots) only fills in what the stored row
+// lacks, keeping its newer release and status.
+type StoredLot = { ocid: string; lot_id: string; released_at: string | null; title?: string | null; description?: string | null;
+  value?: number | null; currency?: string | null; status?: string | null; release_id?: string | null };
 export function newerLotRows(rows: LotRow[], stored: StoredLot[]): LotRow[] {
-  const ms = (s: string | null) => (s ? Date.parse(s) : -Infinity);
+  const ms = (s: string | null | undefined) => (s ? Date.parse(s) : -Infinity);
   const fill = (to: LotRow, from: Partial<LotRow> | undefined): LotRow => from ? {
     ...to, title: to.title ?? from.title ?? null, description: to.description ?? from.description ?? null,
     value: to.value ?? from.value ?? null, currency: to.value != null ? to.currency : (from.currency ?? to.currency ?? null),
@@ -119,9 +121,18 @@ export function newerLotRows(rows: LotRow[], stored: StoredLot[]): LotRow[] {
     else best.set(k, ms(r.released_at) >= ms(cur.released_at) ? fill(r, cur) : fill(cur, r));
   }
   const have = new Map(stored.map((s) => [`${s.ocid}\u0000${s.lot_id}`, s]));
-  return [...best.entries()]
-    .filter(([k, r]) => !have.has(k) || ms(r.released_at) >= ms(have.get(k)!.released_at))
-    .map(([k, r]) => fill(r, have.get(k) as Partial<LotRow> | undefined));
+  const out: LotRow[] = [];
+  for (const [k, r] of best) {
+    const st = have.get(k);
+    if (!st || ms(r.released_at) >= ms(st.released_at)) { out.push(fill(r, st as Partial<LotRow> | undefined)); continue; }
+    // Older than the stored row: write only when it adds something the stored row lacks.
+    if (!st.release_id) continue;
+    const kept: LotRow = { ocid: st.ocid, lot_id: st.lot_id, title: st.title ?? null, description: st.description ?? null, value: st.value ?? null,
+      currency: st.currency ?? null, status: st.status ?? null, release_id: st.release_id, released_at: st.released_at as string };
+    const filled = fill(kept, r);
+    if (filled.title !== kept.title || filled.description !== kept.description || filled.value !== kept.value) out.push(filled);
+  }
+  return out;
 }
 
 export function noticeRows(r: any): NoticeRow[] {

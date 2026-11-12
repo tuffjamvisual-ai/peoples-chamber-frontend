@@ -54,8 +54,8 @@ test('an older release never replaces a lot stored from a newer one; the newest 
   const newer = lotRows(award).filter((l) => l.lot_id === '2');
   // Same page, older first: the newer wins.
   assert.deepEqual(newerLotRows([...older, ...newer], []).map((l) => `${l.lot_id}:${l.release_id}`).sort(), ['2:098672-2026', '9:018545-2026']);
-  // Lot 2 already stored from the newer release: the older is not written; lot 9 is new, so it is.
-  const stored = [{ ocid: 'ocds-test-lots', lot_id: '2', released_at: '2026-11-10T12:00:00Z' }];
+  // Lot 2 already stored from the newer release (with its title): the older is not written; lot 9 is new, so it is.
+  const stored = [{ ocid: 'ocds-test-lots', lot_id: '2', released_at: '2026-11-10T12:00:00Z', release_id: '098672-2026', title: 'Lot 2: area 2', value: 2000, currency: 'GBP' }];
   assert.deepEqual(newerLotRows(older, stored).map((l) => l.lot_id), ['9']);
   // The same release read again is written (an identical row).
   assert.deepEqual(newerLotRows(newer, stored).map((l) => l.lot_id), ['2']);
@@ -70,4 +70,14 @@ test('a newer release without a lot title keeps the title already known', () => 
   // Stored from the tender, then the award arrives.
   const [two] = newerLotRows(bareAward, [{ ocid: 'ocds-test-lots', lot_id: '2', released_at: '2026-02-01T00:00:00Z', title: 'South', description: null, value: 5, currency: 'GBP' }]);
   assert.equal(two.title, 'South'); assert.equal(two.currency, 'GBP');
+});
+
+test('an older tender notice fills in a title the stored award-notice row lacks, keeping the newer release', () => {
+  const stored = [{ ocid: 'ocds-test-lots', lot_id: '4', released_at: '2026-11-10T12:00:00Z', release_id: '098672-2026', title: null, description: null, value: null, currency: null, status: 'active' }];
+  const tender = lotRows({ ...award, id: '018545-2026', date: '2026-02-01T00:00:00Z', tender: { lots: [{ id: '4', title: 'Shared beds', value: { amount: 9, currency: 'GBP' }, status: 'planned' }] } });
+  const [row] = newerLotRows(tender, stored);
+  assert.equal(row.title, 'Shared beds'); assert.equal(row.value, 9);
+  assert.equal(row.release_id, '098672-2026'); assert.equal(row.status, 'active');
+  // Nothing to add: nothing written.
+  assert.deepEqual(newerLotRows(tender, [{ ...stored[0], title: 'Shared beds', value: 9, currency: 'GBP' }]), []);
 });
