@@ -37,7 +37,7 @@ const PAUSE_MS = 3000;
 const DIR = path.join(os.homedir(), 'opengovt-backup/lots-backfill');
 fs.mkdirSync(DIR, { recursive: true });
 const STATE = path.join(DIR, WRITE ? 'state.json' : 'state-dry.json');
-const STATUS = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/STATUS.md';
+const STATUS = '/Volumes/EDGE_SSD/opengovt-work/Claude outputs/STATUS.md';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const ukParts = () => Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', hour12: false, timeZoneName: 'short' })

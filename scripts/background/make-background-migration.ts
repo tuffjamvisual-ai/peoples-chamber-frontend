@@ -45,7 +45,7 @@ const COLUMNS: Record<'background' | 'career', Column> = {
   },
 };
 const ROOT = process.cwd(); // run from the repository root
-const BACKUPS = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/backups';
+const BACKUPS = '/Volumes/EDGE_SSD/opengovt-work/Claude outputs/backups';
 
 function fail(msg: string): never {
   console.error(`make-background-migration: ${msg}`);

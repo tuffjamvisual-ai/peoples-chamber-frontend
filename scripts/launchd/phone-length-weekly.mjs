@@ -1,5 +1,5 @@
 // The weekly phone length check (owner, 5 Nov 2026): pages grow as data grows, with no push to catch them. Sundays at 13:15,
-// after the database backup (12:00), this builds what is on main in a temporary folder on GoliathSSD, measures every page
+// after the database backup (12:00), this builds what is on main in a temporary folder on EDGE_SSD, measures every page
 // type in scripts/checks/mobile-audit-pages.csv and every report and briefing (from the sitemap, also with JavaScript off)
 // at 375px as each page first opens, with JavaScript on and off (since 6 Nov 2026), writes
 // "Claude outputs/phone-length/<date>.csv" and lists any page over 9,000px (warn) or 10,000px (the limit) in
@@ -14,7 +14,8 @@ import path from 'path';
 import { execFileSync, spawn } from 'child_process';
 
 const REPO = '/Users/johnnybot/peoples-chamber-frontend';
-const SSD = '/Volumes/GoliathSSD';
+// The working drive (owner decision 12 Nov 2026, T1-EDGE: 'only use edge'): EDGE_SSD, no longer GoliathSSD.
+const SSD = '/Volumes/EDGE_SSD';
 const WORK = `${SSD}/opengovt-work`;
 const OUT = `${WORK}/Claude outputs/phone-length`;
 const REF = process.argv[2] ?? 'main';

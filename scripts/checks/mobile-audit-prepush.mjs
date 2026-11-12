@@ -60,7 +60,7 @@ const sha = todo[0];
 const wt = fs.mkdtempSync(path.join(os.tmpdir(), 'opengovt-audit-'));
 // The server's own output, kept so a page that fails shows why (owner, 7 Nov 2026, AA1: /questions returned HTTP 500 twice
 // with nothing recorded). On the SSD when it is mounted, else beside the other audit output. AUDIT_LOG_DIR overrides it.
-const SSD_LOGS = '/Volumes/GoliathSSD/opengovt-work/claude-tmp/push-check-logs';
+const SSD_LOGS = '/Volumes/EDGE_SSD/opengovt-work/claude-tmp/push-check-logs';
 const logDir = process.env.AUDIT_LOG_DIR || (fs.existsSync(path.dirname(SSD_LOGS)) ? SSD_LOGS : os.tmpdir());
 fs.mkdirSync(logDir, { recursive: true });
 const serverLog = path.join(logDir, `server-${sha.slice(0, 8)}-${new Date().toISOString().replace(/[:.]/g, '-')}.log`);

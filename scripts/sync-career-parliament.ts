@@ -57,7 +57,7 @@ const OUT = opt('--out');
 if (DRY && !OUT) throw new Error('--dry-run needs --out <file.json>');
 // Where the left out records go: the owner's Claude outputs folder when it exists (local runs), else the working
 // directory (GitHub Actions, which keeps it as a run artifact).
-const EXCLUDED_DIR = fs.existsSync('/Volumes/GoliathSSD/opengovt-work/Claude outputs/career') ? '/Volumes/GoliathSSD/opengovt-work/Claude outputs/career' : '.';
+const EXCLUDED_DIR = fs.existsSync('/Volumes/EDGE_SSD/opengovt-work/Claude outputs/career') ? '/Volumes/EDGE_SSD/opengovt-work/Claude outputs/career' : '.';
 const SINCE = opt('--since');
 const BUDGET_MS = Number(opt('--budget-minutes') ?? 33) * 60000;
 const CURSOR_ROUTE = 'career-parliament-sync';

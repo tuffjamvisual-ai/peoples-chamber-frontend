@@ -8,7 +8,7 @@ import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const JOBS = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/JOBS.md';
+const JOBS = '/Volumes/EDGE_SSD/opengovt-work/Claude outputs/JOBS.md';
 const git = (...a) => execFileSync('git', a, { cwd: ROOT, encoding: 'utf8', maxBuffer: 64e6, stdio: ['ignore', 'pipe', 'ignore'] });
 const show = (rev, file) => { try { return git('show', `${rev}:${file}`); } catch { return null; } };
 

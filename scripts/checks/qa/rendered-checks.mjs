@@ -95,7 +95,7 @@ const A6_PUSH = [{ name: '375x812', width: 375, height: 812, main: 668 }, A6_ALL
 const A6_VIEWS = PUSH ? A6_PUSH : A6_ALL;
 const BASELINE_FILE = path.join(HERE, 'rendered-baseline.json');
 const A10_BASELINE_FILE = path.join(HERE, 'a10-baseline.json');
-const MP2_CSV = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/audit/mp2/page-lengths.csv';
+const MP2_CSV = '/Volumes/EDGE_SSD/opengovt-work/Claude outputs/audit/mp2/page-lengths.csv';
 
 export function parseCsv(text) {
   const rows = []; let row = [], f = '', q = false;

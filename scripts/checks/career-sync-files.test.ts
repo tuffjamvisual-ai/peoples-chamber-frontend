@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { excludedRecordsFile } from '../career-sync-files';
 
-const OUTPUTS = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/career';
+const OUTPUTS = '/Volumes/EDGE_SSD/opengovt-work/Claude outputs/career';
 
 test('a real run writes excluded-records-<date>.json', () => {
   assert.equal(excludedRecordsFile(OUTPUTS, '2026-11-08', false), `${OUTPUTS}/excluded-records-2026-11-08.json`);

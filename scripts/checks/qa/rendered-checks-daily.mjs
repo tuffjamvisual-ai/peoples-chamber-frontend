@@ -16,7 +16,7 @@ import os from 'os';
 import { fileURLToPath } from 'url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-const OUT = '/Volumes/GoliathSSD/opengovt-work/Claude outputs';
+const OUT = '/Volumes/EDGE_SSD/opengovt-work/Claude outputs';
 const STATUS = path.join(OUT, 'STATUS.md');
 const dir = path.join(os.homedir(), 'opengovt-backup/daily-qa');
 const PENDING = path.join(dir, 'STATUS-pending.md');
