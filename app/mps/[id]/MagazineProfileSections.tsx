@@ -9,7 +9,6 @@ import { pmqsLinks, type PmqsCounts } from '@/lib/pmqs-counts';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { showNewResults } from '@/lib/show-new-results';
 import Link from 'next/link';
-import PageSources from '@/app/components/PageSources';
 import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
@@ -21,10 +20,8 @@ import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';
 import PhoneTable from '../../components/PhoneTable';
-import FollowButton from '../../components/FollowButton';
 import PhoneFolds, { SubFold } from '../../components/PhoneFolds';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
-import { spadReleaseSource } from '../../components/SpadSource';
 import AppgSource, { appgAmount } from '../../components/AppgSource';
 import NoJsPager, { pagesByHeight } from '@/app/components/NoJsPager';
 
@@ -299,8 +296,6 @@ interface Props {
   paragraphs: string[];
   contact: Contact;
   votes: Vote[];
-  /** The real profile pages (owner, 4 Nov 2026): the phone reports block under 640px (the headline figure cards went in MP2g). */
-  phoneHeadline?: boolean;
   /** Total vote count across all pages — for the "N divisions recorded" line. */
   totalVotes?: number;
   /** 1-indexed current page within the voting tab. */
@@ -382,18 +377,11 @@ interface Props {
   // Landing page only: abbreviate the expenses column headers and drop any breakdown
   // column that is zero across every year, so the table fits a narrow folder.
   compactExpenses?: boolean;
-  /** Follow this MP as the last item of the sections nav (job 74; owner, 27 Oct 2026): the real profile pages only
-      (MpDossier followable), and never for a former member. */
-  followable?: boolean;
-  formerMember?: boolean;
-  fullName?: string;
   /** Whether the constituency has any petitions (10,000+ signatures only); the tab loads them from
       /api/mps/[id]/petitions when opened (owner, 30 Oct 2026, cache Stage 2a part 4). */
   petitionsAvailable?: boolean;
   /** Early Day Motions this MP started and signed (withdrawn signatures excluded). */
   edms?: MpEdms | null;
-  /** Reports whose relatedMemberIds include this MP: up to five, newest first, and how many there are in all. */
-  reports?: MpReports | null;
   /** "Last updated <day month year>" under the sections whose table lib/data-freshness.ts tracks (owner, 1 Nov 2026). */
   lastUpdated?: Partial<Record<SectionId, string>>;
 }
@@ -518,20 +506,6 @@ function SectionUpdated({ date }: { date?: string }) {
   return <p className="og-record-date" style={{ fontSize: '15px', color: '#14100d', margin: '-16px 0 20px' }}>Updated {date}</p>;
 }
 
-// Each distinct source in the timeline once, in the order first used as the timeline is shown (phase order).
-function timelineSources(timeline: BackgroundEntry[]): Array<{ title: string; url: string }> {
-  const seen = new Set<string>();
-  const out: Array<{ title: string; url: string }> = [];
-  for (const { phase } of TIMELINE_PHASES) {
-    for (const e of timeline) {
-      if (e.phase !== phase || !e.source?.url || seen.has(e.source.url)) continue;
-      seen.add(e.source.url);
-      out.push(e.source);
-    }
-  }
-  return out;
-}
-
 const sectionH2: React.CSSProperties = {
   fontSize: '26px',
   fontWeight: 'bold',
@@ -602,7 +576,6 @@ export default function MagazineProfileSections({
   paragraphs,
   contact,
   votes,
-  phoneHeadline = false,
   totalVotes,
   votePage = 1,
   votesPerPage = 20,
@@ -642,12 +615,8 @@ export default function MagazineProfileSections({
   jsSticky = false,
   stickyScale = 1,
   compactExpenses = false,
-  followable = false,
-  formerMember = false,
-  fullName = '',
   petitionsAvailable = false,
   edms = null,
-  reports = null,
   lastUpdated = {},
 }: Props) {
   // Biography visibility: the database switch (mp_biography.bio_visible) decides
@@ -1024,7 +993,7 @@ export default function MagazineProfileSections({
             <h2 style={sectionH2}>Background</h2>
             {timeline.length > 0 ? (
               <>
-                <p style={{ fontSize: '15px', marginBottom: '16px' }}>From education to today. Sources are listed below.</p>
+                <p style={{ fontSize: '15px', marginBottom: '16px' }}>From education to today.</p>
                 {TIMELINE_PHASES.map(({ phase, heading }) => {
                   const rows = timeline.filter((e) => e.phase === phase);
                   if (rows.length === 0) return null;
@@ -1040,25 +1009,6 @@ export default function MagazineProfileSections({
                     </div>
                   );
                 })}
-                {(() => {
-                  const sources = timelineSources(timeline);
-                  if (sources.length === 0) return null;
-                  return (
-                    <details data-og-citations="" style={{ fontSize: '15px', color: '#14100d', marginBottom: '18px' }}>
-                      <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '15px' }}>
-                        Sources ({sources.length})
-                        <span className="og-fold-mark" aria-hidden="true" />
-                      </summary>
-                      <ol style={{ margin: '10px 0 0', paddingLeft: '20px', lineHeight: 1.55, overflowWrap: 'anywhere' }}>
-                        {sources.map((src) => (
-                          <li key={src.url} style={{ marginBottom: '6px' }}>
-                            <a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612' }}>{src.title}</a>
-                          </li>
-                        ))}
-                      </ol>
-                    </details>
-                  );
-                })()}
                 {bio?.background_last_checked && (
                   <p style={{ fontSize: '15px', marginBottom: '26px' }}>Last checked: {dayMonthYear(bio.background_last_checked)}</p>
                 )}
@@ -1125,35 +1075,15 @@ export default function MagazineProfileSections({
               )}
             </div>
 
-            {(bio?.bio_last_reviewed || (bio?.bio_sources && bio.bio_sources.length > 0)) && (
+            {bio?.bio_last_reviewed && (
               <div className="mp-bio-provenance" style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid rgba(20,16,13,0.18)', fontSize: '15px' }}>
                 {bio?.bio_last_reviewed && (
                   <p style={{ margin: '0 0 8px' }}>
                     Last reviewed: {new Date(`${bio.bio_last_reviewed}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </p>
                 )}
-                {bio?.bio_sources && bio.bio_sources.length > 0 && (
-                  <details data-og-citations="">
-                    <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '15px' }}>
-                      Sources ({bio.bio_sources.length})
-                      <span className="og-fold-mark" aria-hidden="true" />
-                    </summary>
-                    <ol style={{ margin: '10px 0 0', paddingLeft: '20px', lineHeight: 1.55 }}>
-                      {bio.bio_sources.map((src, i) => (
-                        <li key={i} style={{ marginBottom: '6px' }}>
-                          {src.url ? (
-                            <a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612' }}>{src.title}</a>
-                          ) : src.title}
-                          {src.supports && <span >: {src.supports}</span>}
-                        </li>
-                      ))}
-                    </ol>
-                  </details>
-                )}
               </div>
             )}
-
-            <div className="mp-reports-wide"><ReportsMentioning reports={reports} /></div>
 
           </>
         )}
@@ -1164,8 +1094,8 @@ export default function MagazineProfileSections({
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '16px', lineHeight: '1.8' }}>
               {contact.phone && <li><strong>Phone:</strong> <span style={{ fontFamily: 'monospace' }}>{contact.phone}</span></li>}
               {contact.email && <li><strong>Email:</strong> <a href={`mailto:${contact.email}`} style={inkLink}>{contact.email}</a></li>}
-              {contact.website && <li><strong>Website:</strong> {contact.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} (in Sources at the end of the page)</li>}
-              {contact.twitter && <li><strong>X / Twitter:</strong> {contact.twitter.replace(/^https?:\/\/(www\.)?(x|twitter)\.com\//, '@').replace(/\/$/, '')} (in Sources at the end of the page)</li>}
+              {contact.website && <li><strong>Website:</strong> {contact.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</li>}
+              {contact.twitter && <li><strong>X / Twitter:</strong> {contact.twitter.replace(/^https?:\/\/(www\.)?(x|twitter)\.com\//, '@').replace(/\/$/, '')}</li>}
               {(contact.address_line1 || contact.postcode) && (
                 <li style={{ marginTop: '12px' }}>
                   <strong>Constituency office:</strong>
@@ -1514,7 +1444,7 @@ export default function MagazineProfileSections({
                   in sync with PETITION_SIGNATURE_THRESHOLD (lib/petitions.ts). */}
               <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.6, color: '#14100d', opacity: 1, border: '1px dashed rgba(20,16,13,0.45)', padding: '10px 12px', marginBottom: '18px' }}>
                 This shows petitions from the current Parliament on the{' '}
-                UK Parliament petitions website (in Sources at the end of the page){' '}
+                UK Parliament petitions website{' '}
                 that reached 10,000 signatures, the point at which the government must respond. Petitions with fewer signatures are not included{constituencyPetitions ? ', apart from any among the five most signed here' : ''}. Constituency counts come from the petitions site, are based on the postcode each signer gives, and are updated daily.
               </p>
               {/* MP1 (owner, 7 Nov 2026): "Petitions in this constituency", once a block below the sections, is the same data as this
@@ -2932,8 +2862,6 @@ export default function MagazineProfileSections({
           </>
           );
         })()}
-        {/* An MP with reports but no biography tab still gets the list, at the end of the tab the profile opens on. */}
-        {!has.bio && active === initialActive && <div className="mp-reports-wide"><ReportsMentioning reports={reports} /></div>}
     </>
   );
 
@@ -3007,7 +2935,6 @@ export default function MagazineProfileSections({
           .mp-sections-nav button, .mp-sections-nav a[data-section] > span { white-space: nowrap; flex: 0 0 auto; transform: none !important; border-left: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; padding: 10px 12px !important; font-size: 15px !important; }
           .mp-sections-nav a[data-section] { flex: 0 0 auto; }
           .mp-sections-nav button[data-active="true"], .mp-sections-nav a[data-section][data-active="true"] > span { border-bottom-color: #7a1612 !important; }
-          .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
           .mp-sections-content { padding: 20px 2px !important; }
         }
         /* From 1024px (T1-SIDE, owner decision 12 Nov 2026, reversing UX4h of 10 Nov): the section list is a sidebar beside
@@ -3016,21 +2943,13 @@ export default function MagazineProfileSections({
         @media (min-width: 1024px){
           .mp-sections-nav { gap: 0 !important; padding: 4px 4px 8px !important; margin-right: 12px !important; }
           .mp-sections-nav a[data-section] > span { padding: 7px 8px !important; white-space: nowrap; letter-spacing: 0 !important; line-height: 1.3; }
-          .mp-sections-nav .mp-follow-chip { margin-top: 10px !important; white-space: nowrap; letter-spacing: 0.02em !important; }
           .mp-sections-content { padding-top: 10px !important; }
           .mp-sections-content .pf-sub > h2 { margin-bottom: 10px !important; }
         }
         @media ${phoneUpTo(479)} { .mp-sections-nav [data-section] { display: none !important; } }
-        .mp-reports-phone { display: none; }
         @media ${phoneUpTo(767.98)} {
-          .mp-reports-wide { display: none; }
-          .mp-reports-phone { display: block; }
-          .mp-reports-phone > section { margin-top: 8px !important; }
           .mp-sections-nav [data-section] { display: none !important; }
           .mp-sections-nav { border-bottom: none !important; }
-          /* Follow is a secondary action on phones (UX2p, owner approved through Cowork, 10 Nov 2026): an outline button sized
-             to its label, not the full width, 44px tall. */
-          .mp-sections-nav .mp-follow-chip { flex: 0 0 auto; width: auto !important; min-height: 44px; margin: 0 !important; padding: 6px 14px !important; border: 1px solid #14100d !important; box-shadow: none !important; background: transparent !important; color: #14100d !important; font-weight: normal !important; font-size: 15px !important; text-align: center !important; text-transform: none !important; letter-spacing: normal !important; }
         }
         .mp-col-inline { display: none; }
         @media ${phoneUpTo(767.98)} { .mp-vote-title, .mp-vote-title > a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; } }
@@ -3094,7 +3013,6 @@ export default function MagazineProfileSections({
                 </a>
               );
             })}
-            {followable && !formerMember && <FollowButton variant="sidebar" kind="mp" targetKey={String(memberId)} label={fullName || 'this MP'} />}
           </nav>
         </div>
       </aside>
@@ -3102,12 +3020,6 @@ export default function MagazineProfileSections({
       {/* The main action (UX3a, A6; UX3i, 10 Nov 2026): this column, shown at every width: the sections (the voting record
           first). On phones it opens with the reports that mention the MP (below). */}
       <div data-main-action className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
-        {/* Under 640px (owner, 4 Nov 2026): reports directly below Follow this MP, above the folded sections. Nothing at all for
-            an MP with none. From 640px they stay in their section. Inside this column (UX3i) so the marked main action is
-            the same element at every width. */}
-        {phoneHeadline && reports && reports.items.length > 0 && (
-          <div className="mp-reports-phone"><ReportsMentioning reports={reports} headingId="mp-reports-heading-phone" compact /></div>
-        )}
         {/* Under 640px (owner, 4 Nov 2026): every section folds away under "On this page", as the GOV.UK accordion does, in
             PHONE_FOLDS order; wider screens keep the tabs. Both are in the HTML and the stylesheets pick one by screen
             width, so nothing changes once the page script runs: each section is rendered once, and from 640px every
@@ -3135,19 +3047,6 @@ export default function MagazineProfileSections({
               )),
           }))}
         />
-        {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The MP's own website and X profile, the petitions
-            site and each APPG's and secretariat's website are in this one Sources fold; each EDM, vote and register entry
-            stays on its row, and the biography's and timeline's own Sources lists are its citations. */}
-        <PageSources sources={[
-          contact?.website && { label: `${fullName || 'The MP'}\u2019s own website`, href: contact.website.match(/^https?:\/\//) ? contact.website : `https://${contact.website.replace(/^\/+/, '')}` },
-          contact?.twitter && { label: `${fullName || 'The MP'} on X`, href: contact.twitter },
-          has.petitions && { label: 'UK Parliament petitions website', href: 'https://petition.parliament.uk' },
-          spadAdvisers && spadReleaseSource(spadAdvisers.release.release_slug, spadAdvisers.release.source_url),
-          ...appgs.flatMap((a) => [
-            a.website_url && { label: `${a.title}: the group\u2019s website`, href: a.website_url },
-            a.secretariat && a.secretariat_url && { label: `${a.title}: secretariat (${a.secretariat}) website`, href: a.secretariat_url },
-          ]),
-        ]} />
       </div>
     </div>
   );
@@ -3184,38 +3083,10 @@ function FirstThenAll({ items, wrap }: { items: React.ReactNode[]; wrap: (kids: 
   );
 }
 
-// compact (phones, MP2a, 9 Nov 2026): the 3 most recent as title and date only, then the link to the full list; the ten
-// cards with summaries were about 2,000px of a 4,200px page at 375px.
-const COMPACT_REPORTS = 3;
 // Votes in view in the opened Voting record folder on phones (MP2b); the rest behind a fold. MP2b-2 (9 Nov 2026): with
 // each title clamped to 2 lines, 10 votes still opened the folder past +1,200px at 375px (+1,382 to +1,437 on /mps/1427,
 // 1446, 4820, 163 and 400), so the largest number that fits on the worst of them, the same on every profile.
 const RECENT_VOTES = 7;
-function ReportsMentioning({ reports, headingId = 'mp-reports-heading', compact = false }: { reports: MpReports | null; headingId?: string; compact?: boolean }) {
-  if (!reports || reports.items.length === 0) return null;
-  const items = compact ? reports.items.slice(0, COMPACT_REPORTS) : reports.items;
-  return (
-    <section aria-labelledby={headingId} style={{ marginTop: '32px' }}>
-      <h3 id={headingId} style={sectionH3}>Reports mentioning this MP</h3>
-      {compact ? (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
-          {items.map((r) => (
-            <li key={r.href} style={{ padding: '10px 0', borderBottom: inkDivider }}>
-              <Link href={r.href} style={{ ...inkLink, fontWeight: 'bold' }}>{r.headline}</Link>
-              <div style={{ fontFamily: 'monospace', fontSize: '15px', marginTop: '2px' }}>{r.date}</div>
-            </li>
-          ))}
-        </ul>
-      ) : <MpReportList items={items} />}
-      {reports.total > items.length && (
-        <p style={{ marginTop: '10px', fontSize: '15px' }}>
-          <Link href={`/mps/${reports.memberId}/reports`} className="og-tap" style={inkLink}>All {reports.total} reports mentioning {reports.mpName}</Link>
-        </p>
-      )}
-    </section>
-  );
-}
-
 function ActivityTile({ label, value, sub, href, hrefLabel, external }: { label: string; value: string; sub: string; href?: string; hrefLabel?: string; external?: boolean }) {
   return (
     <div style={{ border: "1px solid rgba(20,16,13,0.25)", padding: "10px 12px", background: "rgba(255,255,255,0.04)", display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>

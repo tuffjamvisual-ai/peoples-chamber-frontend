@@ -70,7 +70,7 @@ export default function MemberPreferences() {
       <section style={{ marginBottom: '32px' }}>
         <h2 style={h2}>Weekly email</h2>
         {!prefs.settings ? (
-          <p style={p}>You do not follow anything yet. Use the Follow button on an MP, bill or donor page, or save a search, and we send one email a week when something changes.</p>
+          <p style={p}>You do not follow anything yet. Use the Follow button on a bill or donor page, or save a search, and we send one email a week when something changes.</p>
         ) : (
           <>
             <p style={p}>

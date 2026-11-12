@@ -26,7 +26,7 @@ export default function LoginPage() {
           Your Account
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.6, maxWidth: '440px', margin: '0 auto' }}>
-          Sign in or create an account to follow MPs, track bills and have your say in the People&apos;s Polls.
+          Sign in or create an account to follow bills and donors and have your say in the People&apos;s Polls.
         </p>
       </header>
 

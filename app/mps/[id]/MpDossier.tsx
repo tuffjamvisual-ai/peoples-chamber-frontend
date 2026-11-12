@@ -48,8 +48,6 @@ interface MpDossierProps {
       past it. Now that votes paginate at 20/page the folder ends quickly and
       anything placed outside floated on the dossier shell's dark background. */
   footer?: React.ReactNode;
-  /** Show Follow this MP in the sections sidebar (job 74): the real profile pages only, so the /landing-pca demo stays as it was. */
-  followable?: boolean;
 }
 
 export default function MpDossier({
@@ -67,7 +65,6 @@ export default function MpDossier({
   photoUrl,
   sections,
   footer,
-  followable = false,
 }: MpDossierProps) {
   const backHref = `/mps?expand=${encodeURIComponent(partyExpand)}#mps-list`;
 
@@ -259,7 +256,7 @@ export default function MpDossier({
 
       {/* Full interactive profile sections (scaled up via zoom to restore text size). */}
       <div className="pca-sections" style={{ zoom: 1.18 }}>
-        <MagazineProfileSections {...sections} memberId={memberId} followable={followable} formerMember={formerMember} fullName={fullName} jsSticky stickyScale={1.18} compactExpenses />
+        <MagazineProfileSections {...sections} memberId={memberId} jsSticky stickyScale={1.18} compactExpenses />
       </div>
 
       {footer && <div style={{ marginTop: '48px' }}>{footer}</div>}

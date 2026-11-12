@@ -28,8 +28,8 @@ import { latestSpadRelease, voteCounts as readVoteCounts } from '@/lib/mp-page-c
 import { mpCached, mpCachedCount } from '@/lib/mp-cache';
 import { DONATIONS_TAG } from '@/lib/page-reads';
 import { createHash } from 'node:crypto';
-import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
-import type { MpReports, MinisterMeeting, MinisterHospitality } from './MagazineProfileSections';
+import { mpReportItems } from '@/lib/mp-reports';
+import type { MinisterMeeting, MinisterHospitality } from './MagazineProfileSections';
 import { titleWithin } from '@/lib/seo-title';
 import { displayMpName } from '@/lib/mp-name';
 import { readAll, inList } from '@/lib/read-all';
@@ -191,9 +191,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-// Reports mentioning this MP (23 Oct 2026; up to 10 from 24 Oct 2026): every published piece whose relatedMemberIds
-// include the MP, newest first, from the editorial registry at build time (no database query, lib/mp-reports.ts). Up to
-// ten are shown, with a link to the full list at /mps/<id>/reports if there are more.
 // Someone's part at PMQs, current sessions and the archive: questions asked, answers as Prime Minister and answers standing in for one, counted apart. A failed
 // read counts as none.
 async function pmqsContributions(memberId: number): Promise<PmqsCounts> {
@@ -206,12 +203,6 @@ async function pmqsContributions(memberId: number): Promise<PmqsCounts> {
     withTimeout(mpCached('pmqs-archive-counts', memberId, () => memberArchiveCounts(memberId), ['pmqs']), 7000).catch(() => ({ asked: 0, prime_minister: 0, standing_in: 0 })),
   ]);
   return { asked: current.asked + archive.asked, prime_minister: current.prime_minister + archive.prime_minister, standing_in: current.standing_in + archive.standing_in };
-}
-
-async function reportsFor(memberId: number, mpName: string): Promise<MpReports | null> {
-  const all = await mpReportItems(memberId);
-  if (all.length === 0) return null;
-  return { total: all.length, items: all.slice(0, MP_REPORTS_SHOWN), memberId, mpName };
 }
 
 export default async function MPMagazineProfile({ params }: PageProps) {
@@ -781,7 +772,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   };
   const partyWhipSlug = PARTY_WHIP_SLUG[partyDisplay] ?? PARTY_WHIP_SLUG[mp.party ?? ''] ?? null;
 
-  const mpReports = await reportsFor(memberId, fullName);
 
   return (
     <>
@@ -806,7 +796,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       partyColour={partyColour}
       partyIsCoop={partyIsCoop}
       photoUrl={mp.photo_url ?? null}
-      followable
       sections={{
         memberId,
         paragraphs: (bioRes.data?.bio_visible === true ? bioRes.data.political_bio ?? '' : '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0),
@@ -821,7 +810,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           council,
         },
         votes: votesWithSi,
-        phoneHeadline: true,
         donations: [],
         donorOtherRecipients: [],
         sectorCrossRef: [],
@@ -878,7 +866,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         formerInterests: formerInterestsRes.data ?? [],
         petitionsAvailable,
         edms: mpEdms,
-        reports: mpReports,
         lastUpdated: allSectionDates,
       }}
       // T1-5x (owner, 10 Nov 2026): no newsletter box in the profile; the site's newsletter strip is the one offer.
