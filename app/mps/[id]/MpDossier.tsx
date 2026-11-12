@@ -139,10 +139,20 @@ export default function MpDossier({
           .pca-mp-photo .pca-paperclip { width: 52px !important; height: auto !important; top: -24px !important; right: -4px !important; }
           .pca-mp-photo img:not(.pca-paperclip), .pca-mp-photo > div { width: 208px !important; height: 208px !important; }
           .pca-mp-header { margin-bottom: calc(1% + 46px) !important; }
-          .pca-mp-bio { margin-top: 3% !important; }
-          .pca-mp-bio h1 { margin: 0 0 2% !important; }
-          .pca-mp-constituency { margin-bottom: 1.5% !important; }
+          /* Fixed gaps, not a share of the width (Cowork 12 Nov 10:45): at 1280 the wider gaps put the 'Standards cases'
+             line into the sidebar once the sidebar was raised level with the first heading. */
+          .pca-mp-bio { margin-top: 20px !important; }
+          .pca-mp-bio h1 { margin: 0 0 10px !important; }
+          .pca-mp-constituency { margin-bottom: 8px !important; }
+          /* T1-SIDE (Cowork 12 Nov 10:45): the sidebar's first item level with the first section's heading (it was 50px
+             lower at 1280 and 1024: 48px x zoom 1.18 less the content's own top padding). */
+          .pca-sections aside { margin-top: 5px !important; }
         }
+        /* T1-SIDE (Cowork 12 Nov 10:45): a thin dark line ran across the folder above the name at 1024 x 768. The folder's
+           top and middle pictures meet at a fraction of a pixel (400.6px there), and the dark page behind showed through
+           that one row of pixels. The middle picture now starts 1px under the top one. On this page only: the same join is
+           in the shared shell (opengov-shell.css), which is layout-locked. */
+        .dossier-frame .d-mid { margin-top: -1px; }
       `}</style>
 
       {/* "All MPs" above the header (UX1f, 9 Nov 2026): the list of MPs with this MP's party open. It was "← Back", which
