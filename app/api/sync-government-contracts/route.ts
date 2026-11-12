@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import { noticeRows, uniqueNoticeRows, type NoticeRow } from '@/lib/contract-notices';
+import { walkFeed, readState, type WalkState, type PageResult } from './feed-walk';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -23,7 +24,8 @@ export const maxDuration = 300;
 //    row. A page can hold two releases of one contract, and one upsert cannot write the same row twice ("ON
 //    CONFLICT DO UPDATE command cannot affect row a second time"), which sent whole batches row by row.
 //  - A 429 is honoured: a Retry-After of up to RETRY_AFTER_MAX_S seconds is waited out (twice at most), otherwise
-//    the run stops and saves the next page's address in sync_cursor; the next run carries on from there.
+//    the run stops and saves the next page's address in sync_cursor; a later run carries on from there, after first
+//    reading the newest releases (T1-CS, 12 Nov 2026: app/api/sync-government-contracts/feed-walk.ts).
 //  - refresh_contractor_donor_matches is no longer called here (it hit the 8 s API limit and failed a run that had
 //    saved its contracts); /api/refresh-contractor-matches runs it 30 minutes later with its own heartbeat.
 //  - The run reports success (200) when it saved contracts. A failed contract_notices write is reported in the
@@ -49,15 +51,11 @@ const BUDGET_MS = 240_000;   // return before the ~300s ceiling so the heartbeat
 const RETRY_AFTER_MAX_S = 150; // Find a Tender asked for 120 s on 22 Oct 2026; a wait that would pass BUDGET_MS is not taken
 const CURSOR_ROUTE = '/api/sync-government-contracts';
 const CURSOR_MAX_AGE_MS = 3 * 86_400_000; // an older saved position is dropped and the normal window read instead
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 function kebab(s: unknown): string {
   return String(s || '').toLowerCase().normalize('NFKD')
     .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/^-+|-+$/g, '');
-}
-function isoMinusDays(days: number): string {
-  const d = new Date(Date.now() - days * 86_400_000);
-  return d.toISOString().replace(/\.\d{3}Z$/, '');
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -173,21 +171,16 @@ async function GET_impl(req: Request) {
   const deadline = Date.now() + BUDGET_MS;
 
   const now = new Date().toISOString();
-  const windowUrl = `${API}?${new URLSearchParams({ updatedFrom: isoMinusDays(windowDays), limit: String(LIMIT) })}`;
-  let url = windowUrl;
-  // Carry on from where the last run was stopped (a 429 or the time budget), unless a window was asked for by hand.
-  let resumedFrom: string | null = null;
-  if (!u.searchParams.get('days')) {
+  // Newest first down to what was already read, then older pages from saved positions (app/api/sync-government-contracts/feed-walk.ts,
+  // T1-CS). A hand run with ?days= reads that window only and leaves the saved state alone.
+  const manual = !!u.searchParams.get('days');
+  let start: WalkState = { newestRead: null, pending: [] };
+  if (!manual) {
     const { data: cur } = await supabase.from('sync_cursor').select('cursor, updated_at').eq('route', CURSOR_ROUTE).maybeSingle();
-    const next = (cur?.cursor as { next?: string } | null)?.next;
-    if (next && next.startsWith(API) && Date.now() - new Date(cur!.updated_at as string).getTime() < CURSOR_MAX_AGE_MS) {
-      url = next;
-      resumedFrom = (cur!.updated_at as string);
-    }
+    start = readState(cur?.cursor, (cur?.updated_at as string | undefined) ?? null);
   }
-  let scanned = 0, upserted = 0, skippedBad = 0, noticesWritten = 0, noticesFailed = 0, pagesError: string | null = null;
-  let stoppedAt: string | null = null; // the page to start from next run
-  let rateLimitWaits = 0, duplicatesDropped = 0, reachedEnd = false;
+  let upserted = 0, skippedBad = 0, noticesWritten = 0, noticesFailed = 0, scanned = 0;
+  let rateLimitWaits = 0, duplicatesDropped = 0;
 
   async function upsertRow(row: ContractRow): Promise<boolean> {
     const { error } = await supabase.from('government_contracts').upsert(row, { onConflict: 'ocid,award_id,contract_id' });
@@ -195,39 +188,23 @@ async function GET_impl(req: Request) {
     return true;
   }
 
-  for (let page = 0; page < maxPages; page++) {
-    if (Date.now() > deadline) {
-      pagesError = `time budget ${BUDGET_MS}ms reached at page ${page}; returning cleanly with partial progress`;
-      console.error(`[contracts] ${pagesError}`);
-      break;
-    }
-    let { data, error, status, retryAfterS } = await fetchPage(url, deadline);
-    // 429: wait out a short Retry-After (twice at most, within the budget), otherwise stop and resume next run.
-    while (status === 429 && rateLimitWaits < 2) {
-      const waitS = retryAfterS ?? 10;
+  // 429: wait out a short Retry-After (twice at most in a run, within the budget), otherwise the page fails and the
+  // walk keeps its address to resume from.
+  async function fetchWithRetryAfter(url: string): Promise<PageResult> {
+    let r = await fetchPage(url, deadline);
+    while (r.status === 429 && rateLimitWaits < 2) {
+      const waitS = r.retryAfterS ?? 10;
       if (waitS > RETRY_AFTER_MAX_S || Date.now() + waitS * 1000 > deadline) break;
       rateLimitWaits++;
-      console.error(`[contracts] page ${page}: HTTP 429, waiting ${waitS}s as Retry-After asks`);
+      console.error(`[contracts] HTTP 429, waiting ${waitS}s as Retry-After asks`);
       await sleep(waitS * 1000);
-      ({ data, error, status, retryAfterS } = await fetchPage(url, deadline));
+      r = await fetchPage(url, deadline);
     }
-    if (error && resumedFrom && page === 0 && status && status >= 400 && status < 500 && status !== 429) {
-      // The saved address no longer works: read the normal window instead.
-      console.error(`[contracts] saved position failed (${error}); reading the ${windowDays}-day window instead`);
-      resumedFrom = null;
-      url = windowUrl;
-      ({ data, error, status, retryAfterS } = await fetchPage(url, deadline));
-    }
-    if (error) {
-      pagesError = `page ${page}: ${error}${status === 429 ? ` (Retry-After ${retryAfterS ?? 'not given'}s)` : ''}`;
-      stoppedAt = url;
-      console.error(`[contracts] ${pagesError}; stopping, keeping prior progress; the next run carries on from this page`);
-      break;
-    }
-    const releases = Array.isArray(data.releases) ? data.releases : [];
-    if (releases.length === 0) { reachedEnd = true; break; }
-    scanned += releases.length;
+    return r.error && r.status === 429 ? { ...r, error: `${r.error} (Retry-After ${r.retryAfterS ?? 'not given'}s)` } : r;
+  }
 
+  async function handlePage(releases: any[]) {
+    scanned += releases.length;
     const allRows = releases.reduce((n: number, r: any) => n + rowsFromRelease(r, now).length, 0);
     const rows = dedupeRows(releases, now);
     duplicatesDropped += allRows - rows.length;
@@ -243,7 +220,6 @@ async function GET_impl(req: Request) {
         upserted += batch.length;
       }
     }
-
     const notices: NoticeRow[] = uniqueNoticeRows(releases.flatMap((r: any) => noticeRows(r)));
     for (let i = 0; i < notices.length; i += 200) {
       const batch = notices.slice(i, i + 200);
@@ -251,34 +227,35 @@ async function GET_impl(req: Request) {
       if (nErr) { noticesFailed += batch.length; console.error(`[contracts] contract_notices batch failed: ${nErr.message}`); }
       else noticesWritten += batch.length;
     }
-
-    const next = data?.links?.next;
-    if (!next) { reachedEnd = true; break; }
-    url = next;
-    if (Date.now() > deadline || page === maxPages - 1) stoppedAt = next;
-    await sleep(DELAY_MS);
   }
-  if (pagesError?.startsWith('time budget')) stoppedAt = url;
 
-  // Save where this run stopped, or clear the saved position once the feed has been read to the end.
+  const walk = await walkFeed(start, {
+    api: API, limit: LIMIT, windowDays, maxPages, pendingMaxAgeMs: CURSOR_MAX_AGE_MS,
+    now: () => Date.now(), outOfTime: () => Date.now() > deadline,
+    fetchPage: fetchWithRetryAfter, handlePage, pause: () => sleep(DELAY_MS),
+    log: (m) => console.error(`[contracts] ${m}`),
+  });
+  const pagesError = walk.error;
+
   let cursorSaved: boolean | null = null;
-  if (stoppedAt && !reachedEnd) {
-    const { error: cErr } = await supabase.from('sync_cursor').upsert({ route: CURSOR_ROUTE, cursor: { next: stoppedAt }, updated_at: new Date().toISOString() }, { onConflict: 'route' });
+  if (!manual) {
+    const { error: cErr } = await supabase.from('sync_cursor').upsert({ route: CURSOR_ROUTE, cursor: walk.state, updated_at: new Date().toISOString() }, { onConflict: 'route' });
     cursorSaved = !cErr;
-    if (cErr) console.error(`[contracts] could not save the position to resume from: ${cErr.message}`);
-  } else if (reachedEnd) {
-    await supabase.from('sync_cursor').delete().eq('route', CURSOR_ROUTE);
+    if (cErr) console.error(`[contracts] could not save the walk state: ${cErr.message}`);
   }
   if (noticesFailed) console.error(`[contracts] ${noticesFailed} contract_notices rows not written (contracts saved)`);
 
   // Success when contracts were saved, or when there was nothing new and nothing failed. The contractor totals are
   // refreshed by /api/refresh-contractor-matches.
   // A run stopped by Find a Tender's rate limit (or the time budget) has saved its position: a clean partial run (job 79).
-  const politeStop = !!pagesError && (/HTTP 429/.test(pagesError) || pagesError.startsWith('time budget'));
-  const status = upserted > 0 || (!pagesError && skippedBad === 0) || (politeStop && skippedBad === 0) ? 200 : 502;
-  return NextResponse.json({ ok: status === 200 && noticesFailed === 0, partial: !!stoppedAt && !reachedEnd, scanned, rows_written: upserted, skippedBad, duplicates_dropped: duplicatesDropped,
+  // A walk stopped by the time budget, a 429 or a failed page is partial (the monitor counts partial runs); it is a
+  // clean 200 when contracts were saved or nothing was written badly.
+  const politeStop = !!pagesError && /HTTP 429|time budget|page limit/.test(pagesError);
+  const status = upserted > 0 || (skippedBad === 0 && (!pagesError || politeStop)) ? 200 : 502;
+  return NextResponse.json({ ok: status === 200 && noticesFailed === 0 && !walk.partial, partial: walk.partial, scanned, rows_written: upserted, skippedBad, duplicates_dropped: duplicatesDropped,
     notices_written: noticesWritten, notices_failed: noticesFailed, pagesError, rate_limit_waits: rateLimitWaits,
-    resumed_from_saved_position: resumedFrom, reached_end: reachedEnd, next_run_resumes: !!stoppedAt && !reachedEnd, cursor_saved: cursorSaved,
+    pages: walk.pages, caught_up_to_newest: walk.caughtUp, newest_read: walk.state.newestRead, saved_positions: walk.state.pending.length,
+    resumed_positions: walk.resumedGaps, dropped_positions: walk.droppedGaps, cursor_saved: cursorSaved,
     windowDays, maxPages, syncedAt: now }, { status });
 }
 
