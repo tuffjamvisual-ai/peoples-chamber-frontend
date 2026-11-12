@@ -142,6 +142,10 @@ export function menuHref(item: NavItem): string {
   return item.page ?? item.href;
 }
 
+// The order of a section page's groups where it differs from the menu's (owner, 12 Nov 2026, T1-SECT: Departments
+// directly under MPs on the Parliament page). Groups not named here follow, in the menu's order.
+export const SECTION_GROUP_ORDER: Record<string, string[]> = { parliament: ['MPs', 'Departments', 'Parliament', 'Parties'] };
+
 // The section pages at /sections/<slug> (every section with a page under /sections/; Topics keeps /topics).
 export const SECTION_PAGES = NAV.filter((n) => n.page?.startsWith('/sections/')).map((n) => ({ slug: n.page!.slice('/sections/'.length), item: n }));
 

@@ -6,7 +6,8 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
-import { SECTION_PAGES, type NavLink } from '@/lib/site-nav';
+import { SECTION_PAGES, SECTION_GROUP_ORDER, type NavLink } from '@/lib/site-nav';
+import DirectoryList, { DirectoryHeader, type DirectoryGroup } from '@/app/components/DirectoryList';
 import { TWO_COLUMN_GRID_CSS } from '@/lib/balance-columns';
 import { ShowAll } from '@/app/components/NoJsPager';
 import { SubFold } from '@/app/components/PhoneFolds';
@@ -86,11 +87,42 @@ function GroupFold({ fold, label, count, children }: { fold: boolean; label: str
   return <SubFold label={label} summary={`${count} ${count === 1 ? 'page' : 'pages'}`}>{children}</SubFold>;
 }
 
+// The Parliament page in the A - Z Directory's look (owner decisions 12 Nov 2026, T1-SECT: 'similar to the A - Z Directory
+// but with 2 columns'; Departments directly under MPs): the directory's jump bar (the group names), 'Filter this list',
+// group headings and entries (app/components/DirectoryList.tsx), the entries in 2 columns from 768px. Every entry and its
+// line are as before; only the order of the groups changed. MPs, the first group, starts open on phones.
+function ParliamentPage({ slug, label, links }: { slug: string; label: string; links: NavLink[] }) {
+  const order = SECTION_GROUP_ORDER[slug] ?? [];
+  const rank = (t: string | null) => { const i = order.indexOf(t ?? ''); return i < 0 ? order.length : i; };
+  const list: DirectoryGroup[] = groups(links)
+    .map((g, i) => ({ g, i }))
+    .sort((a, b) => rank(a.g.title) - rank(b.g.title) || a.i - b.i)
+    .map(({ g }, gi) => {
+      const id = anchor(g.title ?? 'pages');
+      return { key: id, id, fold: `sf-${id}`, label: g.title ?? 'Pages', open: gi === 0, entries: g.links.map((l) => ({ name: l.label, href: l.href, desc: l.desc ?? null })) };
+    });
+  return (
+    <OpenGovShell>
+      <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: label, path: `/sections/${slug}` }])} />
+      <BackLink
+        fallbackHref="/"
+        label="← Back"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      />
+      <DirectoryHeader title={label}>{intro(label)}</DirectoryHeader>
+      <DirectoryList listId="section-list" groups={list} jumpLabel="Jump to a group" words columns
+        placeholder="For example votes or Labour" noMatch="No match. Try another word or browse the groups." />
+    </OpenGovShell>
+  );
+}
+
 export default async function SectionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const s = find(slug);
   if (!s) notFound();
   const { item } = s;
+  if (slug === 'parliament') return <ParliamentPage slug={slug} label={item.label} links={item.children!} />;
   const grouped = groups(item.children!);
   return (
     <OpenGovShell>
