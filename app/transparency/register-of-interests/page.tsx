@@ -272,8 +272,10 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
       {/* Result cards */}
       <NoJsPager id="roi-rows" count={interests.length} rows="> *" size={10} first={2}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        {interests.map((row) => {
+        {interests.map((row, i) => {
           const mp = mpsById.get(row.member_id);
+          // One link per MP in the list (A10, owner 10 Nov 2026): an MP with several entries is linked on the first.
+          const firstForMp = interests.findIndex((r) => r.member_id === row.member_id) === i;
           const mpName = mp ? displayMpName(mp.display_name || mp.name) : `Member ${row.member_id}`;
           return (
             <article key={row.id} style={{ border: `1px solid ${HAIRLINE}`, borderLeft: `3px solid ${ACCENT}`, padding: '16px 18px', background: 'rgba(20,16,13,0.015)' }}>
@@ -284,9 +286,11 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={mp.photo_url} alt="" width={36} height={36} loading="lazy" decoding="async" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: `1px solid ${HAIRLINE}` }} />
                 )}
-                <Link href={`/mps/${row.member_id}#interests`} style={{ fontSize: '17px', fontWeight: 700, color: INK, textDecoration: 'none' }}>
-                  {mpName}
-                </Link>
+                {firstForMp ? (
+                  <Link href={`/mps/${row.member_id}#interests`} style={{ fontSize: '17px', fontWeight: 700, color: INK, textDecoration: 'none' }}>
+                    {mpName}
+                  </Link>
+                ) : <span style={{ fontSize: '17px', fontWeight: 700, color: INK }}>{mpName}</span>}
                 <span style={{ fontFamily: MONO, fontSize: '15px', color: '#fff', background: ACCENT, padding: '2px 8px', letterSpacing: '0.03em' }}>
                   {bucketLabelForCategory(row.category_name)}
                 </span>
