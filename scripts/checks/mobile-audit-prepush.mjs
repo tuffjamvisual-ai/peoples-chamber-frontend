@@ -10,6 +10,10 @@
 // never .next/cache/fetch-cache, which can hold old database answers), and the rendered checks run with --push (A6 at
 // 375 x 812 and 1280 x 720, no first-visit banner pass, no council tab opening); the full rendered checks run daily
 // against the live site (scripts/checks/qa/rendered-checks-daily.mjs).
+// T1-VR (owner, 12 Nov 2026: 'one step forward and two steps back'): then the before and after comparison of the same
+// sample pages, the live site against this build, full page at 375 x 812 and 1280 x 720 (scripts/checks/qa/visual-compare.mjs).
+// A page that differs and is not named by the job (a 'VR-pages:' line in a commit message of the push) stops the push for
+// Cowork, with a report and side by side pictures; after Cowork's review, VR_ACCEPT=<first 8 of the hash> lets it through.
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -23,12 +27,13 @@ const passedFile = path.join(git('rev-parse', '--git-dir'), 'mobile-audit-passed
 
 const refs = fs.readFileSync(0, 'utf8').trim().split('\n').filter(Boolean).map((l) => l.split(' '));
 const shas = new Set();
+const fromOf = new Map();
 for (const [, local, , remote] of refs) {
   if (ZERO.test(local)) continue; // deleting a branch
   let from = remote;
   if (ZERO.test(remote)) { try { from = git('merge-base', local, 'origin/main'); } catch { from = null; } }
   const changed = from ? git('diff', '--name-only', `${from}..${local}`, '--', ...PAGE_CODE) : 'unknown';
-  if (changed) shas.add(local);
+  if (changed) { shas.add(local); fromOf.set(local, from); }
 }
 // Layout lock (owner approved, 11 Nov 2026), on every push, before anything is skipped: a commit that changes a file in
 // scripts/checks/layout-lock.txt needs "Layout change approved" and the JOBS.md job id in its message.
@@ -66,7 +71,7 @@ const errorLines = () => {
 };
 const repo = process.cwd();
 const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { stdio: 'inherit', ...opts });
-let server = null, code = 1;
+let server = null, code = 1, vrStopped = false;
 try {
   console.log(`mobile audit: building ${sha.slice(0, 8)} (several minutes)`);
   run('git', ['worktree', 'add', '-q', '--detach', wt, sha]);
@@ -90,15 +95,27 @@ try {
     run('node', ['scripts/checks/sitemap-dates-check.mjs', '--base', base], { cwd: wt, env });
     // QA1 (owner approved, 9 Nov 2026): A2 time words, A3 phone length 2,500px, A6 first screen, A9 only sources link outside (T1-5c); only new problems fail (A9 always).
     run('node', ['scripts/checks/qa/rendered-checks.mjs', '--base', base, '--push'], { cwd: wt, env });
+    // T1-VR: the pages the job names, from 'VR-pages:' lines in the pushed commits' messages.
+    const from = fromOf.get(sha);
+    const messages = from ? git('log', '--format=%B', `${from}..${sha}`) : git('log', '-1', '--format=%B', sha);
+    const named = [...messages.matchAll(/^VR-pages:\s*(.+)$/gim)].map((m) => m[1]).join(',');
+    try {
+      run('node', ['scripts/checks/qa/visual-compare.mjs', '--base', base, '--sha', sha, '--job-pages', named], { cwd: wt, env });
+    } catch {
+      vrStopped = true;
+      throw new Error('visual comparison');
+    }
     code = 0;
     fs.writeFileSync(passedFile, sha);
   } catch {
+    if (vrStopped) throw new Error('stopped for Cowork by the visual comparison (T1-VR): pages not named by the job look different, see the report above');
     console.error('Push refused: the fast mobile audit (checks a, b, c or h), a reader journey (e, g), the sitemap dates check or the QA1 rendered checks (A2, A3, A4, A6) failed, above. Fix them, commit and push again.');
     const lines = errorLines();
     console.error(`Server log: ${serverLog}${lines.length ? `; its error lines:\n  ${lines.join('\n  ')}` : ' (no error lines)'}`);
   }
 } catch (e) {
-  console.error(`Push refused: the mobile audit could not run: ${e.message.split('\n')[0]}`);
+  if (vrStopped) console.error(`Push ${e.message}.`);
+  else console.error(`Push refused: the mobile audit could not run: ${e.message.split('\n')[0]}`);
 } finally {
   if (server) { try { process.kill(-server.pid); } catch { /* already gone */ } }
   fs.rmSync(path.join(wt, '.env.local'), { force: true });
