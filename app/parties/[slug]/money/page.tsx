@@ -1,4 +1,5 @@
 import { titleWithin } from '@/lib/seo-title';
+import { notFound } from 'next/navigation';
 import NoJsPager, { NoJsFold, ShowAll } from '@/app/components/NoJsPager';
 // Per-party money dossier — /parties/[slug]/money
 //
@@ -68,7 +69,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const { data: party, error: partyErr } = await pageDb().from('parties').select('name').eq('slug', slug).maybeSingle();
   if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/money parties: ${partyErr.message}`);
-  const name = party?.name || 'Party';
+  // No party has this address: a real 404 with noindex, as /mps/99999999 (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!party) notFound();
+  const name = party.name || 'Party';
   return {
     title: titleWithin(`${name}, money map`),
     description: `Every declared donation to ${name}: by year, by donor type, by sector, by constituency vs HQ. The donor concentration nobody else calculates.`,
@@ -87,6 +90,8 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
   if (partyRowErr && partyRowErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/money parties: ${partyRowErr.message}`);
   const party = partyRow as Party | null;
 
+  // No party has this address: a real 404 with noindex, as /mps/99999999 (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!party) notFound();
   if (!party || !party.recipient_name) {
     return (
       <OpenGovShell pageStamp="Parties">

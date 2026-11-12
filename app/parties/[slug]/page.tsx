@@ -7,6 +7,7 @@
 //
 // Cross-reference back to /parties (the comparison grid) at the top.
 
+import { notFound } from 'next/navigation';
 import { titleWithin } from '@/lib/seo-title';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -135,7 +136,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const { data: party, error: partyErr2 } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
   if (partyErr2 && partyErr2.code !== 'PGRST116') throw new Error(`/parties/[slug] parties: ${partyErr2.message}`);
-  const name = party?.name || 'Party';
+  // No party has this address: a real 404 with noindex, as /mps/99999999 (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!party) notFound();
+  const name = party.name || 'Party';
   return {
     title: titleWithin(`${name}, Policies`),
     description: `${name}'s 2024 General Election manifesto positions across 11 themes, with post-election shifts tracked.`,
@@ -148,13 +151,8 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
   const { party, policies, mpCount, donationsTotal } = await getPartyAndPolicies(slug);
   const secondJobs = party ? await partySecondJobs(party.mp_party_string) : null;
 
-  if (!party) {
-    return (
-      <OpenGovShell pageStamp="Parties">
-        <p style={{ fontSize: '18px', lineHeight: 1.7 }}>Party not found.</p>
-      </OpenGovShell>
-    );
-  }
+  // No party has this address: a real 404 with noindex, as /mps/99999999 (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!party) notFound();
 
   const accent = party.party_colour || '#7697a2';
 

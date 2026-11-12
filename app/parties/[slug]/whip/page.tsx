@@ -8,6 +8,7 @@
 //
 // Independents and the Speaker get a note instead: there is no party line to measure.
 
+import { notFound } from 'next/navigation';
 import { titleWithin } from '@/lib/seo-title';
 import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
@@ -37,7 +38,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const { data: party, error: partyErr } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
   if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/whip parties: ${partyErr.message}`);
-  const name = party?.name || 'Party';
+  // No party has this address: a real 404 with noindex, as /mps/99999999 (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!party) notFound();
+  const name = party.name || 'Party';
   return {
     title: titleWithin(`${name}, whip cohesion + rebellions`),
     description: `How tightly ${name} MPs vote together in the Commons, and which of its MPs vote against most of the party most often. Every division since the July 2024 election.`,
@@ -56,6 +59,8 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   if (partyRowErr && partyRowErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/whip parties: ${partyRowErr.message}`);
   const party = partyRow as Party | null;
 
+  // No party has this address: a real 404 with noindex, as /mps/99999999 (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!party) notFound();
   if (!party || !party.mp_party_string) {
     return (
       <OpenGovShell pageStamp="Parties">
