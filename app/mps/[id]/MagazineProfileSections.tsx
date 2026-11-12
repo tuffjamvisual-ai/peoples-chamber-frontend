@@ -3008,17 +3008,13 @@ export default function MagazineProfileSections({
           .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
           .mp-sections-content { padding: 20px 2px !important; }
         }
-        /* From 1024px (UX4h, owner approved, 10 Nov 2026): the section menu is a row under the MP's header, wrapping so every
-           item shows (it was a sidebar about 770px tall, below the first screen at 1280 x 720), and the sections run the
-           full width beneath it. The active item is underlined, as from 640 to 1023px. */
+        /* From 1024px (T1-SIDE, owner decision 12 Nov 2026, reversing UX4h of 10 Nov): the section list is a sidebar beside
+           the sections again, compact so it is short (one line per item, small gaps, Follow at the foot) and kept in view
+           while the page scrolls (jsSticky, as the tilted folder stops CSS sticky). The open item is marked on the left. */
         @media (min-width: 1024px){
-          .mp-sections-grid { grid-template-columns: minmax(0, 1fr) !important; }
-          .mp-sections-grid > aside, .mp-sections-grid > .mp-sections-content { grid-column: 1 / -1 !important; margin-left: 0 !important; }
-          .mp-sections-nav { flex-direction: row !important; flex-wrap: wrap; margin-right: 0 !important; padding: 4px 0 0 !important; gap: 2px !important; border-bottom: 1px solid rgba(20,16,13,0.2); }
-          .mp-sections-nav button, .mp-sections-nav a[data-section] > span { white-space: nowrap; transform: none !important; border-left: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; padding: 8px 12px !important; font-size: 15px !important; }
-          .mp-sections-nav button[data-active="true"], .mp-sections-nav a[data-section][data-active="true"] > span { border-bottom-color: #7a1612 !important; }
-          .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
-          .mp-sections-content { padding: 20px 2px !important; }
+          .mp-sections-nav { gap: 0 !important; padding: 4px 4px 8px !important; margin-right: 12px !important; }
+          .mp-sections-nav a[data-section] > span { padding: 7px 8px !important; white-space: nowrap; letter-spacing: 0 !important; line-height: 1.3; }
+          .mp-sections-nav .mp-follow-chip { margin-top: 10px !important; white-space: nowrap; letter-spacing: 0.02em !important; }
         }
         @media ${phoneUpTo(479)} { .mp-sections-nav [data-section] { display: none !important; } }
         .mp-reports-phone { display: none; }
