@@ -94,7 +94,7 @@ const BASELINE_FILE = path.join(HERE, 'rendered-baseline.json');
 const A10_BASELINE_FILE = path.join(HERE, 'a10-baseline.json');
 const MP2_CSV = '/Volumes/GoliathSSD/opengovt-work/Claude outputs/audit/mp2/page-lengths.csv';
 
-function parseCsv(text) {
+export function parseCsv(text) {
   const rows = []; let row = [], f = '', q = false;
   for (let i = 0; i < text.length; i++) {
     const c = text[i];

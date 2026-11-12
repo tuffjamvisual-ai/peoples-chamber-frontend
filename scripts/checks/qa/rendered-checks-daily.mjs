@@ -5,6 +5,8 @@
 // so the logs and JSON go to ~/opengovt-backup/daily-qa, and a STATUS line that cannot be appended goes to STATUS-pending.md
 // there, for Terminal 1 to copy into STATUS.md at the start of its next session.
 // A11 checks every record on Mondays (Cowork, 12 Nov 2026: weekly, after 05:17, live site only, paced); a sample of 50 per kind otherwise.
+// T1-VR (Cowork, 12 Nov 2026): then the nightly picture comparison of the full sample, live against the previous night
+// (scripts/checks/qa/visual-compare.mjs --nightly), which writes its own STATUS line.
 // Run at 05:17 UK time by launchd (scripts/launchd/uk.opengovt.daily-qa.plist); by hand:
 //   node scripts/checks/qa/rendered-checks-daily.mjs
 import fs from 'fs';
@@ -70,3 +72,9 @@ try {
 }
 status(`${ukTime()} ${aLine}\n`);
 console.log(aLine);
+
+// T1-VR (Cowork, 12 Nov 2026): the full sample's pictures, live against the previous night, one page load a second; the
+// script writes its own STATUS line (changes not named by a push since the last run are listed there for Cowork).
+const v = spawnSync('node', ['scripts/checks/qa/visual-compare.mjs', '--nightly'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64e6 });
+fs.writeFileSync(path.join(dir, `visual-${day}.log`), `${v.stdout ?? ''}\n${v.stderr ?? ''}`);
+if (v.status !== 0) status(`${ukTime()} VISUAL-NIGHTLY BLOCKED: the picture comparison did not finish (exit ${v.status}); log: ~/opengovt-backup/daily-qa/visual-${day}.log\n`);

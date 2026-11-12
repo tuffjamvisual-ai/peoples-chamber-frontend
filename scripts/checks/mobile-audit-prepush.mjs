@@ -10,8 +10,9 @@
 // never .next/cache/fetch-cache, which can hold old database answers), and the rendered checks run with --push (A6 at
 // 375 x 812 and 1280 x 720, no first-visit banner pass, no council tab opening); the full rendered checks run daily
 // against the live site (scripts/checks/qa/rendered-checks-daily.mjs).
-// T1-VR (owner, 12 Nov 2026: 'one step forward and two steps back'): then the before and after comparison of the same
-// sample pages, the live site against this build, full page at 375 x 812 and 1280 x 720 (scripts/checks/qa/visual-compare.mjs).
+// T1-VR (owner, 12 Nov 2026: 'one step forward and two steps back'; Cowork 12 Nov: under 5 minutes): then the before and
+// after comparison of the ten most visited pages and the page types this push's code changes, the live site against this
+// build, whole pages at 375 x 812 and 1280 x 720 (scripts/checks/qa/visual-compare.mjs; the full sample runs nightly).
 // A page that differs and is not named by the job (a 'VR-pages:' line in a commit message of the push) stops the push for
 // Cowork, with a report and side by side pictures; after Cowork's review, VR_ACCEPT=<first 8 of the hash> lets it through.
 import fs from 'fs';
@@ -100,7 +101,7 @@ try {
     const messages = from ? git('log', '--format=%B', `${from}..${sha}`) : git('log', '-1', '--format=%B', sha);
     const named = [...messages.matchAll(/^VR-pages:\s*(.+)$/gim)].map((m) => m[1]).join(',');
     try {
-      run('node', ['scripts/checks/qa/visual-compare.mjs', '--base', base, '--sha', sha, '--job-pages', named], { cwd: wt, env });
+      run('node', ['scripts/checks/qa/visual-compare.mjs', '--base', base, '--sha', sha, ...(from ? ['--from', from] : []), '--job-pages', named], { cwd: wt, env });
     } catch {
       vrStopped = true;
       throw new Error('visual comparison');
