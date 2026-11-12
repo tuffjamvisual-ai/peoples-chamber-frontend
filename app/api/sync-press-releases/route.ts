@@ -4,6 +4,7 @@ import { indexNowAfter } from '@/lib/indexnow';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { revalidatePath, revalidateTag, noteChanged } from '@/lib/refresh-count';
 import { PRESS_RELEASES_LATEST_TAG } from '@/lib/press-releases-latest';
+import { PRESS_SYNC_CHECKED_TAG, CHECKED_ROUTE } from '@/lib/press-sync-checked';
 import { newsPath } from '@/lib/news-path';
 import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
@@ -55,6 +56,7 @@ async function GET_impl(req: Request) {
       { budget },
     );
     if (!res.ok) return NextResponse.json({ error: `gov.uk ${res.status}` }, { status: 502 });
+    const checkedAt = new Date().toISOString(); // GOV.UK answered: the 'Checked GOV.UK at' time (T1-PR)
 
     const data = (await res.json()) as { results?: GovukSearchResult[] };
     const failing = await ItemFailures.load(supabase, '/api/sync-press-releases');
@@ -135,7 +137,15 @@ async function GET_impl(req: Request) {
     // Changes that refresh pages: new releases (the latest lists) and changed ones (their own pages).
     noteChanged(added + pagesRefreshed);
     let latestRefreshed = false;
-    if (added > 0) { revalidateTag(PRESS_RELEASES_LATEST_TAG, 'max'); revalidatePath('/'); latestRefreshed = true; }
+    // T1-PR (12 Nov 2026): { expire: 0 }, not 'max'. With 'max' the first request after the refresh was served the old
+    // list while the new one loaded, so the front page rebuilt by revalidatePath('/') could show the rows from before.
+    // Every run that reached GOV.UK also stores its time for the 'Checked GOV.UK at' line and refreshes the two pages
+    // that show it, whether or not anything was added.
+    if (added > 0) { revalidateTag(PRESS_RELEASES_LATEST_TAG, { expire: 0 }); latestRefreshed = true; }
+    const { error: checkedErr } = await supabase.from('sync_cursor').upsert({ route: CHECKED_ROUTE, cursor: { at: checkedAt }, updated_at: new Date().toISOString() }, { onConflict: 'route' });
+    if (checkedErr) console.error(`[press] could not store the checked time: ${checkedErr.message}`);
+    else revalidateTag(PRESS_SYNC_CHECKED_TAG, { expire: 0 });
+    if (added > 0 || !checkedErr) { revalidatePath('/'); revalidatePath('/transparency/press-releases'); }
     if (added > 0 || changedNews.length) freshnessChanged();
     indexNowAfter([...changedNews, ...(added > 0 ? ['/'] : [])], 'sync-press-releases');
     const failuresSaved = await failing.save();

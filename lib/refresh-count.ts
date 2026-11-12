@@ -40,6 +40,6 @@ export function revalidatePath(path: string, type?: 'page' | 'layout') {
   counted(() => (type ? nextRevalidatePath(path, type) : nextRevalidatePath(path)));
 }
 
-export function revalidateTag(tag: string, profile: 'max' | string = 'max') {
+export function revalidateTag(tag: string, profile: string | { expire?: number } = 'max') {
   counted(() => nextRevalidateTag(tag, profile));
 }

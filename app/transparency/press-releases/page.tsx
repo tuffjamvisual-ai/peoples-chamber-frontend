@@ -3,6 +3,8 @@ import LastUpdated from '../../components/LastUpdated';
 import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { pressSyncCheckedAt } from '@/lib/press-sync-checked';
+import { checkedLine } from '@/lib/press-checked-line';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import Pagination from '../../components/Pagination';
@@ -241,7 +243,7 @@ export default async function PressReleasesIndexPage({
   const pageNum = Math.max(1, parseInt(sp.page || '1', 10) || 1);
 
   // Headline count of GOV.UK rows, shown in the intro in both modes.
-  const govTotal = (await getPressStats()).govTotal;
+  const [{ govTotal }, pressCheckedAt] = await Promise.all([getPressStats(), pressSyncCheckedAt()]);
 
   let content: React.ReactNode;
 
@@ -438,8 +440,13 @@ export default async function PressReleasesIndexPage({
           }}
         >
           <span style={{ fontWeight: 'bold' }}>{govTotal.toLocaleString()}</span>
-          {' '}UK Government department press releases spanning the full archive from 2007 to today, plus House of Commons select committee reports, updated daily. Browse a day at a time, or search across every release.
+          {' '}UK Government department press releases spanning the full archive from 2007 to today, plus House of Commons select committee reports. Browse a day at a time, or search across every release.
         </p>
+        {pressCheckedAt && (
+          <p data-press-checked="" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, marginTop: '8px' }}>
+            {checkedLine(pressCheckedAt)}
+          </p>
+        )}
       </header>
 
       {/* Search box — GET form, crawlable, no client JS. Switches to search mode. */}

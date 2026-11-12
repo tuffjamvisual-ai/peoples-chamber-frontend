@@ -13,6 +13,8 @@ import NewsletterSignup from './components/NewsletterSignup';
 import { SubFold } from './components/PhoneFolds';
 import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
 import { loadLatestWhitehall } from '@/lib/press-releases-latest';
+import { pressSyncCheckedAt } from '@/lib/press-sync-checked';
+import { checkedLine } from '@/lib/press-checked-line';
 import { setPageReadTimer } from '@/lib/page-reads';
 import './home-front.css';
 import { phoneUpTo } from '@/lib/breakpoints';
@@ -120,7 +122,7 @@ export default async function HomePage() {
   // Each item links only to its press release (owner, 30 Oct 2026), so the department or agency name is plain text and
   // agency_cache is no longer read here. The read is tagged 'press-releases-latest' (lib/press-releases-latest.ts), which
   // the press release sync refreshes whenever it stores a new release.
-  const rawPressReleases = await loadLatestWhitehall();
+  const [rawPressReleases, pressCheckedAt] = await Promise.all([loadLatestWhitehall(), pressSyncCheckedAt()]);
   const expensesYear = expensesYearShort(await latestExpensesYear());
   const whitehallItems = (rawPressReleases ?? [])
     .flatMap((row) => {
@@ -252,6 +254,11 @@ export default async function HomePage() {
                   <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
                     Government press releases, published as issued
                   </p>
+                  {pressCheckedAt && (
+                    <p data-press-checked="" style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', margin: '-8px 0 12px', letterSpacing: '0.04em' }}>
+                      {checkedLine(pressCheckedAt)}
+                    </p>
+                  )}
                   <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                     {whitehallItems.map(({ slug, title, organisation, publishedAt }) => (
                       <li key={slug} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0' }}>
