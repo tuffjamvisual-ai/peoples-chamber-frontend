@@ -36,11 +36,11 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
     'The ten MPs with the highest business costs in the latest year, ranked by the total across staffing, office, accommodation and travel, from the Independent Parliamentary Standards Authority (IPSA).',
 };
 
-// Every party page (/parties/<slug>/bio) shows the same parts, so one template keeps all 15 consistent: the long form
-// "Opengovt verdict", and links to the party's manifesto against its record on 11 themes, its money (every declared
-// donation) and its whip record (how often its MPs vote against the party line).
+// Every party's pages show the same parts, so one template keeps all 15 consistent: the party's manifesto against its
+// record on 11 themes, its money (every declared donation) and its whip record (how often its MPs vote against the party
+// line). No verdict (T1-VERD, owner 12 Nov 2026: the opengovt Verdict is hidden on every party).
 export function partyDescription(name: string): string {
-  return `${name}: opengovt's verdict, linking to its promises against its record on 11 themes, its donations and how often its MPs rebel.`;
+  return `${name}: its promises against its record on 11 themes, its donations and how often its MPs rebel.`;
 }
 
 // The parties' names as their pages show them (parties.name), for the section page rows.

@@ -1,4 +1,5 @@
 import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES } from '@/lib/feature-flags';
+import { partyVerdictShown } from '@/lib/party-verdict';
 import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 import { departments } from '@/lib/departments';
@@ -322,7 +323,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const partyEntries: MetadataRoute.Sitemap = [];
   for (const p of parties) {
     partyEntries.push({ url: `${SITE}/parties/${p.slug}`, changeFrequency: 'weekly', priority: 0.7 });
-    partyEntries.push({ url: `${SITE}/parties/${p.slug}/bio`, changeFrequency: 'weekly', priority: 0.7 });
+    // The verdict page only while it is shown (T1-VERD, 12 Nov 2026); hidden, it sends readers to the party's first page.
+    if (partyVerdictShown(p.slug)) partyEntries.push({ url: `${SITE}/parties/${p.slug}/bio`, changeFrequency: 'weekly', priority: 0.7 });
     if (p.recipient_name) {
       partyEntries.push({ url: `${SITE}/parties/${p.slug}/money`, changeFrequency: 'weekly', priority: 0.8 });
     }

@@ -4,6 +4,8 @@
 // landing pages were removed (owner, 10 Nov 2026, T1-5s: "all it does is add fat to the pages").
 import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES, RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 import { PAGE_DESCRIPTIONS, partyDescription, PARTY_NAMES, VOTE_ON_BILLS_DESCRIPTION } from '@/lib/page-descriptions';
+// A party's link goes to its first page while its verdict is hidden (T1-VERD, 12 Nov 2026).
+import { partyHref } from '@/lib/party-verdict';
 
 // href: the section's landing page, which carries its "In this section" row. page: where the header and the phone panel
 // send a click on the section, the page listing every link in it (/sections/..., built from this list by
@@ -43,21 +45,21 @@ export const NAV: NavItem[] = [
     // /parties is the parties index and the 2024 manifesto comparison is /parties/manifestos (report 64).
     { group: 'Parties', label: 'All Parties', href: '/parties', desc: PAGE_DESCRIPTIONS['/parties'] },
     { group: 'Parties', label: 'Manifesto Comparisons', href: '/parties/manifestos', desc: 'Compare the 2024 General Election manifestos of 15 parties across 11 policy themes.' },
-    { group: 'Parties', label: 'Labour', href: '/parties/labour/bio', compact: true, desc: partyDescription(PARTY_NAMES['labour']) },
-    { group: 'Parties', label: 'Conservative', href: '/parties/conservative/bio', compact: true, desc: partyDescription(PARTY_NAMES['conservative']) },
-    { group: 'Parties', label: 'Liberal Democrats', href: '/parties/liberal-democrats/bio', compact: true, desc: partyDescription(PARTY_NAMES['liberal-democrats']) },
-    { group: 'Parties', label: 'SNP', href: '/parties/snp/bio', compact: true, desc: partyDescription(PARTY_NAMES['snp']) },
-    { group: 'Parties', label: 'Reform UK', href: '/parties/reform-uk/bio', compact: true, desc: partyDescription(PARTY_NAMES['reform-uk']) },
-    { group: 'Parties', label: 'Sinn Féin', href: '/parties/sinn-fein/bio', compact: true, desc: partyDescription(PARTY_NAMES['sinn-fein']) },
-    { group: 'Parties', label: 'Green Party', href: '/parties/green/bio', compact: true, desc: partyDescription(PARTY_NAMES['green']) },
-    { group: 'Parties', label: 'DUP', href: '/parties/dup/bio', compact: true, desc: partyDescription(PARTY_NAMES['dup']) },
-    { group: 'Parties', label: 'Plaid Cymru', href: '/parties/plaid-cymru/bio', compact: true, desc: partyDescription(PARTY_NAMES['plaid-cymru']) },
-    { group: 'Parties', label: 'SDLP', href: '/parties/sdlp/bio', compact: true, desc: partyDescription(PARTY_NAMES['sdlp']) },
-    { group: 'Parties', label: 'Alliance', href: '/parties/alliance/bio', compact: true, desc: partyDescription(PARTY_NAMES['alliance']) },
-    { group: 'Parties', label: 'UUP', href: '/parties/uup/bio', compact: true, desc: partyDescription(PARTY_NAMES['uup']) },
-    { group: 'Parties', label: 'TUV', href: '/parties/tuv/bio', compact: true, desc: partyDescription(PARTY_NAMES['tuv']) },
-    { group: 'Parties', label: 'Restore Britain', href: '/parties/restore-britain/bio', compact: true, desc: partyDescription(PARTY_NAMES['restore-britain']) },
-    { group: 'Parties', label: 'Your Party', href: '/parties/your-party/bio', compact: true, desc: partyDescription(PARTY_NAMES['your-party']) },
+    { group: 'Parties', label: 'Labour', href: partyHref('labour'), compact: true, desc: partyDescription(PARTY_NAMES['labour']) },
+    { group: 'Parties', label: 'Conservative', href: partyHref('conservative'), compact: true, desc: partyDescription(PARTY_NAMES['conservative']) },
+    { group: 'Parties', label: 'Liberal Democrats', href: partyHref('liberal-democrats'), compact: true, desc: partyDescription(PARTY_NAMES['liberal-democrats']) },
+    { group: 'Parties', label: 'SNP', href: partyHref('snp'), compact: true, desc: partyDescription(PARTY_NAMES['snp']) },
+    { group: 'Parties', label: 'Reform UK', href: partyHref('reform-uk'), compact: true, desc: partyDescription(PARTY_NAMES['reform-uk']) },
+    { group: 'Parties', label: 'Sinn Féin', href: partyHref('sinn-fein'), compact: true, desc: partyDescription(PARTY_NAMES['sinn-fein']) },
+    { group: 'Parties', label: 'Green Party', href: partyHref('green'), compact: true, desc: partyDescription(PARTY_NAMES['green']) },
+    { group: 'Parties', label: 'DUP', href: partyHref('dup'), compact: true, desc: partyDescription(PARTY_NAMES['dup']) },
+    { group: 'Parties', label: 'Plaid Cymru', href: partyHref('plaid-cymru'), compact: true, desc: partyDescription(PARTY_NAMES['plaid-cymru']) },
+    { group: 'Parties', label: 'SDLP', href: partyHref('sdlp'), compact: true, desc: partyDescription(PARTY_NAMES['sdlp']) },
+    { group: 'Parties', label: 'Alliance', href: partyHref('alliance'), compact: true, desc: partyDescription(PARTY_NAMES['alliance']) },
+    { group: 'Parties', label: 'UUP', href: partyHref('uup'), compact: true, desc: partyDescription(PARTY_NAMES['uup']) },
+    { group: 'Parties', label: 'TUV', href: partyHref('tuv'), compact: true, desc: partyDescription(PARTY_NAMES['tuv']) },
+    { group: 'Parties', label: 'Restore Britain', href: partyHref('restore-britain'), compact: true, desc: partyDescription(PARTY_NAMES['restore-britain']) },
+    { group: 'Parties', label: 'Your Party', href: partyHref('your-party'), compact: true, desc: partyDescription(PARTY_NAMES['your-party']) },
     { group: 'Departments', label: 'All Departments', href: '/departments', desc: 'All 23 UK government departments: Secretary of State, junior ministers, budget and a performance report.' },
     // The recommendations tracker (30 Oct 2026), only while RECOMMENDATIONS_PUBLIC is on.
     ...(RECOMMENDATIONS_PUBLIC ? [{ group: 'Departments', label: 'Recommendations', href: '/recommendations', desc: 'Committee of Public Accounts recommendations and the government’s answers in Treasury Minutes: its response, target dates and what happened next.' }] : []),

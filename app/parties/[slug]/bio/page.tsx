@@ -19,6 +19,8 @@ import { namedTitle } from '@/lib/seo-title';
 import { PHONE } from '@/lib/breakpoints';
 
 import BackLink from '@/app/components/BackLink';
+import { redirect } from 'next/navigation';
+import { partyVerdictShown } from '@/lib/party-verdict';
 export const revalidate = 21600;
 
 export async function generateStaticParams() {
@@ -73,6 +75,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PartyBio({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  // The verdict is hidden (T1-VERD, owner 12 Nov 2026), its text still stored: the page opens on the party's first page,
+  // Manifesto vs Record. A temporary redirect, so the page can come back.
+  if (!partyVerdictShown(slug)) redirect(`/parties/${slug}`);
   const party = await getPartyBio(slug);
 
   if (!party) {

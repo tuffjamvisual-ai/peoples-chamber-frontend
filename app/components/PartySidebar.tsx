@@ -1,6 +1,7 @@
 import React from 'react';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { SubFold } from './PhoneFolds';
+import { partyVerdictShown } from '@/lib/party-verdict';
 
 // Shared left-nav sidebar for the four per-party pages (Manifesto vs Record,
 // People's verdict, Money, Whip), plus cross links to the party's MPs and the
@@ -31,7 +32,8 @@ export default function PartySidebar({
   const mpsExpand = party.mp_party_string || party.name;
   const items: { key: ActiveKey; label: string; href: string; rotate: string }[] = [
     { key: 'manifesto', label: 'Manifesto vs Record', href: `/parties/${party.slug}`,        rotate: '0.15deg'  },
-    { key: 'bio',       label: "opengovt Verdict",    href: `/parties/${party.slug}/bio`,    rotate: '-0.2deg'  },
+    // The opengovt Verdict tab only while the party's verdict is shown (T1-VERD, owner 12 Nov 2026: hidden for every party).
+    ...(partyVerdictShown(party.slug) ? [{ key: 'bio' as const, label: 'opengovt Verdict', href: `/parties/${party.slug}/bio`, rotate: '-0.2deg' }] : []),
     { key: 'money',     label: 'Money',                href: `/parties/${party.slug}/money`,  rotate: '0.1deg'   },
     { key: 'whip',      label: 'Whip',                 href: `/parties/${party.slug}/whip`,   rotate: '-0.12deg' },
     { key: 'mps',       label: `${party.name} MPs`,    href: `/mps?expand=${encodeURIComponent(mpsExpand)}#mps-list`, rotate: '0.1deg' },
