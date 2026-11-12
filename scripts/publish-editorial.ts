@@ -13,8 +13,8 @@
 // --topic set differs (kept topics keep their position, added ones go at the end). --allow names a proper name that
 // may contain a hyphen (e.g. --allow "Manningham-Buller").
 //
-// Stops before writing if any check fails: slug format (new: 6 to 16 lower case letters or digits); summary 22 words or fewer; headline 70 characters or fewer
-// (a warning above 60); no hyphens or dashes in our wording outside quotations, link addresses (scripts/style-dash.ts) and --allow names; every
+// Warns (never stops) on a headline over 60 characters, more strongly over 70: 70 is a guide, not a limit (owner, 12 Nov
+// 2026). Stops before writing if any check fails: slug format (new: 6 to 16 lower case letters or digits); summary 22 words or fewer; no hyphens or dashes in our wording outside quotations, link addresses (scripts/style-dash.ts) and --allow names; every
 // relatedMemberIds a current member in mps; every relatedDeptSlugs, relatedBillIds, relatedCouncilSlugs and topic slug real; every
 // evidence URL https; every Open Govt evidence URL pointing at an id that exists.
 //
@@ -128,7 +128,8 @@ async function main() {
   if (!piece.summary) problems.push('summary is missing');
   else if (words > 22) problems.push(`summary is ${words} words (22 at most)`);
   const chars = [...(piece.headline ?? '')].length;
-  if (chars > 70) problems.push(`headline is ${chars} characters (70 at most)`);
+  // 70 characters is a guide, not a limit (owner, 12 Nov 2026, T1-HEAD): a longer headline is allowed when it works better.
+  if (chars > 70) warnings.push(`headline is ${chars} characters (70 is a guide; check it lays out cleanly on phones)`);
   else if (chars > 60) warnings.push(`headline is ${chars} characters (aim for 60 or fewer)`);
   for (const [where, text] of ourWording(piece)) {
     const hit = strayDash(text, allow);
