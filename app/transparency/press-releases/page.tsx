@@ -189,28 +189,24 @@ function fmtLongDate(dateStr: string): string {
   if (Number.isNaN(d.getTime())) return dateStr;
   return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
-function fmtShortDate(dateStr: string): string {
-  const d = new Date(`${dateStr}T12:00:00Z`);
-  if (Number.isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-}
 
 const SEARCH_PER = 100;
 
-// The GOV.UK release total and the busiest days (for the day-view quick-jump), from one database pass
+// The GOV.UK release total, from one database pass
 // (press_release_stats, migration 2026-10-21i; owner's approval, 21 Oct 2026), cached hourly. It replaced an exact
 // count on every request and 47 page reads of the whole table. A failed read throws and is not cached.
 const getPressStats = unstable_cache(
-  async (): Promise<{ govTotal: number; busiestDays: Array<{ date: string; count: number }> }> => {
+  async (): Promise<{ govTotal: number }> => {
     const { data, error } = await supabase.rpc('press_release_stats');
     if (error || !data) throw new Error(`press_release_stats: ${error?.message ?? 'no data'}`);
-    const j = data as { gov_total: number; busiest_days: { date: string; count: number }[] };
-    return { govTotal: Number(j.gov_total) || 0, busiestDays: (j.busiest_days || []).map((d) => ({ date: String(d.date), count: Number(d.count) })) };
+    // The function also returns the busiest days; their row of buttons was removed (owner decision 12 Nov 2026, T1-DECLUT
+    // item 8, in T1-DONOR404), so only the total is read.
+    const j = data as { gov_total: number };
+    return { govTotal: Number(j.gov_total) || 0 };
   },
-  ['press-release-stats-v1'],
+  ['press-release-stats-v2'],
   { revalidate: 3600 },
 );
-const getBusiestDays = async () => (await getPressStats()).busiestDays;
 
 const inputStyle: React.CSSProperties = {
   fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK,
@@ -319,7 +315,6 @@ export default async function PressReleasesIndexPage({
     const com = dayRows.filter(isCommonsRow);
     const prevDate = toDateStr(prevRes.data?.published_at);
     const nextDate = toDateStr(nextRes.data?.published_at);
-    const busiestDays = await getBusiestDays();
 
     content = (
       <div>
@@ -337,29 +332,11 @@ export default async function PressReleasesIndexPage({
           )}
         </div>
 
-        <form method="GET" action="/transparency/press-releases" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
+        <form method="GET" action="/transparency/press-releases" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '32px' }}>
           <label htmlFor="date-jump" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK }}>Jump to date</label>
           <input id="date-jump" type="date" name="date" defaultValue={currentDate} min={earliestDate || undefined} max={latestDate || undefined} style={inputStyle} />
           <button type="submit" style={btnStyle}>Go</button>
         </form>
-
-        {busiestDays.length > 0 && (
-          <div style={{ marginBottom: '32px' }}>
-            <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, marginBottom: '8px' }}>Jump to a busy day</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {busiestDays.map((b) => (
-                <Link
-                  key={b.date}
-                  href={`/transparency/press-releases?date=${b.date}`}
-                  style={{ ...navLinkStyle, fontSize: '15px', padding: '6px 10px', fontWeight: b.date === currentDate ? 700 : 400 }}
-                  className="no-hover-scale"
-                >
-                  {fmtShortDate(b.date)} · {b.count}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
 
         {dayRows.length === 0 ? (
           <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK }}>
