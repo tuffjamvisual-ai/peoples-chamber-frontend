@@ -231,7 +231,32 @@ async function load(page, base, url) {
   await pace();
   const res = await page.goto(base + url, { waitUntil: 'load', timeout: 90000 });
   try { await page.waitForLoadState('networkidle', { timeout: 10000 }); } catch { /* a page that keeps polling */ }
+  await freezeMoving(page);
   return res?.status() ?? 0;
+}
+
+// Moving text (Cowork, 12 Nov 2026): a line that only says when our data was last fetched moves on its own, so the live page
+// and a build made earlier differ without any change (the 22:25 stop on 4ceec8ac: 'Checked GOV.UK at 22:17' live, '21:16' in
+// the build). Before any picture, both sides get the same fixed time and date in these lines: the press releases'
+// 'Checked GOV.UK at 09:17, 12 November' (lib/press-checked-line.ts) and the sync freshness lines '<data> last updated
+// 12 November 2026' (app/components/LastUpdated.tsx, the MP page's Early Day Motions line). A date stored with a record
+// (a donor's 'Last checked', 'Facts last checked', a page's fixed 'Last updated: 3 November 2026') is real data and is not
+// touched.
+const MOVING = [
+  [/Checked GOV\.UK at \d{1,2}:\d{2}, \d{1,2} [A-Z][a-z]+/g, 'Checked GOV.UK at 00:00, 1 January'],
+  [/( last updated )\d{1,2} [A-Z][a-z]+ \d{4}/g, '$11 January 2000'],
+];
+async function freezeMoving(page) {
+  await page.evaluate((pairs) => {
+    const res = pairs.map(([s, f, r]) => [new RegExp(s, f), r]);
+    // React writes 'last updated {when}' as separate text nodes, so an element whose children are all text is read whole.
+    for (const el of document.body.querySelectorAll('*')) {
+      if (!el.firstChild || [...el.childNodes].some((c) => c.nodeType !== 3)) continue;
+      let t = el.textContent;
+      for (const [re, r] of res) t = t.replace(re, r);
+      if (t !== el.textContent) el.textContent = t;
+    }
+  }, MOVING.map(([re, r]) => [re.source, re.flags, r])).catch(() => {});
 }
 
 // One page at one size, before against after: the comparison, its kind and its side by side picture.
