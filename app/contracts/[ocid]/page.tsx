@@ -124,10 +124,13 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
   const unawardedLots = severalLots
     ? [...new Set(notices.filter((n) => n.award_id != null && n.value == null && !n.suppliers?.length).flatMap((n) => n.lot_ids ?? []))].filter((id) => !awardedLots.has(id))
     : [];
-  type Entry = { h: (typeof histories)[number] } | { lot: string };
+  // Awarded lots first, in lot order; then one line for the lots with no supplier or value (Cowork, 12 Nov 09:45).
   const lotOrder = (ids: string[] | null | undefined) => (ids?.length ? ids[0].replace(/^lot\s*/i, '') : '\uffff');
-  const entries: Entry[] = [...histories.map((h) => ({ h })), ...unawardedLots.map((lot) => ({ lot }))];
-  if (severalLots) entries.sort((a, b) => lotOrder('h' in a ? a.h.lotIds : [a.lot]).localeCompare(lotOrder('h' in b ? b.h.lotIds : [b.lot]), 'en', { numeric: true }));
+  const ordered = severalLots ? [...histories].sort((a, b) => lotOrder(a.lotIds).localeCompare(lotOrder(b.lotIds), 'en', { numeric: true })) : histories;
+  const noAwardNames = unawardedLots.map((id) => id.replace(/^lot\s*/i, '')).sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  const noAwardLine = noAwardNames.length
+    ? `No supplier or value published for ${noAwardNames.length === 1 ? `lot ${noAwardNames[0]}` : `lots ${noAwardNames.slice(0, -1).join(', ')} and ${noAwardNames[noAwardNames.length - 1]}`}.`
+    : null;
   const buyer = notices.find((n) => n.buyer_name)?.buyer_name;
   // The procurement's latest name (planning notices often carry a working title).
   // The procurement-level title (planning and tender notices) first: an award's title can be one lot's ("Lot 8 - ...").
@@ -155,15 +158,8 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
         )}
       </header>
 
-      <NoJsPager id="contract-histories" count={entries.length} size={10} />
-      {entries.map((e) => {
-        if (!('h' in e)) return (
-          <section key={`lot-${e.lot}`} className={njpItem('contract-histories')} style={{ marginBottom: '28px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '18px' }}>
-            <h2 style={sectionH2}>{lotLabel([e.lot], lots)}</h2>
-            <p style={figure}>No supplier or value published for this lot.</p>
-          </section>
-        );
-        const h = e.h;
+      <NoJsPager id="contract-histories" count={ordered.length} size={10} />
+      {ordered.map((h) => {
         const realChanges = h.changes.filter((c) => c.kind.kind === 'value_change');
         const latestValue = realChanges.length ? realChanges[realChanges.length - 1].newValue : null;
         return (
@@ -222,7 +218,8 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
           </section>
         );
       })}
-      <NoJsPagerLinks id="contract-histories" count={entries.length} size={10} />
+      {noAwardLine && <p style={{ ...figure, marginBottom: '24px' }}>{noAwardLine}</p>}
+      <NoJsPagerLinks id="contract-histories" count={ordered.length} size={10} />
 
       <section style={{ marginBottom: '24px' }}>
         <h2 style={sectionH2}>Performance</h2>
