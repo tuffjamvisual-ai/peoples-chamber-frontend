@@ -213,6 +213,9 @@ const venueWords = (venue: string | null, opening: boolean) =>
 export async function generateMetadata({ params }: { params: Promise<{ guid: string }> }): Promise<Metadata> {
   const { guid } = await params;
   const d = await getDebate(guid);
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  // As the page: a debate Hansard no longer serves goes to its sitting day; otherwise no debate has this address.
+  if (!d || !d.Overview) { const row = await debateRow(guid); const day = row ? hansardDayUrl(row) : null; if (day) permanentRedirect(day); notFound(); }
   const title = d?.Overview?.Title?.trim() || 'Debate';
   // Description (owner's approval, 23 Oct 2026) from Hansard's own record: the House and date, the first speaker
   // after the chair (the opener) and how many people spoke, when the record names them.

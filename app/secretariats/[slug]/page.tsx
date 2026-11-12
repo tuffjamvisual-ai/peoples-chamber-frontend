@@ -80,7 +80,8 @@ async function findCanonicalName(slug: string): Promise<string | null> {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const name = await findCanonicalName(slug);
-  if (!name) return { title: 'Secretariat' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!name) notFound();
   return {
     title: namedTitle(name, (n) => [`${n}: every All-Party Parliamentary Group it runs`, `${n}: All-Party Groups it runs`, `${n}: APPG secretariat`, n]),
     description: metaDescription(`${name} runs the secretariat for APPGs in Westminster: every group, the MPs officering them and the funders paying the firm.`),

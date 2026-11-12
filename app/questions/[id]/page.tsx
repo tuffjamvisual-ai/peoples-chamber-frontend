@@ -32,7 +32,8 @@ const fileSize = (b?: number) => (b ? (b >= 1048576 ? `${(b / 1048576).toFixed(1
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const q = await load((await params).id);
-  if (!q) return { title: 'Written question', robots: { index: false, follow: true } };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!q) notFound();
   const heading = q.heading || `Written question ${q.uin}`;
   return {
     // Natural breaks only, never mid phrase (owner, 6 Nov 2026).

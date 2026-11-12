@@ -26,6 +26,9 @@ const MONO = 'var(--font-special-elite), monospace';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  const items = (await loadAll()).bySlug.get(slug);
+  if (!items || items.length === 0) notFound();
   const label = slugToLabel(slug);
   return {
     title: titleWithin(`${label} MPs with second jobs`),

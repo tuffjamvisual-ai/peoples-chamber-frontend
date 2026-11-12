@@ -27,7 +27,8 @@ const parseId = (id: string) => (/^\d{1,3}$/.test(id) ? Number(id) : null);
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const id = parseId((await params).id);
   const s = id == null ? null : await getParliamentSession(id);
-  if (!s) return { title: 'Session not found' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!s) notFound();
   return {
     title: titleWithin(`Bills in the ${sessionTitle(s)} of UK Parliament`),
     description: `All ${s.bills_listed.toLocaleString()} bills in the ${sessionTitle(s)} (${sessionDates(s)}): which became law, which were carried over, withdrawn or ran out of time.`,

@@ -7,6 +7,10 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+// The page answers 404 for this address and shows the site's 'Page not found'; a layout cannot call notFound() for its
+// metadata without losing the title, so it gives the not-found page's own title and robots (app/not-found.tsx).
+const NOT_FOUND: Metadata = { title: 'Page not found', robots: { index: false, follow: false } };
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   // dept_agencies stores the row used by /api/govuk-agency to populate
@@ -22,6 +26,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // its page) and its parent department as the page lists it, in whole sentences; without a purpose, as before.
   const { data: cached, error: cachedErr } = await supabase.from('agency_cache').select('name, acronym, description, parent_orgs').eq('slug', slug).maybeSingle();
   if (cachedErr && cachedErr.code !== 'PGRST116') throw new Error(`/agencies/[slug] agency_cache: ${cachedErr.message}`);
+  // No agency_cache row means no agency page (the page's own rule): a real 404, noindex and 'Page not found' (T1-DONOR404).
+  if (!cached) return NOT_FOUND;
   // An agency the page shows from agency_cache with no dept_agencies row (7 in all) takes its name and acronym from
   // agency_cache, the page's own source, instead of the site's default description (L6, 7 Nov 2026).
   const name = (agency?.name || (cached?.name as string | null) || '').trim();

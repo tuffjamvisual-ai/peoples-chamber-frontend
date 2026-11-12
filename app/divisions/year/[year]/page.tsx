@@ -29,7 +29,9 @@ const yearOf = (raw: string) => (/^\d{4}$/.test(raw) ? Number(raw) : null);
 
 export async function generateMetadata({ params, searchParams }: { params: Promise<Params>; searchParams: Promise<SP> }): Promise<Metadata> {
   const year = yearOf((await params).year);
-  if (year == null) return { title: 'Commons votes' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (year == null) notFound();
+  if ((await yearCount(year)) === 0) notFound();
   // A page past the end shows the last page, so it names the last page as canonical.
   let page = pageOf(await searchParams);
   if (page > 1) page = Math.min(page, Math.max(1, Math.ceil((await yearCount(year)) / PER_PAGE)));

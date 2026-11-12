@@ -54,8 +54,11 @@ function lordsDescription(p: Peer, what: string): string {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const memberId = Number(id);
-  const p = Number.isInteger(memberId) && memberId > 0 ? await peer(memberId) : null;
-  if (!p || !peerHasPage(p)) return { title: 'House of Lords', robots: { index: false, follow: true } };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026). As the page: a former MP is sent to their MP page.
+  if (!Number.isInteger(memberId) || memberId <= 0) notFound();
+  const p = await peer(memberId);
+  if (!p) { if ((await lookupMember(memberId)).kind === 'former_mp') permanentRedirect(`/mps/${memberId}`); notFound(); }
+  if (!peerHasPage(p)) return { title: 'House of Lords', robots: { index: false, follow: true } };
   const what = [p.party, p.peerage_type].filter(Boolean).join(', ');
   // A title another member has held too (two Archbishops of Canterbury) adds their years in the Lords from Parliament's data, so no two pages share a title (owner, 7 Nov 2026).
   const { count: sameName, error: sameErr } = await supabase.from('peers').select('member_id', { count: 'exact', head: true }).eq('name_display', p.name_display);

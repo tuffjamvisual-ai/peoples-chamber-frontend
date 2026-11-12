@@ -92,8 +92,10 @@ const short = (s: string) => (s.length > 400 ? `${s.slice(0, 400).replace(/\s+\S
 
 export async function generateMetadata({ params }: { params: Promise<{ ocid: string }> }): Promise<Metadata> {
   const { ocid } = await params;
-  if (!OCID_RE.test(ocid)) return {};
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!OCID_RE.test(ocid)) notFound();
   const notices = await loadNotices(ocid);
+  if (!notices.length) notFound();
   const title = [...notices].reverse().find((n) => n.title && !n.contract_key)?.title || [...notices].reverse().find((n) => n.title)?.title;
   return title ? { title: namedTitle(title, (n) => [`${n}: contract history`, n]), alternates: { canonical: `/contracts/${ocid}` } } : {};
 }

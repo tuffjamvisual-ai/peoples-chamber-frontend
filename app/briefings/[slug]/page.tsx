@@ -62,7 +62,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       alternates: { canonical: `/briefings/${slug}` },
     };
   }
-  return { title: 'Briefing' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  notFound();
 }
 
 export default async function BriefingPage({ params }: { params: Promise<{ slug: string }> }) {

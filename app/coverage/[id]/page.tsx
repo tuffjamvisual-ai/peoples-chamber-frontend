@@ -54,9 +54,10 @@ const outletName = (outlet: string) => (/^(the )?people['\u2019]?s chamber$/i.te
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const n = parseInt(id, 10)
-  if (!Number.isFinite(n)) return { title: 'Coverage' }
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!Number.isFinite(n)) notFound()
   const row = await getRow(n)
-  if (!row) return { title: 'Coverage' }
+  if (!row) notFound()
   return {
     // "via opengovt" already names the site, so the title then goes without the " | opengovt" suffix.
     title: (() => { const t = namedTitle(row.source_title, (n) => [`${n}, via ${outletName(row.source_outlet)}`, n]); return typeof t === 'string' && t.endsWith('via opengovt') ? { absolute: t } : t; })(),

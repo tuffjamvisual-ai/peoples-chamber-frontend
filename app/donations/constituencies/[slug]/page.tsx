@@ -34,7 +34,9 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const view = await resolveAssociation(slug);
-  if (!view) return { title: 'Constituency association' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!view) notFound();
+  if (view.kind !== 'chooser' && view.rows.length === 0) notFound();
   if (view.kind === 'chooser') {
     return view.national
       ? {

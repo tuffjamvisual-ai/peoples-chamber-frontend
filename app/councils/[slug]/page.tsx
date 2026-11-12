@@ -198,7 +198,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const { data, error: dataErr } = await pageDb().from('councils').select('name, type_label, country, political_control, population, gss_code').eq('slug', slug).single();
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/councils/[slug] councils: ${dataErr.message}`);
-  if (!data) return { title: 'Council not found' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!data) notFound();
   // A description that says what the page offers, not just the council's type (all 382
   // councils had a one-line description; search engine check, 16 Oct 2026).
   const who = data.political_control ? ` Run by ${data.political_control === 'No overall control' ? 'no single party (no overall control)' : data.political_control}.` : '';

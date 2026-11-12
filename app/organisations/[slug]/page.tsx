@@ -47,7 +47,8 @@ function orgDescription(org: OrgIndexRow): string {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const org = await getOrganisation(slug);
-  if (!org) return { title: 'Organisation not found' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!org) notFound();
   const held = [org.donations && 'donations', (org.contracts || org.framework_places) && 'contracts', org.grants && 'grants', org.meetings && 'meetings with ministers', org.lobbying_quarters && 'lobbying'].filter(Boolean) as string[];
   const heldText = held.length > 1 ? `${held.slice(0, -1).join(', ')} and ${held[held.length - 1]}` : held[0] || 'public records';
   // A number goes in a title only once checked on Companies House against the name (CH_NUMBERS_CHECKED); a number held but not

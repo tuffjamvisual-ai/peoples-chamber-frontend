@@ -39,7 +39,8 @@ function opening(text: string): [string, string | null] {
 export async function generateMetadata({ params }: { params: Promise<{ date: string }> }): Promise<Metadata> {
   const { date } = await params;
   const day = validDate(date) ? await preFixedDay(date) : null;
-  if (!day) return { title: 'Questions to the Prime Minister', robots: { index: false, follow: true } };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!day) notFound();
   return {
     title: { absolute: heading(date, day.questions) },
     description: `Every question to the Prime Minister answered aloud on ${longDateArchive(date)}, and what was said after each, as printed in Historic Hansard.`,

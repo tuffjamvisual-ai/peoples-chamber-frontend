@@ -119,7 +119,8 @@ type Vote = DivisionVote;
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const m = SLUG_RE.exec(slug);
-  if (!m) return { title: 'Division' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!m) notFound();
   const dateOnly = m[1];
   const divisionNumber = parseInt(m[2], 10);
 
@@ -127,7 +128,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // not always what was voted on.
   if (dateOnly <= ARCHIVE_LAST_DATE) {
     const d = await archiveDivision(dateOnly, divisionNumber);
-    if (!d) return { title: 'Division' };
+    if (!d) notFound();
     const motion = archiveTitle(d);
     const { sameDay } = await archiveNeighbours(dateOnly, divisionNumber);
     const counts = d.count_note ? '' : `Ayes ${d.ayes_shown}, Noes ${d.noes_shown}: `;
@@ -147,7 +148,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .limit(1)
     .maybeSingle();
   if (rowErr && rowErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] mp_division_votes: ${rowErr.message}`);
-  if (!row) return { title: 'Division' };
+  if (!row) notFound();
 
   const dateLabel = new Date(row.division_date).toLocaleDateString('en-GB', {
     day: 'numeric',

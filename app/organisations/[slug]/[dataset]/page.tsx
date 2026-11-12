@@ -28,9 +28,10 @@ const isDataset = (d: string): d is Dataset => (DATASETS as readonly string[]).i
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; dataset: string }> }): Promise<Metadata> {
   const { slug, dataset } = await params;
-  if (!isDataset(dataset)) return { title: 'Not found' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!isDataset(dataset)) notFound();
   const org = await getOrganisation(slug);
-  if (!org) return { title: 'Organisation not found' };
+  if (!org || !org.company_number) notFound();
   return {
     title: titleWithin(`${org.name}: ${TITLES[dataset].toLowerCase()}`),
     // Whole sentences within 160 characters (owner, 7 Nov 2026, L7): the organisation's own count and value for this record.

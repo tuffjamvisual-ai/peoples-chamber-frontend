@@ -77,7 +77,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ section: string }> }): Promise<Metadata> {
   const { section } = await params
   const config = SECTIONS[section]
-  if (!config) return { title: 'Transparency' }
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!config) notFound()
   return {
     title: titleWithin(config.title),
     description: PAGE_DESCRIPTIONS[`/transparency/${section}`] ?? `${config.title}: public record data for UK government transparency.`,

@@ -44,7 +44,8 @@ function topicDescription(t: NonNullable<ReturnType<typeof getTopic>>): string {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const t = getTopic(slug);
-  if (!t) return { title: 'Topic' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!t) notFound();
   return {
     title: titleWithin(`${t.title}: Policy Topic`),
     description: topicDescription(t),

@@ -35,7 +35,8 @@ export async function generateMetadata({ params }: { params: Promise<{ date: str
   const session = await sessionFor(date);
   if (!session) {
     const old = /^\d{4}-\d{2}-\d{2}$/.test(date) ? await archiveSessionOn(date) : null;
-    if (!old) return { title: "Prime Minister's Questions", robots: { index: false, follow: true } };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+    if (!old) notFound();
     return {
       title: `Prime Minister's Questions, ${longDate(date)}`,
       description: `Every question and answer at Prime Minister's Questions on ${longDate(date)}${answeredBy(date) ? `, answered by ${answeredBy(date)}` : ''}, with a link to the official record.`,

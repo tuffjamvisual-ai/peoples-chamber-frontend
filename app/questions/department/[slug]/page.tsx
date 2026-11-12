@@ -22,7 +22,8 @@ const n0 = (n: number) => n.toLocaleString('en-GB');
 
 export async function generateMetadata({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Search> }): Promise<Metadata> {
   const d = departmentBySlug((await params).slug);
-  if (!d) return { title: 'Written questions', robots: { index: false, follow: true } };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!d) notFound();
   const { before } = await searchParams;
   return {
     // Never the name alone, which the department's own page has (owner, 7 Nov 2026: titles stay unique).

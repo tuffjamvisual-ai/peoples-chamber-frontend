@@ -42,7 +42,8 @@ function edmDescription(m: Edm): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const m = await load((await params).id);
-  if (!m) return { title: 'Early day motion', robots: { index: false, follow: true } };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!m) notFound();
   return {
     // The number always stays, so motions with the same title never share one (owner, 7 Nov 2026); the title is never cut.
     title: namedTitle(m.title, (n) => [`EDM ${m.uin_with_suffix}: ${n}`]),

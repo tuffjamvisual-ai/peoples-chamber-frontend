@@ -14,9 +14,10 @@ export const revalidate = 86400;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  if (!isApiId(id)) return {};
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!isApiId(id)) notFound();
   const t = await getTreaty(id);
-  if (!t) return {};
+  if (!t) notFound();
   const treaty = treatySeoTitle(t.title, t.signed_date || t.laid_date);
   return {
     // The parties and subject where the official title gives them (owner, 5 Nov 2026), else the title whole.

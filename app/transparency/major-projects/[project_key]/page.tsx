@@ -53,7 +53,8 @@ function projectDescription(project: MajorProject): string {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const key = await keyOf(params);
   const { project } = await fetchMajorProject(key).catch(() => ({ project: null }));
-  if (!project) return { title: 'Major project not found', robots: { index: false, follow: false } };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!project) notFound();
   return {
     title: namedTitle(project.name, (n) => [`${n}: major project history`, `${n}: major project`, n]),
     description: projectDescription(project),

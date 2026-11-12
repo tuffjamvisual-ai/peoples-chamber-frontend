@@ -58,17 +58,20 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { id } = await params
   const billId = parseInt(id, 10)
-  if (!Number.isFinite(billId)) return {}
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!Number.isFinite(billId)) notFound()
 
   // Only whether one MP vote exists matters, so one indexed row is read instead of counting them all (owner's
   // approval, 21 Oct 2026; the count averaged 1.2 s during builds).
   const [{ data: bill, error: billErr1 }, { data: oneVote, error: oneVoteErr }, inCurrentSession] = await Promise.all([
-    supabase.from('bill').select('current_stage, is_act, commons_division_id').eq('id', billId).single(),
+    supabase.from('bill').select('current_stage, is_act, commons_division_id, hidden_reason').eq('id', billId).single(),
     supabase.from('mp_division_votes').select('id').eq('bill_id', billId).limit(1),
     billInCurrentSession(billId),
   ])
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [billErr1, oneVoteErr]) if (e && e.code !== 'PGRST116') throw new Error(`/bills/[id] (bill, mp_division_votes): ${e.message}`);
+  // As the page: no bill, or a hidden one (duplicates, bad records), is a 404.
+  if (!bill || bill.hidden_reason) notFound()
 
   // The page names itself canonical (owner, 31 Oct 2026, Search Console "duplicate without a main version"); the layout
   // sets the same, this makes it explicit on the page.

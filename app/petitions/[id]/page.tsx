@@ -30,7 +30,8 @@ const n0 = (n: number) => n.toLocaleString('en-GB');
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const p = await load(id);
-  if (!p) return { title: 'Petition', robots: { index: false, follow: true } };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!p) notFound();
   return {
     title: markedCutTitle(p.action, (n) => [`Petition: ${n}`, n]),
     // Whole sentences (owner, 7 Nov 2026, L6): the petition's own words, its signatures, and the government response and

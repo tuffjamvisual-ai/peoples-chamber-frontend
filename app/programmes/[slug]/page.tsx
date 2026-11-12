@@ -23,7 +23,8 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await params;
   const prog = await getProgramme(slug);
-  if (!prog || !prog.is_live) return { title: 'Programme' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!prog || !prog.is_live) notFound();
   return {
     title: titleWithin(prog.name),
     description: prog.summary?.slice(0, 155) ?? `Track progress on ${prog.name}.`,

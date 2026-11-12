@@ -24,7 +24,9 @@ export const dynamicParams = true;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const piece = await getEditorial(slug);
-  if (!piece || piece.kind === 'briefing') return { title: 'Editorial' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!piece) notFound();
+  if (piece.kind === 'briefing') permanentRedirect(`/briefings/${slug}`);
   const SITE_URL = 'https://www.opengovt.uk';
   // Description (owner's approval, 24 Oct 2026): the piece's summary where it has one, else its standfirst; the same
   // text goes to openGraph and twitter.

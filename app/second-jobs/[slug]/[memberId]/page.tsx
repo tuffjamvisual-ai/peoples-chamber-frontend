@@ -23,7 +23,15 @@ const MONO = 'var(--font-special-elite), monospace';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; memberId: string }> }): Promise<Metadata> {
   const { slug, memberId } = await params;
-  const item = Number.isFinite(Number(memberId)) ? await loadMember(slug, Number(memberId)) : null;
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  // As the page: an MP filed under their old party goes to their current party's address.
+  if (!Number.isFinite(Number(memberId))) notFound();
+  const item = await loadMember(slug, Number(memberId));
+  if (!item) {
+    const now = await currentPartySlug(Number(memberId));
+    if (now && now !== slug && (await loadMember(now, Number(memberId)))) permanentRedirect(`/second-jobs/${now}/${Number(memberId)}`);
+    notFound();
+  }
   const name = displayMpName(item?.mp.display_name || item?.mp.name) || 'MP';
   return {
     title: titleWithin(`${name}, second jobs`),

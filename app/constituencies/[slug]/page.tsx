@@ -33,7 +33,8 @@ const load = cache(getSeat);
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const seat = await load((await params).slug);
-  if (!seat) return { title: 'Constituency', robots: { index: false, follow: true } };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!seat) notFound();
   return {
     title: titleWithin(`${seat.name} constituency`),
     description: `${seat.name}: its MP, the 2024 general election result, any byelection, the most signed petitions and the councils covering the seat.`.slice(0, 160),

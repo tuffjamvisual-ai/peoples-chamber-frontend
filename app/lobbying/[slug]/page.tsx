@@ -25,7 +25,8 @@ const FONT = 'var(--font-special-elite), monospace';
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const org = await getOrgBySlug(slug);
-  if (!org) return { title: 'Organisation not found' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!org) notFound();
   return {
     // Never the name alone, which the organisation's own page could share (owner, 7 Nov 2026: titles stay unique).
     title: namedTitle(org.name, (n) => [`${n}: meetings with UK ministers and lobbying firms`, `${n}: meetings with UK ministers`]),

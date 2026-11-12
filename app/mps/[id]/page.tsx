@@ -112,7 +112,8 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const memberId = parseInt(id, 10);
-  if (Number.isNaN(memberId)) return { title: 'MP profile' };
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (Number.isNaN(memberId)) notFound();
 
   // Previously this shipped a boilerplate template ("Voting record, registered
   // interests, sponsored bills and contact details.") across all 650 MPs. That
@@ -140,7 +141,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       const record = await memberRecord(memberId);
       if (record) return { title: titleWithin(`${record.name}: record and interests`), description: metaDescription(`${record.name}: their record at Prime Minister's Questions, from Hansard and UK Parliament's record.`), alternates: { canonical: `/mps/${memberId}` } };
     }
-    if (m.kind !== 'former_mp') return { title: 'MP profile' };
+    // A Lords-only member is redirected by the page; anyone else with this number has no page (404).
+    if (m.kind !== 'former_mp') { if (m.kind === 'lords_only') return { title: 'MP profile' }; notFound(); }
     const seat = m.mp.seats[m.mp.seats.length - 1]?.constituency;
     const years = m.mp.firstYear && m.mp.lastYear ? ` (${m.mp.firstYear} to ${m.mp.lastYear})` : '';
     return {
