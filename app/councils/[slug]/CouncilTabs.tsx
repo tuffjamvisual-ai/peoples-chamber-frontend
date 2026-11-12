@@ -27,9 +27,10 @@ type Tab = { id: string; label: string; rotate: string };
 const ACCENT = '#7a1612';
 const INK = '#14100d';
 
-// Phones (UX2f, owner approved through Cowork, 10 Nov 2026): a few sections as shortcuts (`shortcuts`), then one closed
-// native fold, "Council sections", with every section; choosing one closes the fold and brings that section's content to
-// the top of the screen. From 640px up every section is in the row or sidebar, as before.
+// Under 768px (UX2f, 10 Nov 2026; one menu, owner decision 12 Nov 2026, T1-DECLUT item 4): one closed native fold,
+// "Council sections", with every section, and no shortcut row (`shortcuts` is no longer shown); choosing one closes the
+// fold and brings that section's content to the top of the screen. From 768px up every section is in the row (768 to
+// 1023px) or the sidebar, as before.
 export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare, shortcuts = [] }: { tabs: Tab[]; slots: Record<string, ReactNode>; slug: string; lazyTabs: string[]; welfare: ReactNode; shortcuts?: string[] }) {
   const [active, setActive] = useState<string>(tabs[0]?.id ?? '');
   const [panelHtml, setPanelHtml] = useState<Record<string, string>>({});
@@ -225,14 +226,14 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare, shor
         @media ${phoneUpTo(767.98)} {
           .council-tabs nav { display: flex; flex-wrap: wrap; gap: 4px; overflow: visible; -webkit-mask-image: none !important; mask-image: none !important; }
           .council-tabs nav > button { flex: 0 1 auto; min-height: 44px; }
-          .council-tabs nav > button:not(.ct-short) { display: none !important; }
+          /* One menu where the fold shows (owner decision 12 Nov 2026, T1-DECLUT item 4): no shortcut row, only the fold. */
+          .council-tabs nav > button { display: none !important; }
           .council-tabs nav button { white-space: normal; min-width: 0; padding: 10px 8px !important; letter-spacing: 0.02em !important; overflow-wrap: anywhere; transform: none !important; }
           .council-tabs { gap: 6px !important; }
-          .council-tabs .ct-sections { display: block; flex: 1 1 12em; }
+          .council-tabs .ct-sections { display: block; flex: 1 1 100%; }
           .council-tabs .ct-sections > summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 4px; cursor: pointer; list-style: none; font-family: var(--font-special-elite), monospace; font-size: 15px; font-weight: bold; color: ${INK}; }
           .council-tabs .ct-sections > summary::-webkit-details-marker { display: none; }
-          .council-tabs .ct-sections > summary::after { content: '+'; font-size: 20px; color: ${ACCENT}; }
-          .council-tabs .ct-sections[open] > summary::after { content: '\\2212'; }
+          .council-tabs .ct-sections > summary::after { content: none !important; }
           .council-tabs .ct-sections > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px 0 8px; }
           .council-tabs .ct-sections button { width: 100%; min-height: 44px; }
           .council-tabs > div > [role=region] { scroll-margin-top: 8px; }
@@ -244,7 +245,8 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare, shor
         <nav ref={navRef} aria-label="Council information" className={moreRight ? 'more-right' : undefined}>
           {tabs.filter((t) => visible.includes(t.id)).map((t) => tabButton(t, shortcuts.includes(t.id) ? 'ct-short' : undefined))}
           <details ref={sectionsRef} className="ct-sections">
-            <summary>Council sections ({tabs.filter((t) => visible.includes(t.id)).length})</summary>
+            {/* The site's one fold marker (A15): + on the right, level with the label, − when open. */}
+            <summary>Council sections ({tabs.filter((t) => visible.includes(t.id)).length})<span className="og-fold-mark" aria-hidden="true" /></summary>
             <div>{tabs.filter((t) => visible.includes(t.id)).map((t) => tabButton(t))}</div>
           </details>
         </nav>
