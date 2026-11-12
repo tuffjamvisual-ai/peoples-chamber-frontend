@@ -17,7 +17,7 @@
 // at night (23:00 to 07:00 UK, or as part of the nightly run). Each page is loaded once per site: the 375 picture is taken,
 // then the window is widened to 1280. A picture is the whole page as a reader scrolls it, a screen at a time at that
 // window size, joined; live is www.opengovt.uk (opengovt.uk redirects there), with the cookie choice made, animations off
-// and every picture on the page loaded, CSS ones too.
+// and every picture on the page loaded, CSS ones too, and every web font the page declares.
 //
 // The pages a job names: a line 'VR-pages: /mps/[id], /' in a commit message of the push (page types or addresses,
 // comma separated; 'VR-pages: all' for a change meant for every page). Those pages may differ.
@@ -100,6 +100,15 @@ async function settle(page) {
     const loaded = (src) => new Promise((r) => { const i = new Image(); i.onload = i.onerror = () => (i.decode ? i.decode().catch(() => {}).then(r) : r()); i.src = src; });
     await Promise.race([
       Promise.all([...[...document.images].map((i) => (i.complete ? null : new Promise((r) => { i.onload = i.onerror = r; }))), ...[...bg].map(loaded)]),
+      new Promise((r) => setTimeout(r, 15000)),
+    ]);
+    // Every web font the page declares, loaded before the picture (Cowork, 12 Nov 2026: a live picture of an editorial
+    // was taken before Special Elite had loaded, so its heading showed in the browser's fallback font). A face the page
+    // has not used yet is loaded too; at most 15 s.
+    await document.fonts.ready;
+    const faces = [...document.fonts].filter((f) => f.status !== 'loaded');
+    await Promise.race([
+      Promise.all(faces.map((f) => f.load().catch(() => null))),
       new Promise((r) => setTimeout(r, 15000)),
     ]);
     await document.fonts.ready;
@@ -276,7 +285,7 @@ async function pushRun() {
   const h = ukHour();
   if (list.length > MAX_DAY_PAGES && h >= 7 && h < 23) { console.error(`visual compare: ${list.length} pages is over ${MAX_DAY_PAGES}; that many only run at night (23:00 to 07:00 UK)`); return 1; }
   fs.mkdirSync(OUT, { recursive: true });
-  console.log(`visual compare: ${list.length} pages (the 10 most visited${list.length > 10 ? ` and ${list.length - 10} page type(s) this push changes` : ''})${chosen.left.length ? `; ${chosen.left.length} more changed page types left to the nightly run` : ''}`);
+  console.log(`visual compare: ${list.length} pages (${ONLY ? 'chosen with --only' : `the 10 most visited${list.length > 10 ? ` and ${list.length - 10} page type(s) this push changes` : ''}`})${chosen.left.length ? `; ${chosen.left.length} more changed page types left to the nightly run` : ''}`);
   const browser = await chromium.launch();
   const before = await openPage(browser, LIVE), after = await openPage(browser, BASE);
   const rows = [];
