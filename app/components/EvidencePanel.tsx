@@ -59,9 +59,14 @@ export default function EvidencePanel({
   const showRecords = !!recordsReviewed?.length && !sourcesShownAbove;
   // With nothing recorded about the checks, only the corrections line shows, without the heading (owner, 4 Nov 2026).
   const hasChecks = showRecords || !!contacted || !!response || !!lastChecked;
+  // The heading says what the panel holds (T1-CITE option a, Cowork 13 Nov 2026): "How this piece was checked" only when
+  // there is an account of the checks (who was contacted, their response, or the records reviewed); with only the date,
+  // the heading is "Facts last checked" and the date sits under it.
+  const dateOnly = !!lastChecked && !showRecords && !contacted && !response;
+  const heading = dateOnly ? 'Facts last checked' : 'How this piece was checked';
   return (
     <aside
-      aria-label={hasChecks ? 'How this piece was checked' : 'Corrections'}
+      aria-label={hasChecks ? heading : 'Corrections'}
       style={{ marginTop: '44px', padding: '18px 20px 8px', border: `1px solid ${HAIRLINE}`, borderTop: `3px solid ${ACCENT}`, background: 'rgba(107,36,23,0.03)' }}
     >
       {/* Label beside the text on wider screens; stacked above it on phones, where a 150px
@@ -72,8 +77,11 @@ export default function EvidencePanel({
       `}</style>
       {hasChecks && (
         <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, margin: '0 0 6px' }}>
-          How this piece was checked
+          {heading}
         </p>
+      )}
+      {dateOnly && (
+        <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 7px' }}>{formatLastChecked(lastChecked!)}</p>
       )}
       {showRecords && (
         <Row label="Records reviewed">
@@ -82,7 +90,7 @@ export default function EvidencePanel({
       )}
       {contacted && <Row label="Contacted">{contacted}</Row>}
       {response && <Row label="Response">{response}</Row>}
-      {lastChecked && <Row label="Facts last checked">{formatLastChecked(lastChecked)}</Row>}
+      {lastChecked && !dateOnly && <Row label="Facts last checked">{formatLastChecked(lastChecked)}</Row>}
       <Row label="Corrections" first={!hasChecks}>
         Spotted an error? <a href={`mailto:${correctionsEmail}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{correctionsEmail}</a>. Corrections are logged.
       </Row>

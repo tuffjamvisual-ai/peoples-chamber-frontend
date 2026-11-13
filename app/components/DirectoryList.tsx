@@ -30,12 +30,14 @@ export type DirectoryGroup = { key: string; id: string; fold: string; label: str
 // Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): sections fold under their headings up to 1,023px (the Directory
 // was 16,707px at 768).
 const phoneCss = (list: string) => `.dir-h-btn { display: none; }
+.dir-h { position: relative; }
 @media ${phoneUpTo(1023.98)} {
   .dir-letters { align-items: center; }
   .dir-entry { padding: 0 0 9px !important; }
   .dir-entry p { margin: 0 !important; }
-  .dir-h-wide { display: none; }
-  .dir-h-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 0; font: inherit; color: inherit; background: none; border: 0; text-align: left; cursor: pointer; }
+  .dir-h { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
+  .dir-h-btn { position: static !important; display: flex; align-items: center; justify-content: flex-end; padding: 0; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  .dir-h-btn::after { content: ''; position: absolute; inset: 0; }
   .dir-mark::before { content: '+'; } .dir-h-btn[aria-expanded="true"] .dir-mark::before { content: '\\2212'; }
   .dir-section { margin-bottom: 8px !important; }
   .dir-section h2 { padding: 0 !important; }
@@ -76,10 +78,12 @@ export default function DirectoryList({ listId, groups, jumpLabel, words = false
       <div id={listId}>
         {groups.map((g) => (
           <section key={g.key} id={g.id} data-letter={g.key} className={g.open ? 'dir-section dir-open' : 'dir-section'} style={{ marginBottom: '22px', scrollMarginTop: '16px' }}>
-            <h2 style={{ fontFamily: MONO, fontSize: '22px', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, padding: '0 0 4px', margin: '0 0 6px' }}>
-              <span className="dir-h-wide">{g.label}</span>
-              <button type="button" className="dir-h-btn" data-letter-toggle={g.key} aria-expanded={g.open ? 'true' : 'false'} aria-label={`${g.label}, ${g.entries.length} ${g.entries.length === 1 ? 'entry' : 'entries'}`}>
-                <span>{g.label}</span>
+            {/* The letter once (T1-CITE, Cowork 13 Nov 2026: the heading read "A A" to anything reading the text, as the wide and
+                phone copies were both in the HTML). On phones the button covers the whole heading row (::after), so the
+                tap is as before; it is named by its count, so a screen reader hears "A", then "13 entries". */}
+            <h2 className="dir-h" style={{ fontFamily: MONO, fontSize: '22px', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, padding: '0 0 4px', margin: '0 0 6px' }}>
+              <span>{g.label}</span>
+              <button type="button" className="dir-h-btn" data-letter-toggle={g.key} aria-expanded={g.open ? 'true' : 'false'} aria-label={`${g.entries.length} ${g.entries.length === 1 ? 'entry' : 'entries'}`}>
                 <span className="dir-mark" aria-hidden="true" />
               </button>
             </h2>

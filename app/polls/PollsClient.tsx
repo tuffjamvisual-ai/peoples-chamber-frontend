@@ -8,7 +8,7 @@ import { ShowAll } from '../components/NoJsPager'
 import { SubFold } from '../components/PhoneFolds'
 import { phoneUpTo } from '@/lib/breakpoints';
 
-type Poll = {
+export type Poll = {
   id: number
   question: string
   constituency: string | null
@@ -32,23 +32,26 @@ const ACCENT = '#7a1612'
 const SUCCESS = '#4e6b34'
 const DANGER = '#8a2f20'
 
-export default function PollsClient() {
+// initialPolls: the open polls read on the server (app/polls/page.tsx), or null if that read failed and they load here.
+export default function PollsClient({ initialPolls = null }: { initialPolls?: Poll[] | null }) {
   const router = useRouter()
   const { user, authLoading } = useAuth()
-  const [polls, setPolls] = useState<Poll[]>([])
+  const [polls, setPolls] = useState<Poll[]>(initialPolls ?? [])
   const [userVotes, setUserVotes] = useState<Record<number, string>>({})
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortOption>('newest')
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(initialPolls == null)
   const [notice, setNotice] = useState<string | null>(null)
 
   useEffect(() => {
+    // The latest counts (the server's copy can be up to 5 minutes old). A failed refresh keeps the server's list.
     fetch('/api/polls')
       .then((r) => r.json())
       .then((d) => {
-        setPolls(d.polls || [])
+        if (Array.isArray(d.polls)) setPolls(d.polls)
         setLoading(false)
       })
+      .catch(() => setLoading(false))
   }, [])
 
   // Deep link: /polls#poll-<id> should land the reader on that poll's card,
@@ -160,12 +163,13 @@ export default function PollsClient() {
           opacity: 1,
         }}
       >
-        <span>
-          <strong style={{ fontSize: '16px' }}>{polls.length.toLocaleString()}</strong> polls
-        </span>
-        <span>
+        {/* No count while the list is still loading (it read "0 polls" before). */}
+        {!loading && <span>
+          <strong style={{ fontSize: '16px' }}>{polls.length.toLocaleString()}</strong> {polls.length === 1 ? 'poll' : 'polls'}
+        </span>}
+        {!loading && <span>
           <strong style={{ fontSize: '16px' }}>{totalVotesAll.toLocaleString()}</strong> total votes
-        </span>
+        </span>}
       </div>
 
       <div
@@ -263,7 +267,7 @@ export default function PollsClient() {
           <a href="/polls/archive" className="polls-archive-phone no-hover-scale">View archived polls →</a>
           {filtered.length === 0 && (
             <div style={{ textAlign: 'center', padding: '48px 0', color: INK_SOFT }}>
-              {search ? `No polls match "${search}".` : 'No other polls yet.'}
+              {search ? `No polls match "${search}".` : 'No polls open.'}
             </div>
           )}
         </>

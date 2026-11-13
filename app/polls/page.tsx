@@ -4,6 +4,8 @@ import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 import { PHONE } from '@/lib/breakpoints';
 import VotingIntegrity from '../components/VotingIntegrity';
+import { timedClient } from '@/lib/page-reads';
+import type { Poll } from './PollsClient';
 
 export const metadata: Metadata = {
   title: "opengovt Polls",
@@ -12,7 +14,20 @@ export const metadata: Metadata = {
   alternates: { canonical: '/polls' },
 }
 
-export default function PollsPage() {
+// The open polls are read here, on the server (T1-CITE, Cowork 13 Nov 2026), so the page arrives with them and their count,
+// with or without JavaScript; it used to arrive saying "0 polls" and "Loading polls…" until the script fetched them.
+// Rebuilt every 5 minutes; PollsClient still refreshes the counts on load. A failed read falls back to loading them there.
+export const revalidate = 300;
+
+export default async function PollsPage() {
+  const { data, error } = await timedClient(300)
+    .from('polls')
+    .select('*')
+    .eq('archived', false)
+    .eq('poll_type', 'yesno') // as /api/polls: the reader voting-intention poll is not in the yes/no list
+    .order('created_at', { ascending: false });
+  if (error) console.error('[polls] server read failed, the list loads in the browser:', error.message);
+  const initialPolls = error ? null : ((data ?? []) as Poll[]);
   return (
     <OpenGovShell>
       <BackLink
@@ -34,7 +49,7 @@ export default function PollsPage() {
         <p style={{ fontSize: '16px', lineHeight: 1.5, margin: 0 }}>Reader polls: the views of opengovt users who vote, not votes in Parliament.</p>
       </header>
 
-      <PollsClient />
+      <PollsClient initialPolls={initialPolls} />
 
       <details id="polls-about" className="pl-about">
         <summary>About these polls and voting integrity<span className="og-fold-mark" aria-hidden="true" /></summary>

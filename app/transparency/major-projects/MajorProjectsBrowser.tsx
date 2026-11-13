@@ -88,15 +88,20 @@ type CardYear = { year: number; dataAsAt: string; rating: string; end: string; c
 function ProjectCard({ p }: { p: ProjectLine }) {
   const [years, setYears] = useState<CardYear[] | null>(null);
   const [failed, setFailed] = useState(false);
+  // "Loading…" only while a card the reader opened is being fetched (T1-CITE, Cowork 13 Nov 2026): the HTML the server
+  // sends has no loading text, which search snippets, link previews and screen readers read as content.
+  const [loading, setLoading] = useState(false);
   const asked = useRef(false);
   const load = () => {
     if (asked.current) return;
     asked.current = true;
     setFailed(false);
+    setLoading(true);
     fetch(`/api/major-projects/${encodeURIComponent(p.key)}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((d: { years: CardYear[] }) => setYears(d.years))
-      .catch(() => { asked.current = false; setFailed(true); });
+      .catch(() => { asked.current = false; setFailed(true); })
+      .finally(() => setLoading(false));
   };
   const word = p.rating ? p.rating[0] + p.rating.slice(1).toLowerCase() : null;
   return (
@@ -116,7 +121,7 @@ function ProjectCard({ p }: { p: ProjectLine }) {
         <span style={{ display: 'block' }}>Last reported: {p.dataAsAt}</span>
       </summary>
       <div style={{ padding: '6px 0 10px', overflowWrap: 'anywhere' }}>
-        {!years && !failed && <p style={{ margin: 0 }}>Loading…</p>}
+        {loading && <p role="status" style={{ margin: 0 }}>Loading…</p>}
         {failed && <p style={{ margin: 0 }}>This could not be loaded. <button type="button" onClick={load} style={{ font: 'inherit', color: ACCENT, background: 'none', border: 'none', padding: 0, textDecoration: 'underline', cursor: 'pointer' }}>Try again</button></p>}
         {years?.map((y) => (
           <div key={y.year} style={{ marginBottom: '10px' }}>
