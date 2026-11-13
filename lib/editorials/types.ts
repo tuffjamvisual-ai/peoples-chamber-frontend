@@ -57,6 +57,8 @@ export type EditorialEntry = {
 
 export type Block =
   | { type: 'paragraph'; text: string }
+  // A bulleted list (T1-PUB-ASY, 13 Nov 2026): each item is one line, with the same [text](url) links as a paragraph.
+  | { type: 'list'; items: string[] }
   // Key-figure callout. stat is the display value (any string — number, %, £ etc.),
   // label is what it measures, context is an optional source/explanatory line.
   | { type: 'statBlock'; stat: string; label: string; context?: string }

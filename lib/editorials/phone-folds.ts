@@ -11,6 +11,7 @@ function heightOf(b: Block): number {
     case 'paragraph': return Math.ceil(b.text.replace(/\]\([^)]*\)/g, ']').length / 36) * 28 + 20;
     case 'heading': return b.level === 2 ? 110 : b.photo ? 300 : 80;
     case 'bioLine': return Math.ceil(b.text.length / 34) * 23 + 20;
+    case 'list': return b.items.reduce((px, t) => px + Math.ceil(t.replace(/\]\([^)]*\)/g, ']').length / 33) * 28 + 8, 20);
     default: return 160;
   }
 }

@@ -204,6 +204,8 @@ function renderBlock(block: Block, i: number): React.ReactNode {
   switch (block.type) {
     case 'paragraph':
       return <p key={i} style={{ marginBottom: '20px' }}>{withLinks(block.text)}</p>;
+    case 'list':
+      return <ul key={i} style={{ margin: '0 0 20px', paddingLeft: '1.4em', listStyle: 'disc' }}>{block.items.map((t, j) => <li key={j} style={{ marginBottom: '8px' }}>{withLinks(t)}</li>)}</ul>;
     case 'statBlock':
       return <KeyStat key={i} stat={block.stat} label={block.label} context={block.context} />;
     case 'dataBlock':

@@ -14,6 +14,9 @@ export function extractBodyText(blocks: Block[]): string {
       case 'heading':
         parts.push(block.text);
         break;
+      case 'list':
+        parts.push(block.items.join('\n'));
+        break;
       case 'statBlock':
         parts.push([block.stat, block.label, block.context].filter(Boolean).join(' '));
         break;
