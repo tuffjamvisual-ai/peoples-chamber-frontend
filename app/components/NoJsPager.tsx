@@ -29,10 +29,14 @@ export const PHONE_FIRST = 5;
 export const showAllClass = (id: string) => `njp-sa-${id}`;
 // The button names the rows it adds (house rule, Cowork 13 Nov 2026, ENTRY 8: "Show 47 more", not "Show all 50"); first is
 // the rows already shown before it.
-export function ShowAllDetails({ id, count, first }: { id: string; count: number; first: number }) {
+// noun (optional): what a row is, so two buttons near each other say what each adds ("Show 4 more divisions on 3 November",
+// "Show 11 more sitting days"; Cowork 13 Nov 2026, ENTRY 9); without it, "Show N more".
+export type MoreNoun = { one: string; many: string };
+export function ShowAllDetails({ id, count, first, noun }: { id: string; count: number; first: number; noun?: MoreNoun }) {
+  const n = Math.max(0, count - first);
   return (
     <details className={`njp-sa ${showAllClass(id)}`}>
-      <summary><span className="njp-sa-more">Show {Math.max(0, count - first).toLocaleString('en-GB')} more</span><span className="njp-sa-less">Show fewer</span></summary>
+      <summary><span className="njp-sa-more">Show {n.toLocaleString('en-GB')} more{noun ? ` ${n === 1 ? noun.one : noun.many}` : ''}</span><span className="njp-sa-less">Show fewer</span></summary>
     </details>
   );
 }
@@ -49,7 +53,7 @@ export function pagesByHeight(heights: number[], room: number, most = Infinity):
   return sizes;
 }
 
-export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, first = PHONE_FIRST, ownMore = false, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; first?: number; ownMore?: boolean; children?: ReactElement<{ className?: string }> }) {
+export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, first = PHONE_FIRST, ownMore = false, noun, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; first?: number; ownMore?: boolean; noun?: MoreNoun; children?: ReactElement<{ className?: string }> }) {
   const split = sizes ?? Array.from({ length: Math.ceil(count / size) }, () => size);
   const cardCss = cards ? `@media ${phoneUpTo(767.98)} {${cards.map((label, i) => (label ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${i + 1})::before{content:${JSON.stringify(`${label}: `)};font-weight:bold}` : '')).join('')}${title ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${title}){font-weight:bold;font-size:16px}` : ''}}` : '';
   const cardClass = cards ? `njc njc-${id}` : '';
@@ -67,7 +71,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
     : '';
   const phoneStyle = phoneCss ? <style dangerouslySetInnerHTML={{ __html: phoneCss }} /> : null;
   const ownList = (extra: string) => children ? cloneElement(children as ReactElement<{ className?: string; 'data-own-more'?: string }>, { className: [children.props.className, extra, cardClass].filter(Boolean).join(' '), ...(showAll ? { 'data-own-more': '' } : {}) }) : null;
-  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} first={first} /> : null}</>;
+  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} /> : null}</>;
   const pages = split.length;
   const nums = Array.from({ length: pages }, (_, i) => i + 1);
   const upTo = (k: number) => split.slice(0, k).reduce((a, b) => a + b, 0);   // rows on screens 1 to k
@@ -96,7 +100,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
       {nums.map((k) => <PagerNav key={`top-${k}`} id={id} k={k} pages={pages} always={always} wide={wide && always} top />)}
       {ownList(list)}
       {children && nums.map((k) => <PagerNav key={k} id={id} k={k} pages={pages} always={always} wide={wide && always} />)}
-      {children && showAll ? <ShowAllDetails id={id} count={count} first={first} /> : null}
+      {children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} /> : null}
     </>
   );
 }
@@ -115,8 +119,8 @@ function PagerNav({ id, k, pages, always = false, wide = false, top = false }: {
 // The Previous and Next links for rows that are siblings (`items` above): put after the last of them.
 // A plain list or table (MP2f-2, 9 Nov 2026): on phones the first rows and "Show all <N>" after it, with no paging at any
 // width; nothing changes from 640px up. rows: from the list to its rows, "> tbody > tr" for a table, "> li" for a list.
-export function ShowAll({ id, count, rows = '> tbody > tr', first, children }: { id: string; count: number; rows?: string; first?: number; children: ReactElement<{ className?: string }> }) {
-  return <NoJsPager id={id} count={count} rows={rows} size={Math.max(count, 1)} first={first}>{children}</NoJsPager>;
+export function ShowAll({ id, count, rows = '> tbody > tr', first, noun, children }: { id: string; count: number; rows?: string; first?: number; noun?: MoreNoun; children: ReactElement<{ className?: string }> }) {
+  return <NoJsPager id={id} count={count} rows={rows} size={Math.max(count, 1)} first={first} noun={noun}>{children}</NoJsPager>;
 }
 
 // With "Show all" on phones (MP2f) after them, for rows that are siblings.

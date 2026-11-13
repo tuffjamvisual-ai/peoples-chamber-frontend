@@ -41,6 +41,9 @@ function fmtDate(d: string) {
   return new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+// "3 November" for a day's own "Show N more divisions on 3 November" (Cowork 13 Nov 2026, ENTRY 9).
+const dayMonth = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+
 export default async function DivisionsIndexPage({
   searchParams,
 }: {
@@ -107,7 +110,7 @@ export default async function DivisionsIndexPage({
       {rows.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No divisions found.</p>}
 
       {/* Phones (step 5, 10 Nov 2026; the page was 6,668px): the 3 most recent sitting days, then "Show all <N>". */}
-      <ShowAll id="div-days" count={byDate.length} rows="> section" first={3}>
+      <ShowAll id="div-days" count={byDate.length} rows="> section" first={3} noun={{ one: 'sitting day', many: 'sitting days' }}>
       <div>
       {byDate.map((group) => (
         <section key={group.date} style={{ marginBottom: '28px' }}>
@@ -116,7 +119,7 @@ export default async function DivisionsIndexPage({
           </h2>
           {/* T1-MOB batch 2 (Cowork 13 Nov 2026): on phones and tablets each day shows its first 3 divisions, then "Show N
               more" (3 Nov 2026 alone had more than 10); from 1,024px as before. */}
-          <ShowAll id={`div-${group.date}`} count={group.items.length} rows="> a" first={3}>
+          <ShowAll id={`div-${group.date}`} count={group.items.length} rows="> a" first={3} noun={{ one: `division on ${dayMonth(group.date)}`, many: `divisions on ${dayMonth(group.date)}` }}>
           <div>
           {group.items.map((d) => (
             <Link
