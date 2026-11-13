@@ -130,11 +130,14 @@ export function NoJsPagerLinks({ id, count, size = 25, sizes, first = PHONE_FIRS
 
 // A long section as a native fold, for phones with JavaScript off only; otherwise the section shows as it always has. No wrapper: everything between
 // the fold and its hidden end marker is hidden while it is closed. id as above. With `always` it folds on phones with JavaScript on as well.
-export function NoJsFold({ id, label, open = false, always = false, children }: { id: string; label: ReactNode; open?: boolean; always?: boolean; children: ReactNode }) {
+// tablets (T1-GUARD, owner approved 13 Nov 2026): with `always`, the fold is there on tablets as well, up to 1,023px, for a
+// section too long for the 3,000px tablet length. From 1,024px up nothing changes.
+export function NoJsFold({ id, label, open = false, always = false, tablets = false, children }: { id: string; label: ReactNode; open?: boolean; always?: boolean; tablets?: boolean; children: ReactNode }) {
+  const t = always && tablets;
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(767.98)} {${always ? 'html' : 'html:not(.og-js)'} #${id}:not([open]) ~ *:not(#${id}-end):not(#${id}-end ~ *){display:none!important}}` }} />
-      <details id={id} className={always ? 'njf njf-on' : 'njf'} open={open}><summary>{label}</summary></details>
+      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(t ? 1023.98 : 767.98)} {${always ? 'html' : 'html:not(.og-js)'} #${id}:not([open]) ~ *:not(#${id}-end):not(#${id}-end ~ *){display:none!important}}` }} />
+      <details id={id} className={always ? (t ? 'njf njf-on njf-t' : 'njf njf-on') : 'njf'} open={open}><summary>{label}</summary></details>
       {children}
       <i id={`${id}-end`} className="njp-a" />
     </>

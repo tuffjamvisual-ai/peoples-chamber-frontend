@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { ShowAllDetails } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 
 // The /transparency/major-projects list with a name search and filters (24 Oct 2026): department, latest delivery
 // confidence rating, the report a project was last in, and "no evaluation plan in March 2025" (the earlier
@@ -64,9 +65,11 @@ const KEYS: (keyof State)[] = ['q', 'dept', 'rating', 'year', 'evaluation'];
 // Under 640px the list shows the first PHONE_PAGE projects and headings give full department names; the rest are behind
 // "Show all <N>", a native details (step 5, 10 Nov 2026: was a "Show more" button that needed JavaScript, 25 at a time,
 // and the page was 7,567px). Every project is still in the HTML, and from 640px up all of them show as before.
-const PHONE_PAGE = 4;
+// 3 (T1-GUARD, owner approved 13 Nov 2026: growing lists show their first 3, then 'Show all').
+const PHONE_PAGE = 3;
+// Phones and tablets (T1-GUARD, owner approved 13 Nov 2026: tablets up to 1,023px get the same cards and 'Show all').
 const CARD_CSS = `.mpb-card, .mpb-phone-name { display: none; }
-@media ${phoneUpTo(767.98)} {
+@media ${phoneUpTo(1023.98)} {
   body:has(.njp-sa-mpb:not([open])) .mpb-over { display: none !important; }
   .mpb-phone-name { display: inline; }
   .mpb-wide { display: none; }
@@ -199,6 +202,8 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
   return (
     <>
       <style>{CARD_CSS}</style>
+      {/* Phones (T1-GUARD, owner approved 13 Nov 2026: 2,500px at 320): the search and filters, and the note on them, in a fold. */}
+      <SubFold label="Filter projects">
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px', alignItems: 'baseline' }}>
         <input aria-label="Search project names" type="search" placeholder="Search project names…" value={state.q}
           onChange={(e) => set({ q: e.target.value })} style={{ ...field, flex: '1 1 260px', maxWidth: '380px' }} />
@@ -222,6 +227,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 6px', maxWidth: '70ch' }}>
         The rating and department are each project&rsquo;s latest. &ldquo;Last reported&rdquo; means the project is not in the March {latestYear} report.
       </p>
+      </SubFold>
       {state.evaluation === 'no' && (
         <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 6px', maxWidth: '62ch' }}>
           No evaluation plan: projects whose department answered &ldquo;No&rdquo; to &ldquo;Does the project have an evaluation plan? (self reported)&rdquo; in the March 2025 data ({noPlanCount} projects).

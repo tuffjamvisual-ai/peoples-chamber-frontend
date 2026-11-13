@@ -140,9 +140,12 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
 
         <section className="sew-nat" aria-label="National totals">
         <h2 style={h2}>National totals</h2>
+        {/* Phones (T1-GUARD, owner approved 13 Nov 2026: 2,500px at 320): the explanation in a fold, nothing cut. */}
+        <SubFold label="What a storm overflow is">
         <p style={para}>
           A storm overflow releases diluted sewage into a river or the sea when sewers are overloaded, usually in heavy rain. Overflows are run by water and sewerage companies, which must monitor how often and for how long each one spills. Councils do not run them, so these tables show where spills happened, not how well a council performs.
         </p>
+        </SubFold>
 
         {eaYear != null && (
           <p style={{ fontFamily: SERIF, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 6px' }}>
@@ -163,13 +166,16 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
 
         <SewageExplorer tables={tables} initialTable={initialTable} initialSort={initialSort} />
 
+        {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): the fold names the section, so its heading is not repeated above it. */}
+        <style>{`@media ${phoneUpTo(1023.98)} { .sew-fold-h { display: none; } }`}</style>
         <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-          <h2 style={h2}>Water companies</h2>
+          <h2 className="sew-fold-h" style={h2}>Water companies</h2>
           {/* Under 640px (owner, 4 Nov 2026): cards like the league tables (their styles are in SewageExplorer.tsx); from 640px
               the table, whose company column stays put while the figures scroll up to 768px (report 47). */}
-          <style>{`@media ${phoneUpTo(767.98)} { .sew-co-table { display: none; } }`}</style>
+          {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): the cards up to 1,023px. */}
+          <style>{`@media ${phoneUpTo(1023.98)} { .sew-co-table { display: none; } }`}</style>
           {/* Phones (step 5, 10 Nov 2026; the page was 6,311px): folded, then the first 5 companies and "Show all <N>". */}
-          <NoJsFold id="sew-co-f" always label={`The ${companies.length.toLocaleString('en-GB')} companies`}>
+          <NoJsFold id="sew-co-f" always tablets label={`Water companies (${companies.length.toLocaleString('en-GB')})`}>
           <ShowAll id="sew-co" count={companies.length} rows="> li">
           <ol className="sew-cards" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
             {companies.map((c, i) => (
@@ -189,7 +195,6 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
             ))}
           </ol>
           </ShowAll>
-          </NoJsFold>
           <div className="sew-co-table">
           <PhoneTable sticky={1}>
             <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%', minWidth: '600px' }}>
@@ -219,11 +224,13 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
           <p style={{ ...para, fontSize: '15px', marginTop: '10px' }}>
             Dwr Cymru Welsh Water’s figures here are only the overflows listed in the Environment Agency’s return for England.
           </p>
+          {/* The fold ends after the note (T1-GUARD): on phones and tablets the note is folded with the companies; from 1,024px up the fold does nothing. */}
+          </NoJsFold>
         </section>
 
         <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-          <h2 style={h2}>How these figures are made</h2>
-          <SubFold label="Read how they are made">
+          <h2 className="sew-fold-h" style={h2}>How these figures are made</h2>
+          <SubFold label="How these figures are made" tablets>
           <p style={para}>
             England: every storm overflow in the Environment Agency’s {eaYear} annual return ({fmtInt(ea.length)} overflows). Each one is placed in its council area and Westminster constituency from the grid reference of its outlet, using Office for National Statistics boundaries (July 2024 constituencies, May 2026 council areas). {fmtInt(eaTidal)} outlets lie below the high tide line and are placed using the boundaries that extend out to sea. {fmtInt(eaOffshore)} lie further out and are counted with the nearest council area and constituency within 15 km; two of these were checked by hand and placed by the location of their treatment works instead (Ryde, Isle of Wight, and Hayle, Cornwall), because the nearest shore was a different area.
             {eaUnplaced.length > 0 && ` ${fmtInt(eaUnplaced.length)} overflow${eaUnplaced.length === 1 ? ' could not be placed because its published grid reference is not valid' : 's could not be placed because their published grid references are not valid'} (${eaUnplaced.join(', ')}); ${eaUnplaced.length === 1 ? 'it is' : 'they are'} included in the national and company totals but not in any area.`}

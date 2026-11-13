@@ -177,7 +177,7 @@ export default async function SpecialAdvisersPage() {
           {known && <p style={{ fontSize: '15px', lineHeight: 1.7, fontWeight: 'bold', margin: '0 0 14px' }}>{stillTitles.size} of the {listedCount} appointing ministers are still in the same post.</p>}
           {/* Folded on phones with JavaScript on as well (step 5, 10 Nov 2026: the page was 8,214px with it on, 3,601px off). The notes on how
               the list is made are inside it. */}
-          <NoJsFold id="spf-posts" always label="Each Cabinet post and its advisers">
+          <NoJsFold id="spf-posts" always tablets label="Each Cabinet post and its advisers">
           {!known && <SpadRosterTable rows={appointments} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="a" anchorNames={tableAnchors.all} />}
           {known && (
             <>
@@ -224,7 +224,7 @@ export default async function SpecialAdvisersPage() {
       )}
 
       <h2 style={{ ...sectionH2, fontSize: '22px', color: ACCENT }}>Quarterly declarations</h2>
-      <NoJsFold id="spf-quarters" always label="Declared gifts, hospitality and media meetings, by quarter">
+      <NoJsFold id="spf-quarters" always tablets label="Declared gifts, hospitality and media meetings, by quarter">
       <QuarterSections quarters={quarters} roster={roster} gifts={gifts} hosps={hosps} meets={meets} deptSlugs={deptSlugs} />
       </NoJsFold>
 

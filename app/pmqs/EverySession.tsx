@@ -50,12 +50,13 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
       ))}
       <NoJsPagerLinks id="pmqs-pms" count={groups.length} size={groups.length} first={4} />
       <div className="pfq-wrap">
-        <style>{`@media ${phoneUpTo(767.98)} { .pfq-wrap .pf-sb > #before-fixed-pmqs { display: none; } }`}</style>
-        <SubFold label="Questions to the Prime Minister, 1945 to 1961"><PreFixedQuestions /></SubFold>
+        {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): folded up to 1,023px. */}
+        <style>{`@media ${phoneUpTo(1023.98)} { .pfq-wrap .pf-sb > #before-fixed-pmqs { display: none; } }`}</style>
+        <SubFold label="Questions to the Prime Minister, 1945 to 1961" tablets><PreFixedQuestions /></SubFold>
       </div>
       <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '28px 0 10px' }}>Our count against the Commons Library</h3>
       {/* Folded on phones (step 5, 10 Nov 2026: the page was 5,098px). */}
-      <NoJsFold id="pmqs-count-f" always label={`The ${totals.length.toLocaleString('en-GB')} Prime Ministers`}>
+      <NoJsFold id="pmqs-count-f" always tablets label={`The ${totals.length.toLocaleString('en-GB')} Prime Ministers`}>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
         <thead>
           <tr>

@@ -165,10 +165,12 @@ export default function PhoneFolds({ folds, showContents = true, contentsLabel =
 // 15px text naming the part and its count, closed at first, and the content beside it, shown when it is open. Its own
 // heading is hidden on phones, as the summary names it. From the phone width up the details is hidden and the content's
 // box is display: contents, so the page renders exactly as without it. The styles are in PhoneFolds' stylesheet above.
-export function SubFold({ label, summary, children }: { label: string; summary?: string | null; children: ReactNode }) {
+// tablets (T1-GUARD, owner approved 13 Nov 2026): the fold on tablets as well, up to 1,023px, for a section too long for the
+// 3,000px tablet length (globals.css .pf-t). From 1,024px up nothing changes.
+export function SubFold({ label, summary, tablets = false, children }: { label: string; summary?: string | null; tablets?: boolean; children: ReactNode }) {
   return (
     <>
-      <details className="pf-sd">
+      <details className={tablets ? 'pf-sd pf-t' : 'pf-sd'}>
         <summary>
           <span className="pf-sbtn">
             <span>{label}{summary ? <span className="pf-sum">: {summary}</span> : null}</span>
@@ -176,7 +178,7 @@ export function SubFold({ label, summary, children }: { label: string; summary?:
           </span>
         </summary>
       </details>
-      <div className="pf-sb">{children}</div>
+      <div className={tablets ? 'pf-sb pf-t' : 'pf-sb'}>{children}</div>
     </>
   );
 }

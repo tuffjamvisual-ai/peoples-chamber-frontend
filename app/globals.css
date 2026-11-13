@@ -217,6 +217,11 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   html:not(.og-js) .njf, .njf.njf-on { display: block; border-top: 1px solid rgba(20,16,13,0.25); }
   html:not(.og-js) .njf > summary, .njf.njf-on > summary { display: flex; align-items: center; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; color: #14100d; cursor: pointer; }
 }
+/* NoJsFold `tablets` (T1-GUARD, owner approved 13 Nov 2026): the same fold on tablets, 768px to 1,023px. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .njf.njf-t { display: block; border-top: 1px solid rgba(20,16,13,0.25); }
+  .njf.njf-t > summary { display: flex; align-items: center; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; color: #14100d; cursor: pointer; }
+}
 /* SubFold (app/components/PhoneFolds.tsx) on any page (MP2f, 9 Nov 2026): its rules were only in PhoneFolds' own styles,
    so a SubFold on a page without PhoneFolds did not fold. The same rules, here once. */
 .pf-sd { display: none; }
@@ -234,6 +239,21 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .pf-sb { display: block; padding: 4px 0 12px; }
   .pf-sd:not([open]) + .pf-sb { display: none; }
   .pf-sd:not([open]) + .pf-sb:has(:target) { display: block; }
+}
+/* SubFold `tablets` (T1-GUARD, owner approved 13 Nov 2026): the same fold on tablets, 768px to 1,023px. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .pf-sd.pf-t { display: block; border-top: 1px dashed rgba(20,16,13,0.3); }
+  .pf-sd.pf-t > summary { display: block; list-style: none; cursor: pointer; }
+  .pf-sd.pf-t > summary::-webkit-details-marker { display: none; }
+  .pf-sd.pf-t > summary::after { content: none !important; }
+  .pf-t .pf-sbtn { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 6px 2px; font-size: 15px; font-weight: bold; color: #14100d; text-align: left; }
+  .pf-t .pf-sum { font-weight: normal; }
+  .pf-t .pf-mark { flex: 0 0 auto; font-size: 20px; line-height: 1; color: #7a1612; }
+  .pf-t .pf-mark::before { content: '+'; }
+  .pf-sd.pf-t[open] .pf-mark::before { content: '\2212'; }
+  .pf-sb.pf-t { display: block; padding: 4px 0 12px; }
+  .pf-sd.pf-t:not([open]) + .pf-sb.pf-t { display: none; }
+  .pf-sd.pf-t:not([open]) + .pf-sb.pf-t:has(:target) { display: block; }
 }
 /* NoJsPager "Show all" (MP2f, 9 Nov 2026): on phones and tablets (up to 1,023px, T1-TABFOLD, owner approved 13 Nov 2026), a
    native <details> after a long list's first rows; nothing from 1,024px up. */
@@ -269,7 +289,8 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 }
 .pc-d { display: none; }
 .pc-b { display: contents; }
-@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026: tablets follow the growing lists rule, as T1-TABFOLD): up to 1,023px. */
+@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .pc-d { display: block; }
   .pc-b { display: block; }
   .pc-d:not([open]) + .pc-b { display: none; }

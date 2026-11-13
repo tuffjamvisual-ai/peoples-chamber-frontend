@@ -9,6 +9,7 @@
 import PageSources from '@/app/components/PageSources';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { SubFold } from '@/app/components/PhoneFolds';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { departments } from '@/lib/departments';
@@ -71,11 +72,14 @@ export default async function MajorProjectsPage() {
           departments report every project&rsquo;s whole life cost, its end date and a delivery confidence rating of Red, Amber or Green,
           and the government&rsquo;s projects authority (the IPA until 2025, now NISTA) publishes them.
         </p>
+        {/* Phones (T1-GUARD, owner approved 13 Nov 2026: 2,500px at 320): the note on prices in a fold, nothing cut. */}
+        <SubFold label="About the costs">
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', marginTop: '10px' }}>
           From March 2026 costs are in 2024/25 prices. The reports for March 2024 and March 2025 do not say what price basis their
           costs use, and some departments used their own (HS2&rsquo;s costs were in 2019 prices), so each year&rsquo;s cost is shown with
           its basis and costs are not compared between years.
         </p>
+        </SubFold>
         <p style={{ marginTop: '14px', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>
           {projects.length} projects since March 2024 · {current} in the March {latestYear} report
         </p>
@@ -91,10 +95,13 @@ export default async function MajorProjectsPage() {
 
       <MajorProjectsBrowser projects={lines} latestYear={latestYear} noPlanCount={noPlan.length} />
 
+      {/* Phones (T1-GUARD): this note in a fold, nothing cut. */}
+      <SubFold label="About these figures">
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
         Sources: {Object.values(REPORT_PAGES).map((r) => r.title).join('; ')} (in Sources at the end of the page).
         Names, figures, dates and ratings are as the departments reported them. Where a rating, cost or date is withheld, the file&rsquo;s wording is shown.
       </p>
+      </SubFold>
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
       <PageSources sources={Object.values(REPORT_PAGES).map((r) => ({ label: r.title, href: r.url }))} />
     </OpenGovShell>
