@@ -1,4 +1,5 @@
 import NoJsPager from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import type { Metadata } from 'next';
 import LastUpdated from '../../components/LastUpdated';
 import Link from 'next/link';
@@ -270,7 +271,9 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
       )}
 
       {/* Result cards */}
-      <NoJsPager id="roi-rows" count={interests.length} rows="> *" size={10} first={2}>
+      {/* Phones (T1-PUB-ASY, owner approved 13 Nov 2026, growing lists rule): the newest 3 entries, then 'Show all'; each entry
+          shows its first line, the rest in a closed 'Full entry' fold (SubFold), never cut. From 768px up unchanged. */}
+      <NoJsPager id="roi-rows" count={interests.length} rows="> *" size={10} first={3}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {interests.map((row, i) => {
           const mp = mpsById.get(row.member_id);
@@ -300,7 +303,12 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
                   </span>
                 )}
               </div>
-              <div>{renderInterestText(row.interest_text)}</div>
+              {(() => {
+                const lines = renderInterestText(row.interest_text);
+                return lines.length > 1
+                  ? <div>{lines[0]}<SubFold label="Full entry">{lines.slice(1)}</SubFold></div>
+                  : <div>{lines}</div>;
+              })()}
             </article>
           );
         })}
