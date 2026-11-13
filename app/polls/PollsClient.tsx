@@ -37,7 +37,14 @@ export default function PollsClient({ initialPolls = null }: { initialPolls?: Po
   const router = useRouter()
   const { user, authLoading } = useAuth()
   const [polls, setPolls] = useState<Poll[]>(initialPolls ?? [])
-  const [userVotes, setUserVotes] = useState<Record<number, string>>({})
+  // The signed in reader's votes, kept with the reader they belong to: signing out (or in as someone else) shows no votes
+  // at once, without resetting state inside an effect (react-hooks/set-state-in-effect).
+  const [votesOf, setVotesOf] = useState<{ userId: number | null; votes: Record<number, string> }>({ userId: null, votes: {} })
+  const userVotes: Record<number, string> = user && votesOf.userId === user.id ? votesOf.votes : {}
+  const addVote = (pollId: number, choice: string) => {
+    if (!user) return
+    setVotesOf((prev) => ({ userId: user.id, votes: { ...(prev.userId === user.id ? prev.votes : {}), [pollId]: choice } }))
+  }
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortOption>('newest')
   const [loading, setLoading] = useState(initialPolls == null)
@@ -75,13 +82,10 @@ export default function PollsClient({ initialPolls = null }: { initialPolls?: Po
   }, [loading, polls])
 
   useEffect(() => {
-    if (!user) {
-      setUserVotes({})
-      return
-    }
+    if (!user) return
     fetch('/api/polls/vote?userId=' + user.id)
       .then((r) => r.json())
-      .then((d) => setUserVotes(d.votes || {}))
+      .then((d) => setVotesOf({ userId: user.id, votes: d.votes || {} }))
   }, [user])
 
   const handleVote = async (pollId: number, choice: 'yes' | 'no') => {
@@ -104,7 +108,7 @@ export default function PollsClient({ initialPolls = null }: { initialPolls?: Po
     })
 
     if (res.ok) {
-      setUserVotes((prev) => ({ ...prev, [pollId]: choice }))
+      addVote(pollId, choice)
       setPolls((prev) =>
         prev.map((p) => {
           if (p.id !== pollId) return p
@@ -121,7 +125,7 @@ export default function PollsClient({ initialPolls = null }: { initialPolls?: Po
         setNotice('Your session has expired. Please refresh the page and sign in again.')
         return
       }
-      if (res.status === 400) setUserVotes((prev) => ({ ...prev, [pollId]: choice }))
+      if (res.status === 400) addVote(pollId, choice)
       setNotice(
         d?.error === 'Already voted'
           ? 'You have already voted on this poll.'
