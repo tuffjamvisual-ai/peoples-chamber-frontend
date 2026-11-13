@@ -52,7 +52,7 @@ export default function OpenGovShell({
     >
       {/* Folders-pile backdrop, pinned to the viewport. */}
       {/* The image is set in opengov-shell.css (.og-backdrop) so phones get the 900px version. */}
-      <div aria-hidden className="og-backdrop" style={{ position: 'fixed', inset: 0, backgroundColor: '#140d07', backgroundSize: '135%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', zIndex: 0, pointerEvents: 'none' }} />
+      <div aria-hidden className="og-backdrop" style={{ position: 'fixed', inset: 0, backgroundColor: '#140d07', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', zIndex: 0, pointerEvents: 'none' }} />
 
       <div className="og-shell-inner" style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
         {/* Header: newb folder with the OPEN GOVERNMENT red stamp + nav + tab. */}

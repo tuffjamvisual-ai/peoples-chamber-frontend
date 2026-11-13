@@ -145,11 +145,6 @@ export default function MpDossier({
              lower at 1280 and 1024: 48px x zoom 1.18 less the content's own top padding). */
           .pca-sections aside { margin-top: 5px !important; }
         }
-        /* T1-SIDE (Cowork 12 Nov 10:45): a thin dark line ran across the folder above the name at 1024 x 768. The folder's
-           top and middle pictures meet at a fraction of a pixel (400.6px there), and the dark page behind showed through
-           that one row of pixels. The middle picture now starts 1px under the top one. On this page only: the same join is
-           in the shared shell (opengov-shell.css), which is layout-locked. */
-        .dossier-frame .d-mid { margin-top: -1px; }
       `}</style>
 
       {/* "All MPs" above the header (UX1f, 9 Nov 2026): the list of MPs with this MP's party open. It was "← Back", which
