@@ -2,6 +2,7 @@
 // table (rating, end date and whole-life cost for each March) and the department's commentary for each year.
 // project_key is the file's project ID (e.g. DFT_0141_2223-Q1), or 'no-id:<DEPT>:<name>' for the 2 rows without one.
 
+import { SubFold } from '@/app/components/PhoneFolds';
 import { namedTitle } from '@/lib/seo-title';
 import { ledBy } from '@/lib/meta-description';
 import type { Metadata } from 'next';
@@ -99,10 +100,15 @@ export default async function MajorProjectPage({ params }: Props) {
           ) : <>Evaluation plan: not stated in the {e.dataAsAt} report</>}
         </p>
       ))}
-      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '10px 0 24px', maxWidth: '62ch' }}>
+      {/* T1-MOB batch 1: on phones the note on prices folds (as on the major projects list, 'About the costs'). */}
+      <div style={{ margin: '10px 0 24px' }}>
+      <SubFold label="About the costs">
+      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0, maxWidth: '62ch' }}>
         Each year&rsquo;s cost is shown with its price basis. Costs are not compared between years: the March 2024 and March 2025 reports
         state no price basis, and from March 2026 costs are in 2024/25 prices.
       </p>
+      </SubFold>
+      </div>
 
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 'bold', margin: '0 0 10px' }}>
         The department&rsquo;s commentary
@@ -113,8 +119,12 @@ export default async function MajorProjectPage({ params }: Props) {
       {narratives.map((y, i) => (
         <details key={y.report_year} open={i === 0} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, padding: '10px 0' }}>
           <summary style={{ fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}>{y.data_as_at}</summary>
+          {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones each commentary folds under its name (the open latest year ran
+              to about 2,000px at 320); from 768px as before, the same words. */}
           {([['Rating', y.rating_narrative], ['Schedule', y.schedule_narrative], ['Cost', y.cost_narrative]] as const).map(([label, t]) => t && (
-            <p key={label} style={{ fontSize: '15px', lineHeight: 1.6, margin: '8px 0 0', whiteSpace: 'pre-line', maxWidth: '72ch' }}><em>{label}:</em> {asPublished(t)}</p>
+            <SubFold key={label} label={`${label} commentary`}>
+            <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '8px 0 0', whiteSpace: 'pre-line', maxWidth: '72ch' }}><em>{label}:</em> {asPublished(t)}</p>
+            </SubFold>
           ))}
           {!y.rating_narrative && !y.schedule_narrative && !y.cost_narrative && (
             <p style={{ fontSize: '15px', margin: '8px 0 0' }}>No commentary in the file for this year.</p>

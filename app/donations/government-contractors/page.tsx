@@ -90,6 +90,10 @@ export default async function ContractorsWhoDonatePage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Matched companies · ranked by political donations</h2>
+        {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on tablets (768 to 1,023px) the table was 54px wider than the screen; it now
+            scrolls sideways inside its own box, with a visible edge on the right. Phones (cards) and desktop as before. */}
+        <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 768px) and (max-width: 1023.98px) { .gc-scroll { overflow-x: auto; border-right: 3px solid rgba(20,16,13,0.35); } }` }} />
+        <div className="gc-scroll">
         <ShowAll id="contractors-matched" first={3} count={(matched).length}>
         <table style={tableStyle}>
           <thead>
@@ -120,6 +124,7 @@ export default async function ContractorsWhoDonatePage() {
           </tbody>
         </table>
         </ShowAll>
+        </div>
       </section>
 
       <section style={{ background: CREAM, padding: '12px 14px', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>

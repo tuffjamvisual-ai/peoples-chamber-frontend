@@ -7,6 +7,7 @@
 // as count / percentage, so the county percentage is weighted correctly
 // rather than averaged.
 
+import { SubFold } from './PhoneFolds';
 import { pageDb } from '@/lib/page-reads';
 
 const INK = '#14100d';
@@ -126,6 +127,9 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
         </table>
       )}
 
+      {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones what the figure counts and its source fold (the council figures
+          ran to 3,600px at 320); from 768px as before. */}
+      <SubFold label="About these figures">
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
         A child is counted if their family&rsquo;s income is below 60 per cent of the UK median for that year and the family claimed Child Benefit plus at least one other benefit (Universal Credit, tax credits or Housing Benefit). The two measures can differ a lot: housing costs push the figure after housing costs far higher in expensive areas such as London. Figures are provisional and years before 2021/22 are not comparable, so the trend starts there.
@@ -133,6 +137,7 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Department for Work and Pensions, Children in Low Income Families: local area statistics ({release}).
       </p>
+      </SubFold>
     </section>
   );
 }

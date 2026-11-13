@@ -1,3 +1,4 @@
+import { SubFold } from '../components/PhoneFolds'
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../components/OpenGovShell'
@@ -132,6 +133,10 @@ export default async function EarningsPage() {
 
       <section className="mt-10 text-[15px] text-[#14100d]/80 leading-[1.75] space-y-3 max-w-3xl">
         <h2 className="text-[15px] uppercase tracking-[0.22em] font-semibold text-[#14100d]">Methodology</h2>
+        {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones the method folds under the heading; from 768px as before. */}
+        <SubFold label="How these figures are made">
+        {/* The section spaces its children (space-y-3); inside the fold they are not its children, so the same spacing here. */}
+        <div className="space-y-3">
         <p>
           <strong className="text-[#14100d]">Base salary</strong>: £{base.toLocaleString('en-GB')}
           {mpRate ? ` (${mpSalarySource(mpRate)})` : ''}, applied to every sitting MP regardless of attendance.
@@ -161,6 +166,8 @@ export default async function EarningsPage() {
           for {YEAR_LABEL} (staff, office, accommodation, travel, other). This is <em>not</em> personal income.
           Drill into any MP&apos;s profile for the item by item breakdown.
         </p>
+        </div>
+        </SubFold>
       </section>
     </OpenGovShell>
   )

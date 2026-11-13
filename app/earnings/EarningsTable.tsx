@@ -96,7 +96,12 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
       {/* Phones with JavaScript off (owner, 7 Nov 2026, PF1): 15 rows a screen with Previous and Next, as stacked rows with
           each figure labelled, as the phone script shows them with JavaScript on (25 stacked rows came to 9,203px, over the
           9,000px warning). Nothing changes from 640px up. */}
-      <NoJsPager id="earnings" count={sorted.length} rows="> tbody > tr" cards={[null, null, 'Base', 'Ministerial', 'Outside', 'Total', 'Public spend']} title={2} size={15}>
+      {/* T1-MOB batch 1 (Cowork 13 Nov 2026): phones show the first 3 MPs before "Show all"; on tablets (768 to 1,023px) the
+          seven columns are 89px wider than the screen, so the table scrolls sideways inside its own box, with a visible
+          edge on the right to show there is more. From 1,024px up, as before. */}
+      <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 768px) and (max-width: 1023.98px) { .earn-scroll { overflow-x: auto; border-right: 3px solid rgba(20,16,13,0.35); } .earn-scroll table { min-width: 860px; } }` }} />
+      <div className="earn-scroll">
+      <NoJsPager id="earnings" count={sorted.length} rows="> tbody > tr" cards={[null, null, 'Base', 'Ministerial', 'Outside', 'Total', 'Public spend']} title={2} size={15} first={3}>
       <table className="w-full text-[16px] border-collapse">
         <thead>
           <tr className="border-b border-[#14100d]/20 text-left">
@@ -206,6 +211,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
         </tbody>
       </table>
       </NoJsPager>
+      </div>
     </div>
   )
 }

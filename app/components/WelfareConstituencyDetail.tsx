@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { phoneUpTo } from '@/lib/breakpoints'
+import { SubFold } from './PhoneFolds'
 import { formatGBP, formatCount, formatSignedPercent, formatPeriodEnd } from '@/lib/welfare-format'
 
 // Renders the body of /tools/welfare/constituency/[gss] — fetches
@@ -290,7 +292,7 @@ function FullView({ payload }: { payload: FullPayload }) {
         />
       </Section>
 
-      <Section title="Breakdown by benefit">
+      <Section title="Breakdown by benefit" fold="Each benefit">
         {BENEFIT_ORDER.map((key) => {
           const cc = payload.claimantCounts?.[CLAIMANT_METRIC_FOR_BENEFIT[key]]
           const ccText = claimantText(cc)
@@ -383,15 +385,24 @@ function Header({ kind, name, sub, gssCode, partial }: { kind: string; name: str
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+// Phones (T1-MOB batch 1, Cowork 13 Nov 2026; the T1-WELFCOL squeeze): each row's label sits above its value in one
+// column (the 180px label column left the value about 116px at 320, so every value wrapped onto several lines); a
+// section given `fold` folds its rows under that label (SubFold). From 768px up, as before.
+const WF_CSS = `@media ${phoneUpTo(767.98)} { .wf-dl { grid-template-columns: minmax(0, 1fr) !important; } .wf-dl dt { padding: 10px 0 0 !important; border-bottom: none !important; } .wf-dl dd { padding: 2px 0 10px !important; } }`
+
+function Section({ title, fold, children }: { title: string; fold?: string; children: React.ReactNode }) {
+  const list = (
+    <dl className="wf-dl" style={{ margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 280px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` }}>
+      {children}
+    </dl>
+  )
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+      <style dangerouslySetInnerHTML={{ __html: WF_CSS }} />
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
         {title}
       </h2>
-      <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 280px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` }}>
-        {children}
-      </dl>
+      {fold ? <SubFold label={fold}>{list}</SubFold> : list}
     </section>
   )
 }

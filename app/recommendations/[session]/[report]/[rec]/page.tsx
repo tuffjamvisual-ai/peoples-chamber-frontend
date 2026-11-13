@@ -1,3 +1,4 @@
+import { SubFold } from '@/app/components/PhoneFolds';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -85,7 +86,7 @@ function TargetUpdate({ row, docs }: { row: StatusRow; docs: SourceDocument[] })
       {row.target_source_quote && (
         <details open style={{ marginTop: '6px' }}>
           <summary style={{ ...small, cursor: 'pointer' }}>The letter’s words</summary>
-          <p style={{ ...p, fontSize: '15px', marginTop: '8px' }}>{asPublished(row.target_source_quote)}</p>
+          <SubFold label="Read the words"><p style={{ ...p, fontSize: '15px', marginTop: '8px' }}>{asPublished(row.target_source_quote)}</p></SubFold>
         </details>
       )}
     </li>
@@ -111,7 +112,11 @@ function Event({ e, open }: { e: EventRow & { document: SourceDocument }; open: 
       {words.length > 0 && (
         <details open={open} style={{ marginTop: '6px' }}>
           <summary style={{ ...small, cursor: 'pointer' }}>The government’s words</summary>
+          {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones the words of the open, latest event fold once more, so the page
+              opens within 2,500px at 320 (they ran to about 1,300px); from 768px they show as before. */}
+          <SubFold label={`Read the words (${words.length} ${words.length === 1 ? 'paragraph' : 'paragraphs'})`}>
           {words.map((w, i) => <p key={i} style={{ ...p, fontSize: '15px', marginTop: '8px' }}>{w}</p>)}
+          </SubFold>
         </details>
       )}
     </li>
@@ -161,7 +166,9 @@ export default async function RecommendationPage({ params }: { params: Promise<P
           {linked(status)}
         </p>
         {shows && <p style={p}>What it shows: {shows}</p>}
-        {later && <p style={p}>{linked(later)}</p>}
+        {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones the later evidence, the Committee's conclusion, the letter's words
+            and the closing source line fold, so the page opens within 2,500px at 320; from 768px as before. */}
+        {later && <SubFold label="Later evidence"><p style={p}>{linked(later)}</p></SubFold>}
         {/* A partly delivered check is shown once, as the Later evidence line above. */}
         {row.review_checked_on && row.review_outcome !== 'partly_delivered' && (
           <p style={p}>Checked by opengovt on {dayMonthYear(row.review_checked_on)}{row.review_note ? `: ${row.review_note}` : '.'}</p>
@@ -169,7 +176,7 @@ export default async function RecommendationPage({ params }: { params: Promise<P
 
         {d.conclusion && (<>
           <h2 style={h2}>What the Committee concluded</h2>
-          <p style={quote}>{asPublished(d.conclusion)}</p>
+          <SubFold label="Read the conclusion"><p style={quote}>{asPublished(d.conclusion)}</p></SubFold>
         </>)}
         {d.recommendation && (<>
           <h2 style={h2}>What the Committee recommended</h2>
@@ -193,11 +200,16 @@ export default async function RecommendationPage({ params }: { params: Promise<P
           {events.map((e, i) => <Event key={e.id} e={e} open={!hasUpdate && i === events.length - 1} />)}
           <TargetUpdate row={row} docs={w.documents} />
         </ol>
-        <p style={{ ...small, marginTop: '28px' }}>
+        <div style={{ marginTop: '28px' }}>
+        <SubFold label="Source">
+        <p style={{ ...small, marginTop: 0 }}>
           Source: HM Treasury, Treasury Minutes and Treasury Minutes Progress Reports, on GOV.UK under the Open Government Licence v3.0. Quoted text is as published.{' '}
           {laterSources.length > 0 && <>Later evidence: {listWords(laterSources)}, linked above.{' '}</>}
+          {/* On phones this link folds with the source line; the back arrow above leads to the same list. */}
           <Link href="/recommendations" style={link}>All recommendations</Link>
         </p>
+        </SubFold>
+        </div>
       </section>
     </OpenGovShell>
   );

@@ -7,6 +7,8 @@
 // the cleaned text 24 hours); an empty answer is kept an hour at most and an error never (lib/bill-text.ts). The page
 // itself rebuilds hourly, so an error message never stays longer than that. Large bills: up to INLINE_TEXT_BUDGET of
 // the text is in the page, the rest loads a part at a time (BillTextGroups), so the page stays under 2 MB.
+import { SubFold } from '@/app/components/PhoneFolds'
+import { ShowAll } from '@/app/components/NoJsPager'
 import type { Metadata } from 'next'
 import { namedTitle } from '@/lib/seo-title'
 import { supabase } from '@/lib/supabase'
@@ -280,12 +282,17 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         {orderedTypes.length > 0 && (
           <section style={{ marginTop: '40px' }}>
             <h2 style={{ ...h2, fontSize: '17px' }}>Other documents</h2>
+            {/* T1-MOB batch 1: on phones the documents fold under the heading, named by their count; from 768px as before. */}
+            <SubFold label={`The ${[...grouped.values()].reduce((n, x) => n + x.length, 0).toLocaleString('en-GB')} documents, by type`}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
               {orderedTypes.map((type) => {
                 const items = grouped.get(type) || []
                 return (
                   <section key={type}>
                     <h3 style={h2}>{type} <span style={{ fontWeight: 'normal' }}>· {items.length}</span></h3>
+                    {/* T1-MOB batch 1 (Cowork 13 Nov 2026; growing lists rule): on phones and tablets each type shows its first 3
+                        documents, then "Show all N" (bill 2382's 15 amendment papers made the page 4,900px at 320). */}
+                    <ShowAll id={`bdoc-${type.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} count={items.length} rows="> li" first={3}>
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {items.map((p) => {
                         const size = fmtSize(p.files?.[0]?.contentLength)
@@ -309,10 +316,12 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                         )
                       })}
                     </ul>
+                    </ShowAll>
                   </section>
                 )
               })}
             </div>
+            </SubFold>
           </section>
         )}
 

@@ -11,6 +11,7 @@
 // to include Universal Credit (2013). The table under "Yearly and recent
 // figures" lists every year plus every month of the last 2 years.
 
+import { SubFold } from './PhoneFolds';
 import { pageDb } from '@/lib/page-reads';
 
 const INK = '#14100d';
@@ -188,6 +189,9 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
         </figure>
       )}
 
+      {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones what the figure counts and its source fold (the council figures
+          ran to 3,600px at 320); from 768px as before. */}
+      <SubFold label="About these figures">
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         The Claimant Count is people claiming Jobseeker&rsquo;s Allowance plus people on Universal Credit who are required to look for work. Before 2013 it counted only Unemployment Benefit or Jobseeker&rsquo;s Allowance claimants, so earlier years are not strictly comparable. Universal Credit requires more people to search for work than Jobseeker&rsquo;s Allowance did, so as it replaced older benefits from 2013, part of the rise in the count reflects that change rather than more unemployment. It is not the official unemployment rate, which comes from a survey. The latest month can be revised.
         {rows[0].month > '1986-01-01' && ` Figures for this council start in ${fmtMonth(rows[0].month)}.`}
@@ -195,6 +199,7 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Office for National Statistics, Claimant Count (via Nomis). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
+      </SubFold>
     </section>
   );
 }

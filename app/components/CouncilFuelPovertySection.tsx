@@ -8,6 +8,7 @@
 // Latest year only: DESNZ advises against reading these modelled local
 // estimates as a trend.
 
+import { SubFold } from './PhoneFolds';
 import { pageDb } from '@/lib/page-reads';
 
 const INK = '#14100d';
@@ -56,12 +57,16 @@ export default async function CouncilFuelPovertySection({ gssCode }: { gssCode: 
         {pct.toFixed(1)} per cent of {fmtNum(mine.households)} households{engPct != null ? ` (England ${engPct.toFixed(1)} per cent)` : ''}
       </p>
 
+      {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones what the figure counts and its source fold (the council figures
+          ran to 3,600px at 320); from 768px as before. */}
+      <SubFold label="About these figures">
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         A household is counted as fuel poor if its home has an energy efficiency rating of band D or below and, after paying for housing and the energy it needs, its income is below the poverty line (60 per cent of the national median). These are modelled estimates: the government advises using them for broad comparisons and to spot areas of particularly high or low fuel poverty, not to track year to year changes, so only the latest year is shown.
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Department for Energy Security and Net Zero, Sub-regional fuel poverty data ({year} data). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
+      </SubFold>
     </section>
   );
 }
