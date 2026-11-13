@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import { editorialSet, topicsOfIn, type EditorialListEntry } from '@/lib/editorials-source';
+import { editorialSet, type EditorialListEntry } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { listReadingLabel, textReadingLabel } from '@/lib/reading-time';
 import { supabase } from '@/lib/supabase';
-import { topics, matchWords } from '@/lib/topics';
 import ReportsArchive, { type ArchiveItem } from './ReportsArchive';
 
 // Reports (owner's approval, 23 Oct 2026): one list of every published investigation, file briefing and published
@@ -33,7 +32,6 @@ interface Item {
   summary: string;
   date: string; // ISO date or timestamp
   readingLabel: string; // "6 min read" (lib/reading-time.ts)
-  topics: string[];
 }
 
 function typeOf(e: EditorialListEntry): ReportType {
@@ -42,8 +40,7 @@ function typeOf(e: EditorialListEntry): ReportType {
 }
 
 export default async function ReportsPage() {
-  // Topics, as the topic pages assign them: investigations and file briefings by each topic's topic_positions, and
-  // published database briefings by the topic's words on headline and summary.
+  // No topics or types to filter by (T1-RFILT, owner decision 12 Nov 2026: search only); the topic pages are unchanged.
   const set = await editorialSet();
   const fileItems: Item[] = set.list.map((e) => ({
     href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
@@ -53,7 +50,6 @@ export default async function ReportsPage() {
     summary: listSummary(e),
     date: e.publishedAt,
     readingLabel: listReadingLabel(e),
-    topics: topicsOfIn(set, e.slug),
   }));
 
   const { data: dbRows, error: dbErr } = await supabase
@@ -75,7 +71,6 @@ export default async function ReportsPage() {
     date: (r.published_at as string) || (r.created_at as string),
     // Database briefings: words in the headline, summary and body, at the same rate as the file reports.
     readingLabel: textReadingLabel(r.headline as string, r.summary as string | null, r.body as string | null),
-    topics: topics.filter((t) => matchWords(`${r.headline} ${r.summary ?? ''}`, t.words, t.exclude)).map((t) => t.slug),
   }));
 
   const items = [...fileItems, ...dbItems].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
@@ -96,11 +91,10 @@ export default async function ReportsPage() {
       </header>
 
       <ReportsArchive
-        topics={topics.map((t) => ({ slug: t.slug, title: t.title }))}
         items={items.map((e): ArchiveItem => {
           const d = new Date(e.date);
           return {
-            href: e.href, type: e.type, kicker: e.kicker, headline: e.headline, summary: e.summary, topics: e.topics, readingLabel: e.readingLabel,
+            href: e.href, type: e.type, kicker: e.kicker, headline: e.headline, summary: e.summary, readingLabel: e.readingLabel,
             dateLabel: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
             // Month grouping (two-column archive): "2026-10" and "October 2026", in UTC like the date.
             monthKey: d.toISOString().slice(0, 7),
