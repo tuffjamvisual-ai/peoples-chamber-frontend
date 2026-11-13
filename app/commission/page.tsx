@@ -80,11 +80,15 @@ export default function CommissionPage() {
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           Commission research
         </h1>
+        {/* T1-GUARD (owner approved 13 Nov 2026): on phones the introduction folds under "Our approach", so the price and
+            the two actions come up the screen; from 768px as before. */}
+        <SubFold label="Our approach">
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           opengovt investigates enquiries about public money, decisions and accountability from the public record. You
           tell us what you want investigated and why; we decide how to investigate it. Every figure is sourced, every
           finding can be checked, and the conclusions are ours, not the client&rsquo;s.
         </p>
+        </SubFold>
       </header>
 
       <section aria-label="The service" style={{ marginBottom: '5%' }}>

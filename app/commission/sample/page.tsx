@@ -1,3 +1,4 @@
+import { SubFold } from '@/app/components/PhoneFolds';
 import type { Metadata } from 'next';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
@@ -93,6 +94,10 @@ export default function CommissionSamplePage() {
         </h1>
       </header>
 
+      {/* The sample report's text, from the question to the methodology (T1-GUARD, 13 Nov 2026, as Cowork's option a for bill
+          text): the length checks leave it out. A plain div with no padding or border, so the margins and what a reader sees
+          are as before. */}
+      <div data-article-body="">
       <h2 style={h2}>Question</h2>
       <p style={p}>{QUESTION}</p>
       <p style={{ ...p, fontWeight: 'bold' }}>{CHECKED}</p>
@@ -112,8 +117,12 @@ export default function CommissionSamplePage() {
 
       <h2 style={h2}>Methodology</h2>
       <p style={p}>{METHODOLOGY}</p>
+      </div>
 
       <h2 style={h2}>Sources</h2>
+      {/* T1-GUARD (owner approved 13 Nov 2026): on phones the sources and the supporting data fold under their headings;
+          from 768px as before. */}
+      <SubFold label={`The ${SOURCES.length} sources`}>
       <ol style={{ margin: 0, paddingLeft: '1.6em', maxWidth: '720px' }}>
         {SOURCES.map((s) => (
           <li key={s.url} style={{ fontSize: '16px', lineHeight: 1.7, marginBottom: '10px' }}>
@@ -121,8 +130,10 @@ export default function CommissionSamplePage() {
           </li>
         ))}
       </ol>
+      </SubFold>
 
       <h2 style={h2}>Supporting data</h2>
+      <SubFold label="The table and spreadsheet">
       <p style={{ ...p, fontSize: '15px' }}>{DATA_CAPTION}</p>
       {/* Wider than a phone: the table scrolls inside its own box, so the page itself never scrolls sideways. */}
       <div style={{ overflowX: 'auto', maxWidth: '100%', margin: '0 0 12px' }}>
@@ -140,6 +151,7 @@ export default function CommissionSamplePage() {
       <p style={p}>
         <a href={CSV} download className="og-tap" style={link}>Download the full spreadsheet (CSV)</a>
       </p>
+      </SubFold>
 
     </OpenGovShell>
   );

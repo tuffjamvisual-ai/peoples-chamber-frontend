@@ -1,3 +1,5 @@
+import { SubFold } from '@/app/components/PhoneFolds';
+import { phoneUpTo } from '@/lib/breakpoints';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -83,7 +85,10 @@ export default async function StateDashboard() {
     const accent = TREND[cardTrend].fg;
     return (
       <section key={s} style={{ borderTop: `3px solid ${accent}`, padding: '14px 0 22px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK, marginBottom: '10px' }}>{SERVICE_META[s].name}</p>
+        <p className="sd-name" style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK, marginBottom: '10px' }}>{SERVICE_META[s].name}</p>
+        {/* T1-GUARD (owner approved 13 Nov 2026): on phones and tablets each service folds under its name, the fold's line
+            giving its first measure's figure and direction; from 1,024px as before. */}
+        <SubFold tablets label={SERVICE_META[s].name} summary={`${fmt(inds[0].value, inds[0].unit)}, ${(TREND[inds[0].trend] || TREND.flat).label.toLowerCase()}${inds.length > 1 ? ` (${inds.length} measures)` : ''}`}>
         {inds.map((r, i) => {
           const t = TREND[r.trend] || TREND.flat;
           const rt = r.recent_direction ? TREND[r.recent_direction] || TREND.flat : null;
@@ -115,6 +120,7 @@ export default async function StateDashboard() {
             </div>
           );
         })}
+        </SubFold>
       </section>
     );
   };
@@ -152,7 +158,7 @@ export default async function StateDashboard() {
 
       {/* Services in two balanced columns, no boxes. The coloured rule above each
           service keeps its worst long term direction. */}
-      <style>{TWO_COLUMN_CSS}</style>
+      <style>{TWO_COLUMN_CSS + `@media ${phoneUpTo(1023.98)} { .sd-name { display: none; } }`}</style>
       <div className="og-two">
         {serviceColumns.map((col, ci) => (
           <div key={ci}>
@@ -161,9 +167,14 @@ export default async function StateDashboard() {
         ))}
       </div>
 
-      <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '680px', color: INK, marginTop: '32px' }}>
+      {/* T1-GUARD: on phones the note on the figures folds; from 768px as before. */}
+      <div style={{ marginTop: '32px' }}>
+      <SubFold label="About these figures">
+      <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '680px', color: INK, marginTop: 0 }}>
         Figures are for England, except the justice indicators (police, criminal courts and prisons), which cover England and Wales. Each figure is entered by hand from the source named on its card and shows the date it was last checked. Where a published measure changes, no change over the long term is shown rather than joining two different series.
       </p>
+      </SubFold>
+      </div>
       {/* EL1 (owner, 11 Nov 2026): the sources named on the cards are linked in this one Sources fold, in card order. */}
       <PageSources sources={services.flatMap((s) => byService.get(s)!.map((r) => r.source_url && { label: `${SERVICE_META[s].name}: ${r.source_name}`, href: r.source_url }))} />
     </OpenGovShell>

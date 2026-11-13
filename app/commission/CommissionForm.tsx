@@ -7,7 +7,7 @@ import {
   COMMISSION_PUBLISH, QUESTION_MAX, QUESTION_MIN, TITLE_MAX, LINKS_MAX, SUCCESS_MESSAGE, UNAVAILABLE_MESSAGE,
   normaliseCommission, todayUk, validateCommission, type CommissionErrors, type CommissionField,
 } from '@/lib/commission';
-import { PHONE, phoneUpTo } from '@/lib/breakpoints';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // The commission enquiry form (owner's brief, 24 Oct 2026; a research enquiry from 3 Nov 2026: your details, your
 // enquiry, what you already know, then deadline and publishing; opengovt decides how to investigate, so there is no
@@ -63,14 +63,17 @@ const STEP_FIELDS: CommissionField[][] = [
   ['knownLinks', 'deadline', 'publish'],
   ['name', 'email', 'organisation', 'terms'],
 ];
-const isPhone = () => window.matchMedia(PHONE).matches;
+// The form in four steps on phones, and on tablets too since T1-GUARD (owner approved 13 Nov 2026): the whole form made
+// /commission 3,629px tall at 768. Up to 1,023px; desktop unchanged.
+const STEPS = phoneUpTo(1023.98);
+const isPhone = () => window.matchMedia(STEPS).matches;
 const stepOf = (k: CommissionField) => STEP_FIELDS.findIndex((fields) => fields.includes(k)) + 1;
 const firstInError = (e: CommissionErrors) => STEP_FIELDS.flat().find((k) => e[k]);
 const CORRECT_MESSAGE = 'Please correct the highlighted fields.';
 
 const STEP_CSS = `
   .cm-phone, .cm-phone-inline { display: none; }
-  @media ${phoneUpTo(767.98)} {
+  @media ${STEPS} {
     .cm-form .cm-phone { display: block; }
     .cm-form .cm-phone-inline { display: inline; }
     .cm-form fieldset { border: none !important; margin: 0 !important; padding: 0 !important; }

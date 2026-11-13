@@ -403,7 +403,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
               {/* The description and its credit folded on phones (step 5, 10 Nov 2026: page length). */}
               {c.description && (
-                <SubFold label="About the council">
+                <SubFold tablets label="About the council">
                 <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
                   {c.description}
                 </p>
@@ -689,7 +689,8 @@ function controlStatusText(status: string | null): string | null {
 }
 
 // Phones (step 5, 10 Nov 2026: council pages were 3,000 to 4,100px): `fold` folds the whole list under that label;
-// `more` adds rows after the list, folded under `moreLabel`. From 640px up both read as one list, as before.
+// `more` adds rows after the list, folded under `moreLabel`. From 640px up both read as one list, as before. Both fold on
+// tablets too, up to 1,023px (T1-GUARD, owner approved 13 Nov 2026); desktop unchanged.
 function Section({ title, children, date, source, fold, more, moreLabel, sourceLine }: { title: string; children?: React.ReactNode; date?: string | null; source?: string; fold?: string; more?: React.ReactNode; moreLabel?: string; sourceLine?: { text: string; source: string } }) {
   const dlStyle: React.CSSProperties = { margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 220px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` };
   const list = <dl className="council-dl" style={dlStyle}>{children}</dl>;
@@ -698,8 +699,8 @@ function Section({ title, children, date, source, fold, more, moreLabel, sourceL
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
         {title}
       </h2>
-      {fold ? <SubFold label={fold}>{list}</SubFold> : list}
-      {more && <SubFold label={moreLabel ?? 'More'}><dl className="council-dl" style={{ ...dlStyle, borderTop: 'none' }}>{more}</dl></SubFold>}
+      {fold ? <SubFold tablets label={fold}>{list}</SubFold> : list}
+      {more && <SubFold tablets label={moreLabel ?? 'More'}><dl className="council-dl" style={{ ...dlStyle, borderTop: 'none' }}>{more}</dl></SubFold>}
       <RecordDate text={date} source={source} />
       {sourceLine && <RecordDate text={sourceLine.text} source={sourceLine.source} />}
     </section>

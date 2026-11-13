@@ -95,6 +95,8 @@ export default function UniteKingdomPage() {
               columnRule: `1px solid ${INK_HAIRLINE}`,
             }}
             className="article-cols"
+            // The article's text (T1-GUARD, 13 Nov 2026, as Cowork's option a for bill text): the length checks leave it out.
+            data-article-body=""
           >
             <p style={{ ...lead() }}>
               Over 100,000 people marched through central London on Saturday. Not a few hundred angry extremists. Not a fringe group easy to dismiss. Ordinary Britons who travelled from across the country, paid their own way, took time off work, and stood in the streets to say they have had enough.

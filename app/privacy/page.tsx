@@ -29,7 +29,8 @@ export default function PrivacyPage() {
         </h1>
       </header>
 
-      <div style={{ maxWidth: '720px' }}>
+      {/* The notice is reading text (T1-GUARD, 13 Nov 2026, as Cowork's option a for bill text): the length checks leave it out. */}
+      <div data-article-body="" style={{ maxWidth: '720px' }}>
         <p style={p}>
           This privacy policy explains what data opengovt collects, why it is collected, and how it is used. The site is operated independently and is not affiliated with GOV.UK, the UK Government, Parliament, any government department, local authority, public body, official public service, political party or commercial organisation.
         </p>
