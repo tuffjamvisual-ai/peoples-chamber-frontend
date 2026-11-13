@@ -9,9 +9,9 @@ SET LOCAL lock_timeout = '5s';
 
 CREATE TEMP TABLE t1_upd (slug text PRIMARY KEY, line text NOT NULL, d text NOT NULL, note text NOT NULL) ON COMMIT DROP;
 INSERT INTO t1_upd VALUES
-  ('k9m4qxw7n2', 'Updated 24 October 2026 with the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.', '2026-10-24', 'with the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.'),
+  ('k9m4qxw7n2', 'Updated 24 October 2026 with the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.', '2026-10-24', 'Added the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.'),
   ('rm9x2qk7v4', 'Updated 24 October 2026. This report was first published on 12 July 2026, when Hollie Ridley had announced her departure and no successor had been chosen.', '2026-10-24', 'This report was first published on 12 July 2026, when Hollie Ridley had announced her departure and no successor had been chosen.'),
-  ('ten-worst-performing-councils-england', 'Updated 5 November 2026 with Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.', '2026-11-05', 'with Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.');
+  ('ten-worst-performing-councils-england', 'Updated 5 November 2026 with Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.', '2026-11-05', 'Added Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.');
 
 DO $$
 DECLARE n int;

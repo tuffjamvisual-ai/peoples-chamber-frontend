@@ -1,6 +1,7 @@
 -- 2026-11-13a-t1-updated-notes: T1-UPDATED (owner approved 13 Nov 2026, database edit; DECISIONS.md 13 Nov 2026 item 1).
 -- The "Updated <date> ..." first line of three reports moves word for word into editorials.update_note, the same
--- format as the other three reports with notes ([{"date": "YYYY-MM-DD", "text": "..."}], the text being the words after "Updated <date>"),
+-- format as the other three reports with notes ([{"date": "YYYY-MM-DD", "text": "..."}], the text being the words after "Updated <date>";
+-- owner approved 13 Nov 2026: the first word "with" becomes "Added" for ten-worst-performing-councils-england and k9m4qxw7n2),
 -- and that first line (the opening bioLine block of body_json, and the same line plus its blank line at the start of body_text) is
 -- removed. Nothing else in the text changes. search_vec is generated from body_text. No triggers on editorials.
 -- Reports: ten-worst-performing-councils-england (5 Nov 2026), rm9x2qk7v4 and k9m4qxw7n2 (24 Oct 2026).
@@ -17,9 +18,9 @@ SET LOCAL lock_timeout = '5s';
 
 CREATE TEMP TABLE t1_upd (slug text PRIMARY KEY, line text NOT NULL, d text NOT NULL, note text NOT NULL) ON COMMIT DROP;
 INSERT INTO t1_upd VALUES
-  ('k9m4qxw7n2', 'Updated 24 October 2026 with the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.', '2026-10-24', 'with the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.'),
+  ('k9m4qxw7n2', 'Updated 24 October 2026 with the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.', '2026-10-24', 'Added the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.'),
   ('rm9x2qk7v4', 'Updated 24 October 2026. This report was first published on 12 July 2026, when Hollie Ridley had announced her departure and no successor had been chosen.', '2026-10-24', 'This report was first published on 12 July 2026, when Hollie Ridley had announced her departure and no successor had been chosen.'),
-  ('ten-worst-performing-councils-england', 'Updated 5 November 2026 with Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.', '2026-11-05', 'with Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.');
+  ('ten-worst-performing-councils-england', 'Updated 5 November 2026 with Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.', '2026-11-05', 'Added Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.');
 
 DO $$
 DECLARE n int;
