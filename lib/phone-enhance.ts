@@ -15,12 +15,14 @@
 // Only data-* attributes change on the page's own elements, which React leaves alone. The first run is inline, right after
 // the page, so tables are cards before they are painted; PhoneEnhance.tsx adds the buttons once the page is hydrated and
 // repeats the work when a page changes. Styles are in globals.css.
-import { PHONE } from './breakpoints';
+import { PHONE, LIST_FOLD } from './breakpoints';
 
 export const PHONE_ENHANCE_JS = `(function(){
 var LIMIT=25,MAXH=9800,CAPS=[6000,3000,1500],opened=false,done=null,wait=0,here=location.href,path=location.pathname,extra=[],OWN='nav,.og-menu-panel,.og-mbar,footer,details,.pf-list,[data-own-more]',BACK='og-phone-back:',RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
 function pageHeight(){return document.documentElement.scrollHeight}
 function narrow(){return window.matchMedia(${JSON.stringify(PHONE)}).matches}
+// Tablets (T1-TABFOLD, owner approved 13 Nov 2026): only the long lists job, up to 1,023px.
+function listsWide(){return window.matchMedia(${JSON.stringify(LIST_FOLD)}).matches}
 function text(e){return (e.textContent||'').replace(/[\\u25B2\\u25BC\\u25B4\\u25BE]/g,'').replace(/\\s+/g,' ').trim()}
 function labels(t){
   var head=t.tHead&&t.tHead.rows.length?t.tHead.rows[t.tHead.rows.length-1]:null,body=false;
@@ -172,7 +174,7 @@ window.__ogPhone=function(buttons){
     here=location.href;
     if(location.pathname!==path){path=location.pathname;opened=false;clearTimeout(wait);wait=setTimeout(function(){wait=0;if(narrow())shorten()},1000)}
   }
-  if(!narrow())return;
+  if(!narrow()){if(listsWide())lists(!!buttons);return}
   tables();links();lists(!!buttons);
   if(buttons&&!wait)shorten();
 };

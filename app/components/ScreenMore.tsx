@@ -4,7 +4,7 @@
 // a rule hides those past the screens shown, so from 640px up and with JavaScript off (Next and Previous, NoJsPager) it does nothing. A link to something in a
 // hidden row opens the screens up to it.
 import { useEffect, useState } from 'react';
-import { phoneUpTo } from '@/lib/breakpoints';
+import { LIST_FOLD } from '@/lib/breakpoints';
 
 export default function ScreenMore({ id, sizes }: { id: string; sizes: number[] }) {
   const [screens, setScreens] = useState(1);
@@ -25,7 +25,8 @@ export default function ScreenMore({ id, sizes }: { id: string; sizes: number[] 
   if (sizes.length <= 1) return null;
   const shown = sizes.slice(0, screens).reduce((a, b) => a + b, 0);
   const total = sizes.reduce((a, b) => a + b, 0);
-  const css = `@media ${phoneUpTo(767.98)} {html.og-js .njp-i-${id}:nth-child(n+${shown + 1} of .njp-i-${id}){display:none!important}}`;
+  // Phones and tablets, up to 1,023px (T1-TABFOLD, owner approved 13 Nov 2026).
+  const css = `@media ${LIST_FOLD} {html.og-js .njp-i-${id}:nth-child(n+${shown + 1} of .njp-i-${id}){display:none!important}}`;
   return (
     <>
       {screens < sizes.length && <style dangerouslySetInnerHTML={{ __html: css }} />}

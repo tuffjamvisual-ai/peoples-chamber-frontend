@@ -7,7 +7,7 @@
 // carries data-own-more, so lib/phone-enhance.ts gives it no second button. The button's styles are in globals.css
 // (.og-phone-more).
 import { useState } from 'react';
-import { phoneUpTo } from '@/lib/breakpoints';
+import { LIST_FOLD } from '@/lib/breakpoints';
 
 type Props = {
   /** CSS selector for the element whose direct children are the items. */
@@ -25,7 +25,8 @@ export default function PhoneMore({ selector, total, step = 25, off = false, fir
   const start = first ?? step;
   const [shown, setShown] = useState(start);
   if (off || total <= start) return null;
-  const css = `@media ${phoneUpTo(767.98)} { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
+  // Phones and tablets, up to 1,023px (T1-TABFOLD, owner approved 13 Nov 2026).
+  const css = `@media ${LIST_FOLD} { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
   const left = total - shown;
   return (
     <>

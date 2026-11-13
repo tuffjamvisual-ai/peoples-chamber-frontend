@@ -192,9 +192,10 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .pa-year > summary { font-size: 15px; }
 .mc-more > summary { justify-content: center; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }
 .mc-more[open] > summary { display: none; }
-/* MoreChain on phones (MP2f): the first 5 of the opening list until the first "Show more" opens; its count from there. */
+/* MoreChain on phones and tablets (MP2f; up to 1,023px, T1-TABFOLD, owner approved 13 Nov 2026): the first 5 of the opening
+   list until the first "Show more" opens; its count from there. */
 .mc-phone, .mc-n-phone { display: none; }
-@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .mc-phone { display: block; }
   .mc-n-phone { display: inline; }
   .mc-n-wide { display: none; }
@@ -234,9 +235,10 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .pf-sd:not([open]) + .pf-sb { display: none; }
   .pf-sd:not([open]) + .pf-sb:has(:target) { display: block; }
 }
-/* NoJsPager "Show all" (MP2f, 9 Nov 2026): on phones, a native <details> after a long list's first rows; nothing from 640px up. */
+/* NoJsPager "Show all" (MP2f, 9 Nov 2026): on phones and tablets (up to 1,023px, T1-TABFOLD, owner approved 13 Nov 2026), a
+   native <details> after a long list's first rows; nothing from 1,024px up. */
 .njp-sa { display: none; }
-@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .njp-sa { display: block; margin: 10px 0 14px; }
   .njp-sa > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; }
   .njp-sa > summary::-webkit-details-marker { display: none; }
@@ -350,6 +352,13 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
   html:not(.og-js) .og-phone-more { display: none; }
   .rc-h2 { display: none; }
+/* The phone script's long lists on tablets too (T1-TABFOLD, owner approved 13 Nov 2026): 768px to 1,023px, the same hidden rows
+   and Show more button as on phones (the rest of the phone script stays on phones). */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .ng-page [data-pm-hide] { display: none !important; }
+  .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
+  html:not(.og-js) .og-phone-more { display: none; }
+}
   /* Footer licence link, a 44px target at every phone width (owner, 6 Nov 2026). */
   .og-footer-licence { display: inline-flex; align-items: center; min-height: 44px; }
   /* Stacked rows with JavaScript off (NoJsPager's cards), so every column shows with no sideways scroll. */

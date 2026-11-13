@@ -1,5 +1,5 @@
 import { cloneElement, type ReactElement, type ReactNode } from 'react';
-import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
+import { phoneUpTo, wideFrom, LIST_FOLD } from '@/lib/breakpoints';
 
 // Long lists on phones with JavaScript off (owner, 6 Nov 2026; the 10,000px rule). With JavaScript on the phone script (lib/phone-enhance.ts) already
 // shortens lists, and from 640px up lists show whole, so nothing here applies to either: the styles match only `html:not(.og-js)` under 640px.
@@ -23,7 +23,8 @@ export const njpItem = (id: string) => `njp-i-${id}`;
 // PHONE_FIRST rows, then a native <details> "Show all <N>" after the list. While it is closed a rule hides the other rows
 // (on the list's parent, :has, so no wrapper goes round the list); open, every row shows. The same in the HTML with
 // JavaScript on or off; Previous and Next are not used on phones. A link to a row (an address with #) shows them all.
-// From 640px up nothing changes (wide lists keep their paging). first: rows shown before "Show all" (default 5).
+// Tablets too, up to 1,023px (T1-TABFOLD, owner approved 13 Nov 2026); from 1,024px up nothing changes (wide lists keep
+// their paging). first: rows shown before "Show all" (default 5).
 export const PHONE_FIRST = 5;
 export const showAllClass = (id: string) => `njp-sa-${id}`;
 export function ShowAllDetails({ id, count }: { id: string; count: number }) {
@@ -60,7 +61,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
   // for JavaScript off only (html:not(.og-js)); without it they hold either way, as before.
   const jsOff = ownMore ? 'html:not(.og-js) ' : '';
   const phoneCss = showAll
-    ? `@media ${phoneUpTo(767.98)} {${rows ? `${jsOff}${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${jsOff}${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}}`
+    ? `@media ${LIST_FOLD} {${rows ? `${jsOff}${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${jsOff}${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}}`
     : '';
   const phoneStyle = phoneCss ? <style dangerouslySetInnerHTML={{ __html: phoneCss }} /> : null;
   const ownList = (extra: string) => children ? cloneElement(children as ReactElement<{ className?: string; 'data-own-more'?: string }>, { className: [children.props.className, extra, cardClass].filter(Boolean).join(' '), ...(showAll ? { 'data-own-more': '' } : {}) }) : null;

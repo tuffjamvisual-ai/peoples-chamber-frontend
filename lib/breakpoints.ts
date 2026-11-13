@@ -24,3 +24,8 @@ export const wideFrom = (minWidth: number) =>
 /** The main phone layout (under 768px, or sideways): folds, phone tables, the phone script. Under 640px until T1-768
  *  (owner rule, 10 Nov 2026: phone means under 768px; changed 11 Nov 2026), so tablets of 640 to 767px get it too. */
 export const PHONE = phoneUpTo(767.98);
+// List folds (T1-TABFOLD, owner approved 13 Nov 2026: tablets follow the growing lists rule): phones and tablets, up to
+// 1,023px wide (and phones held sideways). The shared list folds use it: NoJsPager's 'Show all', PhoneMore, ScreenMore,
+// MoreChain (globals.css) and the phone script's long lists. Section folds, tables as cards and the rest stay at PHONE.
+// From 1,024px up nothing changes.
+export const LIST_FOLD = phoneUpTo(1023.98);
