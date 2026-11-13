@@ -28,13 +28,16 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
     if (phoneOnly || items.length <= pf) return list(items, false, mainAction);
     return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary>Show all {items.length.toLocaleString('en-GB')}</summary></details></>;
   }
+  // "Show N more" (T1-GUARD, Cowork 13 Nov 2026, as DataList): N is what the press shows, the next `step` items; on phones the
+  // first press also shows the rest of the opening list (globals.css .mc-first).
+  const next = (from: number) => Math.min(step, items.length - from);
   const label = (from: number) => (
-    // One span: the summary is a flex box, and separate pieces would lose the space before "left".
+    // One span: the summary is a flex box, and separate pieces would lose the spaces around the number.
     <summary>
       <span>
-        Show more ({from === opening && !phoneOnly
-          ? <><span className="mc-n-wide">{(items.length - from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{(items.length - Math.min(pf, from)).toLocaleString('en-GB')}</span></>
-          : (items.length - from).toLocaleString('en-GB')} left)
+        Show {from === opening && !phoneOnly
+          ? <><span className="mc-n-wide">{next(from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{(next(from) + from - Math.min(pf, from)).toLocaleString('en-GB')}</span></>
+          : next(from).toLocaleString('en-GB')} more
       </span>
     </summary>
   );

@@ -172,7 +172,8 @@ export default function RecommendationList({ reports, rows, departmentOptions, s
       {matching.length === 0 && <p style={{ fontSize: '16px', color: INK }}>No recommendations match these filters.</p>}
       {matching.length > limit && (
         <button type="button" onClick={() => setLimit(limit + PAGE)} style={{ marginTop: '14px', fontSize: '16px', color: INK, background: 'transparent', border: '1px solid rgba(20,16,13,0.4)', padding: '8px 14px', cursor: 'pointer' }}>
-          Show more
+          {/* What a press shows (T1-GUARD, Cowork 13 Nov 2026: 'Show N more'). */}
+          Show {Math.min(PAGE, matching.length - limit).toLocaleString('en-GB')} more
         </button>
       )}
     </section>

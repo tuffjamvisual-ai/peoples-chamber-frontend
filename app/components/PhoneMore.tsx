@@ -33,7 +33,8 @@ export default function PhoneMore({ selector, total, step = 25, off = false, fir
       <style dangerouslySetInnerHTML={{ __html: css }} />
       {left > 0 && (
         <button type="button" className="og-phone-more" onClick={() => setShown(shown + step)}>
-          Show more ({left.toLocaleString('en-GB')} left)
+          {/* What a press shows (T1-GUARD, Cowork 13 Nov 2026: 'Show N more', as DataList). */}
+          Show {Math.min(step, left).toLocaleString('en-GB')} more
         </button>
       )}
     </>

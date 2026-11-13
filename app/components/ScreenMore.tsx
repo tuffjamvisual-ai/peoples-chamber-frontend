@@ -32,7 +32,8 @@ export default function ScreenMore({ id, sizes }: { id: string; sizes: number[] 
       {screens < sizes.length && <style dangerouslySetInnerHTML={{ __html: css }} />}
       {screens < sizes.length && (
         <button type="button" className="og-phone-more" onClick={() => setScreens(screens + 1)}>
-          Show more ({(total - shown).toLocaleString('en-GB')} left)
+          {/* What a press shows: the next screen (T1-GUARD, Cowork 13 Nov 2026: 'Show N more', as DataList). */}
+          Show {(sizes[screens] ?? total - shown).toLocaleString('en-GB')} more
         </button>
       )}
     </>

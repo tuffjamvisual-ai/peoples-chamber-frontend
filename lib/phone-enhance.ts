@@ -96,7 +96,7 @@ function lists(buttons){
       if(list.__ptTag&&list.tagName!=='TBODY')shown[list.__ptLimit-1].after(b);else after.parentNode.insertBefore(b,after.nextSibling);
       list.__ptButton=b;
     }
-    b.textContent='Show more ('+left.toLocaleString('en-GB')+' left)';
+    b.textContent='Show '+Math.min(LIMIT,left).toLocaleString('en-GB')+' more';
   });
 }
 function tall(){CAPS.forEach(function(cap){tallTo(cap)})}

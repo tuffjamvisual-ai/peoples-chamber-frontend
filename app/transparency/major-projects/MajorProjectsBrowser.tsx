@@ -202,11 +202,13 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
   return (
     <>
       <style>{CARD_CSS}</style>
-      {/* Phones (T1-GUARD, owner approved 13 Nov 2026: 2,500px at 320): the search and filters, and the note on them, in a fold. */}
-      <SubFold label="Filter projects">
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px', alignItems: 'baseline' }}>
+      {/* The search box stays in view; on phones the dropdowns and the checkbox fold under 'Filter projects' (T1-GUARD, Cowork
+          13 Nov 2026). The fold is inside the same row, and from 768px up it has no box, so the row is as before. */}
+      <style>{`@media ${phoneUpTo(767.98)} { .mpb-filters > .pf-sd, .mpb-filters > .pf-sb { flex: 1 1 100%; } .mpb-filters { align-items: stretch !important; } }`}</style>
+      <div className="mpb-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px', alignItems: 'baseline' }}>
         <input aria-label="Search project names" type="search" placeholder="Search project names…" value={state.q}
           onChange={(e) => set({ q: e.target.value })} style={{ ...field, flex: '1 1 260px', maxWidth: '380px' }} />
+        <SubFold label="Filter projects">
         <select aria-label="Department" value={state.dept} onChange={(e) => set({ dept: e.target.value })} style={{ ...field, cursor: 'pointer' }}>
           <option value="">All departments</option>
           {depts.map(([c, label]) => <option key={c} value={c}>{label}</option>)}
@@ -223,7 +225,10 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
           <input type="checkbox" checked={state.evaluation === 'no'} onChange={(e) => set({ evaluation: e.target.checked ? 'no' : '' })} style={{ width: '18px', height: '18px', accentColor: ACCENT }} />
           No evaluation plan (March 2025)
         </label>
+        </SubFold>
       </div>
+      {/* Phones (T1-GUARD, Cowork 13 Nov 2026): this note in its own fold, so the search box can stay in view within 2,500px at 320. */}
+      <SubFold label="About the ratings">
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 6px', maxWidth: '70ch' }}>
         The rating and department are each project&rsquo;s latest. &ldquo;Last reported&rdquo; means the project is not in the March {latestYear} report.
       </p>
