@@ -1,3 +1,4 @@
+import { stageWithHouse, type BillStages } from '@/lib/bill-stage';
 import { billSummary } from '@/lib/bill-summary';
 import { yearSpan } from '@/lib/year-span';
 import type { Metadata } from 'next';
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // Single string literal — Supabase's compile-time type inference
       // can't parse a runtime-concatenated select, and falls back to
       // GenericStringError, which then trips every bill.* access below.
-      'title, long_title, description, current_stage, stage_date, introduced_session_id, is_act, is_defeated, bill_withdrawn, commons_division_id, commons_ayes, commons_noes, sponsor_name, sponsors, hidden_reason'
+      'title, long_title, description, current_stage, stage_date, introduced_session_id, is_act, is_defeated, bill_withdrawn, commons_division_id, commons_ayes, commons_noes, sponsor_name, sponsors, hidden_reason, stages'
     )
     .eq('id', billId)
     .single();
@@ -57,7 +58,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     status.kind === 'law' ? `${The} became an Act of Parliament${bill.current_stage === 'Royal Assent' && stageDay ? ` on ${stageDay}` : ''}.`
       : status.kind === 'withdrawn' ? `${The} was withdrawn before becoming law.`
       : status.kind === 'defeated' ? `${The} was defeated.`
-      : bill.current_stage ? `The latest stage of ${the} was ${bill.current_stage}${stageDay ? `, on ${stageDay}` : ''}.`
+      // With its House (T1-A3 (1), lib/bill-stage.ts): "was Lords committee stage".
+      : bill.current_stage ? `The latest stage of ${the} was ${stageWithHouse(bill as BillStages)}${stageDay ? `, on ${stageDay}` : ''}.`
       : null,
     `${asSentence(The)}`,
   ], [

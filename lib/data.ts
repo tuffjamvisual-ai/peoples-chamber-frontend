@@ -1,3 +1,4 @@
+import { currentStageHouse, type BillStages } from './bill-stage';
 import { supabase } from './supabase';
 import { readAll } from './read-all';
 import { cardSummary } from './bill-summary';
@@ -98,12 +99,10 @@ async function getBillsPageByTitle(page: number, perPage: number, match?: (title
     rows.sort((a, b) => key(a.title).localeCompare(key(b.title), 'en-GB', { sensitivity: 'base' }) || (a.id as number) - (b.id as number));
     const from = (safePage - 1) * perPage;
     const bills = rows.slice(from, from + perPage).map((r) => {
-      const { stages, ...rest } = r as { stages?: { items?: { house?: string; description?: string; sortOrder?: number }[] } | null; [k: string]: unknown };
-      const stage = String(rest.current_stage ?? '').trim();
-      const match = (stages?.items ?? [])
-        .filter((it) => stage && it.description === stage)
-        .sort((x, y) => (y.sortOrder ?? 0) - (x.sortOrder ?? 0))[0];
-      return { ...toCardBill(rest), current_house: match?.house ?? (rest.originating_house as string | null) ?? null };
+      // The House of the current stage from the one shared helper (T1-A3 (1), lib/bill-stage.ts), as on the bill page.
+      const { stages, ...rest } = r as { stages?: BillStages['stages']; [k: string]: unknown };
+      const house = currentStageHouse({ current_stage: rest.current_stage as string | null, stages });
+      return { ...toCardBill(rest), current_house: house ?? (rest.originating_house as string | null) ?? null };
     });
     return { bills, totalCount: rows.length };
   } catch (error) {

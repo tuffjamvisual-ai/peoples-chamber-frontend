@@ -7,6 +7,7 @@
 // /bills and the opengovt Polls: ink-on-parchment, Special Elite labels,
 // serif body, with the vote presented as an official ballot paper.
 
+import { stageWithHouse, startedIn } from '@/lib/bill-stage';
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import { billStageLine, NO_SUMMARY_TEXT } from '@/lib/bill-summary'
@@ -450,8 +451,11 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             {status.kind === 'withdrawn' && <Tag colour={INK_SOFT}>{status.label}</Tag>}
             {status.kind === 'fell' && <Tag colour={INK_SOFT}>{status.label}</Tag>}
             {bill.category && <Tag colour={ACCENT}>{bill.category}</Tag>}
-            {bill.originating_house && <Tag colour={INK_SOFT}>{bill.originating_house}</Tag>}
-            {bill.current_stage && <Tag colour={INK_SOFT}>{bill.current_stage}</Tag>}
+            {/* T1-A3 (1): the stage with the House it is in ("Lords committee stage"); the House it started in only as
+                "Started in the Commons" (lib/bill-stage.ts). It read "Commons" beside "Committee stage" for a bill at
+                committee in the Lords. */}
+            {startedIn(bill) && <Tag colour={INK_SOFT}>{startedIn(bill)}</Tag>}
+            {bill.current_stage && <Tag colour={INK_SOFT}>{stageWithHouse(bill)}</Tag>}
           </div>
         )}
       </header>
