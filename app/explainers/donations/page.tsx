@@ -41,7 +41,8 @@ export default function DonationsExplainer() {
         </h1>
       </header>
 
-      <article style={{ borderLeft: `3px solid ${ACCENT}`, paddingLeft: '20px' }}>
+      {/* T1-MOB batch 2 (Cowork 13 Nov 2026): the explainer is reading text, as a report's is, so the length checks leave it out. */}
+      <article data-article-body="" style={{ borderLeft: `3px solid ${ACCENT}`, paddingLeft: '20px' }}>
         <p style={bodyP}>
           The UK donation system is built on one idea: transparency instead of prohibition. Almost anyone eligible can give almost any amount to almost any politician, provided the gift is declared. The theory is that sunlight is the best disinfectant. The practice suggests sunlight works only when someone is looking.
         </p>

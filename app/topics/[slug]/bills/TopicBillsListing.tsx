@@ -1,3 +1,4 @@
+import { ShowAll } from '@/app/components/NoJsPager';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -59,6 +60,9 @@ export default async function TopicBillsListing({ slug, page }: { slug: string; 
         </p>
       </header>
 
+      {/* T1-MOB batch 2 (Cowork 13 Nov 2026): on phones and tablets each page of 20 shows its first 3 bills, then "Show N more";
+          Newer and Older stay below. From 1,024px as before. */}
+      <ShowAll id="topic-bills" count={bills.length} rows="> a" first={3}>
       <section style={{ marginBottom: '6%' }}>
         {bills.map((b) => (
           <Link key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
@@ -72,6 +76,7 @@ export default async function TopicBillsListing({ slug, page }: { slug: string; 
           </Link>
         ))}
       </section>
+      </ShowAll>
 
       {totalPages > 1 && (
         <nav aria-label="Pages" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 32px', fontSize: '17px', marginBottom: '6%' }}>

@@ -28,7 +28,8 @@ export default function TermsPage() {
         </h1>
       </header>
 
-      <div style={{ maxWidth: '720px' }}>
+      {/* T1-MOB batch 2 (Cowork 13 Nov 2026, ENTRY 8): the terms are reading text, as a report's are, so the length checks leave them out (option a, as /privacy). */}
+      <div data-article-body="" style={{ maxWidth: '720px' }}>
         <p style={p}>By using this site you agree to the following terms.</p>
 
         <h2 style={h2}>The site</h2>

@@ -35,6 +35,8 @@ export default function CommissionTermsPage() {
         </h1>
       </header>
 
+      {/* T1-MOB batch 2 (Cowork 13 Nov 2026, ENTRY 8): the terms are reading text, as a report's are, so the length checks leave them out (option a, as /privacy). A plain div with no padding or border, so the margins are as before. */}
+      <div data-article-body="">
       <h2 style={h2}>Independence</h2>
       <p style={p}>We never change our findings to suit the client.</p>
       <p style={p}>We report what the evidence shows, including findings the client may not want.</p>
@@ -78,6 +80,8 @@ export default function CommissionTermsPage() {
 
       <h2 style={h2}>Prices</h2>
       <p style={p}>If opengovt is not VAT registered, no VAT is added.</p>
+
+      </div>
 
       <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '36px' }}>
         Last updated: 3 November 2026

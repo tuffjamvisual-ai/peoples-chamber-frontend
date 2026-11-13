@@ -6,6 +6,7 @@
 import { useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
 import { phoneUpTo } from '@/lib/breakpoints';
 
@@ -54,6 +55,9 @@ export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[];
         }
       `}</style>
 
+      {/* T1-MOB batch 2 (Cowork 13 Nov 2026): on phones the type and period buttons (450px at 320) fold under one line that
+          names the choice in force; from 768px as before. */}
+      <SubFold label={`Filter: ${tab.label}, ${period === '12m' ? 'last 12 months' : sinceLabel}`}>
       <div role="tablist" aria-label="Type of organisation" style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '6px' }}>
         {tabs.map((t) => (
           <button key={t.key} type="button" role="tab" aria-selected={t.key === tab.key} onClick={() => setTabKey(t.key)} style={btn(t.key === tab.key)}>
@@ -65,6 +69,7 @@ export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[];
         <button type="button" aria-pressed={period === '12m'} onClick={() => setPeriod('12m')} style={btn(period === '12m')}>Last 12 months</button>
         <button type="button" aria-pressed={period === 'all'} onClick={() => setPeriod('all')} style={btn(period === 'all')}>{sinceLabel}</button>
       </div>
+      </SubFold>
 
       {rows.length === 0 ? (
         <p style={{ fontFamily: FONT, fontSize: '15px', color: INK }}>No meetings recorded for this group in this period.</p>

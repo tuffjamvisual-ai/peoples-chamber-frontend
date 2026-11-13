@@ -1,4 +1,5 @@
 import { ARCHIVE_NOTE } from '@/lib/historic-archive';
+import { SubFold } from '../components/PhoneFolds';
 import type { Metadata } from 'next';
 import LastUpdated from '../components/LastUpdated';
 import Link from 'next/link';
@@ -91,10 +92,13 @@ export default async function DivisionsIndexPage({
         </p>
       </header>
 
+      {/* T1-MOB batch 2 (Cowork 13 Nov 2026): on phones the year links fold; from 768px as before. */}
+      <SubFold label="Browse by year">
       <DivisionYearLinks years={await yearsP} />
       {/* T1-A3 (3) (owner approved): the archive's own note under the year links, and the count says what it covers (the
           divisions listed here, March 2016 on; the year pages before that are the Hansard archive). */}
       <p style={{ fontSize: '15px', lineHeight: 1.6, maxWidth: '720px', color: INK, margin: '0 0 14px' }}>{ARCHIVE_NOTE}</p>
+      </SubFold>
 
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '18px' }}>
         {total.toLocaleString()} divisions since March 2016{totalPages > 1 ? ` · page ${pageNum} of ${totalPages}` : ''}
@@ -110,6 +114,10 @@ export default async function DivisionsIndexPage({
           <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '8px' }}>
             {fmtDate(group.date)}
           </h2>
+          {/* T1-MOB batch 2 (Cowork 13 Nov 2026): on phones and tablets each day shows its first 3 divisions, then "Show N
+              more" (3 Nov 2026 alone had more than 10); from 1,024px as before. */}
+          <ShowAll id={`div-${group.date}`} count={group.items.length} rows="> a" first={3}>
+          <div>
           {group.items.map((d) => (
             <Link
               key={`${d.division_date_only}-${d.division_number}`}
@@ -121,6 +129,8 @@ export default async function DivisionsIndexPage({
               <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '3px' }}>Division {d.division_number}</div>
             </Link>
           ))}
+          </div>
+          </ShowAll>
         </section>
       ))}
       </div>

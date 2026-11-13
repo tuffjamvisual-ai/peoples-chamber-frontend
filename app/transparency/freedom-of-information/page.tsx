@@ -4,6 +4,7 @@
 import PageSources from '@/app/components/PageSources';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { SubFold } from '../../components/PhoneFolds';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { DEPT_BY_FOI_BODY, foiSource, getFoiLatestQuarter, periodName } from '@/lib/foi-statistics';
@@ -56,7 +57,10 @@ export default async function FreedomOfInformationPage() {
 
       {rows.length > 0 ? <FoiTable rows={rows} /> : <p>The figures could not be loaded.</p>}
 
+      {/* T1-MOB batch 2 (Cowork 13 Nov 2026): the table shows 3 bodies first on phones and tablets; on phones these notes fold
+          under "About these figures"; from 768px as before. */}
       <div style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '760px', marginTop: '20px' }}>
+      <SubFold label="About these figures">
         <p style={{ marginBottom: '10px' }}>
           &ldquo;Answered within 20 working days&rdquo; is out of the requests received, leaving out any put on hold or lapsed;
           the percentage is the Cabinet Office&rsquo;s own, rounded. &ldquo;Granted in full&rdquo; and &ldquo;fully withheld&rdquo;
@@ -74,6 +78,7 @@ export default async function FreedomOfInformationPage() {
             Contains public sector information licensed under the Open Government Licence v3.0.
           </p>
         )}
+      </SubFold>
       </div>
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
       <PageSources sources={[source && { label: source.label, href: source.url }]} />

@@ -3,6 +3,8 @@
 // registry's checked spellings. Nothing by name alone. Summary figures from organisation_index (migration 2026-10-27c),
 // the latest five records of each from the source tables (lib/organisations.ts). Rendered on demand, cached a day.
 
+import { ShowAll } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import { namedTitle } from '@/lib/seo-title';
 import { countOf, ledBy } from '@/lib/meta-description';
 import type { Metadata } from 'next';
@@ -139,6 +141,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
               <strong>{money(org.donated_accepted)}</strong> in {org.donations_accepted.toLocaleString('en-GB')} donation{org.donations_accepted === 1 ? '' : 's'} accepted
               {org.donations_not_accepted > 0 && <>, and {org.donations_not_accepted.toLocaleString('en-GB')} returned, forfeited or deferred (not counted)</>}.
             </p>
+            <ShowAll id="org-donations" count={donations.length} rows="> li" first={3}>
             <ul style={list}>
               {donations.map((d) => (
                 <li key={d.id} style={item}>
@@ -151,6 +154,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                 </li>
               ))}
             </ul>
+            </ShowAll>
             {org.donations > donations.length && <SeeAll href={`/organisations/${org.slug}/donations`} text={`All ${org.donations.toLocaleString('en-GB')} donation records`} />}
           </Section>
         )}
@@ -165,6 +169,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
               {org.framework_places > 0 && <>{org.framework_places.toLocaleString('en-GB')} framework place{org.framework_places === 1 ? '' : 's'}.</>}
               {heldBack > 0 && <> {heldBack.toLocaleString('en-GB')} very large value{heldBack === 1 ? '' : 's'} (over £1 billion each) held back until checked.</>}
             </p>
+            <ShowAll id="org-contracts" count={contracts.length} rows="> li" first={3}>
             <ul style={list}>
               {contracts.map((c) => (
                 <li key={c.id} style={item}>
@@ -176,6 +181,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                 </li>
               ))}
             </ul>
+            </ShowAll>
             <p style={{ ...para, marginTop: '8px' }}>Joint awards are shared equally between suppliers. Framework ceilings and estimates are not added.</p>
             {org.contracts + org.framework_places > contracts.length && <SeeAll href={`/organisations/${org.slug}/contracts`} text={`All ${(org.contracts + org.framework_places).toLocaleString('en-GB')} contracts and framework places`} />}
           </Section>
@@ -184,6 +190,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
         {org.grants > 0 && (
           <Section id="org-grants" title="Government grants">
             <p style={para}><strong>{money(org.grant_value)}</strong> grant value awarded in {org.grants.toLocaleString('en-GB')} grant{org.grants === 1 ? '' : 's'}.</p>
+            <ShowAll id="org-grants" count={grants.length} rows="> li" first={3}>
             <ul style={list}>
               {grants.map((g) => (
                 <li key={g.identifier} style={item}>
@@ -194,6 +201,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                 </li>
               ))}
             </ul>
+            </ShowAll>
             {org.grants > grants.length && <SeeAll href={`/organisations/${org.slug}/grants`} text={`All ${org.grants.toLocaleString('en-GB')} grants`} />}
           </Section>
         )}
@@ -201,6 +209,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
         {org.meetings > 0 && (
           <Section id="org-meetings" title="Meetings with ministers">
             <p style={para}>{org.meetings.toLocaleString('en-GB')} published meeting{org.meetings === 1 ? '' : 's'} with UK ministers{org.last_meeting ? `, the latest on ${fmtDay(org.last_meeting)}` : ''}.</p>
+            <ShowAll id="org-meetings" count={Math.min(registry.meetings.length, LATEST)} rows="> li" first={3}>
             <ul style={list}>
               {registry.meetings.slice(0, LATEST).map((m) => (
                 <li key={m.meeting_key} style={item}>
@@ -209,6 +218,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                 </li>
               ))}
             </ul>
+            </ShowAll>
             {org.meetings > LATEST && <SeeAll href={`/lobbying/${org.slug}`} text={`All ${org.meetings.toLocaleString('en-GB')} meetings`} />}
           </Section>
         )}
@@ -216,6 +226,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
         {org.lobbying_quarters > 0 && (
           <Section id="org-lobbying" title="Consultant lobbying">
             <p style={para}>Named as a client by {org.lobbying_firms.toLocaleString('en-GB')} lobbying firm{org.lobbying_firms === 1 ? '' : 's'} in {org.lobbying_quarters.toLocaleString('en-GB')} quarter{org.lobbying_quarters === 1 ? '' : 's'}{org.last_lobbying_quarter ? `, the latest ${quarterLabel(org.last_lobbying_quarter)}` : ''}.</p>
+            <ShowAll id="org-lobbying" count={Math.min(registry.lobbying.length, LATEST)} rows="> li" first={3}>
             <ul style={list}>
               {registry.lobbying.slice(0, LATEST).map((f) => (
                 <li key={f.firm} style={item}>
@@ -224,12 +235,16 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                 </li>
               ))}
             </ul>
+            </ShowAll>
             {registry.lobbying.length > LATEST && <SeeAll href={`/lobbying/${org.slug}`} text={`All ${registry.lobbying.length} lobbying firms`} />}
           </Section>
         )}
 
         <section aria-labelledby="org-matching" style={{ marginTop: '36px', borderTop: `1px solid ${HAIRLINE}`, paddingTop: '18px' }}>
           <h2 id="org-matching" style={head}>How we match records</h2>
+          {/* T1-MOB batch 2 (Cowork 13 Nov 2026): on phones the notes fold under the heading; from 768px as before. Lists above:
+              3 records, then "Show N more", up to 1,023px. */}
+          <SubFold label="How the records are matched">
           <p style={para}>
             Political donations, public contracts and grants are linked to this page by Companies House number only: the
             number the Electoral Commission, Find a Tender or the grant record gives, written the way Companies House writes
@@ -251,6 +266,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
             360Giving; GOV.UK ministers&rsquo; meetings returns; Registrar of Consultant Lobbyists. All under the Open
             Government Licence v3.0. Figures updated {fmtDay(org.refreshed_at)}.
           </p>
+          </SubFold>
         </section>
       </article>
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one

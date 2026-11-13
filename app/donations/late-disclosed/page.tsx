@@ -22,6 +22,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 
 export const revalidate = 86400;
 
@@ -83,7 +84,9 @@ export default async function LateDisclosedPage() {
         </p>
       </header>
 
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '28px' }}>
+      {/* T1-MOB batch 2 (Cowork 13 Nov 2026): two tiles a row on phones (min(160px, 45%) is 160px from about 360px up); on phones
+          each table folds under its heading (as cards, three rows ran to 400 and 670px). From 768px as before. */}
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(160px, 45%), 1fr))', gap: '12px', marginBottom: '28px' }}>
         {Object.entries(buckets).map(([label, n]) => (
           <div key={label} style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
             <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
@@ -95,6 +98,7 @@ export default async function LateDisclosedPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Recipients with the most late disclosures</h2>
+        <SubFold label={`The ${recipientRanked.length.toLocaleString('en-GB')} recipients`}>
         <ShowAll id="late-recipients" first={3} count={(recipientRanked).length}>
         <table style={tableStyle}>
           <thead>
@@ -119,10 +123,12 @@ export default async function LateDisclosedPage() {
           </tbody>
         </table>
         </ShowAll>
+        </SubFold>
       </section>
 
       <section>
         <h2 style={sectionH2}>Longest delays · top 50</h2>
+        <SubFold label={`The ${top50.length.toLocaleString('en-GB')} longest delays`}>
         <ShowAll id="late-top50" first={3} count={(top50).length}>
         <table style={tableStyle}>
           <thead>
@@ -153,6 +159,7 @@ export default async function LateDisclosedPage() {
           </tbody>
         </table>
         </ShowAll>
+        </SubFold>
       </section>
 
       <p style={{ fontSize: '15px', marginTop: '24px' }}>

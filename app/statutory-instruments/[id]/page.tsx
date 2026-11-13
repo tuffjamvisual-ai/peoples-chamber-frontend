@@ -1,6 +1,7 @@
 // Server component — renders statutory instrument metadata + Commons division
 // vote breakdown. Dossier template (matches /bills/[id], /laws, /transparency).
 
+import { ShowAll } from '@/app/components/NoJsPager'
 import formerNames from '@/lib/data/former-mp-names.json'
 import { namedTitle } from '@/lib/seo-title';
 import { supabase } from '@/lib/supabase'
@@ -233,6 +234,9 @@ function VoteColumn({ heading, rows, accent }: { heading: string; rows: VoteRow[
       <h3 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: accent }}>
         {heading}
       </h3>
+      {/* T1-MOB batch 2 (Cowork 13 Nov 2026): on phones and tablets the first 3 MPs, then "Show N more" (each list was up to
+          600px tall at 320); from 1,024px as before. */}
+      <ShowAll id={`si-${accent === SUCCESS ? 'aye' : 'no'}`} count={rows.length} rows="> li" first={3}>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.6, maxHeight: '600px', overflowY: 'auto' }}>
         {rows.map((v) => (
           <li key={v.member_id} style={{ padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
@@ -249,6 +253,7 @@ function VoteColumn({ heading, rows, accent }: { heading: string; rows: VoteRow[
           </li>
         ))}
       </ul>
+      </ShowAll>
     </div>
   )
 }

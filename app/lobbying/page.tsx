@@ -10,6 +10,7 @@ import LastUpdated from '../components/LastUpdated';
 import LobbyRanking, { type RankingTab } from './LobbyRanking';
 import { ShowAll, NoJsFold } from '../components/NoJsPager';
 import { SubFold } from '../components/PhoneFolds';
+import { phoneUpTo } from '@/lib/breakpoints';
 import ClientSearch from './ClientSearch';
 import { getRankings, getSummary, getFirmsForQuarter, quarterLabel, fmtDate, type RankingRow, type OrgType } from '@/lib/lobbying';
 
@@ -106,14 +107,22 @@ export default async function LobbyingPage() {
           </h1>
         </header>
 
-        <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
+        {/* T1-MOB batch 2 (Cowork 13 Nov 2026): on phones the introduction after its first sentence folds; from 768px the fold
+            is not there and it reads as one paragraph, as before. */}
+        <div style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
           Who gets in the room with government ministers, and who pays professional lobbyists to
-          speak for them. Meetings come from the returns each department publishes; lobbying firms
+          speak for them.{' '}
+          <SubFold label="Where the figures come from">
+          Meetings come from the returns each department publishes; lobbying firms
           and their clients come from the statutory Register of Consultant Lobbyists. Choose an
           organisation to see every meeting and every lobbying firm it used.
-        </p>
+          </SubFold>
+        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '32px' }}>
+        {/* T1-MOB batch 2: under 480px each figure is one compact line, its label and number side by side (as on the
+            secretariat pages); from 480px as before. */}
+        <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(479.98)} { .lb-stats { grid-template-columns: minmax(0, 1fr) !important; gap: 0 !important; } .lb-stat { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 8px 0 !important; } .lb-stat > p:first-child { margin: 0 !important; letter-spacing: 0.08em !important; } }` }} />
+        <div className="lb-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '32px' }}>
           <Stat label="Ministers’ meeting entries" value={(summary?.meeting_entries || 0).toLocaleString('en-GB')} />
           <Stat label="Organisations ranked" value={ranked.toLocaleString('en-GB')} />
           <Stat label="Lobbying firms on the register" value={(summary?.orcl_firms || 0).toLocaleString('en-GB')} />
@@ -121,9 +130,11 @@ export default async function LobbyingPage() {
 
         <h2 style={sectionHead}>Who meets ministers most</h2>
         {summary && summary.meetings_counted > 0 && (
+          <SubFold label="What the ranking covers">
           <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, lineHeight: 1.6, margin: '-6px 0 14px', maxWidth: '46em' }}>
             Rankings cover the organisations matched, which appear in {meetingShare} per cent of meetings.
           </p>
+          </SubFold>
         )}
         <LobbyRanking tabs={tabs} sinceLabel={since ? `Since ${since}` : 'All'} />
         {both > 0 && (
@@ -134,7 +145,7 @@ export default async function LobbyingPage() {
 
         <h2 style={{ ...sectionHead, marginTop: '44px' }}>Consultant lobbyists</h2>
         {/* Folded on phones (step 5, 10 Nov 2026; the page was 6,987px): the register note and the firms with most clients. */}
-        <NoJsFold id="lb-firms-f" always label={latestQuarter ? `Firms with the most clients, ${quarterLabel(latestQuarter)}` : 'About the register'}>
+        <NoJsFold id="lb-firms-f" always tablets label={latestQuarter ? `Firms with the most clients, ${quarterLabel(latestQuarter)}` : 'About the register'}>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 16px', maxWidth: '46em' }}>
           Firms that lobby ministers or permanent secretaries for a paying client must register and
           name their clients every quarter. Lobbyists employed directly by the organisation they
@@ -162,7 +173,8 @@ export default async function LobbyingPage() {
         <ClientSearch />
 
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK, lineHeight: 1.7, maxWidth: '46em' }}>
-          <SubFold label="How this is counted">
+          {/* T1-MOB batch 2: folds on tablets too (/lobbying was 3,015px at 768). */}
+          <SubFold tablets label="How this is counted">
           <strong>How this is counted.</strong> A meeting is one entry in a minister’s published
           return, so a meeting with two ministers counts once for each, as the government publishes
           it. Organisations are counted only when their name matches a spelling checked by hand,
@@ -175,8 +187,11 @@ export default async function LobbyingPage() {
           Lobbyists quarterly returns, both under the Open Government Licence v3.0.
           </SubFold>
         </section>
+        {/* T1-MOB batch 2: on phones the two dates fold together; from 768px as before. */}
+        <SubFold label="When the figures were updated">
         <LastUpdated sourceKey="lobbying_meetings" />
         <LastUpdated sourceKey="consultant_lobbyists" />
+        </SubFold>
       </article>
     </OpenGovShell>
   );
@@ -196,7 +211,7 @@ const sectionHead: CSSProperties = {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ borderTop: `2px solid ${INK}`, padding: '10px 0 4px' }}>
+    <div className="lb-stat" style={{ borderTop: `2px solid ${INK}`, padding: '10px 0 4px' }}>
       <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: MONO }}>{label}</p>
       <p style={{ fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 700, letterSpacing: '-0.01em', color: INK, fontVariantNumeric: 'tabular-nums', margin: 0, lineHeight: 1.1, fontFamily: SERIF }}>{value}</p>
     </div>
