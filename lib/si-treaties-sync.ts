@@ -19,8 +19,15 @@
 // 200 unless every call failed (502 if any answered with an error, 504 if none answered at all). A 429 (the source
 // asking us to stop) is not skipped past: the run stops there like a budget stop and keeps its position. One line per
 // run is logged: calls made, calls skipped with each reason, rows written.
+// Source down (Cowork 13 Nov 2026, COWORK-TO-T1 ENTRY 4; Parliament's API answered 503 on 11 and 13 Nov): when no call
+// answers and the calls get server errors (HTTP 5xx, or timeouts alongside them), the source is down, not our sync. The
+// run stops after DOWN_AFTER_ERRORS such errors in a row, keeps its position, records "source:<route>" in sync_cursor
+// (lib/source-status.ts) and returns 200 with source_unavailable (e.g. "HTTP 503") and no partial flag, so the freshness
+// monitor reports the source as down rather than a failed or stalled sync. Nothing is written, so the pages keep the
+// last good data. The first run the source answers clears the record.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { sourceDownReason, markSourceDown, clearSourceDown, DOWN_AFTER_ERRORS } from './source-status';
 import {
   ParliamentApi, SI_API, TREATY_API, API_TIMEOUT_MS, unwrap, siRowFromSummary, siRowFromDetail, treatyRow,
   type ApiList, type ApiSi, type ApiTreaty, type ApiBusinessItem,
@@ -72,6 +79,8 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
   let failure: { status: number; error: string } | null = null;
   let stoppedByBudget = false;
   let rateLimited = false;
+  let serverErrorsInARow = 0;
+  let sourceDown = false;
 
   // ---- helpers ----
   const path = (url: string) => url.replace(/^https:\/\/[^/]+/, '');
@@ -80,17 +89,20 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
   const done = (step: Step) => { state.pending = state.pending.filter((x) => x !== step); };
   const timeout = () => Math.min(API_TIMEOUT_MS, left() - RESERVE_MS);
   async function call<T>(url: string): Promise<T | null | 'budget'> {
-    if (rateLimited || timeout() < 3_000) return 'budget';
+    if (rateLimited || sourceDown || timeout() < 3_000) return 'budget';
     try {
       const r = await api.get<T>(url, timeout());
       if (r === null) { stats.noAnswer.push(path(url)); stats.skipped.push({ path: path(url), reason: 'timeout' }); return null; }
       answered++;
+      serverErrorsInARow = 0;
       return r;
     } catch (e) {
       const last = api.calls[api.calls.length - 1];
       if (last?.url === url && last.status === 429) { rateLimited = true; return 'budget'; }
       const reason = typeof last?.status === 'number' && last.url === url ? `HTTP ${last.status}` : `network error: ${(e as Error).message}`;
       stats.skipped.push({ path: path(url), reason });
+      serverErrorsInARow = /^HTTP 5\d\d$/.test(reason) ? serverErrorsInARow + 1 : 0;
+      if (answered === 0 && serverErrorsInARow >= DOWN_AFTER_ERRORS) { sourceDown = true; return 'budget'; }
       return null;
     }
   }
@@ -262,6 +274,16 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
   log(`calls ${api.calls.length}, answered ${answered}, skipped ${stats.skipped.length}${reasons ? ` (${reasons})` : ''}${rateLimited ? ', stopped by a 429' : ''}, rows written ${upserted}`
     + `${stats.skipped.length ? `; first skipped ${stats.skipped[0].path}` : ''}${state.pending.length ? `; steps left ${state.pending.join(', ')}` : ''}${failure ? `; error ${(failure as { error: string }).error}` : ''}`);
   if (failure) return { status: (failure as { status: number }).status, body };
+  const downReason = sourceDownReason(answered, stats.skipped.map((x) => x.reason));
+  if (downReason && !rateLimited) {
+    const down = await markSourceDown(supabase, CURSOR_ROUTE, downReason, nowDate);
+    log(`source unavailable (${downReason}): nothing written, the pages keep the last good data`);
+    // No partial flag: this is not a stalled pass of ours (lib/sync-heartbeat.ts records cycles only for runs that have one).
+    const { partial: _partial, ...rest } = body;
+    void _partial;
+    return { status: 200, body: { ...rest, ok: true, source_unavailable: downReason, source_down_since: down?.since ?? null } };
+  }
+  if (answered > 0) await clearSourceDown(supabase, CURSOR_ROUTE);
   if (allFailed) return { status: errorAnswers ? 502 : 504, body: { ...body, error: errorAnswers ? 'every API call failed' : 'no API answered within the time limit' } };
   return { status: 200, body };
 }

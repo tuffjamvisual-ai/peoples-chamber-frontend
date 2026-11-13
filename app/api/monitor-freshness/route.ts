@@ -16,6 +16,7 @@ import { SPAD_MANUAL_CHECKS_ROUTE } from '@/lib/spad-background-sync';
 import { annualReportStillUnread } from '@/lib/spad-background';
 import { FAILURES_PREFIX, FLAG_AFTER_RUNS, type ItemFailure } from '@/lib/sync-item-failures';
 import { checkWrittenAnswers } from '@/lib/written-answers-check';
+import { SOURCE_PREFIX, sourceDownMessage, type SourceDown } from '@/lib/source-status';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -140,6 +141,27 @@ async function GET_impl(req: Request) {
       reason: `no run recorded since its ${due.toISOString().slice(0, 16).replace('T', ' ')} UTC schedule (timed out, or did not start)`,
     });
     alerted.add(route);
+  }
+  // Sources down (Cowork 13 Nov 2026, COWORK-TO-T1 ENTRY 4; lib/source-status.ts): a sync whose outside source answered
+  // only server errors records "source:<route>" and returns 200. The alert says the source is down, not that our sync
+  // failed; the pages keep the last good data. Cleared by the first run the source answers.
+  const sourcesDown: Array<{ route: string } & SourceDown> = [];
+  {
+    const { data: downRows, error: downErr } = await supabaseAdmin.from('sync_cursor').select('route, cursor').like('route', `${SOURCE_PREFIX}%`);
+    if (downErr) console.error('monitor-freshness: sources down:', downErr.message);
+    for (const r of downRows ?? []) {
+      const route = (r.route as string).slice(SOURCE_PREFIX.length);
+      const d = r.cursor as SourceDown;
+      sourcesDown.push({ route, ...d });
+      if (alerted.has(route)) continue;
+      const h = hb.get(route);
+      alerts.push({
+        label: route, page: route, route, ageDays: h ? ageInDays(new Date(h.last_ran_at), now) : null,
+        lastRanAt: h?.last_ran_at ?? null, lastRows: h?.last_rows ?? null, lastStatus: h?.last_status ?? null,
+        reason: sourceDownMessage(d),
+      });
+      alerted.add(route);
+    }
   }
   const serverErrors: Array<{ route: string; status: number; lastRanAt: string }> = [];
   for (const h of hb.values()) {
@@ -449,6 +471,7 @@ async function GET_impl(req: Request) {
     alertCount: alerts.length,
     missedRuns,
     serverErrors,
+    sourcesDown,
     refreshFailures,
     cycles,
     failingItems,
