@@ -27,10 +27,12 @@ export const njpItem = (id: string) => `njp-i-${id}`;
 // their paging). first: rows shown before "Show all" (default 5).
 export const PHONE_FIRST = 5;
 export const showAllClass = (id: string) => `njp-sa-${id}`;
-export function ShowAllDetails({ id, count }: { id: string; count: number }) {
+// The button names the rows it adds (house rule, Cowork 13 Nov 2026, ENTRY 8: "Show 47 more", not "Show all 50"); first is
+// the rows already shown before it.
+export function ShowAllDetails({ id, count, first }: { id: string; count: number; first: number }) {
   return (
     <details className={`njp-sa ${showAllClass(id)}`}>
-      <summary><span className="njp-sa-more">Show all {count.toLocaleString('en-GB')}</span><span className="njp-sa-less">Show fewer</span></summary>
+      <summary><span className="njp-sa-more">Show {Math.max(0, count - first).toLocaleString('en-GB')} more</span><span className="njp-sa-less">Show fewer</span></summary>
     </details>
   );
 }
@@ -65,7 +67,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
     : '';
   const phoneStyle = phoneCss ? <style dangerouslySetInnerHTML={{ __html: phoneCss }} /> : null;
   const ownList = (extra: string) => children ? cloneElement(children as ReactElement<{ className?: string; 'data-own-more'?: string }>, { className: [children.props.className, extra, cardClass].filter(Boolean).join(' '), ...(showAll ? { 'data-own-more': '' } : {}) }) : null;
-  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} /> : null}</>;
+  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} first={first} /> : null}</>;
   const pages = split.length;
   const nums = Array.from({ length: pages }, (_, i) => i + 1);
   const upTo = (k: number) => split.slice(0, k).reduce((a, b) => a + b, 0);   // rows on screens 1 to k
@@ -94,7 +96,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
       {nums.map((k) => <PagerNav key={`top-${k}`} id={id} k={k} pages={pages} always={always} wide={wide && always} top />)}
       {ownList(list)}
       {children && nums.map((k) => <PagerNav key={k} id={id} k={k} pages={pages} always={always} wide={wide && always} />)}
-      {children && showAll ? <ShowAllDetails id={id} count={count} /> : null}
+      {children && showAll ? <ShowAllDetails id={id} count={count} first={first} /> : null}
     </>
   );
 }
@@ -123,7 +125,7 @@ export function NoJsPagerLinks({ id, count, size = 25, sizes, first = PHONE_FIRS
   return (
     <>
       {pages > 1 && Array.from({ length: pages }, (_, i) => <PagerNav key={i} id={id} k={i + 1} pages={pages} />)}
-      {count > first && <ShowAllDetails id={id} count={count} />}
+      {count > first && <ShowAllDetails id={id} count={count} first={first} />}
     </>
   );
 }

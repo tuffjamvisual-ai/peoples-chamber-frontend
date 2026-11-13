@@ -352,7 +352,7 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
         </NoJsPager>
         {rows.length > FIRST && (
           <button type="button" onClick={() => setShowAll((v) => !v)} style={{ ...btn(false), marginTop: '12px' }}>
-            {showAll ? `Show the first ${FIRST}` : `Show all ${fmtInt(rows.length)}`}
+            {showAll ? `Show the first ${FIRST}` : `Show ${fmtInt(rows.length - FIRST)} more`}
           </button>
         )}
       </section>

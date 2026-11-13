@@ -83,19 +83,25 @@ export default async function ContractorsWhoDonatePage() {
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           UK government contractors who donate to UK political parties
         </h1>
-        <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {matched.length} companies appear on both the government contracts records (Find a Tender) and the Electoral Commission donations register with the same Companies House number. Between them they hold {totalContracts.toLocaleString()} public sector contracts worth &pound;{Math.round(totalContractValue).toLocaleString()} where a value is published{totalFrameworkPlaces ? <>, and {totalFrameworkPlaces} framework place{totalFrameworkPlaces === 1 ? '' : 's'} (not added in: a framework&rsquo;s value is potential value, not spending)</> : null}, and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The largest donors among them are listed first. Records are matched by Companies House number only, never by name, and donations from individuals are left out. A company is missed when either register gives no number for it, and subsidiaries are listed under their own numbers.
-        </p>
+        {/* T1-MOB batch 1 (Cowork 13 Nov 2026, ENTRY 8): on phones the introduction after its first sentence folds; from 768px
+            the fold is not there and it reads as one paragraph, as before. A div, not a p, as the fold is a details element. */}
+        <div style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
+          {matched.length} companies appear on both the government contracts records (Find a Tender) and the Electoral Commission donations register with the same Companies House number.{' '}
+          <SubFold label="Their totals and how they are matched">
+          Between them they hold {totalContracts.toLocaleString()} public sector contracts worth &pound;{Math.round(totalContractValue).toLocaleString()} where a value is published{totalFrameworkPlaces ? <>, and {totalFrameworkPlaces} framework place{totalFrameworkPlaces === 1 ? '' : 's'} (not added in: a framework&rsquo;s value is potential value, not spending)</> : null}, and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The largest donors among them are listed first. Records are matched by Companies House number only, never by name, and donations from individuals are left out. A company is missed when either register gives no number for it, and subsidiaries are listed under their own numbers.
+          </SubFold>
+        </div>
       </header>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Matched companies · ranked by political donations</h2>
-        {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on tablets (768 to 1,023px) the table was 54px wider than the screen; it now
-            scrolls sideways inside its own box, with a visible edge on the right. Phones (cards) and desktop as before. */}
-        <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 768px) and (max-width: 1023.98px) { .gc-scroll { overflow-x: auto; border-right: 3px solid rgba(20,16,13,0.35); } }` }} />
-        <div className="gc-scroll">
+        {/* T1-MOB batch 1 (Cowork 13 Nov 2026, ENTRY 8): on tablets (768 to 1,023px) the seven columns did not fit (the ranking
+            column showed only "Dor"); each company is a card with every figure labelled, so nothing is cut off or scrolls
+            sideways. Phones and desktop as before. */}
+        <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 768px) and (max-width: 1023.98px) { .gc-t thead { display: none; } .gc-t, .gc-t > tbody { display: block; width: 100%; } .gc-t > tbody > tr { display: block; padding: 10px 8px; } .gc-t > tbody > tr > td:empty { display: none; } .gc-t > tbody > tr > td { display: block; padding: 2px 0 !important; text-align: left !important; white-space: normal !important; border-left: none; } .gc-t > tbody > tr > td:nth-child(1)::before { content: '#'; font-weight: bold; } .gc-t > tbody > tr > td:nth-child(3)::before { content: 'Contracts: '; font-weight: bold; } .gc-t > tbody > tr > td:nth-child(4)::before { content: 'Contract value: '; font-weight: bold; } .gc-t > tbody > tr > td:nth-child(5)::before { content: 'Frameworks: '; font-weight: bold; } .gc-t > tbody > tr > td:nth-child(6)::before { content: 'Donations: '; font-weight: bold; } .gc-t > tbody > tr > td:nth-child(7)::before { content: 'Political giving: '; font-weight: bold; } }` }} />
+        <div>
         <ShowAll id="contractors-matched" first={3} count={(matched).length}>
-        <table style={tableStyle}>
+        <table className="gc-t" style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
               <th style={{ padding: '8px 6px' }}>#</th>
@@ -128,7 +134,10 @@ export default async function ContractorsWhoDonatePage() {
       </section>
 
       <section style={{ background: CREAM, padding: '12px 14px', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
+        {/* T1-MOB batch 1: on phones the caveat folds under its own title; from 768px as before. */}
+        <SubFold label="What this list isn’t">
         <strong>What this list isn&rsquo;t.</strong> A company appearing on both registers does not mean its contracts were obtained as a result of its donations. What the list does show is the firms that both supply the public sector and give to political parties, with the totals from each register, so the overlap can be seen in one place.
+        </SubFold>
       </section>
 
       {/* Phones: 3 companies first and the sources folded (step 5, 10 Nov 2026: page length). */}

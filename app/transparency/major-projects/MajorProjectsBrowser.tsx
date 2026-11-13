@@ -290,7 +290,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
           </section>
         );
       })}
-      {count > phoneLimit && <ShowAllDetails id="mpb" count={count} />}
+      {count > phoneLimit && <ShowAllDetails id="mpb" count={count} first={phoneLimit} />}
       {count === 0 && <p style={{ fontSize: '15px', margin: '0 0 28px' }}>No projects match.</p>}
     </>
   );

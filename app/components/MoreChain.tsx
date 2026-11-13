@@ -26,7 +26,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
   const list = (some: ReactNode[], firstList = false, mark = false) => <Tag className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
   if (items.length <= opening) {
     if (phoneOnly || items.length <= pf) return list(items, false, mainAction);
-    return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary>Show all {items.length.toLocaleString('en-GB')}</summary></details></>;
+    return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary>Show {(items.length - pf).toLocaleString('en-GB')} more</summary></details></>;
   }
   // "Show N more" (T1-GUARD, Cowork 13 Nov 2026, as DataList): N is what the press shows, the next `step` items; on phones the
   // first press also shows the rest of the opening list (globals.css .mc-first).

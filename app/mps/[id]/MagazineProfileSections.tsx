@@ -3082,7 +3082,7 @@ function FirstThenAll({ items, wrap }: { items: React.ReactNode[]; wrap: (kids: 
   return (
     <>
       {wrap(items.slice(0, FIRST_ITEMS))}
-      <SubFold label={`Show all ${items.length.toLocaleString('en-GB')}`}>{wrap(items.slice(FIRST_ITEMS))}</SubFold>
+      <SubFold label={`Show ${(items.length - FIRST_ITEMS).toLocaleString('en-GB')} more`}>{wrap(items.slice(FIRST_ITEMS))}</SubFold>
     </>
   );
 }

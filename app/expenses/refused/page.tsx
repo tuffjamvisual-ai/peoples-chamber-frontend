@@ -345,7 +345,7 @@ function MpTable({ rows, mpById, totalLabel }: { rows: Agg[]; mpById: Map<number
       {rest.length > 0 && (
         <details style={{ marginTop: '10px' }}>
           <summary style={{ cursor: 'pointer', fontSize: '15px', fontWeight: 'bold', color: ACCENT, padding: '8px 0', minHeight: '44px', display: 'flex', alignItems: 'center' }}>
-            Show all {rows.length.toLocaleString('en-GB')} MPs
+            Show {rest.length.toLocaleString('en-GB')} more MPs
           </summary>
           <div className="rr-scroll"><table style={tableStyle}>
             <MpHead totalLabel={totalLabel} />
@@ -356,7 +356,7 @@ function MpTable({ rows, mpById, totalLabel }: { rows: Agg[]; mpById: Map<number
       {rest.length === 0 && rows.length > PHONE_SHOWN && (
         <details className="rr-more-phone" style={{ marginTop: '10px' }}>
           <summary style={{ cursor: 'pointer', fontSize: '15px', fontWeight: 'bold', color: ACCENT, padding: '8px 0', minHeight: '44px', display: 'flex', alignItems: 'center' }}>
-            Show all {rows.length.toLocaleString('en-GB')} MPs
+            Show {(rows.length - PHONE_SHOWN).toLocaleString('en-GB')} more MPs
           </summary>
         </details>
       )}

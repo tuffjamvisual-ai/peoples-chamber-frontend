@@ -260,7 +260,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
       </div>
       {!q.trim() && list.length > FIRST && (
         <button type="button" onClick={() => setShowAll((v) => !v)} style={{ ...btn(false), marginTop: '12px' }}>
-          {showAll ? `Show the first ${FIRST}` : `Show all ${list.length}`}
+          {showAll ? `Show the first ${FIRST}` : `Show ${list.length - FIRST} more`}
         </button>
       )}
     </section>

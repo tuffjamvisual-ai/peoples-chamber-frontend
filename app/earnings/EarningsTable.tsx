@@ -22,6 +22,8 @@ function pegTilt(rank: number): number {
   return PEG_TILTS[(rank - 1) % PEG_TILTS.length] ?? 0;
 }
 
+const EARN_CARDS = `@media (min-width: 768px) and (max-width: 1023.98px) { .earn-t thead { display: none; } .earn-t, .earn-t > tbody { display: block; width: 100%; } .earn-t > tbody > tr { display: block; padding: 10px 8px; } .earn-t > tbody > tr > td:empty { display: none; } .earn-t > tbody > tr > td { display: block; padding: 2px 0 !important; text-align: left !important; white-space: normal !important; border-left: none; } .earn-t > tbody > tr > td:nth-child(1)::before { content: '#'; font-weight: bold; } .earn-t > tbody > tr > td:nth-child(3)::before { content: 'Base: '; font-weight: bold; } .earn-t > tbody > tr > td:nth-child(4)::before { content: 'Ministerial: '; font-weight: bold; } .earn-t > tbody > tr > td:nth-child(5)::before { content: 'Outside: '; font-weight: bold; } .earn-t > tbody > tr > td:nth-child(6)::before { content: 'Total: '; font-weight: bold; } .earn-t > tbody > tr > td:nth-child(7)::before { content: 'Public spend: '; font-weight: bold; } }`;
+
 export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; year: string }) {
   const [sortKey, setSortKey] = useState<SortKey>('personal_total')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
@@ -78,7 +80,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
 
   return (
     <div
-      className="border border-[#14100d]/20"
+      className="earn-box border border-[#14100d]/20"
       style={{
         // Negative horizontal margin so the table breaks out of the
         // dossier folder's inner padding. User asked to push the
@@ -96,19 +98,20 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
       {/* Phones with JavaScript off (owner, 7 Nov 2026, PF1): 15 rows a screen with Previous and Next, as stacked rows with
           each figure labelled, as the phone script shows them with JavaScript on (25 stacked rows came to 9,203px, over the
           9,000px warning). Nothing changes from 640px up. */}
-      {/* T1-MOB batch 1 (Cowork 13 Nov 2026): phones show the first 3 MPs before "Show all"; on tablets (768 to 1,023px) the
-          seven columns are 89px wider than the screen, so the table scrolls sideways inside its own box, with a visible
-          edge on the right to show there is more. From 1,024px up, as before. */}
-      <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 768px) and (max-width: 1023.98px) { .earn-scroll { overflow-x: auto; border-right: 3px solid rgba(20,16,13,0.35); } .earn-scroll table { min-width: 860px; } }` }} />
-      <div className="earn-scroll">
+      {/* T1-MOB batch 1 (Cowork 13 Nov 2026, ENTRY 8): phones show the first 3 MPs before "Show N more"; on tablets (768 to
+          1,023px), where the seven columns do not fit, each MP is a card with every figure labelled (as on phones), so no
+          column is cut off and nothing scrolls sideways; up to 1,023px the box keeps the page's side margins (it touched the
+          screen edge at 320). From 1,024px up, as before. */}
+      <style dangerouslySetInnerHTML={{ __html: `@media (max-width: 1023.98px) { .earn-box { margin-left: 0 !important; margin-right: 0 !important; } } @media (max-width: 767.98px) { .earn-box { padding: 0 10px; } } ${EARN_CARDS}` }} />
+      <div>
       <NoJsPager id="earnings" count={sorted.length} rows="> tbody > tr" cards={[null, null, 'Base', 'Ministerial', 'Outside', 'Total', 'Public spend']} title={2} size={15} first={3}>
-      <table className="w-full text-[16px] border-collapse">
+      <table className="earn-t w-full text-[16px] border-collapse">
         <thead>
           <tr className="border-b border-[#14100d]/20 text-left">
             <Th label="#"        active={sortKey === 'rank'}           dir={sortDir} onClick={() => toggle('rank')}           align="right" width={28} />
             <Th label="MP"       active={sortKey === 'name'}           dir={sortDir} onClick={() => toggle('name')}           />
             <Th label="Base"     active={sortKey === 'base'}           dir={sortDir} onClick={() => toggle('base')}           align="right" />
-            <Th label="Minister." active={sortKey === 'ministerial'}    dir={sortDir} onClick={() => toggle('ministerial')}    align="right" />
+            <Th label="Minister" active={sortKey === 'ministerial'}    dir={sortDir} onClick={() => toggle('ministerial')}    align="right" />
             <Th label="Outside"  active={sortKey === 'outside'}        dir={sortDir} onClick={() => toggle('outside')}        align="right" />
             <Th label="Total"    active={sortKey === 'personal_total'} dir={sortDir} onClick={() => toggle('personal_total')} align="right" />
             <Th label="Public spend" active={sortKey === 'public_spend'} dir={sortDir} onClick={() => toggle('public_spend')} align="right" />
