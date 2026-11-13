@@ -421,7 +421,23 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 <Section title="Political Control & Leadership" date={councilUpdated} source="councils.updated_at"
                   // NI2 (9 Nov 2026): where the seat figures come from, and as of when.
                   sourceLine={comp && comp.total_seats > 0 ? { text: `Seats: opencouncildata.co.uk, public domain, as of May ${comp.snapshot_year}`, source: 'council_composition.snapshot_year' } : undefined}
-                  moreLabel="Byelections, leader, chief executive and last election" more={<>
+                  moreLabel="Administration, seats, byelections, leader and last election" more={<>
+                  {/* Who runs it and the seats (T1-GUARD headroom, Cowork 13 Nov 2026 ENTRY 2): in this fold on phones, so
+                      the page has room under the 2,500px phone length as the byelections grow; from 640px (and on tablets)
+                      the rows read in the same order as before, straight after political control. */}
+                  {/* The publisher's administration label is left out when it contradicts the seats shown
+                      below (e.g. "minority" while one named party holds more than half the seats). */}
+                  {comp && !runByContradictsSeats(comp) && <DataRow label="Run by" value={administrationLabel(comp.administration_code)} />}
+                  {/* Northern Ireland (NI2d): no administration line, and why. */}
+                  {/^N09\d{6}$/.test(c.gss_code ?? '') && <DataRow label="Administration" value="Northern Ireland councils share senior posts between parties, so there is no single administration." />}
+                  {comp && comp.total_seats > 0 && (
+                    <DataRow
+                      label="Seats"
+                      value={`${seatsLine(comp)} (${comp.total_seats} seats)`}
+                      sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
+                    />
+                  )}
+
                   {/* Byelections since May 2026 (owner's approval, 30 Oct 2026; lib/council-byelections.ts), newest
                       first, each from the council's own declaration. The seats above are left as at May 2026. */}
                   {byelections.length > 0 && (
@@ -456,18 +472,6 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary, c.slug)} sub={lastElectionSub(c.last_election_year, comp, electionSummary, c)} />
                 </>}>
                   <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
-                  {/* The publisher's administration label is left out when it contradicts the seats shown
-                      below (e.g. "minority" while one named party holds more than half the seats). */}
-                  {comp && !runByContradictsSeats(comp) && <DataRow label="Run by" value={administrationLabel(comp.administration_code)} />}
-                  {/* Northern Ireland (NI2d): no administration line, and why. */}
-                  {/^N09\d{6}$/.test(c.gss_code ?? '') && <DataRow label="Administration" value="Northern Ireland councils share senior posts between parties, so there is no single administration." />}
-                  {comp && comp.total_seats > 0 && (
-                    <DataRow
-                      label="Seats"
-                      value={`${seatsLine(comp)} (${comp.total_seats} seats)`}
-                      sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
-                    />
-                  )}
                 </Section>
               )}
 

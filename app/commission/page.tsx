@@ -103,11 +103,12 @@ export default function CommissionPage() {
         <div className="cm-service" style={{ borderTop: `3px solid ${INK}`, borderBottom: `1px solid ${HAIRLINE}`, padding: '16px 0 18px', display: 'flex', flexDirection: 'column' }}>
           <h2 style={{ ...h2, marginBottom: '6px' }}>{SERVICE.name}</h2>
           <p style={{ fontSize: '18px', fontWeight: 'bold', color: ACCENT, margin: '0 0 10px' }}>{SERVICE.price}</p>
+          {/* UX5 (T1-6, 11 Nov 2026): on phones this list and "How it works" are closed folds; from 640px up, as before.
+              T1-GUARD headroom (Cowork 13 Nov 2026, ENTRY 2): on phones the description joins the list in one fold, "What
+              you get", which shows the list's own heading. */}
+          <SubFold label="What you get">
           <p style={{ fontSize: '15px', lineHeight: 1.65, margin: '0 0 10px' }}>{SERVICE.body}</p>
-          {/* UX5 (T1-6, 11 Nov 2026): on phones this list and "How it works" are closed folds named by their headings,
-              which are hidden there; from 640px up, as before. */}
-          <SubFold label="Every commission includes">
-          <p className="cm-fold-h" style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>Every commission includes:</p>
+          <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>Every commission includes:</p>
           <ul style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px', paddingLeft: '1.4em' }}>
             {INCLUDED.map((x) => <li key={x}>{x}</li>)}
           </ul>
