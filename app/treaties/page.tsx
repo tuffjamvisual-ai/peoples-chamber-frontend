@@ -1,3 +1,4 @@
+import { fitTitle } from '@/lib/seo-title';
 import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -14,7 +15,7 @@ import Unavailable from '@/app/components/Unavailable';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Treaties',
+  title: fitTitle('Treaties laid before Parliament', 'Treaties'), // T1-A3 (6) (owner approved)
   description: PAGE_DESCRIPTIONS['/treaties'],
   alternates: { canonical: '/treaties' },
 };

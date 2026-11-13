@@ -1,4 +1,4 @@
-import { titleWithin } from '@/lib/seo-title';
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { departments } from '@/lib/departments';
@@ -13,7 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const dept = departments.find((d) => d.slug === slug);
   if (!dept) return { title: 'Department' };
   return {
-    title: titleWithin(dept.name),
+    // T1-A3 (6) (owner approved): what the page holds, after the name; the name is never cut (lib/seo-title.ts).
+    title: namedTitle(dept.name, (n) => [`${n}: ministers, budget and grants`, `${n}: ministers and budget`, n]),
     description: `${dept.name}, ministers, control zones and what every party says about each topic.`,
     alternates: { canonical: `/departments/${slug}` },
   };

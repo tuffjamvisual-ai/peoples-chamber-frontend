@@ -1,3 +1,4 @@
+import { fitTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
@@ -12,7 +13,7 @@ import {
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Programmes',
+  title: fitTitle('Government programmes: commitments tracked', 'Government programmes'), // T1-A3 (6) (owner approved)
   description: 'Major government policy commitments, tracked over time.',
   alternates: { canonical: '/programmes' },
 };

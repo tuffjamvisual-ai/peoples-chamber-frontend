@@ -1,3 +1,4 @@
+import { fitTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
@@ -15,7 +16,7 @@ import ReportsArchive, { type ArchiveItem } from './ReportsArchive';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Reports',
+  title: fitTitle('Reports: opengovt investigations and briefings', 'Reports'), // T1-A3 (6) (owner approved)
   description: 'Every opengovt investigation and briefing, newest first, with its date and summary. Each piece is checked against the public record.',
   alternates: { canonical: '/reports' },
 };

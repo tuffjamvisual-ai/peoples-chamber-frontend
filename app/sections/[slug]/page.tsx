@@ -1,3 +1,4 @@
+import { fitTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { phoneUpTo } from '@/lib/breakpoints';
@@ -47,7 +48,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const s = find(slug);
   if (!s) return {};
   return {
-    title: s.item.label,
+    // T1-A3 (6) (owner approved): a section page lists the site's pages in that section.
+    title: fitTitle(`${s.item.label}: every page in this section`, `${s.item.label} on opengovt`, s.item.label),
     // With more than two groups (Parliament) the groups are named; otherwise every link.
     // Whole sentences within 160 characters (owner, 7 Nov 2026, L7): the section, then as many of its groups or pages as fit.
     description: sectionDescription(s.item.label, groups(s.item.children!).length > 2 ? groups(s.item.children!).map((g) => g.title) : s.item.children!.map((c) => c.label)),

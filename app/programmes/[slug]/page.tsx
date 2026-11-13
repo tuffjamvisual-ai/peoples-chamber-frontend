@@ -8,7 +8,7 @@
 // Current figure: deriveCurrentFigure() from lib/programmes — shared with the
 // index page, no copy-paste.
 
-import { titleWithin } from '@/lib/seo-title';
+import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getProgramme, getTimeline, type ProgrammeRow, type TimelineRow } from '@/lib/programmes';
@@ -26,7 +26,8 @@ export async function generateMetadata(
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
   if (!prog || !prog.is_live) notFound();
   return {
-    title: titleWithin(prog.name),
+    // T1-A3 (6) (owner approved): says it is a tracked government commitment; the name is never cut.
+    title: namedTitle(prog.name, (n) => [`${n}: government programme progress`, `${n}: government programme`, n]),
     description: prog.summary?.slice(0, 155) ?? `Track progress on ${prog.name}.`,
     alternates: { canonical: `/programmes/${slug}` },
   };

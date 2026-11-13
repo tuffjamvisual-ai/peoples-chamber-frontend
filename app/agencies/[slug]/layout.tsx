@@ -51,7 +51,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     })()
     : `${name}, UK government agency profile: ministers, board, parent department and recent activity.`;
   return {
-    title: wholeNameTitle(title),
+    // T1-A3 (6) (owner approved): says it is a government agency's profile; the name is never cut.
+    title: wholeNameTitle(title, (n) => [`${n}: government agency profile`, `${n}: government agency`]),
     description,
     alternates: { canonical: `/agencies/${slug}` },
   };
