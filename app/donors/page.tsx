@@ -34,7 +34,9 @@ function fmtMoney(n: number): string {
 
 type DonorAgg = { donor_name: string; total: number; count: number; recipients: number };
 // A row the Electoral Commission marks as public money. Newer rows carry it only in donor_type (donor_status is empty).
-const isPublicFund = (r: { donor_status: string | null; donor_type: string | null }) => r.donor_status === 'Public Fund' || r.donor_type === 'Public Fund';
+// "Public Funds" is accepted as well as "Public Fund" (T1-A3 (4), owner approved).
+const PUBLIC = /^public funds?$/i;
+const isPublicFund = (r: { donor_status: string | null; donor_type: string | null }) => PUBLIC.test((r.donor_status ?? '').trim()) || PUBLIC.test((r.donor_type ?? '').trim());
 
 export default async function DonorsIndex() {
   // Pull top donors. Postgrest doesn't have a SUM aggregate via the rest
@@ -71,17 +73,26 @@ export default async function DonorsIndex() {
   }
   if (rows.length < (count ?? 0)) throw new Error(`/donors read ${rows.length} of ${count} donation rows`);
 
-  const agg = new Map<string, DonorAgg & { recipients_set: Set<string>; publicRows: number }>();
+  // One row per donor page (T1-A3 (4), owner approved): spellings that differ only in case, spacing or punctuation
+  // ("Unite the Union", "UNITE the union") share a donor page (lib/donor-registry.ts) and are added together here, so
+  // the ranking matches the totals on the donor's page; they were ranked separately (Unite the Union three times). The
+  // name shown is the spelling with the most money. Names that differ in their letters ("Mr Christopher Harborne",
+  // "Christopher Harborne") are different registered names with their own pages, and stay apart.
+  const agg = new Map<string, DonorAgg & { recipients_set: Set<string>; publicRows: number; spellings: Map<string, number> }>();
   for (const r of rows) {
     const name = (r.donor_name || '').trim();
     if (!name || /^anonymous$/i.test(name)) continue;
-    const ex = agg.get(name) ?? { donor_name: name, total: 0, count: 0, recipients: 0, recipients_set: new Set<string>(), publicRows: 0 };
-    ex.total += Number(r.amount) || 0;
+    const key = donorPageSlug(name) ?? name;
+    const ex = agg.get(key) ?? { donor_name: name, total: 0, count: 0, recipients: 0, recipients_set: new Set<string>(), publicRows: 0, spellings: new Map<string, number>() };
+    const amount = Number(r.amount) || 0;
+    ex.total += amount;
     ex.count += 1;
+    ex.spellings.set(name, (ex.spellings.get(name) ?? 0) + amount);
     if (isPublicFund(r)) ex.publicRows += 1;
     if (r.recipient_name) ex.recipients_set.add(r.recipient_name);
-    agg.set(name, ex);
+    agg.set(key, ex);
   }
+  for (const a of agg.values()) a.donor_name = [...a.spellings.entries()].sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]))[0][0];
   // Public funds are not private donors (owner, 5 Nov 2026): a name most of whose records are Public Fund leaves the
   // ranking, so one mistyped record cannot move a private donor. The section lists those big enough to have ranked.
   const everyone = Array.from(agg.values())

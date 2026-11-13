@@ -473,6 +473,17 @@ export default async function DonorPage({ params }: PageProps) {
         <p style={{ margin: 0, maxWidth: '70ch' }}>
           The Electoral Commission records donors by the name given on each report. The same person or company may appear under more than one name; these totals are not combined.
         </p>
+        {/* T1-A3 (4) (owner approved): the spellings this page adds together (they differ only in case, spacing or
+            punctuation), so a reader can see why the total covers more than one written form. Shown only when there
+            are two or more. */}
+        {(() => {
+          const spellings = [...new Set(donations.map((d) => (d.donor_name ?? '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+          return spellings.length > 1 ? (
+            <p style={{ margin: '10px 0 0', maxWidth: '70ch' }}>
+              Recorded under {spellings.length} spellings, added together here: {spellings.map((n, i) => <span key={n}>{i > 0 ? '; ' : ''}&ldquo;{n}&rdquo;</span>)}.
+            </p>
+          ) : null;
+        })()}
         {/* Bequests (owner, 1 Nov 2026): political_donations.is_bequest is the Electoral Commission's IsBequest flag. Shown
             only when this donor has at least one; pages with none are unchanged. */}
         {bequestCount > 0 && (
