@@ -158,8 +158,9 @@ export default async function CouncilsIndex() {
                 <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '20px' }}>
                   {countryTotal} principal authorities
                 </div>
-                {/* Phones: every nation folded (UX2l, 10 Nov 2026; the first was open before), reached from the shortcuts above. */}
-                <PhoneGroup summary={`${country}: ${countryTotal} authorities`}>
+                {/* Phones: every nation folded (UX2l, 10 Nov 2026; the first was open before), reached from the shortcuts above. Tablets
+                    too since T1-GUARD (owner approved 13 Nov 2026); desktop unchanged. */}
+                <PhoneGroup tablets summary={`${country}: ${countryTotal} authorities`}>
                 {TYPE_ORDER.filter((t) => byType[t]).map((type) => {
                   const items = byType[type];
                   return (

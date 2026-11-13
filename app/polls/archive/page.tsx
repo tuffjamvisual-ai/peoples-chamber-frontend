@@ -68,8 +68,9 @@ export default async function ArchivedPollsPage() {
         <p style={{ fontFamily: MONO, fontSize: '16px' }}>No archived polls.</p>
       )}
 
-      {/* Phones (UX3d): the 6 newest polls, then "Show all <N>" (a native details, ShowAll). From 640px up, every poll. */}
-      <ShowAll id="polls-archive" count={polls.length} rows="> article" first={6}>
+      {/* Phones and tablets: the 3 newest polls (growing lists rule, owner 12 Nov 2026; 6 under UX3d), then "Show all <N>"
+          (a native details, ShowAll). From 1,024px up, every poll. */}
+      <ShowAll id="polls-archive" count={polls.length} rows="> article" first={3}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {polls.map((p, pi) => {
           const total = (p.vote_count_yes || 0) + (p.vote_count_no || 0)
@@ -106,7 +107,7 @@ export default async function ArchivedPollsPage() {
               {/* Phones (UX3d, owner approved, 10 Nov 2026): the question and the result, then the explainer and its sources in one
                   closed native fold, "About this poll" (SubFold). From 640px up, as before. */}
               {(p.explainer || httpsSources(p.explainer_sources).length > 0) && (
-              <SubFold label="About this poll">
+              <SubFold tablets label="About this poll">
               {p.explainer && (
                 <p style={{ fontSize: '15px', lineHeight: 1.7, color: INK_SOFT, maxWidth: '760px' }}>
                   {p.explainer}

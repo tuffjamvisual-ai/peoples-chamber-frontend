@@ -250,7 +250,9 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
               )}
             </details>
 
-            <section className="bt-text" aria-label="The text of the bill">
+            {/* data-article-body: the bill text is reading text, as a report's is, so the length checks leave it out (T1-GUARD,
+                Cowork 13 Nov 2026, option a); the rest of the page must still be within the limits. */}
+            <section className="bt-text" aria-label="The text of the bill" data-article-body="">
               {text.preamble && <p className="bt-preamble">{text.preamble}</p>}
               {text.groups.slice(0, inline).map((g) => (
                 <div key={g.id} className="bt-group" dangerouslySetInnerHTML={{ __html: g.html }} />

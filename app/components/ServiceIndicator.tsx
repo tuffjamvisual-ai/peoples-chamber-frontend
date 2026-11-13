@@ -1,3 +1,4 @@
+import { SubFold } from './PhoneFolds';
 import { supabase } from '@/lib/supabase';
 import { fmtPeriod } from '@/lib/dashboard-format';
 
@@ -37,7 +38,8 @@ function fmt(v: number | null, unit: string): string {
   return v.toLocaleString('en-GB');
 }
 
-export default async function ServiceIndicator({ services }: { services: string[] }) {
+// phoneFold (T1-GUARD, owner approved 13 Nov 2026): on phones the panel folds under its name (SubFold); from 768px as before.
+export default async function ServiceIndicator({ services, phoneFold = false }: { services: string[]; phoneFold?: boolean }) {
   if (!services.length) return null;
   const { data, error: dataErr } = await supabase.from('dashboard_indicators').select('*').in('service', services);
   // An optional side panel: a failed read leaves it out and logs the error (lib/optional-section.ts, 22 Oct 2026).
@@ -51,7 +53,7 @@ export default async function ServiceIndicator({ services }: { services: string[
 
   const worsening = rows.filter((r) => r.trend === 'worsening').length;
 
-  return (
+  const panel = (
     <section style={{ marginTop: '2%', marginBottom: '7%', maxWidth: '620px' }}>
       <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.28em', fontWeight: 600, color: ACCENT, marginBottom: '8px' }}>
         The Broken State
@@ -82,4 +84,5 @@ export default async function ServiceIndicator({ services }: { services: string[
       </a>
     </section>
   );
+  return phoneFold ? <SubFold label="Public services performance">{panel}</SubFold> : panel;
 }

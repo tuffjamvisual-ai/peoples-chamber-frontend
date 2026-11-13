@@ -4,11 +4,13 @@
 // in globals.css (.pg-d, .pg-b). No state and no browser APIs, so it renders on the server.
 import type { ReactNode } from 'react';
 
-export default function PhoneGroup({ summary, open = false, children }: { summary: string; open?: boolean; children: ReactNode }) {
+// tablets (T1-GUARD, owner approved 13 Nov 2026): the fold on tablets as well, up to 1,023px (globals.css .pg-t), for a page
+// too long for the 3,000px tablet length. From 1,024px up nothing changes.
+export default function PhoneGroup({ summary, open = false, tablets = false, children }: { summary: string; open?: boolean; tablets?: boolean; children: ReactNode }) {
   return (
     <>
-      <details className="pg-d" open={open}><summary>{summary}</summary></details>
-      <div className="pg-b">{children}</div>
+      <details className={tablets ? 'pg-d pg-t' : 'pg-d'} open={open}><summary>{summary}</summary></details>
+      <div className={tablets ? 'pg-b pg-t' : 'pg-b'}>{children}</div>
     </>
   );
 }

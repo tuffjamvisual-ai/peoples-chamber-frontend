@@ -8,6 +8,7 @@
 // page assembles each contest into a single league table.
 
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
+import { phoneUpTo } from '@/lib/breakpoints';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -128,14 +129,17 @@ export default async function LeadershipContestsPage() {
         </p>
       </header>
 
+      {/* T1-GUARD (owner approved 13 Nov 2026): up to 1,023px, where each contest is a fold, its donations and total are in
+          the fold's label instead of beside the heading, so each heading takes one line less. Desktop unchanged. */}
+      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(1023.98)} { .lc-count { display: none; } }` }} />
       {orderedContests.map((c, contestIndex) => {
         const candidates = Array.from(c.candidates.values()).sort((a, b) => b.total - a.total);
         return (
           <section key={c.contest} style={{ marginBottom: '32px' }}>
             <h2 style={sectionH2}>
-              {c.contest} <span style={{ fontSize: '15px', marginLeft: '8px' }}>{c.count} donations · &pound;{Math.round(c.total).toLocaleString()}</span>
+              {c.contest} <span className="lc-count" style={{ fontSize: '15px', marginLeft: '8px' }}>{c.count} donations · &pound;{Math.round(c.total).toLocaleString()}</span>
             </h2>
-            <NoJsFold id={`lcf-${contestIndex}`} always label={`${candidates.length.toLocaleString('en-GB')} candidates`}>
+            <NoJsFold id={`lcf-${contestIndex}`} always tablets label={`${candidates.length.toLocaleString('en-GB')} candidates · ${c.count} donations · £${Math.round(c.total).toLocaleString()}`}>
             <NoJsPager id={`lc-${c.contest}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(candidates).length} rows="> tbody > tr" cards={[null, 'Year', 'Donations', 'Total raised', 'Largest donor']} title={1} size={15}>
             <table style={tableStyle}>
               <thead>
@@ -173,7 +177,7 @@ export default async function LeadershipContestsPage() {
       <section>
         <h2 style={sectionH2}>Largest single leadership / mayoral donations</h2>
         {/* Folded on phones like each contest above (step 5, 10 Nov 2026). */}
-        <NoJsFold id="lcf-top" always label={`The ${top30.length.toLocaleString('en-GB')} largest`}>
+        <NoJsFold id="lcf-top" always tablets label={`The ${top30.length.toLocaleString('en-GB')} largest`}>
         <NoJsPager id="leader-0" count={(top30).length} rows="> tbody > tr" size={15} cards={[null, 'To', 'For', 'Accepted', 'Amount']} title={1}>
         <table style={tableStyle}>
           <thead>

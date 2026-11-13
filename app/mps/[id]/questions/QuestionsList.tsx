@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { showNewResults } from '@/lib/show-new-results';
 import { QUESTIONS_PER_PAGE, type WrittenQuestion } from '@/lib/mp-written-questions';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 // The list on /mps/[id]/questions (owner, 3 Nov 2026): page 1 of all questions comes from the cached page; other pages
 // and a department filter are read from /api/mps/[id]/questions (or /api/lords/[id]/questions on peer pages).
@@ -12,6 +13,16 @@ const MONO = 'var(--font-special-elite), monospace';
 const divider = '1px solid rgba(20,16,13,0.18)';
 const link: CSSProperties = { color: INK, fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' };
 const button: CSSProperties = { padding: '8px 14px', background: 'transparent', color: INK, border: `1px solid ${INK}`, borderRadius: 0, fontFamily: MONO, fontSize: '15px', cursor: 'pointer' };
+
+// Phones and tablets (T1-GUARD, owner approved 13 Nov 2026, growing lists rule): each page of 25 shows its first 3
+// questions, then "Show N more" (a native <details>, 44px, no JavaScript needed) for the rest of that page; Newer and Older
+// stay below. Desktop (1,024px up) unchanged.
+const FIRST = 3;
+const FOLD_CSS = `.ql-more { display: none; } @media ${phoneUpTo(1023.98)} {`
+  + ` .ql-box:has(> .ql-more:not([open])) > .ql-list > li:nth-child(n+${FIRST + 1}) { display: none; }`
+  + ` .ql-box > .ql-more { display: block; margin: 0 0 14px; } .ql-box > .ql-more[open] { display: none; }`
+  + ` .ql-more > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; }`
+  + ` .ql-more > summary::-webkit-details-marker { display: none; } }`;
 
 const fmt = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '');
 
@@ -53,7 +64,8 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
   }
 
   return (
-    <div style={{ color: INK, fontSize: '15px' }}>
+    <div className="ql-box" data-own-more="" style={{ color: INK, fontSize: '15px' }}>
+      <style dangerouslySetInnerHTML={{ __html: FOLD_CSS }} />
       <label htmlFor="questions-department" style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px' }}>Department</label>
       <select
         id="questions-department"
@@ -69,7 +81,7 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
         {status === 'loading' ? 'Loading…' : status === 'error' ? 'Sorry, the questions could not be loaded. Please try again.' : `${total.toLocaleString('en-GB')} question${total === 1 ? '' : 's'}${department ? ` to ${department}` : ''}, newest first. Page ${page} of ${pages}.`}
       </p>
 
-      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', opacity: status === 'loading' ? 0.5 : 1 }}>
+      <ul className="ql-list" style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', opacity: status === 'loading' ? 0.5 : 1 }}>
         {rows.map((q) => {
           const title = (q.heading || `Written question ${q.uin}`).trim();
           return (
@@ -84,6 +96,12 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
           );
         })}
       </ul>
+      {rows.length > FIRST && (
+        // A new page or department starts folded again (the key changes).
+        <details key={`${page}-${department}`} className="ql-more">
+          <summary>Show {(rows.length - FIRST).toLocaleString('en-GB')} more</summary>
+        </details>
+      )}
 
       {pages > 1 && (
         <nav aria-label="Question pages" style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>

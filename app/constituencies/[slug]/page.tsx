@@ -128,7 +128,7 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
       ))}
 
       {/* UX5 (T1-6): on phones the petitions are a closed fold; from 640px up, as before. */}
-      {petitions.petitions.length > 0 && <div style={{ marginTop: '28px' }}><SubFold label="Petitions in this constituency"><ConstituencyPetitions top={petitions} gss={seat.ons_code} /></SubFold></div>}
+      {petitions.petitions.length > 0 && <div style={{ marginTop: '28px' }}><SubFold tablets label="Petitions in this constituency"><ConstituencyPetitions top={petitions} gss={seat.ons_code} /></SubFold></div>}
 
       <h2 style={h2}>{allCouncils.length === 1 ? 'Council' : 'Councils'}</h2>
       <p style={{ ...para, fontSize: '15px' }}>Councils with wards in this seat, from the ONS lookup of May 2025. Some may cover only a small part of it.</p>

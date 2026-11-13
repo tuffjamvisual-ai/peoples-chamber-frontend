@@ -127,7 +127,7 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
           )}
           {p.government_response_summary && <div style={{ fontWeight: 'bold' }}><AsWritten text={p.government_response_summary} /></div>}
           {/* Phones (step 5, 10 Nov 2026; the page was 5,578px): the summary shows and the full response is folded. */}
-          {p.government_response_details && <SubFold label="The full response"><AsWritten text={p.government_response_details} /></SubFold>}
+          {p.government_response_details && <SubFold tablets label="The full response"><AsWritten text={p.government_response_details} /></SubFold>}
         </>
       ) : <p style={para}>The government has not responded yet.</p>}
 
@@ -147,7 +147,7 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
           {p.debate_overview && (
             <>
               {!p.debated_on && p.debate_outcome_at && <p style={{ ...para, fontWeight: 'bold' }}>Petitions Committee, {petitionDate(p.debate_outcome_at)}</p>}
-              <SubFold label="The Committee's overview"><AsWritten text={p.debate_overview} /></SubFold>
+              <SubFold tablets label="The Committee's overview"><AsWritten text={p.debate_overview} /></SubFold>
             </>
           )}
         </>
@@ -157,7 +157,7 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
         <>
           <h2 style={h2}>Signatures by constituency</h2>
           <p style={{ ...para, fontSize: '15px' }}>Each constituency links to its MP&rsquo;s page.</p>
-          <ShowAll id="pet-top" count={top.length} rows="> li"><ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>{top.map((c) => <Row key={c.gss} c={c} />)}</ol></ShowAll>
+          <ShowAll id="pet-top" count={top.length} rows="> li" first={3}><ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>{top.map((c) => <Row key={c.gss} c={c} />)}</ol></ShowAll>
           {rest.length > 0 && (
             <details className="mc-more">
               <summary>Show the other {n0(rest.length)} {rest.length === 1 ? 'constituency' : 'constituencies'}</summary>

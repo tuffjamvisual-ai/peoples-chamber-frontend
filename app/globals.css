@@ -332,6 +332,16 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .pg-b { display: block; }
   .pg-d:not([open]) + .pg-b { display: none; }
 }
+/* PhoneGroup with tablets (T1-GUARD, owner approved 13 Nov 2026): the same fold from 768 to 1,023px. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .pg-d.pg-t { display: block; }
+  .pg-d.pg-t > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; list-style: none; border-bottom: 1px solid rgba(20, 16, 13, 0.25); }
+  .pg-d.pg-t > summary::-webkit-details-marker { display: none; }
+  .ng-page .pg-d.pg-t > summary::after { content: "+"; position: static; transform: none; height: auto; min-width: 0; flex: none; font-size: 20px; font-weight: normal; line-height: 1; color: #7a1612; }
+  .ng-page .pg-d.pg-t[open] > summary::after { content: "\2212"; }
+  .pg-b.pg-t { display: block; }
+  .pg-d.pg-t:not([open]) + .pg-b.pg-t { display: none; }
+}
 @media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* The shared phone table (lib/phone-enhance.ts): one card per row, the first column as the title, then "label: value". */
   .ng-page table[data-pt-table="cards"] { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; overflow: visible !important; border: 0 !important; table-layout: auto !important; }

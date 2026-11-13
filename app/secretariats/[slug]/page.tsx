@@ -17,6 +17,9 @@ import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { ShowAll } from '../../components/NoJsPager';
+import { SubFold } from '../../components/PhoneFolds';
+import { phoneUpTo } from '@/lib/breakpoints';
 import AppgSource, { appgAmount } from '../../components/AppgSource';
 import ReadNext from '../../components/ReadNext';
 import type { ReadNextLink } from '@/lib/read-next';
@@ -180,18 +183,28 @@ export default async function SecretariatPage({ params }: PageProps) {
         </h1>
       </header>
 
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+      {/* T1-GUARD (owner approved 13 Nov 2026): under 480px each tile is one compact line, its label and figure side by side and
+          its note below; from 480px as before. */}
+      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(479.98)} { .sec-tiles { gap: 8px !important; margin-bottom: 20px !important; } .sec-appgs > ul > li { padding: 10px 0 !important; } .sec-tile { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: 12px; padding: 8px 12px !important; } .sec-tile > :nth-child(1) { margin-bottom: 0 !important; } .sec-tile > :nth-child(3) { flex-basis: 100%; margin-top: 2px !important; } }` }} />
+      <style dangerouslySetInnerHTML={{ __html: `.sec-cat-in { display: none; } @media ${phoneUpTo(767.98)} { .sec-cat { display: none; } .sec-cat-in { display: block; } }` }} />
+      <section className="sec-tiles" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
         <Tile label="APPGs operated" value={String(appgs.length)} sub="lobby groups inside Westminster" accent={ACCENT} />
         <Tile label="MP officers" value={String(allOfficerIds.size)} sub="across all groups run" accent={INK_SOFT} />
         <Tile label="Registered funders" value={String(allFunders.length)} sub="paying entries on the APPG register" accent={INK_SOFT} />
       </section>
 
+      {/* T1-GUARD: on phones the note on what a secretariat is folds; from 768px as before. */}
+      <SubFold label="What a secretariat is">
       <section style={{ marginBottom: '28px', padding: '12px 14px', background: CREAM, fontSize: '15px', lineHeight: 1.6 }}>
         A secretariat is the entity that does the operational work of an All-Party Parliamentary Group: drafts agendas, briefs MPs, sends out invitations, books rooms, writes reports. When the secretariat is a lobby firm or PR firm, the APPG is a paid channel for the firm&rsquo;s clients to access MPs. The MPs officer the group, the firm supplies the staff and the policy line, the firm&rsquo;s clients (listed under Funders below) pay for the privilege.
       </section>
+      </SubFold>
 
-      <section style={{ marginBottom: '32px' }}>
+      <section className="sec-appgs" style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>APPGs operated · {appgs.length}</h2>
+        {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): the first 3 groups, then "Show all N"; on phones each
+            group's purpose, officers and funders fold under its name. Desktop unchanged. */}
+        <ShowAll id="sec-appgs" count={appgs.length} rows="> li" first={3}>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
           {appgs.map((a) => {
             const aFunders = fundersBySlug.get(a.slug) ?? [];
@@ -200,8 +213,11 @@ export default async function SecretariatPage({ params }: PageProps) {
               <li key={a.slug} style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                   <strong style={{ fontSize: '15px' }}>{a.title}</strong>
-                  {a.category && <span style={{ fontSize: '15px' }}>{a.category}</span>}
+                  {a.category && <span className="sec-cat" style={{ fontSize: '15px' }}>{a.category}</span>}
                 </div>
+                {(a.purpose || aOfficers.length > 0 || aFunders.length > 0) && (
+                <SubFold label={[a.purpose && 'Purpose', aOfficers.length > 0 && 'officers', aFunders.length > 0 && 'funders'].filter(Boolean).join(', ').replace(/^./, (c) => c.toUpperCase()).replace(/, ([^,]+)$/, ' and $1')}>
+                {a.category && <p className="sec-cat-in" style={{ fontSize: '15px', margin: '4px 0' }}>{a.category}</p>}
                 {a.purpose && <p style={{ fontSize: '15px', lineHeight: 1.55, margin: '4px 0' }}>{a.purpose}</p>}
                 {aOfficers.length > 0 && (
                   <div style={{ marginTop: '6px', fontSize: '15px' }}>
@@ -229,10 +245,13 @@ export default async function SecretariatPage({ params }: PageProps) {
                     {aFunders.length > 6 && <span > +{aFunders.length - 6} more</span>}
                   </div>
                 )}
+                </SubFold>
+                )}
               </li>
             );
           })}
         </ul>
+        </ShowAll>
         <AppgSource />
       </section>
 
@@ -261,7 +280,7 @@ const sectionH2: React.CSSProperties = {
 
 function Tile({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
-    <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
+    <div className="sec-tile" style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
       <div style={{ fontSize: '15px', marginTop: '4px' }}>{sub}</div>

@@ -8,6 +8,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import ServiceIndicator, { servicesForTopic } from '../../components/ServiceIndicator';
 import BackLink from '../../components/BackLink';
 import { SubFold } from '../../components/PhoneFolds';
+import { phoneUpTo } from '@/lib/breakpoints';
 import { getTopic, topics, topicBillArgs, newestPerTitle, wholeWordsPattern, matchWords } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import { editorialSet } from '@/lib/editorials-source';
@@ -164,24 +165,31 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {topic.dataPages && topic.dataPages.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
           <h2 style={sectionH2}>Data on opengovt</h2>
+          {/* T1-GUARD (owner approved 13 Nov 2026): on phones the data pages fold under the heading; from 768px as before. */}
+          <SubFold label={`The ${topic.dataPages.length} data page${topic.dataPages.length === 1 ? '' : 's'}`}>
           {topic.dataPages.map((d) => (
             <Link key={d.href} href={d.href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, border: `1px solid ${HAIRLINE}`, padding: '16px 18px', marginBottom: '10px' }}>
               <div style={{ fontSize: 'clamp(17px, 2vw, 22px)', fontWeight: 'bold', marginBottom: '4px' }}>{d.title} <span style={{ color: ACCENT }}>→</span></div>
               <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{d.description}</p>
             </Link>
           ))}
+          </SubFold>
         </section>
       )}
 
-      <ServiceIndicator services={servicesForTopic(topic.slug)} />
+      {/* T1-GUARD: on phones the public services panel folds under its name; from 768px as before. */}
+      <ServiceIndicator services={servicesForTopic(topic.slug)} phoneFold />
 
+      {/* T1-GUARD (owner approved 13 Nov 2026): up to 1,023px, where these four sections are folds, each fold names its
+          section and the section's own heading is hidden; from 1,024px up as before. */}
+      <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(1023.98)} { .tp-h { display: none; } }` }} />
       {/* Top MPs */}
       {topMps.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
-          <h2 style={sectionH2}>MPs scrutinising this most</h2>
-          <p style={{ fontSize: '15px', color: INK, marginBottom: '12px' }}>By written questions tabled to the department since the July 2024 general election.</p>
+          <h2 className="tp-h" style={sectionH2}>MPs scrutinising this most</h2>
           {/* Phones (step 5, 10 Nov 2026; the page was 5,530px): this list and the votes, bills and Acts below are folded. */}
-          <NoJsFold id="tp-mps" always label={`The ${topMps.length.toLocaleString('en-GB')} MPs`}>
+          <NoJsFold id="tp-mps" always tablets label={`MPs scrutinising this most: the ${topMps.length.toLocaleString('en-GB')} MPs`}>
+          <p style={{ fontSize: '15px', color: INK, marginBottom: '12px' }}>By written questions tabled to the department since the July 2024 general election.</p>
           {topMps.map((r, i) => {
             const m = r;
             return (
@@ -198,8 +206,8 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {/* Recent divisions */}
       {divisions.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
-          <h2 style={sectionH2}>Recent Commons votes</h2>
-          <NoJsFold id="tp-votes" always label={`The ${divisions.length.toLocaleString('en-GB')} most recent`}>
+          <h2 className="tp-h" style={sectionH2}>Recent Commons votes</h2>
+          <NoJsFold id="tp-votes" always tablets label={`Recent Commons votes: the ${divisions.length.toLocaleString('en-GB')} most recent`}>
           {divisions.map((d) => (
             <Link key={`${d.division_date_only}-${d.division_number}`} href={`/divisions/pw-${d.division_date_only}-${d.division_number}-commons`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{d.division_title}</div>
@@ -213,8 +221,8 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {/* Related bills */}
       {bills.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
-          <h2 style={sectionH2}>Bills and Acts</h2>
-          <NoJsFold id="tp-bills" always label={`The ${bills.length.toLocaleString('en-GB')} most recent`}>
+          <h2 className="tp-h" style={sectionH2}>Bills and Acts</h2>
+          <NoJsFold id="tp-bills" always tablets label={`Bills and Acts: the ${bills.length.toLocaleString('en-GB')} most recent`}>
           {bills.map((b) => (
             <Link key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>
@@ -231,8 +239,8 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {/* Key Acts, then the topic's full list of bills and Acts */}
       {keyActs.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
-          <h2 style={sectionH2}>Key Acts</h2>
-          <NoJsFold id="tp-acts" always label={`The ${keyActs.length.toLocaleString('en-GB')} Acts`}>
+          <h2 className="tp-h" style={sectionH2}>Key Acts</h2>
+          <NoJsFold id="tp-acts" always tablets label={`Key Acts: the ${keyActs.length.toLocaleString('en-GB')} Acts`}>
           {keyActs.map((b) => (
             <Link key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{b.title}</div>
@@ -271,6 +279,8 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {/* People's Poll */}
       {poll && (
         <section style={{ marginBottom: '4%' }}>
+          {/* T1-GUARD: on phones the poll folds under its heading; from 768px as before. */}
+          <SubFold label="The public’s view">
           <h2 style={sectionH2}>The public’s view</h2>
           <div style={{ border: `1px solid ${HAIRLINE}`, padding: '16px 18px' }}>
             <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.35, marginBottom: '10px' }}>{poll.question}</div>
@@ -288,6 +298,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
               Cast your vote on the opengovt Polls →
             </Link>
           </div>
+          </SubFold>
         </section>
       )}
 

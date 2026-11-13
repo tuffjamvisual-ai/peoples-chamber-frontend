@@ -17,6 +17,7 @@
 // paying for MPs to go where.
 
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -125,12 +126,19 @@ export default async function SponsoredVisitsPage() {
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           Who pays for UK MPs to travel
         </h1>
-        <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {rows.length.toLocaleString()} declared trips and events worth &pound;{Math.round(totalAll).toLocaleString()} appear on the Electoral Commission register as donations in kind with a stated purpose of visit. These are sponsored visits: foreign governments, think tanks, lobby groups and individuals paying for MPs to travel, attend conferences, or meet heads of state. The single largest paymasters are Hong Kong&rsquo;s government, Conservative Friends of Israel and Labour Friends of Israel; the Ministries of Foreign Affairs of Qatar, Taiwan, Saudi Arabia, India and Japan all appear in the top tier.
-        </p>
+        {/* T1-GUARD (owner approved 13 Nov 2026): on phones the introduction after its first sentence folds ("Who pays");
+            from 768px the fold is not there and the text reads on as one paragraph, as before. A div, not a p, as the fold
+            is a details element. */}
+        <div style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
+          {rows.length.toLocaleString()} declared trips and events worth &pound;{Math.round(totalAll).toLocaleString()} appear on the Electoral Commission register as donations in kind with a stated purpose of visit.{' '}
+          <SubFold label="Who pays">
+            These are sponsored visits: foreign governments, think tanks, lobby groups and individuals paying for MPs to travel, attend conferences, or meet heads of state. The single largest paymasters are Hong Kong&rsquo;s government, Conservative Friends of Israel and Labour Friends of Israel; the Ministries of Foreign Affairs of Qatar, Taiwan, Saudi Arabia, India and Japan all appear in the top tier.
+          </SubFold>
+        </div>
       </header>
 
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '28px' }}>
+      {/* Two tiles a row on the narrowest phones (T1-GUARD, 13 Nov 2026): min(160px, 45%) is 160px from about 360px wide up, as before. */}
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(160px, 45%), 1fr))', gap: '12px', marginBottom: '28px' }}>
         <Tile label="Foreign government trips" value={String(classifCounts['foreign-government'] || 0)} />
         <Tile label="'Friends of' group trips" value={String(classifCounts['friends-of'] || 0)} />
         <Tile label="Think tank invitations" value={String(classifCounts['think-tank'] || 0)} />
@@ -141,7 +149,7 @@ export default async function SponsoredVisitsPage() {
         <h2 style={sectionH2}>Foreign government paymasters</h2>
         <p style={{ fontSize: '15px', marginBottom: '8px' }}>Sponsors acting for a state, paying directly for UK MPs to visit. Ranked by total declared value.</p>
         {/* Each table folded on phones (step 5, 10 Nov 2026; the page was 5,849px). */}
-        <NoJsFold id="spvf-0" always label={`The list (${(foreignGovs).length.toLocaleString('en-GB')})`}>
+        <NoJsFold id="spvf-0" always tablets label={`The list (${(foreignGovs).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-0" count={(foreignGovs).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
@@ -172,7 +180,7 @@ export default async function SponsoredVisitsPage() {
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>&lsquo;Friends of&rsquo; groups</h2>
         <p style={{ fontSize: '15px', marginBottom: '8px' }}>Parliamentary groups with an affinity for a foreign country, paying for delegations of their MP members. Often a channel of soft power for the country in question.</p>
-        <NoJsFold id="spvf-1" always label={`The list (${(friendsOf).length.toLocaleString('en-GB')})`}>
+        <NoJsFold id="spvf-1" always tablets label={`The list (${(friendsOf).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-1" count={(friendsOf).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
@@ -202,7 +210,7 @@ export default async function SponsoredVisitsPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Think tanks &amp; institutions</h2>
-        <NoJsFold id="spvf-2" always label={`The list (${(thinkTanks).length.toLocaleString('en-GB')})`}>
+        <NoJsFold id="spvf-2" always tablets label={`The list (${(thinkTanks).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-2" count={(thinkTanks).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
@@ -232,7 +240,7 @@ export default async function SponsoredVisitsPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Recipients · who took the most paid travel</h2>
-        <NoJsFold id="spvf-3" always label={`The list (${(recipientRanked).length.toLocaleString('en-GB')})`}>
+        <NoJsFold id="spvf-3" always tablets label={`The list (${(recipientRanked).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-3" count={(recipientRanked).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
@@ -260,7 +268,7 @@ export default async function SponsoredVisitsPage() {
 
       <section>
         <h2 style={sectionH2}>Largest single trips</h2>
-        <NoJsFold id="spvf-4" always label={`The list (${(largest).length.toLocaleString('en-GB')})`}>
+        <NoJsFold id="spvf-4" always tablets label={`The list (${(largest).length.toLocaleString('en-GB')})`}>
         <NoJsPager id="sponso-4" count={(largest).length} rows="> tbody > tr" size={15}>
         <table style={tableStyle}>
           <thead>
