@@ -39,6 +39,16 @@ const HEIGHT = 812;
 // One page at a time (owner, 10 Nov 2026): a local build reads the production database, so our own checks must never
 // add to a burst of page loads (PERF). --concurrency still raises it by hand, against a quiet database only.
 const CONCURRENCY = Number(opt('concurrency') ?? 1);
+// At most one page load a second across every worker, live or local (T1-VRFIX, Cowork 13 Nov 2026).
+// Workers take turns: each load waits until a whole second after the previous load actually started.
+let lastHit = 0, turn = Promise.resolve();
+function pace() {
+  turn = turn.then(async () => {
+    while (Date.now() < lastHit + 1000) await new Promise((r) => setTimeout(r, lastHit + 1000 - Date.now()));
+    lastHit = Date.now();
+  });
+  return turn;
+}
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 const WARN_HEIGHT = 9000, MAX_HEIGHT = 10000; // owner, 5 Nov 2026: warn, then fail, at 375px as the page first opens
 
@@ -69,6 +79,7 @@ async function noJsHeight(browser, base, url) {
   try {
     const page = await ctx.newPage();
     await page.route('**/*', (route) => (blocked(route.request().url()) ? route.abort() : route.continue()));
+    await pace();
     await page.goto(base + url, { waitUntil: 'domcontentloaded', timeout: 180000 });
     return (await page.screenshot({ fullPage: true })).readUInt32BE(20);
   } finally {
@@ -224,6 +235,7 @@ async function auditPage(browser, base, page0, width, shotDir) {
   const row = { route: page0.route, url: page0.url, why: page0.why, width };
   const started = Date.now();
   try {
+    await pace();
     const res = await page.goto(base + page0.url, { waitUntil: 'domcontentloaded', timeout: 180000 });
     row.status = res?.status() ?? 0;
     row.final_url = page.url().replace(base, '');

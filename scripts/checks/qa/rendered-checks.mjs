@@ -70,12 +70,12 @@ const PUSH = argv.includes('--push');
 const LIVE = /^https:\/\/(www\.)?opengovt\.uk$/.test(BASE);
 // Requests the checks never let through: analytics always; the live site too when checking a local build.
 const BLOCK = LIVE ? /posthog|vercel-insights|_vercel\/(insights|speed)/ : /opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/;
-// Live: at most one page load or tab click a second (live page fetches rule).
+// At most one page load or tab click a second, on the live site and on a local build alike (T1-VRFIX, Cowork 13 Nov
+// 2026; a local build reads the production database: the 11 Nov outage, Protect the live database).
 let lastHit = 0;
 async function pace() {
-  if (!LIVE) return;
-  const wait = lastHit + 1000 - Date.now();
-  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+  // A timer can fire a millisecond early, so wait until a whole second has passed.
+  while (Date.now() < lastHit + 1000) await new Promise((r) => setTimeout(r, lastHit + 1000 - Date.now()));
   lastHit = Date.now();
 }
 const LIMIT_PX = 2500;
@@ -270,6 +270,7 @@ async function main() {
         html = r.status === 200 ? await resp.text() : '';
         loaded = true;
       } else {
+        await pace();
         const res = await fetch(BASE + p.url, { redirect: 'manual', signal: AbortSignal.timeout(60000) });
         r.status = res.status;
         html = res.status === 200 ? await res.text() : '';
@@ -277,7 +278,7 @@ async function main() {
       if (html && !(exceptions.time_words_skip_routes ?? []).includes(p.route)) r.timeWords = timeWords(visibleText(html));
       if (html) r.dates = judgeDates(recordDates(html), p.route, SOURCES).map((d) => ({ ...d, date: d.date.toISOString().slice(0, 10) }));
       if (r.status === 200) {
-        if (!loaded) await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
+        if (!loaded) { await pace(); await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 }); }
         await page.waitForTimeout(300);
         r.outside = await page.evaluate(outsideLinks, A9_LICENCE.source);
         r.a10 = await page.evaluate(a10Scan);
