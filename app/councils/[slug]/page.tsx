@@ -207,10 +207,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     // Owner's brief, 3 Nov 2026: "<Council name>: spending, services and ratings", shorter for a long name (5 Nov 2026).
     title: namedTitle(data.name, (n) => [`${n}: spending, services and ratings`, `${n}: spending and services`, `${n}: spending`, n]),
-    // The code first (owner, 7 Nov 2026, L2): searches for a council's ONS code (E07000063) found this page but not the answer.
-    description: metaDescription(data.gss_code
-      ? `${data.gss_code} is the ONS code for ${data.name}, a ${typePhrase(data.type_label)} in ${data.country}.${who}${pop} Spending, services and how the area compares.`
-      : `${data.name}, a ${typePhrase(data.type_label)} in ${data.country}.${who}${pop} Spending, services and how the area compares.`),
+    // No official codes (T1-NOCODE, owner approved 13 Nov 2026: 'never use codes'; the ONS code led this from 7 Nov 2026).
+    description: metaDescription(`${data.name}, a ${typePhrase(data.type_label)} in ${data.country}.${who}${pop} Spending, services and how the area compares.`),
     alternates: { canonical: `/councils/${slug}` },
     // twitter:image comes from ./layout.tsx (AQ1), for this page and every page under it.
   };
@@ -372,9 +370,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             {c.name}
           </h1>
-          <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '8px' }}>
-            ONS code {c.gss_code}
-          </div>
+          {/* The 'ONS code' line is removed (T1-NOCODE, owner approved 13 Nov 2026: no official codes shown to readers). */}
         </header>
 
         {/* Sections are grouped into tabs (same pattern as the department and MP pages). The summary tabs are in the page;
@@ -399,10 +395,10 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   opening sentence and the Wikipedia background (a closed fold) after them. CSS order; from 640px up as before. */}
               <style>{`@media ${phoneUpTo(767.98)} { .ov-flow { display: flex; flex-direction: column; } .ov-flow > .ov-about { order: 1; } .ov-flow > style { display: none; } }`}</style>
               <div className="ov-about">
-              {/* Opening sentence (owner, 7 Nov 2026, L2): what the council is and its ONS code, from the council's own row. */}
+              {/* Opening sentence (owner, 7 Nov 2026, L2): what the council is, from the council's own row; no code (T1-NOCODE). */}
               {c.gss_code && (
                 <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 16px', maxWidth: '46em', color: INK }}>
-                  {c.name} (ONS code {c.gss_code}) is a {typePhrase(c.type_label)} in {c.country}.
+                  {c.name} is a {typePhrase(c.type_label)} in {c.country}.
                 </p>
               )}
               {/* The description and its credit folded on phones (step 5, 10 Nov 2026: page length). */}

@@ -367,11 +367,7 @@ function Header({ kind, name, gssCode, partial, councilSlug }: { kind: string; n
       <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
         {name}
       </h1>
-      {gssCode && (
-        <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '8px' }}>
-          ONS code {gssCode}
-        </div>
-      )}
+      {/* The 'ONS code' line is removed (T1-NOCODE, owner approved 13 Nov 2026: no official codes shown to readers). */}
       {councilSlug && (
         <div style={{ marginTop: '10px' }}>
           <a href={`/councils/${councilSlug}`} style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>

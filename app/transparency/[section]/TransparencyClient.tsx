@@ -434,7 +434,8 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                       Record identifiers<span className="og-fold-mark" aria-hidden="true" />
                     </summary>
                     <dl className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.65]" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
-                      {ocid       && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">OCID</dt><dd className="text-[#14100d] font-mono break-all">{ocid}</dd></>)}
+                      {/* The OCID is not shown (T1-NOCODE, owner approved 13 Nov 2026): a link to the same contract record on its own page. */}
+                      {ocid && linked.has(ocid) && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Contract</dt><dd className="text-[#14100d]"><Link href={`/contracts/${ocid}`} className="focus-ring underline" style={{ color: 'inherit', textUnderlineOffset: '3px' }}>View contract record</Link></dd></>)}
                       {awardId    && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Award ID</dt><dd className="text-[#14100d] font-mono">{awardId}</dd></>)}
                       {contractId && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Contract ID</dt><dd className="text-[#14100d] font-mono">{contractId}</dd></>)}
                       {deptSlug   && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Dept slug</dt><dd className="text-[#14100d] font-mono">{deptSlug}</dd></>)}

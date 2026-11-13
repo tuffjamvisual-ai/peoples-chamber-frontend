@@ -13,7 +13,7 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
   DATASETS, getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, grantNavUrl, findTenderUrl, money, fmtDay, buyerLabel,
-  type Dataset, getOrgNameBasisNotices } from '@/lib/organisations';
+  type Dataset, getOrgNameBasisNotices, companiesHouseUrl } from '@/lib/organisations';
 
 export const revalidate = 86400;
 export function generateStaticParams() { return []; }
@@ -69,7 +69,8 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
       <header style={{ marginBottom: '18px' }}>
         <h1 style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 'bold', lineHeight: 1.2, margin: '0 0 8px', overflowWrap: 'anywhere' }}>{org.name}: {TITLES[dataset].toLowerCase()}</h1>
         <p style={para}>
-          {rows.length.toLocaleString('en-GB')} record{rows.length === 1 ? '' : 's'} linked by Companies House number {org.company_number}, newest first.
+          {/* No number shown (T1-NOCODE, owner approved 13 Nov 2026): the same Companies House record as a link. */}
+          {rows.length.toLocaleString('en-GB')} record{rows.length === 1 ? '' : 's'} linked by this company&rsquo;s Companies House number (<a data-og-row-source="" href={companiesHouseUrl(org.company_number)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>View on Companies House ↗</a>), newest first.
           {byName.map((x) => (
             <span key={x.url}>
               {' '}{byName.length === 1 ? 'One contract notice' : 'A contract notice'} gave a Companies House number that doesn&rsquo;t exist; it names the

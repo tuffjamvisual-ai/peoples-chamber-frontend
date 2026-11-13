@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
-import { cachedOrganisationList, searchOrganisations, normaliseCompanyNumber, type OrgListRow } from '@/lib/organisations';
+import { cachedOrganisationList, searchOrganisations, normaliseCompanyNumber, companiesHouseUrl, type OrgListRow } from '@/lib/organisations';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 export const revalidate = 3600;
@@ -136,8 +136,9 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
           <li key={r.slug} style={{ padding: '10px 0', borderBottom: `1px solid ${HAIRLINE}` }}>
             <Link href={`/organisations/${r.slug}`} className="no-hover-scale" style={{ color: INK, fontWeight: 'bold', fontSize: '16px', textDecoration: 'none', overflowWrap: 'anywhere' }}>{r.name}</Link>
             <div style={{ fontFamily: FONT, fontSize: '15px', marginTop: '3px', lineHeight: 1.5, overflowWrap: 'anywhere' }}>
-              <span className="org-wide">{r.company_number ? `Companies House ${r.company_number} · ` : ''}{datasetsLine(r)}</span>
-              {r.company_number && <span className="org-phone">Companies House {r.company_number}</span>}
+              {/* No Companies House number shown (T1-NOCODE, owner approved 13 Nov 2026): a link to the same record instead. */}
+              <span className="org-wide">{r.company_number && <><a data-og-row-source="" href={companiesHouseUrl(r.company_number)} target="_blank" rel="noopener noreferrer" aria-label={`View ${r.name} on Companies House`} style={{ color: INK, textDecoration: 'underline' }}>View on Companies House ↗</a>{' · '}</>}{datasetsLine(r)}</span>
+              {r.company_number && <span className="org-phone"><a data-og-row-source="" href={companiesHouseUrl(r.company_number)} target="_blank" rel="noopener noreferrer" aria-label={`View ${r.name} on Companies House`} style={{ color: INK, textDecoration: 'underline', display: 'inline-block', minHeight: '44px', lineHeight: '44px' }}>View on Companies House ↗</a></span>}
               <span className="org-phone">{phoneCountsLine(r)}</span>
             </div>
           </li>

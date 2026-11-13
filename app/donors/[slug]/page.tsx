@@ -771,7 +771,7 @@ export default async function DonorPage({ params }: PageProps) {
                 <th style={{ ...th, textAlign: 'left' }}>Recipient</th>
                 <th style={{ ...th, textAlign: 'left' }}>Type</th>
                 <th style={{ ...th, textAlign: 'right' }}>Amount</th>
-                <th style={th}>EC reference</th>
+                <th style={th}>Source</th>
               </tr>
             </thead>
             <tbody>
@@ -793,7 +793,8 @@ export default async function DonorPage({ params }: PageProps) {
                     <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.amount)}</td>
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>
                       {d.ec_ref ? (
-                        <a data-og-row-source="" href={ecDonationSearchUrl(d.ec_ref)} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{d.ec_ref} ↗</a>
+                        // The same record, named by its source instead of its reference (T1-NOCODE, owner approved 13 Nov 2026).
+                        <a data-og-row-source="" href={ecDonationSearchUrl(d.ec_ref)} target="_blank" rel="noopener noreferrer" aria-label={`Electoral Commission record of this donation, ${fmtDay(d.accepted_date || d.received_date)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>Electoral Commission ↗</a>
                       ) : 'n/a'}
                     </td>
                   </tr>

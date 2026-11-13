@@ -16,7 +16,7 @@ import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
 import { cleanDept, quarterLabel } from '@/lib/lobbying';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
-  getOrganisation, orgNameShared, CH_NUMBERS_CHECKED, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
+  getOrganisation, orgNameShared, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
   findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, getOrgNameBasisNotices, type OrgIndexRow,
 } from '@/lib/organisations';
 
@@ -51,14 +51,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!org) notFound();
   const held = [org.donations && 'donations', (org.contracts || org.framework_places) && 'contracts', org.grants && 'grants', org.meetings && 'meetings with ministers', org.lobbying_quarters && 'lobbying'].filter(Boolean) as string[];
   const heldText = held.length > 1 ? `${held.slice(0, -1).join(', ')} and ${held[held.length - 1]}` : held[0] || 'public records';
-  // A number goes in a title only once checked on Companies House against the name (CH_NUMBERS_CHECKED); a number held but not
-  // confirmed leaves the title as it was. With no number held, the type we hold.
-  const tag = org.company_number ? (CH_NUMBERS_CHECKED.has(org.company_number) ? org.company_number : null) : org.org_type || (org.kind === 'registry' ? null : org.kind);
+  // With no number held, the type we hold.
+  // T1-NOCODE (owner approved 13 Nov 2026): no Companies House number in the title ('Deloitte LLP', not 'Deloitte LLP (OC303675)').
+  const tag = org.company_number ? null : org.org_type || (org.kind === 'registry' ? null : org.kind);
   const titleName = tag && (await orgNameShared(org.name, org.slug)) ? `${org.name} (${tag})` : org.name;
   const description = orgDescription(org);
   return {
     // Never the name alone, which its lobbying page could share (owner, 7 Nov 2026: titles stay unique). A name another page
-    // shares adds the Companies House number we hold, or failing that the type we hold: "Deloitte LLP (OC303675): contracts".
+    // shares adds the type we hold, never a Companies House number (T1-NOCODE).
     title: namedTitle(titleName, (n) => [`${n}: ${heldText}`, `${n}: public records`, `${n}: ${heldText}`]),
     description,
     alternates: { canonical: `/organisations/${org.slug}` },
@@ -106,8 +106,9 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
         <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(0, max-content) minmax(0, 1fr)', gap: '6px 16px', fontSize: '15px', margin: '0 0 12px' }}>
           <dt style={{ fontWeight: 'bold' }}>Companies House</dt>
           <dd style={{ margin: 0, overflowWrap: 'anywhere' }}>
+            {/* No number shown (T1-NOCODE, owner approved 13 Nov 2026): a link to the same Companies House record. */}
             {org.company_number
-              ? <>{org.company_number} (in Sources at the end of the page)</>
+              ? <a data-og-row-source="" href={companiesHouseUrl(org.company_number)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>View on Companies House ↗</a>
               : 'No number recorded'}
           </dd>
           {org.name_variants && org.name_variants.length > 0 && (<>
@@ -145,7 +146,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                   {d.donation_action ? ` (${d.donation_action.toLowerCase()})` : ''}
                   <div style={sub}>
                     {[d.donation_type_label || d.nature, d.donor_name !== org.name ? `given as “${d.donor_name}”` : null].filter(Boolean).join(' · ')}
-                    {d.ec_ref && <> · <a data-og-row-source="" href={ecDonationSearchUrl(d.ec_ref)} rel="noopener" style={{ color: ACCENT }}>Electoral Commission record {d.ec_ref}</a></>}
+                    {d.ec_ref && <> · <a data-og-row-source="" href={ecDonationSearchUrl(d.ec_ref)} rel="noopener" style={{ color: ACCENT }}>Electoral Commission record</a></>}
                   </div>
                 </li>
               ))}
@@ -254,7 +255,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
       </article>
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
           Sources fold; each donation's, contract's and grant's record stays on its row. */}
-      <PageSources sources={[org.company_number && { label: `Companies House record, company ${org.company_number}`, href: companiesHouseUrl(org.company_number) }]} />
+      <PageSources sources={[org.company_number && { label: `Companies House record for ${org.name}`, href: companiesHouseUrl(org.company_number) }]} />
     </OpenGovShell>
   );
 }

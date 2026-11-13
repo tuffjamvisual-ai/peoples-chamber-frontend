@@ -378,11 +378,7 @@ function Header({ kind, name, sub, gssCode, partial }: { kind: string; name: str
       {sub && (
         <div style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT, marginTop: '6px' }}>{sub}</div>
       )}
-      {gssCode && (
-        <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '8px' }}>
-          ONS code {gssCode}
-        </div>
-      )}
+      {/* The 'ONS code' line is removed (T1-NOCODE, owner approved 13 Nov 2026: no official codes shown to readers). */}
     </header>
   )
 }
