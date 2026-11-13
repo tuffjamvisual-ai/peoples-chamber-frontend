@@ -2367,9 +2367,9 @@ export default function MagazineProfileSections({
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   style={{ ...inkLink, fontSize: '15px', fontWeight: 'normal' }}
-                                  title={`Companies House, ${d.crn}`}
+                                  title="Companies House record"
                                 >
-                                  CH&nbsp;↗
+                                  Companies House&nbsp;↗
                                 </a>
                               </>
                             )}
@@ -3137,8 +3137,9 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
     </>
   ));
   const trustUsed = !!(d.trust_name || d.trust_creator_name || d.trust_creator_status || d.trust_created_date);
+  // Label column at most 45% wide (T1-NOCODE round 2, 13 Nov 2026): at 375 the longest label left the values about 17px.
   return (
-    <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(140px, max-content) 1fr', gap: '2px 16px', margin: '8px 0 4px 8px', padding: '8px 12px', background: 'rgba(20,16,13,0.04)', border: '1px solid rgba(20,16,13,0.1)' }}>
+    <dl style={{ display: 'grid', gridTemplateColumns: 'fit-content(45%) minmax(0, 1fr)', gap: '2px 16px', margin: '8px 0 4px 8px', padding: '8px 12px', background: 'rgba(20,16,13,0.04)', border: '1px solid rgba(20,16,13,0.1)' }}>
       <Row label="Accepted" value={fmtDate(d.accepted_date)} />
       <Row label="Received" value={fmtDate(d.received_date)} />
       <Row label="Reported to the Electoral Commission" value={fmtDate(d.reported_date)} />
@@ -3153,7 +3154,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
       <Row label="Donor status" value={fmt(d.donor_status)} />
       {crn && (
         <Row
-          label="Company no."
+          label="Companies House"
           value={
             <a
               href={`https://find-and-update.company-information.service.gov.uk/company/${crn}`}
@@ -3161,7 +3162,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
               rel="noopener noreferrer"
               style={inkLink}
             >
-              {crn} ↗
+              View on Companies House&nbsp;↗
             </a>
           }
         />
@@ -3200,9 +3201,10 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
       {d.attempted_concealment === true && <Row label="Concealment attempted" value="Yes" />}
       {d.concealment_details && <Row label="Concealment details" value={d.concealment_details} />}
       {d.explanatory_notes && <Row label="EC notes" value={d.explanatory_notes} />}
+      {/* No reference shown (T1-NOCODE, owner approved 13 Nov 2026): the same record, named by its source. */}
       {d.ec_ref && (
         <Row
-          label="EC reference"
+          label="Source"
           value={
             <a
               href={ecDonationSearchUrl(d.ec_ref)}
@@ -3210,7 +3212,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
               rel="noopener noreferrer"
               style={inkLink}
             >
-              {d.ec_ref} ↗
+              Electoral Commission&nbsp;↗
             </a>
           }
         />

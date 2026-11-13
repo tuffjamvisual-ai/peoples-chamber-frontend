@@ -371,7 +371,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     {companyRegNumber && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Company no.</dt><dd className="text-[#14100d]">{companyRegNumber}</dd></>)}
                     {addressParts.length > 0 && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Donor address</dt><dd className="text-[#14100d]">{addressParts.join(', ')}</dd></>)}
                     {explanatoryNotes && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC notes</dt><dd className="text-[#14100d] whitespace-pre-line">{explanatoryNotes}</dd></>)}
-                    {ecRef && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC reference</dt><dd className="text-[#14100d] font-mono"><a data-og-row-source="" href={ecDonationSearchUrl(ecRef)} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{ecRef} ↗</a></dd></>)}
+                    {ecRef && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC reference</dt><dd className="text-[#14100d] font-mono"><a data-og-row-source="" href={ecDonationSearchUrl(ecRef)} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{ecRef}&nbsp;↗</a></dd></>)}
                     {donorSlug && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Donor profile</dt><dd className="text-[#14100d]"><Link href={`/donors/${donorSlug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{donor}</Link></dd></>)}
                   </dl>
                 </details>
@@ -392,8 +392,6 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               const status      = (row.status as string | null)?.toLowerCase() ?? null
               const description = (row.description as string | null)?.trim() || null
               const ocid        = row.ocid as string | null
-              const awardId     = row.award_id as string | null
-              const contractId  = row.contract_id as string | null
               const deptSlug    = row.dept_slug as string | null
               const updatedAt   = row.updated_at as string | null
               const deptLabel   = deptSlug
@@ -434,11 +432,9 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                       Record identifiers<span className="og-fold-mark" aria-hidden="true" />
                     </summary>
                     <dl className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.65]" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
-                      {/* The OCID is not shown (T1-NOCODE, owner approved 13 Nov 2026): a link to the same contract record on its own page. */}
+                      {/* No identifiers shown (T1-NOCODE, owner approved 13 Nov 2026): the OCID is a link to the same contract record on its
+                          own page; the award ID, contract ID and department key rows are removed. */}
                       {ocid && linked.has(ocid) && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Contract</dt><dd className="text-[#14100d]"><Link href={`/contracts/${ocid}`} className="focus-ring underline" style={{ color: 'inherit', textUnderlineOffset: '3px' }}>View contract record</Link></dd></>)}
-                      {awardId    && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Award ID</dt><dd className="text-[#14100d] font-mono">{awardId}</dd></>)}
-                      {contractId && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Contract ID</dt><dd className="text-[#14100d] font-mono">{contractId}</dd></>)}
-                      {deptSlug   && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Dept slug</dt><dd className="text-[#14100d] font-mono">{deptSlug}</dd></>)}
                       {updatedAt  && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Updated</dt><dd className="text-[#14100d]">{formatUkDate(updatedAt)}</dd></>)}
                     </dl>
                   </details>

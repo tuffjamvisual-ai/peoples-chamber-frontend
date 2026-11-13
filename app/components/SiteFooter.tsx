@@ -57,7 +57,7 @@ export default function SiteFooter() {
                 rel="noopener noreferrer"
                 style={linkStyle}
               >
-                GitHub ↗
+                GitHub&nbsp;↗
               </a>
               <Link href="/about#contact" style={linkStyle}>Contact</Link>
             </FootCol>

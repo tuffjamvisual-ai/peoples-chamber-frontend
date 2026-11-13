@@ -78,7 +78,7 @@ export default async function ServiceIndicator({ services }: { services: string[
         })}
       </div>
       <a href="/transparency/state-dashboard" style={{ display: 'inline-block', marginTop: '12px', fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>
-        The Broken State dashboard: full data and sources ↗
+        The Broken State dashboard: full data and sources&nbsp;↗
       </a>
     </section>
   );

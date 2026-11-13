@@ -108,7 +108,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
           <dd style={{ margin: 0, overflowWrap: 'anywhere' }}>
             {/* No number shown (T1-NOCODE, owner approved 13 Nov 2026): a link to the same Companies House record. */}
             {org.company_number
-              ? <a data-og-row-source="" href={companiesHouseUrl(org.company_number)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>View on Companies House ↗</a>
+              ? <a data-og-row-source="" href={companiesHouseUrl(org.company_number)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>View on Companies House&nbsp;↗</a>
               : 'No number recorded'}
           </dd>
           {org.name_variants && org.name_variants.length > 0 && (<>

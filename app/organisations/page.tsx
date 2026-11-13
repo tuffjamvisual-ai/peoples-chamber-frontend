@@ -137,8 +137,8 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
             <Link href={`/organisations/${r.slug}`} className="no-hover-scale" style={{ color: INK, fontWeight: 'bold', fontSize: '16px', textDecoration: 'none', overflowWrap: 'anywhere' }}>{r.name}</Link>
             <div style={{ fontFamily: FONT, fontSize: '15px', marginTop: '3px', lineHeight: 1.5, overflowWrap: 'anywhere' }}>
               {/* No Companies House number shown (T1-NOCODE, owner approved 13 Nov 2026): a link to the same record instead. */}
-              <span className="org-wide">{r.company_number && <><a data-og-row-source="" href={companiesHouseUrl(r.company_number)} target="_blank" rel="noopener noreferrer" aria-label={`View ${r.name} on Companies House`} style={{ color: INK, textDecoration: 'underline' }}>View on Companies House ↗</a>{' · '}</>}{datasetsLine(r)}</span>
-              {r.company_number && <span className="org-phone"><a data-og-row-source="" href={companiesHouseUrl(r.company_number)} target="_blank" rel="noopener noreferrer" aria-label={`View ${r.name} on Companies House`} style={{ color: INK, textDecoration: 'underline', display: 'inline-block', minHeight: '44px', lineHeight: '44px' }}>View on Companies House ↗</a></span>}
+              <span className="org-wide">{r.company_number && <><a data-og-row-source="" href={companiesHouseUrl(r.company_number)} target="_blank" rel="noopener noreferrer" aria-label={`View ${r.name} on Companies House`} style={{ color: INK, textDecoration: 'underline' }}>View on Companies House&nbsp;↗</a>{' · '}</>}{datasetsLine(r)}</span>
+              {r.company_number && <span className="org-phone"><a data-og-row-source="" href={companiesHouseUrl(r.company_number)} target="_blank" rel="noopener noreferrer" aria-label={`View ${r.name} on Companies House`} style={{ color: INK, textDecoration: 'underline', display: 'inline-block', minHeight: '44px', lineHeight: '44px' }}>View on Companies House&nbsp;↗</a></span>}
               <span className="org-phone">{phoneCountsLine(r)}</span>
             </div>
           </li>

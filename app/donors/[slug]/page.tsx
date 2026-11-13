@@ -691,7 +691,7 @@ export default async function DonorPage({ params }: PageProps) {
                       {c.ocid && (
                         <>
                           <br />
-                          <a data-og-row-source="" href={`https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(c.ocid)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>View on Find a Tender ↗</a>
+                          <a data-og-row-source="" href={`https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(c.ocid)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>View on Find a Tender&nbsp;↗</a>
                         </>
                       )}
                     </td>
@@ -794,7 +794,7 @@ export default async function DonorPage({ params }: PageProps) {
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>
                       {d.ec_ref ? (
                         // The same record, named by its source instead of its reference (T1-NOCODE, owner approved 13 Nov 2026).
-                        <a data-og-row-source="" href={ecDonationSearchUrl(d.ec_ref)} target="_blank" rel="noopener noreferrer" aria-label={`Electoral Commission record of this donation, ${fmtDay(d.accepted_date || d.received_date)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>Electoral Commission ↗</a>
+                        <a data-og-row-source="" href={ecDonationSearchUrl(d.ec_ref)} target="_blank" rel="noopener noreferrer" aria-label={`Electoral Commission record of this donation, ${fmtDay(d.accepted_date || d.received_date)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>Electoral Commission&nbsp;↗</a>
                       ) : 'n/a'}
                     </td>
                   </tr>
@@ -809,7 +809,7 @@ export default async function DonorPage({ params }: PageProps) {
 
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
           Sources fold; each donation's Electoral Commission reference and each contract's notice stay on their rows. */}
-      <PageSources sources={[crn && { label: `Companies House record, company ${crn}`, href: `https://find-and-update.company-information.service.gov.uk/company/${crn}` }]} />
+      <PageSources sources={[crn && { label: 'Companies House record', href: `https://find-and-update.company-information.service.gov.uk/company/${crn}` }]} />
     </OpenGovShell>
   );
 }
