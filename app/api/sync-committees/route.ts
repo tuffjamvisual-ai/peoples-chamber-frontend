@@ -12,7 +12,7 @@ const UA = 'PeoplesChamber-CommitteeMetaSync/1.0';
 const CALL_DELAY_MS = 200;
 
 // COMMITTEE_IDS imported from lib/committees.ts — shared with the profile
-// page (generateStaticParams) and app/sitemap.ts. Edit there, not here.
+// page (generateStaticParams) and lib/sitemap/main.ts. Edit there, not here.
 //
 // 27 Oct 2026 (job 79): it ran to 57 s of its 60 s, with no timeout on its requests. Now (lib/sync-budget.ts) the
 // committees go stalest first (committees.synced_at, never synced first), every request has a timeout cut to the time

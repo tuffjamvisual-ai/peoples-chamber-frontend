@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import AppgSource from '../components/AppgSource';
-import { secretariatNameToSlug } from './[slug]/page';
+import { secretariatNameToSlug } from '@/lib/secretariat-slug';
 import { ShowAll } from '@/app/components/NoJsPager';
 
 export const revalidate = 86400;

@@ -1,5 +1,5 @@
 // Which bill pages search engines may index (owner, 7 Nov 2026). The bill page's robots rule (app/bills/[id]/page.tsx)
-// and the sitemap (app/sitemap.ts) both use billIndexable, so they cannot drift apart.
+// and the sitemap (lib/sitemap/main.ts) both use billIndexable, so they cannot drift apart.
 //
 // A bill page is indexable when any of these holds:
 //   - it is in the current, unfinished session (introduced in it or carried into it), whatever its stage;

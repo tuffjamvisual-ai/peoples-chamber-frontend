@@ -23,5 +23,7 @@ Disallow: /_vercel/
 # Press release pages (/news/) are noindex copies of GOV.UK and Commons committee pages. They are not blocked here
 # (owner, 9 Nov 2026): a block stops Google reading the noindex, so pages it already had stayed indexed. Not in any sitemap.
 
+# The sitemap index (13 Nov 2026) lists /sitemap.xml and one sitemap per added page type.
+Sitemap: https://www.opengovt.uk/sitemap-index.xml
 Sitemap: https://www.opengovt.uk/sitemap.xml
 Sitemap: https://www.opengovt.uk/feed.xml

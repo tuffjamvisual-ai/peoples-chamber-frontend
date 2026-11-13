@@ -8,6 +8,7 @@
 // to find that one firm operates 6 different lobby groups requires
 // reading 600 separate pages.
 
+import { secretariatNameToSlug } from '@/lib/secretariat-slug';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
@@ -47,15 +48,8 @@ const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
 // Canonical slug rule used across the site.
-export function secretariatNameToSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/&/g, ' and ')
-    .replace(/['’‘]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 100);
-}
+// The slug rule is in lib/secretariat-slug.ts (shared with the sitemap).
+export { secretariatNameToSlug };
 
 interface PageProps {
   params: Promise<{ slug: string }>;

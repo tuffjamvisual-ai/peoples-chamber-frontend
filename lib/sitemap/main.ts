@@ -26,7 +26,11 @@ import { isLaw } from '@/lib/bill-status';
 
 const SITE = 'https://www.opengovt.uk';
 
-export const revalidate = 86400;
+// T1-SITEMAP (c) (Cowork 13 Nov 2026, COWORK-TO-T1 ENTRY 8): moved from app/sitemap.ts. Next made that file once per deploy
+// and served it unchanged until the next one (no rebuild seen on Vercel since 12 Nov; a refresh of /sitemap.xml did not
+// reach it), so a report published after a deploy was missing until the following deploy. The entries are now built here
+// and kept, compressed, in a data cache tagged 'sitemap' and 'editorials' (lib/sitemap/parts.ts), and app/sitemap.xml
+// draws them on each request: a publish or sync refresh of those tags reaches the sitemap at once.
 
 type SupabaseQuery = ReturnType<ReturnType<typeof supabase.from>['select']>;
 
@@ -100,7 +104,7 @@ function validDates(entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
   });
 }
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
   // 'lobbyists' removed 2026-06-02. 'companies' removed 2026-06-03.
   // 'press-releases' added 2026-06-04 (7th transparency section; the
   // index page lists 100 most-recent releases, each linking through to

@@ -28,7 +28,7 @@ const PAGE_METADATA: Metadata = {
   alternates: { canonical: '/councils/league-table' },
 };
 // While hidden (23 Oct 2026), the page is a short withdrawal notice: kept out of search engines but its links followed,
-// and out of the sitemap (app/sitemap.ts lists the page only when SHOW_LEAGUE_TABLE is true).
+// and out of the sitemap (lib/sitemap/main.ts lists the page only when SHOW_LEAGUE_TABLE is true).
 const WITHDRAWN_SENTENCE = 'The council league table has been withdrawn while its measures are reviewed.';
 const WITHDRAWN_METADATA: Metadata = {
   title: 'Council league table withdrawn',

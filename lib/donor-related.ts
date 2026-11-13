@@ -7,38 +7,9 @@ import { supabase } from '@/lib/supabase';
 import { donorNameToSlug, donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
 import { donorRegistry, type DonorPageEntry } from '@/lib/donor-registry';
-
-// Personal titles removed before comparing names.
-const TITLES = new Set(['mr', 'mrs', 'ms', 'miss', 'mx', 'dr', 'sir', 'lord', 'lady', 'dame', 'baroness', 'baron', 'rt', 'hon', 'prof']);
-
-// Lower case, punctuation removed, titles removed; the words that remain.
-export function normalisedDonorWords(name: string): string[] {
-  return name
-    .toLowerCase()
-    .replace(/['’‘]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim()
-    .split(' ')
-    .filter((w) => w && !TITLES.has(w));
-}
-
-// Words that say what kind of body a donor is, not who: a name that starts or ends with one of them ("The ... Ltd",
-// "... Labour Group", "The ... Club") would be paired with unrelated organisations, so it gets no similar names.
-const GENERIC_WORDS = new Set([
-  'the', 'and', 'of', 'ltd', 'limited', 'plc', 'llp', 'llc', 'inc', 'co', 'company', 'group', 'holdings', 'holding',
-  'club', 'foundation', 'trust', 'trustees', 'branch', 'association', 'society', 'council', 'union', 'party', 'fund',
-  'uk', 'international', 'partnership', 'partners', 'services', 'service', 'federation', 'committee', 'campaign',
-]);
-
-// "first|last" of the normalised name, or null when the name gives no usable pair: nothing left, a first or last word
-// of one character (an initial), or a generic word (above).
-export function donorNameKey(name: string): string | null {
-  const w = normalisedDonorWords(name);
-  if (w.length === 0) return null;
-  const first = w[0], last = w[w.length - 1];
-  if (first.length < 2 || last.length < 2 || GENERIC_WORDS.has(first) || GENERIC_WORDS.has(last)) return null;
-  return `${first}|${last}`;
-}
+// The name rules, without database reads (lib/donor-name-match.ts, 13 Nov 2026), so the sitemap and tests can use them.
+import { normalisedDonorWords, donorNameKey, editDistanceAtMost, SMALL_MAX, LARGE_MIN } from '@/lib/donor-name-match';
+export { normalisedDonorWords, donorNameKey, minorSpellingSlugs } from '@/lib/donor-name-match';
 
 export type RelatedDonorName = { name: string; slug: string };
 
@@ -83,24 +54,6 @@ export async function relatedDonorNames(name: string, ownSlug: string): Promise<
 // page keeps its records and stays open, but is not indexed, and links to the larger page. A minor spelling: the
 // same first and last word (donorNameKey), or names that differ by one or two letters. The larger page must have at
 // least 5 records and five times as many.
-const SMALL_MAX = 2;
-const LARGE_MIN = 5;
-
-function editDistanceAtMost(a: string, b: string, max: number): boolean {
-  if (Math.abs(a.length - b.length) > max) return false;
-  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
-  for (let i = 1; i <= a.length; i++) {
-    const cur = [i];
-    let best = i;
-    for (let j = 1; j <= b.length; j++) {
-      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-      best = Math.min(best, cur[j]);
-    }
-    if (best > max) return false;
-    prev = cur;
-  }
-  return prev[b.length] <= max;
-}
 
 export async function mainSpellingFor(slug: string): Promise<RelatedDonorName | null> {
   const { bySlug } = await donorRegistry();
@@ -118,3 +71,4 @@ export async function mainSpellingFor(slug: string): Promise<RelatedDonorName | 
   }
   return best ? { name: best.e.label, slug: best.e.slug } : null;
 }
+
