@@ -1,8 +1,9 @@
 'use client';
 
-import NoJsPager from '@/app/components/NoJsPager';
+import DataList from '@/app/components/DataList';
 import Link from 'next/link';
 import { useMemo, useState, type CSSProperties } from 'react';
+import { useRouter } from 'next/navigation';
 import type { PeerListRow } from '@/lib/lords';
 
 // The /lords list (owner, 3 Nov 2026): every current peer, filtered by party and type of peerage in the browser.
@@ -14,9 +15,13 @@ const select: CSSProperties = { padding: '8px 12px', background: 'rgba(20,16,13,
 const label: CSSProperties = { display: 'block', fontSize: '15px', fontWeight: 'bold', marginBottom: '4px' };
 const fmtYear = (d: string | null) => (d ? d.slice(0, 4) : '');
 
-export default function LordsIndex({ peers }: { peers: PeerListRow[] }) {
-  const [party, setParty] = useState('');
-  const [type, setType] = useState('');
+export default function LordsIndex({ peers, page, initialParty = '', initialType = '' }: { peers: PeerListRow[]; page: number; initialParty?: string; initialType?: string }) {
+  const [party, setParty] = useState(initialParty);
+  const [type, setType] = useState(initialType);
+  const router = useRouter();
+  // The filters are in the address too (T1-GUARD), so the page links keep them and work without JavaScript.
+  const query = (p: string, t: string, n = 1) => { const q = new URLSearchParams(); if (p) q.set('party', p); if (t) q.set('type', t); if (n > 1) q.set('page', String(n)); const s = q.toString(); return s ? `/lords?${s}` : '/lords'; };
+  const choose = (p: string, t: string) => { setParty(p); setType(t); router.replace(query(p, t), { scroll: false }); };
   const count = (key: 'party' | 'peerage_type') => {
     const m = new Map<string, number>();
     for (const p of peers) { const v = p[key] || 'Not recorded'; m.set(v, (m.get(v) ?? 0) + 1); }
@@ -31,21 +36,23 @@ export default function LordsIndex({ peers }: { peers: PeerListRow[] }) {
       <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '14px' }}>
         <div>
           <label htmlFor="lords-party" style={label}>Party</label>
-          <select id="lords-party" value={party} onChange={(e) => setParty(e.target.value)} style={select}>
+          <select id="lords-party" value={party} onChange={(e) => choose(e.target.value, type)} style={select}>
             <option value="">All parties</option>
             {parties.map(([name, n]) => <option key={name} value={name}>{name} ({n})</option>)}
           </select>
         </div>
         <div>
           <label htmlFor="lords-type" style={label}>Type of peerage</label>
-          <select id="lords-type" value={type} onChange={(e) => setType(e.target.value)} style={select}>
+          <select id="lords-type" value={type} onChange={(e) => choose(party, e.target.value)} style={select}>
             <option value="">All types</option>
             {types.map(([name, n]) => <option key={name} value={name}>{name} ({n})</option>)}
           </select>
         </div>
       </div>
       <p aria-live="polite" style={{ fontSize: '15px', margin: '0 0 8px' }}>{shown.length.toLocaleString('en-GB')} member{shown.length === 1 ? '' : 's'}</p>
-      <NoJsPager id="lords-list" count={(shown).length} rows="> li" size={25}>
+      {/* DataList (T1-GUARD): phones and tablets 20 a page at ?page=, first 3 then "Show N more"; desktop the whole list. Choosing
+          a filter starts again at page 1 (the address drops ?page=). */}
+      <DataList id="lords-list" count={shown.length} page={page} href={(n) => query(party, type, n)} label="members">
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
         {shown.map((p) => (
           <li key={p.member_id} style={{ padding: '7px 0', borderBottom: '1px dashed rgba(20,16,13,0.2)', display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
@@ -58,7 +65,7 @@ export default function LordsIndex({ peers }: { peers: PeerListRow[] }) {
           </li>
         ))}
       </ul>
-      </NoJsPager>
+      </DataList>
     </div>
   );
 }
