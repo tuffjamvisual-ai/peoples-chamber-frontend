@@ -421,7 +421,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 <Section title="Political Control & Leadership" date={councilUpdated} source="councils.updated_at"
                   // NI2 (9 Nov 2026): where the seat figures come from, and as of when.
                   sourceLine={comp && comp.total_seats > 0 ? { text: `Seats: opencouncildata.co.uk, public domain, as of May ${comp.snapshot_year}`, source: 'council_composition.snapshot_year' } : undefined}
-                  moreLabel="Administration, seats, byelections, leader and last election" more={<>
+                  moreLabel="Seats, leader and elections" more={<>
                   {/* Who runs it and the seats (T1-GUARD headroom, Cowork 13 Nov 2026 ENTRY 2): in this fold on phones, so
                       the page has room under the 2,500px phone length as the byelections grow; from 640px (and on tablets)
                       the rows read in the same order as before, straight after political control. */}

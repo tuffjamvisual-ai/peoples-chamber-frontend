@@ -1,7 +1,7 @@
-// Commission form steps and Find Your MP messages (owner, 4 Nov 2026), on a running site. Under 640px: four steps, Next
-// and Back, values kept, each step checked with the form's own rules, Enter moves on rather than sends, a send that fails
-// on an earlier step returns to it, and the enquiry sent holds every field. From 640px: every field shows and there are no
-// steps. /api/commission is always answered by this script, so no email is ever sent.
+// Commission form steps and Find Your MP messages (owner, 4 Nov 2026), on a running site. Under 1,024px (phones, and
+// tablets since T1-GUARD batch 4, 13 Nov 2026; under 640px until T1-768): four steps, Next and Back, values kept, each step
+// checked with the form's own rules, Enter moves on rather than sends, a send that fails on an earlier step returns to it,
+// and the enquiry sent holds every field. From 1,024px: every field shows and there are no steps. /api/commission is always answered by this script, so no email is ever sent.
 //   node scripts/checks/commission-steps-check.mjs <base url> <out dir>
 import fs from 'fs';
 import path from 'path';
@@ -117,8 +117,8 @@ const phone = () => browser.newContext({ viewport: { width: 375, height: 812 }, 
   await ctx.close();
 }
 
-// ---- 639px has steps; 640px and 1440px do not
-for (const [width, stepped] of [[639, true], [640, false], [1440, false]]) {
+// ---- phones and tablets (767, 768 and 1023px) have steps; 1024px and 1440px do not
+for (const [width, stepped] of [[767, true], [768, true], [1023, true], [1024, false], [1440, false]]) {
   const ctx = await browser.newContext({ viewport: { width, height: 900 } });
   const page = await ctx.newPage();
   await page.goto(`${base}/commission`, { waitUntil: 'networkidle', timeout: 180000 });
