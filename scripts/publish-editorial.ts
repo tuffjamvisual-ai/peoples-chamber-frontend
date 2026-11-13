@@ -22,6 +22,7 @@
 // SET LOCAL statement_timeout = '60s' and lock_timeout = '5s'; the row counts before and after are read separately,
 // outside it. DATABASE_URL comes from .env.local and is never printed.
 
+import { refreshOrder } from '../lib/refresh-order';
 import { config } from 'dotenv';
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
@@ -292,9 +293,16 @@ ${apply ? 'COMMIT' : 'ROLLBACK'};
   console.log(`  and ${paths.length} paths: ${paths.join(', ')}`);
   if (!apply) { console.log('publish-editorial: rehearsal done, nothing kept. Run again with --apply to publish.'); return; }
 
-  const refresh = spawnSync('node', ['scripts/revalidate.js', ...tags.flatMap((t) => ['--tag', t]), ...paths.flatMap((p) => ['--path', p])], { encoding: 'utf8' });
-  console.log(`  refresh (${paths.length} paths, ${tags.length} tags): ${(refresh.stdout || refresh.stderr || '').trim()}`);
-  if (refresh.status !== 0) fail(`published, but the refresh failed; run it again: node scripts/revalidate.js ${tags.map((t) => `--tag ${t}`).join(' ')}`);
+  // The data first, then the pages (T1-SITEMAP, Cowork 13 Nov 2026): the tags in one call, so the reports list is
+  // expired before any page is marked; then the paths, with the listing pages and /sitemap.xml last, so none of them is
+  // rebuilt from the list as it was before this publish.
+  const ordered = refreshOrder(paths);
+  const steps: Array<[string, string[]]> = [['tags', tags.flatMap((t) => ['--tag', t])], ['paths', ordered.flatMap((x) => ['--path', x])]];
+  for (const [what, args] of steps) {
+    const refresh = spawnSync('node', ['scripts/revalidate.js', ...args], { encoding: 'utf8' });
+    console.log(`  refresh ${what} (${what === 'tags' ? tags.length : ordered.length}): ${(refresh.stdout || refresh.stderr || '').trim()}`);
+    if (refresh.status !== 0) fail(`published, but the refresh of the ${what} failed; run it again: node scripts/revalidate.js ${args.join(' ')}`);
+  }
   console.log('publish-editorial: published. Now check the live page.');
 }
 

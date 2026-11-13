@@ -70,7 +70,10 @@ export async function POST(req: Request) {
   // The exact pages refreshed (route patterns and tags name no single address) go to IndexNow (lib/indexnow.ts).
   dataChanged(paths as string[]);
   indexNowAfter(paths as string[], 'revalidate');
-  // 'max': the tagged entries are marked stale and refreshed on their next visit (the Next.js 16 form of revalidateTag).
-  for (const t of tags as string[]) revalidateTag(t, 'max');
+  // { expire: 0 } (T1-SITEMAP, Cowork 13 Nov 2026): the tagged data is gone at once, so the next read waits for fresh
+  // data. It was 'max' (stale while revalidate), with which a page rebuilt in the seconds after a publish read the old
+  // data and kept it for its whole period: the sitemap rebuilt at 14:27:36 on 13 Nov without the report published at
+  // 14:26:55. The bundled docs (revalidateTag.md) give { expire: 0 } for a route handler called from outside.
+  for (const t of tags as string[]) revalidateTag(t, { expire: 0 });
   return NextResponse.json({ revalidated: true, paths, tags, at: new Date().toISOString() });
 }
