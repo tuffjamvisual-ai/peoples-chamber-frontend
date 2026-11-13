@@ -83,15 +83,16 @@ const STYLE_KEYS = ['display', 'position', 'float', 'visibility', 'opacity', 'fo
 const ukHour = () => Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false }).format(new Date()));
 let lastHit = 0;
 async function pace() {
-  const wait = lastHit + 1000 - Date.now();
-  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+  // A timer can fire a millisecond early, so wait until a whole second has passed.
+  while (Date.now() < lastHit + 1000) await new Promise((r) => setTimeout(r, lastHit + 1000 - Date.now()));
   lastHit = Date.now();
 }
 
 // The same page state on both sites: cookie choice made (no banner), no animations or transitions, every image loaded.
 const STILL = '*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; } .og-cookie-banner { display: none !important; }';
+// Returns the web fonts that did not load (failed, or still loading after 15 s).
 async function settle(page) {
-  await page.evaluate(async (css) => {
+  const failed = await page.evaluate(async (css) => {
     if (!document.getElementById('vr-still')) { const s = document.createElement('style'); s.id = 'vr-still'; s.textContent = css; document.head.appendChild(s); }
     for (const img of document.images) { img.loading = 'eager'; img.decoding = 'sync'; }
     // CSS background pictures too (the folder, the desk): a picture still loading on one site shows as a difference.
@@ -113,8 +114,10 @@ async function settle(page) {
     ]);
     await document.fonts.ready;
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    return [...new Set([...document.fonts].filter((f) => f.status !== 'loaded').map((f) => f.family.replace(/^["']|["']$/g, '')))];
   }, STILL);
   await page.waitForTimeout(300);
+  return failed;
 }
 
 // What the page shows apart from pixels: the set of style combinations in use, and its text lines.
@@ -135,7 +138,7 @@ async function describe(page) {
 
 async function shoot(page, url, view) {
   if (view.width !== page.viewportSize().width) { await page.setViewportSize({ width: view.width, height: view.height }); await page.waitForTimeout(500); }
-  await settle(page);
+  const fontsFailed = new Set(await settle(page));
   const described = await describe(page);
   // The page as a reader sees it: one screen at a time at the real window size, scrolled down and joined (a full page
   // picture stretches the window to the page's height, and the live site and a local build then placed the desk and
@@ -146,7 +149,7 @@ async function shoot(page, url, view) {
     const top = Math.min(y, Math.max(0, full - view.height));
     await page.evaluate((t) => window.scrollTo(0, t), top);
     await page.waitForTimeout(150);
-    await settle(page);
+    for (const f of await settle(page)) fontsFailed.add(f);
     const at = await page.evaluate(() => Math.round(window.scrollY));
     tiles.push({ input: await page.screenshot({ animations: 'disabled' }), top: at, left: 0 });
     if (top + view.height >= full) break;
@@ -154,7 +157,7 @@ async function shoot(page, url, view) {
   await page.evaluate(() => window.scrollTo(0, 0));
   const png = await sharp({ create: { width: view.width, height: Math.max(full, view.height), channels: 4, background: '#ffffff' }, limitInputPixels: false })
     .composite(tiles).png().toBuffer();
-  return { png, ...described };
+  return { png, ...described, fontsFailed: [...fontsFailed] };
 }
 
 async function raw(png) {
@@ -249,15 +252,22 @@ const MOVING = [
 async function freezeMoving(page) {
   await page.evaluate((pairs) => {
     const res = pairs.map(([s, f, r]) => [new RegExp(s, f), r]);
-    // React writes 'last updated {when}' as separate text nodes, so an element whose children are all text is read whole.
+    // React writes 'last updated {when}' as separate text nodes with <!-- --> comments between them in the server HTML, so
+    // an element whose children are all text or comments is read whole.
     for (const el of document.body.querySelectorAll('*')) {
-      if (!el.firstChild || [...el.childNodes].some((c) => c.nodeType !== 3)) continue;
+      if (!el.firstChild || [...el.childNodes].some((c) => c.nodeType !== 3 && c.nodeType !== 8)) continue;
       let t = el.textContent;
       for (const [re, r] of res) t = t.replace(re, r);
       if (t !== el.textContent) el.textContent = t;
     }
   }, MOVING.map(([re, r]) => [re.source, re.flags, r])).catch(() => {});
 }
+
+const LAYOUT_KEYS = new Set(['padding', 'margin', 'top', 'left', 'line-height', 'gap', 'transform']);
+const withoutLayout = (s) => { const i = s.indexOf(' '); return s.slice(0, i + 1) + s.slice(i + 1).split('|').filter((_, j) => !LAYOUT_KEYS.has(STYLE_KEYS[j])).join('|'); };
+const sameSet = (x, y) => { const a = new Set(x), b = new Set(y); return a.size === b.size && [...a].every((v) => b.has(v)); };
+// A font failure (T1-VRFIX, Cowork 13 Nov 2026): the text is the same and any style difference is layout only.
+const fontShaped = (v) => !v.changed || (v.sameText && v.layoutOnly);
 
 // One page at one size, before against after: the comparison, its kind and its side by side picture.
 async function judge(p, k, b, a) {
@@ -272,19 +282,27 @@ async function judge(p, k, b, a) {
   v.textAdded = a.text.filter((l) => !tb.has(l)).slice(0, 8);
   v.textGone = b.text.filter((l) => !ta.has(l)).slice(0, 8);
   v.kind = v.stylesAdded || v.stylesGone ? 'look' : v.textAdded.length || v.textGone.length ? 'text' : 'pixels';
+  v.sameText = !v.textAdded.length && !v.textGone.length && b.text.length === a.text.length;
+  // Style differences only in layout (margins, padding, positions, line height, gaps, transforms): what a fallback font
+  // moves when a web font fails, never a change of colour, font, size or display.
+  v.layoutOnly = !v.stylesAdded && !v.stylesGone ? true : sameSet(b.styles.map(withoutLayout), a.styles.map(withoutLayout));
   v.box = cmp.box;
   if (cmp.box) { v.image = fileName(p.url, VIEWS[k].name, 'jpg'); await sideBySide(path.join(OUT, v.image), b.png, a.png, cmp, VIEWS[k].width); }
   return v;
 }
 
+// A font failure (T1-VR, Cowork 12 Nov 2026; T1-VRFIX 13 Nov): a web font did not load on one side, even on a second try,
+// the text is the same and any style difference is layout only (fontShaped), so the difference is the fallback font, not
+// a change: listed, never counted as unexpected.
 function writeReport(rows, secs, title, before, after, extraLines) {
-  const unexpected = rows.filter((r) => r.changed && !r.named);
+  const unexpected = rows.filter((r) => r.changed && !r.named && !r.fontFailure);
   const lines = [`# ${title}`, '',
     `${new Date().toISOString()}; ${rows.length} pages at ${VIEWS.map((v) => v.name).join(' and ')}, ${before} (before) against ${after} (after), ${Math.floor(secs / 60)} min ${secs % 60} s.`,
     `Pages the job names: ${JOB_PAGES.length ? JOB_PAGES.join(', ') : 'none'}. Changed: ${rows.filter((r) => r.changed).length} (${unexpected.length} not named).`,
     ...extraLines, ''];
   for (const r of rows.filter((x) => x.changed)) {
-    lines.push(`## ${r.url} (${r.route})${r.named ? ', named by the job' : ', NOT named by the job'}`);
+    lines.push(`## ${r.url} (${r.route})${r.named ? ', named by the job' : r.fontFailure ? ', font failure (not counted)' : ', NOT named by the job'}`);
+    if (r.fontFailure) lines.push(`Font failure after a second try: ${Object.entries(r.fontFailure).filter(([, f]) => f.length).map(([side, f]) => `${f.join(', ')} did not load on ${side}`).join('; ')}.`);
     if (r.error) lines.push(`Could not compare: ${r.error}`);
     if (r.status) lines.push(`Status: ${r.status}`);
     for (const v of r.views.filter((x) => x.changed)) {
@@ -314,7 +332,7 @@ async function pushRun() {
   const browser = await chromium.launch();
   const before = await openPage(browser, LIVE), after = await openPage(browser, BASE);
   const rows = [];
-  for (const p of list) {
+  const compareOnce = async (p) => {
     const row = { route: p.route, url: p.url, named: jobNames(p), views: [], error: null };
     try {
       const s1 = await load(before, LIVE, p.url);
@@ -323,10 +341,20 @@ async function pushRun() {
       const shotsA = []; for (const v of VIEWS) shotsA.push(await shoot(after, p.url, v));
       if (s1 !== s2) row.status = `live ${s1}, this build ${s2}`;
       for (let k = 0; k < VIEWS.length; k++) { const v = await judge(p, k, shotsB[k], shotsA[k]); if (row.status) v.changed = true; row.views.push(v); }
+      row.fonts = { live: [...new Set(shotsB.flatMap((x) => x.fontsFailed))], 'this build': [...new Set(shotsA.flatMap((x) => x.fontsFailed))] };
     } catch (e) { row.error = e.message.split('\n')[0]; }
     row.changed = !!row.error || row.views.some((v) => v.changed);
+    return row;
+  };
+  const fontsMissing = (row) => !!row.fonts && (row.fonts.live.length > 0 || row.fonts['this build'].length > 0);
+  for (const p of list) {
+    let row = await compareOnce(p);
+    // A web font that did not load on either side: the page is tried once more; still missing, with the same styles on
+    // both sides, the difference is labelled a font failure and does not stop the push.
+    if (row.changed && fontsMissing(row)) { console.log(`  ${p.url}: a web font did not load (${JSON.stringify(row.fonts)}); trying once more`); row = await compareOnce(p); }
+    if (row.changed && !row.error && !row.status && fontsMissing(row) && row.views.every(fontShaped)) row.fontFailure = row.fonts;
     rows.push(row);
-    console.log(`  ${row.named ? '(named) ' : ''}${p.url}: ${row.error ? `could not compare: ${row.error}` : row.changed ? row.views.filter((v) => v.changed).map((v) => `${v.view} ${v.kind ?? 'status'} (${v.pixels} px)`).join(', ') : 'same'}`);
+    console.log(`  ${row.named ? '(named) ' : ''}${p.url}: ${row.error ? `could not compare: ${row.error}` : row.changed ? row.views.filter((v) => v.changed).map((v) => `${v.view} ${v.kind ?? 'status'} (${v.pixels} px)`).join(', ') + (row.fontFailure ? '; font failure, not counted' : '') : 'same'}`);
   }
   await browser.close();
   const secs = Math.round((Date.now() - t0) / 1000);
@@ -366,17 +394,25 @@ async function nightlyRun() {
     const row = { route: p.route, url: p.url, named: jobNames(p), views: [], error: null };
     try {
       row.statusCode = await load(page, LIVE, p.url);
+      let shots = []; for (const v of VIEWS) shots.push(await shoot(page, p.url, v));
+      // A web font that did not load: the page is loaded once more (T1-VR font failures, Cowork 12 Nov 2026).
+      if (shots.some((x) => x.fontsFailed.length)) { console.log(`  ${p.url}: a web font did not load; loading once more`); await load(page, LIVE, p.url); shots = []; for (const v of VIEWS) shots.push(await shoot(page, p.url, v)); }
+      const failedTonight = [...new Set(shots.flatMap((x) => x.fontsFailed))];
+      let failedBefore = [];
       for (let k = 0; k < VIEWS.length; k++) {
-        const a = await shoot(page, p.url, VIEWS[k]);
+        const a = shots[k];
         fs.writeFileSync(path.join(tonight, fileName(p.url, VIEWS[k].name, 'png')), a.png);
-        fs.writeFileSync(path.join(tonight, fileName(p.url, VIEWS[k].name, 'json')), JSON.stringify({ styles: a.styles, text: a.text }));
+        fs.writeFileSync(path.join(tonight, fileName(p.url, VIEWS[k].name, 'json')), JSON.stringify({ styles: a.styles, text: a.text, fontsFailed: a.fontsFailed }));
         const prevPng = last && path.join(last, fileName(p.url, VIEWS[k].name, 'png'));
         if (!prevPng || !fs.existsSync(prevPng)) { row.views.push({ view: VIEWS[k].name, changed: false, first: true }); continue; }
         const prev = { png: fs.readFileSync(prevPng), ...JSON.parse(fs.readFileSync(prevPng.replace(/\.png$/, '.json'), 'utf8')) };
+        failedBefore = [...new Set([...failedBefore, ...(prev.fontsFailed ?? [])])];
         row.views.push(await judge(p, k, prev, a));
       }
+      if ((failedTonight.length || failedBefore.length) && row.views.every(fontShaped)) row.fontFailure = { 'the previous night': failedBefore, tonight: failedTonight };
     } catch (e) { row.error = e.message.split('\n')[0]; }
     row.changed = !!row.error || row.views.some((v) => v.changed);
+    if (!row.changed) delete row.fontFailure;
     rows.push(row);
     console.log(`  ${p.url}: ${row.error ? `could not load: ${row.error}` : row.changed ? row.views.filter((v) => v.changed).map((v) => `${v.view} ${v.kind} (${v.pixels} px)`).join(', ') : row.views.some((v) => v.first) ? 'first picture' : 'same'}`);
   }
