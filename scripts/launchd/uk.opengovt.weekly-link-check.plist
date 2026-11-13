@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- T1-GUARD step C4 (owner approved 13 Nov 2026; plan agreed by Cowork 13 Nov 2026, Claude outputs/audit/t1-guard/step-c-plan.md):
+     the weekly link check, Saturday nights at 23:30 by this Mac's clock (UK time), clear of the Sunday 23:17 backup and
+     Monday's 05:17 full checks. Outside source links are fetched one a second with retries; internal links are matched to
+     a route and a database record (read only), never by loading every page. About 30 minutes.
+     The job makes its own log folder, ~/opengovt-backup/link-check, and writes its log there (launchd itself opens no log
+     file; on 12 Nov a launchd log path it could not open stopped the daily check before it started).
+     Install (by the owner, after Terminal 1 reports C4 live): see Claude outputs/OWNER-ACTIONS.md.
+     Remove: launchctl bootout gui/$(id -u)/uk.opengovt.weekly-link-check -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>uk.opengovt.weekly-link-check</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string><string>-lc</string>
+    <string>mkdir -p "$HOME/opengovt-backup/link-check" &amp;&amp; cd /Users/johnnybot/peoples-chamber-frontend &amp;&amp; node scripts/launchd/weekly-link-check.mjs &gt;&gt; "$HOME/opengovt-backup/link-check/launchd.log" 2&gt;&amp;1</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Weekday</key><integer>6</integer><key>Hour</key><integer>23</integer><key>Minute</key><integer>30</integer></dict>
+</dict>
+</plist>
