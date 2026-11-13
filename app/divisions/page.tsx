@@ -1,3 +1,4 @@
+import { ARCHIVE_NOTE } from '@/lib/historic-archive';
 import type { Metadata } from 'next';
 import LastUpdated from '../components/LastUpdated';
 import Link from 'next/link';
@@ -91,9 +92,12 @@ export default async function DivisionsIndexPage({
       </header>
 
       <DivisionYearLinks years={await yearsP} />
+      {/* T1-A3 (3) (owner approved): the archive's own note under the year links, and the count says what it covers (the
+          divisions listed here, March 2016 on; the year pages before that are the Hansard archive). */}
+      <p style={{ fontSize: '15px', lineHeight: 1.6, maxWidth: '720px', color: INK, margin: '0 0 14px' }}>{ARCHIVE_NOTE}</p>
 
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '18px' }}>
-        {total.toLocaleString()} divisions{totalPages > 1 ? ` · page ${pageNum} of ${totalPages}` : ''}
+        {total.toLocaleString()} divisions since March 2016{totalPages > 1 ? ` · page ${pageNum} of ${totalPages}` : ''}
       </p>
 
       {rows.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No divisions found.</p>}
