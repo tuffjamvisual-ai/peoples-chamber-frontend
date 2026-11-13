@@ -3,12 +3,11 @@
 -- (line first in both, found exactly once, no note), with block and character counts.
 \set ON_ERROR_STOP on
 BEGIN READ ONLY;
-CREATE TEMP TABLE t1_upd (slug text PRIMARY KEY, line text NOT NULL, d text NOT NULL, note text NOT NULL);
-INSERT INTO t1_upd VALUES
+-- The three rows as an inline list (a read-only transaction cannot create a temp table).
+WITH t1_upd (slug, line, d, note) AS (VALUES
   ('k9m4qxw7n2', 'Updated 24 October 2026 with the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.', '2026-10-24', 'Added the Bicester and Barnham applications, the reduced Barnham capacity and the latest on Linton-on-Ouse.'),
   ('rm9x2qk7v4', 'Updated 24 October 2026. This report was first published on 12 July 2026, when Hollie Ridley had announced her departure and no successor had been chosen.', '2026-10-24', 'This report was first published on 12 July 2026, when Hollie Ridley had announced her departure and no successor had been chosen.'),
-  ('ten-worst-performing-councils-england', 'Updated 5 November 2026 with Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.', '2026-11-05', 'Added Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.');
-
+  ('ten-worst-performing-councils-england', 'Updated 5 November 2026 with Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.', '2026-11-05', 'Added Slough''s Ofsted inspection and the commissioners'' eighth report, the withdrawal of the Essex reorganisation decision, and government debt support for Woking and Thurrock.'))
 SELECT e.slug,
   CASE WHEN e.update_note = jsonb_build_array(jsonb_build_object('date', t.d, 'text', t.note)) AND e.body_json->0->>'text' IS DISTINCT FROM t.line
             AND position(t.line in e.body_text) = 0 THEN 'migrated'
