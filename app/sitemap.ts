@@ -257,9 +257,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Briefings live at /briefings/<slug> (their /editorials/ address only redirects there).
   const editorialEntries: MetadataRoute.Sitemap = (await allEditorials()).map((e) => ({
     url: `${SITE}/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
-    // The date the report's facts were last checked, else its publish date: the same rule as its NewsArticle
-    // dateModified (lib/JsonLd.tsx editorialModifiedIso).
-    ...(() => { const iso = editorialModifiedIso(e.lastChecked, e.publishedAt); return iso ? { lastModified: new Date(iso) } : {}; })(),
+    // The report's latest stored update date, else its publish date: the same rule as its NewsArticle dateModified
+    // (lib/JsonLd.tsx editorialModifiedIso; T1-UPDATED, 13 Nov 2026: never the facts checked date). Briefings: the publish date.
+    ...(() => { const iso = editorialModifiedIso(e.kind === 'briefing' ? null : e.updateNote, e.publishedAt); return iso ? { lastModified: new Date(iso) } : {}; })(),
     changeFrequency: 'monthly',
     priority: 0.9,
   }));

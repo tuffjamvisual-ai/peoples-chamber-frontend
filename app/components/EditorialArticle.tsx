@@ -16,6 +16,7 @@ import type { Block, EditorialEntry } from '@/lib/editorials/types';
 import ContentBadge from './ContentBadge';
 import ShareButton from './ShareButton';
 import { readingLabel } from '@/lib/reading-time';
+import { shownUpdateIso } from '@/lib/JsonLd';
 import { PHONE } from '@/lib/breakpoints';
 import { standfirstRepeatsOpening } from '@/lib/editorials/standfirst';
 import { phonePlan, type Chain } from '@/lib/editorials/phone-folds';
@@ -28,6 +29,8 @@ const ACCENT = '#7a1612';
 export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [], related, banner, sourcesHref }: { banner?: ReactNode; sourcesHref?: string; related?: RelatedLink[]; piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
   const sources = piece.evidence?.recordsReviewed ?? [];
   const showStandfirst = !!piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body);
+  // Briefings keep their publish date only (T1-UPDATED, Cowork 13 Nov 2026).
+  const updatedIso = basePath === '/briefings' ? null : shownUpdateIso(piece.updateNote, piece.publishedAt);
   return (
     <OpenGovShell pageStamp={stamp}>
       {banner}
@@ -85,7 +88,11 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
           {piece.publishedAt && (
             <div className="art-after" style={{ marginTop: '8px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-              {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {readingLabel(piece)}
+              {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {/* T1-UPDATED (owner approved 12 Nov, Cowork 13 Nov 2026): the latest stored update date, only when later than the
+                  publish date; the same on phones and wider screens. */}
+              {updatedIso && <> · Updated {new Date(updatedIso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}</>}
+              {' · '}{readingLabel(piece)}
             </div>
           )}
           {piece.opinion && (

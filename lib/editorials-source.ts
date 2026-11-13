@@ -28,7 +28,7 @@ type Row = Record<string, unknown>;
 export type EditorialListEntry = Pick<EditorialEntry, 'slug' | 'headline' | 'standfirst' | 'summary' | 'publishedAt' | 'kind' | 'kicker' | 'opinion' | 'relatedDeptSlugs'> & {
   words: number;              // headline and body words (lib/reading-time.ts entryWords), for "N min read"
   lede?: string;              // the first body block's text when it is a paragraph (the front page's lead piece)
-  lastChecked?: string;       // evidence.lastChecked (the sitemap's lastModified)
+  updateNote?: EditorialEntry['updateNote'];   // update_note, the stored updates (the sitemap's lastModified, T1-UPDATED)
   releasePaths?: string[];    // the GOV.UK releases the piece examines (lib/editorial-release-keys.ts)
   releaseTitles?: string[];
   councilSlugs?: string[];    // relatedCouncilSlugs and the councils its text links to (lib/editorials/council-slugs.ts), for council pages' Related links
@@ -78,7 +78,7 @@ function toListEntry(e: EditorialEntry): EditorialListEntry {
   for (const k of ['summary', 'kind', 'kicker', 'opinion', 'relatedDeptSlugs'] as const) if (e[k] !== undefined) out[k] = e[k];
   const b0 = e.body?.[0];
   if (b0 && b0.type === 'paragraph') out.lede = b0.text;
-  if (e.evidence?.lastChecked !== undefined) out.lastChecked = e.evidence.lastChecked;
+  if (e.updateNote?.length) out.updateNote = e.updateNote.map((u) => ({ date: u.date, text: '' }));   // dates only: the index stays small
   const keys = releaseKeysOf(e);
   if (keys.paths.length) out.releasePaths = keys.paths;
   if (keys.titles.length) out.releaseTitles = keys.titles;

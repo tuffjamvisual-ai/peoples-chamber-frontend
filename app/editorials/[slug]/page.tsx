@@ -84,7 +84,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
           description: piece.summary?.trim() ? piece.summary : (piece.standfirst ?? null),
           datePublished: piece.publishedAt ?? null,
           author: piece.authorByline ?? null,
-          lastChecked: piece.evidence?.lastChecked ?? null,
+          updateNote: piece.updateNote ?? null,
           mentions: mps,
         })}
       />

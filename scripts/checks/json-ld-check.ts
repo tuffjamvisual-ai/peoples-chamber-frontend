@@ -44,7 +44,7 @@ const cases: { name: string; data: unknown; needs: (j: Node) => string[] }[] = [
   },
   {
     name: 'NewsArticle with mentions',
-    data: buildEditorialArticle({ slug: 'abc', headline: TRICKY, description: TRICKY, datePublished: '2026-11-03', lastChecked: '3 November 2026', mentions: [{ memberId: 163, name: TRICKY }] }),
+    data: buildEditorialArticle({ slug: 'abc', headline: TRICKY, description: TRICKY, datePublished: '2026-11-03', updateNote: [{ date: '2026-11-05' }], mentions: [{ memberId: 163, name: TRICKY }] }),
     needs: (j) => [
       ...(j.headline && j.datePublished && j.dateModified ? [] : ['headline or dates']),
       ...((j.author as Node)?.name === 'opengovt' ? [] : ['author']),

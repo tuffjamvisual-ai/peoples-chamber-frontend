@@ -108,11 +108,30 @@ export function ukDateIso(raw: string | null | undefined): string | null {
   return `${m[3]}-${String(month + 1).padStart(2, '0')}-${m[1].padStart(2, '0')}T00:00:00Z`;
 }
 
-// When a report last changed, as an ISO timestamp: the date its facts were last checked (evidence.lastChecked, as
-// written), or else its publish date; null if it has neither. The one rule for both the NewsArticle dateModified and
-// the sitemap's <lastmod> (24 Oct 2026), so the two can never disagree.
-export function editorialModifiedIso(lastChecked: string | null | undefined, publishedAt: string | null | undefined): string | null {
-  return ukDateIso(lastChecked) ?? (publishedAt ? editorialDateIso(publishedAt) : null);
+// The latest stored update date of a report (editorials.update_note, [{ date: 'YYYY-MM-DD', text }]), as an ISO
+// timestamp; null if it has none. Only a true stored date: never the facts checked date, a deploy or an import time.
+export function latestUpdateIso(updateNote: { date: string }[] | null | undefined): string | null {
+  const isos = (updateNote ?? []).map((u) => ukDateIso(u?.date)).filter((d): d is string => !!d).sort();
+  return isos.length ? isos[isos.length - 1] : null;
+}
+
+// When a report last changed, as an ISO timestamp: its latest update date (latestUpdateIso), or else its publish date;
+// null if it has neither. The one rule for both the NewsArticle dateModified and the sitemap's <lastmod>, so the two can
+// never disagree. T1-UPDATED (Cowork, 13 Nov 2026, accuracy): the facts checked date is no longer used for either, as
+// checking a report's facts does not change it.
+export function editorialModifiedIso(updateNote: { date: string }[] | null | undefined, publishedAt: string | null | undefined): string | null {
+  const published = publishedAt ? editorialDateIso(publishedAt) : null;
+  const updated = latestUpdateIso(updateNote);
+  if (updated && published) return updated > published ? updated : published;
+  return updated ?? published;
+}
+
+// The update date to show next to the published date ("Updated 5 November 2026"): the latest update date, only when it
+// is later than the publish date (T1-UPDATED, Cowork 13 Nov 2026: not when the update was made the day it was published).
+export function shownUpdateIso(updateNote: { date: string }[] | null | undefined, publishedAt: string | null | undefined): string | null {
+  const updated = latestUpdateIso(updateNote);
+  const published = publishedAt ? editorialDateIso(publishedAt) : null;
+  return updated && published && updated.slice(0, 10) > published.slice(0, 10) ? updated : null;
 }
 
 // NewsArticle for editorial/investigation pages — the content most likely to
@@ -123,20 +142,20 @@ export function buildEditorialArticle(opts: {
   description?: string | null;
   datePublished?: string | null;
   author?: string | null;
-  /** evidence.lastChecked, as written ("23 October 2026" or ISO); dateModified falls back to datePublished. */
-  lastChecked?: string | null;
+  /** The report's stored updates (update_note); dateModified is the latest, or datePublished (editorialModifiedIso). */
+  updateNote?: { date: string }[] | null;
   /** The MPs the piece names (relatedMemberIds), each with their opengovt page (owner's brief, 3 Nov 2026). */
   mentions?: { memberId: number; name: string }[];
 }) {
   const published = opts.datePublished ? editorialDateIso(opts.datePublished) : null;
-  const modified = editorialModifiedIso(opts.lastChecked, opts.datePublished);
+  const modified = editorialModifiedIso(opts.updateNote, opts.datePublished);
   return {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: opts.headline,
     ...(opts.description ? { description: opts.description } : {}),
     ...(published ? { datePublished: published } : {}),
-    // dateModified (23 Oct 2026): the date the piece's facts were last checked, or its publish date.
+    // dateModified (T1-UPDATED, 13 Nov 2026): the piece's latest stored update date, or its publish date.
     ...(modified ? { dateModified: modified } : {}),
     // The piece's own share image (app/editorials/[slug]/opengraph-image.tsx).
     image: { '@type': 'ImageObject', url: `${SITE}/editorials/${opts.slug}/opengraph-image`, width: 1200, height: 630 },
