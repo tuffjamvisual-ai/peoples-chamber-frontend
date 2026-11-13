@@ -28,10 +28,15 @@ export default async function CouncilPanel({ params }: { params: Promise<{ slug:
   // own, from the data cache, so rendering the sections below repeats none of them against the database.
   for (const p of parts) await p.read();
   const sources = [...panelSources()];
+  // The paper background (Cowork 13 Nov 2026, ENTRY 9, proposal 1): opened at its own address (a shared link, a crawler),
+  // the panel had no shell, so its ink coloured text sat on the dark page. The council page's tab takes only the inside of
+  // #council-panel-body (CouncilTabs), so the tab is unchanged.
   return (
+    <div style={{ background: '#e1c495', minHeight: '100vh', padding: '0 8px', boxSizing: 'border-box' }}>
     <div id="council-panel-body">
       {parts.map((p, i) => <Fragment key={i}>{p.node}</Fragment>)}
       <PageSources sources={sources} marginTop="8px" />
+    </div>
     </div>
   );
 }
