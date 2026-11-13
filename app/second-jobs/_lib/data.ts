@@ -4,6 +4,7 @@
 
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
+import { timedClient } from '@/lib/page-reads';
 import { displayMpName } from '@/lib/mp-name';
 
 // Mapping copied from app/parties/page.tsx so the two surfaces use
@@ -394,14 +395,17 @@ export const currentPartySlug = cache(async (memberId: number): Promise<string |
   return data ? partyToSlug((data as { party: string | null }).party) : null;
 });
 
+// Read through a one hour cache (T1-GUARD, owner approved 13 Nov 2026): the MP page reads ?page= for its DataList, so it is drawn on
+// each visit; the database is read at most once an hour for each MP.
 export const loadMember = cache(async (slug: string, memberId: number): Promise<MpDetail | null> => {
+  const db = timedClient(3600);
   const [{ data: mp, error: mpError }, { data: rows, error: rowsError }, { data: summary, error: summaryError }] = await Promise.all([
-    supabase.from('mps').select('member_id, display_name, name, constituency, party, party_colour')
+    db.from('mps').select('member_id, display_name, name, constituency, party, party_colour')
       .eq('current_member', true).eq('member_id', memberId).maybeSingle(),
-    supabase.from('mp_registered_interests').select('member_id, interest_text, child_interests')
+    db.from('mp_registered_interests').select('member_id, interest_text, child_interests')
       .eq('member_id', memberId).eq('category_name', '1. Employment and earnings').eq('is_current', true)
       .order('id', { ascending: true }).limit(1000),
-    supabase.from('mp_outside_earnings_summary').select('member_id, total_extracted, claim_count, updated_at')
+    db.from('mp_outside_earnings_summary').select('member_id, total_extracted, claim_count, updated_at')
       .eq('member_id', memberId).maybeSingle(),
   ]);
   // A failed read throws (the last good page stays up) rather than showing an empty record.

@@ -236,7 +236,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             </h2>
             {/* Phones (step 5, 10 Nov 2026; the page was 8,272px): each theme's manifesto position and shift folded under its
                 heading. From 640px up, as before. */}
-            <SubFold label={p.current_shift ? 'Manifesto and shift since 2024' : 'Manifesto position'}>
+            <SubFold label={p.current_shift ? 'Manifesto and shift since 2024' : 'Manifesto position'} tablets>
             <div
               style={{
                 fontFamily: 'var(--font-special-elite), monospace',

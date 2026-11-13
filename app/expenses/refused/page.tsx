@@ -153,6 +153,8 @@ export default async function RefusedExpensesPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By financial year</h2>
+        {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): folded, as the MP tables below are. */}
+        <NoJsFold id="rr-years-f" always tablets label={`The ${years.length.toLocaleString('en-GB')} years`}>
         <div className="rr-scroll"><ShowAll id="refused-years" count={(years).length}><table style={tableStyle}>
           <thead>
             <tr style={headerRow}>
@@ -177,10 +179,12 @@ export default async function RefusedExpensesPage() {
             ))}
           </tbody>
         </table></ShowAll></div>
+        </NoJsFold>
       </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Why IPSA refused</h2>
+        <NoJsFold id="rr-reasons-f" always tablets label={`The ${reasons.length.toLocaleString('en-GB')} reasons`}>
         <div className="rr-scroll"><ShowAll id="refused-reasons" count={(reasons).length}><table style={tableStyle}>
           <thead>
             <tr style={headerRow}>
@@ -199,12 +203,13 @@ export default async function RefusedExpensesPage() {
             ))}
           </tbody>
         </table></ShowAll></div>
+        </NoJsFold>
       </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Refused, by MP</h2>
         {/* Both by-MP tables folded on phones (step 5, 10 Nov 2026: the page was 4,451px). */}
-        <NoJsFold id="rr-ref-f" always label={`The ${refusedAgg.length.toLocaleString('en-GB')} MPs`}>
+        <NoJsFold id="rr-ref-f" always tablets label={`The ${refusedAgg.length.toLocaleString('en-GB')} MPs`}>
         <MpTable rows={refusedAgg} mpById={mpById} totalLabel="Total refused" />
         </NoJsFold>
       </section>
@@ -214,7 +219,7 @@ export default async function RefusedExpensesPage() {
         <p style={{ fontSize: '15px', marginBottom: '12px', maxWidth: '60ch' }}>
           Repaid &ne; refused: a repayment is money the MP did receive but then returned, either voluntarily or after IPSA review.
         </p>
-        <NoJsFold id="rr-rep-f" always label={`The ${repaidAgg.length.toLocaleString('en-GB')} MPs`}>
+        <NoJsFold id="rr-rep-f" always tablets label={`The ${repaidAgg.length.toLocaleString('en-GB')} MPs`}>
         <MpTable rows={repaidAgg} mpById={mpById} totalLabel="Total repaid" />
         </NoJsFold>
       </section>

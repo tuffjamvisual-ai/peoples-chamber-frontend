@@ -10,6 +10,8 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import { currentPartySlug, fmtAmount, fmtMoney, isOneOff, loadMember, parseParent, parsePayment, slugToLabel } from '../../_lib/data';
 import { displayMpName } from '@/lib/mp-name';
+import DataList, { dataListPage } from '@/app/components/DataList';
+import { SubFold } from '@/app/components/PhoneFolds';
 
 export function generateStaticParams() { return []; }
 export const revalidate = 86400;
@@ -43,8 +45,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function MpSecondJobsDetail({ params }: { params: Promise<{ slug: string; memberId: string }> }) {
+export default async function MpSecondJobsDetail({ params, searchParams }: { params: Promise<{ slug: string; memberId: string }>; searchParams: Promise<{ page?: string | string[] }> }) {
   const { slug, memberId } = await params;
+  const page = dataListPage((await searchParams).page);
   const memberIdNum = Number(memberId);
   if (!Number.isFinite(memberIdNum)) notFound();
 
@@ -116,6 +119,9 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
           Every registered role and payment
         </h2>
 
+        {/* DataList (T1-GUARD, owner approved 13 Nov 2026): on phones and tablets the first 3 roles, then 'Show N more', 20 a page;
+            from 1,024px up every role, as before. */}
+        <DataList id="sj-roles" count={item.rows.length} page={page} href={(n) => (n > 1 ? `/second-jobs/${slug}/${memberIdNum}?page=${n}` : `/second-jobs/${slug}/${memberIdNum}`)} label="roles">
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {item.rows.map((row, ri) => {
             const parsed = parseParent(row.interest_text);
@@ -146,6 +152,8 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
                   </div>
                 )}
                 {payments.length > 0 ? (
+                  // Phones (T1-GUARD, owner approved 13 Nov 2026): each role's payments fold under 'Payments (N)', nothing cut.
+                  <SubFold label={`Payments (${payments.length})`}>
                   <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', borderTop: `1px dotted ${INK_HAIRLINE}` }}>
                     {payments.map((p, pi) => (
                       <li key={pi} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '14px', padding: '8px 0', borderBottom: `1px dotted ${INK_HAIRLINE}`, alignItems: 'baseline', fontFamily: MONO, fontSize: '15px', color: INK }}>
@@ -170,6 +178,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
                       </li>
                     )}
                   </ul>
+                  </SubFold>
                 ) : (
                   <p style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT, fontStyle: 'italic', margin: '6px 0 0' }}>
                     Role registered without an itemised payment. Salaried or ongoing arrangement.
@@ -179,6 +188,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
             );
           })}
         </ul>
+        </DataList>
 
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’

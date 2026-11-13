@@ -7,6 +7,7 @@
 import PageSources from '@/app/components/PageSources';
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { PHONE } from '@/lib/breakpoints';
+import { SubFold } from '@/app/components/PhoneFolds';
 import CouncilSearch from '../../components/CouncilSearch';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
@@ -70,7 +71,8 @@ export default async function RoadConditionPage() {
           to each road category, then the road categories with their council tables, then the national figures and the note
           that the series has ended, "What the figures mean" (a closed fold on phones) and "About these figures". CSS order,
           the same with JavaScript off; nothing is removed. */}
-      <style>{`.rc-flow { display: flex; flex-direction: column; } .rc-flow > .rc-type { order: 1; } .rc-flow > .rc-nat { order: 2; } .rc-flow > .rc-mean { order: 3; } .rc-flow > .rc-about { order: 4; } .rc-find { max-width: 46em; margin: 0 0 4px; } .rc-jump { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 4px 0 0; font-family: ${MONO}; font-size: 15px; } .rc-jump a { display: inline-flex; align-items: center; min-height: 44px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; } .rc-type { scroll-margin-top: 16px; } @media ${PHONE} { .rc-find { margin-bottom: 8px; } }`}</style>
+      <style>{`.rc-flow { display: flex; flex-direction: column; } .rc-flow > .rc-type { order: 1; } .rc-flow > .rc-nat { order: 2; } .rc-flow > .rc-mean { order: 3; } .rc-flow > .rc-about { order: 4; } .rc-find { max-width: 46em; margin: 0 0 4px; } .rc-jump { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 4px 0 0; font-family: ${MONO}; font-size: 15px; } .rc-jump a { display: inline-flex; align-items: center; min-height: 44px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; } .rc-type { scroll-margin-top: 16px; } @media ${PHONE} { .rc-find { margin-bottom: 8px; } } @media (min-width: 768px) and (max-width: 1023.98px) { .rc-h2 { display: none; } }`}</style>
+      {/* Tablets (T1-GUARD, owner approved 13 Nov 2026): the sections fold up to 1,023px, as on phones, and the fold names each one. */}
       <article className="rc-flow" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '16px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
@@ -107,14 +109,19 @@ export default async function RoadConditionPage() {
             })}
           </ul>
         )}
-        <p className="rc-nat" style={para}>{ENGLAND_NOTE}</p>
-        <p className="rc-nat" style={{ ...para, borderLeft: `3px solid ${ACCENT}`, paddingLeft: '12px' }}>
+        {/* Phones (T1-GUARD, owner approved 13 Nov 2026: 2,500px at 320): the two notes on England's figures in a fold, nothing cut. */}
+        <div className="rc-nat">
+        <SubFold label="About these England figures">
+        <p style={para}>{ENGLAND_NOTE}</p>
+        <p style={{ ...para, borderLeft: `3px solid ${ACCENT}`, paddingLeft: '12px' }}>
           <strong>The last year of this series.</strong> {LAST_YEAR_NOTE} (DfT, Road conditions in England to March 2026, in Sources at the end of the page.)
         </p>
+        </SubFold>
+        </div>
 
         <section className="rc-mean" style={section}>
           <h2 className="rc-h2" style={h2}>What the figures mean</h2>
-          <NoJsFold id="rc-mean" always label="What the figures mean">
+          <NoJsFold id="rc-mean" always tablets label="What the figures mean">
           {EXPLAINER.map((p) => <p key={p.slice(0, 20)} style={para}>{p}</p>)}
           <p style={para}>This is from the notes to DfT&rsquo;s road condition data tables (in Sources at the end of the page).</p>
         </NoJsFold>
@@ -131,7 +138,7 @@ export default async function RoadConditionPage() {
           return (
             <section key={t.key} id={`road-${t.key}`} className="rc-type" style={section}>
               <h2 className="rc-h2" style={h2}>{t.label}</h2>
-              <NoJsFold id={`rc-f-${t.key}`} always label={t.label}>
+              <NoJsFold id={`rc-f-${t.key}`} always tablets label={t.label}>
               <NoJsPager id={`rc-${t.key}`} count={(ranked).length} rows="> tbody > tr" size={25}>
               <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
                 <thead>
@@ -180,7 +187,7 @@ export default async function RoadConditionPage() {
 
         <section className="rc-about" style={section}>
           <h2 className="rc-h2" style={h2}>About these figures</h2>
-          <NoJsFold id="rc-about" always label="About these figures">
+          <NoJsFold id="rc-about" always tablets label="About these figures">
           <p style={para}>
             Figures are collected from highway authorities each year, and councils can revise the year before, so earlier years may change (DfT). Where DfT gives no figure it uses shorthand: {Object.values(SYMBOL_MEANING).join('; ')}.
           </p>

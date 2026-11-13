@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import Unavailable from '@/app/components/Unavailable';
+import { phoneUpTo } from '@/lib/breakpoints';
+import { SubFold } from '@/app/components/PhoneFolds';
 
 // Commons debates index. Metadata is held in our `debates` table (synced daily
 // from Hansard); the full transcript is rendered in-house on /debates/[extId].
@@ -56,6 +58,8 @@ export default async function DebatesPage({
   const total = count || 0;
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
+  // Each debate's place on the page, newest first, for the phone and tablet 'newest 3' rule below.
+  const rank = new Map(rows.map((r, i) => [r, i] as const));
   // Group the current page by sitting date for date headers.
   const byDate: { date: string; items: typeof rows }[] = [];
   for (const r of rows) {
@@ -115,9 +119,12 @@ export default async function DebatesPage({
       </header>
 
       <section style={{ border: `1px solid ${HAIRLINE}`, padding: '18px 20px', marginBottom: '24px', maxWidth: '760px', background: 'rgba(122,22,18,0.03)' }}>
-        <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.14em', textTransform: 'uppercase', color: ACCENT, marginBottom: '10px' }}>
+        <div className="deb-about-h" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.14em', textTransform: 'uppercase', color: ACCENT, marginBottom: '10px' }}>
           About these records
         </div>
+        {/* Phones (T1-GUARD, owner approved 13 Nov 2026): the four paragraphs fold under the box's name, whose own heading is then hidden. */}
+        <style>{`@media ${phoneUpTo(767.98)} { .deb-about-h { display: none; } }`}</style>
+        <SubFold label="About these records">
         <p style={{ fontSize: '15px', lineHeight: 1.7, color: INK, marginBottom: '12px' }}>
           These are the official records of every debate in the House of Commons since the July 2024 general election. Each one is pulled from the parliamentary record and published here in full. Nothing is summarised and nothing links off this site.
         </p>
@@ -130,6 +137,7 @@ export default async function DebatesPage({
         <p style={{ fontSize: '15px', lineHeight: 1.7, color: INK, margin: 0 }}>
           The record for a sitting is usually published the same evening, so a debate held today may show its transcript shortly after it finishes.
         </p>
+        </SubFold>
       </section>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
@@ -157,13 +165,18 @@ export default async function DebatesPage({
         <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No debates found.</p>
       )}
 
+      {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026, growing lists rule): the newest 3 debates of this page, then
+          'Show N more' for the rest of it (a native details, no JavaScript needed); Previous and Next as before. From 1,024px up
+          every debate on the page shows, as before. */}
+      <style>{`@media ${phoneUpTo(1023.98)} { .deb-box:has(> .deb-show:not([open])) .deb-later { display: none !important; } .deb-show { display: block !important; margin: 10px 0 6px; } .deb-show > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .deb-show > summary::-webkit-details-marker { display: none; } .deb-show[open] { display: none !important; } }`}</style>
+      <div className="deb-box">
       {byDate.map((group) => (
-        <section key={group.date} style={{ marginBottom: '28px' }}>
+        <section key={group.date} className={rank.get(group.items[0]) !== undefined && rank.get(group.items[0])! >= 3 ? 'deb-later' : undefined} style={{ marginBottom: '28px' }}>
           <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '8px' }}>
             {fmtDate(group.date)}
           </h2>
           {group.items.map((d) => (
-            <div key={d.hansard_ext_id} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
+            <div key={d.hansard_ext_id} className={rank.get(d)! >= 3 ? 'deb-later' : undefined} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <Link href={`/debates/${String(d.hansard_ext_id).toUpperCase()}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK }}>
                 <div style={{ fontSize: 'clamp(15px, 1.8vw, 19px)', fontWeight: 'bold', lineHeight: 1.3 }}>{d.title}</div>
                 {d.summary && <div style={{ fontSize: '15px', color: INK, marginTop: '4px', lineHeight: 1.5 }}>{d.summary}</div>}
@@ -178,6 +191,8 @@ export default async function DebatesPage({
           ))}
         </section>
       ))}
+      {rows.length > 3 && <details className="deb-show" style={{ display: 'none' }}><summary>Show {(rows.length - 3).toLocaleString('en-GB')} more</summary></details>}
+      </div>
 
       {totalPages > 1 && (
         <nav aria-label="Pagination" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '32px', fontFamily: MONO, fontSize: '15px' }}>

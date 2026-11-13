@@ -7,9 +7,10 @@ import { useState, type ReactNode } from 'react';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { ShowAll } from '@/app/components/NoJsPager';
 
+// Phones and tablets (T1-GUARD, owner approved 13 Nov 2026: tablets up to 1,023px get the picker; the full grid was 23,216px at 768).
 const CSS = `
 .mf-controls, .mf-policy { display: none; }
-@media ${phoneUpTo(767.98)} {
+@media ${phoneUpTo(1023.98)} {
   .mf-controls { display: block; margin-bottom: 18px; }
   .mf-root[data-mode="policy"] .mf-policy { display: block; }
   .mf-root[data-mode="policy"] .mf-party { display: none; }

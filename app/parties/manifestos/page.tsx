@@ -14,7 +14,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ManifestoPicker, { type ThemeRow } from './ManifestoPicker';
-import { PHONE } from '@/lib/breakpoints';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 export const revalidate = 3600;
 
@@ -172,7 +172,8 @@ export default async function PartiesIndex() {
       {/* Phones (UX2m, owner approved through Cowork, 10 Nov 2026): the policy selector straight after the title, with the colour
           key beside the results (ManifestoPicker); the introduction follows the comparison. CSS order, the same with
           JavaScript off. From 640px up, as before. */}
-      <style>{`@media ${PHONE} { .mf-flow { display: flex; flex-direction: column; } .mf-flow > header { margin-bottom: 12px !important; padding-bottom: 8px !important; } .mf-flow .mf-modes { margin-bottom: 8px; } .mf-flow > .mf-intro { order: 1; margin-top: 24px !important; } }`}</style>
+      {/* Phones and tablets (T1-GUARD): up to 1,023px, with the picker. */}
+      <style>{`@media ${phoneUpTo(1023.98)} { .mf-flow { display: flex; flex-direction: column; } .mf-flow > header { margin-bottom: 12px !important; padding-bottom: 8px !important; } .mf-flow .mf-modes { margin-bottom: 8px; } .mf-flow > .mf-intro { order: 1; margin-top: 24px !important; } }`}</style>
       <article
         className="mf-flow"
         style={{

@@ -27,8 +27,10 @@ export type DirectoryEntry = { name: string; href: string; desc?: string | null;
 // id of its no JavaScript fold on phones; label: shown in its heading and its box.
 export type DirectoryGroup = { key: string; id: string; fold: string; label: string; entries: DirectoryEntry[]; open?: boolean };
 
+// Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): sections fold under their headings up to 1,023px (the Directory
+// was 16,707px at 768).
 const phoneCss = (list: string) => `.dir-h-btn { display: none; }
-@media ${phoneUpTo(767.98)} {
+@media ${phoneUpTo(1023.98)} {
   .dir-letters { align-items: center; }
   .dir-entry { padding: 0 0 9px !important; }
   .dir-entry p { margin: 0 !important; }
