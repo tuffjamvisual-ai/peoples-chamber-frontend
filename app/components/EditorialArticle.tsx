@@ -205,7 +205,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
     case 'paragraph':
       return <p key={i} style={{ marginBottom: '20px' }}>{withLinks(block.text)}</p>;
     case 'list':
-      return <ul key={i} style={{ margin: '0 0 20px', paddingLeft: '1.4em', listStyle: 'disc' }}>{block.items.map((t, j) => <li key={j} style={{ marginBottom: '8px' }}>{withLinks(t)}</li>)}</ul>;
+      return <ul key={i} style={{ margin: '0 0 20px', paddingLeft: '1.4em', listStyle: 'disc' }}>{block.items.map((t, j) => <li key={j} style={{ marginBottom: '4px' }}>{withLinks(t)}</li>)}</ul>;
     case 'statBlock':
       return <KeyStat key={i} stat={block.stat} label={block.label} context={block.context} />;
     case 'dataBlock':
@@ -213,7 +213,9 @@ function renderBlock(block: Block, i: number): React.ReactNode {
     case 'heading': {
       if (block.level === 2) {
         return (
-          <h2 key={i} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 'bold', letterSpacing: '0.01em', marginTop: '36px', marginBottom: '16px', borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '8px' }}>
+          // T1-READ (owner approved 13 Nov 2026): a section heading inside a report is a quiet step, not a second title: about
+          // 18px on phones rising to 22px from 1,024px, 24px above, 8px below, no rule. The page title is unchanged.
+          <h2 key={i} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(18px, calc(15.2px + 0.662vw), 22px)', lineHeight: 1.3, fontWeight: 'bold', letterSpacing: '0.01em', marginTop: '24px', marginBottom: '8px' }}>
             {block.text}
           </h2>
         );
