@@ -3,8 +3,8 @@
 // 2026-11-15.html, after the pattern of a one-stream political newsletter).
 //
 // ONE STREAM OF TEXT: plain paper background, 680px at most, one column; no cards, boxes, tabs, borders or shaded
-// panels anywhere. Only the stamped OPENGOVT logo at the top (the site's logo with its paper made transparent,
-// /newsletter-logo.png). Then "By <NAME>" (the sign-off's name) and "Tips, corrections and questions: contact@opengovt.uk".
+// panels anywhere. Only the stamped OPENGOVT logo at the top (the site's logo with its paper made transparent and its
+// border thickened, /newsletter-logo.png, 450 by 128 for sharpness; shown 225px wide, 185px on phones, ENTRY 74, 75). Then "By <NAME>" (the sign-off's name) and "Tips, corrections and questions: contact@opengovt.uk".
 // Body text 16px Georgia, line height 1.6; section headings 16px bold capitals with space above; links underlined in
 // the site red; the receipt quote indented 18px in Courier New 15px; footer 13px, muted. Table layout and inline
 // styles for Gmail, Apple Mail and Outlook (a fixed 680px table for Outlook, which ignores max-width); colours set on
@@ -102,7 +102,7 @@ export function issueHtml(issue: Issue, people: Person[] = []): string {
   const [name = '', ...signRest] = signoff.split('\n').map((l) => l.trim());
 
   const out: string[] = [];
-  out.push(`<p style="margin:0 0 10px"><img src="${LOGO_URL}" width="180" height="52" alt="opengovt" style="display:block;border:0;width:180px;height:52px;color:${ACCENT};font-family:${MONO};font-weight:bold;font-size:20px"></p>`);
+  out.push(`<p style="margin:0 0 10px"><img class="ogw-logo" src="${LOGO_URL}" width="225" height="64" alt="opengovt" style="display:block;border:0;width:225px;height:64px;color:${ACCENT};font-family:${MONO};font-weight:bold;font-size:20px"></p>`);
   if (name) out.push(`<p style="font-family:${SERIF};font-size:14px;color:${INK};margin:0 0 4px">By <strong>${esc(name.toUpperCase())}</strong></p>`);
   out.push(`<p style="${SMALL};margin:0 0 20px">Tips, corrections and questions: <a class="ogw-il" href="mailto:${CONTACT}" style="color:${ACCENT};text-decoration:underline">${CONTACT}</a></p>`);
 
@@ -142,7 +142,7 @@ export function issueHtml(issue: Issue, people: Person[] = []): string {
 
   const preheader = issue.preview ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${esc(issue.preview)}</div>` : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${esc(issue.subject)}</title><style>
-@media only screen and (max-width:599px){td.ogw-ph{display:none!important;width:0!important;padding:0!important}}
+@media only screen and (max-width:599px){td.ogw-ph{display:none!important;width:0!important;padding:0!important}img.ogw-logo{width:185px!important;height:53px!important}}
 @media only screen and (max-width:600px){a.ogw-il{display:inline-block!important;padding:10px 0!important;line-height:1.3!important}}
 </style></head><body style="margin:0;padding:0;background:${PAPER}" bgcolor="${PAPER}">${preheader}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="background:${PAPER}"><tr><td align="center">
 <!--[if mso]><table role="presentation" width="680" align="center" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
