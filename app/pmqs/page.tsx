@@ -3,18 +3,26 @@ import PageSources from '@/app/components/PageSources';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import PmqsAttendance, { PMQS_ATTENDANCE_SOURCE } from './PmqsAttendance';
-import EverySession from './EverySession';
+import EverySession, { type PmqsFilters } from './EverySession';
 import { pmqsSet } from '@/lib/pmqs';
 
-export const metadata: Metadata = {
-  title: { absolute: "Prime Minister's Questions: every session and attendance" },
-  description: "Prime Minister's Questions: every session since 1961, and the Prime Minister's attendance since 1979.",
-  alternates: { canonical: '/pmqs' },
-};
+// A search or filter (?q=, ?pm=, ?year=, ?page=) is the same page narrowed: not indexed on its own, the canonical is /pmqs.
+export async function generateMetadata({ searchParams }: { searchParams: Promise<PmqsFilters> }): Promise<Metadata> {
+  const sp = await searchParams;
+  const narrowed = !!(sp.q || sp.pm || sp.year || sp.page);
+  return {
+    title: { absolute: "Prime Minister's Questions: every session and attendance" },
+    description: "Prime Minister's Questions: every session since 1961, and the Prime Minister's attendance since 1979.",
+    alternates: { canonical: '/pmqs' },
+    ...(narrowed ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 export const revalidate = 3600;
 
-export default async function PmqsPage() {
+export default async function PmqsPage({ searchParams }: { searchParams: Promise<PmqsFilters> }) {
+  const sp = await searchParams;
+  const filters: PmqsFilters = Object.fromEntries((['q', 'pm', 'year', 'page'] as const).map((k) => [k, typeof sp[k] === 'string' ? sp[k] : undefined]));
   const set = await pmqsSet();
   return (
     <OpenGovShell pageStamp="PMQs">
@@ -22,7 +30,7 @@ export default async function PmqsPage() {
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 24px' }}>
         Prime Minister&rsquo;s Questions
       </h1>
-      <EverySession set={set} />
+      <EverySession set={set} filters={filters} />
       <PmqsAttendance />
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
       <PageSources sources={[PMQS_ATTENDANCE_SOURCE]} />

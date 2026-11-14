@@ -1,17 +1,25 @@
-import MoreChain from '../components/MoreChain';
-import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem } from '../components/NoJsPager';
+import Link from 'next/link';
+import NoJsPager, { NoJsFold } from '../components/NoJsPager';
+import Pagination from '../components/Pagination';
 import { SubFold } from '../components/PhoneFolds';
 import { phoneUpTo } from '@/lib/breakpoints';
 import PreFixedQuestions from './PreFixedQuestions';
 import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel, type ListedSession } from '@/lib/pmqs-archive';
+import { cleanWords, datePrefix, pmSlug, sessionsMatching, ROW_CAP } from '@/lib/pmqs-search';
 import type { PmqsSet } from '@/lib/pmqs';
 
 const INK = '#14100d';
+const ACCENT = '#7a1612';
+const PER_PAGE = 20;   // sessions on a page; on phones and tablets the newest 3, then "Show 17 more sessions"
 
-// Every session in one list, 1961 to now (owner, 5 Nov 2026): the current sessions from the Hansard tables and the archive,
-// a fold for each Prime Minister, newest first, the newest open, and inside it a fold for each year with 25 sessions at a
-// time. Below it, our count against the Commons Library's. All native details, so it needs no JavaScript.
-export default async function EverySession({ set }: { set: PmqsSet }) {
+export type PmqsFilters = { q?: string; pm?: string; year?: string; page?: string };
+
+// Every session, 1961 to now (owner, 5 Nov 2026), found with a search box and Prime Minister and year filters (T2 ENTRY 1,
+// Cowork 14 Nov 2026, from T1-AUDIT2): the page carried all 3,000 and more sessions in folds by Prime Minister and year; it
+// now carries one page of 20, newest first, and the address holds the choice (?q=, ?pm=, ?year=, ?page=), so a search can
+// be shared and Back returns to it. Every session keeps its own address, /pmqs/<date>. A plain form: no JavaScript needed.
+// Below it, our count against the Commons Library's.
+export default async function EverySession({ set, filters }: { set: PmqsSet; filters: PmqsFilters }) {
   const [archive, totals] = await Promise.all([archiveSessions(), libraryTotals()]);
   const sessions: ListedSession[] = [
     ...set.sessions.map((s) => ({ date: s.date, answeredBy: s.answeredBy.name })),
@@ -23,32 +31,88 @@ export default async function EverySession({ set }: { set: PmqsSet }) {
   // comes from the Hansard tables, so the note says what the Library lists, as for the others, where it differs.
   const noteFor = (pm: string, stored: string | null, library: number | null) =>
     stored?.includes('cut-off') ? (library !== null && counted.get(pm) !== library ? `Commons Library lists ${library}` : null) : stored;
+
+  // The choice in the address. An unknown Prime Minister or year is ignored, as if not chosen.
+  const words = cleanWords(filters.q ?? '');
+  const pmGroup = groups.find((g) => pmSlug(g.pm) === filters.pm) ?? null;
+  const years = [...new Set(sessions.map((s) => s.date.slice(0, 4)))];
+  const year = years.includes(filters.year ?? '') ? filters.year! : null;
+  const onDate = words ? datePrefix(words) : null;
+  // Who answered and who led for the Opposition are in the list itself; other names and the questions are read.
+  const byName = new Set<string>();
+  if (words && !onDate) {
+    const w = words.toLowerCase();
+    for (const s of set.sessions) if (s.answeredBy.name.toLowerCase().includes(w) || s.opposition?.name.toLowerCase().includes(w)) byName.add(s.date);
+    for (const s of sessions) if (s.answeredBy?.toLowerCase().includes(w)) byName.add(s.date);
+  }
+  const text = words && !onDate ? await sessionsMatching(words, set) : null;
+  const hit = new Set([...byName, ...(text?.dates ?? [])]);
+  const pmDates = pmGroup ? new Set(pmGroup.years.flatMap((y) => y.sessions.map((s) => s.date))) : null;
+  const found = sessions.filter((s) =>
+    (!pmDates || pmDates.has(s.date)) && (!year || s.date.startsWith(year)) &&
+    (!words || (onDate ? s.date.startsWith(onDate) : hit.has(s.date))));
+  const pages = Math.max(1, Math.ceil(found.length / PER_PAGE));
+  const page = Math.min(pages, Math.max(1, parseInt(filters.page ?? '1', 10) || 1));
+  const shown = found.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const chosen = !!(words || pmGroup || year);
+  const qs = [words && `q=${encodeURIComponent(words)}`, pmGroup && `pm=${pmSlug(pmGroup.pm)}`, year && `year=${year}`].filter(Boolean).join('&');
+  const label = { display: 'block', fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' } as const;
+  const field = { width: '100%', minHeight: '48px', padding: '10px 12px', fontSize: '16px', fontFamily: 'inherit', color: INK, background: 'rgba(20,16,13,0.05)', border: '1px solid rgba(20,16,13,0.3)', borderRadius: '2px' } as const;
+
   return (
     <section data-main-action aria-labelledby="pmqs-every-session" style={{ color: INK, marginBottom: '40px' }}>
       <h2 id="pmqs-every-session" style={{ fontSize: 'clamp(22px, 2.6vw, 30px)', fontWeight: 'bold', margin: '0 0 8px' }}>Every session since 1961</h2>
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px' }}>
-        {sessions.length.toLocaleString('en-GB')} sessions from 24 October 1961 to {longDateArchive(sessions[0].date)}, by Prime Minister, newest first. A session on the day the office changed hands counts for the outgoing Prime Minister.
+        {sessions.length.toLocaleString('en-GB')} sessions from 24 October 1961 to {longDateArchive(sessions[0].date)}, newest first. A session on the day the office changed hands counts for the outgoing Prime Minister.
       </p>
-      {/* UX5 (T1-6, 11 Nov 2026): on phones the first four Prime Ministers, then "Show all", and the questions before
-          1961 in one closed fold; from 640px up, as before. */}
-      <NoJsPager id="pmqs-pms" count={groups.length} size={groups.length} first={4} />
-      {groups.map((g, i) => (
-        <details key={g.pm} className={`pa-fold ${njpItem('pmqs-pms')}`} open={i === 0}>
-          <summary>{primeMinisterLabel(g.pm)}: {g.count.toLocaleString('en-GB')} {g.count === 1 ? 'session' : 'sessions'}</summary>
-          {g.years.map((y, j) => (
-            <details key={y.year} className="pa-fold pa-year" open={i === 0 && j === 0}>
-              <summary>{y.year}: {y.sessions.length} {y.sessions.length === 1 ? 'session' : 'sessions'}</summary>
-              <MoreChain className="pa-list" items={y.sessions.map((s) => (
-                <li key={s.date}>
-                  <a href={`/pmqs/${s.date}`}>{longDateArchive(s.date)}</a>
-                  {s.answeredBy && <div>Answered by {s.answeredBy}</div>}
-                </li>
-              ))} />
-            </details>
-          ))}
-        </details>
-      ))}
-      <NoJsPagerLinks id="pmqs-pms" count={groups.length} size={groups.length} first={4} />
+      <style>{`.pmq-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 16px; max-width: 640px; } .pmq-q { grid-column: 1 / -1; }
+        .pmq-row { display: flex; gap: 8px; } .pmq-row input { flex: 1 1 auto; min-width: 0; }`}</style>
+      <form method="GET" action="/pmqs" role="search" aria-label="Find a session" className="pmq-form">
+        <div className="pmq-q">
+          <label htmlFor="pmq-q" style={label}>Search the sessions</label>
+          <div className="pmq-row">
+            <input id="pmq-q" name="q" type="search" defaultValue={words} placeholder="Words, an MP or a date" style={field} />
+            <button type="submit" style={{ flex: 'none', minHeight: '48px', padding: '0 16px', fontSize: '15px', fontFamily: 'inherit', fontWeight: 'bold', color: INK, background: 'transparent', border: `1px solid ${INK}`, cursor: 'pointer' }}>Find</button>
+          </div>
+        </div>
+        <div>
+          <label htmlFor="pmq-pm" style={label}>Prime Minister</label>
+          <select id="pmq-pm" name="pm" defaultValue={pmGroup ? pmSlug(pmGroup.pm) : ''} style={field}>
+            <option value="">All</option>
+            {groups.map((g) => <option key={g.pm} value={pmSlug(g.pm)}>{primeMinisterLabel(g.pm)} ({g.count.toLocaleString('en-GB')})</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="pmq-year" style={label}>Year</label>
+          <select id="pmq-year" name="year" defaultValue={year ?? ''} style={field}>
+            <option value="">All</option>
+            {years.map((y) => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+      </form>
+      <p role="status" style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 8px' }}>
+        {chosen
+          ? <>{found.length.toLocaleString('en-GB')} {found.length === 1 ? 'session' : 'sessions'}{words ? <> matching &ldquo;{words}&rdquo;</> : null}{pmGroup ? <>, {primeMinisterLabel(pmGroup.pm)}</> : null}{year ? <>, {year}</> : null}</>
+          : <>The newest sessions</>}
+        {pages > 1 ? <> (page {page} of {pages})</> : null}.
+        {chosen && <>{' '}<Link href="/pmqs" className="og-tap" style={{ color: ACCENT, textDecoration: 'underline' }}>Clear</Link></>}
+        {text?.capped && <> This search matched more than {ROW_CAP.toLocaleString('en-GB')} contributions, so some older sessions may be missing: add a word, a Prime Minister or a year to narrow it.</>}
+      </p>
+      {shown.length > 0 ? (
+        <NoJsPager id="pmqs-found" count={shown.length} rows="> li" size={PER_PAGE} first={3} noun={{ one: 'session', many: 'sessions' }}>
+          <ul className="pa-list" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {shown.map((s) => (
+              <li key={s.date}>
+                <a href={`/pmqs/${s.date}`}>{longDateArchive(s.date)}</a>
+                {s.answeredBy && <div>Answered by {s.answeredBy}</div>}
+              </li>
+            ))}
+          </ul>
+        </NoJsPager>
+      ) : (
+        <p style={{ fontSize: '15px', lineHeight: 1.6 }}>No session matches. Try fewer words, another spelling, or all years.</p>
+      )}
+      <Pagination currentPage={page} totalPages={pages} baseUrl="/pmqs" qsExtra={qs ? `&${qs}` : ''} />
       <div className="pfq-wrap">
         {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): folded up to 1,023px. */}
         <style>{`@media ${phoneUpTo(1023.98)} { .pfq-wrap .pf-sb > #before-fixed-pmqs { display: none; } }`}</style>
