@@ -95,7 +95,7 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
           ? <>{found.length.toLocaleString('en-GB')} {found.length === 1 ? 'session' : 'sessions'}{words ? <> matching &ldquo;{words}&rdquo;</> : null}{pmGroup ? <>, {primeMinisterLabel(pmGroup.pm)}</> : null}{year ? <>, {year}</> : null}</>
           : <>The newest sessions</>}
         {pages > 1 ? <> (page {page} of {pages})</> : null}.
-        {chosen && <>{' '}<Link href="/pmqs" className="og-tap" style={{ color: ACCENT, textDecoration: 'underline' }}>Clear</Link></>}
+        {chosen && <>{' '}<Link href="/pmqs" className="og-tap" style={{ minWidth: '44px', color: ACCENT, textDecoration: 'underline' }}>Clear</Link></>}
         {text?.capped && <> This search matched more than {ROW_CAP.toLocaleString('en-GB')} contributions, so some older sessions may be missing: add a word, a Prime Minister or a year to narrow it.</>}
       </p>
       {shown.length > 0 ? (
