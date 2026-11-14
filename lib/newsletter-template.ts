@@ -2,10 +2,13 @@
 // which replaces the boxed layouts of ENTRY 62 to 68; visual reference newsletter/design/cowork-design-sample-stream-
 // 2026-11-15.html, after the pattern of a one-stream political newsletter).
 //
-// ONE STREAM OF TEXT: plain paper background, 680px at most, one column; no cards, boxes, tabs, borders or shaded
+// ONE STREAM OF TEXT on the site's folder (ENTRY 76: folder-top at the top, folder-mid repeating down, PNG copies in
+// public/newsletter/, the paper colour #e8d3a2 underneath for Outlook and any mail app that drops background images;
+// dark surround #2a221c; fonts as on the site: Special Elite body, Bebas Neue red headings, Google Fonts with
+// Courier and Impact fallbacks), 680px at most, one column; no cards, boxes, tabs, borders or shaded
 // panels anywhere. Only the stamped OPENGOVT logo at the top (the site's logo with its paper made transparent and its
 // border thickened, /newsletter-logo.png, 450 by 128 for sharpness; shown 225px wide, 185px on phones, ENTRY 74, 75). Then "By <NAME>" (the sign-off's name) and "Tips, corrections and questions: contact@opengovt.uk".
-// Body text 16px Georgia, line height 1.6; section headings 16px bold capitals with space above; links underlined in
+// Body text 16px, line height 1.6; section headings 24px red capitals with space above; links underlined in
 // the site red; the receipt quote indented 18px in Courier New 15px; footer 13px, muted. Table layout and inline
 // styles for Gmail, Apple Mail and Outlook (a fixed 680px table for Outlook, which ignores max-width); colours set on
 // every block, so dark mode stays readable; on phones each link gets a 44px tap height.
@@ -25,16 +28,23 @@ import { esc, inlineHtml, splitBlocks, type Issue } from '@/lib/newsletter-issue
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
-const PAPER = '#efe2c4';
+const PAPER = '#e8d3a2'; // the folder's paper colour, shown where background images are not (Outlook)
+const SURROUND = '#2a221c';
+export const FOLDER_TOP = 'https://www.opengovt.uk/newsletter/folder-top.png';
+export const FOLDER_MID = 'https://www.opengovt.uk/newsletter/folder-mid.png';
+const TYPE = "'Special Elite','Courier New',Courier,monospace"; // the site's typewriter face (Google Fonts), then Courier
+const DISPLAY = "'Bebas Neue',Impact,'Arial Narrow',sans-serif"; // the site's heading face
 const MUTED = '#5b4a3a';
-const SERIF = "Georgia,'Times New Roman',serif";
 const MONO = "'Courier New',Courier,monospace";
-export const LOGO_URL = 'https://www.opengovt.uk/newsletter-logo.png';
+// The logo as in the site header (ENTRY 77): Bebas Neue lettering in the site red in a thin 1px border on a transparent
+// background; Cowork's 2x rendering (446 by 142), shown 225px wide, 185px on phones. Not brand-logo.png (thick border,
+// cream fill).
+export const LOGO_URL = 'https://www.opengovt.uk/newsletter/logo.png';
 export const CONTACT = 'contact@opengovt.uk';
 
-const BODY = `font-family:${SERIF};font-size:16px;line-height:1.6;color:${INK};margin:0 0 14px`;
-const HEAD = `font-family:${SERIF};font-size:16px;line-height:1.4;font-weight:bold;letter-spacing:1px;color:${INK};margin:28px 0 12px`;
-const SMALL = `font-family:${SERIF};font-size:13px;line-height:1.5;color:${MUTED};margin:0 0 4px`;
+const BODY = `font-family:${TYPE};font-size:16px;line-height:1.6;color:${INK};margin:0 0 14px`;
+const HEAD = `font-family:${DISPLAY};font-size:24px;line-height:1.2;font-weight:normal;letter-spacing:2px;color:${ACCENT};margin:28px 0 8px`;
+const SMALL = `font-family:${TYPE};font-size:13px;line-height:1.5;color:${MUTED};margin:0 0 4px`;
 
 const links = (html: string) => html.replace(/<a href/g, '<a class="ogw-il" href').replace(/style="color:#7a1612"/g, `style="color:${ACCENT};text-decoration:underline"`);
 const isQuote = (b: string) => b.split('\n').every((l) => /^>/.test(l));
@@ -102,9 +112,10 @@ export function issueHtml(issue: Issue, people: Person[] = []): string {
   const [name = '', ...signRest] = signoff.split('\n').map((l) => l.trim());
 
   const out: string[] = [];
-  out.push(`<p style="margin:0 0 10px"><img class="ogw-logo" src="${LOGO_URL}" width="225" height="64" alt="opengovt" style="display:block;border:0;width:225px;height:64px;color:${ACCENT};font-family:${MONO};font-weight:bold;font-size:20px"></p>`);
-  if (name) out.push(`<p style="font-family:${SERIF};font-size:14px;color:${INK};margin:0 0 4px">By <strong>${esc(name.toUpperCase())}</strong></p>`);
-  out.push(`<p style="${SMALL};margin:0 0 20px">Tips, corrections and questions: <a class="ogw-il" href="mailto:${CONTACT}" style="color:${ACCENT};text-decoration:underline">${CONTACT}</a></p>`);
+  out.push(`<p style="margin:0 0 22px"><img class="ogw-logo" src="${LOGO_URL}" width="225" height="72" alt="opengovt" style="display:block;border:0;width:225px;height:72px;color:${ACCENT};font-family:${MONO};font-weight:bold;font-size:20px"></p>`);
+  if (name) out.push(`<p style="font-family:${TYPE};font-size:14px;color:${INK};margin:0 0 8px">By <strong>${esc(name.toUpperCase())}</strong></p>`);
+  // Space at the top (ENTRY 78): 22px under the logo, 8px under the byline, 30px under this line.
+  out.push(`<p style="${SMALL};margin:0 0 30px;line-height:1.6">Tips, corrections and questions: <a class="ogw-il" href="mailto:${CONTACT}" style="color:${ACCENT};text-decoration:underline">${CONTACT}</a></p>`);
 
   for (const b of pre) out.push(block(b));
   for (const s of sections) {
@@ -141,12 +152,12 @@ export function issueHtml(issue: Issue, people: Person[] = []): string {
   footer.forEach((b, n) => out.push(`<p style="${SMALL};margin:${n === 0 ? '24px' : '0'} 0 4px">${links(inlineHtml(b))}</p>`));
 
   const preheader = issue.preview ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${esc(issue.preview)}</div>` : '';
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${esc(issue.subject)}</title><style>
-@media only screen and (max-width:599px){td.ogw-ph{display:none!important;width:0!important;padding:0!important}img.ogw-logo{width:185px!important;height:53px!important}}
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${esc(issue.subject)}</title><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet"><style>
+@media only screen and (max-width:599px){td.ogw-ph{display:none!important;width:0!important;padding:0!important}img.ogw-logo{width:185px!important;height:59px!important}}
 @media only screen and (max-width:600px){a.ogw-il{display:inline-block!important;padding:10px 0!important;line-height:1.3!important}}
-</style></head><body style="margin:0;padding:0;background:${PAPER}" bgcolor="${PAPER}">${preheader}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="background:${PAPER}"><tr><td align="center">
+</style></head><body style="margin:0;padding:0;background:${SURROUND}" bgcolor="${SURROUND}">${preheader}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${SURROUND}" style="background:${SURROUND}"><tr><td align="center" style="padding:16px 0">
 <!--[if mso]><table role="presentation" width="680" align="center" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="max-width:680px;width:100%;background:${PAPER}"><tr><td style="padding:18px 18px 28px;text-align:left">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" background="${FOLDER_MID}" style="max-width:680px;width:100%;background-color:${PAPER};background-image:url(${FOLDER_TOP}),url(${FOLDER_MID});background-repeat:no-repeat,repeat-y;background-size:100% auto,100% auto;background-position:top,top"><tr><td style="padding:30px 26px 28px;text-align:left">
 ${out.join('\n')}
 </td></tr></table>
 <!--[if mso]></td></tr></table><![endif]-->

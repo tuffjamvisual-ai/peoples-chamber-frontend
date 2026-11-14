@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseIssue, emailFor, unsubscribeUrl } from '../../lib/newsletter-issue';
-import { capsLead, withOverdue, LOGO_URL } from '../../lib/newsletter-template';
+import { capsLead, withOverdue, LOGO_URL, FOLDER_TOP, FOLDER_MID } from '../../lib/newsletter-template';
 
 const issue = [
   'Subject: A question?',
@@ -46,12 +46,18 @@ const issue = [
 const tok = '22222222-2222-2222-2222-222222222222';
 const html = emailFor(parseIssue(issue), tok, '', '2026-11-15').html;
 
-test('one stream: no cards, boxes, tabs, borders or shaded panels; 680px; logo at the top', () => {
+test('one stream on the folder: no cards, boxes, tabs, borders or shaded panels; 680px; logo at the top', () => {
   assert.ok(html.includes('max-width:680px') && html.includes('width="680"'));
+  assert.ok(html.includes('src="https://www.opengovt.uk/newsletter/logo.png" width="225" height="72" alt="opengovt"'), 'the site header logo');
+  assert.ok(/margin:0 0 22px"><img class="ogw-logo"/.test(html) && html.includes('margin:0 0 8px">By <strong>') && html.includes('margin:0 0 30px;line-height:1.6">Tips'), 'spacing at the top');
   assert.ok(!/border(-left|-top|-bottom|-right)?:\s*[1-9]/.test(html), 'no borders (border:0 on the logo image only)');
   assert.ok(!/border-radius|box-shadow/.test(html));
-  const bgs = new Set([...html.matchAll(/background:(#[0-9a-f]{6})/gi)].map((m) => m[1].toLowerCase()));
-  assert.deepEqual([...bgs], ['#efe2c4'], 'one paper colour only');
+  const bgs = new Set([...html.matchAll(/background(?:-color)?:(#[0-9a-f]{6})/gi)].map((m) => m[1].toLowerCase()));
+  assert.deepEqual([...bgs].sort(), ['#2a221c', '#e8d3a2'], 'the dark surround and the paper colour only');
+  assert.ok(html.includes(`background-image:url(${FOLDER_TOP}),url(${FOLDER_MID})`) && html.includes(`background="${FOLDER_MID}"`), 'folder art, paper colour underneath');
+  assert.ok(html.includes('fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Special+Elite') || html.includes('fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite'));
+  assert.ok(/font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif;font-size:24px[^"]*color:#7a1612[^"]*">THE SHORT VERSION</.test(html), 'headings in Bebas Neue 24px red');
+  assert.ok(/font-family:'Special Elite','Courier New',Courier,monospace;font-size:16px/.test(html), 'body in Special Elite');
   assert.ok(html.indexOf(`src="${LOGO_URL}"`) < html.indexOf('By <strong>JOHN SANDERS</strong>'));
   assert.ok(html.includes('Tips, corrections and questions: <a'));
 });
