@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import PhoneMore from '../../components/PhoneMore'
 import { donorPageSlug } from '@/lib/donor-slug'
 import { ecDonationSearchUrl } from '@/lib/ec-links'
+import { PHONE, LIST_FOLD } from '@/lib/breakpoints'
 
 type Row = Record<string, unknown>
 
@@ -19,6 +20,14 @@ interface Props {
 }
 
 const ACCENT = '#7a1612'
+
+// T2 ENTRY 1 (T1-MOB batch 3, Cowork 14 Nov 2026): long cards fold. APPGs, on phones and tablets up to 1,023px: category
+// and chair stay; the other rows (officers, funders, purpose) fold under "Full record", as on the donation cards, each label
+// beside its value on phones. Nothing is cut. From 1,024px up nothing changes: the extra button is hidden.
+const CARD_CSS = `details.tr-appg-d { display: none; }
+@media ${PHONE} { .tr-appg { padding: 16px; } .tr-appg > dl { grid-template-columns: max-content 1fr; column-gap: 12px; } .tr-appg > dl dt { letter-spacing: 0.08em; } }
+@media ${LIST_FOLD} { .tr-appg:has(> details.tr-appg-d:not([open])) .tr-fold-a { display: none !important; } details.tr-appg-d { display: block; } }`
+const APPG_KEEP = new Set(['category', 'chair'])
 
 function formatAmount(v: unknown): string | null {
   const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() ? Number(v) : NaN
@@ -97,6 +106,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
 
   return (
     <>
+      <style dangerouslySetInnerHTML={{ __html: CARD_CSS }} />
       {/* Search: a server-side form, so it covers the whole dataset. */}
       <div className="mb-8">
         <label htmlFor="transparency-search" className="block text-[15px] uppercase tracking-[0.25em] text-[#14100d] font-medium mb-2">
@@ -110,7 +120,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             type="search"
             defaultValue={searchQuery}
             placeholder={PLACEHOLDER[section ?? ''] ?? 'Search…'}
-            className="flex-1 min-w-0 basis-48 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] focus:outline-none focus:border-[#14100d] transition-colors"
+            className="flex-1 min-w-0 basis-32 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] focus:outline-none focus:border-[#14100d] transition-colors"
           />
           <button
             type="submit"
@@ -447,7 +457,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
         </>
       ) : (
         <>
-          <NoJsPager id="tr-appgs" count={(rows).length} rows="> li" size={10}>
+          <NoJsPager id="tr-appgs" count={(rows).length} rows="> li" size={10} first={3}>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const { key: titleKey, value: titleValue } = pickTitle(row)
@@ -455,9 +465,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               const otherEntries = Object.entries(row).filter(
                 ([k, v]) => k !== titleKey && !HIDE_KEYS.has(k) && v !== null && v !== '' && !(typeof v === 'string' && v.trim() === ''),
               )
+              // APPGs: the rows after category and chair fold on phones and tablets (T2 ENTRY 1).
+              const folded = section === 'appgs' ? otherEntries.filter(([k]) => !APPG_KEEP.has(k)).map(([k]) => k) : []
 
               return (
-                <li key={i} className="p-5 border-l-2 border-l-transparent hover:border-l-[#14100d] transition-colors">
+                <li key={i} className={`${folded.length ? 'tr-appg ' : ''}p-5 border-l-2 border-l-transparent hover:border-l-[#14100d] transition-colors`}>
                   <div className="flex items-baseline justify-between gap-4 mb-3">
                     <h3 className="text-[#14100d] text-[15px] font-bold leading-snug">{titleValue}</h3>
                     {dateValue && (
@@ -469,12 +481,19 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                   {otherEntries.length > 0 && (
                     <dl className="grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.7]">
                       {otherEntries.map(([k, v]) => (
-                        <div key={k} className="contents">
+                        <div key={k} className={folded.includes(k) ? 'contents tr-fold-a' : 'contents'}>
                           <dt className="text-[15px] uppercase tracking-[0.2em] text-[#14100d] font-mono pt-0.5">{k}</dt>
                           <dd className="text-[#14100d] whitespace-pre-line break-words">{formatValue(v)}</dd>
                         </div>
                       ))}
                     </dl>
+                  )}
+                  {folded.length > 0 && (
+                    <details className="tr-appg-d mt-3">
+                      <summary className="cursor-pointer text-[15px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
+                        Full record<span className="og-fold-mark" aria-hidden="true" />
+                      </summary>
+                    </details>
                   )}
                 </li>
               )

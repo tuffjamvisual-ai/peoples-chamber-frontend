@@ -228,9 +228,14 @@ export default async function TransparencySectionPage({
         )}
         {section === 'appgs' && (
           <>
-            <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
-              All Party Parliamentary Groups are informal groups of MPs and peers from different parties, formed around a shared interest, whether a country, an industry, a medical condition or a cause. They have no formal powers and are not select committees, but they hold meetings, publish reports and give their subject a standing platform inside Parliament. The daily running of a group is often handled by a secretariat, an outside body that supplies the staff, money and administration. When that secretariat is a charity or a university the arrangement is usually unremarkable. When it is a lobbying firm or a company, the group becomes a paid channel for outside interests to reach lawmakers, with MPs serving as its officers. Groups must register their officers, their funding and any benefits above a set threshold, which is what the register below records.
-            </p>
+            {/* T2 ENTRY 1 (T1-MOB batch 3, Cowork 14 Nov 2026): on phones and tablets up to 1,023px the introduction after its
+                first sentence folds; from 1,024px the fold is not there and it reads as one paragraph, as before. */}
+            <div className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
+              All Party Parliamentary Groups are informal groups of MPs and peers from different parties, formed around a shared interest, whether a country, an industry, a medical condition or a cause.{' '}
+              <SubFold label="About the groups" tablets>
+              They have no formal powers and are not select committees, but they hold meetings, publish reports and give their subject a standing platform inside Parliament. The daily running of a group is often handled by a secretariat, an outside body that supplies the staff, money and administration. When that secretariat is a charity or a university the arrangement is usually unremarkable. When it is a lobbying firm or a company, the group becomes a paid channel for outside interests to reach lawmakers, with MPs serving as its officers. Groups must register their officers, their funding and any benefits above a set threshold, which is what the register below records.
+              </SubFold>
+            </div>
             <div className="mt-6 flex flex-wrap gap-3 text-[15px]">
               <Link href="/secretariats" className="font-mono underline" style={{ color: ACCENT }}>Who runs the groups &rarr;</Link>
               <span>·</span>
