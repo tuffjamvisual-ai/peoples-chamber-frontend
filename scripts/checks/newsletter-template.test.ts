@@ -48,6 +48,7 @@ const html = emailFor(parseIssue(issue), tok, '', '2026-11-15').html;
 
 test('one stream on the folder: no cards, boxes, tabs, borders or shaded panels; 680px; logo at the top', () => {
   assert.ok(html.includes('max-width:680px') && html.includes('width="680"'));
+  assert.ok(html.includes('style="max-width:560px;width:100%;margin:0 auto"') && html.includes('width="560" align="center"'), 'text in a centred 560px block (Outlook too)');
   assert.ok(html.includes('src="https://www.opengovt.uk/newsletter/logo.png" width="225" height="72" alt="opengovt"'), 'the site header logo');
   assert.ok(/<p align="center" style="margin:0 0 22px;text-align:center"><img class="ogw-logo"[^>]*style="display:block;margin:0 auto;/.test(html), 'logo centred, 22px under it');
   assert.ok(html.includes('margin:0 0 8px;text-align:center">By <strong>') && html.includes('margin:0 0 30px;line-height:1.6">'), 'byline centred, spacing at the top');
@@ -107,6 +108,6 @@ test('View in your browser: only with a live web copy; the web copy itself has n
   const withWeb = emailFor(parseIssue(issue), tok, '', '2026-11-15', [], { webUrl: 'https://www.opengovt.uk/newsletter/issues/2026-11-15.html' }).html;
   assert.ok(/<p align="center" style="[^"]*margin:0 0 30px;line-height:1.6;text-align:center"><a class="ogw-il" href="https:\/\/www.opengovt.uk\/newsletter\/issues\/2026-11-15.html" style="color:#7a1612;text-decoration:underline">View in your browser<\/a>/.test(withWeb), 'centred, red as in the reference');
   const web = emailFor(parseIssue(issue), '', '', '2026-11-15', [], { web: true, webUrl: 'x' }).html;
-  assert.ok(web.includes('<meta name="robots" content="noindex, follow">') && !web.includes('View in your browser'));
+  assert.ok(web.includes('<meta name="robots" content="noindex">') && !web.includes('View in your browser'));
   assert.ok(web.includes('href="https://www.opengovt.uk/newsletter" style') && !web.includes('unsubscribe?token'));
 });

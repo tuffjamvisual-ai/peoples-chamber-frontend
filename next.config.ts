@@ -238,6 +238,12 @@ const nextConfig: NextConfig = {
         missing: [{ type: 'host' as const, value: 'www.opengovt.uk' }],
         headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
       },
+      // The newsletter's web copies (the email's "View in your browser"): never indexed (COWORK-TO-T1 ENTRY 84, owner
+      // approved 14 Nov 2026); the pages also carry a robots meta tag.
+      {
+        source: '/newsletter/issues/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
+      },
       // The owner's private draft preview: never indexed and never stored, whoever asks (5 Nov 2026).
       {
         source: '/preview/:kind(briefings|editorials|programmes)/:path*',

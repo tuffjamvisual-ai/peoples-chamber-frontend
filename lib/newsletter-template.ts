@@ -5,7 +5,8 @@
 // ONE STREAM OF TEXT on the site's folder (ENTRY 76: folder-top at the top, folder-mid repeating down, PNG copies in
 // public/newsletter/, the paper colour #e8d3a2 underneath for Outlook and any mail app that drops background images;
 // dark surround #2a221c; fonts as on the site: Special Elite body, Bebas Neue red headings, Google Fonts with
-// Courier and Impact fallbacks), 680px at most, one column; no cards, boxes, tabs, borders or shaded
+// Courier and Impact fallbacks), the folder 680px at most with the text in a centred block 560px at most (ENTRY 83;
+// phones: full width), one column; no cards, boxes, tabs, borders or shaded
 // panels anywhere. Only the stamped OPENGOVT logo at the top (the site's logo with its paper made transparent and its
 // border thickened, /newsletter-logo.png, 450 by 128 for sharpness; shown 225px wide, 185px on phones, ENTRY 74, 75). Then "By <NAME>" (the sign-off's name) and "Tips, corrections and questions: contact@opengovt.uk".
 // Body text 16px, line height 1.6; section headings 24px red capitals with space above; links underlined in
@@ -160,13 +161,17 @@ export function issueHtml(issue: Issue, people: Person[] = [], opts: HtmlOptions
   footer.forEach((b, n) => out.push(`<p style="${SMALL};margin:${n === 0 ? '24px' : '0'} 0 4px">${links(inlineHtml(b))}</p>`));
 
   const preheader = issue.preview ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${esc(issue.preview)}</div>` : '';
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">${opts.web ? '<meta name="robots" content="noindex, follow">' : ''}<title>${esc(issue.subject)}</title><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet"><style>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">${opts.web ? '<meta name="robots" content="noindex">' : ''}<title>${esc(issue.subject)}</title><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet"><style>
 @media only screen and (max-width:599px){td.ogw-ph{display:none!important;width:0!important;padding:0!important}img.ogw-logo{width:185px!important;height:59px!important}}
 @media only screen and (max-width:600px){a.ogw-il{display:inline-block!important;padding:10px 0!important;line-height:1.3!important}}
 </style></head><body style="margin:0;padding:0;background:${SURROUND}" bgcolor="${SURROUND}">${preheader}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${SURROUND}" style="background:${SURROUND}"><tr><td align="center" style="padding:16px 0">
 <!--[if mso]><table role="presentation" width="680" align="center" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" background="${FOLDER_MID}" style="max-width:680px;width:100%;background-color:${PAPER};background-image:url(${FOLDER_TOP}),url(${FOLDER_MID});background-repeat:no-repeat,repeat-y;background-size:100% auto,100% auto;background-position:top,top"><tr><td style="padding:30px 26px 28px;text-align:left">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" background="${FOLDER_MID}" style="max-width:680px;width:100%;background-color:${PAPER};background-image:url(${FOLDER_TOP}),url(${FOLDER_MID});background-repeat:no-repeat,repeat-y;background-size:100% auto,100% auto;background-position:top,top"><tr><td align="center" style="padding:30px 26px 28px">
+<!--[if mso]><table role="presentation" width="560" align="center" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" align="center" style="max-width:560px;width:100%;margin:0 auto"><tr><td style="text-align:left">
 ${out.join('\n')}
+</td></tr></table>
+<!--[if mso]></td></tr></table><![endif]-->
 </td></tr></table>
 <!--[if mso]></td></tr></table><![endif]-->
 </td></tr></table></body></html>`;
