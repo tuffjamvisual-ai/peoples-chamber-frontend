@@ -5,6 +5,8 @@
 // *italic*, [links](url), "- " lists, "---" rules and "> " quotes (a quote may hold paragraphs and a list, as the
 // "Still waiting" box does). Every link is kept, in the HTML and in the plain text.
 
+import { issueHtml, withOverdue } from '@/lib/newsletter-template';
+
 export type Issue = { subject: string; preview: string; body: string };
 export type IssueEmail = { subject: string; html: string; text: string; headers: Record<string, string> };
 
@@ -17,11 +19,11 @@ export const DEAD_TOKEN = '00000000-0000-0000-0000-000000000000';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 // Only http(s) and mailto links become links; anything else is shown as text.
 const safeUrl = (u: string) => (/^(https?:|mailto:)/i.test(u) ? u : null);
 
-function inlineHtml(s: string): string {
+export function inlineHtml(s: string): string {
   return esc(s)
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t: string, u: string) => {
       const url = safeUrl(u.replace(/&amp;/g, '&'));
@@ -33,10 +35,9 @@ function inlineHtml(s: string): string {
 const inlineText = (s: string) =>
   s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '$1 ($2)').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/(^|[^*])\*([^*]+)\*/g, '$1$2');
 
-function blocks(md: string): { html: string[]; text: string[] } {
-  const html: string[] = [];
-  const text: string[] = [];
-  // Split on blank lines, but keep a quote's lines together: a ">" line that is empty inside a quote is not a break.
+// The body's blocks: split on blank lines, but a quote's lines stay together (a ">" line that is empty inside a quote
+// is not a break).
+export function splitBlocks(md: string): string[] {
   const parts = md.replace(/\r\n/g, '\n').split(/\n[ \t]*\n/).map((b) => b.trim()).filter(Boolean);
   const merged: string[] = [];
   for (const b of parts) {
@@ -44,7 +45,13 @@ function blocks(md: string): { html: string[]; text: string[] } {
     if (isQuote && merged.length && merged[merged.length - 1].split('\n').every((l) => /^>/.test(l))) merged[merged.length - 1] += `\n>\n${b}`;
     else merged.push(b);
   }
-  for (const b of merged) {
+  return merged;
+}
+
+function blocks(md: string): { html: string[]; text: string[] } {
+  const html: string[] = [];
+  const text: string[] = [];
+  for (const b of splitBlocks(md)) {
     const lines = b.split('\n');
     if (lines.every((l) => /^>/.test(l))) {
       const inner = blocks(lines.map((l) => l.replace(/^>\s?/, '')).join('\n'));
@@ -96,15 +103,20 @@ export function parseIssue(raw: string): Issue {
   return { subject: meta.subject, preview: meta['preview text'] || '', body };
 }
 
-// One recipient's email: their own unsubscribe link in the body and in the one click headers.
-export function emailFor(issue: Issue, token: string, subjectPrefix = ''): IssueEmail {
+// Today's date in the UK (YYYY-MM-DD), the day an email is sent, for the overdue count.
+export const ukToday = (now = new Date()) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(now);
+
+// One recipient's email: their own unsubscribe link in the body and in the one click headers. The HTML is the standing
+// design (lib/newsletter-template.ts, T1-NLDESIGN); the plain text keeps every word and link. The overdue count in the
+// Still waiting card is worked out for the day it is sent (today, YYYY-MM-DD, UK).
+export function emailFor(issue: Issue, token: string, subjectPrefix = '', today = ukToday()): IssueEmail {
   const url = unsubscribeUrl(token);
-  const { html, text } = render(issue.body.split(UNSUBSCRIBE_PLACEHOLDER).join(url));
-  // The preview text, hidden, first in the HTML (mail apps show it next to the subject).
-  const pre = issue.preview ? `<div style="display:none;max-height:0;overflow:hidden">${esc(issue.preview)}</div>` : '';
+  const dated = withOverdue(issue, today);
+  const filled = { ...dated, body: dated.body.split(UNSUBSCRIBE_PLACEHOLDER).join(url) };
+  const { text } = render(filled.body);
   return {
     subject: `${subjectPrefix}${issue.subject}`,
-    html: pre + html,
+    html: issueHtml(filled),
     text,
     headers: { 'List-Unsubscribe': `<${url}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
   };

@@ -22,7 +22,9 @@ function resend(): { client: Resend; from: string } {
   if (!key || !from) throw new Error('RESEND_API_KEY and RESEND_FROM are not set');
   return { client: new Resend(key), from };
 }
-const payload = (from: string, e: OutEmail) => ({ from, to: e.to, subject: e.subject, html: e.html, text: e.text, headers: e.headers });
+// Replies go to contact@opengovt.uk: the issue asks readers to reply there (ENTRY 58 item 1).
+const REPLY_TO = 'contact@opengovt.uk';
+const payload = (from: string, e: OutEmail) => ({ from, replyTo: REPLY_TO, to: e.to, subject: e.subject, html: e.html, text: e.text, headers: e.headers });
 
 const deps: SendDeps = {
   secret: process.env.CRON_SECRET,
