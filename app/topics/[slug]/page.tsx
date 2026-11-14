@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { topicRpc } from '@/lib/topic-reads';
 import OpenGovShell from '../../components/OpenGovShell';
 import ServiceIndicator, { servicesForTopic } from '../../components/ServiceIndicator';
 import BackLink from '../../components/BackLink';
@@ -78,15 +79,15 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
 
   const [divRes, billRes, actRes, namedRes, topRes, pollRes, briefRes] = await Promise.all([
     divQuery.order('division_date_only', { ascending: false }).limit(10),
-    supabase.rpc('topic_bills', { ...topicBillArgs(topic), p_limit: 40 }),
+    topicRpc('topic_bills', { ...topicBillArgs(topic), p_limit: 40 }),
     // Key Acts (owner's approval, 22 Oct 2026): the 8 newest Acts, newest per title, then any Act named by title.
-    supabase.rpc('topic_bills_page', { ...topicBillArgs(topic), p_acts_only: true, p_limit: 40, p_offset: 0 }),
+    topicRpc('topic_bills_page', { ...topicBillArgs(topic), p_acts_only: true, p_limit: 40, p_offset: 0 }),
     topic.billTitles?.length
       ? supabase.from('bill').select('id, title, is_act, current_stage, last_update').in('title', topic.billTitles).eq('is_act', true).is('hidden_reason', null).order('last_update', { ascending: false })
       : Promise.resolve({ data: [], error: null }),
     // Top MPs by written questions to the topic's departments, ranked in the database (top_question_askers,
     // migration 2026-10-21b) instead of reading every MP's totals here.
-    supabase.rpc('top_question_askers', { p_depts: topic.deptApiNames, p_limit: 5 }),
+    topicRpc('top_question_askers', { p_depts: topic.deptApiNames, p_limit: 5 }),
     supabase.from('polls')
       .select('id, question, vote_count_yes, vote_count_no, explainer')
       .eq('archived', false)

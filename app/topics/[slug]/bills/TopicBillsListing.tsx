@@ -1,7 +1,7 @@
 import { ShowAll } from '@/app/components/NoJsPager';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { topicRpc } from '@/lib/topic-reads';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import { getTopic, topicBillArgs } from '@/lib/topics';
@@ -25,7 +25,7 @@ function fmtDate(d: string) {
 export default async function TopicBillsListing({ slug, page }: { slug: string; page: number }) {
   const topic = getTopic(slug);
   if (!topic) notFound();
-  const { data, error } = await supabase.rpc('topic_bills_page', {
+  const { data, error } = await topicRpc('topic_bills_page', {
     ...topicBillArgs(topic), p_acts_only: false, p_limit: TOPIC_BILLS_PER_PAGE, p_offset: (page - 1) * TOPIC_BILLS_PER_PAGE,
   });
   // A failed read throws, so the last good version stays up.
