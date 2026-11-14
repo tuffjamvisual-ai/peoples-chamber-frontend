@@ -21,10 +21,14 @@ interface Props {
 
 const ACCENT = '#7a1612'
 
-// T2 ENTRY 1 (T1-MOB batch 3, Cowork 14 Nov 2026): long cards fold. APPGs, on phones and tablets up to 1,023px: category
-// and chair stay; the other rows (officers, funders, purpose) fold under "Full record", as on the donation cards, each label
-// beside its value on phones. Nothing is cut. From 1,024px up nothing changes: the extra button is hidden.
-const CARD_CSS = `details.tr-appg-d { display: none; }
+// T2 ENTRY 1 (T1-MOB batch 3, Cowork 14 Nov 2026): long cards fold. Contracts and donations, on phones: the description
+// (contracts) and the date line's extras (donations: type, nature, reporting period, date reported) show while the card's
+// own fold ("Description and record identifiers", "Full record") is open, so each card keeps one fold; the title, supplier
+// or donor and recipient, value and date stay. APPGs, on phones and tablets up to 1,023px: category and chair stay; the
+// other rows (officers, funders, purpose) fold under "Full record", as on the donation cards, each label beside its value
+// on phones. Nothing is cut. From 768px (APPGs: 1,024px) up nothing changes: the extra button and label are hidden.
+const CARD_CSS = `.tr-ph-only, details.tr-appg-d { display: none; }
+@media ${PHONE} { .tr-card:has(> details.tr-rec:not([open])) .tr-fold-x { display: none !important; } .tr-ph-only { display: inline; } .tr-wide-only { display: none; } }
 @media ${PHONE} { .tr-appg { padding: 16px; } .tr-appg > dl { grid-template-columns: max-content 1fr; column-gap: 12px; } .tr-appg > dl dt { letter-spacing: 0.08em; } }
 @media ${LIST_FOLD} { .tr-appg:has(> details.tr-appg-d:not([open])) .tr-fold-a { display: none !important; } details.tr-appg-d { display: block; } }`
 const APPG_KEEP = new Set(['category', 'chair'])
@@ -247,7 +251,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
           </NoJsPager>
         </>
       ) : section === 'donations' ? (
-        <NoJsPager id="tr-donations" count={(rows).length} rows="> li" size={25}>
+        <NoJsPager id="tr-donations" count={(rows).length} rows="> li" size={25} first={3}>
         <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
           {rows.map((row, i) => {
             const recipient = (row.recipient_name as string) || '(unknown recipient)'
@@ -308,7 +312,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             if (trustName) flags.push({ label: 'Trust structure', tone: 'info' })
 
             return (
-              <li key={i} data-donation-id={row.id != null ? String(row.id) : undefined} className="p-5 border-l-2 border-l-[#14100d]">
+              <li key={i} data-donation-id={row.id != null ? String(row.id) : undefined} className="tr-card p-5 border-l-2 border-l-[#14100d]">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
                   <h3 className="text-[#14100d] text-base sm:text-lg font-bold leading-snug tracking-tight">{recipient}</h3>
                   {amount && (
@@ -325,11 +329,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] text-[#14100d] uppercase tracking-[0.15em]" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                   {acceptedDate && <span>Accepted {acceptedDate}</span>}
                   {!acceptedDate && receivedDate && <span>Received {receivedDate}</span>}
-                  {donationType && <span>· {donationType}</span>}
-                  {nature && <span>· {nature}</span>}
+                  {donationType && <span className="tr-fold-x">· {donationType}</span>}
+                  {nature && <span className="tr-fold-x">· {nature}</span>}
                   {/* The Electoral Commission's reporting period, not the date reported (T1-AUD3, owner 11 Nov 2026). */}
-                  {reportingPeriod && <span>· Reporting period: {reportingPeriod}</span>}
-                  {reportedDate && <span>· Reported to the Electoral Commission: {reportedDate}</span>}
+                  {reportingPeriod && <span className="tr-fold-x">· Reporting period: {reportingPeriod}</span>}
+                  {reportedDate && <span className="tr-fold-x">· Reported to the Electoral Commission: {reportedDate}</span>}
                 </div>
 
                 {flags.length > 0 && (
@@ -351,7 +355,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                   </div>
                 )}
 
-                <details className="mt-3">
+                <details className="tr-rec mt-3">
                   <summary
                     className="cursor-pointer text-[15px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block"
                     style={{ fontFamily: 'var(--font-special-elite), monospace' }}
@@ -393,7 +397,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
         </NoJsPager>
       ) : section === 'contracts' ? (
         <>
-          <NoJsPager id="tr-contracts" count={(rows).length} rows="> li" size={15}>
+          <NoJsPager id="tr-contracts" count={(rows).length} rows="> li" size={15} first={3}>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
             {rows.map((row, i) => {
               const title       = (row.title as string | null) || '(untitled)'
@@ -416,7 +420,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                 ? description.slice(0, 300) + '…'
                 : description
               return (
-                <li key={i} className="p-5 border-l-2 border-l-[#14100d]">
+                <li key={i} className="tr-card p-5 border-l-2 border-l-[#14100d]">
                   <div className="flex items-baseline justify-between gap-4 mb-1.5">
                     <h3 className="text-[#14100d] text-base font-bold leading-snug tracking-tight">
                       {ocid && linked.has(ocid) ? (
@@ -436,11 +440,13 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     )}
                   </p>
                   {descTruncated && (
-                    <p className="text-[#14100d]/75 text-[15px] leading-[1.65] mt-1.5">{descTruncated}</p>
+                    <p className="tr-fold-x text-[#14100d]/75 text-[15px] leading-[1.65] mt-1.5">{descTruncated}</p>
                   )}
-                  <details className="mt-3">
+                  <details className="tr-rec mt-3">
                     <summary className="cursor-pointer text-[15px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
-                      Record identifiers<span className="og-fold-mark" aria-hidden="true" />
+                      {descTruncated
+                        ? <><span className="tr-wide-only">Record identifiers</span><span className="tr-ph-only">Description and record identifiers</span></>
+                        : 'Record identifiers'}<span className="og-fold-mark" aria-hidden="true" />
                     </summary>
                     <dl className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.65]" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                       {/* No identifiers shown (T1-NOCODE, owner approved 13 Nov 2026): the OCID is a link to the same contract record on its

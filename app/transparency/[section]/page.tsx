@@ -244,10 +244,14 @@ export default async function TransparencySectionPage({
           </>
         )}
         {section === 'contracts' && (
-          <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
-            Each row is a notice published on Find a Tender, not a separate contract: one contract can appear as an award, its contract details and later changes. A framework&rsquo;s value is the most that every supplier on it could be paid: potential value, not spending. Do not add these values up.
+          // T2 ENTRY 1 (Cowork 14 Nov 2026): on phones the note after its first sentence folds; from 768px one paragraph, as before.
+          <div className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
+            Each row is a notice published on Find a Tender, not a separate contract: one contract can appear as an award, its contract details and later changes.{' '}
+            <SubFold label="Values and where the notices come from">
+            A framework&rsquo;s value is the most that every supplier on it could be paid: potential value, not spending. Do not add these values up.
             {' '}The notices are read every day from Find a Tender&rsquo;s open data service (find-tender.service.gov.uk). Notices published only on Contracts Finder, where many lower value contracts appear, are not included.
-          </p>
+            </SubFold>
+          </div>
         )}
         {section === 'donations' && (
           <>
