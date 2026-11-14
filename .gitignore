@@ -106,3 +106,5 @@ data/lgsco/
 /backups-local/
 # Python compile cache
 __pycache__/
+scripts/newsletter/preview/
+scripts/newsletter/sent/
