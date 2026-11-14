@@ -22,11 +22,15 @@
 // Added 2026-06-05.
 
 import Link from 'next/link';
-import { PHONE } from '@/lib/breakpoints';
+import { PHONE, phoneUpTo } from '@/lib/breakpoints';
 
 // Phones (T2 ENTRY 1 item 4, Cowork 14 Nov 2026): every page link and button is a 44 x 44px tap; the page numbers were 32px
 // wide. From 768px up nothing changes.
-const PHONE_CSS = `@media ${PHONE} { .og-pg { min-width: 44px !important; min-height: 44px; box-sizing: border-box; } }`;
+// One row on phones (Cowork 14 Nov 2026, ENTRY 10): 4px between boxes (3px under 430px, so Prev, 1, 2, 3, …, last and Next
+// fit 320px) and 6px inside them, the gap mark (…) only as wide
+// as itself, and under 430px Prev and Next as arrows only (the word stays for screen readers, and in the link's name).
+const PHONE_CSS = `@media ${PHONE} { .og-pg { min-width: 44px !important; min-height: 44px; box-sizing: border-box; padding: 0 6px !important; } .og-pg-gap { min-width: 0 !important; padding: 0 !important; margin: 0 -2px; } }
+@media ${phoneUpTo(429.98)} { .og-pg-row { gap: 3px !important; } .og-pg-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }`;
 
 interface Props {
   currentPage: number;
@@ -130,6 +134,7 @@ export default function Pagination({
       <style dangerouslySetInnerHTML={{ __html: PHONE_CSS }} />
       {/* Numbered page row */}
       <div
+        className="og-pg-row"
         style={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -139,18 +144,18 @@ export default function Pagination({
         }}
       >
         {currentPage > 1 ? (
-          <Link href={href(currentPage - 1)} className="og-pg" style={baseLinkStyle} aria-label="Prev: previous page">
-            &larr; Prev
+          <Link href={href(currentPage - 1)} className="og-pg" style={baseLinkStyle} aria-label="Previous page">
+            &larr;<span className="og-pg-word">&nbsp;Prev</span>
           </Link>
         ) : (
           <span className="og-pg" style={disabledLinkStyle} aria-disabled>
-            &larr; Prev
+            &larr;<span className="og-pg-word">&nbsp;Prev</span>
           </span>
         )}
 
         {tokens.map((t, i) =>
           t === null ? (
-            <span key={`gap-${i}`} style={ellipsisStyle} aria-hidden>
+            <span key={`gap-${i}`} className="og-pg-gap" style={ellipsisStyle} aria-hidden>
               &hellip;
             </span>
           ) : t === currentPage ? (
@@ -166,11 +171,11 @@ export default function Pagination({
 
         {currentPage < totalPages ? (
           <Link href={href(currentPage + 1)} className="og-pg" style={baseLinkStyle} aria-label="Next page">
-            Next &rarr;
+            <span className="og-pg-word">Next&nbsp;</span>&rarr;
           </Link>
         ) : (
           <span className="og-pg" style={disabledLinkStyle} aria-disabled>
-            Next &rarr;
+            <span className="og-pg-word">Next&nbsp;</span>&rarr;
           </span>
         )}
       </div>
