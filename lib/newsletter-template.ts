@@ -40,7 +40,6 @@ const MONO = "'Courier New',Courier,monospace";
 // background; Cowork's 2x rendering (446 by 142), shown 225px wide, 185px on phones. Not brand-logo.png (thick border,
 // cream fill).
 export const LOGO_URL = 'https://www.opengovt.uk/newsletter/logo.png';
-export const CONTACT = 'contact@opengovt.uk';
 
 const BODY = `font-family:${TYPE};font-size:16px;line-height:1.6;color:${INK};margin:0 0 14px`;
 const HEAD = `font-family:${DISPLAY};font-size:24px;line-height:1.2;font-weight:normal;letter-spacing:2px;color:${ACCENT};margin:28px 0 8px`;
@@ -94,7 +93,11 @@ function withPhotos(blocks: string[], people: Person[]): string[] {
 
 type Section = { heading: string; blocks: string[] };
 
-export function issueHtml(issue: Issue, people: Person[] = []): string {
+// webUrl: the issue's web copy, shown as "View in your browser" under the byline (ENTRY 80), only when the send has
+// checked that the page exists. web: render that web copy itself (no link to itself, noindex, and the footer's
+// unsubscribe link goes to the newsletter page, as a web copy belongs to no subscriber).
+export type HtmlOptions = { webUrl?: string; web?: boolean };
+export function issueHtml(issue: Issue, people: Person[] = [], opts: HtmlOptions = {}): string {
   let signoff = '';
   const pre: string[] = [];
   const sections: Section[] = [];
@@ -114,8 +117,11 @@ export function issueHtml(issue: Issue, people: Person[] = []): string {
   const out: string[] = [];
   out.push(`<p style="margin:0 0 22px"><img class="ogw-logo" src="${LOGO_URL}" width="225" height="72" alt="opengovt" style="display:block;border:0;width:225px;height:72px;color:${ACCENT};font-family:${MONO};font-weight:bold;font-size:20px"></p>`);
   if (name) out.push(`<p style="font-family:${TYPE};font-size:14px;color:${INK};margin:0 0 8px">By <strong>${esc(name.toUpperCase())}</strong></p>`);
-  // Space at the top (ENTRY 78): 22px under the logo, 8px under the byline, 30px under this line.
-  out.push(`<p style="${SMALL};margin:0 0 30px;line-height:1.6">Tips, corrections and questions: <a class="ogw-il" href="mailto:${CONTACT}" style="color:${ACCENT};text-decoration:underline">${CONTACT}</a></p>`);
+  // Space at the top (ENTRY 78): 22px under the logo, 8px under the byline, 30px under this line. ENTRY 80: the tips
+  // line is gone; only a small "View in your browser" link stays (readers reply through Reply-To and "Your question").
+  out.push(opts.webUrl && !opts.web
+    ? `<p style="${SMALL};margin:0 0 30px;line-height:1.6"><a class="ogw-il" href="${esc(opts.webUrl)}" style="color:${MUTED};text-decoration:underline">View in your browser</a></p>`
+    : `<p style="${SMALL};margin:0 0 30px;line-height:1.6">&nbsp;</p>`);
 
   for (const b of pre) out.push(block(b));
   for (const s of sections) {
@@ -152,7 +158,7 @@ export function issueHtml(issue: Issue, people: Person[] = []): string {
   footer.forEach((b, n) => out.push(`<p style="${SMALL};margin:${n === 0 ? '24px' : '0'} 0 4px">${links(inlineHtml(b))}</p>`));
 
   const preheader = issue.preview ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${esc(issue.preview)}</div>` : '';
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${esc(issue.subject)}</title><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet"><style>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">${opts.web ? '<meta name="robots" content="noindex, follow">' : ''}<title>${esc(issue.subject)}</title><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet"><style>
 @media only screen and (max-width:599px){td.ogw-ph{display:none!important;width:0!important;padding:0!important}img.ogw-logo{width:185px!important;height:59px!important}}
 @media only screen and (max-width:600px){a.ogw-il{display:inline-block!important;padding:10px 0!important;line-height:1.3!important}}
 </style></head><body style="margin:0;padding:0;background:${SURROUND}" bgcolor="${SURROUND}">${preheader}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${SURROUND}" style="background:${SURROUND}"><tr><td align="center" style="padding:16px 0">

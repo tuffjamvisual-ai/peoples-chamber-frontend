@@ -72,6 +72,9 @@ const deps: SendDeps = {
     return subjects;
   },
   pause: (ms) => new Promise((r) => setTimeout(r, ms)),
+  async exists(url) {
+    try { return (await fetch(url, { method: 'HEAD', cache: 'no-store' })).ok; } catch { return false; }
+  },
 };
 
 export async function POST(request: NextRequest) {

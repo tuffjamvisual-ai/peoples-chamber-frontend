@@ -49,7 +49,7 @@ const html = emailFor(parseIssue(issue), tok, '', '2026-11-15').html;
 test('one stream on the folder: no cards, boxes, tabs, borders or shaded panels; 680px; logo at the top', () => {
   assert.ok(html.includes('max-width:680px') && html.includes('width="680"'));
   assert.ok(html.includes('src="https://www.opengovt.uk/newsletter/logo.png" width="225" height="72" alt="opengovt"'), 'the site header logo');
-  assert.ok(/margin:0 0 22px"><img class="ogw-logo"/.test(html) && html.includes('margin:0 0 8px">By <strong>') && html.includes('margin:0 0 30px;line-height:1.6">Tips'), 'spacing at the top');
+  assert.ok(/margin:0 0 22px"><img class="ogw-logo"/.test(html) && html.includes('margin:0 0 8px">By <strong>') && html.includes('margin:0 0 30px;line-height:1.6">'), 'spacing at the top');
   assert.ok(!/border(-left|-top|-bottom|-right)?:\s*[1-9]/.test(html), 'no borders (border:0 on the logo image only)');
   assert.ok(!/border-radius|box-shadow/.test(html));
   const bgs = new Set([...html.matchAll(/background(?:-color)?:(#[0-9a-f]{6})/gi)].map((m) => m[1].toLowerCase()));
@@ -59,7 +59,6 @@ test('one stream on the folder: no cards, boxes, tabs, borders or shaded panels;
   assert.ok(/font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif;font-size:24px[^"]*color:#7a1612[^"]*">THE SHORT VERSION</.test(html), 'headings in Bebas Neue 24px red');
   assert.ok(/font-family:'Special Elite','Courier New',Courier,monospace;font-size:16px/.test(html), 'body in Special Elite');
   assert.ok(html.indexOf(`src="${LOGO_URL}"`) < html.indexOf('By <strong>JOHN SANDERS</strong>'));
-  assert.ok(html.includes('Tips, corrections and questions: <a'));
 });
 
 test('welcome first, then headings in capitals, bullets, capitals run-in labels, sentence case lead-ins', () => {
@@ -99,4 +98,13 @@ test('caricatures: full picture in a polaroid frame beside the first-mention par
   assert.ok(/<td class="ogw-ph" valign="top" width="108"[^>]*><div style="background:#fbf8f0;padding:6px 6px 18px;box-shadow:[^"]*;transform:rotate\(-2deg\);width:84px"><img src="https:\/\/www.opengovt.uk\/newsletter\/mps\/1427.jpg"[^>]*><\/div><\/td><td valign="top"><p style="[^"]*margin:0"><strong>ANDY BURNHAM:<\/strong>/.test(h), 'frame left, the first-mention paragraph right');
   assert.ok(/@media only screen and \(max-width:599px\)\{td\.ogw-ph\{display:none!important/.test(h), 'hidden on phones');
   assert.ok(!emailFor(parseIssue(twice), tok, '', '2026-11-15').html.includes('ogw-ph"'), 'no people, no pictures');
+});
+
+test('View in your browser: only with a live web copy; the web copy itself has no link to itself, noindex, newsletter page for Unsubscribe', () => {
+  assert.ok(!html.includes('View in your browser') && !html.includes('Tips, corrections'), 'no web copy given: no link, no tips line');
+  const withWeb = emailFor(parseIssue(issue), tok, '', '2026-11-15', [], { webUrl: 'https://www.opengovt.uk/newsletter/issues/2026-11-15.html' }).html;
+  assert.ok(/margin:0 0 30px;line-height:1.6"><a class="ogw-il" href="https:\/\/www.opengovt.uk\/newsletter\/issues\/2026-11-15.html" style="color:#5b4a3a;text-decoration:underline">View in your browser<\/a>/.test(withWeb));
+  const web = emailFor(parseIssue(issue), '', '', '2026-11-15', [], { web: true, webUrl: 'x' }).html;
+  assert.ok(web.includes('<meta name="robots" content="noindex, follow">') && !web.includes('View in your browser'));
+  assert.ok(web.includes('href="https://www.opengovt.uk/newsletter" style') && !web.includes('unsubscribe?token'));
 });

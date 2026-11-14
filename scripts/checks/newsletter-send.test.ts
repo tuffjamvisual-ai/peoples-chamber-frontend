@@ -46,6 +46,7 @@ function stub(over: Partial<SendDeps> = {}, subs = [
     sendBatch: async (emails, key) => { log.batches.push({ emails, key }); return { ids: emails.map((_, i) => `id${i}`) }; },
     sentSubjects: async () => [],
     pause: async () => {},
+    exists: async () => false,
     ...over,
   };
   return { deps, log };
@@ -148,4 +149,15 @@ test('renderer: quote box keeps each field on its own line, quotes render as quo
 test('renderer: a javascript: link is not made a link', () => {
   const { html } = render('[x](javascript:alert(1))');
   assert.ok(!html.includes('href="javascript'));
+});
+
+test('preview reports whether the web copy is live, and the link appears only then', async () => {
+  const off = stub();
+  const r1 = await handleSendIssue(AUTH, { ...BODY, mode: 'preview' }, off.deps);
+  assert.match(String(r1.body.webCopy), /not live/);
+  assert.ok(!String(r1.body.html).includes('View in your browser'));
+  const on = stub({ exists: async () => true });
+  const r2 = await handleSendIssue(AUTH, { ...BODY, mode: 'preview' }, on.deps);
+  assert.equal(r2.body.webCopy, 'https://www.opengovt.uk/newsletter/issues/2026-11-15.html');
+  assert.ok(String(r2.body.html).includes('View in your browser'));
 });

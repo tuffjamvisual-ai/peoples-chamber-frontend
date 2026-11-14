@@ -15,7 +15,7 @@
 // Limits (Resend's documentation, read 14 Nov 2026): 10 requests a second per team, 100 emails per batch call, free
 // plan 100 emails a day (UTC) and 3,000 a month. A send of more than MAX_RECIPIENTS is refused; batches are 1 s apart.
 import { timingSafeEqual } from 'node:crypto';
-import { DEAD_TOKEN, emailFor, parseIssue, ukToday, type IssueEmail } from '@/lib/newsletter-issue';
+import { DEAD_TOKEN, emailFor, parseIssue, ukToday, webCopyUrl, type IssueEmail } from '@/lib/newsletter-issue';
 import type { Person } from '@/lib/newsletter-template';
 
 export const TEST_ADDRESS = 'contact@opengovt.uk';
@@ -34,6 +34,7 @@ export type SendDeps = {
   sendBatch: (emails: OutEmail[], idempotencyKey: string) => Promise<{ ids: string[] }>;
   sentSubjects: () => Promise<string[]>; // subjects of emails Resend has sent recently; throws if it cannot be read
   pause: (ms: number) => Promise<void>;
+  exists: (url: string) => Promise<boolean>; // is this page live on the site (for the web copy link)
 };
 export type Result = { status: number; body: Record<string, unknown> };
 
@@ -61,18 +62,21 @@ export async function handleSendIssue(authHeader: string | null, input: unknown,
   }
   const people = rawPeople as Person[];
   const today = ukToday();
+  // "View in your browser" only when the issue's web copy is live, so the link is never dead (ENTRY 80).
+  const webUrl = webCopyUrl(req.issueDate);
+  const opts = (await deps.exists(webUrl)) ? { webUrl } : {};
 
   if (mode === 'preview') {
     const subs = await deps.confirmedSubscribers();
-    const sample = emailFor(issue, DEAD_TOKEN, '', today, people);
+    const sample = emailFor(issue, DEAD_TOKEN, '', today, people, opts);
     let sentCheck: string;
     try { await deps.sentSubjects(); sentCheck = 'ok'; } catch (e) { sentCheck = `unavailable: ${(e as Error).message}`; }
-    return { status: 200, body: { mode, subject: sample.subject, html: sample.html, text: sample.text, headers: sample.headers, recipients: subs.length, sentCheck, sent: 0 } };
+    return { status: 200, body: { mode, subject: sample.subject, html: sample.html, text: sample.text, headers: sample.headers, recipients: subs.length, sentCheck, webCopy: opts.webUrl ?? 'not live yet: no View in your browser link', sent: 0 } };
   }
 
   if (mode === 'test') {
     const token = (await deps.tokenFor(TEST_ADDRESS)) ?? DEAD_TOKEN;
-    const e = emailFor(issue, token, '[TEST] ', today, people);
+    const e = emailFor(issue, token, '[TEST] ', today, people, opts);
     const { id } = await deps.sendOne({ ...e, to: TEST_ADDRESS });
     return { status: 200, body: { mode, sent: 1, to: TEST_ADDRESS, id, unsubscribeLink: token === DEAD_TOKEN ? 'dead test link (address not on the list)' : "that subscriber's own" } };
   }
@@ -87,7 +91,7 @@ export async function handleSendIssue(authHeader: string | null, input: unknown,
   if (subs.length > MAX_RECIPIENTS) return { status: 422, body: { error: `${subs.length} recipients is over the ${MAX_RECIPIENTS} a day this plan allows; nothing sent` } };
   const ids: string[] = [];
   for (let i = 0; i < subs.length; i += BATCH) {
-    const batch = subs.slice(i, i + BATCH).map((s) => ({ ...emailFor(issue, s.token, '', today, people), to: s.email }));
+    const batch = subs.slice(i, i + BATCH).map((s) => ({ ...emailFor(issue, s.token, '', today, people, opts), to: s.email }));
     try {
       const r = await deps.sendBatch(batch, `opengovt-weekly-${req.issueDate}-batch-${i / BATCH + 1}`);
       ids.push(...r.ids);
