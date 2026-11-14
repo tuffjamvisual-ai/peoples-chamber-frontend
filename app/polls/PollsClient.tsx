@@ -381,7 +381,7 @@ function PollCard({
 
         <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '9px', marginTop: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
-            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The count so far</span>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>Vote count</span>
             <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
@@ -581,7 +581,7 @@ function VIBallotCard({ tilt }: { tilt: number }) {
         {err && <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: ACCENT, margin: 0 }}>{err}</p>}
         <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '9px', marginTop: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The count so far</span>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>Vote count</span>
             <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
           </div>
           {voted && (
