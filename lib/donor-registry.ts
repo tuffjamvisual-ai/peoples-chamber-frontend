@@ -7,10 +7,12 @@
 // letters differ but still produce the same slug (for example a letter the slug drops, such as an accent) are kept
 // apart: the name with the most records keeps the slug and the next get "-2", "-3"... None existed on 24 Oct 2026.
 //
-// The names are read once per server instance and kept for a day, the donor pages' revalidate period.
+// The names are kept for a day in each server instance's memory, filled from one shared cached copy (below).
 // Read with keyset paging (id > last), one page of 1,000 after another (T1-DONORCACHE, 14 Nov 2026).
+import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { donorNameToSlug } from '@/lib/donor-slug';
+import { DONATIONS_TAG } from '@/lib/page-reads';
 
 export type DonorPageEntry = {
   slug: string;
@@ -33,6 +35,15 @@ let cached: { at: number; registry: Promise<DonorRegistry> } | null = null;
 export function donorLetterKey(name: string): string {
   return name.normalize('NFKC').toLowerCase().replace(/&/g, 'and').replace(/['’‘]/g, '').replace(/[^\p{L}\p{N}]+/gu, '');
 }
+
+// One shared copy of the name counts for every server instance (T1-DONORCACHE part 2, owner approved 14 Nov 2026):
+// Next's data cache (Vercel Runtime Cache), kept for a day and refreshed when the donations sync or sweep writes
+// (tag political-donations, lib/page-reads.ts). A new server instance reads this one entry instead of the database.
+// Size: 654,854 bytes as JSON on 14 Nov 2026 (24,224 names), under Vercel's 2 MB item limit ("items larger won't be
+// cached", vercel.com/docs/caching/runtime-cache/data-cache). An array of [name, count] in the order read, so the
+// Map built from it is the same, in the same order, as readNames() gives.
+const readNamesShared = unstable_cache(async (): Promise<[string, number][]> => [...(await readNames()).entries()],
+  ['donor-registry-name-counts-v1'], { tags: [DONATIONS_TAG], revalidate: 86400 });
 
 async function readNames(): Promise<Map<string, number>> {
   const { count, error: countErr } = await supabase
@@ -64,7 +75,7 @@ async function readNames(): Promise<Map<string, number>> {
 }
 
 async function build(): Promise<DonorRegistry> {
-  const counts = await readNames();
+  const counts = new Map(await readNamesShared());
   // base slug -> letter key -> spellings
   const groups = new Map<string, Map<string, { names: Map<string, number> }>>();
   for (const [raw, c] of counts) {
