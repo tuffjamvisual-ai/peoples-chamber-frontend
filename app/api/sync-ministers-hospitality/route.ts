@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { replaceRows } from '@/lib/replace-rows';
 import { createClient } from '@supabase/supabase-js';
 import { parse } from 'csv-parse/sync';
 
@@ -394,21 +395,15 @@ async function GET_impl(req: Request) {
         }
         if (dry) { counters.processed++; continue; }
 
-        // Idempotent re-ingest: clear any prior rows tagged with this slug
-        // before inserting fresh ones. Old pre-incremental-era rows with
-        // NULL source_publication_slug are left in place (historical data).
-        await supabase.from('ministers_hospitality').delete().eq('source_publication_slug', slug);
+        // Idempotent re-ingest: the rows tagged with this slug are replaced by the fresh ones. Old pre-incremental-era
+        // rows with NULL source_publication_slug are left in place (historical data). New rows first, then the old
+        // ones removed, every error read (lib/replace-rows.ts, Fable review finding 5): a failed insert used to stop
+        // silently after the delete, leaving the publication part-loaded and marked as synced. Now a failure keeps the
+        // old rows, the publication is not marked as synced (so the next run retries it) and the run answers 500.
+        const tagged = rowsForPub.map((r) => ({ ...r, source_publication_slug: slug }));
+        await replaceRows(supabase, 'ministers_hospitality', { col: 'source_publication_slug', val: slug }, tagged as unknown as Record<string, unknown>[]);
 
-        if (rowsForPub.length > 0) {
-          const tagged = rowsForPub.map((r) => ({ ...r, source_publication_slug: slug }));
-          for (let i = 0; i < tagged.length; i += 100) {
-            const batch = tagged.slice(i, i + 100);
-            const { error } = await supabase.from('ministers_hospitality').insert(batch);
-            if (error) break;
-          }
-        }
-
-        await supabase.from('synced_publications').upsert(
+        const { error: markErr } = await supabase.from('synced_publications').upsert(
           {
             publication_slug: slug,
             cron_name: CRON_NAME,
@@ -419,6 +414,7 @@ async function GET_impl(req: Request) {
           },
           { onConflict: 'cron_name,publication_slug' },
         );
+        if (markErr) throw new Error(`synced_publications ${slug}: ${markErr.message}`);
 
         counters.processed++;
         counters.rows_added += rowsForPub.length;

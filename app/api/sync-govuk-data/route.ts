@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { replaceRows, ReplaceRowsError } from '@/lib/replace-rows';
 import { revalidateTag } from '@/lib/refresh-count';
 import { GOVUK_DEPT_TAG } from '@/lib/page-reads';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
@@ -308,18 +309,12 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
     }
   }
   if (!dry) {
-    if (minChanged) {
-      await supabase.from('dept_ministers').delete().eq('dept_slug', deptSlug);
-      await supabase.from('dept_ministers').insert(ministers);
-    }
-    if (offChanged) {
-      await supabase.from('dept_officials').delete().eq('dept_slug', deptSlug);
-      await supabase.from('dept_officials').insert(officials);
-    }
-    if (agChanged) {
-      await supabase.from('dept_agencies').delete().eq('dept_slug', deptSlug);
-      await supabase.from('dept_agencies').insert(agencies);
-    }
+    // New rows first, then the old ones removed, every error read (lib/replace-rows.ts, Fable review finding 5): a
+    // failed write keeps the old list instead of leaving the department empty, and the run answers 500.
+    const match = { col: 'dept_slug', val: deptSlug };
+    if (minChanged) await replaceRows(supabase, 'dept_ministers', match, ministers as unknown as Record<string, unknown>[]);
+    if (offChanged) await replaceRows(supabase, 'dept_officials', match, officials as unknown as Record<string, unknown>[]);
+    if (agChanged) await replaceRows(supabase, 'dept_agencies', match, agencies as unknown as Record<string, unknown>[]);
   }
 
   return {
@@ -403,6 +398,7 @@ async function GET_impl(req: Request) {
   const results: Array<{ deptSlug: string; status: 'ok' | 'fail' | 'skipped'; detail: string }> = [];
   let rowsWritten = 0;
   let rowsChanged = 0;
+  let writeFailed = false; // a database write failed (the run answers 500; a gov.uk read failing for one department does not)
   const changedMps = new Set<number>();
   for (const [deptSlug, govukSlug] of Object.entries(govukSlugs)) {
     if (excluded.has(deptSlug)) {
@@ -421,6 +417,7 @@ async function GET_impl(req: Request) {
       });
     } catch (err) {
       if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
+      if (err instanceof ReplaceRowsError) writeFailed = true;
       results.push({ deptSlug, status: 'fail', detail: (err as Error).message });
     }
     await new Promise((r) => setTimeout(r, 200));
@@ -429,7 +426,8 @@ async function GET_impl(req: Request) {
   // Department pages read these rows under the 'govuk-dept' tag (lib/page-reads.ts): refreshed after any write; the
   // MP pages of ministers whose row changed (MP pages keep for a week).
   noteChanged(dry ? 0 : rowsChanged);
-  if (rowsChanged > 0 && !dry) revalidateTag(GOVUK_DEPT_TAG, 'max');
+  // A failed write may follow one that succeeded (ministers written, officials not), so the pages refresh then too.
+  if ((rowsChanged > 0 || writeFailed) && !dry) revalidateTag(GOVUK_DEPT_TAG, 'max');
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
   return NextResponse.json({
     ok: results.filter((r) => r.status === 'ok').length,
@@ -445,7 +443,7 @@ async function GET_impl(req: Request) {
     autoCleared,
     syncedAt: new Date().toISOString(),
     results,
-  });
+  }, { status: writeFailed ? 500 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-govuk-data', GET_impl);
