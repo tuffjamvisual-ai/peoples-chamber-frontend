@@ -167,6 +167,34 @@ function stories(blocks: string[]): string {
   return card(inner);
 }
 
+// The letter (ENTRY 67, 68): plain paragraphs, no boxes; bold lead-ins as written; links inline (on phones each link
+// gets a 44px tap height); a quote is shown as a paper clipping in typewriter text.
+const LETTER_P = `font-family:${SERIF};font-size:17px;line-height:1.6;color:${INK};margin:0 0 14px`;
+const inlineLinks = (html: string) => html.replace(/<a href/g, '<a class="ogw-il" href').replace(/style="color:#7a1612"/g, `style="${LINK}"`);
+function letter(blocks: string[]): string {
+  return blocks
+    .map((b) => {
+      if (isQuote(b)) {
+        const quote = splitBlocks(quoteLines(b).join('\n')).map((x) => inlineLinks(inlineHtml(x))).join('<br><br>');
+        return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fffdf6;border:1px solid ${EDGE};margin:0 0 14px" bgcolor="#fffdf6"><tr><td style="padding:14px 16px;font-family:${MONO};font-size:15px;line-height:1.55;color:${INK};box-shadow:2px 3px 0 rgba(20,16,13,0.15)">${quote}</td></tr></table>`;
+      }
+      if (isList(b)) return `<ul style="margin:0 0 14px;padding-left:22px">${items(b).map((i) => `<li style="${LETTER_P};margin:0 0 6px">${inlineLinks(inlineHtml(i))}</li>`).join('')}</ul>`;
+      return `<p style="${LETTER_P}">${inlineLinks(inlineHtml(b)).replace(/\n/g, '<br>')}</p>`;
+    })
+    .join('');
+}
+
+// "The short version" (ENTRY 67): its bullets in a light card under the headline; what follows it is the letter.
+function shortVersion(blocks: string[]): string {
+  const li = blocks.findIndex(isList);
+  const rows = li < 0 ? '' : items(blocks[li])
+    .map((i, n) => `<div style="font-family:${SERIF};font-size:16px;line-height:1.5;color:${INK};padding:6px 0;${n ? `border-top:1px solid ${EDGE}` : ''}">${inlineLinks(inlineHtml(i))}</div>`)
+    .join('');
+  const before = li > 0 ? letter(blocks.slice(0, li)) : '';
+  const after = blocks.slice(li + 1);
+  return card(before + rows) + (after.length ? `<tr><td class="ogw-pad" style="padding:22px 18px 0">${letter(after)}</td></tr>` : '');
+}
+
 type Section = { heading: string; blocks: string[] };
 
 export function issueHtml(issue: Issue): string {
@@ -182,15 +210,19 @@ export function issueHtml(issue: Issue): string {
     if (h1 && !sections.length) { masthead = h1[1]; continue; }
     const h2 = b.match(/^##\s+(.*)$/);
     if (h2) { sections.push({ heading: h2[1].trim(), blocks: [] }); continue; }
-    // The sign-off: short lines joined by markdown line breaks (two trailing spaces), e.g. "John Sanders  \nopengovt".
-    if (/ {2}\n/.test(b) && b.split('\n').length <= 3 && b.length < 80) { signoff = b; continue; }
+    // The sign-off: two or three short lines joined by markdown line breaks (two trailing spaces),
+    // or simply ending in a line that is the site's name ("John Sanders\nopengovt").
+    const lines = b.split('\n');
+    if (lines.length >= 2 && lines.length <= 3 && b.length < 80 && (/ {2}\n/.test(b) || /^opengovt$/i.test(lines[lines.length - 1].trim()))) { signoff = b; continue; }
     (sections.length ? sections[sections.length - 1].blocks : pre).push(b);
   }
   const date = masthead.split('·').pop()?.trim() ?? '';
 
   const out: string[] = [];
   out.push(`<tr><td class="ogw-pad" style="padding:14px 18px 12px;background:${LOGO_BG};border-bottom:3px double ${INK}" bgcolor="${LOGO_BG}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:middle"><img src="${LOGO_URL}" width="140" height="50" alt="opengovt" style="display:block;border:0;width:140px;height:50px;color:${ACCENT};font-family:${MONO};font-weight:bold;font-size:20px"></td><td align="right" style="vertical-align:middle;font-family:${MONO};font-size:13px;font-weight:bold;letter-spacing:2px;color:${INK}">WEEKLY${date ? `<br>${esc(date.toUpperCase())}` : ''}</td></tr></table></td></tr>`);
-  out.push(row(`<h1 class="ogw-h1" style="font-family:${SERIF};font-size:27px;line-height:1.2;font-weight:bold;color:${INK};margin:4px 0 8px">${esc(issue.subject)}</h1>${issue.preview ? `<p style="${P(16)};color:${MUTED}">${esc(issue.preview)}</p>` : ''}`));
+  // With "The short version" the preview line is not repeated under the headline (ENTRY 68); it stays the inbox preview.
+  const hasShort = sections.some((x) => x.heading.toLowerCase() === 'the short version');
+  out.push(row(`<h1 class="ogw-h1" style="font-family:${SERIF};font-size:27px;line-height:1.2;font-weight:bold;color:${INK};margin:4px 0 8px">${esc(issue.subject)}</h1>${issue.preview && !hasShort ? `<p style="${P(16)};color:${MUTED}">${esc(issue.preview)}</p>` : ''}`));
   if (pre.length) out.push(row(generic(pre)));
 
   for (let i = 0; i < sections.length; i++) {
@@ -204,6 +236,8 @@ export function issueHtml(issue: Issue): string {
       continue;
     }
     out.push(tab(s.heading));
+    if (key === 'the short version') { out.push(shortVersion(s.blocks)); continue; }
+    if (key === 'in case you missed them') { out.push(`<tr><td class="ogw-pad" style="padding:0 18px"><div style="border-top:1px solid ${EDGE};padding-top:14px">${letter(s.blocks)}</div></td></tr>`); continue; }
     if (key === 'still waiting') out.push(stillWaiting(s.blocks));
     else if (key === 'the receipt') out.push(receipt(s.blocks));
     else if (key === 'coming due') out.push(comingDue(s.blocks));
@@ -213,7 +247,7 @@ export function issueHtml(issue: Issue): string {
 
   if (signoff) {
     const [name, ...restLines] = signoff.split('\n').map((l) => l.trim());
-    out.push(`<tr><td class="ogw-pad" style="padding:20px 18px 8px;font-family:${SERIF};font-size:16px;color:${INK}">${inlineHtml(name)}${restLines.length ? `<br><span style="font-family:${MONO};font-size:13px;letter-spacing:2px;color:${ACCENT};font-weight:bold">${esc(restLines.join(' ').toUpperCase())}</span>` : ''}</td></tr>`);
+    out.push(`<tr><td class="ogw-pad" style="padding:8px 18px 8px;font-family:${SERIF};font-size:17px;color:${INK}">${inlineHtml(name)}${restLines.length ? `<br><span style="font-family:${MONO};font-size:13px;letter-spacing:2px;color:${ACCENT};font-weight:bold">${esc(restLines.join(' ').toUpperCase())}</span>` : ''}</td></tr>`);
   }
   if (footer.length) {
     const foot = footer
@@ -224,7 +258,7 @@ export function issueHtml(issue: Issue): string {
 
   const preheader = issue.preview ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${esc(issue.preview)}</div>` : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${esc(issue.subject)}</title><style>
-@media only screen and (max-width:600px){.ogw-pad{padding-left:12px!important;padding-right:12px!important}.ogw-h1{font-size:24px!important}a.ogw-a{display:inline-block!important;min-height:44px!important;line-height:44px!important}}
+@media only screen and (max-width:600px){.ogw-pad{padding-left:12px!important;padding-right:12px!important}.ogw-h1{font-size:24px!important}a.ogw-a{display:inline-block!important;min-height:44px!important;line-height:44px!important}a.ogw-il{display:inline-block!important;padding:10px 0!important;line-height:1.3!important}}
 </style></head><body style="margin:0;padding:0;background:${OUTSIDE}" bgcolor="${OUTSIDE}">${preheader}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${OUTSIDE}" style="background:${OUTSIDE}"><tr><td align="center" style="padding:12px 4px">
 <!--[if mso]><table role="presentation" width="720" align="center" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="max-width:720px;width:100%;background:${PAPER};border:1px solid ${EDGE}">${out.join('\n')}</table>

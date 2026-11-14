@@ -66,3 +66,47 @@ test('one column, 720px at most, logo, every link kept, own unsubscribe link, la
   for (const l of ['STILL WAITING', 'COMING DUE', 'STORIES YOU MAY HAVE MISSED', '25 DAYS OVERDUE', '>Asked<', '>Due<', '>Checked<', '15 NOVEMBER 2026', 'John Sanders']) assert.ok(e.html.includes(l), l);
   assert.ok(/font-size:(1[0-2])px/.test(e.html) === false, 'no text under 13px');
 });
+
+// ENTRY 67, 68: the human voice issue (short version card, then a letter).
+const human = [
+  'Subject: A question?',
+  'Preview text: An MP asked on 19 October.',
+  '',
+  '# opengovt Weekly · 15 November 2026',
+  '',
+  '## The short version',
+  '',
+  '- **25 days overdue:** an answer.',
+  '- **Coming up:** answers due.',
+  '',
+  'Hello,',
+  '',
+  '**The money:** words. [Our full report](https://www.opengovt.uk/editorials/r)',
+  '',
+  '> "A quoted answer."',
+  '',
+  '## In case you missed them',
+  '',
+  '**£12.8bn.** Words. [How we worked it out](https://www.opengovt.uk/editorials/x)',
+  '',
+  'John Sanders',
+  'opengovt',
+  '',
+  '‘Our view’ is our opinion.',
+  '',
+  '[Unsubscribe]({{unsubscribe_url}}) · [Privacy policy](https://www.opengovt.uk/privacy)',
+].join('\n');
+
+test('human voice: short version card, letter paragraphs, quote clipping, tab, sign-off, footer', () => {
+  const tok = '22222222-2222-2222-2222-222222222222';
+  const e = emailFor(parseIssue(human), tok, '', '2026-11-15');
+  assert.ok(e.html.includes('THE SHORT VERSION') && e.html.includes('IN CASE YOU MISSED THEM'));
+  assert.ok(e.html.includes('<strong>25 days overdue:</strong> an answer.'));
+  assert.ok(/<p style="[^"]*font-size:17px[^"]*">Hello,<\/p>/.test(e.html), 'letter paragraph');
+  assert.ok(/background:#fffdf6[^>]*>[\s\S]*?font-family:'Courier New'[^>]*>&quot;A quoted answer\.&quot;/.test(e.html), 'quote as a clipping');
+  assert.ok(!e.html.includes('An MP asked on 19 October.</p>'), 'preview line not repeated under the headline');
+  assert.ok(e.html.includes('John Sanders<br>') && e.html.includes('>OPENGOVT</span>'), 'sign-off');
+  const foot = e.html.slice(e.html.indexOf('border-top:3px double'));
+  assert.ok(foot.includes('Our view’ is our opinion.') && foot.includes(`href="${unsubscribeUrl(tok)}"`));
+  assert.ok(e.html.includes('href="https://www.opengovt.uk/editorials/x"'));
+});
