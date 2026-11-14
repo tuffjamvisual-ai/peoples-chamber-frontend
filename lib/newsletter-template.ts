@@ -115,12 +115,14 @@ export function issueHtml(issue: Issue, people: Person[] = [], opts: HtmlOptions
   const [name = '', ...signRest] = signoff.split('\n').map((l) => l.trim());
 
   const out: string[] = [];
-  out.push(`<p style="margin:0 0 22px"><img class="ogw-logo" src="${LOGO_URL}" width="225" height="72" alt="opengovt" style="display:block;border:0;width:225px;height:72px;color:${ACCENT};font-family:${MONO};font-weight:bold;font-size:20px"></p>`);
-  if (name) out.push(`<p style="font-family:${TYPE};font-size:14px;color:${INK};margin:0 0 8px">By <strong>${esc(name.toUpperCase())}</strong></p>`);
-  // Space at the top (ENTRY 78): 22px under the logo, 8px under the byline, 30px under this line. ENTRY 80: the tips
+  out.push(`<p align="center" style="margin:0 0 22px;text-align:center"><img class="ogw-logo" src="${LOGO_URL}" width="225" height="72" alt="opengovt" style="display:block;margin:0 auto;border:0;width:225px;height:72px;color:${ACCENT};font-family:${MONO};font-weight:bold;font-size:20px"></p>`);
+  if (name) out.push(`<p align="center" style="font-family:${TYPE};font-size:14px;color:${INK};margin:0 0 8px;text-align:center">By <strong>${esc(name.toUpperCase())}</strong></p>`);
+  // The masthead is centred on every screen (ENTRY 81, 82: align and text-align, the logo at margin auto for Outlook);
+  // everything below stays left aligned. Space at the top (ENTRY 78): 22px under the logo, 8px under the byline, 30px
+  // under this line. ENTRY 80: the tips
   // line is gone; only a small "View in your browser" link stays (readers reply through Reply-To and "Your question").
   out.push(opts.webUrl && !opts.web
-    ? `<p style="${SMALL};margin:0 0 30px;line-height:1.6"><a class="ogw-il" href="${esc(opts.webUrl)}" style="color:${MUTED};text-decoration:underline">View in your browser</a></p>`
+    ? `<p align="center" style="${SMALL};margin:0 0 30px;line-height:1.6;text-align:center"><a class="ogw-il" href="${esc(opts.webUrl)}" style="color:${ACCENT};text-decoration:underline">View in your browser</a></p>`
     : `<p style="${SMALL};margin:0 0 30px;line-height:1.6">&nbsp;</p>`);
 
   for (const b of pre) out.push(block(b));
