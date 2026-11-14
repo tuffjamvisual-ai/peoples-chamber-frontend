@@ -109,28 +109,25 @@ export default function OpenGovShell({
               {children}
             </main>
             <footer style={{ marginTop: '48px', paddingTop: '18px', borderTop: '1px solid rgba(20,16,13,0.25)', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d' }}>
-              {/* The Open Parliament Licence attribution on every page (owner, 31 Oct 2026), above the independence line. */}
-              <p style={{ margin: '0 0 14px', color: '#14100d', lineHeight: 1.65, maxWidth: '82ch' }}>
+              {/* The Open Parliament Licence attribution on every page (owner, 31 Oct 2026), above the independence line: its
+                  wording is a licence condition. Footer compaction (T2 ENTRY 6 and 7, owner approved 14 Nov 2026): the short
+                  independence line, the four links (Contact is in the site menu and the phone menu; Commission research on the
+                  homepage and in the menu), 8px between parts, line height 1.4, at every width. */}
+              <p style={{ margin: '0 0 8px', color: '#14100d', lineHeight: 1.4, maxWidth: '82ch' }}>
                 Contains Parliamentary information licensed under the{' '}
                 <a href={OPEN_PARLIAMENT_LICENCE_URL} rel="noopener" className="og-footer-licence" style={{ color: '#7a1612' }}>Open Parliament Licence v3.0</a>.
               </p>
-              <p style={{ margin: '0 0 14px', color: '#14100d', lineHeight: 1.65, maxWidth: '82ch' }}>
-                opengovt is independent and is not affiliated with GOV.UK, the UK Government, Parliament, any government department, local authority, public body or official public service.
+              <p style={{ margin: '0 0 8px', color: '#14100d', lineHeight: 1.4, maxWidth: '82ch' }}>
+                opengovt is independent and is not affiliated with GOV.UK.
               </p>
-              <div className="og-footer-links" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px' }}>
+              <div className="og-footer-links" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 10px', lineHeight: 1.4 }}>
                 <a href="/privacy" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Privacy</a>
                 <span aria-hidden >·</span>
                 <a href="/cookies" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Cookies</a>
                 <span aria-hidden >·</span>
                 <a href="/terms" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Terms</a>
                 <span aria-hidden >·</span>
-                <a href="/contact" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Contact</a>
-                <span aria-hidden >·</span>
                 <FeedbackFooterLink style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale" />
-                <span aria-hidden >·</span>
-                <a href="/commission" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Commission research</a>
-                <span style={{ flex: '1 1 auto', minWidth: '12px' }} />
-                <span style={{ color: '#14100d' }}>opengovt · independent and nonpartisan</span>
               </div>
             </footer>
           </div>
