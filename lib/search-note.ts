@@ -6,6 +6,8 @@
 // a full page load, so the note is visible in the first paint and moves nothing, and it is called again on every
 // search submitted from the box (SearchInput.tsx), before the new results load. A search is a query of 2 or more
 // characters; the same query twice in a row counts once.
+import { serialiseJsonLd } from '@/lib/JsonLd';
+
 export const SEARCH_NOTE_ID = 'og-snote';
 export const SEARCH_NOTE_DISMISS_KEY = 'og_snote_dismissed_until';
 export const SEARCH_NOTE_DAYS = 30;
@@ -25,6 +27,13 @@ if(n>=3){ss.setItem('og_snote_shown_for',q);return show(true)}
 show(false)}catch(e){}};`;
 
 /** Run the note's logic for a search (the inline script defines it; defined here if this page was reached client side). */
+// The inline script for /search: the note's code, then a call with the search words. The words come from the address
+// (?q=), so they are written with every "<" escaped (serialiseJsonLd, lib/JsonLd.tsx): a q holding "</script>" cannot
+// end the script and start HTML of its own (security review H1, owner approved 14 Nov 2026, COWORK-TO-T1 ENTRY 59).
+export function searchNoteInline(q: string): string {
+  return `${SEARCH_NOTE_JS}window.__ogNoteSearch(${serialiseJsonLd(q)});`;
+}
+
 export function noteSearch(q: string): void {
   if (typeof window === 'undefined') return;
   const w = window as unknown as { __ogNoteSearch?: (q: string) => void };
