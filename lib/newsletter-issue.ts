@@ -5,7 +5,7 @@
 // *italic*, [links](url), "- " lists, "---" rules and "> " quotes (a quote may hold paragraphs and a list, as the
 // "Still waiting" box does). Every link is kept, in the HTML and in the plain text.
 
-import { issueHtml, withOverdue } from '@/lib/newsletter-template';
+import { issueHtml, withOverdue, type Person } from '@/lib/newsletter-template';
 
 export type Issue = { subject: string; preview: string; body: string };
 export type IssueEmail = { subject: string; html: string; text: string; headers: Record<string, string> };
@@ -109,14 +109,14 @@ export const ukToday = (now = new Date()) => new Intl.DateTimeFormat('en-CA', { 
 // One recipient's email: their own unsubscribe link in the body and in the one click headers. The HTML is the standing
 // design (lib/newsletter-template.ts, T1-NLDESIGN); the plain text keeps every word and link. The overdue count in the
 // Still waiting card is worked out for the day it is sent (today, YYYY-MM-DD, UK).
-export function emailFor(issue: Issue, token: string, subjectPrefix = '', today = ukToday()): IssueEmail {
+export function emailFor(issue: Issue, token: string, subjectPrefix = '', today = ukToday(), people: Person[] = []): IssueEmail {
   const url = unsubscribeUrl(token);
   const dated = withOverdue(issue, today);
   const filled = { ...dated, body: dated.body.split(UNSUBSCRIBE_PLACEHOLDER).join(url) };
   const { text } = render(filled.body);
   return {
     subject: `${subjectPrefix}${issue.subject}`,
-    html: issueHtml(filled),
+    html: issueHtml(filled, people),
     text,
     headers: { 'List-Unsubscribe': `<${url}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
   };

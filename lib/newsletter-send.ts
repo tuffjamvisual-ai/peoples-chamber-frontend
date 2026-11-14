@@ -15,7 +15,8 @@
 // Limits (Resend's documentation, read 14 Nov 2026): 10 requests a second per team, 100 emails per batch call, free
 // plan 100 emails a day (UTC) and 3,000 a month. A send of more than MAX_RECIPIENTS is refused; batches are 1 s apart.
 import { timingSafeEqual } from 'node:crypto';
-import { DEAD_TOKEN, emailFor, parseIssue, type IssueEmail } from '@/lib/newsletter-issue';
+import { DEAD_TOKEN, emailFor, parseIssue, ukToday, type IssueEmail } from '@/lib/newsletter-issue';
+import type { Person } from '@/lib/newsletter-template';
 
 export const TEST_ADDRESS = 'contact@opengovt.uk';
 export const MAX_RECIPIENTS = 90; // under the free plan's 100 a day, leaving room for confirmation emails
@@ -53,10 +54,17 @@ export async function handleSendIssue(authHeader: string | null, input: unknown,
   if (typeof req.issueDate !== 'string' || !DATE_RE.test(req.issueDate)) return { status: 400, body: { error: 'issueDate (YYYY-MM-DD) is required' } };
   let issue;
   try { issue = parseIssue(req.issue); } catch (e) { return { status: 400, body: { error: (e as Error).message } }; }
+  // People named in the issue with their Members API ids, for their caricatures (ENTRY 71); checked by the sender.
+  const rawPeople = (input as { people?: unknown }).people ?? [];
+  if (!Array.isArray(rawPeople) || rawPeople.length > 20 || !rawPeople.every((p) => p && typeof p.name === 'string' && p.name.length <= 80 && Number.isInteger(p.id) && p.id > 0)) {
+    return { status: 400, body: { error: 'people must be a list of up to 20 { name, id }' } };
+  }
+  const people = rawPeople as Person[];
+  const today = ukToday();
 
   if (mode === 'preview') {
     const subs = await deps.confirmedSubscribers();
-    const sample = emailFor(issue, DEAD_TOKEN);
+    const sample = emailFor(issue, DEAD_TOKEN, '', today, people);
     let sentCheck: string;
     try { await deps.sentSubjects(); sentCheck = 'ok'; } catch (e) { sentCheck = `unavailable: ${(e as Error).message}`; }
     return { status: 200, body: { mode, subject: sample.subject, html: sample.html, text: sample.text, headers: sample.headers, recipients: subs.length, sentCheck, sent: 0 } };
@@ -64,7 +72,7 @@ export async function handleSendIssue(authHeader: string | null, input: unknown,
 
   if (mode === 'test') {
     const token = (await deps.tokenFor(TEST_ADDRESS)) ?? DEAD_TOKEN;
-    const e = emailFor(issue, token, '[TEST] ');
+    const e = emailFor(issue, token, '[TEST] ', today, people);
     const { id } = await deps.sendOne({ ...e, to: TEST_ADDRESS });
     return { status: 200, body: { mode, sent: 1, to: TEST_ADDRESS, id, unsubscribeLink: token === DEAD_TOKEN ? 'dead test link (address not on the list)' : "that subscriber's own" } };
   }
@@ -79,7 +87,7 @@ export async function handleSendIssue(authHeader: string | null, input: unknown,
   if (subs.length > MAX_RECIPIENTS) return { status: 422, body: { error: `${subs.length} recipients is over the ${MAX_RECIPIENTS} a day this plan allows; nothing sent` } };
   const ids: string[] = [];
   for (let i = 0; i < subs.length; i += BATCH) {
-    const batch = subs.slice(i, i + BATCH).map((s) => ({ ...emailFor(issue, s.token), to: s.email }));
+    const batch = subs.slice(i, i + BATCH).map((s) => ({ ...emailFor(issue, s.token, '', today, people), to: s.email }));
     try {
       const r = await deps.sendBatch(batch, `opengovt-weekly-${req.issueDate}-batch-${i / BATCH + 1}`);
       ids.push(...r.ids);

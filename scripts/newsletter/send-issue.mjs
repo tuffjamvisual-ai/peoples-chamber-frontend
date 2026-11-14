@@ -7,6 +7,7 @@
 //                                                                                       prints the recipient COUNT
 //   node scripts/newsletter/send-issue.mjs <issue.md> --date 2026-11-15 --mode test     ONE email to contact@opengovt.uk
 //   node scripts/newsletter/send-issue.mjs <issue.md> --date 2026-11-15 --mode send     every confirmed subscriber
+// --people "Name=id,..." adds the named MPs' caricatures (see below).
 // --out <file.html> sets where the preview is written (default scripts/newsletter/preview/preview.html).
 // --site <url> posts to another deployment (default https://www.opengovt.uk).
 import fs from 'node:fs';
@@ -25,13 +26,28 @@ const site = opt('--site', 'https://www.opengovt.uk');
 const out = opt('--out', path.join(process.cwd(), 'scripts/newsletter/preview/preview.html'));
 if (!file || !issueDate) { console.error('Give the issue file (.md) and --date YYYY-MM-DD.'); process.exit(1); }
 if (!['preview', 'test', 'send'].includes(mode)) { console.error("--mode is 'preview', 'test' or 'send'."); process.exit(1); }
+// --people "Danny Kruger=4858,Andy Burnham=1427": the MPs and peers named in the issue with their Members API ids, for
+// their caricatures (ENTRY 71). Each name is checked against the Members API (the send stops on a mismatch, never
+// guesses), and a person whose picture is not yet on www.opengovt.uk/newsletter/mps/ is left without one.
+const people = [];
+for (const pair of (opt('--people', '') || '').split(',').map((x) => x.trim()).filter(Boolean)) {
+  const [name, idText] = pair.split('=').map((x) => x.trim());
+  const id = Number(idText);
+  if (!name || !Number.isInteger(id) || id <= 0) { console.error(`--people: "${pair}" is not Name=id.`); process.exit(1); }
+  const m = await fetch(`https://members-api.parliament.uk/api/Members/${id}`);
+  const official = m.ok ? (await m.json()).value?.nameDisplayAs : null;
+  if (!official || official.toLowerCase() !== name.toLowerCase()) { console.error(`--people: Members API id ${id} is "${official ?? 'not found'}", not "${name}". Stopped.`); process.exit(1); }
+  const photo = await fetch(`https://www.opengovt.uk/newsletter/mps/${id}.png`, { method: 'HEAD' });
+  if (photo.ok) people.push({ name, id }); else console.log(`${name} (${id}): no picture on the site yet, shown without one.`);
+  await new Promise((r) => setTimeout(r, 1000));
+}
 const secret = process.env.CRON_SECRET;
 if (!secret) { console.error('CRON_SECRET is not in .env.local.'); process.exit(1); }
 
 const res = await fetch(new URL('/api/newsletter/send-issue', site), {
   method: 'POST',
   headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
-  body: JSON.stringify({ mode, issueDate, issue: fs.readFileSync(file, 'utf8') }),
+  body: JSON.stringify({ mode, issueDate, people, issue: fs.readFileSync(file, 'utf8') }),
 });
 const body = await res.json().catch(() => ({}));
 if (!res.ok) { console.error(`Stopped (${res.status}): ${body.error ?? 'no answer'}`); process.exit(1); }

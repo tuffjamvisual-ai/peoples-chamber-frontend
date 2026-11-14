@@ -83,3 +83,14 @@ test('capsLead and the overdue count', () => {
   assert.ok(!/overdue/.test(withOverdue(parseIssue(card.replace('no answer', 'answered')), '2026-11-17').body));
   assert.equal(withOverdue(parseIssue(issue), '2026-11-20').body, parseIssue(issue).body, 'no due line: left as written');
 });
+
+test('caricatures: beside the first mention only, desktop only, alt is the name, none without an id', () => {
+  const people = [{ name: 'Andy Burnham', id: 1427 }, { name: 'Danny Kruger', id: 4858 }];
+  const twice = issue.replace('One new thing on the site: search.', 'One new thing on the site: search. Andy Burnham again.');
+  const h = emailFor(parseIssue(twice), tok, '', '2026-11-15', people).html;
+  const imgs = [...h.matchAll(/<img class="ogw-mp" src="([^"]+)" width="48" height="48" alt="([^"]+)"/g)];
+  assert.deepEqual(imgs.map((m) => [m[1], m[2]]), [['https://www.opengovt.uk/newsletter/mps/1427.png', 'Andy Burnham']], 'Kruger is not named in this test issue; Burnham once');
+  assert.ok(/<img class="ogw-mp"[^>]+><strong>ANDY BURNHAM:<\/strong>/.test(h), 'before the bold name');
+  assert.ok(/@media only screen and \(max-width:599px\)\{img\.ogw-mp\{display:none!important/.test(h), 'hidden on phones');
+  assert.ok(!emailFor(parseIssue(twice), tok, '', '2026-11-15').html.includes('ogw-mp"'), 'no people, no pictures');
+});

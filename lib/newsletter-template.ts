@@ -58,9 +58,36 @@ function block(b: string): string {
 }
 const bold = (b: string) => /^\*\*[^*]+\*\*/.test(b.trim());
 
+// MP caricatures (ENTRY 71, "always caricatures"): a person named in the issue, with their Members API id, gets their
+// caricature (public/newsletter/mps/<id>.png, made by scripts/newsletter/mp-photos.mjs from the site's own photo) as a
+// small round picture beside their name at its FIRST mention only, inline, no box. Desktop only: hidden under 600px.
+// Names come with their ids from the send (checked against the Members API there), never guessed here.
+export type Person = { name: string; id: number };
+export const PHOTO_BASE = 'https://www.opengovt.uk/newsletter/mps/';
+function withPhotos(html: string, people: Person[]): string {
+  let out = html;
+  for (const p of people) {
+    const re = new RegExp(p.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'), 'i');
+    // Only text between tags is searched, so a name inside a link address or an attribute is never touched.
+    const parts = out.split(/(<[^>]+>)/);
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i].startsWith('<')) continue;
+      const m = parts[i].match(re);
+      if (!m || m.index === undefined) continue;
+      const img = `<img class="ogw-mp" src="${PHOTO_BASE}${p.id}.png" width="48" height="48" alt="${esc(p.name)}" style="display:inline-block;width:48px;height:48px;border:0;vertical-align:middle;margin:0 8px 2px 0">`;
+      // Before the name; when the name opens a bold run, before the bold run.
+      if (m.index === 0 && i > 0 && /^<strong>$/.test(parts[i - 1])) parts[i - 1] = img + parts[i - 1];
+      else parts[i] = parts[i].slice(0, m.index) + img + parts[i].slice(m.index);
+      break;
+    }
+    out = parts.join('');
+  }
+  return out;
+}
+
 type Section = { heading: string; blocks: string[] };
 
-export function issueHtml(issue: Issue): string {
+export function issueHtml(issue: Issue, people: Person[] = []): string {
   let signoff = '';
   const pre: string[] = [];
   const sections: Section[] = [];
@@ -110,11 +137,15 @@ export function issueHtml(issue: Issue): string {
     });
   }
 
+  // Pictures in the stream only (not the header lines above it).
+  const body = withPhotos(out.splice(3).join('\n'), people);
+  out.push(body);
   if (name) out.push(`<p style="${BODY};margin:22px 0 4px">${esc(name)}${signRest.length ? `<br><strong>${esc(signRest.join(' '))}</strong>` : ''}</p>`);
   footer.forEach((b, n) => out.push(`<p style="${SMALL};margin:${n === 0 ? '24px' : '0'} 0 4px">${links(inlineHtml(b))}</p>`));
 
   const preheader = issue.preview ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${esc(issue.preview)}</div>` : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${esc(issue.subject)}</title><style>
+@media only screen and (max-width:599px){img.ogw-mp{display:none!important;width:0!important;height:0!important;margin:0!important}}
 @media only screen and (max-width:600px){a.ogw-il{display:inline-block!important;padding:10px 0!important;line-height:1.3!important}}
 </style></head><body style="margin:0;padding:0;background:${PAPER}" bgcolor="${PAPER}">${preheader}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="background:${PAPER}"><tr><td align="center">
 <!--[if mso]><table role="presentation" width="680" align="center" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
