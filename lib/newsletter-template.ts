@@ -4,8 +4,8 @@
 //
 // ONE STREAM OF TEXT on the site's folder (ENTRY 76: folder-top at the top, folder-mid repeating down, PNG copies in
 // public/newsletter/, the paper colour #e8d3a2 underneath for Outlook and any mail app that drops background images;
-// dark surround #2a221c; fonts as on the site: Special Elite body, Bebas Neue red headings, Google Fonts with
-// Courier and Impact fallbacks), the folder 680px at most with the text in a centred block 560px at most (ENTRY 83;
+// dark surround #2a221c; the site's typewriter face, Special Elite, for the text and the red capital headings (ENTRY
+// 88), from Google Fonts with Courier New after it), the folder 680px at most with the text in a centred block 560px at most (ENTRY 83;
 // phones: full width), one column; no cards, boxes, tabs, borders or shaded
 // panels anywhere. Only the stamped OPENGOVT logo at the top (the site's logo with its paper made transparent and its
 // border thickened, /newsletter-logo.png, 450 by 128 for sharpness; shown 225px wide, 185px on phones, ENTRY 74, 75). Then "By <NAME>" (the sign-off's name) and "Tips, corrections and questions: contact@opengovt.uk".
@@ -34,7 +34,6 @@ const SURROUND = '#2a221c';
 export const FOLDER_TOP = 'https://www.opengovt.uk/newsletter/folder-top.png';
 export const FOLDER_MID = 'https://www.opengovt.uk/newsletter/folder-mid.png';
 const TYPE = "'Special Elite','Courier New',Courier,monospace"; // the site's typewriter face (Google Fonts), then Courier
-const DISPLAY = "'Bebas Neue',Impact,'Arial Narrow',sans-serif"; // the site's heading face
 const MUTED = '#5b4a3a';
 const MONO = "'Courier New',Courier,monospace";
 // The logo as in the site header (ENTRY 77): Bebas Neue lettering in the site red in a thin 1px border on a transparent
@@ -43,7 +42,9 @@ const MONO = "'Courier New',Courier,monospace";
 export const LOGO_URL = 'https://www.opengovt.uk/newsletter/logo.png';
 
 const BODY = `font-family:${TYPE};font-size:16px;line-height:1.6;color:${INK};margin:0 0 14px`;
-const HEAD = `font-family:${DISPLAY};font-size:24px;line-height:1.2;font-weight:normal;letter-spacing:2px;color:${ACCENT};margin:28px 0 8px`;
+// Section headings: red typewriter capitals, not bold (T1-NLHEAD, owner approved 14 Nov 2026, COWORK-TO-T1 ENTRY 88; they
+// were Bebas Neue 24px). 20px on every screen (there is no phone style for headings).
+const HEAD = `font-family:${TYPE};font-size:20px;line-height:1.3;font-weight:normal;letter-spacing:2px;color:${ACCENT};margin:28px 0 8px`;
 const SMALL = `font-family:${TYPE};font-size:13px;line-height:1.5;color:${MUTED};margin:0 0 4px`;
 
 const links = (html: string) => html.replace(/<a href/g, '<a class="ogw-il" href').replace(/style="color:#7a1612"/g, `style="color:${ACCENT};text-decoration:underline"`);
@@ -161,7 +162,7 @@ export function issueHtml(issue: Issue, people: Person[] = [], opts: HtmlOptions
   footer.forEach((b, n) => out.push(`<p style="${SMALL};margin:${n === 0 ? '24px' : '0'} 0 4px">${links(inlineHtml(b))}</p>`));
 
   const preheader = issue.preview ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${esc(issue.preview)}</div>` : '';
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">${opts.web ? '<meta name="robots" content="noindex">' : ''}<title>${esc(issue.subject)}</title><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet"><style>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">${opts.web ? '<meta name="robots" content="noindex">' : ''}<title>${esc(issue.subject)}</title><link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet"><style>
 @media only screen and (max-width:599px){td.ogw-ph{display:none!important;width:0!important;padding:0!important}img.ogw-logo{width:185px!important;height:59px!important}}
 @media only screen and (max-width:600px){a.ogw-il{display:inline-block!important;padding:10px 0!important;line-height:1.3!important}}
 </style></head><body style="margin:0;padding:0;background:${SURROUND}" bgcolor="${SURROUND}">${preheader}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${SURROUND}" style="background:${SURROUND}"><tr><td align="center" style="padding:16px 0">
