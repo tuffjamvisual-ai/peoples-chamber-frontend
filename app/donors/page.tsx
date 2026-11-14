@@ -5,7 +5,9 @@
 import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
+import { DONATIONS_TAG } from '@/lib/page-reads';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
@@ -38,38 +40,41 @@ type DonorAgg = { donor_name: string; total: number; count: number; recipients: 
 const PUBLIC = /^public funds?$/i;
 const isPublicFund = (r: { donor_status: string | null; donor_type: string | null }) => PUBLIC.test((r.donor_status ?? '').trim()) || PUBLIC.test((r.donor_type ?? '').trim());
 
-export default async function DonorsIndex() {
+type Ranked = { donor_name: string; total: number; count: number; recipients: number; isPublic: boolean };
+
+// The ranking, read once and kept in the shared data cache (T1-READALL, owner approved 14 Nov 2026, COWORK-TO-T1
+// ENTRY 51): refreshed when the donations sync or sweep writes (tag political-donations) and at most daily, so a page
+// rebuild or a deploy's build no longer reads all 94,000 donation rows. Only the ranked lists are cached (a few hundred
+// rows), well under Vercel's 2 MB item limit. Before this, each rebuild read 94 OFFSET pages: 10,998 reads and 1,823 s
+// of database time in pg_stat_statements over 2.8 days (14 Nov 2026).
+const rankDonors = unstable_cache(async (): Promise<{ top: Ranked[]; publicListed: Ranked[]; publicOthers: number }> => {
   // Pull top donors. Postgrest doesn't have a SUM aggregate via the rest
-  // surface but we can fetch raw rows and roll up in JS (about 71,000 rows, fine for a daily-revalidated page).
+  // surface but we can fetch raw rows and roll up in JS (about 94,000 rows, read once a day at most).
   // Every row is read (24 Oct 2026): the loop used to stop at 60,000 rows, unordered, while the register held 70,961,
-  // so later donations were left out of the ranking. The rows are now counted first and read in id order, eight pages
-  // at a time, and a failed read throws so the last good version of the page stays up.
+  // so later donations were left out of the ranking. The rows are counted first and read in id order, and a failed
+  // read throws so the last good version stays up. Keyset paging (id > last id, 1,000 rows a read, T1-READALL): each
+  // read uses the primary key and reads only its own rows; the OFFSET pages it replaces re-scanned every earlier row.
   const PAGE = 1000;
-  const BATCH = 8;
-  type Row = { donor_name: string | null; donor_status: string | null; donor_type: string | null; amount: number | string | null; recipient_name: string | null };
+  type Row = { id: number; donor_name: string | null; donor_status: string | null; donor_type: string | null; amount: number | string | null; recipient_name: string | null };
   const { count, error: countErr } = await supabase
     .from('political_donations')
     .select('id', { count: 'exact', head: true })
     .not('donor_name', 'is', null);
   if (countErr) throw new Error(`/donors donation count: ${countErr.message}`);
-  const pages = Math.ceil((count ?? 0) / PAGE);
   const rows: Row[] = [];
-  for (let first = 0; first < pages; first += BATCH) {
-    const batch = await Promise.all(
-      Array.from({ length: Math.min(BATCH, pages - first) }, (_, k) => {
-        const from = (first + k) * PAGE;
-        return supabase
-          .from('political_donations')
-          .select('donor_name, donor_status, donor_type, amount, recipient_name')
-          .not('donor_name', 'is', null)
-          .order('id', { ascending: true })
-          .range(from, from + PAGE - 1);
-      }),
-    );
-    for (const { data, error } of batch) {
-      if (error) throw new Error(`/donors donations: ${error.message}`);
-      rows.push(...((data ?? []) as Row[]));
-    }
+  for (let last = 0; ; ) {
+    const { data, error } = await supabase
+      .from('political_donations')
+      .select('id, donor_name, donor_status, donor_type, amount, recipient_name')
+      .not('donor_name', 'is', null)
+      .gt('id', last)
+      .order('id', { ascending: true })
+      .limit(PAGE);
+    if (error) throw new Error(`/donors donations: ${error.message}`);
+    const page = (data ?? []) as Row[];
+    rows.push(...page);
+    if (page.length < PAGE) break;
+    last = page[page.length - 1].id;
   }
   if (rows.length < (count ?? 0)) throw new Error(`/donors read ${rows.length} of ${count} donation rows`);
 
@@ -99,9 +104,13 @@ export default async function DonorsIndex() {
     .map((a) => ({ donor_name: a.donor_name, total: a.total, count: a.count, recipients: a.recipients_set.size, isPublic: a.publicRows * 2 > a.count }))
     .sort((a, b) => b.total - a.total);
   const top = everyone.filter((d) => !d.isPublic).slice(0, 200);
-  const publicAll = everyone.filter((d) => d.isPublic);
   const publicListed = everyone.slice(0, 200).filter((d) => d.isPublic);
-  const publicOthers = publicAll.length - publicListed.length;
+  const publicOthers = everyone.filter((d) => d.isPublic).length - publicListed.length;
+  return { top, publicListed, publicOthers };
+}, ['donors-ranking-v1'], { tags: [DONATIONS_TAG], revalidate: 86400 });
+
+export default async function DonorsIndex() {
+  const { top, publicListed, publicOthers } = await rankDonors();
 
   return (
     <OpenGovShell pageStamp="Donors">
