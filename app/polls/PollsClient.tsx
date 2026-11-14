@@ -154,6 +154,10 @@ export default function PollsClient({ initialPolls = null }: { initialPolls?: Po
       {/* Phones (UX2b, 10 Nov 2026): the first question comes straight after the page's one line introduction, so the
           counts and the search and sort row follow the polls (CSS order, the same with JavaScript off). From 640px up, as before. */}
       <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(767.98)} { .pc-flow { display: flex; flex-direction: column; } .pc-flow > .pc-after { order: 1; } }` }} />
+      {/* Phones (T2 ENTRY 1 item 5, Cowork 14 Nov 2026): each poll a compact stacked card: no tilt, no side stub (its number
+          moves to the card's top line), tighter spacing, and Aye and No side by side, each a 44px tap; the question, the
+          boxes and the result in one short card. From 768px up, as before. */}
+      <style dangerouslySetInnerHTML={{ __html: `.pc-num { display: none; } @media ${phoneUpTo(767.98)} { .pc-card { transform: none !important; } .pc-stub { display: none !important; } .pc-num { display: inline; } .pc-main { padding: 12px 14px !important; gap: 8px !important; } .pc-rows { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; } .pc-rows > button { min-height: 44px; } #polls-list { gap: 16px !important; grid-template-columns: 1fr !important; } }` }} />
       <Toast message={notice} onDone={() => setNotice(null)} />
       <div
         className="pc-after"
@@ -304,6 +308,7 @@ function PollCard({
   return (
     <div
       id={`poll-${poll.id}`}
+      className="pc-card"
       style={{
         scrollMarginTop: '90px',
         position: 'relative',
@@ -318,6 +323,7 @@ function PollCard({
     >
       {/* Tear-off stub: perforated edge, vertical title + serial number */}
       <div
+        className="pc-stub"
         style={{
           flexShrink: 0,
           width: '34px',
@@ -335,11 +341,13 @@ function PollCard({
       </div>
 
       {/* Main ballot */}
-      <div style={{ flex: 1, minWidth: 0, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '11px' }}>
-        {poll.constituency && (
+      <div className="pc-main" style={{ flex: 1, minWidth: 0, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '11px' }}>
+        {poll.constituency ? (
           <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
-            {poll.constituency}
+            {poll.constituency}<span className="pc-num" style={{ color: ACCENT, fontWeight: 'bold', letterSpacing: '0.06em' }}> · No. {String(poll.id).padStart(4, '0')}</span>
           </div>
+        ) : (
+          <div className="pc-num" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: ACCENT, fontWeight: 'bold', letterSpacing: '0.06em' }}>No. {String(poll.id).padStart(4, '0')}</div>
         )}
 
         <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
@@ -374,7 +382,7 @@ function PollCard({
           Mark one box with a cross.
         </div>
 
-        <div>
+        <div className="pc-rows">
           <BallotRow label="Aye" marked={userVote === 'yes'} disabled={false} onClick={() => onVote('yes')} />
           <BallotRow label="No" marked={userVote === 'no'} disabled={false} onClick={() => onVote('no')} />
         </div>
