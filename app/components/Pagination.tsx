@@ -44,6 +44,8 @@ interface Props {
   qsExtra?: string;
   /** Param name to use for the page, defaults to 'page'. */
   pageParam?: string;
+  /** An element id to land on, for a second list lower on the page (/pmqs, 1945 to 1961). */
+  hash?: string;
 }
 
 const INK = '#14100d';
@@ -136,9 +138,10 @@ export default function Pagination({
   baseUrl,
   qsExtra = '',
   pageParam = 'page',
+  hash,
 }: Props) {
   if (totalPages <= 1) return null;
-  const href = (p: number) => `${baseUrl}?${pageParam}=${p}${qsExtra}`;
+  const href = (p: number) => `${baseUrl}?${pageParam}=${p}${qsExtra}${hash ? `#${hash}` : ''}`;
   const tokens = pageTokens(currentPage, totalPages);
   const nums = tokens.filter((t): t is number => t !== null);
   const { wide, narrow } = phoneSets(currentPage, totalPages, nums);
@@ -211,7 +214,7 @@ export default function Pagination({
       {/* Go-to-page form. Native <form> with GET so it works without
           JS (crawler + no-JS visitors get a real navigation). */}
       <form
-        action={baseUrl}
+        action={hash ? `${baseUrl}#${hash}` : baseUrl}
         method="GET"
         style={{
           display: 'flex',

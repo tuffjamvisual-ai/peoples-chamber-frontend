@@ -3,16 +3,20 @@ import NoJsPager, { NoJsFold } from '../components/NoJsPager';
 import Pagination from '../components/Pagination';
 import { SubFold } from '../components/PhoneFolds';
 import { phoneUpTo } from '@/lib/breakpoints';
-import PreFixedQuestions from './PreFixedQuestions';
+import PreFixedQuestions, { PREFIXED_PER_PAGE } from './PreFixedQuestions';
+import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel, type ListedSession } from '@/lib/pmqs-archive';
-import { cleanWords, datePrefix, pmSlug, sessionsMatching, ROW_CAP } from '@/lib/pmqs-search';
+import { cleanWords, datePrefix, pmSlug, preFixedMatching, sessionsMatching, ROW_CAP } from '@/lib/pmqs-search';
 import type { PmqsSet } from '@/lib/pmqs';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const PER_PAGE = 20;   // sessions on a page; on phones and tablets the newest 3, then "Show 17 more sessions"
 
-export type PmqsFilters = { q?: string; pm?: string; year?: string; page?: string };
+export type PmqsFilters = { q?: string; pm?: string; year?: string; page?: string; dpage?: string };
+
+// The Prime Ministers of the 1945 to 1961 questions (lib/pm-questions-1945-1961.ts keys), by name, for the one filter.
+const PREFIXED_PM: Record<string, string> = { Macmillan: 'Harold Macmillan', Eden: 'Anthony Eden', Churchill: 'Winston Churchill', Attlee: 'Clement Attlee' };
 
 // Every session, 1961 to now (owner, 5 Nov 2026), found with a search box and Prime Minister and year filters (T2 ENTRY 1,
 // Cowork 14 Nov 2026, from T1-AUDIT2): the page carried all 3,000 and more sessions in folds by Prime Minister and year; it
@@ -20,7 +24,7 @@ export type PmqsFilters = { q?: string; pm?: string; year?: string; page?: strin
 // be shared and Back returns to it. Every session keeps its own address, /pmqs/<date>. A plain form: no JavaScript needed.
 // Below it, our count against the Commons Library's.
 export default async function EverySession({ set, filters }: { set: PmqsSet; filters: PmqsFilters }) {
-  const [archive, totals] = await Promise.all([archiveSessions(), libraryTotals()]);
+  const [archive, totals, preFixed] = await Promise.all([archiveSessions(), libraryTotals(), preFixedSummary()]);
   const sessions: ListedSession[] = [
     ...set.sessions.map((s) => ({ date: s.date, answeredBy: s.answeredBy.name })),
     ...archive.map((s) => ({ date: s.date, answeredBy: answeredBy(s.date) })),
@@ -35,7 +39,15 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
   // The choice in the address. An unknown Prime Minister or year is ignored, as if not chosen.
   const words = cleanWords(filters.q ?? '');
   const pmGroup = groups.find((g) => pmSlug(g.pm) === filters.pm) ?? null;
-  const years = [...new Set(sessions.map((s) => s.date.slice(0, 4)))];
+  // The 1945 to 1961 days (T2 ENTRY 3), with the Prime Minister each belongs to; the same filters cover them.
+  const preDays = preFixed.groups.flatMap((g) => g.years.flatMap((y) => y.days.map((d) => ({ ...d, pm: PREFIXED_PM[g.key] ?? g.key }))))
+    .sort((a, b) => b.date.localeCompare(a.date));
+  const prePms = preFixed.groups.map((g) => ({ name: PREFIXED_PM[g.key] ?? g.key, days: g.days }));
+  const prePm = prePms.find((p) => pmSlug(p.name) === filters.pm) ?? null;
+  const pmKey = pmGroup ? pmSlug(pmGroup.pm) : prePm ? pmSlug(prePm.name) : null;
+  // Only before 1961: in the list, but with no sessions.
+  const onlyPre = prePms.filter((p) => !groups.some((g) => pmSlug(g.pm) === pmSlug(p.name)));
+  const years = [...new Set([...sessions.map((s) => s.date.slice(0, 4)), ...preDays.map((d) => d.date.slice(0, 4))])].sort((a, b) => b.localeCompare(a));
   const year = years.includes(filters.year ?? '') ? filters.year! : null;
   const onDate = words ? datePrefix(words) : null;
   // Who answered and who led for the Opposition are in the list itself; other names and the questions are read.
@@ -45,17 +57,26 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
     for (const s of set.sessions) if (s.answeredBy.name.toLowerCase().includes(w) || s.opposition?.name.toLowerCase().includes(w)) byName.add(s.date);
     for (const s of sessions) if (s.answeredBy?.toLowerCase().includes(w)) byName.add(s.date);
   }
-  const text = words && !onDate ? await sessionsMatching(words, set) : null;
+  const [text, preText] = words && !onDate ? await Promise.all([sessionsMatching(words, set), preFixedMatching(words)]) : [null, null];
   const hit = new Set([...byName, ...(text?.dates ?? [])]);
   const pmDates = pmGroup ? new Set(pmGroup.years.flatMap((y) => y.sessions.map((s) => s.date))) : null;
   const found = sessions.filter((s) =>
-    (!pmDates || pmDates.has(s.date)) && (!year || s.date.startsWith(year)) &&
+    (!pmKey || (pmDates?.has(s.date) ?? false)) && (!year || s.date.startsWith(year)) &&
     (!words || (onDate ? s.date.startsWith(onDate) : hit.has(s.date))));
   const pages = Math.max(1, Math.ceil(found.length / PER_PAGE));
   const page = Math.min(pages, Math.max(1, parseInt(filters.page ?? '1', 10) || 1));
   const shown = found.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-  const chosen = !!(words || pmGroup || year);
-  const qs = [words && `q=${encodeURIComponent(words)}`, pmGroup && `pm=${pmSlug(pmGroup.pm)}`, year && `year=${year}`].filter(Boolean).join('&');
+  const chosen = !!(words || pmKey || year);
+  const qs = [words && `q=${encodeURIComponent(words)}`, pmKey && `pm=${pmKey}`, year && `year=${year}`].filter(Boolean).join('&');
+  const preHit = new Set(preText?.dates ?? []);
+  const preFound = preDays.filter((d) =>
+    (!pmKey || pmSlug(d.pm) === pmKey) && (!year || d.date.startsWith(year)) &&
+    (!words || (onDate ? d.date.startsWith(onDate) : preHit.has(d.date))));
+  const prePages = Math.max(1, Math.ceil(preFound.length / PREFIXED_PER_PAGE));
+  const dpage = Math.min(prePages, Math.max(1, parseInt(filters.dpage ?? '1', 10) || 1));
+  // Each list pages on its own: the other's page stays in its links.
+  const sessionQs = [qs, dpage > 1 && `dpage=${dpage}`].filter(Boolean).join('&');
+  const preQs = [qs, page > 1 && `page=${page}`].filter(Boolean).join('&');
   const label = { display: 'block', fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' } as const;
   const field = { width: '100%', minHeight: '48px', padding: '10px 12px', fontSize: '16px', fontFamily: 'inherit', color: INK, background: 'rgba(20,16,13,0.05)', border: '1px solid rgba(20,16,13,0.3)', borderRadius: '2px' } as const;
 
@@ -77,9 +98,10 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
         </div>
         <div>
           <label htmlFor="pmq-pm" style={label}>Prime Minister</label>
-          <select id="pmq-pm" name="pm" defaultValue={pmGroup ? pmSlug(pmGroup.pm) : ''} style={field}>
+          <select id="pmq-pm" name="pm" defaultValue={pmKey ?? ''} style={field}>
             <option value="">All</option>
             {groups.map((g) => <option key={g.pm} value={pmSlug(g.pm)}>{primeMinisterLabel(g.pm)} ({g.count.toLocaleString('en-GB')})</option>)}
+            {onlyPre.map((p) => <option key={p.name} value={pmSlug(p.name)}>{p.name} (before 1961: {p.days.toLocaleString('en-GB')} days of questions)</option>)}
           </select>
         </div>
         <div>
@@ -92,7 +114,7 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
       </form>
       <p role="status" style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 8px' }}>
         {chosen
-          ? <>{found.length.toLocaleString('en-GB')} {found.length === 1 ? 'session' : 'sessions'}{words ? <> matching &ldquo;{words}&rdquo;</> : null}{pmGroup ? <>, {primeMinisterLabel(pmGroup.pm)}</> : null}{year ? <>, {year}</> : null}</>
+          ? <>{found.length.toLocaleString('en-GB')} {found.length === 1 ? 'session' : 'sessions'}{words ? <> matching &ldquo;{words}&rdquo;</> : null}{pmGroup ? <>, {primeMinisterLabel(pmGroup.pm)}</> : prePm ? <>, {prePm.name}</> : null}{year ? <>, {year}</> : null}</>
           : <>The newest sessions</>}
         {pages > 1 ? <> (page {page} of {pages})</> : null}.
         {chosen && <>{' '}<Link href="/pmqs" className="og-tap" style={{ minWidth: '44px', color: ACCENT, textDecoration: 'underline' }}>Clear</Link></>}
@@ -112,11 +134,13 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
       ) : (
         <p style={{ fontSize: '15px', lineHeight: 1.6 }}>No session matches. Try fewer words, another spelling, or all years.</p>
       )}
-      <Pagination currentPage={page} totalPages={pages} baseUrl="/pmqs" qsExtra={qs ? `&${qs}` : ''} />
+      <Pagination currentPage={page} totalPages={pages} baseUrl="/pmqs" qsExtra={sessionQs ? `&${sessionQs}` : ''} />
       <div className="pfq-wrap">
         {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): folded up to 1,023px. */}
         <style>{`@media ${phoneUpTo(1023.98)} { .pfq-wrap .pf-sb > #before-fixed-pmqs { display: none; } }`}</style>
-        <SubFold label="Questions to the Prime Minister, 1945 to 1961" tablets><PreFixedQuestions /></SubFold>
+        <SubFold label="Questions to the Prime Minister, 1945 to 1961" summary={chosen ? `${preFound.length.toLocaleString('en-GB')} ${preFound.length === 1 ? 'day' : 'days'}` : null} tablets>
+          <PreFixedQuestions found={preFound} totalDays={preDays.length} page={dpage} chosen={chosen} capped={!!preText?.capped} qsExtra={preQs ? `&${preQs}` : ''} />
+        </SubFold>
       </div>
       <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '28px 0 10px' }}>Our count against the Commons Library</h3>
       {/* Folded on phones (step 5, 10 Nov 2026: the page was 5,098px). */}

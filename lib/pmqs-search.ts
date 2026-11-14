@@ -52,3 +52,35 @@ export function sessionsMatching(words: string, set: PmqsSet): Promise<TextMatch
   const guidDates: [string, string, number][] = set.sessions.flatMap((s) => s.parts.map((p): [string, string, number] => [p.guid, s.date, p.fromOrder]));
   return readMatches(words.toLowerCase(), guidDates);
 }
+
+// The questions to the Prime Minister from 1945 to 1961 (T2 ENTRY 3, Cowork 14 Nov 2026): the dates of the days whose
+// questions, answers or speakers' names contain the words. Small tables (about 4,000 questions, 26,000 rows of text), so a
+// plain match, kept for an hour like the sessions' search.
+const preFixedRead = unstable_cache(async (words: string): Promise<TextMatches> => {
+  const like = ilikeWords(words);
+  if (!like) return { dates: [], capped: false };
+  const exchanges = new Set<string>();
+  let capped = false;
+  for (let from = 0; from < ROW_CAP; from += 1000) {
+    const { data, error } = await supabase.from('pm_question_exchange_rows_1945_1961').select('exchange_id')
+      .or(`text.ilike.${like},speaker_as_printed.ilike.${like}`)
+      .order('exchange_id', { ascending: true }).order('row_order', { ascending: true }).range(from, from + 999);
+    if (error) throw new Error(`pmqs search 1945 to 1961: ${error.message}`);
+    for (const r of (data ?? []) as { exchange_id: string }[]) exchanges.add(r.exchange_id);
+    if ((data ?? []).length < 1000) break;
+    if (from + 1000 >= ROW_CAP) capped = true;
+  }
+  const dates = new Set<string>();
+  const { data: asked, error: askedError } = await supabase.from('pm_questions_1945_1961').select('date').ilike('asker_as_printed', like).limit(5000);
+  if (askedError) throw new Error(`pmqs search 1945 to 1961 askers: ${askedError.message}`);
+  for (const r of (asked ?? []) as { date: string }[]) dates.add(String(r.date).slice(0, 10));
+  const ids = [...exchanges];
+  for (let i = 0; i < ids.length; i += 100) {
+    const { data, error } = await supabase.from('pm_questions_1945_1961').select('date').in('exchange_id', ids.slice(i, i + 100));
+    if (error) throw new Error(`pmqs search 1945 to 1961 dates: ${error.message}`);
+    for (const r of (data ?? []) as { date: string }[]) dates.add(String(r.date).slice(0, 10));
+  }
+  return { dates: [...dates], capped };
+}, ['pmqs-search-1945-1961'], { tags: [PMQS_TAG], revalidate: 3600 });
+
+export const preFixedMatching = (words: string) => preFixedRead(words.toLowerCase());

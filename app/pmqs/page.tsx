@@ -6,10 +6,10 @@ import PmqsAttendance, { PMQS_ATTENDANCE_SOURCE } from './PmqsAttendance';
 import EverySession, { type PmqsFilters } from './EverySession';
 import { pmqsSet } from '@/lib/pmqs';
 
-// A search or filter (?q=, ?pm=, ?year=, ?page=) is the same page narrowed: not indexed on its own, the canonical is /pmqs.
+// A search or filter (?q=, ?pm=, ?year=, ?page=, ?dpage=) is the same page narrowed: not indexed on its own, the canonical is /pmqs.
 export async function generateMetadata({ searchParams }: { searchParams: Promise<PmqsFilters> }): Promise<Metadata> {
   const sp = await searchParams;
-  const narrowed = !!(sp.q || sp.pm || sp.year || sp.page);
+  const narrowed = !!(sp.q || sp.pm || sp.year || sp.page || sp.dpage);
   return {
     title: { absolute: "Prime Minister's Questions: every session and attendance" },
     description: "Prime Minister's Questions: every session since 1961, and the Prime Minister's attendance since 1979.",
@@ -22,7 +22,7 @@ export const revalidate = 3600;
 
 export default async function PmqsPage({ searchParams }: { searchParams: Promise<PmqsFilters> }) {
   const sp = await searchParams;
-  const filters: PmqsFilters = Object.fromEntries((['q', 'pm', 'year', 'page'] as const).map((k) => [k, typeof sp[k] === 'string' ? sp[k] : undefined]));
+  const filters: PmqsFilters = Object.fromEntries((['q', 'pm', 'year', 'page', 'dpage'] as const).map((k) => [k, typeof sp[k] === 'string' ? sp[k] : undefined]));
   const set = await pmqsSet();
   return (
     <OpenGovShell pageStamp="PMQs">
