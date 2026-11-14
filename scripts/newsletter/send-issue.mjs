@@ -37,7 +37,7 @@ for (const pair of (opt('--people', '') || '').split(',').map((x) => x.trim()).f
   const m = await fetch(`https://members-api.parliament.uk/api/Members/${id}`);
   const official = m.ok ? (await m.json()).value?.nameDisplayAs : null;
   if (!official || official.toLowerCase() !== name.toLowerCase()) { console.error(`--people: Members API id ${id} is "${official ?? 'not found'}", not "${name}". Stopped.`); process.exit(1); }
-  const photo = await fetch(`https://www.opengovt.uk/newsletter/mps/${id}.png`, { method: 'HEAD' });
+  const photo = await fetch(`https://www.opengovt.uk/newsletter/mps/${id}.jpg`, { method: 'HEAD' });
   if (photo.ok) people.push({ name, id }); else console.log(`${name} (${id}): no picture on the site yet, shown without one.`);
   await new Promise((r) => setTimeout(r, 1000));
 }

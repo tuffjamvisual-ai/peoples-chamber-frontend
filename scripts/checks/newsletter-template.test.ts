@@ -84,13 +84,13 @@ test('capsLead and the overdue count', () => {
   assert.equal(withOverdue(parseIssue(issue), '2026-11-20').body, parseIssue(issue).body, 'no due line: left as written');
 });
 
-test('caricatures: beside the first mention only, desktop only, alt is the name, none without an id', () => {
+test('caricatures: full picture in a polaroid frame beside the first-mention paragraph, desktop only', () => {
   const people = [{ name: 'Andy Burnham', id: 1427 }, { name: 'Danny Kruger', id: 4858 }];
   const twice = issue.replace('One new thing on the site: search.', 'One new thing on the site: search. Andy Burnham again.');
   const h = emailFor(parseIssue(twice), tok, '', '2026-11-15', people).html;
-  const imgs = [...h.matchAll(/<img class="ogw-mp" src="([^"]+)" width="48" height="48" alt="([^"]+)"/g)];
-  assert.deepEqual(imgs.map((m) => [m[1], m[2]]), [['https://www.opengovt.uk/newsletter/mps/1427.png', 'Andy Burnham']], 'Kruger is not named in this test issue; Burnham once');
-  assert.ok(/<img class="ogw-mp"[^>]+><strong>ANDY BURNHAM:<\/strong>/.test(h), 'before the bold name');
-  assert.ok(/@media only screen and \(max-width:599px\)\{img\.ogw-mp\{display:none!important/.test(h), 'hidden on phones');
-  assert.ok(!emailFor(parseIssue(twice), tok, '', '2026-11-15').html.includes('ogw-mp"'), 'no people, no pictures');
+  const imgs = [...h.matchAll(/<img src="([^"]+)" width="84" height="84" alt="([^"]+)"/g)];
+  assert.deepEqual(imgs.map((m) => [m[1], m[2]]), [['https://www.opengovt.uk/newsletter/mps/1427.jpg', 'Andy Burnham']], 'Kruger is not named in this test issue; Burnham once');
+  assert.ok(/<td class="ogw-ph" valign="top" width="108"[^>]*><div style="background:#fbf8f0;padding:6px 6px 18px;box-shadow:[^"]*;transform:rotate\(-2deg\);width:84px"><img src="https:\/\/www.opengovt.uk\/newsletter\/mps\/1427.jpg"[^>]*><\/div><\/td><td valign="top"><p style="[^"]*margin:0"><strong>ANDY BURNHAM:<\/strong>/.test(h), 'frame left, the first-mention paragraph right');
+  assert.ok(/@media only screen and \(max-width:599px\)\{td\.ogw-ph\{display:none!important/.test(h), 'hidden on phones');
+  assert.ok(!emailFor(parseIssue(twice), tok, '', '2026-11-15').html.includes('ogw-ph"'), 'no people, no pictures');
 });

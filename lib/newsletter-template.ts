@@ -58,29 +58,26 @@ function block(b: string): string {
 }
 const bold = (b: string) => /^\*\*[^*]+\*\*/.test(b.trim());
 
-// MP caricatures (ENTRY 71, "always caricatures"): a person named in the issue, with their Members API id, gets their
-// caricature (public/newsletter/mps/<id>.png, made by scripts/newsletter/mp-photos.mjs from the site's own photo) as a
-// small round picture beside their name at its FIRST mention only, inline, no box. Desktop only: hidden under 600px.
-// Names come with their ids from the send (checked against the Members API there), never guessed here.
+// MP caricatures (ENTRY 71, 72, 73, "always caricatures"): a person named in the issue, with their Members API id, gets
+// their full caricature (public/newsletter/mps/<id>.jpg, made by scripts/newsletter/mp-photos.mjs from the site's own
+// photo) in the site's polaroid frame (off-white, thicker at the bottom, a slight shadow and tilt where the mail
+// program supports them), beside the paragraph where they are first named: a two-cell row, frame left (84px picture),
+// paragraph right, no other box. Desktop only: the frame's cell is hidden under 600px. Names come with their ids from
+// the send (checked against the Members API there), never guessed here.
 export type Person = { name: string; id: number };
 export const PHOTO_BASE = 'https://www.opengovt.uk/newsletter/mps/';
-function withPhotos(html: string, people: Person[]): string {
-  let out = html;
+const textOf = (html: string) => html.replace(/<[^>]+>/g, ' ');
+function framed(p: Person, paragraph: string): string {
+  const inner = paragraph.replace(/margin:0 0 (8|14)px(?: 18px)?"/, 'margin:0"');
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px"><tr><td class="ogw-ph" valign="top" width="108" style="padding:4px 18px 0 2px"><div style="background:#fbf8f0;padding:6px 6px 18px;box-shadow:2px 3px 6px rgba(20,16,13,0.3);transform:rotate(-2deg);width:84px"><img src="${PHOTO_BASE}${p.id}.jpg" width="84" height="84" alt="${esc(p.name)}" style="display:block;width:84px;height:84px;border:0"></div></td><td valign="top">${inner}</td></tr></table>`;
+}
+function withPhotos(blocks: string[], people: Person[]): string[] {
+  const out = [...blocks];
   for (const p of people) {
     const re = new RegExp(p.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'), 'i');
-    // Only text between tags is searched, so a name inside a link address or an attribute is never touched.
-    const parts = out.split(/(<[^>]+>)/);
-    for (let i = 0; i < parts.length; i++) {
-      if (parts[i].startsWith('<')) continue;
-      const m = parts[i].match(re);
-      if (!m || m.index === undefined) continue;
-      const img = `<img class="ogw-mp" src="${PHOTO_BASE}${p.id}.png" width="48" height="48" alt="${esc(p.name)}" style="display:inline-block;width:48px;height:48px;border:0;vertical-align:middle;margin:0 8px 2px 0">`;
-      // Before the name; when the name opens a bold run, before the bold run.
-      if (m.index === 0 && i > 0 && /^<strong>$/.test(parts[i - 1])) parts[i - 1] = img + parts[i - 1];
-      else parts[i] = parts[i].slice(0, m.index) + img + parts[i].slice(m.index);
-      break;
-    }
-    out = parts.join('');
+    // The first block whose text (not its tags or link addresses) names them, unless it is a heading or already framed.
+    const i = out.findIndex((b) => b.startsWith('<p ') && !b.includes('font-weight:bold;letter-spacing:1px') && re.test(textOf(b)));
+    if (i >= 0) out[i] = framed(p, out[i]);
   }
   return out;
 }
@@ -138,14 +135,14 @@ export function issueHtml(issue: Issue, people: Person[] = []): string {
   }
 
   // Pictures in the stream only (not the header lines above it).
-  const body = withPhotos(out.splice(3).join('\n'), people);
-  out.push(body);
+  const body = withPhotos(out.splice(3), people);
+  out.push(...body);
   if (name) out.push(`<p style="${BODY};margin:22px 0 4px">${esc(name)}${signRest.length ? `<br><strong>${esc(signRest.join(' '))}</strong>` : ''}</p>`);
   footer.forEach((b, n) => out.push(`<p style="${SMALL};margin:${n === 0 ? '24px' : '0'} 0 4px">${links(inlineHtml(b))}</p>`));
 
   const preheader = issue.preview ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${esc(issue.preview)}</div>` : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${esc(issue.subject)}</title><style>
-@media only screen and (max-width:599px){img.ogw-mp{display:none!important;width:0!important;height:0!important;margin:0!important}}
+@media only screen and (max-width:599px){td.ogw-ph{display:none!important;width:0!important;padding:0!important}}
 @media only screen and (max-width:600px){a.ogw-il{display:inline-block!important;padding:10px 0!important;line-height:1.3!important}}
 </style></head><body style="margin:0;padding:0;background:${PAPER}" bgcolor="${PAPER}">${preheader}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="background:${PAPER}"><tr><td align="center">
 <!--[if mso]><table role="presentation" width="680" align="center" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
