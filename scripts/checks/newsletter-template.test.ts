@@ -52,14 +52,14 @@ test('one stream on the folder: no cards, boxes, tabs, borders or shaded panels;
   assert.ok(html.includes('src="https://www.opengovt.uk/newsletter/logo.png" width="225" height="72" alt="opengovt"'), 'the site header logo');
   assert.ok(/<p align="center" style="margin:0 0 22px;text-align:center"><img class="ogw-logo"[^>]*style="display:block;margin:0 auto;/.test(html), 'logo centred, 22px under it');
   assert.ok(html.includes('margin:0 0 8px;text-align:center">By <strong>') && html.includes('margin:0 0 30px;line-height:1.6">'), 'byline centred, spacing at the top');
-  assert.ok(/<p style="font-family:'Special Elite'[^"]*margin:0 0 14px">Hello and welcome/.test(html), 'the stream below stays left aligned');
+  assert.ok(/<p style="font-family:'Special Elite'[^"]*line-height:1.45;letter-spacing:-0.2px;[^"]*margin:0 0 10px">Hello and welcome/.test(html), 'the stream below stays left aligned');
   assert.ok(!/border(-left|-top|-bottom|-right)?:\s*[1-9]/.test(html), 'no borders (border:0 on the logo image only)');
   assert.ok(!/border-radius|box-shadow/.test(html));
   const bgs = new Set([...html.matchAll(/background(?:-color)?:(#[0-9a-f]{6})/gi)].map((m) => m[1].toLowerCase()));
   assert.deepEqual([...bgs].sort(), ['#2a221c', '#e8d3a2'], 'the dark surround and the paper colour only');
   assert.ok(html.includes(`background-image:url(${FOLDER_TOP}),url(${FOLDER_MID})`) && html.includes(`background="${FOLDER_MID}"`), 'folder art, paper colour underneath');
   assert.ok(html.includes('fonts.googleapis.com/css2?family=Special+Elite&display=swap') && !html.includes('Bebas'), 'Special Elite only; no Bebas Neue left');
-  assert.ok(/font-family:'Special Elite','Courier New',Courier,monospace;font-size:20px;line-height:1.3;font-weight:normal;letter-spacing:2px;color:#7a1612[^"]*">THE SHORT VERSION</.test(html), 'headings in Special Elite 20px red, not bold (ENTRY 88)');
+  assert.ok(/font-family:'Special Elite','Courier New',Courier,monospace;font-size:20px;line-height:1.3;font-weight:bold;letter-spacing:1px;color:#7a1612[^"]*margin:22px 0 6px[^"]*">THE SHORT VERSION</.test(html), 'headings in Special Elite 20px red, bold, 1px spacing, 22/6px margins (ENTRY 88, 95)');
   assert.ok(/font-family:'Special Elite','Courier New',Courier,monospace;font-size:16px/.test(html), 'body in Special Elite');
   assert.ok(html.indexOf(`src="${LOGO_URL}"`) < html.indexOf('By <strong>JOHN SANDERS</strong>'));
 });
@@ -68,12 +68,13 @@ test('welcome first, then headings in capitals, bullets, capitals run-in labels,
   const at = (s: string) => { const i = html.indexOf(s); assert.ok(i >= 0, s); return i; };
   assert.ok(at('Hello and welcome') < at('>THE SHORT VERSION<'));
   assert.ok(at('>THE SHORT VERSION<') < at('&bull; <strong>25 days overdue:</strong>'));
+  assert.ok(/margin:0 0 6px">&bull; <strong>25 days overdue/.test(html), 'list items 6px apart (ENTRY 95)');
   at('<strong>25 DAYS AND COUNTING:</strong> On 19 October');
   at('<strong>The money:</strong> words.');
   at('<strong>£12.8BN:</strong> Words.');
   at('<strong>ANDY BURNHAM:</strong> was at');
   assert.ok(at('>NEW ON OPENGOVT<') < at('One new thing') && at('>YOUR QUESTION<') < at('Which decision'));
-  assert.ok(/margin:0 0 14px 18px"><span style="font-family:'Courier New'[^"]*;font-size:15px">&quot;A quoted answer/.test(html), 'quote indented, typewriter');
+  assert.ok(/margin:0 0 10px 18px"><span style="font-family:'Courier New'[^"]*;font-size:15px">&quot;A quoted answer/.test(html), 'quote indented, typewriter');
 });
 
 test('links underlined in red, own unsubscribe link, sign-off and 13px footer', () => {
@@ -99,6 +100,7 @@ test('caricatures: full picture in a polaroid frame beside the first-mention par
   const imgs = [...h.matchAll(/<img src="([^"]+)" width="84" height="84" alt="([^"]+)"/g)];
   assert.deepEqual(imgs.map((m) => [m[1], m[2]]), [['https://www.opengovt.uk/newsletter/mps/1427.jpg', 'Andy Burnham']], 'Kruger is not named in this test issue; Burnham once');
   assert.ok(/<td class="ogw-ph" valign="top" width="108"[^>]*><div style="background:#fbf8f0;padding:6px 6px 18px;box-shadow:[^"]*;transform:rotate\(-2deg\);width:84px"><img src="https:\/\/www.opengovt.uk\/newsletter\/mps\/1427.jpg"[^>]*><\/div><\/td><td valign="top"><p style="[^"]*margin:0"><strong>ANDY BURNHAM:<\/strong>/.test(h), 'frame left, the first-mention paragraph right');
+  assert.ok(h.includes('cellspacing="0" style="margin:0 0 10px"><tr><td class="ogw-ph"'), 'caricature row 10px below (ENTRY 95)');
   assert.ok(/@media only screen and \(max-width:599px\)\{td\.ogw-ph\{display:none!important/.test(h), 'hidden on phones');
   assert.ok(!emailFor(parseIssue(twice), tok, '', '2026-11-15').html.includes('ogw-ph"'), 'no people, no pictures');
 });

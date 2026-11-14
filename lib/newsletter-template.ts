@@ -41,10 +41,13 @@ const MONO = "'Courier New',Courier,monospace";
 // cream fill).
 export const LOGO_URL = 'https://www.opengovt.uk/newsletter/logo.png';
 
-const BODY = `font-family:${TYPE};font-size:16px;line-height:1.6;color:${INK};margin:0 0 14px`;
+// Tighter text (T1-NLTIGHT, owner approved 14 Nov 2026, COWORK-TO-T1 ENTRY 95): line height 1.45 (was 1.6), 10px between
+// paragraphs (was 14px), letters -0.2px closer.
+const BODY = `font-family:${TYPE};font-size:16px;line-height:1.45;letter-spacing:-0.2px;color:${INK};margin:0 0 10px`;
 // Section headings: red typewriter capitals, not bold (T1-NLHEAD, owner approved 14 Nov 2026, COWORK-TO-T1 ENTRY 88; they
 // were Bebas Neue 24px). 20px on every screen (there is no phone style for headings).
-const HEAD = `font-family:${TYPE};font-size:20px;line-height:1.3;font-weight:normal;letter-spacing:2px;color:${ACCENT};margin:28px 0 8px`;
+// ENTRY 95: bold, letter spacing 1px (was 2px), 22px above and 6px below (was 28px and 8px).
+const HEAD = `font-family:${TYPE};font-size:20px;line-height:1.3;font-weight:bold;letter-spacing:1px;color:${ACCENT};margin:22px 0 6px`;
 const SMALL = `font-family:${TYPE};font-size:13px;line-height:1.5;color:${MUTED};margin:0 0 4px`;
 
 const links = (html: string) => html.replace(/<a href/g, '<a class="ogw-il" href').replace(/style="color:#7a1612"/g, `style="color:${ACCENT};text-decoration:underline"`);
@@ -62,9 +65,9 @@ const heading = (text: string) => `<p style="${HEAD}">${esc(text.toUpperCase())}
 function block(b: string): string {
   if (isQuote(b)) {
     const q = splitBlocks(quoteText(b)).map((x) => links(inlineHtml(x))).join('<br><br>');
-    return `<p style="${BODY};margin:0 0 14px 18px"><span style="font-family:${MONO};font-size:15px">${q}</span></p>`;
+    return `<p style="${BODY};margin:0 0 10px 18px"><span style="font-family:${MONO};font-size:15px">${q}</span></p>`;
   }
-  if (isList(b)) return items(b).map((i) => `<p style="${BODY};margin:0 0 8px">&bull; ${links(inlineHtml(i))}</p>`).join('');
+  if (isList(b)) return items(b).map((i) => `<p style="${BODY};margin:0 0 6px">&bull; ${links(inlineHtml(i))}</p>`).join('');
   return `<p style="${BODY}">${links(inlineHtml(b)).replace(/\n/g, '<br>')}</p>`;
 }
 const bold = (b: string) => /^\*\*[^*]+\*\*/.test(b.trim());
@@ -79,8 +82,8 @@ export type Person = { name: string; id: number };
 export const PHOTO_BASE = 'https://www.opengovt.uk/newsletter/mps/';
 const textOf = (html: string) => html.replace(/<[^>]+>/g, ' ');
 function framed(p: Person, paragraph: string): string {
-  const inner = paragraph.replace(/margin:0 0 (8|14)px(?: 18px)?"/, 'margin:0"');
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px"><tr><td class="ogw-ph" valign="top" width="108" style="padding:4px 18px 0 2px"><div style="background:#fbf8f0;padding:6px 6px 18px;box-shadow:2px 3px 6px rgba(20,16,13,0.3);transform:rotate(-2deg);width:84px"><img src="${PHOTO_BASE}${p.id}.jpg" width="84" height="84" alt="${esc(p.name)}" style="display:block;width:84px;height:84px;border:0"></div></td><td valign="top">${inner}</td></tr></table>`;
+  const inner = paragraph.replace(/margin:0 0 (6|10)px(?: 18px)?"/, 'margin:0"');
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 10px"><tr><td class="ogw-ph" valign="top" width="108" style="padding:4px 18px 0 2px"><div style="background:#fbf8f0;padding:6px 6px 18px;box-shadow:2px 3px 6px rgba(20,16,13,0.3);transform:rotate(-2deg);width:84px"><img src="${PHOTO_BASE}${p.id}.jpg" width="84" height="84" alt="${esc(p.name)}" style="display:block;width:84px;height:84px;border:0"></div></td><td valign="top">${inner}</td></tr></table>`;
 }
 function withPhotos(blocks: string[], people: Person[]): string[] {
   const out = [...blocks];
