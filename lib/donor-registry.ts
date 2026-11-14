@@ -8,6 +8,7 @@
 // apart: the name with the most records keeps the slug and the next get "-2", "-3"... None existed on 24 Oct 2026.
 //
 // The names are read once per server instance and kept for a day, the donor pages' revalidate period.
+// Read with keyset paging (id > last), one page of 1,000 after another (T1-DONORCACHE, 14 Nov 2026).
 import { supabase } from '@/lib/supabase';
 import { donorNameToSlug } from '@/lib/donor-slug';
 
@@ -25,7 +26,6 @@ export type DonorRegistry = { bySlug: Map<string, DonorPageEntry>; byTrimmed: Ma
 
 const TTL_MS = 24 * 60 * 60 * 1000;
 const PAGE = 1000;
-const BATCH = 8;
 let cached: { at: number; registry: Promise<DonorRegistry> } | null = null;
 
 // Letters and digits as written (accents kept, any alphabet), lower case, "&" read as "and"; punctuation and spaces
@@ -40,25 +40,24 @@ async function readNames(): Promise<Map<string, number>> {
     .select('id', { count: 'exact', head: true })
     .not('donor_name', 'is', null);
   if (countErr) throw new Error(`donor registry count: ${countErr.message}`);
-  const pages = Math.ceil((count ?? 0) / PAGE);
   const counts = new Map<string, number>();
   let read = 0;
-  for (let first = 0; first < pages; first += BATCH) {
-    const batch = await Promise.all(
-      Array.from({ length: Math.min(BATCH, pages - first) }, (_, k) => {
-        const from = (first + k) * PAGE;
-        return supabase.from('political_donations').select('donor_name').not('donor_name', 'is', null)
-          .order('id', { ascending: true }).range(from, from + PAGE - 1);
-      }),
-    );
-    for (const { data, error } of batch) {
-      if (error) throw new Error(`donor registry names: ${error.message}`);
-      for (const r of (data ?? []) as { donor_name: string | null }[]) {
-        read++;
-        const n = r.donor_name ?? '';
-        if (n.trim()) counts.set(n, (counts.get(n) ?? 0) + 1);
-      }
+  // Keyset paging (T1-DONORCACHE, owner approved 14 Nov 2026, from T1-DBLOAD): each read starts after the last id seen,
+  // so it uses the primary key and reads only its own 1,000 rows. The OFFSET pages it replaces made the database scan
+  // every earlier row again on each page (about 4.4 million rows per rebuild; 71,816 reads and 9,343 s of database time
+  // in pg_stat_statements on 14 Nov 2026). Same rows, same order (id ascending), so the same counts in the same order.
+  for (let last = 0; ; ) {
+    const { data, error } = await supabase.from('political_donations').select('id, donor_name').not('donor_name', 'is', null)
+      .gt('id', last).order('id', { ascending: true }).limit(PAGE);
+    if (error) throw new Error(`donor registry names: ${error.message}`);
+    const rows = (data ?? []) as { id: number; donor_name: string | null }[];
+    for (const r of rows) {
+      read++;
+      const n = r.donor_name ?? '';
+      if (n.trim()) counts.set(n, (counts.get(n) ?? 0) + 1);
     }
+    if (rows.length < PAGE) break;
+    last = rows[rows.length - 1].id;
   }
   if (read < (count ?? 0)) throw new Error(`donor registry read ${read} of ${count} rows`);
   return counts;
