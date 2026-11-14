@@ -159,7 +159,8 @@
      the folder and ran into the first line (the homepage's "Find your local council" at 767px; T1-768b, 11 Nov 2026). */
   .og-stamp { top: 9px !important; }
   .og-stamp-text { font-size: 18px !important; }
-  .og-footer-links a { display: inline-flex; align-items: center; min-height: 44px; }
+  /* At least 44 x 44px: "Terms" was 43px wide (T2 ENTRY 1 item 4, Cowork 14 Nov 2026). */
+  .og-footer-links a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
 }
 
 /* ---- Phones held sideways (owner, 8 Nov 2026, RT1; lib/breakpoints.ts): the phone layout above, just wider. The page's
