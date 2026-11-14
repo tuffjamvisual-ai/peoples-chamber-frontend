@@ -152,7 +152,8 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
           <button type="button" aria-pressed={sort === 'list'} onClick={() => setSort('list')} style={button(sort === 'list')}>By minister</button>
           <button type="button" aria-pressed={sort === 'salary'} onClick={() => setSort('salary')} style={button(sort === 'salary')}>Highest salary band first</button>
         </div>
-        <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: MONO, fontSize: '15px', cursor: 'pointer' }}>
+        {/* The whole label is the tap: at least 44px tall, the box and its words (T2 ENTRY 1 item 4, Cowork 14 Nov 2026). */}
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', minHeight: '44px', paddingRight: '4px', fontFamily: MONO, fontSize: '15px', cursor: 'pointer' }}>
           <input type="checkbox" checked={recusalsOnly} onChange={(e) => setRecusalsOnly(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: ACCENT }} />
           Advisers with recusals ({withRecusals})
         </label>

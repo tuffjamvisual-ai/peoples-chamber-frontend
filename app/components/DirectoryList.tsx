@@ -36,7 +36,7 @@ const phoneCss = (list: string) => `.dir-h-btn { display: none; }
   .dir-entry { padding: 0 0 9px !important; }
   .dir-entry p { margin: 0 !important; }
   .dir-h { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
-  .dir-h-btn { position: static !important; display: flex; align-items: center; justify-content: flex-end; padding: 0; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  .dir-h-btn { position: static !important; display: flex; align-items: center; justify-content: flex-end; min-width: 44px; min-height: 44px; padding: 0; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
   .dir-h-btn::after { content: ''; position: absolute; inset: 0; }
   .dir-mark::before { content: '+'; } .dir-h-btn[aria-expanded="true"] .dir-mark::before { content: '\\2212'; }
   .dir-section { margin-bottom: 8px !important; }
@@ -44,6 +44,9 @@ const phoneCss = (list: string) => `.dir-h-btn { display: none; }
   #${list}:not(.pm-all) .dir-section:not(.dir-open) > :not(h2) { display: none !important; }
 }`;
 const noscriptCss = (list: string) => `html #${list}:not(.pm-all) .dir-section:not(.dir-open) > ul { display: block !important; }`;
+// Phones (T2 ENTRY 1 item 4, Cowork 14 Nov 2026): each letter in the jump bar a 44 x 44px tap (it was 30px wide); the fold
+// button in each heading at least 44 x 44px as well (it was 11px wide; its ::after still covers the whole heading row).
+const letterTapCss = `@media ${PHONE} { .dir-letters a { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px !important; min-height: 44px; box-sizing: border-box; } }`;
 // Group names in the jump bar (T1-SECT): a word in each box, 44px tall on phones.
 const wordsCss = `.dir-words a { padding: 5px 12px !important; }
 @media ${PHONE} { .dir-words a { display: inline-flex !important; align-items: center; min-height: 44px; box-sizing: border-box; } }`;
@@ -64,7 +67,7 @@ export default function DirectoryList({ listId, groups, jumpLabel, words = false
 }) {
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: phoneCss(listId) + (words ? '\n' + wordsCss : '') + (columns ? '\n' + columnsCss(listId) : '') }} />
+      <style dangerouslySetInnerHTML={{ __html: phoneCss(listId) + '\n' + letterTapCss + (words ? '\n' + wordsCss : '') + (columns ? '\n' + columnsCss(listId) : '') }} />
       <noscript><style dangerouslySetInnerHTML={{ __html: noscriptCss(listId) }} /></noscript>
       <style>{`@media ${PHONE} { .dir-top { display: flex; flex-direction: column; } .dir-top > .dir-find { order: -1; } }`}</style>
       <div className="dir-top">

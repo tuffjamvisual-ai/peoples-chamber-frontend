@@ -22,6 +22,11 @@
 // Added 2026-06-05.
 
 import Link from 'next/link';
+import { PHONE } from '@/lib/breakpoints';
+
+// Phones (T2 ENTRY 1 item 4, Cowork 14 Nov 2026): every page link and button is a 44 x 44px tap; the page numbers were 32px
+// wide. From 768px up nothing changes.
+const PHONE_CSS = `@media ${PHONE} { .og-pg { min-width: 44px !important; min-height: 44px; box-sizing: border-box; } }`;
 
 interface Props {
   currentPage: number;
@@ -122,6 +127,7 @@ export default function Pagination({
         marginBottom: '16px',
       }}
     >
+      <style dangerouslySetInnerHTML={{ __html: PHONE_CSS }} />
       {/* Numbered page row */}
       <div
         style={{
@@ -133,11 +139,11 @@ export default function Pagination({
         }}
       >
         {currentPage > 1 ? (
-          <Link href={href(currentPage - 1)} style={baseLinkStyle} aria-label="Prev: previous page">
+          <Link href={href(currentPage - 1)} className="og-pg" style={baseLinkStyle} aria-label="Prev: previous page">
             &larr; Prev
           </Link>
         ) : (
-          <span style={disabledLinkStyle} aria-disabled>
+          <span className="og-pg" style={disabledLinkStyle} aria-disabled>
             &larr; Prev
           </span>
         )}
@@ -148,22 +154,22 @@ export default function Pagination({
               &hellip;
             </span>
           ) : t === currentPage ? (
-            <span key={t} style={activeLinkStyle} aria-current="page">
+            <span key={t} className="og-pg" style={activeLinkStyle} aria-current="page">
               {t}
             </span>
           ) : (
-            <Link key={t} href={href(t)} style={baseLinkStyle}>
+            <Link key={t} href={href(t)} className="og-pg" style={baseLinkStyle}>
               {t}
             </Link>
           ),
         )}
 
         {currentPage < totalPages ? (
-          <Link href={href(currentPage + 1)} style={baseLinkStyle} aria-label="Next page">
+          <Link href={href(currentPage + 1)} className="og-pg" style={baseLinkStyle} aria-label="Next page">
             Next &rarr;
           </Link>
         ) : (
-          <span style={disabledLinkStyle} aria-disabled>
+          <span className="og-pg" style={disabledLinkStyle} aria-disabled>
             Next &rarr;
           </span>
         )}
@@ -219,6 +225,7 @@ export default function Pagination({
         <span>of {totalPages}</span>
         <button
           type="submit"
+          className="og-pg"
           style={{
             ...baseLinkStyle,
             padding: '0 14px',
