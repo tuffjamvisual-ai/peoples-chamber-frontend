@@ -30,6 +30,9 @@ import { PHONE, phoneUpTo } from '@/lib/breakpoints';
 // fit 320px) and 6px inside them, the gap mark (…) only as wide
 // as itself, and under 430px Prev and Next as arrows only (the word stays for screen readers, and in the link's name).
 const PHONE_CSS = `@media ${PHONE} { .og-pg { min-width: 44px !important; min-height: 44px; box-sizing: border-box; padding: 0 6px !important; } .og-pg-gap { min-width: 0 !important; padding: 0 !important; margin: 0 -2px; } }
+.og-pg-g1, .og-pg-g0 { display: none !important; }
+@media ${phoneUpTo(429.98)} { .og-pg-x1, .og-pg-g2 { display: none !important; } .og-pg-g1 { display: inline-flex !important; } }
+@media ${phoneUpTo(389.98)} { .og-pg-x0, .og-pg-g1 { display: none !important; } .og-pg-g0 { display: inline-flex !important; } }
 @media ${phoneUpTo(429.98)} { .og-pg-row { gap: 3px !important; } .og-pg-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }`;
 
 interface Props {
@@ -66,6 +69,25 @@ function pageTokens(current: number, total: number): (number | null)[] {
     prev = p;
   }
   return tokens;
+}
+
+// Phones, the middle of a long list (Cowork 14 Nov 2026, ENTRY 11): the full set (current ± 2) cannot sit on one row of
+// 44px boxes under 430px. If it fits 296px (320 wide) it shows as it is. Otherwise from 390 to 429px: first, …, current
+// with one either side, …, last, if that fits 366px, else first, …, current, …, last; under 390px the one with one either
+// side only if it fits 296px. The 'Go to page' box stays, so every page can still be reached. The hidden numbers and gap
+// marks stay in the page for wider screens; CSS picks the set by width.
+const BOX = 44, GAP = 3, MARK = 17;
+function rowWidth(nums: number[]): number {
+  let gaps = 0;
+  for (let i = 1; i < nums.length; i++) if (nums[i] - nums[i - 1] > 1) gaps++;
+  const items = nums.length + gaps + 2;
+  return 2 * BOX + nums.length * BOX + gaps * (MARK - 4) + (items - 1) * GAP;
+}
+function phoneSets(current: number, total: number, all: number[]): { wide: number[] | null; narrow: number[] | null } {
+  if (rowWidth(all) <= 296) return { wide: null, narrow: null };
+  const near = all.filter((p) => p === 1 || p === total || Math.abs(p - current) <= 1);
+  const least = all.filter((p) => p === 1 || p === total || p === current);
+  return { wide: rowWidth(near) <= 366 ? near : least, narrow: rowWidth(near) <= 296 ? near : least };
 }
 
 const baseLinkStyle: React.CSSProperties = {
@@ -118,6 +140,13 @@ export default function Pagination({
   if (totalPages <= 1) return null;
   const href = (p: number) => `${baseUrl}?${pageParam}=${p}${qsExtra}`;
   const tokens = pageTokens(currentPage, totalPages);
+  const nums = tokens.filter((t): t is number => t !== null);
+  const { wide, narrow } = phoneSets(currentPage, totalPages, nums);
+  // A gap mark after page n for a phone set: when the set's next page is not n + 1.
+  const gapAfter = (set: number[] | null, n: number) => { if (!set) return false; const i = set.indexOf(n); return i >= 0 && i < set.length - 1 && set[i + 1] > n + 1; };
+  const mark = (key: string, cls: string) => (
+    <span key={key} className={`og-pg-gap ${cls}`} style={ellipsisStyle} aria-hidden>&hellip;</span>
+  );
 
   return (
     <nav
@@ -153,21 +182,20 @@ export default function Pagination({
           </span>
         )}
 
-        {tokens.map((t, i) =>
-          t === null ? (
-            <span key={`gap-${i}`} className="og-pg-gap" style={ellipsisStyle} aria-hidden>
-              &hellip;
-            </span>
-          ) : t === currentPage ? (
-            <span key={t} className="og-pg" style={activeLinkStyle} aria-current="page">
+        {tokens.flatMap((t, i) => {
+          if (t === null) return [mark(`gap-${i}`, wide ? 'og-pg-g2' : '')];
+          const cls = ['og-pg', wide && !wide.includes(t) ? 'og-pg-x1' : '', narrow && !narrow.includes(t) ? 'og-pg-x0' : ''].filter(Boolean).join(' ');
+          const box = t === currentPage ? (
+            <span key={t} className={cls} style={activeLinkStyle} aria-current="page">
               {t}
             </span>
           ) : (
-            <Link key={t} href={href(t)} className="og-pg" style={baseLinkStyle}>
+            <Link key={t} href={href(t)} className={cls} style={baseLinkStyle}>
               {t}
             </Link>
-          ),
-        )}
+          );
+          return [box, ...(gapAfter(wide, t) ? [mark(`g1-${t}`, 'og-pg-g1')] : []), ...(gapAfter(narrow, t) ? [mark(`g0-${t}`, 'og-pg-g0')] : [])];
+        })}
 
         {currentPage < totalPages ? (
           <Link href={href(currentPage + 1)} className="og-pg" style={baseLinkStyle} aria-label="Next page">
