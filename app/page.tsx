@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import SotnBand from './components/SotnBand';
 import Link from 'next/link';
 import OpenGovShell from './components/OpenGovShell';
 import { editorialsBySlug } from '@/lib/editorials-source';
@@ -217,6 +218,9 @@ export default async function HomePage() {
 
               <AreaSearch label="Find your local council" placeholder="Postcode, town or council" />
               </div>
+              {/* State of the nation (T1-SOTN, layout change approved by the owner 15 Nov 2026, ENTRY 105): four headline
+                  official figures under the finders, each linking to /state-of-the-nation. */}
+              <SotnBand />
               <div className="og-lead">
             <div className="og-main">
 

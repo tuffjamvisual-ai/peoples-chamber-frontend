@@ -136,6 +136,8 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/transparency/register-of-interests`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/money`, changeFrequency: 'daily', priority: 0.9 },
     { url: `${SITE}/reports`, changeFrequency: 'weekly', priority: 0.8 },
+    // State of the nation (T1-SOTN, 15 Nov 2026): official figures refreshed daily from the ONS and Cowork's checked file.
+    { url: `${SITE}/state-of-the-nation`, changeFrequency: 'daily', priority: 0.7 },
     // The area finder itself (3 Nov 2026); its search and result views are noindex and never listed.
     { url: `${SITE}/your-area`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/laws`, changeFrequency: 'weekly', priority: 0.8 },

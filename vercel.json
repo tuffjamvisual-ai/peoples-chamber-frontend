@@ -295,6 +295,10 @@
     {
       "path": "/api/sync-peers",
       "schedule": "53 17 * * *"
+    },
+    {
+      "path": "/api/refresh-state-of-the-nation",
+      "schedule": "35 7 * * *"
     }
   ]
 }

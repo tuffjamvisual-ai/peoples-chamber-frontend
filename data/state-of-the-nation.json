@@ -1,0 +1,170 @@
+{
+  "_about": "State of the nation (T1-SOTN, COWORK-TO-T1 ENTRY 105): the figures not read from the ONS automatically. Cowork fills and checks each entry from the official source. An entry shows on the site only when checkedBy is \"Cowork\" and value is set; otherwise the card says 'Not yet published here'. Fields: value (as shown, e.g. \"4.00%\"), label (optional, replaces the default label), period (what the figure covers), previous (the change on the previous figure with its period, e.g. \"down from 4.25% in August 2026\"), sourceUrl, sourceName, publishedOn (YYYY-MM-DD, the source's publication date), checkedOn (YYYY-MM-DD), checkedBy (\"Cowork\"), note (optional, e.g. the next Bank Rate decision date). Never filled by T1.",
+  "figures": {
+    "bank-rate": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "energy-cap": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "house-price": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "rent": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "pay-real": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "nhs-waiting": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "nhs-18-weeks": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "ae-4-hours": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "crown-court": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "prisons": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "temp-accommodation": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "temp-accommodation-children": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "net-migration": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "small-boats": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    },
+    "asylum-claims": {
+      "value": null,
+      "period": null,
+      "previous": null,
+      "sourceUrl": null,
+      "sourceName": null,
+      "publishedOn": null,
+      "checkedOn": null,
+      "checkedBy": null,
+      "note": null
+    }
+  }
+}
