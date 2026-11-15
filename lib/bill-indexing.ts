@@ -11,6 +11,8 @@
 // current_stage is "1st reading"), so it is not used here.
 import 'server-only';
 import { supabase } from '@/lib/supabase';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 const WORKING_STAGE = /committee|report|3rd reading|third reading|consideration/;
 
@@ -31,14 +33,14 @@ export function billIndexable(b: BillIndexFacts): boolean {
 }
 
 // The current session's id (parliament_session_bill_counts_stored.is_current), or null when none is marked current.
-export async function currentBillSessionId(): Promise<number | null> {
+async function currentBillSessionIdRead(): Promise<number | null> {
   const { data, error } = await supabase.from('parliament_session_bill_counts_stored').select('session_id').eq('is_current', true).limit(1);
   if (error) throw new Error(`currentBillSessionId: ${error.message}`);
   return (data?.[0]?.session_id as number | undefined) ?? null;
 }
 
 // Every bill listed in the current session: introduced in it or carried into it (bill_in_session_stored).
-export async function currentSessionBillIds(): Promise<Set<number>> {
+async function currentSessionBillIdsRead(): Promise<Set<number>> {
   const session = await currentBillSessionId();
   if (session == null) return new Set();
   const ids = new Set<number>();
@@ -52,10 +54,18 @@ export async function currentSessionBillIds(): Promise<Set<number>> {
 }
 
 // Whether one bill is listed in the current session.
-export async function billInCurrentSession(billId: number): Promise<boolean> {
+async function billInCurrentSessionRead(billId: number): Promise<boolean> {
   const session = await currentBillSessionId();
   if (session == null) return false;
   const { data, error } = await supabase.from('bill_in_session_stored').select('bill_id').eq('session_id', session).eq('bill_id', billId).limit(1);
   if (error) throw new Error(`billInCurrentSession: ${error.message}`);
   return (data?.length ?? 0) > 0;
+}
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tables' tags, no timer.
+export const currentBillSessionId = (...a: Parameters<typeof currentBillSessionIdRead>) => tagged(['currentBillSessionId-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('bill'), () => currentBillSessionIdRead(...a));
+export const billInCurrentSession = (...a: Parameters<typeof billInCurrentSessionRead>) => tagged(['billInCurrentSession-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('bill'), () => billInCurrentSessionRead(...a));
+// A Set is not stored as JSON: the ids are cached as a list and made a Set again here.
+export async function currentSessionBillIds(): Promise<Set<number>> {
+  return new Set(await tagged(['current-session-bill-ids-v1'], tableTags('bill'), async () => [...(await currentSessionBillIdsRead())]));
 }

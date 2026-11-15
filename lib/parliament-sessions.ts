@@ -6,6 +6,8 @@ import { supabase } from './supabase';
 import { billStatus } from '@/lib/bill-status';
 
 import { yearSpan } from '@/lib/year-span';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 export type ParliamentSession = {
   id: number;
   name: string;               // '2026-27'
@@ -52,7 +54,7 @@ export function sessionDates(s: Pick<ParliamentSession, 'start_date' | 'end_date
 }
 
 // Every session that has bills, newest first.
-export async function getParliamentSessions(): Promise<ParliamentSession[]> {
+async function getParliamentSessionsRead(): Promise<ParliamentSession[]> {
   const [{ data: counts, error: e1 }, { data: names, error: e2 }] = await Promise.all([
     // Stored copies of parliament_session_bill_counts and bill_in_session (migration 2026-10-22h), refreshed after each
     // bill stages and sponsors sync: the views worked every bill's sessions out on each read and timed out on cold reads.
@@ -87,7 +89,7 @@ export async function getParliamentSession(id: number): Promise<ParliamentSessio
   return (await getParliamentSessions()).find((s) => s.id === id) ?? null;
 }
 
-export async function getSessionBills(sessionId: number): Promise<SessionBill[]> {
+async function getSessionBillsRead(sessionId: number): Promise<SessionBill[]> {
   const out: SessionBill[] = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await supabase
@@ -144,3 +146,7 @@ export function sessionBillGroup(b: SessionBill, sessionId: number, isCurrent: b
   if (s.kind === 'in_progress') return 'current';
   return 'unfinished';
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tables' tags, no timer.
+export const getParliamentSessions = (...a: Parameters<typeof getParliamentSessionsRead>) => tagged(['getParliamentSessions-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('bill', 'parliament_sessions'), () => getParliamentSessionsRead(...a));
+export const getSessionBills = (...a: Parameters<typeof getSessionBillsRead>) => tagged(['getSessionBills-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('bill'), () => getSessionBillsRead(...a));

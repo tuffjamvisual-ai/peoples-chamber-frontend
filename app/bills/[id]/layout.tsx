@@ -7,6 +7,9 @@ import { asSentence, ledBy, sentencesOf } from '@/lib/meta-description';
 import { supabase } from '@/lib/supabase';
 import { SITE } from '@/lib/JsonLd';
 import { billStatus } from '@/lib/bill-status';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { billTag } from '@/lib/bill-refresh'
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -16,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const billId = parseInt(id);
   if (Number.isNaN(billId)) return { title: 'Bill' };
-  const { data: bill, error: billErr } = await supabase
+  const { data: bill, error: billErr } = await cachedQuery(['q:app/bills/[id]/layout.tsx:f4e2d7bc48', JSON.stringify([billId])], [billTag(billId)], () => supabase
     .from('bill')
     .select(
       // Single string literal — Supabase's compile-time type inference
@@ -25,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       'title, long_title, description, current_stage, stage_date, introduced_session_id, is_act, is_defeated, bill_withdrawn, commons_division_id, commons_ayes, commons_noes, sponsor_name, sponsors, hidden_reason, stages'
     )
     .eq('id', billId)
-    .single();
+    .single());
   if (billErr && billErr.code !== 'PGRST116') throw new Error(`/bills/[id] bill: ${billErr.message}`);
   if (!bill) return { title: 'Bill' };
   if (bill.hidden_reason) return { title: 'Bill not found', robots: { index: false, follow: false } };
@@ -39,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // as copies of each other, so each description names its session.
   let sessionName: string | null = null;
   if (bill.introduced_session_id != null) {
-    const { data: sess, error: sessErr } = await supabase.from('parliament_sessions').select('name').eq('id', bill.introduced_session_id).maybeSingle();
+    const { data: sess, error: sessErr } = await cachedQuery(['q:app/bills/[id]/layout.tsx:4ae78ba180', JSON.stringify([bill.introduced_session_id])], [billTag(billId), ...tableTags('parliament_sessions')], () => supabase.from('parliament_sessions').select('name').eq('id', bill.introduced_session_id).maybeSingle());
     if (sessErr) throw new Error(`/bills/[id] parliament_sessions: ${sessErr.message}`);
     // "2026 to 2027", not "2026-27" (house style, T1-5x).
     sessionName = sess?.name ? yearSpan(sess.name as string) : null;
@@ -73,8 +76,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // bill number from Parliament, so no two pages share a title (owner, 7 Nov 2026).
   let sponsorTag = '';
   if (sponsorName && bill.introduced_session_id != null) {
-    const { count: sameName, error: sameErr } = await supabase.from('bill').select('id', { count: 'exact', head: true })
-      .eq('title', bill.title).eq('introduced_session_id', bill.introduced_session_id).is('hidden_reason', null).neq('id', billId);
+    const { count: sameName, error: sameErr } = await cachedQuery(['q:app/bills/[id]/layout.tsx:a6e307abbc', JSON.stringify([bill.title, bill.introduced_session_id, billId])], [billTag(billId), ...tableTags('bill')], () => supabase.from('bill').select('id', { count: 'exact', head: true })
+      .eq('title', bill.title).eq('introduced_session_id', bill.introduced_session_id).is('hidden_reason', null).neq('id', billId));
     if (sameErr) throw new Error(`/bills/[id] same name: ${sameErr.message}`);
     if ((sameName ?? 0) > 0) sponsorTag = ` (${sponsorName})`;
   }

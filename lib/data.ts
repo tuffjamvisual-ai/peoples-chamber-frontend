@@ -2,6 +2,8 @@ import { currentStageHouse, type BillStages } from './bill-stage';
 import { supabase } from './supabase';
 import { readAll } from './read-all';
 import { cardSummary } from './bill-summary';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export type Bill = {
   id: number;
@@ -40,7 +42,7 @@ export type Bill = {
 // payload: one .range() query per page, with the count.
 // Sort order matches getAllBills (most-voted first) so the URL paging
 // is over the same canonical ordering.
-export async function getBillsPage(
+async function getBillsPageRead(
   page: number,
   perPage = 20,
   order: 'votes' | 'title' = 'votes',
@@ -134,7 +136,7 @@ export function toCardBill(bill: Record<string, unknown>): Bill {
 // A bill row as read by getAllBills, before the votes objects are added.
 type BillRow = Omit<Bill, 'votes' | 'commons_votes'> & { commons_ayes: number | null; commons_noes: number | null };
 
-export async function getAllBills(): Promise<Bill[]> {
+async function getAllBillsRead(): Promise<Bill[]> {
   // Every visible bill via lib/read-all.ts (24 Oct 2026, report 36), replacing four fixed range queries that held
   // at most 4,000 bills and were ordered only by vote_count_yes (ties could repeat or skip bills across pages).
   // Nothing calls this today. Still returns [] on failure, as before.
@@ -166,3 +168,7 @@ export async function getAllBills(): Promise<Bill[]> {
     return [];
   }
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tables' tags, no timer.
+export const getBillsPage = (...a: Parameters<typeof getBillsPageRead>) => tagged(['getBillsPage-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('bill'), () => getBillsPageRead(...a));
+export const getAllBills = (...a: Parameters<typeof getAllBillsRead>) => tagged(['getAllBills-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('bill'), () => getAllBillsRead(...a));

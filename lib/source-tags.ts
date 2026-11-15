@@ -6,6 +6,8 @@ import { revalidateTag } from '@/lib/refresh-count';
 // Tables that already had a tag in use keep it, so the syncs and pages that use it now stay right.
 const EXISTING: Record<string, string> = {
   political_donations: 'political-donations',
+  // Views and stored copies made from bill, refreshed in the same runs that change bills (refresh_bill_stores).
+  bill_current: 'table:bill', bill_in_session_stored: 'table:bill', parliament_session_bill_counts_stored: 'table:bill',
   historic_commons_divisions: 'historic-archive', historic_commons_votes: 'historic-archive',
   register_archive_entries: 'historic-archive', register_archive_entry_editions: 'historic-archive',
 };

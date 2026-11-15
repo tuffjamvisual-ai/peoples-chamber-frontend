@@ -13,7 +13,7 @@ import {
   SESSION_GROUPS, type SessionBill, type SessionBillGroup,
 } from '@/lib/parliament-sessions';
 
-export const revalidate = 604800;  // a week; the bill syncs refresh it after the stored views are rebuilt, when a bill changed
+export const revalidate = false; // A16: rebuilt only when its data changes (bill and table tags), or on a deploy  // a week; the bill syncs refresh it after the stored views are rebuilt, when a bill changed
 export async function generateStaticParams() { return []; }
 
 type Props = { params: Promise<{ id: string }> };

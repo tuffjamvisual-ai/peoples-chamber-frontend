@@ -28,18 +28,21 @@ import { editorialsForBill } from '@/lib/editorials-source';
 import { billDivisions, divisionHref } from '@/lib/division-links';
 import { billIndexable, billInCurrentSession } from '@/lib/bill-indexing';
 import { billStatus, isLaw, sittingCancelled } from '@/lib/bill-status';
-export const revalidate = 604800  // a week; the bill syncs refresh a bill when its data changes (lib/bill-refresh.ts)
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { billTag } from '@/lib/bill-refresh'
+export const revalidate = false; // A16: rebuilt only when its data changes (bill and table tags), or on a deploy  // a week; the bill syncs refresh a bill when its data changes (lib/bill-refresh.ts)
 
 // Prerender a small set of bill pages at build time. The list does NOT need
 // to be complete — its presence is what enables ISR caching for the whole
 // route. Pages not listed here render on first request and are cached from
 // then on (see revalidate above, 1h).
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/bills/[id]/page.tsx:d76786f49c'], tableTags('bill'), () => supabase
     .from('bill')
     .select('id')
     .not('id', 'is', null)
-    .limit(20)
+    .limit(20))
   if (error) {
     throw new Error(
       `generateStaticParams(/bills/[id]) query failed: ${error.message}`
@@ -65,8 +68,8 @@ export async function generateMetadata(
   // Only whether one MP vote exists matters, so one indexed row is read instead of counting them all (owner's
   // approval, 21 Oct 2026; the count averaged 1.2 s during builds).
   const [{ data: bill, error: billErr1 }, { data: oneVote, error: oneVoteErr }, inCurrentSession] = await Promise.all([
-    supabase.from('bill').select('current_stage, is_act, commons_division_id, hidden_reason').eq('id', billId).single(),
-    supabase.from('mp_division_votes').select('id').eq('bill_id', billId).limit(1),
+    cachedQuery(['q:app/bills/[id]/page.tsx:047af2c0a0', JSON.stringify([billId])], [billTag(billId)], () => supabase.from('bill').select('current_stage, is_act, commons_division_id, hidden_reason').eq('id', billId).single()),
+    cachedQuery(['q:app/bills/[id]/page.tsx:a786aeaa4a', JSON.stringify([billId])], [billTag(billId), ...tableTags('mp_division_votes')], () => supabase.from('mp_division_votes').select('id').eq('bill_id', billId).limit(1)),
     billInCurrentSession(billId),
   ])
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
@@ -121,16 +124,16 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const billPieces = await editorialsForBill(billId)
 
   const [{ data: bill, error: billErr }, { data: lordsDivisionRows, error: lordsDivisionRowsErr }] = await Promise.all([
-    supabase.from('bill').select('*').eq('id', billId).single(),
+    cachedQuery(['q:app/bills/[id]/page.tsx:26fde5213f', JSON.stringify([billId])], [billTag(billId)], () => supabase.from('bill').select('*').eq('id', billId).single()),
     // House of Lords divisions linked to this bill (lords_divisions.bill_id,
     // resolved by lib/lords-votes.ts). Newest first. A failed query just
     // hides the section.
-    supabase
+    cachedQuery(['q:app/bills/[id]/page.tsx:6d0336e593', JSON.stringify([billId])], [billTag(billId), ...tableTags('lords_divisions')], () => supabase
       .from('lords_divisions')
       .select('division_id, division_date, division_number, motion_text, content_count, not_content_count, is_government_win, is_whipped, party_breakdown')
       .eq('bill_id', billId)
       .order('division_date', { ascending: false })
-      .order('division_number', { ascending: false }),
+      .order('division_number', { ascending: false })),
   ])
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [billErr, lordsDivisionRowsErr]) if (e && e.code !== 'PGRST116') throw new Error(`/bills/[id] (bill, lords_divisions): ${e.message}`);
@@ -142,12 +145,12 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   // (audit P3). Looked up by the Commons Votes division id saved on the bill.
   let commonsDivisionHref: string | null = null
   if (bill.commons_division_id != null) {
-    const { data: dv, error: dvErr } = await supabase
+    const { data: dv, error: dvErr } = await cachedQuery(['q:app/bills/[id]/page.tsx:fd5e82c0ce', JSON.stringify([bill.commons_division_id])], [billTag(billId), ...tableTags('mp_division_votes')], () => supabase
       .from('mp_division_votes')
       .select('division_date_only, division_number')
       .eq('division_id', bill.commons_division_id)
       .limit(1)
-      .maybeSingle()
+      .maybeSingle())
     if (dvErr && dvErr.code !== 'PGRST116') throw new Error(`/bills/[id] mp_division_votes: ${dvErr.message}`);
     if (dv?.division_date_only && dv?.division_number != null) {
       // The full address the division page serves (owner, 31 Oct 2026): the short form without "-commons" redirected.

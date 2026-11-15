@@ -6,7 +6,7 @@ import BillsListing from './BillsListing';
 // every 10 minutes; the bill syncs also refresh it as soon as they write (lib/revalidate-bills.ts). Page 2 onwards is
 // /bills/page/[page]; old /bills?page=N links redirect there (next.config.ts). Owner's approval, 21 Oct 2026: this
 // page was rendered on every request (force-dynamic).
-export const revalidate = 600;
+export const revalidate = false; // A16: rebuilt only when its data changes (bill and table tags), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'UK Parliament Bills Tracker, Live Stages, Votes & Acts' },

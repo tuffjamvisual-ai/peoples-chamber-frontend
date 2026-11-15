@@ -4,7 +4,7 @@ import BillsListing from '../../BillsListing';
 
 // /bills/page/N: page 2 onwards of /bills, built on first visit and cached like /bills (10 minutes, and refreshed by
 // the bill syncs). /bills/page/1 is /bills. The canonical stays /bills, as it was for the old ?page=N addresses.
-export const revalidate = 600;
+export const revalidate = false; // A16: rebuilt only when its data changes (bill and table tags), or on a deploy
 export function generateStaticParams() { return []; }
 
 export const metadata: Metadata = {

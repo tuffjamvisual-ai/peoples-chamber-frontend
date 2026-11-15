@@ -19,8 +19,11 @@ import PageSources from '@/app/components/PageSources';
 import { getBillPublications, getBillText, latestText, actLink, inlineGroupCount, type ApiPublication as TextPublication, type TocEntry } from '@/lib/bill-text';
 import BillTextGroups from './BillTextGroups';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { billTag } from '@/lib/bill-refresh'
 
-export const revalidate = 604800  // a week, from the cached Parliament answers (lib/bill-text.ts); refreshed by the bill syncs (lib/bill-refresh.ts)
+export const revalidate = false; // A16: rebuilt only when its data changes (bill and table tags), or on a deploy  // a week, from the cached Parliament answers (lib/bill-text.ts); refreshed by the bill syncs (lib/bill-refresh.ts)
 
 // Prerender a deliberately tiny set. This page fetches live from the
 // Parliament Bills API during render, so every prerendered path is a real
@@ -28,11 +31,11 @@ export const revalidate = 604800  // a week, from the cached Parliament answers 
 // enable ISR for the whole route; size buys nothing here and costs build
 // time and an external dependency.
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/bills/[id]/full/page.tsx:a02f69c57c'], tableTags('bill'), () => supabase
     .from('bill')
     .select('id')
     .not('id', 'is', null)
-    .limit(3)
+    .limit(3))
   if (error) {
     throw new Error(
       `generateStaticParams(/bills/[id]/full) query failed: ${error.message}`
@@ -116,7 +119,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) return {}
-  const { data: bill, error } = await supabase.from('bill').select('title, hidden_reason, is_act').eq('id', billId).single()
+  const { data: bill, error } = await cachedQuery(['q:app/bills/[id]/full/page.tsx:e1ba721e1d', JSON.stringify([billId])], [billTag(billId)], () => supabase.from('bill').select('title, hidden_reason, is_act').eq('id', billId).single())
   if (error && error.code !== 'PGRST116') throw new Error(`full bill metadata: ${error.message}`)
   if (!bill || bill.hidden_reason) return {}
   // An Act's page holds the last bill text (T1-AUD3).
@@ -135,11 +138,11 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) notFound()
 
-  const { data: bill, error: billErr } = await supabase
+  const { data: bill, error: billErr } = await cachedQuery(['q:app/bills/[id]/full/page.tsx:3b3784a649', JSON.stringify([billId])], [billTag(billId)], () => supabase
     .from('bill')
     .select('id, parliament_id, title, long_title, current_stage, is_act, hidden_reason, last_update')
     .eq('id', billId)
-    .single()
+    .single())
   // A failed read throws (owner's approval, 21 Oct 2026); "no row" (PGRST116) stays a 404.
   if (billErr && billErr.code !== 'PGRST116') throw new Error(`full bill: ${billErr.message}`)
   // Hidden bills (bill.hidden_reason) return 404, as /bills/[id] does.

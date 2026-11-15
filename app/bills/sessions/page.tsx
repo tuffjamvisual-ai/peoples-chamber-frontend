@@ -9,7 +9,7 @@ import BackLink from '../../components/BackLink';
 import { getParliamentSessions, sessionDates, sessionTitle, SESSIONS_SOURCE_URL } from '@/lib/parliament-sessions';
 import { ShowAll } from '@/app/components/NoJsPager';
 
-export const revalidate = 604800;  // a week; the bill syncs refresh it after the stored views are rebuilt, when a bill changed
+export const revalidate = false; // A16: rebuilt only when its data changes (bill and table tags), or on a deploy  // a week; the bill syncs refresh it after the stored views are rebuilt, when a bill changed
 
 export const metadata: Metadata = {
   title: 'UK Parliament Bills by Session, 2004 to Now',

@@ -15,6 +15,7 @@ import {
 import { isPoliteStop } from '@/lib/sync-budget';
 import { refreshBills } from '@/lib/bill-refresh';
 import { noteChanged } from '@/lib/refresh-count';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -107,6 +108,7 @@ async function GET_impl(req: Request) {
 
   noteChanged(changedBills.size);
   const refreshed = changedBills.size ? refreshBills(changedBills) : null;
+  if (processed > 0) refreshTables('lords_divisions'); // A16: new Lords divisions written this run
   const body = {
     ok: failures.length === 0,
     start_date: startDate,
