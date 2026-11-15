@@ -9,7 +9,7 @@
 // estimates as a trend.
 
 import { SubFold } from './PhoneFolds';
-import { pageDb } from '@/lib/page-reads';
+import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -22,7 +22,7 @@ const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
 // Shared by this section and the area summary (/your-area), so both show the same figure.
 export async function loadFuelPoverty(gssCode: string | null) {
   if (!gssCode || !gssCode.startsWith('E')) return null;
-  const { data, error: dataErr } = await pageDb()
+  const { data, error: dataErr } = await tagDb([COUNCIL_DATA_TAG])
     .from('council_fuel_poverty')
     .select('council_gss_code, data_year, households, fuel_poor, percentage')
     .in('council_gss_code', [gssCode, 'E92000001'])

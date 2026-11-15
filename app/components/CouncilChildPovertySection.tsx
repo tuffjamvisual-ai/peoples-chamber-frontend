@@ -8,7 +8,7 @@
 // rather than averaged.
 
 import { SubFold } from './PhoneFolds';
-import { pageDb } from '@/lib/page-reads';
+import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -50,7 +50,7 @@ const fyLabel = (fye: number) => `${fye - 1} to ${fye}`;
 // Shared by this section and the area summary (/your-area), so both show the same figure.
 export async function loadChildPoverty(gssCodes: string[]) {
   if (gssCodes.length === 0) return null;
-  const { data, error: dataErr } = await pageDb()
+  const { data, error: dataErr } = await tagDb([COUNCIL_DATA_TAG])
     .from('council_child_poverty')
     .select('council_gss_code, measure, fye, children_count, percentage, release_label')
     .in('council_gss_code', gssCodes)

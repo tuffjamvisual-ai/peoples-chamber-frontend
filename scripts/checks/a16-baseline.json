@@ -3,8 +3,6 @@
  "routes": [
   "page /",
   "page /appg-funders",
-  "page /constituencies",
-  "page /constituencies/[slug]",
   "page /donors",
   "page /explainers/donations",
   "page /how-this-site-is-made",
@@ -17,13 +15,7 @@
   "page /preview-home2/[id]",
   "page /recommendations/[session]/[report]/[rec]",
   "page /recommendations/list/[view]",
-  "page /sewage",
-  "page /sewage/t/[table]/[sort]",
   "page /state-of-the-nation",
-  "page /this-week",
-  "page /tools/welfare/constituency/[gss]",
-  "page /tools/welfare/local-authority/[gss]",
-  "page /unite-kingdom",
-  "page /your-area"
+  "page /this-week"
  ]
 }

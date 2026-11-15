@@ -11,6 +11,9 @@ import { POSTCODE_RE, cleanPostcode, codesForPostcode, codesForPoint, findPlaceM
 import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { suggestCouncils, type CouncilName } from '@/lib/council-suggest';
+import { cachedQuery } from '@/lib/tagged-read';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
+import { tableTags } from '@/lib/source-tags';
 
 // tag: shown plainly after the name; none for a council, whose name already says so (T1-MPb, 11 Nov 2026).
 export type Suggestion = { kind: 'council' | 'place'; name: string; href: string; tag: string | null };
@@ -24,7 +27,7 @@ export const noMatchMessage = (q: string) => `No council or place matches "${q}"
 export const suggestMessage = (q: string) => `No exact match for "${q}". Did you mean:`;
 
 const councilNames = unstable_cache(async (): Promise<CouncilName[]> => {
-  const { data, error } = await supabase.from('councils').select('slug, name, short_name').not('gss_code', 'is', null).limit(1000);
+  const { data, error } = await cachedQuery(['q:lib/area-resolve.ts:93c0f8caa6'], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase.from('councils').select('slug, name, short_name').not('gss_code', 'is', null).limit(1000));
   if (error) throw new LookupError('unavailable', 'Lookup is unavailable right now. Please try again.');
   return (data ?? []) as CouncilName[];
 }, ['area-search-council-names'], { revalidate: 86400 });

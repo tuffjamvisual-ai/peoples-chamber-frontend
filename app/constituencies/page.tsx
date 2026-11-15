@@ -11,7 +11,6 @@ import { PetitionCredit } from '../petitions/PetitionCredit';
 // All 650 constituencies by nation and region (owner, backlog item 15d, 6 Nov 2026). Search is a plain form, so it works with
 // JavaScript off: a postcode goes through the site's existing lookup (lib/area-lookup.ts) to its seat, and anything else filters
 // the names on a cached list. The nations and regions are native folds, so the page stays short at any width.
-export const dynamic = 'force-dynamic';
 
 type Search = { q?: string };
 const INK = '#14100d';

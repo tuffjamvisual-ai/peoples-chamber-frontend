@@ -3,7 +3,7 @@ import Image from 'next/image';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: 'Unite the Kingdom: When Over 100,000 People Show Up, Somebody Should Listen',

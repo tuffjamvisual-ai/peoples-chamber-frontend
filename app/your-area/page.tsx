@@ -30,8 +30,10 @@ import { getLeagueData, bandLabel, ordinal } from '@/lib/council-league';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 import BackLink from '@/app/components/BackLink';
+import { cachedQuery } from '@/lib/tagged-read';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
+import { tableTags } from '@/lib/source-tags';
 
-export const dynamic = 'force-dynamic';
 
 // The page itself is indexable (owner's brief, 3 Nov 2026: index, follow, canonical, in the sitemap); any search or
 // result view (a postcode or town search, a place, coordinates, or a council or constituency) stays noindex, follow.
@@ -154,13 +156,13 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
 
   // Council and its county (two tier areas).
   const { data: councilRow, error: councilErr } = councilCode
-    ? await supabase.from('councils').select('slug, name, short_name, type, type_label, political_control, parent_slug, population, gss_code').eq('gss_code', councilCode).maybeSingle()
+    ? await cachedQuery(['q:app/your-area/page.tsx:90e9140f69', JSON.stringify([councilCode])], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase.from('councils').select('slug, name, short_name, type, type_label, political_control, parent_slug, population, gss_code').eq('gss_code', councilCode).maybeSingle())
     : { data: null, error: null };
   if (councilErr) throw new Error(`your-area council lookup failed: ${councilErr.message}`);
   const council = councilRow as Council | null;
   let county: Council | null = null;
   if (council?.parent_slug) {
-    const { data, error } = await supabase.from('councils').select('slug, name, short_name, type, type_label, political_control, parent_slug, population, gss_code').eq('slug', council.parent_slug).maybeSingle();
+    const { data, error } = await cachedQuery(['q:app/your-area/page.tsx:d29272fbf7', JSON.stringify([council.parent_slug])], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase.from('councils').select('slug, name, short_name, type, type_label, political_control, parent_slug, population, gss_code').eq('slug', council.parent_slug).maybeSingle());
     if (error) throw new Error(`your-area county lookup failed: ${error.message}`);
     county = data as Council | null;
   }
@@ -168,7 +170,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
   // County councils: district figures are summed, as on the county's own page.
   let districtCodes: string[] = [];
   if (council?.type === 'county') {
-    const { data: kids, error: kidsErr } = await supabase.from('councils').select('gss_code').eq('parent_slug', council.slug);
+    const { data: kids, error: kidsErr } = await cachedQuery(['q:app/your-area/page.tsx:12aefe5206', JSON.stringify([council.slug])], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase.from('councils').select('gss_code').eq('parent_slug', council.slug));
     if (kidsErr) throw new Error(`your-area districts lookup failed: ${kidsErr.message}`);
     districtCodes = ((kids ?? []) as { gss_code: string | null }[]).map((k) => k.gss_code).filter((g): g is string => !!g);
   }

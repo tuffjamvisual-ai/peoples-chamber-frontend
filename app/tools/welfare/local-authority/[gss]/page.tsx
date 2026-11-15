@@ -4,19 +4,23 @@ import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../../../../components/OpenGovShell'
 import BackLink from '../../../../components/BackLink'
 import WelfareLocalAuthorityDetail from '../../../../components/WelfareLocalAuthorityDetail'
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d'
 
 export async function generateMetadata({ params }: { params: Promise<{ gss: string }> }): Promise<Metadata> {
   const { gss } = await params
   const gssCode = (gss || '').toUpperCase()
-  const { data, error: dataErr } = await supabase
+  const { data, error: dataErr } = await cachedQuery(['q:app/tools/welfare/local-authority/[gss]/page.tsx:f5d7937afe', JSON.stringify([gssCode])], tableTags('welfare_local_authority_metrics'), () => supabase
     .from('welfare_local_authority_metrics')
     .select('council_name')
     .eq('council_gss_code', gssCode)
     .eq('metric_key', 'population_mid_year')
     .limit(1)
-    .maybeSingle()
+    .maybeSingle())
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/tools/welfare/local-authority/[gss] welfare_local_authority_metrics: ${dataErr.message}`);
   const name = data?.council_name || null
   if (!name) return { title: 'Local authority not found' }

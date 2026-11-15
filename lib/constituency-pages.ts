@@ -5,15 +5,17 @@ import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { supabaseAdminRead as db } from '@/lib/supabase-admin';
 import { memberEdmIds } from '@/lib/edm-pages';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export type SeatListRow = { ons_code: string; slug: string; name: string; nation: string; region: string | null; last_change: string };
 
 // All 650. last_change is the seat's latest election or change of MP, which dates the sitemap entry.
 export const allConstituencies = unstable_cache(async (): Promise<SeatListRow[]> => {
   const [seats, terms, byes] = await Promise.all([
-    db.from('constituencies').select('ons_code, slug, name, nation, region').order('name').limit(1000),
-    db.from('constituency_mp_terms').select('ons_code, start_date, end_date').limit(2000),
-    db.from('constituency_byelections').select('ons_code, election_date').limit(1000),
+    cachedQuery(['q:lib/constituency-pages.ts:70edf288bb'], tableTags('constituencies'), () => db.from('constituencies').select('ons_code, slug, name, nation, region').order('name').limit(1000)),
+    cachedQuery(['q:lib/constituency-pages.ts:d96cb1dc03'], tableTags('constituency_mp_terms'), () => db.from('constituency_mp_terms').select('ons_code, start_date, end_date').limit(2000)),
+    cachedQuery(['q:lib/constituency-pages.ts:5ebb172038'], tableTags('constituency_byelections'), () => db.from('constituency_byelections').select('ons_code, election_date').limit(1000)),
   ]);
   const err = seats.error ?? terms.error ?? byes.error;
   if (err) throw new Error(`constituencies list: ${err.message}`);
@@ -35,29 +37,29 @@ export type MpTerm = { member_id: number; name: string; start_date: string; end_
 export type CurrentMp = { member_id: number; name: string; party: string | null; questions: number; motions: number };
 
 export async function getSeat(slug: string): Promise<Seat | null> {
-  const { data, error } = await db.from('constituencies').select('*').eq('slug', slug).maybeSingle();
+  const { data, error } = await cachedQuery(['q:lib/constituency-pages.ts:27cd4db3e0', JSON.stringify([slug])], tableTags('constituencies'), () => db.from('constituencies').select('*').eq('slug', slug).maybeSingle());
   if (error) throw new Error(`constituency ${slug}: ${error.message}`);
   return data ? { ...(data as unknown as Seat), last_change: '' } : null;
 }
 
 export async function seatDetail(ons: string) {
   const [results, byes, terms, mp] = await Promise.all([
-    db.from('constituency_election_results').select('election_id, election_kind, position, given_name, family_name, party, adjunct_party, votes, share_pct').eq('ons_code', ons).order('election_id').order('position').limit(500),
-    db.from('constituency_byelections').select('election_id, election_date, electorate, valid_votes, invalid_votes, turnout_pct, majority, result_summary, url').eq('ons_code', ons).order('election_date').limit(50),
-    db.from('constituency_mp_terms').select('member_id, name, start_date, end_date, end_reason').eq('ons_code', ons).order('start_date').limit(50),
-    db.from('mps').select('member_id, display_name, name, party').eq('constituency_gss_code', ons).eq('current_member', true).maybeSingle(),
+    cachedQuery(['q:lib/constituency-pages.ts:8648e7fc55', JSON.stringify([ons])], tableTags('constituency_election_results'), () => db.from('constituency_election_results').select('election_id, election_kind, position, given_name, family_name, party, adjunct_party, votes, share_pct').eq('ons_code', ons).order('election_id').order('position').limit(500)),
+    cachedQuery(['q:lib/constituency-pages.ts:6e925e8fcb', JSON.stringify([ons])], tableTags('constituency_byelections'), () => db.from('constituency_byelections').select('election_id, election_date, electorate, valid_votes, invalid_votes, turnout_pct, majority, result_summary, url').eq('ons_code', ons).order('election_date').limit(50)),
+    cachedQuery(['q:lib/constituency-pages.ts:7714f6167a', JSON.stringify([ons])], tableTags('constituency_mp_terms'), () => db.from('constituency_mp_terms').select('member_id, name, start_date, end_date, end_reason').eq('ons_code', ons).order('start_date').limit(50)),
+    cachedQuery(['q:lib/constituency-pages.ts:fc84b63286', JSON.stringify([ons])], tableTags('mps'), () => db.from('mps').select('member_id, display_name, name, party').eq('constituency_gss_code', ons).eq('current_member', true).maybeSingle()),
   ]);
   const err = results.error ?? byes.error ?? terms.error ?? mp.error;
   if (err) throw new Error(`constituency ${ons}: ${err.message}`);
   const termRows = (terms.data ?? []) as Omit<MpTerm, 'has_page'>[];
   // Only MPs with a profile get a link: Andrew Gwynne and Mike Amesbury have no row in mps.
-  const { data: pages, error: pageErr } = await db.from('mps').select('member_id').in('member_id', termRows.map((t) => t.member_id));
+  const { data: pages, error: pageErr } = await cachedQuery(['q:lib/constituency-pages.ts:b4c747a4a1', JSON.stringify([termRows.map((t) => t.member_id)])], tableTags('mps'), () => db.from('mps').select('member_id').in('member_id', termRows.map((t) => t.member_id)));
   if (pageErr) throw new Error(`constituency ${ons} MPs: ${pageErr.message}`);
   const withPage = new Set(((pages ?? []) as { member_id: number }[]).map((p) => p.member_id));
   const row = mp.data as { member_id: number; display_name: string | null; name: string; party: string | null } | null;
   let current: CurrentMp | null = null;
   if (row) {
-    const { count, error: qErr } = await db.from('parliament_written_questions').select('id', { count: 'exact', head: true }).eq('asking_member_id', row.member_id).eq('house', 'Commons');
+    const { count, error: qErr } = await cachedQuery(['q:lib/constituency-pages.ts:22868529ea', JSON.stringify([row.member_id])], tableTags('parliament_written_questions'), () => db.from('parliament_written_questions').select('id', { count: 'exact', head: true }).eq('asking_member_id', row.member_id).eq('house', 'Commons'));
     if (qErr) throw new Error(`constituency ${ons} questions: ${qErr.message}`);
     const motions = await memberEdmIds(row.member_id);
     current = { member_id: row.member_id, name: row.display_name || row.name, party: row.party, questions: count ?? 0, motions: motions.tabled.length + motions.signed.length };

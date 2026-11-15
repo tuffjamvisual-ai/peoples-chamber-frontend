@@ -19,7 +19,7 @@ import BackLink from '@/app/components/BackLink';
 // One constituency (owner, backlog item 15d, 6 Nov 2026), this Parliament only: its MP and every MP since 2024 with official dates
 // and Parliament's own end reason, the 2024 result and any byelection, its most signed petitions, and the councils overlapping it.
 // No commentary on why anyone left, and no local party donations in this version. Kept for a day.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';

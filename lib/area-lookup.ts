@@ -14,6 +14,9 @@
 
 import { ilikeWords } from '@/lib/ilike-words';
 import { supabase } from '@/lib/supabase';
+import { cachedQuery } from '@/lib/tagged-read';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
+import { tableTags } from '@/lib/source-tags';
 
 export const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/;
 const CODE_ALIASES: Record<string, string> = { E08000038: 'E08000016', E08000039: 'E08000019' };
@@ -140,12 +143,12 @@ export async function findCouncilByName(q: string): Promise<{ gss_code: string; 
   const core = safe.replace(COUNCIL_WORDS, ' ').replace(/\s+/g, ' ').trim() || safe;
   // Words in order, any punctuation between (T1-QA9 A11: "Bournemouth, Christchurch and Poole" found nothing).
   const pat = ilikeWords(core);
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:lib/area-lookup.ts:731eadef1c', JSON.stringify([pat])], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase
     .from('councils')
     .select('gss_code, name, short_name')
     .or(`name.ilike.${pat},short_name.ilike.${pat}`)
     .not('gss_code', 'is', null)
-    .limit(30);
+    .limit(30));
   if (error) throw new LookupError('unavailable', 'Lookup is unavailable right now. Please try again.');
   const rows = (data ?? []) as { gss_code: string; name: string; short_name: string | null }[];
   const hits = rows.filter((r) => bare(r.name) === want || (r.short_name != null && bare(r.short_name) === want));
