@@ -21,11 +21,12 @@ import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { unstable_cache } from 'next/cache';
+import { CONTRACT_NOTICES_TAG, contractTag } from '@/lib/contract-tags';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags above), or on a deploy
 
 // Built on first visit and cached (no pages at build time), like the news and council pages.
 export function generateStaticParams() {
@@ -40,8 +41,10 @@ const ACCENT = '#7a1612';
 const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/;
 
 const NOTICE_COLUMNS = 'ocid, release_id, notice_type, tags, published_at, contract_key, award_id, title, buyer_name, suppliers, is_framework, value, value_type, value_from_text, change_description, change_reason, termination_reason, end_date, status, source_url';
-const loadNotices = unstable_cache(
-  async (ocid: string): Promise<Notice[]> => {
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept until the contracts sync refreshes this procurement's tag
+// (contract:<ocid>, only when it got a new notice or a newer lot) or the 'contract-notices' tag; no timer.
+const loadNotices = (ocid: string) => unstable_cache(
+  async (): Promise<Notice[]> => {
     const read = (cols: string) => supabase.from('contract_notices').select(cols).eq('ocid', ocid).order('published_at').order('contract_key').limit(5000);
     let { data, error } = await read(`${NOTICE_COLUMNS}, lot_ids`);
     // Without lot_ids (migration 2026-11-12a undone) the page shows no lot labels rather than failing.
@@ -49,20 +52,20 @@ const loadNotices = unstable_cache(
     if (error) throw new Error(`/contracts/[ocid] contract_notices: ${error.message}`);
     return (data || []) as unknown as Notice[];
   },
-  ['contract-notices-v2'],
-  { revalidate: 86400, tags: ['contract-notices'] },
-);
+  ['contract-notices-v3', ocid],
+  { revalidate: false, tags: [CONTRACT_NOTICES_TAG, contractTag(ocid)] },
+)();
 
 // The procurement's lots as published (T1-LOT); none when the table is missing or the read fails.
-const loadLots = unstable_cache(
-  async (ocid: string): Promise<LotTitle[]> => {
+const loadLots = (ocid: string) => unstable_cache(
+  async (): Promise<LotTitle[]> => {
     const { data, error } = await supabase.from('contract_lots').select('lot_id, title').eq('ocid', ocid).order('lot_id');
     if (error) { console.error(`/contracts/[ocid] contract_lots: ${error.message}`); return []; }
     return (data || []) as LotTitle[];
   },
-  ['contract-lots-v1'],
-  { revalidate: 86400, tags: ['contract-notices'] },
-);
+  ['contract-lots-v2', ocid],
+  { revalidate: false, tags: [CONTRACT_NOTICES_TAG, contractTag(ocid)] },
+)();
 
 // Procurement Act 2023 notice forms; older-rules notices carry no form code, so their OCDS tags name them.
 const NOTICE_NAMES: Record<string, string> = {

@@ -1,6 +1,8 @@
 import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { revalidateTag, noteChanged } from '@/lib/refresh-count';
+import { contractTag } from '@/lib/contract-tags';
 import { createClient } from '@supabase/supabase-js';
 import { noticeRows, uniqueNoticeRows, lotRows, newerLotRows, type NoticeRow } from '@/lib/contract-notices';
 import { walkFeed, readState, type WalkState, type PageResult } from './feed-walk';
@@ -181,6 +183,9 @@ async function GET_impl(req: Request) {
     start = readState(cur?.cursor, (cur?.updated_at as string | undefined) ?? null);
   }
   let upserted = 0, skippedBad = 0, noticesWritten = 0, noticesFailed = 0, scanned = 0;
+  // A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): contract pages rebuild only when their data changed. The
+  // procurements that got a notice not stored before, or a newer lot, are refreshed by their own tag after the run.
+  const changedOcids = new Set<string>();
   let rateLimitWaits = 0, duplicatesDropped = 0, lotsWritten = 0, lotsFailed = 0;
 
   async function upsertRow(row: ContractRow): Promise<boolean> {
@@ -224,7 +229,12 @@ async function GET_impl(req: Request) {
     const notices: NoticeRow[] = uniqueNoticeRows(releases.flatMap((r: any) => noticeRows(r)));
     for (let i = 0; i < notices.length; i += 200) {
       const batch = notices.slice(i, i + 200);
+      // Which of these are new: a published release never changes, so a notice already stored is the same row again.
+      const { data: had } = await supabase.from('contract_notices').select('ocid, release_id, contract_key, value_type')
+        .in('ocid', [...new Set(batch.map((n) => n.ocid))]).in('release_id', [...new Set(batch.map((n) => n.release_id))]);
+      const known = new Set(((had ?? []) as { ocid: string; release_id: string; contract_key: string; value_type: string }[]).map((h) => `${h.ocid}|${h.release_id}|${h.contract_key}|${h.value_type}`));
       const { error: nErr } = await supabase.from('contract_notices').upsert(batch, { onConflict: 'ocid,release_id,contract_key,value_type' });
+      if (!nErr) for (const n of batch) if (!known.has(`${n.ocid}|${n.release_id}|${n.contract_key}|${n.value_type}`)) changedOcids.add(n.ocid);
       if (nErr) { noticesFailed += batch.length; console.error(`[contracts] contract_notices batch failed: ${nErr.message}`); }
       else noticesWritten += batch.length;
     }
@@ -240,7 +250,7 @@ async function GET_impl(req: Request) {
           const batch = write.slice(i, i + 200);
           const { error: lErr } = await supabase.from('contract_lots').upsert(batch, { onConflict: 'ocid,lot_id' });
           if (lErr) { lotsFailed += batch.length; console.error(`[contracts] contract_lots batch failed: ${lErr.message}`); }
-          else lotsWritten += batch.length;
+          else { lotsWritten += batch.length; for (const l of batch) changedOcids.add(l.ocid); }
         }
       }
     }
@@ -253,6 +263,8 @@ async function GET_impl(req: Request) {
     log: (m) => console.error(`[contracts] ${m}`),
   });
   const pagesError = walk.error;
+  for (const ocid of changedOcids) revalidateTag(contractTag(ocid), 'max');
+  noteChanged(changedOcids.size);
 
   let cursorSaved: boolean | null = null;
   if (!manual) {
@@ -270,7 +282,7 @@ async function GET_impl(req: Request) {
   // clean 200 when contracts were saved or nothing was written badly.
   const politeStop = !!pagesError && /HTTP 429|time budget|page limit/.test(pagesError);
   const status = upserted > 0 || (skippedBad === 0 && (!pagesError || politeStop)) ? 200 : 502;
-  return NextResponse.json({ ok: status === 200 && noticesFailed === 0 && lotsFailed === 0 && !walk.partial, partial: walk.partial, scanned, rows_written: upserted, skippedBad, duplicates_dropped: duplicatesDropped,
+  return NextResponse.json({ ok: status === 200 && noticesFailed === 0 && lotsFailed === 0 && !walk.partial, partial: walk.partial, scanned, contracts_changed: changedOcids.size, rows_written: upserted, skippedBad, duplicates_dropped: duplicatesDropped,
     notices_written: noticesWritten, notices_failed: noticesFailed, lots_written: lotsWritten, lots_failed: lotsFailed, pagesError, rate_limit_waits: rateLimitWaits,
     pages: walk.pages, caught_up_to_newest: walk.caughtUp, newest_read: walk.state.newestRead, saved_positions: walk.state.pending.length,
     resumed_positions: walk.resumedGaps, dropped_positions: walk.droppedGaps, cursor_saved: cursorSaved,

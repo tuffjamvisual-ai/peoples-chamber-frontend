@@ -21,7 +21,6 @@
   "page /committees/[id]",
   "page /constituencies",
   "page /constituencies/[slug]",
-  "page /contracts/[ocid]",
   "page /councils",
   "page /councils/[slug]",
   "page /councils/[slug]/panel/[tab]",
