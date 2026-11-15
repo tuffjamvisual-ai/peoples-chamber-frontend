@@ -4,6 +4,7 @@ import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { supabaseAdminRead as db } from '@/lib/supabase-admin';
 import { PETITIONS_TAG } from '@/lib/petition-tags';
+import { tagged } from '@/lib/tagged-read';
 
 export type PetitionListRow = {
   id: number; action: string; state: string; signature_count: number; opened_at: string | null; closed_at: string | null;
@@ -75,7 +76,7 @@ export type MpPetitionsTop = { petitions: { id: number; title: string; here: num
 
 // The MP page's "Petitions in this constituency": the five most signed. The page keeps for a week, so it says when the
 // counts were checked; the Petitions tab and /petitions?constituency= stay current.
-export async function topPetitionsInConstituency(gss: string): Promise<MpPetitionsTop> {
+async function topPetitionsInConstituencyRead(gss: string): Promise<MpPetitionsTop> {
   const { data, error } = await db.from('petition_constituency_signatures')
     .select('petition_id, signature_count, petitions(action, signature_count, state, checked_at)')
     .eq('constituency_gss_code', gss).order('signature_count', { ascending: false }).limit(5);
@@ -103,3 +104,7 @@ export function petitionDate(v: string | null | undefined): string | null {
   const d = v.length === 10 ? new Date(`${v}T12:00:00Z`) : new Date(v);
   return Number.isNaN(d.getTime()) ? null : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: LONDON });
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tags, no timer.
+export const topPetitionsInConstituency = (gss: string) =>
+  tagged(['petitions-in-constituency-top-v1', gss], ['mp-petitions', 'petitions-list'], () => topPetitionsInConstituencyRead(gss));

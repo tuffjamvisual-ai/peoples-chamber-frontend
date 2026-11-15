@@ -11,10 +11,12 @@ import { displayMpName } from '@/lib/mp-name';
 import { lookupMember } from '@/lib/former-mps';
 import { divisionHref } from '@/lib/division-links';
 import { ARCHIVE_FIRST_YEAR, ARCHIVE_LAST_YEAR, ARCHIVE_NOTE, HANSARD_LABEL, archiveDate, memberVotesInYear } from '@/lib/historic-archive';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // One member's votes in one year from 2004 to 2016 (owner, 6 Nov 2026), linked from their page. Kept apart from the voting record, with no rebellion figures.
 // The archive does not change, so each page is rendered once and cached. Not in the sitemap.
-export const revalidate = 2592000;
+export const revalidate = false; // A16: the 2004 to 2016 archive does not change; the MP name follows the mps tag
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';
@@ -22,7 +24,7 @@ const HAIRLINE = 'rgba(20,16,13,0.25)';
 type Params = { id: string; year: string };
 
 const memberName = cache(async (memberId: number): Promise<string | null> => {
-  const { data, error } = await supabase.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle();
+  const { data, error } = await cachedQuery(['q:app/mps/[id]/votes-from-hansard/[year]/page.tsx:ab0fcc9d82', JSON.stringify([memberId])], tableTags('mps'), () => supabase.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle());
   if (error) throw new Error(`/mps/[id]/votes-from-hansard mps: ${error.message}`);
   if (data) return displayMpName((data.display_name || data.name || '').trim()) || null;
   const m = await lookupMember(memberId);

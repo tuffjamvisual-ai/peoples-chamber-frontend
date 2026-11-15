@@ -3,6 +3,8 @@
 // votes sync, from 4 September 2024); written questions from parliament_written_questions (lib/mp-written-questions.ts).
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Post } from '@/lib/peers';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export type Peer = {
   member_id: number; name_display: string; name_list_as: string | null; name_full_title: string | null;
@@ -23,7 +25,7 @@ export type PeerInterestCategory = { id: number; name: string; entries: PeerInte
 
 export const lordsDivisionUrl = (id: number) => `https://votes.parliament.uk/Votes/Lords/Division/${id}`;
 
-export async function getPeer(db: SupabaseClient, memberId: number): Promise<Peer | null> {
+async function getPeerRead(db: SupabaseClient, memberId: number): Promise<Peer | null> {
   const { data, error } = await db.from('peers')
     .select('member_id, name_display, name_list_as, name_full_title, party, party_colour, peerage_type, start_date, end_date, end_reason, status, is_current, thumbnail_url, government_posts, opposition_posts, other_posts, committee_memberships, posts_checked_at')
     .eq('member_id', memberId).maybeSingle();
@@ -84,3 +86,7 @@ export async function peerVoting(db: SupabaseClient, memberId: number, recentCou
     recent,
   };
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tags, no timer.
+export const getPeer = (db: Parameters<typeof getPeerRead>[0], memberId: number) =>
+  tagged(['peer-v1', memberId], tableTags('peers'), () => getPeerRead(db, memberId));

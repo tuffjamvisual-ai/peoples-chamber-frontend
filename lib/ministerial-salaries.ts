@@ -11,6 +11,9 @@
 import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { mpTag, MP_PAGES_TAG } from '@/lib/mp-cache';
 
 export type SalaryRate = {
   category: string; house: 'Commons' | 'Lords'; cabinet: boolean; entitled: number; claimed: number;
@@ -91,7 +94,7 @@ function pick(rows: Filed[], rates: SalaryRate[]): SalaryRate | 'unfiled' | null
 }
 
 // One MP's ministerial rate (dept_ministers by member id).
-export async function ministerialRateForMember(memberId: number): Promise<SalaryRate | 'unfiled' | null> {
+async function ministerialRateForMemberRead(memberId: number): Promise<SalaryRate | 'unfiled' | null> {
   const [rates, { data, error }] = await Promise.all([
     salaryRates(),
     supabase.from('dept_ministers').select('member_id, slug, salary_category').eq('member_id', memberId),
@@ -142,3 +145,7 @@ export async function mpPay(memberId: number): Promise<MpPay> {
     ministerialLabel: rate ? CATEGORY_LABEL[rate.category] ?? null : null,
   };
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tags, no timer.
+export const ministerialRateForMember = (memberId: number) =>
+  tagged(['ministerial-rate-v1', memberId], [mpTag(memberId), MP_PAGES_TAG, ...tableTags('dept_ministers', 'ministerial_salary_rates'), 'salary-rates'], () => ministerialRateForMemberRead(memberId));

@@ -25,7 +25,7 @@ import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helper
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { newestTimestamps } from '@/lib/data-freshness';
 import { latestSpadRelease, voteCounts as readVoteCounts } from '@/lib/mp-page-cache';
-import { mpCached, mpCachedCount } from '@/lib/mp-cache';
+import { mpCached, mpCachedCount, mpTag, MP_PAGES_TAG } from '@/lib/mp-cache';
 import { DONATIONS_TAG } from '@/lib/page-reads';
 import { createHash } from 'node:crypto';
 import { mpReportItems } from '@/lib/mp-reports';
@@ -39,6 +39,8 @@ import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-pages';
 import { councilForConstituency } from '@/lib/related-links';
 import { handled, orNull } from '@/lib/settle';
+import { cachedQuery, tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 
 // Shared MP-row fetch. generateMetadata and the page component run as
@@ -47,7 +49,7 @@ import { handled, orNull } from '@/lib/settle';
 // is a superset of the few columns metadata needs.
 const getMp = cache(async (memberId: number) => {
   // A database error must not become a cached 404 (see councils page); throw instead.
-  const { data, error } = await supabase.from('mps').select('*').eq('member_id', memberId).maybeSingle();
+  const { data, error } = await cachedQuery(['q:app/mps/[id]/page.tsx:b38ec14519', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('mps').select('*').eq('member_id', memberId).maybeSingle());
   if (error) throw new Error(`mp ${memberId}: ${error.message}`);
   return data;
 });
@@ -57,7 +59,7 @@ const getMp = cache(async (memberId: number) => {
 // disabled after concurrent cabinet-page builds saturated Supabase —
 // a single slow MP could time out and fail the entire build. On-demand
 // ISR is equivalent for users after the first hit.
-export const revalidate = 604800;  // a week (owner, 30 Oct 2026, cache Stage 2a part 3): the syncs refresh an MP's page when its data changes (lib/mp-refresh.ts)
+export const revalidate = false // A16: rebuilt only when this MP's data changes (mp:<id>, mp-pages), or on a deploy;  // a week (owner, 30 Oct 2026, cache Stage 2a part 3): the syncs refresh an MP's page when its data changes (lib/mp-refresh.ts)
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -131,7 +133,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     mpCachedCount('interests-count', memberId, () => supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true)),
     mpCachedCount('expenses-count', memberId, () => supabase.from('mp_expenses_summary').select('id', { count: 'exact', head: true }).eq('member_id', memberId)),
     // The attendance figure the page's headline shows (mp_activity_metrics), for the description (L4).
-    supabase.from('mp_activity_metrics').select('attendance_pct, divisions_total').eq('member_id', memberId).maybeSingle(),
+    cachedQuery(['q:app/mps/[id]/page.tsx:5a28a9492f', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('mp_activity_metrics').select('attendance_pct, divisions_total').eq('member_id', memberId).maybeSingle()),
   ]);
 
   if (!mp) {
@@ -241,29 +243,29 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     formerInterestsRes,
   ] = await withTimeout(Promise.all([
     getMp(memberId),
-    supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
+    cachedQuery(['q:app/mps/[id]/page.tsx:183a6a1541', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('mp_contact').select('*').eq('member_id', memberId).single()),
     // The written biography, its sources and background text only when bio_visible is true (lib/mp-biography.ts).
     getMpBiography(supabase, memberId).then((r) => withDeliveryPreview(r, memberId)),
-    supabase
+    cachedQuery(['q:app/mps/[id]/page.tsx:09e6439c6c', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
       .from('bill')
       .select('id, title, status, current_stage, description, long_title, is_act, last_update')
       .eq('sponsor_member_id', memberId)
       .is('hidden_reason', null)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })),
     // 20-per-page paginated voting record. ParlParse backfill (2026-06-05)
     // means some MPs now have hundreds of votes — Abbott alone has 308 —
     // so the previous bulk 999-row fetch became a heavy cold payload.
     // When ?vq= is set the same filter is applied to both the list query
     // and the count query so totalPages reflects the matches, not all
     // votes.
-    (() => {
+    cachedQuery(['mp-votes-page-v1', memberId, voteQuery ?? '', voteStart, voteEnd], [mpTag(memberId), MP_PAGES_TAG], () => {
       let q = supabase
         .from('mp_division_votes')
         .select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id, division_date_only, division_number')
         .eq('member_id', memberId);
       if (voteQuery) q = q.ilike('division_title', `%${escapeIlike(voteQuery)}%`);
       return q.order('division_date', { ascending: false }).range(voteStart, voteEnd);
-    })(),
+    }),
     // Every vote count the page shows, in one index-only read (mp_vote_counts, migration 2026-10-21b; owner's
     // approval, 21 Oct 2026): the total for the pagination footer and "N divisions recorded", and the votes against
     // the party below. It replaces four exact counts over mp_division_votes (up to 1.4 s each when not cached).
@@ -272,31 +274,31 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     // are retained but excluded from the profile's primary interests list.
     // Named columns, not '*': the nightly last_seen_date stamp (and the search vector) stay out of the page (owner, 30 Oct
     // 2026, cache Stage 2a part 3).
-    supabase.from('mp_registered_interests').select('id, member_id, category_id, category_name, category_sort_order, interest_id, interest_text, created_when, last_amended_when, is_correction, child_interests, created_at, is_current, first_seen_date, source, donor_name, donor_amount, payment_type, received_date, accepted_date').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true }),
-    supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
+    cachedQuery(['q:app/mps/[id]/page.tsx:be0db3e1d4', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('mp_registered_interests').select('id, member_id, category_id, category_name, category_sort_order, interest_id, interest_text, created_when, last_amended_when, is_correction, child_interests, created_at, is_current, first_seen_date, source, donor_name, donor_amount, payment_type, received_date, accepted_date').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true })),
+    cachedQuery(['q:app/mps/[id]/page.tsx:1345cf0f50', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false })),
     // Individual expense claims are fetched by the Expenses tab when it opens (app/api/mps/[id]/expenses).
     // MP and ministerial pay from ministerial_salary_rates (lib/ministerial-salaries.ts, N1).
     mpPay(memberId),
-    supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
+    cachedQuery(['q:app/mps/[id]/page.tsx:9ee4a9fe95', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle()),
     // Select committee memberships — current (end_date null) first, former newest-first.
     // Folded into this batch rather than awaited separately to avoid a serial round-trip.
-    supabase
+    cachedQuery(['q:app/mps/[id]/page.tsx:03fd38afa9', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
       .from('mp_committee_memberships')
       .select('committee_id, committee_name, role, start_date, end_date')
       .eq('member_id', memberId)
       .order('end_date', { ascending: false, nullsFirst: true })
       // Ties in a fixed order (committee name, then start date), so the page is the same on every render.
       .order('committee_name', { ascending: true })
-      .order('start_date', { ascending: true }),
+      .order('start_date', { ascending: true })),
     // Entries no longer on the register (owner, 3 Nov 2026): shown collapsed below the current interests, newest last
     // listing first. Never counted in the headline figures, which stay current only.
-    supabase
+    cachedQuery(['q:app/mps/[id]/page.tsx:546067822c', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
       .from('mp_registered_interests')
       .select('category_name, interest_text, last_seen_date')
       .eq('member_id', memberId)
       .eq('is_current', false)
       .order('last_seen_date', { ascending: false, nullsFirst: false })
-      .order('interest_id', { ascending: false }),
+      .order('interest_id', { ascending: false })),
   ]), 9000);
   if (!mp) {
     // Not in our mps table: a former MP gets a basic page from Parliament's record; a member who only sat in the Lords
@@ -304,11 +306,11 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     const m = await lookupMember(memberId);
     if (m.kind === 'former_mp') {
       // Their Standards findings too (owner's brief, 3 Nov 2026); a failed read shows the page without them.
-      const { data: findings } = await supabase
+      const { data: findings } = await cachedQuery(['q:app/mps/[id]/page.tsx:f53559a47b', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
         .from('mp_conduct_findings')
         .select('id, mp_name_at_time, closed_date, outcome, rule_breached, summary, penalty, url, source')
         .eq('member_id', memberId)
-        .order('closed_date', { ascending: false });
+        .order('closed_date', { ascending: false }));
       const [formerReports, peer] = await Promise.all([mpReportItems(memberId).catch(() => []), getPeer(supabase, memberId).catch(() => null)]);
       const related = formerReports.length ? [{ href: `/mps/${memberId}/reports`, label: `Reports on ${m.mp.name} (${formerReports.length})` }] : [];
       // A former MP now in the Lords links to their peer page, which links back (owner, 3 Nov 2026).
@@ -356,16 +358,16 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const pSpad = withTimeout((async () => {
     const rel = await latestSpadRelease();
     if (!rel) return null;
-    const { data } = await supabase.from('spad_appointments')
+    const { data } = await cachedQuery(['q:app/mps/[id]/page.tsx:7881923738', JSON.stringify([rel.release_slug, memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('spad_appointments')
       .select('adviser_name, minister_title, minister_name, minister_member_id, pay_band, salary_band_text, salary_band_min, notes')
-      .eq('release_slug', rel.release_slug).eq('minister_member_id', memberId).order('id', { ascending: true });
+      .eq('release_slug', rel.release_slug).eq('minister_member_id', memberId).order('id', { ascending: true }));
     if (!data || !data.length) return null;
     // How many declared interests (and recusals) each adviser has, for a short note per adviser.
-    const { data: ints } = await supabase.from('spad_interests').select('adviser_name, is_recusal').in('adviser_name', [...new Set(data.map((r) => r.adviser_name))]);
+    const { data: ints } = await cachedQuery(['q:app/mps/[id]/page.tsx:b770138a14', JSON.stringify([data])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('spad_interests').select('adviser_name, is_recusal').in('adviser_name', [...new Set(data.map((r) => r.adviser_name))]));
     const interests: Record<string, { total: number; recusals: number }> = {};
     for (const i of ints ?? []) { const c = (interests[i.adviser_name] ??= { total: 0, recusals: 0 }); c.total++; if (i.is_recusal) c.recusals++; }
     // Whether the minister still holds each listed post (Members API, weekly).
-    const { data: st } = await supabase.from('spad_minister_status').select('minister_title, still_in_post, left_on').eq('kind', 'listed').eq('member_id', memberId);
+    const { data: st } = await cachedQuery(['q:app/mps/[id]/page.tsx:1881c6798a', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('spad_minister_status').select('minister_title, still_in_post, left_on').eq('kind', 'listed').eq('member_id', memberId));
     const leftOn: Record<string, string | null> = {};
     for (const s of st ?? []) leftOn[s.minister_title] = s.still_in_post ? null : s.left_on;
     return { release: rel as SpadReleaseRow, rows: data as SpadRow[], interests, leftOn };
@@ -392,12 +394,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     }),
   ])), 7000));
   const pContribs = handled(Promise.resolve(
-    supabase
+    cachedQuery(['q:app/mps/[id]/page.tsx:79a6d9f4cd', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
       .from('mp_contributions')
       .select('debate_title, sitting_date, section, house, speech_count, question_count, intervention_count, answer_count, statement_count, total_contributions, hansard_url')
       .eq('member_id', memberId)
       .order('sitting_date', { ascending: false })
-      .limit(25),
+      .limit(25)),
   ));
   // Written questions (owner, 3 Nov 2026): the count, first date and newest five, read alongside the contributions. A
   // failed or slow read shows the tab without them rather than holding up the page.
@@ -406,18 +408,18 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     return null;
   });
   const pOfficers = handled(Promise.resolve(
-    supabase
+    cachedQuery(['q:app/mps/[id]/page.tsx:8cf5e6b713', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
       .from('appg_officers')
       .select('appg_slug, role, party, removed')
       .eq('member_id', memberId)
-      .eq('removed', false),
+      .eq('removed', false)),
   ));
   const pActivity = handled(Promise.resolve(
-    supabase
+    cachedQuery(['q:app/mps/[id]/page.tsx:424dfa4957', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
       .from('mp_activity_metrics')
       .select('divisions_voted, divisions_total, attendance_pct, rebellions_total, rebellion_rate_pct, speeches_year, questions_year')
       .eq('member_id', memberId)
-      .maybeSingle(),
+      .maybeSingle()),
   ));
   // The stored career records (PC1; lib/mp-career.ts): post dates and lost elections in Roles since CH1. Its own read, so
   // the page never depends on it.
@@ -430,7 +432,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // (member_id, division_date_only, division_number), so Postgres answers from the index without reading the table:
   // about 20 disk pages and 3 to 11 ms instead of one page per vote (up to 1,800 pages, 924 ms, and timeouts when many
   // MP pages render at once). division_date_only is division_date's day; no row has either column null.
-  const pCurrentYears = orNull(readAll<{ division_date_only: string }>(() => supabase.from('mp_division_votes'), {
+  const pCurrentYears = orNull(tagged(['mp-vote-years-v1', memberId], [mpTag(memberId), MP_PAGES_TAG], () => readAll<{ division_date_only: string }>(() => supabase.from('mp_division_votes'), {
     columns: 'division_date_only, division_number',
     filter: (q) => q.eq('member_id', memberId).not('division_date_only', 'is', null).not('division_number', 'is', null),
     orderBy: [{ column: 'division_date_only' }, { column: 'division_number' }], label: `/mps/${memberId} vote years`,
@@ -438,13 +440,13 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     const per = new Map<number, number>();
     for (const r of rows) { const y = Number(String(r.division_date_only).slice(0, 4)); if (y) per.set(y, (per.get(y) ?? 0) + 1); }
     return [...per.entries()].map(([year, count]) => ({ year, count }));
-  }), `/mps/${memberId} vote years`);
+  })), `/mps/${memberId} vote years`);
   const pConduct = handled(Promise.resolve(
-    supabase
+    cachedQuery(['q:app/mps/[id]/page.tsx:f53559a47b', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
       .from('mp_conduct_findings')
       .select('id, mp_name_at_time, closed_date, outcome, rule_breached, summary, penalty, url, source')
       .eq('member_id', memberId)
-      .order('closed_date', { ascending: false }),
+      .order('closed_date', { ascending: false })),
   ));
 
   // Petitions most signed in this MP's constituency (petition.parliament.uk,
@@ -458,7 +460,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // tab loads them from /api/mps/[id]/petitions when opened, and this page (kept for a week) holds none.
   const pPetitions: Promise<boolean> = constituencyGss
     ? withTimeout(
-        Promise.resolve(supabase.from('petition_constituency_signatures').select('petition_id').eq('constituency_gss_code', constituencyGss).limit(1)),
+        Promise.resolve(cachedQuery(['q:app/mps/[id]/page.tsx:b8aaf1a16f', JSON.stringify([constituencyGss])], [mpTag(memberId), MP_PAGES_TAG, 'mp-petitions'], () => supabase.from('petition_constituency_signatures').select('petition_id').eq('constituency_gss_code', constituencyGss).limit(1))),
         5000,
       ).then((r) => (r.data ?? []).length > 0).catch(() => false)
     : Promise.resolve(false);
@@ -471,7 +473,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
 
   // Their seat's page, for the link in the page heading (owner, 6 Nov 2026), and the latest motions, in the HTML for JavaScript off.
   const pSeatSlug: Promise<string | null> = constituencyGss && mp.current_member !== false
-    ? withTimeout(Promise.resolve(supabase.from('constituencies').select('slug').eq('ons_code', constituencyGss).maybeSingle()), 5000).then((r) => (r.data?.slug as string | undefined) ?? null).catch(() => null)
+    ? withTimeout(Promise.resolve(cachedQuery(['q:app/mps/[id]/page.tsx:1257d9aa84', JSON.stringify([constituencyGss])], [mpTag(memberId), MP_PAGES_TAG], () => supabase.from('constituencies').select('slug').eq('ons_code', constituencyGss).maybeSingle())), 5000).then((r) => (r.data?.slug as string | undefined) ?? null).catch(() => null)
     : Promise.resolve(null);
 
   // The constituency's local council, for Contact's "Local council" line (HT1, owner, 8 Nov 2026; it was in the Related
@@ -494,20 +496,20 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   };
   const pEdms: Promise<EdmTabData> = withTimeout(
     Promise.all([
-      supabase
+      cachedQuery(['q:app/mps/[id]/page.tsx:d4760d4c22', JSON.stringify([memberId, EDMS_FETCHED])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
         .from('early_day_motions')
         .select('id, title, uin_with_suffix, date_tabled, signature_count, status, is_prayer, amendment_to_motion_id', { count: 'exact' })
         .eq('primary_sponsor_id', memberId)
         .order('date_tabled', { ascending: false })
-        .limit(EDMS_FETCHED),
-      supabase
+        .limit(EDMS_FETCHED)),
+      cachedQuery(['q:app/mps/[id]/page.tsx:7434e89171', JSON.stringify([memberId, EDMS_FETCHED])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
         .from('early_day_motion_signatures')
         .select('edm_id, sponsoring_order, signed_at, early_day_motions(title, uin_with_suffix, date_tabled, signature_count, status, is_prayer, amendment_to_motion_id)', { count: 'exact' })
         .eq('member_id', memberId)
         .eq('is_withdrawn', false)
         .gt('sponsoring_order', 1)
         .order('signed_at', { ascending: false })
-        .limit(EDMS_FETCHED),
+        .limit(EDMS_FETCHED)),
     ]),
     5000,
   )
@@ -624,15 +626,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   let appgDonorCheckFailed = false;
   if (officerSlugs.length > 0) {
     const [appgsRes, fundersRes] = await Promise.all([
-      supabase
+      cachedQuery(['q:app/mps/[id]/page.tsx:9ef9a07c07', JSON.stringify([officerSlugs])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
         .from('appgs')
         .select('slug, title, purpose, category, secretariat, secretariat_url, registrable_benefits, website_url')
-        .in('slug', officerSlugs),
-      supabase
+        .in('slug', officerSlugs)),
+      cachedQuery(['q:app/mps/[id]/page.tsx:55961f173a', JSON.stringify([officerSlugs])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
         .from('appg_funders')
         .select('appg_slug, source, description, value_band, value_exact')
         .in('appg_slug', officerSlugs)
-        .limit(2000),
+        .limit(2000)),
     ]);
     const funderBySlug = new Map<string, AppgFunderRow[]>();
     for (const f of (fundersRes.data || []) as AppgFunderRow[]) {
@@ -723,10 +725,10 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     .filter((d): d is number => d != null);
   let siDivisionIds = new Set<number>();
   if (siPageDivisionIds.length) {
-    const { data: siRows, error: siRowsErr } = await supabase
+    const { data: siRows, error: siRowsErr } = await cachedQuery(['q:app/mps/[id]/page.tsx:959307a8ce', JSON.stringify([siPageDivisionIds])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
       .from('statutory_instrument')
       .select('division_id')
-      .in('division_id', siPageDivisionIds);
+      .in('division_id', siPageDivisionIds));
     if (siRowsErr && siRowsErr.code !== 'PGRST116') throw new Error(`/mps/[id] statutory_instrument: ${siRowsErr.message}`);
     siDivisionIds = new Set((siRows || []).map((r: { division_id: number }) => r.division_id));
   }

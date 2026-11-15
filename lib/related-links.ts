@@ -9,6 +9,8 @@ import { displayMpName } from '@/lib/mp-name';
 import { editorialSet, topicsOfIn, allEditorials } from '@/lib/editorials-source';
 import { councilSlugsOf } from '@/lib/editorials/council-slugs';
 import type { EditorialEntry } from '@/lib/editorials/types';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export type RelatedLink = { href: string; label: string };
 const MAX = 4;
@@ -19,7 +21,7 @@ const newestFirst = (a: { publishedAt: string }, b: { publishedAt: string }) => 
 // The council for a constituency, only when the constituency lies in exactly one council (245 of 632 span two or
 // three, and there is no share to choose between them, so those get no council link). Also the MP page's Contact section
 // "Local council" line (HT1, owner, 8 Nov 2026), which took over from the MP page's Related line.
-export async function councilForConstituency(gss: string | null | undefined): Promise<RelatedLink | null> {
+async function councilForConstituencyRead(gss: string | null | undefined): Promise<RelatedLink | null> {
   if (!gss) return null;
   const { data, error } = await supabase.from('welfare_constituency_geography').select('council_gss_code').eq('constituency_gss_code', gss).limit(4);
   if (error) throw new Error(`related: constituency councils: ${error.message}`);
@@ -90,3 +92,7 @@ export async function councilRelated(slug: string): Promise<RelatedLink[]> {
     return [];
   }
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tags, no timer.
+export const councilForConstituency = (gss: string | null | undefined) =>
+  tagged(['council-for-constituency-v1', gss ?? null], tableTags('welfare_constituency_geography', 'councils'), () => councilForConstituencyRead(gss));

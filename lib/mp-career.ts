@@ -9,6 +9,9 @@
 import fs from 'node:fs';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { validate, type CareerEntry } from '@/lib/career-timeline';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { mpTag, MP_PAGES_TAG } from '@/lib/mp-cache';
 
 export type MpCareer = { parliament: CareerEntry[] | null; research: CareerEntry[] | null; checkedAt: string | null };
 const NONE: MpCareer = { parliament: null, research: null, checkedAt: null };
@@ -20,7 +23,7 @@ function checked(memberId: number, name: string, part: unknown): CareerEntry[] |
   return (part as CareerEntry[]).length ? (part as CareerEntry[]) : null;
 }
 
-export async function getMpCareer(supabase: SupabaseClient, memberId: number): Promise<MpCareer> {
+async function getMpCareerRead(supabase: SupabaseClient, memberId: number): Promise<MpCareer> {
   const preview = process.env.CAREER_PREVIEW_FILE;
   if (preview) {
     try {
@@ -42,3 +45,7 @@ export async function getMpCareer(supabase: SupabaseClient, memberId: number): P
   const row = data as { career_parliament: unknown; career_research: unknown; career_checked_at: string | null };
   return { parliament: checked(memberId, 'career_parliament', row.career_parliament), research: checked(memberId, 'career_research', row.career_research), checkedAt: row.career_checked_at };
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tags, no timer.
+export const getMpCareer = (supabase: Parameters<typeof getMpCareerRead>[0], memberId: number) =>
+  tagged(['mp-career-v1', memberId], [mpTag(memberId), MP_PAGES_TAG, ...tableTags('mp_biography')], () => getMpCareerRead(supabase, memberId));
