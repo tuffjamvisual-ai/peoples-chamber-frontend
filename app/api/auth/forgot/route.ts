@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { newToken } from '@/lib/auth-tokens';
 import { sendPasswordResetEmail } from '@/lib/email';
+import { authLinkBase } from '@/lib/auth-link-base';
 
 // Always return this regardless of whether the email exists — prevents user enumeration.
 const GENERIC = { message: "If that address is registered, a reset link is on its way." };
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     const email = (body.email as string | undefined)?.trim().toLowerCase();
     if (!email) return NextResponse.json(GENERIC);
 
-    const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+    const base = authLinkBase(request);
 
     const { data: user } = await supabase
       .from('users')

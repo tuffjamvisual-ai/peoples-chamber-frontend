@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { newToken } from '@/lib/auth-tokens';
 import { sendVerificationEmail } from '@/lib/email';
+import { authLinkBase } from '@/lib/auth-link-base';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
       console.error('resend-verification: failed to store token:', error.message);
       return NextResponse.json(GENERIC);
     }
-    const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+    const base = authLinkBase(request);
     await sendVerificationEmail(user.email, token.raw, base);
     return NextResponse.json(GENERIC);
   } catch (e) {

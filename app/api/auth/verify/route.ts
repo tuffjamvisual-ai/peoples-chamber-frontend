@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { setSessionCookie } from '@/lib/session';
 import { hashToken, VERIFY_TOKEN_TTL_MS } from '@/lib/auth-tokens';
+import { authLinkBase } from '@/lib/auth-link-base';
 
 export const dynamic = 'force-dynamic';
 
 // Confirms an email from the link in the verification message.
 export async function GET(request: NextRequest) {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+  const base = authLinkBase(request);
   const token = request.nextUrl.searchParams.get('token');
   if (!token) return NextResponse.redirect(`${base}/login?verified=invalid`);
 

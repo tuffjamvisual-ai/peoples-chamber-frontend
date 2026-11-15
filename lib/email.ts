@@ -2,6 +2,10 @@ import { Resend } from 'resend';
 import { databaseSizeMessage, type DatabaseSize } from '@/lib/database-size';
 import { VERIFY_TOKEN_TTL_DAYS } from '@/lib/auth-constants';
 
+// HTML escaping for every value placed into an email's HTML (security review L3, owner approved 14 Nov 2026, COWORK-TO-T1
+// ENTRY 59): a sign-up's email address and username are typed by the visitor, so they are escaped like any text.
+const esc = (x: string) => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 export interface BioReviewFlag {
   memberId: number;
   name: string;
@@ -82,8 +86,8 @@ export async function sendSignupNotification(user: {
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
       <p style="margin:0 0 12px;font-weight:bold">New user registered on opengovt.</p>
       <table style="border-collapse:collapse;font-size:15px">
-        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Email</td><td>${user.email}</td></tr>
-        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Username</td><td>${username}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Email</td><td>${esc(user.email)}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Username</td><td>${esc(username)}</td></tr>
         <tr><td style="padding:2px 14px 2px 0;color:#14100d">Newsletter</td><td style="font-weight:${user.newsletterOptIn ? 'bold' : 'normal'};color:#14100d">${newsletter}</td></tr>
         <tr><td style="padding:2px 14px 2px 0;color:#14100d">Verified</td><td>${status}</td></tr>
         <tr><td style="padding:2px 14px 2px 0;color:#14100d">Signed up</td><td>${timestamp} (UK time)</td></tr>
@@ -213,7 +217,6 @@ export async function sendFreshnessAlert(stale: StaleSource[]) {
 
   const lines = stale.map(fmt);
   // Lines can carry outside text (a press release title, an error message; 28 Oct 2026), so they are escaped for HTML.
-  const esc = (x: string) => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const text = `Data freshness alert: ${stale.length} source${stale.length === 1 ? '' : 's'} overdue.\n\n${lines.join('\n')}\n`;
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
       <p style="margin:0 0 12px;font-weight:bold">Data freshness alert: ${stale.length} source${stale.length === 1 ? '' : 's'} overdue.</p>

@@ -11,6 +11,7 @@ import disposableDomains from 'disposable-email-domains';
 import { safeReturnPath } from '@/lib/safe-return';
 import { clientIp, dailyCapReached, overIpLimit } from '@/lib/email-limits';
 import { passwordOk, PASSWORD_RULE_TEXT } from '@/lib/password-rule';
+import { authLinkBase } from '@/lib/auth-link-base';
 
 // Permissive but blocks obvious garbage. Real format validation happens
 // at the deliverability layer (MX check + send a verification email).
@@ -115,7 +116,12 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, BCRYPT_COST);
 
     const token = newToken();
-    const verified = !emailEnabled; // auto-verify when email sending is not configured
+    // L7 (security review, owner approved 14 Nov 2026, COWORK-TO-T1 ENTRY 59): an account is never verified without its
+    // email. When the site cannot send email (no RESEND_API_KEY), sign-up is refused instead of creating a verified account.
+    if (!emailEnabled) {
+      return NextResponse.json({ error: "Sign-up is unavailable just now. Please try again later." }, { status: 503 });
+    }
+    const verified = false;
 
     // The confirmation email is sent before the account is created (25 Oct 2026, report 58). If Resend refuses it or
     // cannot be reached (lib/email.ts logs why), the visitor is told so and no account is made, so trying again later
@@ -125,7 +131,7 @@ export async function POST(request: NextRequest) {
       if (await dailyCapReached(supabase, 'signup')) {
         return NextResponse.json({ error: "We can't send confirmation emails just now. Please try again later." }, { status: 503 });
       }
-      const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+      const base = authLinkBase(request);
       const sent = await sendVerificationEmail(email, token.raw, base);
       if (!sent.sent) {
         return NextResponse.json(
