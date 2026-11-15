@@ -1,0 +1,15 @@
+{
+ "_note": "A16 exceptions (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): routes that must render per request (search results, sign in, account, forms, the owner's private draft previews). API routes are never checked. Adding a route here needs the owner's approval: the commit that changes this file must say \"A16 exception approved\".",
+ "routes": [
+  { "route": "/search", "why": "search results" },
+  { "route": "/bills/search", "why": "search results" },
+  { "route": "/councils/search", "why": "search results" },
+  { "route": "/admin/users", "why": "account (admin, signed in)" },
+  { "route": "/preferences", "why": "account settings" },
+  { "route": "/contact", "why": "form" },
+  { "route": "/donate/thank-you", "why": "form (payment session)" },
+  { "route": "/preview/briefings/*", "why": "owner's private draft preview, signed in" },
+  { "route": "/preview/editorials/*", "why": "owner's private draft preview, signed in" },
+  { "route": "/preview/programmes/*", "why": "owner's private draft preview, signed in" }
+ ]
+}

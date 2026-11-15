@@ -52,6 +52,25 @@ for (const [, local, , remote] of refs) {
     process.exit(1);
   }
 }
+// A16 (owner rule, 15 Nov 2026, COWORK-TO-T1 ENTRY 129), on every push, before anything is skipped: no page or layout
+// may set a revalidate timer, be force-dynamic, or read the database outside the tagged data cache, unless it is on the
+// to-do list (scripts/checks/a16-baseline.json, which only shrinks) or the exceptions list. A commit that changes the
+// exceptions list needs "A16 exception approved" (the owner's approval) in its message.
+for (const [, local, , remote] of refs) {
+  if (ZERO.test(local)) continue;
+  let from = remote;
+  if (ZERO.test(remote)) { try { from = git('merge-base', local, 'origin/main'); } catch { from = null; } }
+  if (from) {
+    for (const c of git('log', '--format=%H', `${from}..${local}`, '--', 'scripts/checks/a16-exceptions.json').split('\n').filter(Boolean)) {
+      if (!/A16 exception approved/.test(git('log', '-1', '--format=%B', c))) {
+        console.error(`Push refused: commit ${c.slice(0, 8)} changes scripts/checks/a16-exceptions.json without "A16 exception approved" (the owner's approval) in its message.`);
+        process.exit(1);
+      }
+    }
+  }
+  try { execFileSync('node', [path.join('scripts', 'checks', 'a16-cache-rule.mjs'), '--sha', local], { stdio: 'inherit' }); }
+  catch { process.exit(1); }
+}
 const passed = fs.existsSync(passedFile) ? fs.readFileSync(passedFile, 'utf8').trim() : '';
 const todo = [...shas].filter((s) => s !== passed);
 if (!todo.length) process.exit(0);
