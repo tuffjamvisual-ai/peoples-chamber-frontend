@@ -8,6 +8,8 @@
 //   node scripts/newsletter/send-issue.mjs <issue.md> --date 2026-11-15 --mode test     ONE email to contact@opengovt.uk
 //   node scripts/newsletter/send-issue.mjs <issue.md> --date 2026-11-15 --mode send     every confirmed subscriber
 // --people "Name=id,..." adds the named MPs' caricatures (see below).
+// --no-sent-check: send even though the site cannot read Resend's list of sent emails (its key is sending-only); the
+//   same issue is still not sent twice within 24 hours (Resend's Idempotency-Key). Only on the owner's explicit word.
 // --out <file.html> sets where the preview is written (default scripts/newsletter/preview/preview.html).
 // --site <url> posts to another deployment (default https://www.opengovt.uk).
 import fs from 'node:fs';
@@ -47,7 +49,7 @@ if (!secret) { console.error('CRON_SECRET is not in .env.local.'); process.exit(
 const res = await fetch(new URL('/api/newsletter/send-issue', site), {
   method: 'POST',
   headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
-  body: JSON.stringify({ mode, issueDate, people, issue: fs.readFileSync(file, 'utf8') }),
+  body: JSON.stringify({ mode, issueDate, people, allowUnchecked: args.includes('--no-sent-check'), issue: fs.readFileSync(file, 'utf8') }),
 });
 const body = await res.json().catch(() => ({}));
 if (!res.ok) { console.error(`Stopped (${res.status}): ${body.error ?? 'no answer'}`); process.exit(1); }

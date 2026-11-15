@@ -48,7 +48,7 @@ export function authorised(header: string | null, secret: string | undefined): b
 export async function handleSendIssue(authHeader: string | null, input: unknown, deps: SendDeps): Promise<Result> {
   if (!deps.secret) return { status: 503, body: { error: 'not configured' } };
   if (!authorised(authHeader, deps.secret)) return { status: 401, body: { error: 'unauthorised' } };
-  const req = (input ?? {}) as { mode?: unknown; issue?: unknown; issueDate?: unknown };
+  const req = (input ?? {}) as { mode?: unknown; issue?: unknown; issueDate?: unknown; allowUnchecked?: unknown };
   const mode = req.mode;
   if (mode !== 'preview' && mode !== 'test' && mode !== 'send') return { status: 400, body: { error: "mode must be 'preview', 'test' or 'send'" } };
   if (typeof req.issue !== 'string' || !req.issue.trim()) return { status: 400, body: { error: 'issue (the markdown) is required' } };
@@ -84,7 +84,14 @@ export async function handleSendIssue(authHeader: string | null, input: unknown,
   // send
   let subjects: string[];
   try { subjects = await deps.sentSubjects(); } catch (e) {
-    return { status: 503, body: { error: `cannot check whether this issue was already sent (${(e as Error).message}); nothing sent` } };
+    // The site's Resend key cannot read Resend's list of sent emails (401, a sending-only key; 14 Nov 2026). A 'send'
+    // then goes ahead only when the owner's command says so explicitly (allowUnchecked: true, the script's
+    // --no-sent-check); each batch still carries its Idempotency-Key, so the same issue is not sent twice within
+    // Resend's 24 hours. Without it the send is refused, as before.
+    if (req.allowUnchecked !== true) {
+      return { status: 503, body: { error: `cannot check whether this issue was already sent (${(e as Error).message}); nothing sent. Add --no-sent-check to send relying on Resend's 24 hour Idempotency-Key only` } };
+    }
+    subjects = [];
   }
   if (subjects.includes(issue.subject)) return { status: 409, body: { error: 'this issue was already sent; nothing sent' } };
   const subs = await deps.confirmedSubscribers();

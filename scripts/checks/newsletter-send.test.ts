@@ -161,3 +161,16 @@ test('preview reports whether the web copy is live, and the link appears only th
   assert.equal(r2.body.webCopy, 'https://www.opengovt.uk/newsletter/issues/2026-11-15.html');
   assert.ok(String(r2.body.html).includes('View in your browser'));
 });
+
+test('send when the sent list cannot be read: refused unless the owner explicitly allows it; the batch key is still sent', async () => {
+  const down = stub({ sentSubjects: async () => { throw new Error('Resend list answered 401'); } });
+  assert.equal((await handleSendIssue(AUTH, BODY, down.deps)).status, 503);
+  assert.equal(down.log.batches.length, 0);
+  const allowed = stub({ sentSubjects: async () => { throw new Error('Resend list answered 401'); } });
+  const r = await handleSendIssue(AUTH, { ...BODY, allowUnchecked: true }, allowed.deps);
+  assert.equal(r.status, 200);
+  assert.equal(allowed.log.batches.length, 1);
+  assert.equal(allowed.log.batches[0].key, 'opengovt-weekly-2026-11-15-batch-1');
+  const truthy = stub({ sentSubjects: async () => { throw new Error('x'); } });
+  assert.equal((await handleSendIssue(AUTH, { ...BODY, allowUnchecked: 'yes' }, truthy.deps)).status, 503, 'only the boolean true counts');
+});
