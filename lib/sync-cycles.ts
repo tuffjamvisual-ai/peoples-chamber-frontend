@@ -25,7 +25,7 @@ export const CYCLE_HOURS: Record<string, number> = {
   '/api/sync-electoral-commission-donations': 4 * DAY_H,
   // The weekly full sweep (day job 27 Oct 2026, Part 3): starts on Saturdays and takes about 5 daily runs.
   '/api/sweep-electoral-commission-donations': 8 * DAY_H,
-  '/api/sync-mp-contributions': 3 * DAY_H, // every MP a run, 800 s limit, since 15 Nov 2026: a pass in about 2 days
+  '/api/sync-mp-contributions': 8 * DAY_H, // weekly (Sunday 00:43 UTC) since 15 Nov 2026: one run tops up every MP (ENTRY 124, 125)
   '/api/sync-bill-stages': 10 * DAY_H, // one run a day since 15 Nov 2026 (was four)
   '/api/sync-bill-commons-votes': 7 * DAY_H,
   '/api/sync-bill-sponsors': 7 * DAY_H,
