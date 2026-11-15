@@ -23,8 +23,10 @@ import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { ShowAll } from '@/app/components/NoJsPager';
 import { SubFold } from '@/app/components/PhoneFolds';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'UK political donations disclosed after the deadline' },
@@ -54,7 +56,7 @@ export default async function LateDisclosedPage() {
   // that read timed out a build. Same rules: a gap of more than 90 days between acceptance and disclosure.
   type Enriched = Row & { gap: number };
   type Agg = { name: string; count: number; total: number; worstGap: number };
-  const { data: summary, error } = await supabase.rpc('late_disclosed_summary');
+  const { data: summary, error } = await cachedQuery(['q:app/donations/late-disclosed/page.tsx:b445aa0fa5'], tableTags('political_donations'), () => supabase.rpc('late_disclosed_summary'));
   if (error || !summary) throw new Error(`late_disclosed_summary: ${error?.message ?? 'no data'}`);
   const sum = summary as { total_count: number; total_amount: number; buckets: Record<string, number>; by_recipient: Agg[]; top: Enriched[] };
   const buckets = {

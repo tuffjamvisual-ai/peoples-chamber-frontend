@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { refreshStore } from '@/lib/refresh-stores';
+import { tableFingerprint } from '@/lib/table-fingerprint';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 180;
@@ -19,8 +21,15 @@ async function GET_impl(req: Request) {
   if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
+  // A16 (owner rule 15 Nov 2026, ENTRY 129): the view is rebuilt in full; the pages that read it are refreshed only if
+  // its rows differ from before (a fingerprint before and after).
+  const fp = () => tableFingerprint(supabaseAdmin, 'contractor_donor_matches_stored', 'norm').catch(() => null);
+  const before = await fp();
   const r = await refreshStore(supabaseAdmin, 'refresh_contractor_donor_matches');
-  return NextResponse.json({ ok: r.ok, rows: typeof r.result === 'number' ? r.result : null, ms: r.ms, ...(r.error ? { error: r.error } : {}) },
+  const after = r.ok ? await fp() : null;
+  const changed = r.ok && (before === null || after === null || before !== after);
+  if (changed) refreshTables('contractor_donor_matches_stored');
+  return NextResponse.json({ ok: r.ok, rows: typeof r.result === 'number' ? r.result : null, ms: r.ms, changed, ...(r.error ? { error: r.error } : {}) },
     { status: r.ok ? 200 : 500 });
 }
 

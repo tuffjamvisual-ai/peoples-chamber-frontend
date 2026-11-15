@@ -18,8 +18,10 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { displayMpName } from '@/lib/mp-name';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';
@@ -103,10 +105,10 @@ export default async function AssociationPage({ params }: PageProps) {
   const cleanUnit = canonicalName.replace(/\bConstituency\b/i, '').replace(/\bAssociation\b/i, '').replace(/\bCLP\b/i, '').trim();
   let matchedMp: { member_id: number; display_name: string | null; constituency: string | null } | null = null;
   if (cleanUnit) {
-    const { data: mps, error: mpsErr } = await supabase
+    const { data: mps, error: mpsErr } = await cachedQuery(['q:app/donations/constituencies/[slug]/page.tsx:92f133582d'], tableTags('mps'), () => supabase
       .from('mps')
       .select('member_id, display_name, constituency')
-      .eq('current_member', true);
+      .eq('current_member', true));
     if (mpsErr && mpsErr.code !== 'PGRST116') throw new Error(`/donations/constituencies/[slug] mps: ${mpsErr.message}`);
     if (mps) {
       const target = cleanUnit.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();

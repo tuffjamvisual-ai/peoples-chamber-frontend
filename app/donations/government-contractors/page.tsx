@@ -18,9 +18,9 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { tableTags } from '@/lib/source-tags';
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'UK government contractors who donate to UK political parties' },
@@ -66,7 +66,7 @@ const loadMatched = unstable_cache(
     return { matched, totalDonated, totalContractValue, totalContracts, totalFrameworkPlaces };
   },
   ['gov-contractors-matched-v5'],
-  { revalidate: 86400 },
+  { revalidate: false, tags: tableTags('contractor_donor_matches_stored') }, // A16: refreshed when refresh-contractor-matches changed it
 );
 
 export default async function ContractorsWhoDonatePage() {

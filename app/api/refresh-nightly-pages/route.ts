@@ -10,6 +10,7 @@ import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 import { queuedMps, dequeueMps, mpsDueByDate } from '@/lib/mp-nightly';
 import { MARKER_ROUTE, clockSkip, withTrigger, triggerName, type TriggerMarker } from '@/lib/nightly-trigger';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,6 +89,9 @@ async function refreshNightlyMps(): Promise<Record<string, unknown>> {
   try {
     const queued = await queuedMps(supabaseAdmin);
     noteChanged(queued.length);
+    // A16 (owner rule 15 Nov 2026, ENTRY 129): the nightly scripts queue the MPs whose interests, expenses or earnings they
+    // changed; with any queued, the pages that list those tables (not per MP) are refreshed too.
+    if (queued.length > 0) refreshTables('mp_registered_interests', 'mp_expenses_summary', 'mp_expenses_detail', 'mp_outside_earnings_summary');
     if (queued.length) { refreshMps(queued); await dequeueMps(supabaseAdmin, queued); }
     out.queued = queued.length;
   } catch (e) {

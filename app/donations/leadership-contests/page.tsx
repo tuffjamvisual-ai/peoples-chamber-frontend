@@ -17,8 +17,10 @@ import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
 import AboutThisData from '@/app/components/AboutThisData';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: 'UK party leadership contest donations: who paid',
@@ -67,12 +69,12 @@ type Row = {
 export default async function LeadershipContestsPage() {
   // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces stopped
   // quietly on an error (showing partial figures) and was ordered only by a column with ties.
-  const rows = await readAll<Row>(() => supabase.from('political_donations'), {
+  const rows = await tagged(['ra:app/donations/leadership-contests/page.tsx:2438bd9b18'], tableTags('political_donations'), () => readAll<Row>(() => supabase.from('political_donations'), {
     columns: 'id, donor_name, recipient_name, amount, accepted_date, position_standing_for',
     filter: (q) => q.not('position_standing_for', 'is', null).neq('position_standing_for', ''),
     orderBy: [{ column: 'accepted_date', ascending: false }, { column: 'id' }],
     label: '/donations/leadership-contests',
-  });
+  }));
 
   // Bucket by normalised contest, then by candidate inside that bucket
   type CandidateAgg = { candidate: string; total: number; count: number; topDonor: string; topAmount: number; year: string };

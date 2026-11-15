@@ -26,8 +26,10 @@ import BackLink from '../../components/BackLink';
 import { fmtDate } from '@/lib/lobbying';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: "Who paid for UK MPs' trips: governments and lobby groups" },
@@ -71,12 +73,12 @@ type Row = {
 export default async function SponsoredVisitsPage() {
   // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces stopped
   // quietly on an error (showing partial figures) and was ordered only by a column with ties.
-  const rows = await readAll<Row>(() => supabase.from('political_donations'), {
+  const rows = await tagged(['ra:app/donations/sponsored-visits/page.tsx:67f12fdf8b'], tableTags('political_donations'), () => readAll<Row>(() => supabase.from('political_donations'), {
     columns: 'id, donor_name, recipient_name, recipient_type, amount, accepted_date, purpose_of_visit',
     filter: (q) => q.not('purpose_of_visit', 'is', null).neq('purpose_of_visit', ''),
     orderBy: [{ column: 'amount', ascending: false }, { column: 'id' }],
     label: '/donations/sponsored-visits',
-  });
+  }));
 
   const totalAll = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
 

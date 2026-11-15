@@ -7,7 +7,6 @@
     "/second-jobs/[slug]/[memberId]",
     "/parties/[slug]",
     "/parties/[slug]/bio",
-    "/donations/double-dip",
     "/lobbying",
     "/lobbying/[slug]",
     "/organisations",

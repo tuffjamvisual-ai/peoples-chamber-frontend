@@ -23,9 +23,9 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { fmtDate } from '@/lib/lobbying';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { tableTags } from '@/lib/source-tags';
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'Political donations from abroad: UK money map by country' },
@@ -84,7 +84,7 @@ const loadForeign = unstable_cache(
     return { foreignCount, totalAll, countries, topSingle };
   },
   ['foreign-donations-v2'],
-  { revalidate: 86400 },
+  { revalidate: false, tags: tableTags('political_donations') }, // A16: refreshed when the donations sync changed rows
 );
 
 export default async function ForeignDonationsPage() {

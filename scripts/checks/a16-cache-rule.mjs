@@ -136,6 +136,8 @@ for (const [f, raw] of src) {
   // timedClient(seconds, [tags]).from(...) or a const holding one: tagged.
   const taggedClients = new Set();
   for (const m of s.matchAll(/(?:const|let)\s+([A-Za-z_$][\w$]*)\s*=\s*timedClient\s*\(([^)]*)\)/g)) if (m[2].includes(',')) taggedClients.add(m[1]);
+  // a function returning one: const db = () => timedClient(seconds, [tags]) (called as db())
+  for (const m of s.matchAll(/(?:const|let)\s+([A-Za-z_$][\w$]*)\s*=\s*\(\s*\)\s*=>\s*timedClient\s*\(([^)]*)\)/g)) if (m[2].includes(',')) taggedClients.add(m[1]);
   // read sites
   const reads = [];
   for (const m of s.matchAll(/\.(from|rpc)\s*\(/g)) {
@@ -145,7 +147,7 @@ for (const [f, raw] of src) {
     const after = raw.slice(m.index + m[0].length, m.index + m[0].length + 3);
     if (!/^\s*['"`]/.test(after)) continue;
     const recv = /([A-Za-z_$][\w$]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\))?)\s*$/.exec(before.replace(/\s+$/, ''))?.[1] ?? '';
-    const tagged = (/^timedClient\(/.test(recv) && recv.includes(',')) || taggedClients.has(recv.split('(')[0]);
+    const tagged = (/^timedClient\(/.test(recv) && recv.includes(',')) || taggedClients.has(recv.split('(')[0]) || taggedClients.has(recv.replace(/\(\)$/, ''));
     const viaPageDb = /^pageDb\(/.test(recv);
     reads.push({ at: m.index, line: lineOf(raw, m.index), what: `${m[1]}(${raw.slice(m.index + m[0].length).match(/^\s*['"`]([^'"`]+)/)?.[1] ?? '?'})`, tagged, viaPageDb });
   }
@@ -172,7 +174,8 @@ function resolve(from, spec) {
 const inSpan = (spans, i) => spans.some(([a, b]) => i >= a && i <= b);
 const fnAt = (fi, i) => { let best = null; for (const [n, [a, b]] of fi.fns) if (i >= a && i <= b && (!best || a > best[1])) best = [n, a]; return best?.[0] ?? null; };
 const calledNames = (s, a, b) => new Set([...s.slice(a, b + 1).matchAll(/([A-Za-z_$][\w$]*)\s*(?:<[^>(]*>)?\s*\(/g)].map((m) => m[1]));
-const calledAt = (s, a, b) => { const seen = new Map(); for (const m of s.slice(a, b + 1).matchAll(/([A-Za-z_$][\w$]*)\s*(?:<[^>(]*>)?\s*\(/g)) { const at = a + m.index; const prev = seen.get(m[1]); seen.set(m[1], prev === undefined ? at : prev); } return [...seen]; };
+// Each name called in [a, b] (declarations left out), with the positions of its calls.
+const calledAt = (s, a, b) => { const seen = new Map(); for (const m of s.slice(a, b + 1).matchAll(/([A-Za-z_$][\w$]*)\s*(?:<[^>(]*>)?\s*\(/g)) { const at = a + m.index; if (/\bfunction\s*\*?\s*$/.test(s.slice(Math.max(0, at - 12), at))) continue; if (!seen.has(m[1])) seen.set(m[1], []); seen.get(m[1]).push(at); } return [...seen]; };
 const exportDefault = (fi) => /export\s+default\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/.exec(fi.s)?.[1];
 
 // Is a function (file, name) cached: inside a cached span of its own file, or passed by name to a cached helper.
@@ -185,8 +188,10 @@ function pageProblems(file) {
   const seen = new Set();
   const queue = [];
   const push = (f, n, covered) => { const k = `${f}#${n}#${covered}`; if (seen.has(k)) return; seen.add(k); queue.push([f, n, covered]); };
-  // the page file itself: everything in it is reachable (default export, generateMetadata, generateStaticParams, helpers)
+  // the page file: its top level, and every exported function (the page, generateMetadata, generateStaticParams...),
+  // from which the functions they call are reached
   push(file, '*', false);
+  for (const m of fi0.s.matchAll(/export\s+(?:default\s+)?(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)|export\s+const\s+([A-Za-z_$][\w$]*)/g)) push(file, m[1] || m[2], false);
   while (queue.length) {
     const [f, n, coveredIn] = queue.shift();
     const fi = info.get(f); if (!fi || fi.isClient) continue;
@@ -195,15 +200,15 @@ function pageProblems(file) {
     const covered = coveredIn || (n !== '*' && fnCached(f, n));
     for (const r of fi.reads) {
       if (r.at < a || r.at > b) continue;
-      if (n === '*' && fnAt(fi, r.at) && fnAt(fi, r.at) !== null) {
-        // in the page file, a read inside a named function is judged when that function is reached; reads at top level here
-      }
+      // In the page file's whole-file pass, a read inside a named function is judged when that function is reached
+      // (from the page's exports below, or from a call); only reads outside any named function are judged here.
+      if (n === '*' && fnAt(fi, r.at)) continue;
       const ok = covered || r.tagged || inSpan(fi.cachedSpans, r.at) || (fnAt(fi, r.at) && fnCached(f, fnAt(fi, r.at)));
       if (!ok) problems.push(`${r.viaPageDb ? 'pageDb read (timer, not tag)' : 'read outside the tagged cache'}: ${r.what} at ${f}:${r.line}`);
     }
     // follow calls
-    for (const [name, at] of calledAt(fi.s, a, b)) {
-      const callCovered = covered || inSpan(fi.cachedSpans, at); // a call made inside a cached span is cached
+    for (const [name, ats] of calledAt(fi.s, a, b)) {
+      const callCovered = covered || ats.every((at) => inSpan(fi.cachedSpans, at)); // called only inside cached spans: cached
       if (fi.fns.has(name) && !(n !== '*' && name === n)) { if (n !== '*') push(f, name, callCovered || fnCached(f, name)); }
       const imp = fi.imports.get(name);
       if (imp) push(imp.file, imp.name === 'default' ? (exportDefault(info.get(imp.file) || {}) || 'default') : imp.name, callCovered || fnCached(imp.file, imp.name));

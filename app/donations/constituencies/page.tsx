@@ -27,7 +27,7 @@ import { DONATIONS_TAG } from '@/lib/page-reads';
 // T1-MEM A2 (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 116 and 126): served from Vercel's cache for a day (it
 // was force-dynamic: rendered on every visit). The heavy read below stays in the shared data cache for a day, now also
 // tagged political-donations so the donations sync and sweep refresh it when they write; builds reuse that cached copy.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'UK political donations by constituency association' },

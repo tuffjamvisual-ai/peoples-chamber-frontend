@@ -12,6 +12,8 @@
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
 import { readAll } from '@/lib/read-all';
+import { cachedQuery, tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export function unitNameToSlug(name: string): string {
   return name
@@ -46,7 +48,7 @@ export type PartyRef = { name: string; slug: string; moneySlug: string | null };
 // other parties use their name as a slug. moneySlug is set only where /parties/<slug>/money reads this party's records
 // (its parties.recipient_name is the name on the donations).
 export const partyRefs = cache(async (): Promise<(recipient: string | null) => PartyRef> => {
-  const { data, error } = await supabase.from('parties').select('slug, recipient_name');
+  const { data, error } = await cachedQuery(['q:lib/association-units.ts:0f7daa0204'], tableTags('parties'), () => supabase.from('parties').select('slug, recipient_name'));
   if (error) throw new Error(`association units parties: ${error.message}`);
   const bySlugName = new Map<string, { slug: string; recipient: string }>();
   for (const p of (data ?? []) as { slug: string; recipient_name: string | null }[]) {
@@ -87,12 +89,12 @@ export const rowsForUnitSlug = cache(async (slug: string): Promise<UnitRow[]> =>
   const tokens = slug.split('-').filter((t) => t.length >= 2 && t !== 'and');
   if (tokens.length === 0) return [];
   const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
-  const raw = await readAll<UnitRow>(() => supabase.from('political_donations'), {
+  const raw = await tagged(['ra:lib/association-units.ts:5f407deeef', JSON.stringify([ranked, slug])], tableTags('political_donations'), () => readAll<UnitRow>(() => supabase.from('political_donations'), {
     columns: 'id, donor_name, donor_type, recipient_name, accounting_unit_name, amount, accepted_date, nature',
     filter: (q) => ranked.reduce((acc, t) => acc.filter('accounting_unit_name', 'imatch', wordPattern(t)), q.not('accounting_unit_name', 'is', null)),
     orderBy: [{ column: 'amount', ascending: false }, { column: 'id' }],
     label: `association unit ${slug}`,
-  });
+  }));
   return raw.filter((r) => r.accounting_unit_name && unitNameToSlug(r.accounting_unit_name) === slug);
 });
 
