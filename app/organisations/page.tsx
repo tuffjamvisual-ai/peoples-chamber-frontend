@@ -11,7 +11,7 @@ import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { cachedOrganisationList, searchOrganisations, normaliseCompanyNumber, companiesHouseUrl, type OrgListRow } from '@/lib/organisations';
 import { phoneUpTo } from '@/lib/breakpoints';
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'Organisations: donations, contracts, grants and lobbying' },

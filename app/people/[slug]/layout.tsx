@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase'
 import { metaDescription } from '@/lib/meta-description'
 import { fitTitle } from '@/lib/seo-title'
 import { bareName, resolvePersonName, sameLetters } from '@/lib/person-name'
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 type FirstRole = { title?: string | null; organisation?: string | null }
 
@@ -19,12 +21,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // Description (owner's approval, 23 Oct 2026): the person's first current role from person_cache, as the page
   // shows it. Without one the description stays as it was. Job titles and organisations are kept exactly as
   // written; "at <organisation>" is left out when the title already names it.
-  const { data, error } = await supabase.from('person_cache').select('name, current_roles').eq('slug', slug).maybeSingle()
+  const { data, error } = await cachedQuery(['q:app/people/[slug]/layout.tsx:d5832c3366', JSON.stringify([slug])], tableTags('person_cache'), () => supabase.from('person_cache').select('name, current_roles').eq('slug', slug).maybeSingle())
   if (error && error.code !== 'PGRST116') throw new Error(`/people/[slug] metadata: ${error.message}`)
   // No person_cache row and no minister row means no person page (the page's own rule): a real 404, noindex and
   // 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026), not a title made from the address.
   if (!data) {
-    const { data: minister, error: ministerErr } = await supabase.from('dept_ministers').select('slug').eq('slug', slug).limit(1).maybeSingle()
+    const { data: minister, error: ministerErr } = await cachedQuery(['q:app/people/[slug]/layout.tsx:b37b30e3e1', JSON.stringify([slug])], tableTags('dept_ministers'), () => supabase.from('dept_ministers').select('slug').eq('slug', slug).limit(1).maybeSingle())
     if (ministerErr && ministerErr.code !== 'PGRST116') throw new Error(`/people/[slug] metadata ministers: ${ministerErr.message}`)
     if (!minister) return NOT_FOUND
   }

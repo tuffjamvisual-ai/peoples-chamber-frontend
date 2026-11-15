@@ -190,6 +190,8 @@ jobs:
         # Matches new ministers' meetings to organisations and refreshes the saved figures
         # (lobby_org_rankings, lobby_summary), so "last 12 months" moves on each day.
         # Refuses to write if ministers_meetings looks mid-sync (see the script).
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: node scripts/build-lobbying-index.js --write
         continue-on-error: true
       # The nightly redeploy was removed 30 Oct 2026 (owner's approval, cache Stage 2b): a deploy empties every cached

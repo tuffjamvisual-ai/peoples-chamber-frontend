@@ -16,7 +16,7 @@ import { SubFold } from '@/app/components/PhoneFolds';
 // Drawn on each visit (hotfix 14 Nov 2026, COWORK-TO-T1 ENTRY 15): the page reads ?page= for its DataList (T1-GUARD), and an empty
 // generateStaticParams made Next render it as a static page, where reading searchParams fails (DYNAMIC_SERVER_USAGE, HTTP 500).
 // The reads stay cached for an hour in loadMember.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';

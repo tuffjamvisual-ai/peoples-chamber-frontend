@@ -11,7 +11,7 @@ import BackLink from '../components/BackLink';
 import { fmtMoney, fmtUpdated, loadLanding } from './_lib/data';
 import { ShowAll } from '@/app/components/NoJsPager';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'UK MPs with Second Jobs, Outside Earnings by Party' },

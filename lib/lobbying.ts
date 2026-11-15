@@ -17,6 +17,7 @@ import { supabase } from '@/lib/supabase';
 import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
 import { tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import { cachedQuery } from '@/lib/tagged-read';
 export { ORG_TYPE_LABEL, type OrgType };
 
 export type RankingRow = {
@@ -71,9 +72,9 @@ async function readAll<T>(build: (from: number, to: number) => PromiseLike<{ dat
 }
 
 export const getRankings = cache(async (): Promise<RankingRow[]> => {
-  const rows = await readAll<RankingRow>((from, to) =>
+  const rows = await tagged(['ra:lib/lobbying.ts:afcb04caee'], tableTags('lobby_org_rankings'), () => readAll<RankingRow>((from, to) =>
     supabase.from('lobby_org_rankings').select('*').order('org_id', { ascending: true }).range(from, to)
-  );
+  ));
   return rows.map((r) => ({
     ...r,
     meetings_all: Number(r.meetings_all) || 0,
@@ -86,7 +87,7 @@ export const getRankings = cache(async (): Promise<RankingRow[]> => {
 });
 
 export const getSummary = cache(async (): Promise<LobbySummary | null> => {
-  const { data, error } = await supabase.from('lobby_summary').select('*').limit(1);
+  const { data, error } = await cachedQuery(['q:lib/lobbying.ts:b344c0bf07'], tableTags('lobby_summary'), () => supabase.from('lobby_summary').select('*').limit(1));
   if (error) throw new Error(error.message);
   const r = data && data[0];
   if (!r) return null;
@@ -102,14 +103,14 @@ export const getSummary = cache(async (): Promise<LobbySummary | null> => {
 
 // Lobbying firms by number of clients in one quarter.
 export const getFirmsForQuarter = cache(async (quarterStart: string): Promise<FirmRow[]> => {
-  const rows = await readAll<{ firm_name: string; firm_norm: string; client_norm: string }>((from, to) =>
+  const rows = await tagged(['ra:lib/lobbying.ts:0cbde539a3', JSON.stringify([quarterStart])], tableTags('orcl_client_returns'), () => readAll<{ firm_name: string; firm_norm: string; client_norm: string }>((from, to) =>
     supabase
       .from('orcl_client_returns')
       .select('firm_name, firm_norm, client_norm')
       .eq('quarter_start', quarterStart)
       .order('id', { ascending: true })
       .range(from, to)
-  );
+  ));
   const byFirm = new Map<string, { firm: string; clients: Set<string> }>();
   for (const r of rows) {
     const f = byFirm.get(r.firm_norm) || { firm: r.firm_name, clients: new Set<string>() };
@@ -163,7 +164,7 @@ export type OrgMeeting = {
 export type OrgLobbying = { firm: string; clientAs: string; quarters: { start: string; label: string }[] };
 
 export const getOrgBySlug = cache(async (slug: string): Promise<RankingRow | null> => {
-  const { data, error } = await supabase.from('lobby_org_rankings').select('*').eq('slug', slug).limit(1);
+  const { data, error } = await cachedQuery(['q:lib/lobbying.ts:72f62c6400', JSON.stringify([slug])], tableTags('lobby_org_rankings'), () => supabase.from('lobby_org_rankings').select('*').eq('slug', slug).limit(1));
   if (error) throw new Error(error.message);
   const r = data && data[0];
   if (!r) return null;
@@ -174,7 +175,7 @@ export const getOrgBySlug = cache(async (slug: string): Promise<RankingRow | nul
 // Every meeting entry naming the organisation, newest first; an entry that names it twice
 // is listed once.
 export const getOrgMeetings = cache((orgId: number): Promise<OrgMeeting[]> => tagged(['getOrgMeetings-v1', JSON.stringify(orgId ?? null)], tableTags('lobby_meeting_mentions'), async () => {
-  const rows = await readAll<OrgMeeting & { position: number }>((from, to) =>
+  const rows = await tagged(['ra:lib/lobbying.ts:f8666ab083', JSON.stringify([orgId])], tableTags('lobby_meeting_mentions'), () => readAll<OrgMeeting & { position: number }>((from, to) =>
     supabase
       .from('lobby_meeting_mentions')
       .select('meeting_key, position, minister_name, minister_dept, meeting_date, meeting_date_raw, date_flag, purpose, raw_name')
@@ -184,7 +185,7 @@ export const getOrgMeetings = cache((orgId: number): Promise<OrgMeeting[]> => ta
       .order('meeting_key', { ascending: true })
       .order('position', { ascending: true })
       .range(from, to)
-  );
+  ));
   const seen = new Set<string>();
   const out: OrgMeeting[] = [];
   for (const r of rows) {
@@ -197,7 +198,7 @@ export const getOrgMeetings = cache((orgId: number): Promise<OrgMeeting[]> => ta
 
 // Consultant lobbying firms that named the organisation as a client, with the quarters.
 export const getOrgLobbying = cache((orgId: number): Promise<OrgLobbying[]> => tagged(['getOrgLobbying-v1', JSON.stringify(orgId ?? null)], tableTags('orcl_client_returns'), async () => {
-  const rows = await readAll<{ firm_name: string; firm_norm: string; client_name: string; quarter_start: string; quarter_label: string }>((from, to) =>
+  const rows = await tagged(['ra:lib/lobbying.ts:df8a37c9e2', JSON.stringify([orgId])], tableTags('orcl_client_returns'), () => readAll<{ firm_name: string; firm_norm: string; client_name: string; quarter_start: string; quarter_label: string }>((from, to) =>
     supabase
       .from('orcl_client_returns')
       .select('firm_name, firm_norm, client_name, quarter_start, quarter_label')
@@ -205,7 +206,7 @@ export const getOrgLobbying = cache((orgId: number): Promise<OrgLobbying[]> => t
       .order('quarter_start', { ascending: false })
       .order('id', { ascending: true })
       .range(from, to)
-  );
+  ));
   const byFirm = new Map<string, OrgLobbying>();
   for (const r of rows) {
     const f = byFirm.get(r.firm_norm) || { firm: r.firm_name, clientAs: r.client_name, quarters: [] };

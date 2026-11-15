@@ -15,7 +15,7 @@ import {
   DATASETS, getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, grantNavUrl, findTenderUrl, money, fmtDay, buyerLabel,
   type Dataset, getOrgNameBasisNotices, companiesHouseUrl } from '@/lib/organisations';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';

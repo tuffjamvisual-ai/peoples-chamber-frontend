@@ -4,6 +4,8 @@
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
 import { hyphenatePersonName } from '@/lib/no-em-dash';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 const HONORIFIC = /^(the\s+)?(rt\.?\s+hon\.?\s+|right honourable\s+)?(sir\s+|dame\s+|dr\.?\s+|mr\.?\s+|mrs\.?\s+|ms\.?\s+)*/i;
 const POST_NOMINALS = /(\s+(kc|mp|cbe|obe|mbe))+$/i;
@@ -24,7 +26,7 @@ export const resolvePersonName = cache(async (raw: string): Promise<{ name: stri
   const target = personNameKey(name);
   const last = bareName(name).toLowerCase().split(/[^a-z]+/).filter(Boolean).pop();
   if (!target || !last) return { name, isMp: false };
-  const { data, error } = await supabase.from('mps').select('member_id, name, display_name').eq('current_member', true).ilike('name', `%${last}%`).limit(50);
+  const { data, error } = await cachedQuery(['q:lib/person-name.ts:febf74d4cb', JSON.stringify([last])], tableTags('mps'), () => supabase.from('mps').select('member_id, name, display_name').eq('current_member', true).ilike('name', `%${last}%`).limit(50));
   if (error && error.code !== 'PGRST116') throw new Error(`person name ${last}: ${error.message}`);
   const mp = ((data ?? []) as { member_id: number; name: string | null; display_name: string | null }[])
     .find((m) => personNameKey(m.name || '') === target || personNameKey(m.display_name || '') === target);

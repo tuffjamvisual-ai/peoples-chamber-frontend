@@ -10,6 +10,8 @@ import { supabase } from '@/lib/supabase';
 import { readAll } from '@/lib/read-all';
 import { nameBasisCorrections } from '@/lib/contract-notices';
 import { getOrgMeetings, getOrgLobbying, type OrgMeeting, type OrgLobbying } from '@/lib/lobbying';
+import { cachedQuery, tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export type OrgIndexRow = {
   slug: string;
@@ -96,7 +98,7 @@ function corrected<T extends Pick<OrgIndexRow, 'kind' | 'company_number' | 'name
 }
 
 export const getOrganisation = cache(async (slug: string): Promise<OrgIndexRow | null> => {
-  const { data, error } = await supabase.from('organisation_index').select('*').eq('slug', slug).maybeSingle();
+  const { data, error } = await cachedQuery(['q:lib/organisations.ts:b314a2ac3b', JSON.stringify([slug])], tableTags('organisation_index'), () => supabase.from('organisation_index').select('*').eq('slug', slug).maybeSingle());
   if (error) throw new Error(`organisation_index ${slug}: ${error.message}`);
   return data ? corrected(numbers(data as OrgIndexRow)) : null;
 });
@@ -109,7 +111,7 @@ export const CH_NUMBERS_CHECKED = new Set(['08971493', 'RS009045', 'OC303675', '
 
 // Whether another organisation page carries the same name (two companies called Deloitte LLP), so its title adds the Companies House number (owner, 7 Nov 2026).
 export const orgNameShared = cache(async (name: string, slug: string): Promise<boolean> => {
-  const { count, error } = await supabase.from('organisation_index').select('slug', { count: 'exact', head: true }).eq('name', name).neq('slug', slug);
+  const { count, error } = await cachedQuery(['q:lib/organisations.ts:796b83d9de', JSON.stringify([name, slug])], tableTags('organisation_index'), () => supabase.from('organisation_index').select('slug', { count: 'exact', head: true }).eq('name', name).neq('slug', slug));
   if (error) throw new Error(`organisation_index same name ${slug}: ${error.message}`);
   return (count ?? 0) > 0;
 });
@@ -118,7 +120,7 @@ const LIST_COLS = 'slug, kind, name, company_number, name_variants, donations, c
 
 // Every page, for the index and the sitemap (about 1,800 rows).
 export const listOrganisations = cache(async (): Promise<OrgListRow[]> => {
-  const rows = await readAll<OrgListRow>(() => supabase.from('organisation_index'), { columns: LIST_COLS, orderBy: 'slug', label: 'organisation_index' });
+  const rows = await tagged(['ra:lib/organisations.ts:035b100a95', JSON.stringify([LIST_COLS])], tableTags('organisation_index'), () => readAll<OrgListRow>(() => supabase.from('organisation_index'), { columns: LIST_COLS, orderBy: 'slug', label: 'organisation_index' }));
   return rows.map((r) => corrected(numbers(r)));
 });
 
@@ -157,41 +159,41 @@ export const getOrgDonations = cache(async (org: OrgIndexRow, limit?: number): P
   if (raws.length === 0) return [];
   const cols = 'id, donor_name, recipient_name, amount, accepted_date, received_date, donation_action, ec_ref, donation_type_label, nature';
   if (limit) {
-    const { data, error } = await supabase.from('political_donations').select(cols).in('company_registration_number', raws).or('donor_type.is.null,donor_type.neq.Individual')
-      .order('accepted_date', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(limit);
+    const { data, error } = await cachedQuery(['q:lib/organisations.ts:28f735ae7e', JSON.stringify([cols, raws, limit])], tableTags('political_donations'), () => supabase.from('political_donations').select(cols).in('company_registration_number', raws).or('donor_type.is.null,donor_type.neq.Individual')
+      .order('accepted_date', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(limit));
     if (error) throw new Error(`organisation donations: ${error.message}`);
     return (data ?? []) as OrgDonation[];
   }
-  return readAll<OrgDonation>(() => supabase.from('political_donations'), {
+  return tagged(['ra:lib/organisations.ts:7b2cc289c1', JSON.stringify([cols, raws])], tableTags('political_donations'), () => readAll<OrgDonation>(() => supabase.from('political_donations'), {
     columns: cols,
     filter: (q) => q.in('company_registration_number', raws).or('donor_type.is.null,donor_type.neq.Individual'),
     orderBy: [{ column: 'accepted_date', ascending: false }, { column: 'id', ascending: false }],
     label: 'organisation donations',
-  });
+  }));
 });
 
 export const getOrgContracts = cache(async (companyNumber: string | null, limit?: number): Promise<OrgContract[]> => {
   if (!companyNumber) return [];
   const cols = 'id, ocid, supplier, dept_slug, title, value, awarded_date, is_framework';
   if (limit) {
-    const { data, error } = await supabase.from('organisation_contracts').select(cols).eq('company_number', companyNumber).eq('superseded', false)
-      .order('awarded_date', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(limit);
+    const { data, error } = await cachedQuery(['q:lib/organisations.ts:e8d03e309a', JSON.stringify([cols, companyNumber, limit])], tableTags('organisation_contracts'), () => supabase.from('organisation_contracts').select(cols).eq('company_number', companyNumber).eq('superseded', false)
+      .order('awarded_date', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(limit));
     if (error) throw new Error(`organisation contracts: ${error.message}`);
     return (data ?? []) as OrgContract[];
   }
-  return readAll<OrgContract>(() => supabase.from('organisation_contracts'), {
+  return tagged(['ra:lib/organisations.ts:fcc53bd9d8', JSON.stringify([cols, companyNumber])], tableTags('organisation_contracts'), () => readAll<OrgContract>(() => supabase.from('organisation_contracts'), {
     columns: cols,
     filter: (q) => q.eq('company_number', companyNumber).eq('superseded', false),
     orderBy: [{ column: 'awarded_date', ascending: false }, { column: 'id', ascending: false }],
     label: 'organisation contracts',
-  });
+  }));
 });
 
 // Values over 1 billion pounds held back from the totals until checked (contract_awards.held_back, 3 Nov 2026).
 export const getOrgHeldBack = cache(async (companyNumber: string | null): Promise<number> => {
   if (!companyNumber) return 0;
-  const { count, error } = await supabase.from('contract_awards').select('id', { count: 'exact', head: true })
-    .eq('company_number', companyNumber).eq('held_back', true);
+  const { count, error } = await cachedQuery(['q:lib/organisations.ts:f3a9aa24a8', JSON.stringify([companyNumber])], tableTags('contract_awards'), () => supabase.from('contract_awards').select('id', { count: 'exact', head: true })
+    .eq('company_number', companyNumber).eq('held_back', true));
   if (error) throw new Error(`organisation held back contracts: ${error.message}`);
   return count ?? 0;
 });
@@ -201,17 +203,17 @@ export const getOrgGrants = cache(async (org: OrgIndexRow, limit?: number): Prom
   if (raws.length === 0) return [];
   const cols = 'identifier, title, amount, award_date, recipient_name, funder_name, scheme_title';
   if (limit) {
-    const { data, error } = await supabase.from('government_grants').select(cols).in('recipient_company_number', raws)
-      .order('award_date', { ascending: false, nullsFirst: false }).order('identifier').limit(limit);
+    const { data, error } = await cachedQuery(['q:lib/organisations.ts:95303059e2', JSON.stringify([cols, raws, limit])], tableTags('government_grants'), () => supabase.from('government_grants').select(cols).in('recipient_company_number', raws)
+      .order('award_date', { ascending: false, nullsFirst: false }).order('identifier').limit(limit));
     if (error) throw new Error(`organisation grants: ${error.message}`);
     return (data ?? []) as OrgGrant[];
   }
-  return readAll<OrgGrant>(() => supabase.from('government_grants'), {
+  return tagged(['ra:lib/organisations.ts:60652b391e', JSON.stringify([cols, raws])], tableTags('government_grants'), () => readAll<OrgGrant>(() => supabase.from('government_grants'), {
     columns: cols,
     filter: (q) => q.in('recipient_company_number', raws),
     orderBy: [{ column: 'award_date', ascending: false }, { column: 'identifier' }],
     label: 'organisation grants',
-  });
+  }));
 });
 
 export async function getOrgRegistryRecords(org: OrgIndexRow): Promise<{ meetings: OrgMeeting[]; lobbying: OrgLobbying[] }> {
@@ -226,14 +228,14 @@ export async function getOrgRegistryRecords(org: OrgIndexRow): Promise<{ meeting
 export async function getOrgAlsoSee(org: Pick<OrgIndexRow, 'kind' | 'slug' | 'lobby_org_id' | 'company_number'>): Promise<{ slug: string; name: string } | null> {
   const link = org.kind === 'registry' ? (org.lobby_org_id ? { lobby_org_id: org.lobby_org_id } : null) : org.company_number ? { company_number: org.company_number } : null;
   if (!link) return null;
-  const { data, error } = await supabase.from('organisation_links').select('lobby_org_id, company_number').match(link).maybeSingle();
+  const { data, error } = await cachedQuery(['q:lib/organisations.ts:05712d8edf', JSON.stringify([link])], tableTags('organisation_links'), () => supabase.from('organisation_links').select('lobby_org_id, company_number').match(link).maybeSingle());
   if (error) {
     if (error.code !== 'PGRST205') console.error(`/organisations/${org.slug} also see: ${error.message}`); // PGRST205: table not created yet
     return null;
   }
   if (!data) return null;
   const other = org.kind === 'registry' ? { column: 'company_number', value: data.company_number } : { column: 'lobby_org_id', value: data.lobby_org_id };
-  const { data: page, error: pageErr } = await supabase.from('organisation_index').select('slug, kind, name, company_number').eq(other.column, other.value).neq('kind', org.kind).maybeSingle();
+  const { data: page, error: pageErr } = await cachedQuery(['q:lib/organisations.ts:a132703d6d', JSON.stringify([other.column, other.value, org.kind])], tableTags('organisation_index'), () => supabase.from('organisation_index').select('slug, kind, name, company_number').eq(other.column, other.value).neq('kind', org.kind).maybeSingle());
   if (pageErr || !page) return null;
   return { slug: page.slug, name: corrected(page as Pick<OrgIndexRow, 'kind' | 'company_number' | 'name'> & { slug: string }).name };
 }
@@ -282,8 +284,8 @@ export const getOrgNameBasisNotices = cache(async (companyNumber: string | null)
   if (!list.length) return [];
   const out: { name: string; url: string }[] = [];
   for (const c of list) {
-    const { data, error } = await supabase.from('contract_notices').select('source_url, suppliers, published_at').eq('ocid', c.ocid)
-      .order('published_at', { ascending: true });
+    const { data, error } = await cachedQuery(['q:lib/organisations.ts:c9b976e34c', JSON.stringify([c.ocid])], tableTags('contract_notices'), () => supabase.from('contract_notices').select('source_url, suppliers, published_at').eq('ocid', c.ocid)
+      .order('published_at', { ascending: true }));
     if (error) throw new Error(`organisation name basis notices: ${error.message}`);
     const row = ((data ?? []) as { source_url: string; suppliers: { name: string; id?: string }[] | null }[])
       .find((r) => (r.suppliers ?? []).some((s) => s.id === c.corrected && s.name.trim() === c.name));

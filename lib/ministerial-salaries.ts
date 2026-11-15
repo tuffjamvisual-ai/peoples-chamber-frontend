@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase';
 import { tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { mpTag, MP_PAGES_TAG } from '@/lib/mp-cache';
+import { cachedQuery } from '@/lib/tagged-read';
 
 export type SalaryRate = {
   category: string; house: 'Commons' | 'Lords'; cabinet: boolean; entitled: number; claimed: number;
@@ -42,8 +43,8 @@ export const CATEGORY_LABEL: Record<string, string> = {
 
 // Every rate, cached for a day under the 'salary-rates' tag (a correction refreshes it with that tag).
 export const salaryRates = unstable_cache(async (): Promise<SalaryRate[]> => {
-  const { data, error } = await supabase.from('ministerial_salary_rates')
-    .select('category, house, cabinet, entitled, claimed, effective_from, source_url, checked_at').order('category');
+  const { data, error } = await cachedQuery(['q:lib/ministerial-salaries.ts:69c530f895'], tableTags('ministerial_salary_rates'), () => supabase.from('ministerial_salary_rates')
+    .select('category, house, cabinet, entitled, claimed, effective_from, source_url, checked_at').order('category'));
   if (error) throw new Error(`ministerial_salary_rates: ${error.message}`);
   return (data ?? []) as SalaryRate[];
 }, ['salary-rates-v1'], { tags: ['salary-rates'], revalidate: 86400 });
@@ -97,7 +98,7 @@ function pick(rows: Filed[], rates: SalaryRate[]): SalaryRate | 'unfiled' | null
 async function ministerialRateForMemberRead(memberId: number): Promise<SalaryRate | 'unfiled' | null> {
   const [rates, { data, error }] = await Promise.all([
     salaryRates(),
-    supabase.from('dept_ministers').select('member_id, slug, salary_category').eq('member_id', memberId),
+    cachedQuery(['q:lib/ministerial-salaries.ts:af26ba1b86', JSON.stringify([memberId])], tableTags('dept_ministers'), () => supabase.from('dept_ministers').select('member_id, slug, salary_category').eq('member_id', memberId)),
   ]);
   if (error) throw new Error(`dept_ministers ${memberId}: ${error.message}`);
   return pick((data ?? []) as Filed[], rates);
@@ -107,7 +108,7 @@ async function ministerialRateForMemberRead(memberId: number): Promise<SalaryRat
 export async function ministerialRateForSlug(slug: string): Promise<SalaryRate | 'unfiled' | null> {
   const [rates, { data, error }] = await Promise.all([
     salaryRates(),
-    supabase.from('dept_ministers').select('member_id, slug, salary_category').eq('slug', slug),
+    cachedQuery(['q:lib/ministerial-salaries.ts:21c1ceab97', JSON.stringify([slug])], tableTags('dept_ministers'), () => supabase.from('dept_ministers').select('member_id, slug, salary_category').eq('slug', slug)),
   ]);
   if (error) throw new Error(`dept_ministers ${slug}: ${error.message}`);
   return pick((data ?? []) as Filed[], rates);
@@ -117,7 +118,7 @@ export async function ministerialRateForSlug(slug: string): Promise<SalaryRate |
 export async function ministerialRatesByMember(): Promise<Map<number, SalaryRate | 'unfiled'>> {
   const [rates, { data, error }] = await Promise.all([
     salaryRates(),
-    supabase.from('dept_ministers').select('member_id, slug, salary_category').not('member_id', 'is', null),
+    cachedQuery(['q:lib/ministerial-salaries.ts:55794e25c1'], tableTags('dept_ministers'), () => supabase.from('dept_ministers').select('member_id, slug, salary_category').not('member_id', 'is', null)),
   ]);
   if (error) throw new Error(`dept_ministers: ${error.message}`);
   const byMember = new Map<number, Filed[]>();

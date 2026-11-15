@@ -14,7 +14,7 @@ import { phoneUpTo } from '@/lib/breakpoints';
 import ClientSearch from './ClientSearch';
 import { getRankings, getSummary, getFirmsForQuarter, quarterLabel, fmtDate, type RankingRow, type OrgType } from '@/lib/lobbying';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'Lobbying: who meets UK ministers and who pays lobbyists' },

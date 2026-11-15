@@ -10,8 +10,10 @@ import BackLink from '../components/BackLink';
 import AppgSource from '../components/AppgSource';
 import { secretariatNameToSlug } from '@/lib/secretariat-slug';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'APPG secretariats: lobby firms running All-Party Groups' },
@@ -26,11 +28,11 @@ const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
 export default async function SecretariatsIndex() {
-  const { data, error: dataErr } = await supabase
+  const { data, error: dataErr } = await cachedQuery(['q:app/secretariats/page.tsx:e4035a7b95'], tableTags('appgs'), () => supabase
     .from('appgs')
     .select('secretariat, slug')
     .not('secretariat', 'is', null)
-    .limit(2000);
+    .limit(2000));
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/secretariats appgs: ${dataErr.message}`);
 
   const counts = new Map<string, { name: string; appgs: number }>();

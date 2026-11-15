@@ -6,6 +6,8 @@ import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
 import { timedClient } from '@/lib/page-reads';
 import { displayMpName } from '@/lib/mp-name';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // Mapping copied from app/parties/page.tsx so the two surfaces use
 // the same slug rollups. Labour and Labour (Co-op) collapse to one
@@ -265,13 +267,13 @@ export async function loadAll(): Promise<{
   const readInterests = async (): Promise<InterestRow[]> => {
     const out: InterestRow[] = [];
     for (let from = 0; ; from += 1000) {
-      const { data, error } = await supabase
+      const { data, error } = await cachedQuery(['q:app/second-jobs/_lib/data.ts:5bbfa0cd81', JSON.stringify([from])], tableTags('mp_registered_interests'), () => supabase
         .from('mp_registered_interests')
         .select('member_id, interest_text, child_interests')
         .eq('category_name', '1. Employment and earnings')
         .eq('is_current', true)
         .order('id', { ascending: true })
-        .range(from, from + 999);
+        .range(from, from + 999));
       if (error) throw new Error(`mp_registered_interests: ${error.message}`);
       out.push(...((data as InterestRow[]) || []));
       if (!data || data.length < 1000) break;
@@ -280,14 +282,14 @@ export async function loadAll(): Promise<{
   };
   // A failed read throws (so the build fails and the last good page stays up) rather than showing empty totals.
   const [{ data: summaries, error: summariesError }, interests, { data: mps, error: mpsError }] = await Promise.all([
-    supabase
+    cachedQuery(['q:app/second-jobs/_lib/data.ts:e96cc1fccb'], tableTags('mp_outside_earnings_summary'), () => supabase
       .from('mp_outside_earnings_summary')
-      .select('member_id, total_extracted, claim_count, updated_at'),
+      .select('member_id, total_extracted, claim_count, updated_at')),
     readInterests(),
-    supabase
+    cachedQuery(['q:app/second-jobs/_lib/data.ts:663f3225a1'], tableTags('mps'), () => supabase
       .from('mps')
       .select('member_id, display_name, name, constituency, party, party_colour')
-      .eq('current_member', true),
+      .eq('current_member', true)),
   ]);
   if (summariesError || !summaries) throw new Error(`mp_outside_earnings_summary: ${summariesError?.message ?? 'no data'}`);
   if (mpsError || !mps) throw new Error(`mps: ${mpsError?.message ?? 'no data'}`);
@@ -360,7 +362,7 @@ export async function loadLanding(): Promise<{
   mpsWithPayments: number;
   summaryUpdated: string | null;
 }> {
-  const { data, error } = await supabase.rpc('second_jobs_summary');
+  const { data, error } = await cachedQuery(['q:app/second-jobs/_lib/data.ts:e2335eb8ca'], tableTags('mp_outside_earnings_summary', 'mp_registered_interests'), () => supabase.rpc('second_jobs_summary'));
   if (error || !data) throw new Error(`second_jobs_summary: ${error?.message ?? 'no data'}`);
   const { mps, summary_updated } = data as {
     mps: { member_id: number; display_name: string | null; name: string | null; party: string | null; total: number; claim_count: number }[];
@@ -390,7 +392,7 @@ export async function loadLanding(): Promise<{
 // The party slug a current MP's second jobs page is under now, or null if they are not a current MP (SC1, 9 Nov 2026):
 // an MP who changed party (Karl Turner, independent then Labour again) keeps the old address in Google, which then 404s.
 export const currentPartySlug = cache(async (memberId: number): Promise<string | null> => {
-  const { data, error } = await supabase.from('mps').select('party').eq('current_member', true).eq('member_id', memberId).maybeSingle();
+  const { data, error } = await cachedQuery(['q:app/second-jobs/_lib/data.ts:35ff9dae0d', JSON.stringify([memberId])], tableTags('mps'), () => supabase.from('mps').select('party').eq('current_member', true).eq('member_id', memberId).maybeSingle());
   if (error) throw new Error(`mps: ${error.message}`);
   return data ? partyToSlug((data as { party: string | null }).party) : null;
 });
@@ -400,13 +402,13 @@ export const currentPartySlug = cache(async (memberId: number): Promise<string |
 export const loadMember = cache(async (slug: string, memberId: number): Promise<MpDetail | null> => {
   const db = timedClient(3600);
   const [{ data: mp, error: mpError }, { data: rows, error: rowsError }, { data: summary, error: summaryError }] = await Promise.all([
-    db.from('mps').select('member_id, display_name, name, constituency, party, party_colour')
-      .eq('current_member', true).eq('member_id', memberId).maybeSingle(),
-    db.from('mp_registered_interests').select('member_id, interest_text, child_interests')
+    cachedQuery(['q:app/second-jobs/_lib/data.ts:0980ed5bd2', JSON.stringify([memberId])], tableTags('mps'), () => db.from('mps').select('member_id, display_name, name, constituency, party, party_colour')
+      .eq('current_member', true).eq('member_id', memberId).maybeSingle()),
+    cachedQuery(['q:app/second-jobs/_lib/data.ts:119e6c7a4e', JSON.stringify([memberId])], tableTags('mp_registered_interests'), () => db.from('mp_registered_interests').select('member_id, interest_text, child_interests')
       .eq('member_id', memberId).eq('category_name', '1. Employment and earnings').eq('is_current', true)
-      .order('id', { ascending: true }).limit(1000),
-    db.from('mp_outside_earnings_summary').select('member_id, total_extracted, claim_count, updated_at')
-      .eq('member_id', memberId).maybeSingle(),
+      .order('id', { ascending: true }).limit(1000)),
+    cachedQuery(['q:app/second-jobs/_lib/data.ts:b3a6731faf', JSON.stringify([memberId])], tableTags('mp_outside_earnings_summary'), () => db.from('mp_outside_earnings_summary').select('member_id, total_extracted, claim_count, updated_at')
+      .eq('member_id', memberId).maybeSingle()),
   ]);
   // A failed read throws (the last good page stays up) rather than showing an empty record.
   if (mpError) throw new Error(`mps: ${mpError.message}`);

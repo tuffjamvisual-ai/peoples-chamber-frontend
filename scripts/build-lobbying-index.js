@@ -344,6 +344,9 @@ function parseDate(iso) {
   const { data: rv, error: rErr } = await db.rpc('refresh_lobbying_views');
   if (rErr) throw new Error(`refresh_lobbying_views: ${rErr.message}`);
   console.log(`  /lobbying figures refreshed: ${JSON.stringify(rv)}`);
+  // A16 (owner rule 15 Nov 2026, ENTRY 129): the figures cover the last 12 months, so they change each day; refresh the
+  // pages that read them (their table tags), or queue that for the 05:15 UTC nightly route if the site refuses.
+  await require('./lib/refresh-site.js').refreshTableTags(['lobby_org_rankings', 'lobby_summary', 'lobby_meeting_mentions', 'orcl_client_returns']);
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });
 

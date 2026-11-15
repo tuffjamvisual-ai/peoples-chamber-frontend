@@ -19,16 +19,18 @@ import { ministerialRateForSlug, ministerialSalaryText } from '@/lib/ministerial
 import Link from 'next/link';
 import BackLink from '../../components/BackLink';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 // A role's body is GOV.UK HTML (shown in the profile panel); cleaned once here (security review M4).
 const cleanRoles = (roles: Role[] | null): Role[] => (roles || []).map((r) => (r.body ? { ...r, body: sanitizeHtml(r.body, { links: 'keep', hansardColumns: false }) } : r));
 
-export const revalidate = 21600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/people/[slug]/page.tsx:f33754bd5e'], tableTags('person_cache'), () => supabase
     .from('person_cache')
     .select('slug')
-    .limit(20);
+    .limit(20));
   if (error || !data?.length) throw new Error(`generateStaticParams person_cache: ${error?.message || 'zero rows'}`);
   const slugs = data.map((r) => String(r.slug)).filter(Boolean);
   if (!slugs.length) throw new Error('generateStaticParams people: zero usable values');
@@ -61,26 +63,26 @@ async function getPersonAndInterests(
 ): Promise<{ person: Person | null; interests: Interest[]; finance: PeerFinance | null }> {
   const [{ data: cached, error: cachedErr }, { data: ministerRow }, { data: interestRows }, { data: financeRow }] =
     await Promise.all([
-      supabase
+      cachedQuery(['q:app/people/[slug]/page.tsx:3198809a90', JSON.stringify([slug])], tableTags('person_cache'), () => supabase
         .from('person_cache')
         .select('name, photo, current_roles, past_roles, political_bio, biography, description, privy_counsellor, scs_band, actual_pay_floor, actual_pay_ceiling, pay_period, fte')
         .eq('slug', slug)
-        .maybeSingle(),
-      supabase
+        .maybeSingle()),
+      cachedQuery(['q:app/people/[slug]/page.tsx:b81dec08ae', JSON.stringify([slug])], tableTags('dept_ministers'), () => supabase
         .from('dept_ministers')
         .select('photo_url, name')
         .eq('slug', slug)
-        .maybeSingle(),
-      supabase
+        .maybeSingle()),
+      cachedQuery(['q:app/people/[slug]/page.tsx:13b72f2914', JSON.stringify([slug])], tableTags('mp_interests'), () => supabase
         .from('mp_interests')
         .select('category, summary, detail, registered_date')
         .eq('member_slug', slug)
-        .order('registered_date', { ascending: false }),
-      supabase
+        .order('registered_date', { ascending: false })),
+      cachedQuery(['q:app/people/[slug]/page.tsx:247947a518', JSON.stringify([slug])], tableTags('peer_finance'), () => supabase
         .from('peer_finance')
         .select('ministerial_salary_annual, attendance_allowance_ytd, attendance_days_ytd, expenses_total_ytd, period_label, ministerial_source_url, expenses_source_url')
         .eq('slug', slug)
-        .maybeSingle(),
+        .maybeSingle()),
     ]);
   if (cachedErr) throw new Error(`person ${slug}: ${cachedErr.message}`);
 

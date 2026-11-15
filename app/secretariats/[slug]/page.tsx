@@ -26,15 +26,17 @@ import ReadNext from '../../components/ReadNext';
 import type { ReadNextLink } from '@/lib/read-next';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { displayMpName } from '@/lib/mp-name';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/secretariats/[slug]/page.tsx:7bc702eab6'], tableTags('appgs'), () => supabase
     .from('appgs')
     .select('secretariat')
     .not('secretariat', 'is', null)
-    .limit(20);
+    .limit(20));
   if (error || !data?.length) throw new Error(`generateStaticParams appgs: ${error?.message || 'zero rows'}`);
   const slugs = [...new Set(data.map((r) => secretariatNameToSlug(String(r.secretariat))).filter(Boolean))];
   if (!slugs.length) throw new Error('generateStaticParams secretariats: zero usable values');
@@ -60,7 +62,7 @@ async function findCanonicalName(slug: string): Promise<string | null> {
   // from the slug, which missed names with apostrophes or "&" (Women's Aid, Images & Co), so
   // their pages 404'd although the list linked them (link crawl, 16 Oct 2026).
   if (!slug) return null;
-  const { data, error } = await supabase.from('appgs').select('secretariat').not('secretariat', 'is', null).order('slug').limit(5000);
+  const { data, error } = await cachedQuery(['q:app/secretariats/[slug]/page.tsx:71e43b3145'], tableTags('appgs'), () => supabase.from('appgs').select('secretariat').not('secretariat', 'is', null).order('slug').limit(5000));
   if (error) throw new Error(`secretariat lookup: ${error.message}`);
   if (!data) return null;
   const counts = new Map<string, number>();
@@ -105,7 +107,7 @@ export default async function SecretariatPage({ params }: PageProps) {
   if (!canonicalName) notFound();
 
   // All APPGs run by this secretariat, matched by exact name.
-  const { data: rawAppgs, error: appgErr } = await supabase.from('appgs').select('slug, title, category, purpose, secretariat, secretariat_url, registrable_benefits, website_url').eq('secretariat', canonicalName).limit(500);
+  const { data: rawAppgs, error: appgErr } = await cachedQuery(['q:app/secretariats/[slug]/page.tsx:9b56eceb50', JSON.stringify([canonicalName])], tableTags('appgs'), () => supabase.from('appgs').select('slug, title, category, purpose, secretariat, secretariat_url, registrable_benefits, website_url').eq('secretariat', canonicalName).limit(500));
   if (appgErr) throw new Error(`secretariat appgs: ${appgErr.message}`);
   const appgs = ((rawAppgs ?? []) as AppgRow[]).filter((a) =>
     a.secretariat && secretariatNameToSlug(a.secretariat) === slug,
@@ -114,8 +116,8 @@ export default async function SecretariatPage({ params }: PageProps) {
 
   const slugs = appgs.map((a) => a.slug);
   const [fundersRes, officersRes] = await Promise.all([
-    supabase.from('appg_funders').select('appg_slug, source, value_band, value_exact').in('appg_slug', slugs).limit(2000),
-    supabase.from('appg_officers').select('appg_slug, member_id, name_at_time, party, role').in('appg_slug', slugs).eq('removed', false).limit(2000),
+    cachedQuery(['q:app/secretariats/[slug]/page.tsx:01d17d3743', JSON.stringify([slugs])], tableTags('appg_funders'), () => supabase.from('appg_funders').select('appg_slug, source, value_band, value_exact').in('appg_slug', slugs).limit(2000)),
+    cachedQuery(['q:app/secretariats/[slug]/page.tsx:b140ac06c6', JSON.stringify([slugs])], tableTags('appg_officers'), () => supabase.from('appg_officers').select('appg_slug, member_id, name_at_time, party, role').in('appg_slug', slugs).eq('removed', false).limit(2000)),
   ]);
   const fundersBySlug = new Map<string, FunderRow[]>();
   for (const f of (fundersRes.data || []) as FunderRow[]) {
@@ -138,7 +140,7 @@ export default async function SecretariatPage({ params }: PageProps) {
   type MpRow = { member_id: number; display_name: string | null };
   let mpById = new Map<number, MpRow>();
   if (allOfficerIds.size > 0) {
-    const { data: mps, error: mpsErr } = await supabase.from('mps').select('member_id, display_name').in('member_id', Array.from(allOfficerIds));
+    const { data: mps, error: mpsErr } = await cachedQuery(['q:app/secretariats/[slug]/page.tsx:61bbdaa4da', JSON.stringify([allOfficerIds])], tableTags('mps'), () => supabase.from('mps').select('member_id, display_name').in('member_id', Array.from(allOfficerIds)));
     if (mpsErr && mpsErr.code !== 'PGRST116') throw new Error(`/secretariats/[slug] mps: ${mpsErr.message}`);
     for (const m of (mps || []) as MpRow[]) mpById.set(m.member_id, m);
   }
@@ -149,8 +151,8 @@ export default async function SecretariatPage({ params }: PageProps) {
   // have one) and donor page (17) when the name matches exactly, then the secretariats list and the lobbying index.
   const exactName = canonicalName.replace(/[%_\\]/g, '');
   const [lobbyRes, donorRes] = await Promise.all([
-    supabase.from('lobby_org_rankings').select('slug, name, meetings_all').ilike('name', exactName).limit(1),
-    supabase.from('political_donations').select('donor_name').ilike('donor_name', exactName).limit(1),
+    cachedQuery(['q:app/secretariats/[slug]/page.tsx:cc6b58dee7', JSON.stringify([exactName])], tableTags('lobby_org_rankings'), () => supabase.from('lobby_org_rankings').select('slug, name, meetings_all').ilike('name', exactName).limit(1)),
+    cachedQuery(['q:app/secretariats/[slug]/page.tsx:3508b15299', JSON.stringify([exactName])], tableTags('political_donations'), () => supabase.from('political_donations').select('donor_name').ilike('donor_name', exactName).limit(1)),
   ]);
   if (lobbyRes.error) throw new Error(`secretariat lobbying page: ${lobbyRes.error.message}`);
   if (donorRes.error) throw new Error(`secretariat donor page: ${donorRes.error.message}`);
