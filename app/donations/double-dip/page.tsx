@@ -17,6 +17,7 @@
 // trading-name variations, subsidiary chains and rebrands.
 
 import type { Metadata } from 'next';
+import { DONATIONS_TAG } from '@/lib/page-reads';
 import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -26,7 +27,9 @@ import { donorPageSlug } from '@/lib/donor-slug';
 import { displayMpName } from '@/lib/mp-name';
 import { readAll } from '@/lib/read-all';
 
-export const dynamic = 'force-dynamic'
+// T1-MEM A2 (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 116 and 126): served from Vercel's cache for a day (it
+// was force-dynamic: rendered on every visit). The heavy read below stays in the shared data cache for a day, now also
+// tagged political-donations so the donations sync and sweep refresh it when they write; builds reuse that cached copy.
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
@@ -153,7 +156,7 @@ const loadMatches = unstable_cache(
     return { matches };
   },
   ['double-dip-matches-v1'],
-  { revalidate: 86400 },
+  { revalidate: 86400, tags: [DONATIONS_TAG] },
 );
 
 export default async function DoubleDipPage() {

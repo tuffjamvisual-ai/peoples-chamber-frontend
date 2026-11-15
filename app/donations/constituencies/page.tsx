@@ -22,8 +22,11 @@ import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { unitNameToSlug, partyRefs, isNationalUnit } from '@/lib/association-units';
 import { readAll } from '@/lib/read-all';
+import { DONATIONS_TAG } from '@/lib/page-reads';
 
-export const dynamic = 'force-dynamic'
+// T1-MEM A2 (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 116 and 126): served from Vercel's cache for a day (it
+// was force-dynamic: rendered on every visit). The heavy read below stays in the shared data cache for a day, now also
+// tagged political-donations so the donations sync and sweep refresh it when they write; builds reuse that cached copy.
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
@@ -129,7 +132,7 @@ const loadConstituencies = unstable_cache(
     return { constituencies, centralTotal, constituencyTotal, rowsTotal };
   },
   ['constituency-donations-v2'],
-  { revalidate: 86400 },
+  { revalidate: 86400, tags: [DONATIONS_TAG] },
 );
 
 export default async function ConstituencyDonationsPage() {
