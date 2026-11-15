@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { COUNCIL_LEAGUE_TAG } from '@/lib/council-league';
@@ -9,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   const expected = process.env.CRON_SECRET;
-  if (!expected || req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   revalidateTag(COUNCIL_LEAGUE_TAG, 'max');

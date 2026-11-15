@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { refreshBills, REFRESH_BATCH } from '@/lib/bill-refresh';
@@ -11,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   const expected = process.env.CRON_SECRET;
-  if (!expected || req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   let ids: number[] = [];

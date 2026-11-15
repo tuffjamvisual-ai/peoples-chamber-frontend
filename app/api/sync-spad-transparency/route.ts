@@ -20,6 +20,7 @@
 // value is 'Nil Return' are dropped from activity tables but the
 // SpAd's name is still added to the roster.
 
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -151,7 +152,7 @@ function streamFromTitle(t: string): 'gifts' | 'hospitality' | 'meetings' | null
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { DATA_SOURCES, CADENCE_MAX_AGE_DAYS, DEFAULT_ZERO_RUN_TOLERANCE, newestTimestampLive, ageInDays } from '@/lib/data-freshness';
@@ -57,7 +58,7 @@ async function GET_impl(req: Request) {
   const startedAt = Date.now(); // the self heals at the end keep within the 300 seconds from here (lib/heal-budget.ts)
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from '@/lib/refresh-count';
@@ -69,7 +70,7 @@ const PEER_LIST = 5;
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
-  if (expected && req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

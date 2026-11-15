@@ -11,6 +11,7 @@
 // cleanly (withHeartbeat records it as a partial run; the next run reads everything again). Its one failure in the
 // 14 days to 26 Oct (19 Oct, HTTP 500) came from the database while other jobs were writing.
 
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -85,7 +86,7 @@ const servedBefore = (starts: string[], reportDate: string | null) => starts.som
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

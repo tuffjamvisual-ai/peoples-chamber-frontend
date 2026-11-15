@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
@@ -143,7 +144,7 @@ async function GET_impl(req: Request) {
   const started = Date.now();
   const budget = new SyncBudget(maxDuration);
   const expected = process.env.CRON_SECRET;
-  if (expected && req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

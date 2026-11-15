@@ -46,6 +46,7 @@
 // and the run ends cleanly (the next run tries again); nothing is retried in a loop. New requests stop at 80 per cent
 // of maxDuration.
 
+import { bearerMatches } from '@/lib/cron-auth';
 import { indexNowAfter } from '@/lib/indexnow';
 import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -935,7 +936,7 @@ function testOptions(req: Request) {
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!bearerMatches(req.headers.get('authorization'), expected)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) return NextResponse.json({ error: 'Supabase env missing' }, { status: 500 });

@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { freshnessChanged } from '@/lib/data-freshness';
 import { voteCountsChanged } from '@/lib/mp-page-cache';
@@ -29,7 +30,7 @@ function dataChanged(paths: string[]) {
 function refused(req: Request): NextResponse | null {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured; nothing refreshed' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!bearerMatches(req.headers.get('authorization'), expected)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   return null;
 }
 

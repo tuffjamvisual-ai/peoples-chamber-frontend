@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
@@ -18,7 +19,7 @@ const UA = { 'User-Agent': 'OpenGovt/1.0 (+https://www.opengovt.uk)' };
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!bearerMatches(req.headers.get('authorization'), expected)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   try {
     const res = await fetch(RDC_CONTENT_API, { headers: UA, signal: AbortSignal.timeout(30_000) });
     if (!res.ok) return NextResponse.json({ error: `GOV.UK Content API HTTP ${res.status}` }, { status: 502 });

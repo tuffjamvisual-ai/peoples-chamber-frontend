@@ -16,6 +16,7 @@
 // when combined with parsing). Instead we use the per-day XML files which
 // are small and indexed by date.
 
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -162,7 +163,7 @@ function parseXmlDay(xml: string, crosswalk: Map<string, number>, cvaLookup: Map
 export async function GET(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

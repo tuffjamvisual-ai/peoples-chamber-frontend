@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { revalidatePath } from '@/lib/refresh-count';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
@@ -21,7 +22,7 @@ export const maxDuration = 300;
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!bearerMatches(req.headers.get('authorization'), expected)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   try {
     const { data: top, error: topErr } = await supabase.from('council_children_in_care').select('year').eq('area_level', 'england').order('year', { ascending: false }).limit(1);
     if (topErr) return NextResponse.json({ error: `council_children_in_care: ${topErr.message}` }, { status: 500 });

@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { revalidatePath, revalidateTag, noteChanged } from '@/lib/refresh-count';
 import { COUNCIL_LEAGUE_TAG } from '@/lib/council-league';
 import { NextResponse } from 'next/server';
@@ -31,7 +32,7 @@ export const dynamic = 'force-dynamic';
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured; nothing refreshed' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   const dry = isDryRun(req);

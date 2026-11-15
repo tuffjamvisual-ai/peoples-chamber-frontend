@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { indexNowAfter } from '@/lib/indexnow';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
@@ -58,7 +59,7 @@ const CURSOR_MAX_AGE_MS = 36 * 3_600_000; // pages saved longer ago are read aga
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
@@ -240,7 +241,7 @@ const run = withHeartbeat(ROUTE, GET_impl);
 export async function GET(req: Request): Promise<Response> {
   if (new URL(req.url).searchParams.get('retry') !== '1') return run(req);
   const expected = process.env.CRON_SECRET;
-  if (!expected || req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   const { data, error } = await supabase.from('sync_heartbeat').select('last_ran_at, last_status').eq('route', ROUTE).maybeSingle();

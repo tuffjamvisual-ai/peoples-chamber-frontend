@@ -5,6 +5,7 @@
 // Strategy: each daily pass reads the donations reported in the last WINDOW_DAYS (below) and upserts on ec_ref; the
 // full register was loaded out of band by the script. A pass that runs out of time carries on next run (job 79).
 
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { revalidateTag } from '@/lib/refresh-count';
 import { DONATIONS_TAG } from '@/lib/page-reads';
@@ -36,7 +37,7 @@ type Pass = { passFrom: string; passTo: string; slice: number; start: number };
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

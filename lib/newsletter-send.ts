@@ -14,7 +14,7 @@
 // check works, so a problem shows before Sunday.
 // Limits (Resend's documentation, read 14 Nov 2026): 10 requests a second per team, 100 emails per batch call, free
 // plan 100 emails a day (UTC) and 3,000 a month. A send of more than MAX_RECIPIENTS is refused; batches are 1 s apart.
-import { timingSafeEqual } from 'node:crypto';
+import { bearerMatches } from '@/lib/cron-auth';
 import { DEAD_TOKEN, emailFor, parseIssue, ukToday, webCopyUrl, type IssueEmail } from '@/lib/newsletter-issue';
 import type { Person } from '@/lib/newsletter-template';
 
@@ -39,10 +39,7 @@ export type SendDeps = {
 export type Result = { status: number; body: Record<string, unknown> };
 
 export function authorised(header: string | null, secret: string | undefined): boolean {
-  if (!secret || !header) return false;
-  const a = Buffer.from(header);
-  const b = Buffer.from(`Bearer ${secret}`);
-  return a.length === b.length && timingSafeEqual(a, b);
+  return bearerMatches(header, secret); // one shared check (L2)
 }
 
 export async function handleSendIssue(authHeader: string | null, input: unknown, deps: SendDeps): Promise<Result> {

@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { indexNowAfter } from '@/lib/indexnow';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -229,7 +230,7 @@ async function fillProfileGaps(supabase: SupabaseClient, dryRun = false) {
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
-  if (expected && req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

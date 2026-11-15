@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { indexNowAfter } from '@/lib/indexnow';
 import { createClient } from '@supabase/supabase-js';
@@ -57,7 +58,7 @@ async function GET_impl(req: Request) {
   const budget = new SyncBudget(maxDuration);
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
-  if (req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

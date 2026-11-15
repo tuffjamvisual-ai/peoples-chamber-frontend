@@ -1,3 +1,4 @@
+import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse, after } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
@@ -117,7 +118,7 @@ function flattenRows(memberId: number, categories: ApiCategory[]) {
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
-  if (expected && req.headers.get('authorization') !== `Bearer ${expected}`) {
+  if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
