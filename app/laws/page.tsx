@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/laws' },
 }
 
-export default async function LawsPage() {
+// The list's filters live in the address (LawsClient reads them with useSearchParams), so the page is rendered per
+// request, as it was before A16; awaiting searchParams here says so. Its read is cached under the bill tag.
+export default async function LawsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  await searchParams;
   const { data: laws, error } = await cachedQuery(['q:app/laws/page.tsx:8e1997d987'], tableTags('bill'), () => supabase
     .from('bill')
     .select(
