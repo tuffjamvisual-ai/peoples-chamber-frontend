@@ -17,8 +17,9 @@
 
 export const PARLIAMENT_START = '2024-07-04';
 export const PAGE = 100;
-export const RUN_BUDGET_MS = 200_000;
-export const START_CUTOFF_MS = 150_000;
+// 800 s limit since 15 Nov 2026 (T1-CRONALL): the run ends by 640 s, no MP starts after 560 s.
+export const RUN_BUDGET_MS = 640_000;
+export const START_CUTOFF_MS = 560_000;
 export const DB_TIMEOUT_MS = 15_000;
 export const RESUME_MAX_DAYS = 3;
 export const CURSOR_ROUTE = '/api/sync-mp-contributions';

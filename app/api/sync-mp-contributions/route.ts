@@ -9,7 +9,9 @@ import {
   type Cursor, type InProgress, type Page,
 } from '@/lib/mp-contributions-sync';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300;
+// T1-CRONALL (owner approved 15 Nov 2026): one run a day since 15 Nov (T1-CRONDAILY), so each run now takes every
+// current MP, with an 800 s limit (Vercel Fluid compute) at the same number of requests at a time as before.
+export const maxDuration = 800;
 
 // Four times a day (03:43, 09:43, 15:43, 21:43 UTC; about 37 MPs a run, the whole list in 4 to 5 days): refresh per-MP total spoken contributions + word count for the current
 // Parliament (since 2024-07-04) from the Hansard API, into mp_contribution_totals.
@@ -35,7 +37,7 @@ export const maxDuration = 300;
 // date so the pages do not move (lib/mp-contributions-sync.ts).
 
 const API = 'https://hansard-api.parliament.uk/search/contributions/Spoken.json';
-const BATCH = 220;
+const BATCH = 700; // every current MP (650), stalest first, as far as the run budget allows
 const CONCURRENCY = 8;
 // A local test may shorten the run (SYNC_TEST_BUDGET_MS, as in lib/sync-budget.ts); never on Vercel.
 const TEST_MS = !process.env.VERCEL ? Number(process.env.SYNC_TEST_BUDGET_MS) || 0 : 0;

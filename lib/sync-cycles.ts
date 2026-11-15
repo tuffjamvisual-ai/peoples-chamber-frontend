@@ -15,18 +15,18 @@ export const CYCLE_HOURS: Record<string, number> = {
   '/api/sync-commons-press-releases': 1 * DAY_H,
   '/api/check-press-release-liveness': 2 * DAY_H,
   '/api/sync-members-contributions': 2 * DAY_H,
-  '/api/sync-committees': 2 * DAY_H,
+  '/api/sync-committees': 8 * DAY_H, // weekly since 15 Nov 2026 (T1-CRONDAILY)
   '/api/sync-edms': 3 * DAY_H,
   '/api/sync-government-contracts': 3 * DAY_H,
-  '/api/sync-member-biography': 3 * DAY_H,
+  '/api/sync-member-biography': 4 * DAY_H, // one run a day since 15 Nov 2026 (was two)
   '/api/sync-committee-memberships': 3 * DAY_H,
   '/api/sync-hansard-contributions': 3 * DAY_H,
   '/api/sync-person-cache': 3 * DAY_H,
   '/api/sync-electoral-commission-donations': 4 * DAY_H,
   // The weekly full sweep (day job 27 Oct 2026, Part 3): starts on Saturdays and takes about 5 daily runs.
   '/api/sweep-electoral-commission-donations': 8 * DAY_H,
-  '/api/sync-mp-contributions': 7 * DAY_H,
-  '/api/sync-bill-stages': 7 * DAY_H,
+  '/api/sync-mp-contributions': 3 * DAY_H, // every MP a run, 800 s limit, since 15 Nov 2026: a pass in about 2 days
+  '/api/sync-bill-stages': 10 * DAY_H, // one run a day since 15 Nov 2026 (was four)
   '/api/sync-bill-commons-votes': 7 * DAY_H,
   '/api/sync-bill-sponsors': 7 * DAY_H,
   '/api/sync-ministers-meetings': 8 * DAY_H,

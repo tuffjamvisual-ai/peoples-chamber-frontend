@@ -19,8 +19,8 @@ function hansard(n: number, w = 3, ms = 0) {
   return { fetchPage, seen, clock: () => t };
 }
 
-test('the run budget is well under the 300 s limit, and no MP starts late', () => {
-  assert.ok(RUN_BUDGET_MS <= 200_000);
+test('the run budget is well under the 800 s limit, and no MP starts late', () => {
+  assert.ok(RUN_BUDGET_MS <= 640_000);
   assert.ok(START_CUTOFF_MS < RUN_BUDGET_MS);
 });
 

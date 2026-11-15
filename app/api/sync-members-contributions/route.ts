@@ -21,9 +21,11 @@ import { RateLimited, retryAfterSeconds } from '@/lib/sync-budget';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 270;
+// T1-CRONALL (owner approved 15 Nov 2026): one run a day since 15 Nov (T1-CRONDAILY), so each run now takes every
+// current MP, with an 800 s limit (Vercel Fluid compute) at the same number of requests at a time as before.
+export const maxDuration = 800;
 
-const BATCH = 150;
+const BATCH = 700; // every current MP (650) in one run
 const CONCURRENCY = 12;
 const ROUTE = '/api/sync-members-contributions';
 // Hard deadline (owner's approval, 23 Oct 2026; the 06:15 and 12:15 runs that day hit the 270 s limit, and every run
@@ -33,7 +35,7 @@ const ROUTE = '/api/sync-members-contributions';
 // are always saved before the run returns, so it ends well inside maxDuration and the next run carries on from there.
 // 27 Oct 2026 (job 79): the run now ends by 80 per cent of maxDuration (216 s of 270 s; was 235 s), a 429 from either
 // API stops it cleanly like the deadline (the MPs not reached are first next run), and the response says partial.
-const DEADLINE_MS = 216_000;
+const DEADLINE_MS = 640_000; // 80 per cent of maxDuration, as before
 const RESERVE_MS = 15_000;
 const FINAL_SAVE_MS = 5_000;
 const REQUEST_TIMEOUT_MS = 20_000;

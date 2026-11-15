@@ -62,6 +62,10 @@
     },
     {
       "path": "/api/sync-bill-sponsors",
+      "schedule": "47 4 * * *"
+    },
+    {
+      "path": "/api/sync-bill-sponsors",
       "schedule": "20 2 * * 0"
     },
     {

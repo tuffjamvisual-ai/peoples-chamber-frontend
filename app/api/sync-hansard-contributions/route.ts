@@ -9,7 +9,9 @@ import { CYCLE_HOURS } from '@/lib/sync-cycles';
 import { readAll, inList } from '@/lib/read-all';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300;
+// T1-CRONALL (owner approved 15 Nov 2026): one run a day since 15 Nov (T1-CRONDAILY), so each run now takes every
+// current MP, with an 800 s limit (Vercel Fluid compute) at the same number of requests at a time as before.
+export const maxDuration = 800;
 
 // Daily sync of recent Hansard chamber contributions per MP from the Parliament
 // Members API (ContributionSummary), into mp_contributions — the "In the House"
