@@ -19,8 +19,11 @@ import {
   loadLatestTwoYears, text, rateText, n, change, changeText, pctChangeText, asAt, yearOf, releaseLabel, SOURCE_PAGE, OGL, OGL_URL,
   RANKING_PATH, EXPLAINER, ROUNDING_NOTE, SYMBOL_MEANING, type CareRow,
 } from '@/lib/children-in-care';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when council data changes (council-data and table tags), or on a deploy
 
 export const metadata: Metadata = {
   title: 'Children in care by council',
@@ -55,7 +58,7 @@ function ranks<T>(arr: T[], val: (x: T) => number | null): (number | null)[] {
 export default async function ChildrenInCarePage() {
   const [{ latest, rows }, councilsRes] = await Promise.all([
     loadLatestTwoYears(),
-    supabase.from('councils').select('gss_code, slug, short_name, name').eq('country', 'England').neq('type', 'district'),
+    cachedQuery(['q:app/councils/children-in-care/page.tsx:de29a5b9ed'], [COUNCIL_DATA_TAG, ...tableTags('councils')], () => supabase.from('councils').select('gss_code, slug, short_name, name').eq('country', 'England').neq('type', 'district')),
   ]);
   if (councilsRes.error) throw new Error(`councils: ${councilsRes.error.message}`);
   if (!latest) return null;

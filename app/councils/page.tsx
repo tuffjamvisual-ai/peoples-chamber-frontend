@@ -18,13 +18,16 @@ import PhoneMore from '../components/PhoneMore';
 import PhoneGroup from '../components/PhoneGroup';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { PHONE } from '@/lib/breakpoints';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
-export const revalidate = 21600;
+export const revalidate = false; // A16: rebuilt only when council data changes (council-data and table tags), or on a deploy
 
 // Title and description (owner, 7 Nov 2026, L4): the word "councils" and the number of councils from the data. The page lists
 // them by country and type (no ratings on this page, so none are named).
 export async function generateMetadata(): Promise<Metadata> {
-  const { count, error } = await supabase.from('councils').select('slug', { count: 'exact', head: true });
+  const { count, error } = await cachedQuery(['q:app/councils/page.tsx:4fe8105fa1'], [COUNCIL_DATA_TAG, ...tableTags('councils')], () => supabase.from('councils').select('slug', { count: 'exact', head: true }));
   if (error) throw new Error(`/councils count: ${error.message}`);
   const n = count ?? 0;
   return {
@@ -56,11 +59,11 @@ const TYPE_ORDER = ['county', 'lon-borough', 'met-borough', 'unitary', 'district
 
 async function getAll(): Promise<Council[]> {
   // Supabase default range limit is 1000 — fine for 382 rows.
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/councils/page.tsx:93304adb27'], [COUNCIL_DATA_TAG, ...tableTags('councils')], () => supabase
     .from('councils')
     .select('slug, name, short_name, type, type_label, country, political_control, leader_name')
     .order('country', { ascending: true })
-    .order('name', { ascending: true });
+    .order('name', { ascending: true }));
   if (error) {
     console.error('councils fetch error:', error);
     return [];

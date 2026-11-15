@@ -11,6 +11,7 @@ import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 import { queuedMps, dequeueMps, mpsDueByDate } from '@/lib/mp-nightly';
 import { MARKER_ROUTE, clockSkip, withTrigger, triggerName, type TriggerMarker } from '@/lib/nightly-trigger';
 import { refreshTables } from '@/lib/source-tags';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,6 +77,7 @@ async function refreshQueuedCouncils(): Promise<Record<string, unknown>> {
     if (!data) return { queued: false };
     revalidateTag(COUNCIL_LEAGUE_TAG, 'max');
     for (const p of ['/councils/[slug]', '/councils/[slug]/schools', '/councils/[slug]/sewage', '/councils/[slug]/panel/[tab]']) revalidatePath(p, 'page');
+    revalidateTag(COUNCIL_DATA_TAG, 'max'); // A16: a script changed council data
     const { error: delErr } = await supabaseAdmin.from('sync_cursor').delete().eq('route', 'council-refresh-queue');
     if (delErr) throw new Error(delErr.message);
     return { queued: true, refreshed: true };

@@ -4,7 +4,7 @@
 // previous year. Reads public.council_tax_levels (scripts/migrations/2026-10-18g-council-tax-levels.sql),
 // loaded from the government releases for England, Wales and Scotland.
 
-import { pageDb } from '@/lib/page-reads';
+import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
 export type CouncilTax = {
   year: string;
@@ -28,7 +28,7 @@ export type CouncilTax = {
 
 export async function loadCouncilTax(gssCode: string | null): Promise<CouncilTax | null> {
   if (!gssCode) return null;
-  const { data, error } = await pageDb()
+  const { data, error } = await tagDb([COUNCIL_DATA_TAG])
     .from('council_tax_levels')
     .select('*')
     .eq('council_gss_code', gssCode)

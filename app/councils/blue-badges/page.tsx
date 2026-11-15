@@ -21,8 +21,11 @@ import {
   loadLatestTwoYears, loadEnglandLostStolen, count, shareText, sharePct, change, changeText, pctChangeText, asAt, yearTo,
   releaseFor, yearOf, OGL, OGL_URL, ROUNDING_NOTE, SHARE_NOTE, LOW_TEXT, RANKING_PATH, type BlueBadgeRow,
 } from '@/lib/blue-badges';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when council data changes (council-data and table tags), or on a deploy
 
 export const metadata: Metadata = {
   title: 'Blue Badges by council',
@@ -50,7 +53,7 @@ export default async function BlueBadgesPage() {
   const [{ latest, rows }, lostStolen, councilsRes] = await Promise.all([
     loadLatestTwoYears(),
     loadEnglandLostStolen(),
-    supabase.from('councils').select('gss_code, slug, short_name, name').eq('country', 'England').neq('type', 'district'),
+    cachedQuery(['q:app/councils/blue-badges/page.tsx:de29a5b9ed'], [COUNCIL_DATA_TAG, ...tableTags('councils')], () => supabase.from('councils').select('gss_code, slug, short_name, name').eq('country', 'England').neq('type', 'district')),
   ]);
   if (councilsRes.error) throw new Error(`councils: ${councilsRes.error.message}`);
   if (!latest) return null;

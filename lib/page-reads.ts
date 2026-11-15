@@ -20,6 +20,7 @@ import { cache } from 'react';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { fetchWithoutEmDashes } from './no-em-dash';
+import { tableTag } from './source-tags';
 
 const clients = new Map<string, SupabaseClient>();
 
@@ -57,3 +58,33 @@ export function pageDb(tags: string[] = []): SupabaseClient {
 // Tags refreshed by the syncs that write the data (option a: the sync knows exactly when it changed something).
 export const GOVUK_DEPT_TAG = 'govuk-dept';                 // dept_ministers, dept_officials, dept_agencies: /api/sync-govuk-data
 export const DONATIONS_TAG = 'political-donations';         // political_donations: the Electoral Commission sync and sweep
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): a client whose reads stay in the shared data cache with no timer,
+// each under its table's tag (lib/source-tags.ts tableTag) and any tags given, so a page using it is rebuilt only when a
+// sync refreshes one of those tags (or on a deploy). In place of pageDb() on pages that follow the rule.
+const foreverClients = new Map<string, SupabaseClient>();
+function foreverClient(tags: string[]): SupabaseClient {
+  const key = tags.join(',');
+  let client = foreverClients.get(key);
+  if (!client) {
+    client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
+      auth: { persistSession: false },
+      global: {
+        headers: { 'x-my-custom-header': 'peoples-chamber' },
+        fetch: (input, init) => fetchWithoutEmDashes(input, { ...init, next: { revalidate: false, tags } }),
+      },
+    });
+    foreverClients.set(key, client);
+  }
+  return client;
+}
+export function tagDb(tags: string[] = []): { from: SupabaseClient['from']; rpc: SupabaseClient['rpc'] } {
+  return {
+    from: ((table: string) => foreverClient([...new Set([...tags, tableTag(table)])]).from(table)) as SupabaseClient['from'],
+    rpc: ((fn: string, args?: Record<string, unknown>, opts?: Record<string, unknown>) => foreverClient([...new Set([...tags, tableTag(`rpc:${fn}`)])]).rpc(fn, args, opts as never)) as SupabaseClient['rpc'],
+  };
+}
+
+// Every read on a council page carries this tag too: no council sync knows which council changed (each loads a national
+// release), so a real new release refreshes them all (lib/council-refresh.ts, and the queued refresh after a script).
+export const COUNCIL_DATA_TAG = 'council-data';

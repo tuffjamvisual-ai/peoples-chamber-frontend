@@ -147,7 +147,7 @@ for (const [f, raw] of src) {
     const after = raw.slice(m.index + m[0].length, m.index + m[0].length + 3);
     if (!/^\s*['"`]/.test(after)) continue;
     const recv = /([A-Za-z_$][\w$]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\))?)\s*$/.exec(before.replace(/\s+$/, ''))?.[1] ?? '';
-    const tagged = (/^timedClient\(/.test(recv) && recv.includes(',')) || taggedClients.has(recv.split('(')[0]) || taggedClients.has(recv.replace(/\(\)$/, ''));
+    const tagged = /^tagDb\(/.test(recv) || (/^timedClient\(/.test(recv) && recv.includes(',')) || taggedClients.has(recv.split('(')[0]) || taggedClients.has(recv.replace(/\(\)$/, ''));
     const viaPageDb = /^pageDb\(/.test(recv);
     reads.push({ at: m.index, line: lineOf(raw, m.index), what: `${m[1]}(${raw.slice(m.index + m[0].length).match(/^\s*['"`]([^'"`]+)/)?.[1] ?? '?'})`, tagged, viaPageDb });
   }

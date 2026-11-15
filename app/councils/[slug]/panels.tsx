@@ -3,7 +3,7 @@
 // from /councils/[slug]/panel/[tab] when opened; Overview, Ratings, Money and Health, the summary figures, stay in the
 // page. Both routes build their sections from this one list, so they cannot drift apart.
 import type { ReactNode } from 'react';
-import { pageDb } from '@/lib/page-reads';
+import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { COUNCIL_LAZY_TABS, type CouncilLazyTab } from '@/lib/council-panels';
 import { latestPeriod, updatedDate } from '@/lib/record-dates';
 import RecordDate from '../../components/RecordDate';
@@ -114,16 +114,16 @@ export async function tabsWithContent(ctx: PanelContext): Promise<CouncilLazyTab
 }
 
 export async function loadPanelContext(slug: string): Promise<PanelContext | null> {
-  const { data, error } = await pageDb().from('councils').select('slug, name, type, country, gss_code, parent_slug, population').eq('slug', slug).maybeSingle();
+  const { data, error } = await tagDb([COUNCIL_DATA_TAG]).from('councils').select('slug, name, type, country, gss_code, parent_slug, population').eq('slug', slug).maybeSingle();
   if (error) throw new Error(`council ${slug}: ${error.message}`);
   if (!data) return null;
   const c = data as PanelCouncil;
   const [{ data: parent, error: parentErr }, { data: children, error: childrenErr }] = await Promise.all([
     c.parent_slug
-      ? pageDb().from('councils').select('slug, name').eq('slug', c.parent_slug).single()
+      ? tagDb([COUNCIL_DATA_TAG]).from('councils').select('slug, name').eq('slug', c.parent_slug).single()
       : Promise.resolve({ data: null, error: null }),
     c.type === 'county'
-      ? pageDb().from('councils').select('gss_code').eq('parent_slug', c.slug).order('name')
+      ? tagDb([COUNCIL_DATA_TAG]).from('councils').select('gss_code').eq('parent_slug', c.slug).order('name')
       : Promise.resolve({ data: [], error: null }),
   ]);
   for (const e of [parentErr, childrenErr]) if (e && e.code !== 'PGRST116') throw new Error(`council ${slug}: ${e.message}`);

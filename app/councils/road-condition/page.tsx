@@ -22,8 +22,11 @@ import {
   loadLatestTwoYears, value, valueText, notComparable, changeText, fye, ROAD_TYPES, EXPLAINER, NOT_COMPARABLE_WARNING,
   LAST_YEAR_NOTE, ENGLAND_NOTE, SOURCE_PAGE, SOURCE_LABEL, PUBLICATION, OGL, OGL_URL, RANKING_PATH, SYMBOL_MEANING, type RoadRow,
 } from '@/lib/road-condition';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when council data changes (council-data and table tags), or on a deploy
 
 export const metadata: Metadata = {
   title: 'Road condition by council',
@@ -50,7 +53,7 @@ type Area = { code: string; name: string; slug: string; cur: RoadRow; prev: Road
 export default async function RoadConditionPage() {
   const [{ latest, rows }, councilsRes] = await Promise.all([
     loadLatestTwoYears(),
-    supabase.from('councils').select('gss_code, slug, short_name, name').eq('country', 'England').neq('type', 'district'),
+    cachedQuery(['q:app/councils/road-condition/page.tsx:de29a5b9ed'], [COUNCIL_DATA_TAG, ...tableTags('councils')], () => supabase.from('councils').select('gss_code, slug, short_name, name').eq('country', 'England').neq('type', 'district')),
   ]);
   if (councilsRes.error) throw new Error(`councils: ${councilsRes.error.message}`);
   if (!latest) return null;

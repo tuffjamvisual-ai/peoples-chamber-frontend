@@ -19,7 +19,7 @@ import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS } from '@/lib/council-league';
 import type { MeasureDetail } from '@/lib/council-league';
 
-export const revalidate = 21600;
+export const revalidate = false; // A16: rebuilt only when council data changes (council-data and table tags), or on a deploy
 
 const PAGE_METADATA: Metadata = {
   title: 'How council areas in England compare',
