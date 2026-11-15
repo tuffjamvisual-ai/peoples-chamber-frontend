@@ -9,6 +9,9 @@ test('periods: months, rolling three months (named by the middle month), quarter
   assert.equal(periodLabel('2026 JUL', 'lfs'), 'June to August 2026');
   assert.equal(periodLabel('2026 JAN', 'lfs'), 'December 2025 to February 2026');
   assert.equal(periodLabel('2026 Q3', 'quarter'), 'July to September 2026');
+  // Average weekly earnings: the label is the last of the three months (KAI9 '2026 AUG' is June to August 2026).
+  assert.equal(periodLabel('2026 AUG', 'awe'), 'June to August 2026');
+  assert.equal(periodLabel('2026 FEB', 'awe'), 'December 2025 to February 2026');
 });
 
 test('values and changes are written plainly, with no judgement', () => {

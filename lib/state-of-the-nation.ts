@@ -27,8 +27,10 @@ export const GROUPS: Group[] = ['Cost of living', 'Economy', 'Public money', 'Pu
 // 'gbp-m' millions of pounds -> "£24.5bn"; 'gbp-bn' -> "£3,005bn".
 type Format = 'pct' | 'thousands' | 'gbp-m' | 'gbp-bn';
 // 'month' a single month ("September 2026"); 'lfs' a rolling three months labelled by its middle month ("JUL" is June to
-// August); 'quarter' ("July to September 2026"); 'fytd' the financial year to date, summed from April.
-type Period = 'month' | 'lfs' | 'quarter' | 'fytd';
+// August: the Labour Force Survey and vacancy series); 'awe' a three month average labelled by its LAST month ("AUG" is
+// June to August: average weekly earnings growth); 'quarter' ("July to September 2026"); 'fytd' the financial year to
+// date, summed from April.
+type Period = 'month' | 'lfs' | 'awe' | 'quarter' | 'fytd';
 
 type OnsSeries = {
   id: string; group: Group; label: string; cdid: string; dataset: string; path: string; format: Format; period: Period;
@@ -43,7 +45,7 @@ export const ONS_SERIES: OnsSeries[] = [
   { id: 'unemployment', group: 'Economy', label: 'Unemployment rate, aged 16 and over', cdid: 'MGSX', dataset: 'LMS', path: '/employmentandlabourmarket/peoplenotinwork/unemployment', format: 'pct', period: 'lfs' },
   { id: 'employment', group: 'Economy', label: 'Employment rate, aged 16 to 64', cdid: 'LF24', dataset: 'LMS', path: '/employmentandlabourmarket/peopleinwork/employmentandemployeetypes', format: 'pct', period: 'lfs' },
   { id: 'inactivity', group: 'Economy', label: 'Economic inactivity rate, aged 16 to 64', cdid: 'LF2S', dataset: 'LMS', path: '/employmentandlabourmarket/peoplenotinwork/economicinactivity', format: 'pct', period: 'lfs' },
-  { id: 'pay-regular', group: 'Economy', label: 'Regular pay growth, on a year earlier', cdid: 'KAI9', dataset: 'LMS', path: '/employmentandlabourmarket/peopleinwork/earningsandworkinghours', format: 'pct', period: 'lfs', note: 'Average weekly earnings excluding bonuses, three month average, before inflation' },
+  { id: 'pay-regular', group: 'Economy', label: 'Regular pay growth, on a year earlier', cdid: 'KAI9', dataset: 'LMS', path: '/employmentandlabourmarket/peopleinwork/earningsandworkinghours', format: 'pct', period: 'awe', note: 'Average weekly earnings excluding bonuses, three month average, before inflation' },
   { id: 'vacancies', group: 'Economy', label: 'Job vacancies', cdid: 'AP2Y', dataset: 'UNEM', path: '/employmentandlabourmarket/peopleinwork/employmentandemployeetypes', format: 'thousands', period: 'lfs' },
   { id: 'borrowing-ytd', group: 'Public money', label: 'Government borrowing, financial year to date', cdid: 'J5II', dataset: 'PUSF', path: '/economy/governmentpublicsectorandtaxes/publicsectorfinance', format: 'gbp-m', period: 'fytd', sign: -1, note: 'Public sector net borrowing excluding public sector banks' },
   { id: 'borrowing-month', group: 'Public money', label: 'Government borrowing in the latest month', cdid: 'J5II', dataset: 'PUSF', path: '/economy/governmentpublicsectorandtaxes/publicsectorfinance', format: 'gbp-m', period: 'month', sign: -1, note: 'Public sector net borrowing excluding public sector banks' },
@@ -93,8 +95,9 @@ export function periodLabel(date: string, kind: Period): string {
   const m = date.match(/^(\d{4}) ([A-Z]{3})$/);
   if (!m) return date;
   const y = Number(m[1]), i = MONTHS.indexOf(m[2]);
-  if (kind === 'lfs') {
-    const a = new Date(Date.UTC(y, i - 1, 1)), b = new Date(Date.UTC(y, i + 1, 1));
+  if (kind === 'lfs' || kind === 'awe') {
+    const mid = kind === 'awe' ? i - 1 : i; // an 'awe' label is the last of its three months
+    const a = new Date(Date.UTC(y, mid - 1, 1)), b = new Date(Date.UTC(y, mid + 1, 1));
     const ay = a.getUTCFullYear(), by = b.getUTCFullYear();
     return `${MONTH_NAMES[a.getUTCMonth()]}${ay !== by ? ` ${ay}` : ''} to ${MONTH_NAMES[b.getUTCMonth()]} ${by}`;
   }
@@ -150,8 +153,8 @@ export function onsFigure(s: OnsSeries, d: OnsData, now = Date.now()): Figure {
   const last = series[series.length - 1], prev = series[series.length - 2];
   if (!last) return { ...base, value: null, period: null, change: null, publishedOn, isNew: false };
   const cur = sign * Number(last.value);
-  // For a rolling three months, the comparison is with the three months before (three entries back), not the overlapping one.
-  const before = s.period === 'lfs' ? series[series.length - 4] : prev;
+  // For a three month period, the comparison is with the three months before (three entries back), not the overlapping one.
+  const before = s.period === 'lfs' || s.period === 'awe' ? series[series.length - 4] : prev;
   return {
     ...base,
     value: formatValue(cur, s.format),
