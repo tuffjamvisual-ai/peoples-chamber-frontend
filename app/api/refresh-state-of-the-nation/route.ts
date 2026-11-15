@@ -4,7 +4,7 @@
 // band are then refreshed.
 import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
-import { revalidatePath, revalidateTag } from '@/lib/refresh-count';
+import { revalidateTag } from '@/lib/refresh-count';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SOTN_TAG, onsData } from '@/lib/state-of-the-nation';
 
@@ -18,8 +18,8 @@ async function GET_impl(req: Request) {
   revalidateTag(SOTN_TAG, 'max');
   try {
     const data = await onsData();
-    revalidatePath('/state-of-the-nation');
-    revalidatePath('/');
+    // T1-HOMESPEED (ENTRY 126): the tag refresh above rebuilds both pages that show the figures; a revalidatePath here
+    // would mark the figures just read as stale for those pages and make the next visitor wait for the ONS again.
     return NextResponse.json({ ok: true, series: Object.keys(data).length, at: new Date().toISOString() });
   } catch (e) {
     // The last good figures stay up; the heartbeat records the failure.

@@ -146,7 +146,12 @@ async function GET_impl(req: Request) {
     const { error: checkedErr } = await supabase.from('sync_cursor').upsert({ route: CHECKED_ROUTE, cursor: { at: checkedAt }, updated_at: new Date().toISOString() }, { onConflict: 'route' });
     if (checkedErr) console.error(`[press] could not store the checked time: ${checkedErr.message}`);
     else revalidateTag(PRESS_SYNC_CHECKED_TAG, { expire: 0 });
-    if (added > 0 || !checkedErr) { revalidatePath('/'); revalidatePath('/transparency/press-releases'); }
+    // T1-HOMESPEED (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 126): no revalidatePath('/') here any more. The front
+    // page reads the latest releases and the checked time through the two tags refreshed above, which already rebuild it.
+    // A path refresh also expired every other cached read on the page (Next checks a page's own path tag on each cached
+    // read), so every hourly run made the next visitor wait while the State of the nation figures were read again from
+    // the ONS, one request a second: 13 to 15 s rebuilds, every hour from 02:00 on 15 Nov.
+    if (added > 0 || !checkedErr) revalidatePath('/transparency/press-releases');
     if (added > 0 || changedNews.length) freshnessChanged();
     indexNowAfter([...changedNews, ...(added > 0 ? ['/'] : [])], 'sync-press-releases');
     const failuresSaved = await failing.save();
