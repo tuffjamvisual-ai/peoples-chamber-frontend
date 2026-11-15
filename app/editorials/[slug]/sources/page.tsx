@@ -7,7 +7,7 @@ import SourcesPage from '../../../components/SourcesPage';
 import { getEditorial } from '@/lib/editorials-source';
 import type { EditorialEntry } from '@/lib/editorials/types';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

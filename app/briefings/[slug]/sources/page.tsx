@@ -11,14 +11,17 @@ import SourcesPage, { backStyle, kickerStyle, h1Style } from '../../../component
 import { getEditorial } from '@/lib/editorials-source';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
+
 
 const INK = '#14100d';
 const MONO = 'var(--font-special-elite), monospace';
 
 async function getDbBriefing(slug: string): Promise<{ headline: string; sources: string[] } | null> {
-  const { data, error } = await supabaseAdmin.from('briefings').select('headline, sources').eq('slug', slug).eq('is_published', true).not('published_at', 'is', null).maybeSingle();
+  const { data, error } = await cachedQuery(['q:app/briefings/[slug]/sources/page.tsx:fa60bd89cd', JSON.stringify([slug])], tableTags('briefings'), () => supabaseAdmin.from('briefings').select('headline, sources').eq('slug', slug).eq('is_published', true).not('published_at', 'is', null).maybeSingle());
   if (error && error.code !== 'PGRST116') throw new Error(`/briefings/[slug]/sources briefings: ${error.message}`);
   if (!data) return null;
   const sources = Array.isArray(data.sources) ? (data.sources as unknown[]).filter((s): s is string => typeof s === 'string') : [];

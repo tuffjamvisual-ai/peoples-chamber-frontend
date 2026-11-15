@@ -3,7 +3,8 @@
 // RLS). A row with is_live=false is a real 404 with nothing of it in the response (owner, 5 Nov 2026), as are drafts on
 // app/briefings/[slug]/page.tsx.
 //
-// force-dynamic: a programme going live or being withdrawn shows straight away.
+// A16 (owner rule 15 Nov 2026, ENTRY 129): kept until the programme tables' tags are refreshed. After a programme goes
+// live or is withdrawn by hand, run node scripts/revalidate.js --tag table:policy_programmes.
 //
 // Current figure: deriveCurrentFigure() from lib/programmes — shared with the
 // index page, no copy-paste.
@@ -14,7 +15,8 @@ import { notFound } from 'next/navigation';
 import { getProgramme, getTimeline, type ProgrammeRow, type TimelineRow } from '@/lib/programmes';
 import ProgrammeArticle from './ProgrammeArticle';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
+
 
 
 

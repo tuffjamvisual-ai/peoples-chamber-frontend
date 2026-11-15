@@ -11,6 +11,8 @@ import { councilSlugsOf } from '@/lib/editorials/council-slugs';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import { cachedQuery } from '@/lib/tagged-read';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
 export type RelatedLink = { href: string; label: string };
 const MAX = 4;
@@ -23,11 +25,11 @@ const newestFirst = (a: { publishedAt: string }, b: { publishedAt: string }) => 
 // "Local council" line (HT1, owner, 8 Nov 2026), which took over from the MP page's Related line.
 async function councilForConstituencyRead(gss: string | null | undefined): Promise<RelatedLink | null> {
   if (!gss) return null;
-  const { data, error } = await supabase.from('welfare_constituency_geography').select('council_gss_code').eq('constituency_gss_code', gss).limit(4);
+  const { data, error } = await cachedQuery(['q:lib/related-links.ts:967fe0def3', JSON.stringify([gss])], tableTags('welfare_constituency_geography'), () => supabase.from('welfare_constituency_geography').select('council_gss_code').eq('constituency_gss_code', gss).limit(4));
   if (error) throw new Error(`related: constituency councils: ${error.message}`);
   const codes = [...new Set(((data ?? []) as { council_gss_code: string }[]).map((r) => r.council_gss_code))];
   if (codes.length !== 1) return null;
-  const { data: c, error: cErr } = await supabase.from('councils').select('slug, name').eq('gss_code', codes[0]).maybeSingle();
+  const { data: c, error: cErr } = await cachedQuery(['q:lib/related-links.ts:28d64110af', JSON.stringify([codes])], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase.from('councils').select('slug, name').eq('gss_code', codes[0]).maybeSingle());
   if (cErr) throw new Error(`related: councils: ${cErr.message}`);
   return c ? { href: `/councils/${c.slug}`, label: c.name as string } : null;
 }
@@ -52,7 +54,7 @@ export async function mpRelated(opts: {
 export async function namedMps(memberIds: number[] | undefined): Promise<{ memberId: number; name: string }[]> {
   const ids = [...new Set(memberIds ?? [])];
   if (!ids.length) return [];
-  const { data, error } = await supabase.from('mps').select('member_id, name, display_name').in('member_id', ids);
+  const { data, error } = await cachedQuery(['q:lib/related-links.ts:9dde9eda82', JSON.stringify([ids])], tableTags('mps'), () => supabase.from('mps').select('member_id, name, display_name').in('member_id', ids));
   if (error) throw new Error(`related: mps: ${error.message}`);
   const byId = new Map(((data ?? []) as { member_id: number; name: string | null; display_name: string | null }[]).map((m) => [m.member_id, displayMpName(m.display_name || m.name || '')]));
   return ids.filter((id) => byId.get(id)).map((id) => ({ memberId: id, name: byId.get(id)! }));
@@ -65,7 +67,7 @@ export async function editorialRelated(piece: EditorialEntry, mps: { memberId: n
   try {
     const slugs = [...new Set([...(piece.relatedCouncilSlugs ?? []), ...councilSlugsOf(piece)])];
     if (slugs.length && links.length < MAX) {
-      const { data, error } = await supabase.from('councils').select('slug, name').in('slug', slugs);
+      const { data, error } = await cachedQuery(['q:lib/related-links.ts:a3dd4b57ce', JSON.stringify([slugs])], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase.from('councils').select('slug, name').in('slug', slugs));
       if (error) throw new Error(`related: councils: ${error.message}`);
       const bySlug = new Map(((data ?? []) as { slug: string; name: string }[]).map((c) => [c.slug, c.name]));
       for (const s of slugs) if (bySlug.get(s)) add({ href: `/councils/${s}`, label: bySlug.get(s)! });

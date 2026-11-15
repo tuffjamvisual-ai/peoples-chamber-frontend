@@ -17,6 +17,8 @@
 
 import { supabase } from '@/lib/supabase';
 import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
+import { cachedQuery, tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export type ProgrammeRow = {
   id: number;
@@ -70,13 +72,13 @@ export function deriveCurrentFigure(timeline: TimelineRow[]): TimelineRow | null
  * entry_date client-side (PostgREST returns join rows in insert order).
  */
 export async function getLiveProgrammes(): Promise<ProgrammeWithFigure[]> {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:lib/programmes.ts:a66c28ea13'], tableTags('policy_programmes', 'programme_timeline'), () => supabase
     .from('policy_programmes')
     .select(
       'id, slug, name, dept_slugs, status, summary, started_date, target_label, target_figure, target_unit, is_live, programme_timeline(id, entry_date, figure_value, figure_unit, is_approved)',
     )
     .eq('is_live', true)
-    .order('name');
+    .order('name'));
 
   if (error) throw new Error(`getLiveProgrammes: ${error.message}`);
 
@@ -100,13 +102,13 @@ export async function getLiveProgrammes(): Promise<ProgrammeWithFigure[]> {
 
 /** Single programme by slug — supabaseAdmin bypasses RLS for draft preview. */
 export async function getProgramme(slug: string): Promise<ProgrammeRow | null> {
-  const { data, error: dataErr } = await supabaseAdmin
+  const { data, error: dataErr } = await cachedQuery(['q:lib/programmes.ts:a3f29579ab', JSON.stringify([slug])], tableTags('policy_programmes', 'programme_timeline'), () => supabaseAdmin
     .from('policy_programmes')
     .select(
       'id, slug, name, dept_slugs, status, summary, started_date, target_label, target_figure, target_unit, is_live',
     )
     .eq('slug', slug)
-    .maybeSingle();
+    .maybeSingle());
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`programmes policy_programmes: ${dataErr.message}`);
   return (data as ProgrammeRow) ?? null;
 }
@@ -121,6 +123,9 @@ export async function getTimeline(
   programmeId: number,
   showAll: boolean,
 ): Promise<TimelineRow[]> {
+  return tagged(['programme-timeline-v1', programmeId, showAll], tableTags('policy_programmes', 'programme_timeline'), () => readTimeline(programmeId, showAll));
+}
+async function readTimeline(programmeId: number, showAll: boolean): Promise<TimelineRow[]> {
   let q = supabaseAdmin
     .from('programme_timeline')
     .select(

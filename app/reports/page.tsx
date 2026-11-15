@@ -7,13 +7,15 @@ import { listSummary } from '@/lib/editorials/list-summary';
 import { listReadingLabel, textReadingLabel } from '@/lib/reading-time';
 import { supabase } from '@/lib/supabase';
 import ReportsArchive, { type ArchiveItem } from './ReportsArchive';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // Reports (owner's approval, 23 Oct 2026): one list of every published investigation, file briefing and published
 // database briefing, newest first. It replaces the /editorials and /briefings lists, which now redirect here; the
 // articles keep their /editorials/<slug> and /briefings/<slug> addresses. Database briefings are read with the
 // public key, which only returns published rows.
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: fitTitle('Reports: opengovt investigations and briefings', 'Reports'), // T1-A3 (6) (owner approved)
@@ -53,12 +55,12 @@ export default async function ReportsPage() {
     readingLabel: listReadingLabel(e),
   }));
 
-  const { data: dbRows, error: dbErr } = await supabase
+  const { data: dbRows, error: dbErr } = await cachedQuery(['q:app/reports/page.tsx:4463fe7d3a'], tableTags('briefings'), () => supabase
     .from('briefings')
     .select('slug, headline, summary, body, published_at, created_at')
     .eq('is_published', true)
     .not('published_at', 'is', null)
-    .order('published_at', { ascending: false });
+    .order('published_at', { ascending: false }));
   // A failed read throws, so the last good version of the page stays up.
   if (dbErr && dbErr.code !== 'PGRST116') throw new Error(`/reports briefings: ${dbErr.message}`);
 

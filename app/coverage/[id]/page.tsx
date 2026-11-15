@@ -6,15 +6,17 @@ import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import PageSources from '../../components/PageSources';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 60
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/coverage/[id]/page.tsx:30d4852a7e'], tableTags('uk_political_news'), () => supabase
     .from('uk_political_news')
     .select('id')
     .eq('is_published', true)
-    .limit(20)
+    .limit(20))
   if (error || !data?.length) throw new Error(`generateStaticParams uk_political_news: ${error?.message || 'zero rows'}`)
   const ids = data.map((r) => String(r.id)).filter(Boolean)
   if (!ids.length) throw new Error('generateStaticParams coverage: zero usable values')
@@ -38,12 +40,12 @@ type CoverageRow = {
 }
 
 async function getRow(id: number): Promise<CoverageRow | null> {
-  const { data, error: dataErr } = await supabase
+  const { data, error: dataErr } = await cachedQuery(['q:app/coverage/[id]/page.tsx:6383350150', JSON.stringify([id])], tableTags('uk_political_news'), () => supabase
     .from('uk_political_news')
     .select('id, source_url, source_outlet, source_title, source_excerpt, published_at, commentary, related_link_href, related_link_label')
     .eq('id', id)
     .eq('is_published', true)
-    .maybeSingle()
+    .maybeSingle())
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/coverage/[id] uk_political_news: ${dataErr.message}`);
   return data
 }

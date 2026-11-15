@@ -320,6 +320,8 @@ async function main() {
   fs.writeFileSync(sqlPath, lines.join('\n') + '\n')
   execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1'], { input: withTimeouts(fs.readFileSync(sqlPath, 'utf8')), stdio: ['pipe', 'inherit', 'inherit'] })
   fs.unlinkSync(sqlPath)
+  // A16 (ENTRY 129): the /coverage pages read this table through the data cache; refresh it after a write.
+  await require('./lib/refresh-site.js').refreshTableTags(['uk_political_news'])
   console.log('\nDone.')
 }
 

@@ -16,22 +16,25 @@ import BriefingArticle, { type BriefingRow } from './BriefingArticle';
 import { getEditorial } from '@/lib/editorials-source';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-// Dynamic so DB drafts are viewable immediately after the cron run and a flip to
-// published shows without a rebuild. File-based briefings render fine here too.
-export const dynamic = 'force-dynamic';
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
+
+// A16 (owner rule 15 Nov 2026, ENTRY 129): kept until the briefings table's tag is refreshed. The daily-briefings cron
+// refreshes it; after publishing a draft by hand, run node scripts/revalidate.js --tag table:briefings.
 
 
 
 // Published rows only (owner, 5 Nov 2026): a draft, or a row with no publish date, is a real 404 with nothing of it in the response.
 async function getDbBriefing(slug: string): Promise<BriefingRow | null> {
-  const { data, error: dataErr } = await supabaseAdmin
+  const { data, error: dataErr } = await cachedQuery(['q:app/briefings/[slug]/page.tsx:2671c1fea1', JSON.stringify([slug])], tableTags('briefings'), () => supabaseAdmin
     .from('briefings')
     .select('slug, headline, body, sources, is_published, published_at, created_at')
     .eq('slug', slug)
     .eq('is_published', true)
     .not('published_at', 'is', null)
-    .maybeSingle();
+    .maybeSingle());
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/briefings/[slug] briefings: ${dataErr.message}`);
   return (data as BriefingRow) ?? null;
 }

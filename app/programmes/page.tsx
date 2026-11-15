@@ -10,7 +10,7 @@ import {
   type ProgrammeWithFigure,
 } from '@/lib/programmes';
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: fitTitle('Government programmes: commitments tracked', 'Government programmes'), // T1-A3 (6) (owner approved)
