@@ -111,6 +111,12 @@ async function agencyRedirects() {
   }
 }
 
+// Query keys that make a list address a page 2+, search or filter variant (T1-PAGENOINDEX): every key the list pages
+// read from their address (15 Nov 2026), page only from 2.
+const LIST_VARIANT_KEYS = ['page', 'dpage', 'before', 'q', 'k', 'words', 'at', 'date', 'from', 'to', 'year', 'section',
+  'department', 'procedure', 'flag', 'has', 'party', 'type', 'view', 'vp', 'vq', 'name', 'pm', 'member', 'constituency',
+  'role', 'who', 'state', 'status', 'show', 'sort', 'uin', 'debated', 'responded', 'prayer'];
+
 const nextConfig: NextConfig = {
   // The recommendations tracker's switch (lib/feature-flags.ts), set at build time so the server and the browser (the
   // menu's current section in HeaderNav) read the same value. Not a secret; a change needs a new deploy.
@@ -231,6 +237,16 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      // T1-PAGENOINDEX (owner approved 14 Nov 2026, "yes page rule", COWORK-TO-T1 ENTRY 60): page 2 onward of every list,
+      // and every search, filter or ?before= variant, is "noindex, follow": not listed by search engines, but its links
+      // are still followed, so records are still found. Page 1 without parameters keeps indexing and its canonical, and
+      // robots.txt is unchanged. A response header, not page metadata, so static pages that page in the browser (/laws)
+      // are covered too. ?page=1 is left alone; a key not listed here (for example ?utm_source) changes nothing.
+      ...LIST_VARIANT_KEYS.map((key) => ({
+        source: '/:path*',
+        has: [{ type: 'query' as const, key, ...(key === 'page' ? { value: '(?:[2-9]|[1-9][0-9]+)' } : {}) }],
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],
+      })),
       // Only www.opengovt.uk is indexed (owner, 28 Oct 2026): the vercel.app address and preview deployments carry
       // noindex, so search engines never list a copy. Pages still open normally there.
       {

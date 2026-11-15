@@ -437,8 +437,8 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }));
 
-  // The year archives (owner, 31 Oct 2026): /divisions/year/<yyyy> and its page 2 onwards (100 divisions a page), so
-  // every division is two clicks from a page in the sitemap. Each page is dated by the latest of the rows it lists (owner, 7 Nov 2026).
+  // The year archives (owner, 31 Oct 2026): /divisions/year/<yyyy> (100 divisions a page; page 2 onward left out since
+  // 15 Nov 2026, see below), every division one click from a page in the sitemap or listed itself. Each page is dated by the latest of the rows it lists (owner, 7 Nov 2026).
   type YearRow = { date: string; number: number; day: string; archive: boolean };
   const yearRows = new Map<number, YearRow[]>();
   const addYearRow = (r: YearRow) => { const y = Number(r.date.slice(0, 4)); yearRows.set(y, [...(yearRows.get(y) ?? []), r]); };
@@ -451,12 +451,14 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
   const divisionYearEntries: MetadataRoute.Sitemap = [...yearRows.entries()].sort((a, b) => a[0] - b[0]).flatMap(([y, rows]) => {
     // The order the year page lists them (lib/division-links.ts yearDivisions): sitting votes newest first, then the archive's newest first.
     const listed = [...rows].sort((a, b) => Number(a.archive) - Number(b.archive) || b.date.localeCompare(a.date) || b.number - a.number);
-    return Array.from({ length: Math.ceil(listed.length / 100) }, (_, k) => ({
-      url: `${SITE}${yearHref(y, k + 1)}`,
-      ...dated(newest(...listed.slice(k * 100, (k + 1) * 100).map((r) => r.day))),
+    // Page 1 only (T1-PAGENOINDEX, owner approved 14 Nov 2026, COWORK-TO-T1 ENTRY 60): page 2 onward is noindex, follow;
+    // every division on those pages has its own entry above. Dated by the newest row on page 1 as before.
+    return [{
+      url: `${SITE}${yearHref(y)}`,
+      ...dated(newest(...listed.slice(0, 100).map((r) => r.day))),
       changeFrequency: y === thisYear ? ('weekly' as const) : ('yearly' as const),
       priority: 0.5,
-    }));
+    }];
   });
 
   // Committee profile pages — 29 select committee IDs from lib/committees.ts.
