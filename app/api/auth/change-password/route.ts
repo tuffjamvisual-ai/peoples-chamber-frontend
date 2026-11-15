@@ -3,6 +3,9 @@ import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
 import { bumpSessionVersion, setSessionCookie } from '@/lib/session';
 import { BCRYPT_COST } from '@/lib/auth-tokens';
+import { blocked, clearAccount, DUMMY_HASH, noteFailure, TOO_MANY } from '@/lib/auth-throttle';
+import { clientIp } from '@/lib/email-limits';
+import { passwordOk, PASSWORD_RULE_TEXT } from '@/lib/password-rule';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,13 +23,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const pwOk = newPassword.length >= 8 && /[A-Za-z]/.test(newPassword) && /[0-9]/.test(newPassword);
-    if (!pwOk) {
+    if (!passwordOk(newPassword)) {
       return NextResponse.json(
-        { error: 'New password must be 8 or more characters with a letter and a number' },
+        { error: `New password must be ${PASSWORD_RULE_TEXT}` },
         { status: 400 },
       );
     }
+
+    // Security review M3: refused for 15 minutes after repeated failures (lib/auth-throttle.ts).
+    const ip = clientIp(request.headers);
+    if (blocked(email, ip)) return NextResponse.json({ error: TOO_MANY }, { status: 429 });
 
     const { data: user, error } = await supabase
       .from('users')
@@ -34,14 +40,13 @@ export async function POST(request: NextRequest) {
       .eq('email', email)
       .single();
 
-    if (error || !user) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    // L4: one answer whether the address has no account or the password is wrong, and a password compared either way.
+    const valid = await bcrypt.compare(currentPassword, error || !user ? DUMMY_HASH : user.password);
+    if (error || !user || !valid) {
+      noteFailure(email, ip);
+      return NextResponse.json({ error: 'Email or current password is incorrect' }, { status: 401 });
     }
-
-    const valid = await bcrypt.compare(currentPassword, user.password);
-    if (!valid) {
-      return NextResponse.json({ error: 'Current password is incorrect' }, { status: 401 });
-    }
+    clearAccount(email);
 
     // This route signs the user in, so it applies the same rule as login: no session for an
     // unconfirmed email address.

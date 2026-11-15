@@ -10,6 +10,7 @@ import { setSessionCookie } from '@/lib/session';
 import disposableDomains from 'disposable-email-domains';
 import { safeReturnPath } from '@/lib/safe-return';
 import { clientIp, dailyCapReached, overIpLimit } from '@/lib/email-limits';
+import { passwordOk, PASSWORD_RULE_TEXT } from '@/lib/password-rule';
 
 // Permissive but blocks obvious garbage. Real format validation happens
 // at the deliverability layer (MX check + send a verification email).
@@ -52,6 +53,11 @@ export async function POST(request: NextRequest) {
         { error: 'Email, password, and username are required' },
         { status: 400 }
       );
+    }
+
+    // Security review M3: sign-up had no password rule; it now has the same one as reset and change.
+    if (!passwordOk(password)) {
+      return NextResponse.json({ error: `Password must be ${PASSWORD_RULE_TEXT}` }, { status: 400 });
     }
 
     if (!EMAIL_RE.test(email)) {

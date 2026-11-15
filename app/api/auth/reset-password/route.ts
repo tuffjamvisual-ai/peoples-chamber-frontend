@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
+import { passwordOk, PASSWORD_RULE_TEXT } from '@/lib/password-rule';
 import { bumpSessionVersion, makeSessionCookieHeader, makeSignedInFlagHeader } from '@/lib/session';
 import { BCRYPT_COST, hashToken } from '@/lib/auth-tokens';
 
@@ -19,10 +20,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const pwOk = newPassword.length >= 8 && /[A-Za-z]/.test(newPassword) && /[0-9]/.test(newPassword);
-    if (!pwOk) {
+    if (!passwordOk(newPassword)) {
       return NextResponse.json(
-        { error: 'Password must be 8 or more characters with a letter and a number' },
+        { error: `Password must be ${PASSWORD_RULE_TEXT}` },
         { status: 400 },
       );
     }
