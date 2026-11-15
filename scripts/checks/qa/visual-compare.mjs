@@ -113,10 +113,25 @@ async function settle(page) {
       new Promise((r) => setTimeout(r, 15000)),
     ]);
     await document.fonts.ready;
+    // T1-VRFIX (Cowork ENTRY 103, 15 Nov 2026): twice tonight every face reported 'loaded' yet the live picture was drawn
+    // in the fallback face (/departments, /search at 375). So the page is laid out again after the fonts are ready, and
+    // each face the visible text actually asks for is checked with document.fonts.check(): one the browser cannot draw
+    // yet counts as not loaded, which sends the page to the retry below.
+    void document.body.offsetHeight;
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    return [...new Set([...document.fonts].filter((f) => f.status !== 'loaded').map((f) => f.family.replace(/^["']|["']$/g, '')))];
+    const notLoaded = new Set([...document.fonts].filter((f) => f.status !== 'loaded').map((f) => f.family.replace(/^["']|["']$/g, '')));
+    const declared = new Set([...document.fonts].map((f) => f.family.replace(/^["']|["']$/g, '')));
+    const used = new Set();
+    for (const el of document.body.querySelectorAll('*')) {
+      if (!el.firstChild || el.closest('script, style, noscript') || !el.getClientRects().length) continue;
+      const first = getComputedStyle(el).fontFamily.split(',')[0].trim().replace(/^["']|["']$/g, '');
+      if (declared.has(first)) used.add(first);
+    }
+    for (const fam of used) if (!document.fonts.check(`16px "${fam}"`)) notLoaded.add(fam);
+    return [...notLoaded];
   }, STILL);
-  await page.waitForTimeout(300);
+  // ENTRY 103: 500 ms after the fonts are ready, before every picture, on both sites.
+  await page.waitForTimeout(500);
   return failed;
 }
 
@@ -229,12 +244,27 @@ async function openPage(browser, base) {
   await ctx.route('**/*', (r) => (BLOCK.test(r.request().url()) ? r.abort() : r.continue()));
   return ctx.newPage();
 }
+// Content that changes on its own (T1-VRFIX, Cowork ENTRY 103, 15 Nov 2026): the homepage's lead story and second
+// report rotate by date and its 'Latest from Whitehall' list follows the press releases, so a live page cached before
+// a change and a fresh build differ with no code change (the 23:20 and 00:13 stops). These, and any element a page marks
+// data-vr-ignore, are emptied and given one fixed height on both sides before any picture: their content is not compared
+// and their length cannot move the rest of the page.
+const ROTATING = { '/': ['.og-lead-story', '.og-brief', '.og-whitehall-f'] };
+async function maskRotating(page, url) {
+  await page.evaluate((sels) => {
+    for (const el of document.querySelectorAll(sels.join(', '))) {
+      el.replaceChildren();
+      for (const [k, v] of [['height', '160px'], ['min-height', '160px'], ['max-height', '160px'], ['overflow', 'hidden'], ['visibility', 'hidden'], ['padding', '0'], ['margin', '0'], ['border', '0']]) el.style.setProperty(k, v, 'important');
+    }
+  }, ['[data-vr-ignore]', ...(ROTATING[url.split('?')[0]] ?? [])]).catch(() => {});
+}
 async function load(page, base, url) {
   if (page.viewportSize().width !== 375) await page.setViewportSize({ width: 375, height: 812 });
   await pace();
   const res = await page.goto(base + url, { waitUntil: 'load', timeout: 90000 });
   try { await page.waitForLoadState('networkidle', { timeout: 10000 }); } catch { /* a page that keeps polling */ }
   await freezeMoving(page);
+  await maskRotating(page, url);
   return res?.status() ?? 0;
 }
 
@@ -352,6 +382,9 @@ async function pushRun() {
     // A web font that did not load on either side: the page is tried once more; still missing, with the same styles on
     // both sides, the difference is labelled a font failure and does not stop the push.
     if (row.changed && fontsMissing(row)) { console.log(`  ${p.url}: a web font did not load (${JSON.stringify(row.fonts)}); trying once more`); row = await compareOnce(p); }
+    // Same text and layout-only style differences with every face reported loaded (T1-VRFIX, ENTRY 103): the shape of a
+    // face drawn late; the page is taken once more. A difference that stays is still counted.
+    else if (row.changed && !row.error && !row.status && row.views.every(fontShaped)) { console.log(`  ${p.url}: same text, layout-only difference; trying once more`); row = await compareOnce(p); }
     if (row.changed && !row.error && !row.status && fontsMissing(row) && row.views.every(fontShaped)) row.fontFailure = row.fonts;
     rows.push(row);
     console.log(`  ${row.named ? '(named) ' : ''}${p.url}: ${row.error ? `could not compare: ${row.error}` : row.changed ? row.views.filter((v) => v.changed).map((v) => `${v.view} ${v.kind ?? 'status'} (${v.pixels} px)`).join(', ') + (row.fontFailure ? '; font failure, not counted' : '') : 'same'}`);
