@@ -9,6 +9,7 @@
 //   - mp_interests: registered interests, joined by member_slug
 
 import { notFound } from 'next/navigation';
+import { sanitizeHtml } from '@/lib/html-sanitize';
 import { supabase } from '@/lib/supabase';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -18,6 +19,9 @@ import { ministerialRateForSlug, ministerialSalaryText } from '@/lib/ministerial
 import Link from 'next/link';
 import BackLink from '../../components/BackLink';
 import { phoneUpTo } from '@/lib/breakpoints';
+// A role's body is GOV.UK HTML (shown in the profile panel); cleaned once here (security review M4).
+const cleanRoles = (roles: Role[] | null): Role[] => (roles || []).map((r) => (r.body ? { ...r, body: sanitizeHtml(r.body, { links: 'keep', hansardColumns: false }) } : r));
+
 export const revalidate = 21600;
 
 export async function generateStaticParams() {
@@ -94,8 +98,10 @@ async function getPersonAndInterests(
         photo: ministerRow?.photo_url || cached.photo || '',
         // Manually uploaded pictures (dept_ministers.photo_url) are the site's caricatures.
         caricature: !!ministerRow?.photo_url,
-        currentRoles: (cached.current_roles as Role[]) || [],
-        pastRoles: (cached.past_roles as Role[]) || [],
+        // Security review M4: each role's GOV.UK body through the allow-list sanitiser here, on the server (the profile
+        // panel that shows it is a client component).
+        currentRoles: cleanRoles(cached.current_roles as Role[] | null),
+        pastRoles: cleanRoles(cached.past_roles as Role[] | null),
         politicalBio: (cached.political_bio as string | null) || null,
         biography: (cached.biography as string) || '',
         description: (cached.description as string) || '',

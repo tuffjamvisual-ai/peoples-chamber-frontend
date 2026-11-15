@@ -1,4 +1,5 @@
 import { titleWithin } from '@/lib/seo-title';
+import { sanitizeHtml } from '@/lib/html-sanitize'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
@@ -205,7 +206,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   // complete every row has one, so GOV.UK is never called on a page view.
   // Only fall back to a live fetch for rows not yet backfilled — and never for
   // releases GOV.UK has removed (that fetch would just 404).
-  const bodyHtml = release.body || (release.removed_upstream ? null : await getBodyHtmlLive(release.gov_url || ''))
+  const rawBody = release.body || (release.removed_upstream ? null : await getBodyHtmlLive(release.gov_url || ''))
+  // Security review M4: GOV.UK's HTML through the one allow-list sanitiser (lib/html-sanitize.ts); its links are kept.
+  const bodyHtml = rawBody ? sanitizeHtml(rawBody, { links: 'keep', hansardColumns: false }) : null
 
   const examined = await piecesExaminingRelease(release.title, release.gov_url)
   // Read next (lib/read-next.ts) once, after the full text (owner's request, 25 Oct 2026).
