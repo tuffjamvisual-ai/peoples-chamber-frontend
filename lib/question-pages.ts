@@ -52,7 +52,7 @@ export const questionPeople = unstable_cache(async (): Promise<Person[]> => {
     ...((mps.data ?? []) as { member_id: number; display_name: string | null; name: string }[]).map((m) => ({ id: m.member_id, name: displayMpName(m.display_name || m.name) as string, house: 'Commons' as const, href: `/mps/${m.member_id}` })),
     ...((peers.data ?? []) as { member_id: number; name_display: string; is_current: boolean; end_date: string | null }[]).map((p) => ({ id: p.member_id, name: p.name_display, house: 'Lords' as const, href: peerHasPage(p) ? `/lords/${p.member_id}` : null })),
   ];
-}, ['question-people'], { revalidate: 86400 });
+}, ['question-people'], { revalidate: false, tags: tableTags('mps', 'peers') }); // A16: refreshed when the MP or peer lists change
 
 // One screen of questions, newest first, after `before` (date_id of the last row shown), and the total when it is the first screen.
 export async function searchQuestions(f: QuestionFilters, before: string | null, wantTotal: boolean, pageSize = QUESTION_PAGE_SIZE): Promise<{ rows: QuestionRow[]; more: string | null; total: number | null }> {
@@ -83,7 +83,7 @@ export async function searchQuestions(f: QuestionFilters, before: string | null,
 export type Attachment = { url?: string; title?: string; fileType?: string; fileSizeBytes?: number };
 export type Question = QuestionRow & { question_text: string | null; answer_html: string | null; answer_text: string | null; original_answer_html: string | null; answering_member_id: number | null; answering_body: string | null; attachments: Attachment[] | null; url: string | null };
 
-export async function getQuestion(id: number): Promise<Question | null> {
+async function getQuestionRead(id: number): Promise<Question | null> {
   const { data, error } = await db.from('parliament_written_questions').select(`${LIST}, question_text, answer_html, answer_text, original_answer_html, answering_member_id, answering_body, attachments, url`).eq('id', id).maybeSingle();
   if (error) throw new Error(`question ${id}: ${error.message}`);
   return data as unknown as Question | null;
@@ -93,6 +93,8 @@ export async function getQuestion(id: number): Promise<Question | null> {
 // words as one exact phrase first ("Public Duty Costs Allowance" found 63 questions, newest first, none of the first
 // with the phrase). At most PHRASE_MAX of them, newest first; the other matches follow without them.
 import { phraseOf, PHRASE_MAX } from '@/lib/question-phrase';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 export { PHRASE_MAX };
 export async function phraseQuestions(f: QuestionFilters): Promise<QuestionRow[]> {
   const phrase = phraseOf(f.words);
@@ -100,3 +102,8 @@ export async function phraseQuestions(f: QuestionFilters): Promise<QuestionRow[]
   const { rows } = await searchQuestions({ ...f, words: `"${phrase}"` }, null, false, PHRASE_MAX);
   return rows;
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): one question, kept in the shared data cache under its own tag
+// (question:<id>), refreshed by sync-parliament-archive only when that question's answer changed; no timer.
+export const questionTag = (id: number) => `question:${id}`;
+export const getQuestion = (id: number) => tagged(['question-v1', id], [questionTag(id)], () => getQuestionRead(id));

@@ -51,9 +51,10 @@ import { indexNowAfter } from '@/lib/indexnow';
 import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { noteChanged, revalidatePath } from '@/lib/refresh-count';
+import { noteChanged, revalidatePath, revalidateTag } from '@/lib/refresh-count';
 import { answerChanged, answerPaths, type AnswerRow } from '@/lib/written-answers-refresh';
 import { htmlToText, questionRow, type WQ } from '@/lib/written-question-row';
+import { questionTag } from '@/lib/question-pages';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 270;
@@ -892,6 +893,7 @@ function refreshAnswerPages(run: Run) {
   if (send) {
     noteChanged(run.answerChanges.length);
     for (const p of paths) revalidatePath(p);
+    for (const r of run.answerChanges) revalidateTag(questionTag(r.id), 'max'); // A16: each changed question's own data
     if (!run.dry) indexNowAfter(paths, 'sync-parliament-archive');
   }
   return { rows: run.answerChanges.length, members, paths: paths.length, sent: send };

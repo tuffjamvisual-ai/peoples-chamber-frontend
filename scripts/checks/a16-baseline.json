@@ -99,7 +99,6 @@
   "page /programmes",
   "page /programmes/[slug]",
   "page /questions",
-  "page /questions/[id]",
   "page /questions/department/[slug]",
   "page /recommendations/[session]/[report]/[rec]",
   "page /recommendations/list/[view]",

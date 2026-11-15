@@ -17,7 +17,7 @@ import BackLink from '@/app/components/BackLink';
 // One written question (owner, backlog item 15c, 6 Nov 2026): the question and answer as published, who asked and who answered, dates and
 // days taken, attachments, and for a corrected answer its date with the original in a fold. Addressed by Parliament's id, because 45,904
 // question numbers repeat; /questions/<number> goes to the list of questions with that number. Kept for a day, refreshed by the sync.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its question's answer changes (question:<id>), or on a deploy
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';

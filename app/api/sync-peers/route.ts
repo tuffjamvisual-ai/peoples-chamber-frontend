@@ -7,6 +7,7 @@ import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
 import { noteChanged, revalidatePath } from '@/lib/refresh-count';
 import { sameValue, isDryRun } from '@/lib/mp-refresh';
 import { fetchPeerList, fetchPeer, fetchPosts, saveList, savePosts, peerHasPage, PAGES_FROM, type PeerRow } from '@/lib/peers';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -93,7 +94,7 @@ async function GET_impl(req: Request) {
   noteChanged(dry ? 0 : changedPages.size);
   if (!dry) {
     for (const id of changedPages) { revalidatePath(`/lords/${id}`); revalidatePath(`/lords/${id}/questions`); }
-    if (listChanged) revalidatePath('/lords');
+    if (listChanged) { revalidatePath('/lords'); refreshTables('peers'); } // A16: the peers table's tag after a real change
     indexNowAfter([...[...changedPages].flatMap((id) => [`/lords/${id}`, `/lords/${id}/questions`]), ...(listChanged ? ['/lords'] : [])], 'sync-peers');
   }
   return NextResponse.json({ ok: true, ...out, rows_written: dry ? 0 : changedPages.size, refreshed_pages: dry ? 0 : changedPages.size, list_refreshed: !dry && listChanged, syncedAt: new Date().toISOString() });
