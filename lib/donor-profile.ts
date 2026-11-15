@@ -3,6 +3,8 @@
 // array) and public.donor_profile_slugs (every donor page slug that profile covers), migration 2026-10-31k. The text is
 // stored and shown exactly as written; the 16 Oct rule (no en or em dashes) is checked here.
 import { cache } from 'react';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export const LABEL_ORDER = [
   'Who they are', 'Business', 'Ownership and control', 'Size', 'Represents', 'Political fund',
@@ -65,7 +67,7 @@ export function whoTheyAreLine(facts: unknown): string | null {
 
 // The profile for a donor page, with the other slugs it covers. On any error it logs and returns null, so the donor
 // page still renders without the section; it never throws.
-export const getDonorProfile = cache(async (slug: string): Promise<{ profile: DonorProfile; otherSlugs: string[] } | null> => {
+export const getDonorProfile = cache((slug: string): Promise<{ profile: DonorProfile; otherSlugs: string[] } | null> => tagged(['getDonorProfile-v1', JSON.stringify(slug ?? null)], tableTags('donor_profiles', 'donor_profile_slugs'), async () => {
   try {
     // Loaded here, not at the top, so scripts/checks/donor-profile-check.ts can import validate() outside Next.
     const { supabase } = await import('@/lib/supabase');
@@ -89,4 +91,4 @@ export const getDonorProfile = cache(async (slug: string): Promise<{ profile: Do
     console.error('[donor-profile]', e instanceof Error ? e.message : e);
     return null;
   }
-});
+}));

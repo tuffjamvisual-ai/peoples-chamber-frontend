@@ -27,8 +27,11 @@ import PhoneTable from '../../components/PhoneTable';
 import { SubFold } from '../../components/PhoneFolds';
 import JsonLd, { buildDonorEntity } from '@/lib/JsonLd';
 import FollowButton from '../../components/FollowButton';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+import { cachedQuery } from '@/lib/tagged-read';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -106,7 +109,7 @@ interface PageProps {
 
 // The word search used before 24 Oct 2026, kept only as a fallback for a slug the exact registry does not hold, so no
 // old address breaks (resolveDonor below).
-const findDonorByMatchingSlug = cache(async (slug: string): Promise<string | null> => {
+const findDonorByMatchingSlug = cache((slug: string): Promise<string | null> => tagged(['donor-find-by-slug-v1', slug], tableTags('political_donations'), async () => {
   // We don't store slugs in the DB; resolve by paging through donor_name
   // values and computing the slug client-side. Cheap because we can use
   // a relevant ILIKE narrowing first.
@@ -130,18 +133,55 @@ const findDonorByMatchingSlug = cache(async (slug: string): Promise<string | nul
   if (candidates.size === 0) return null;
   // Fetch counts to pick canonical form
   const names = Array.from(candidates);
-  const { data: ranked2 } = await supabase
+  const { data: ranked2 } = await cachedQuery(['q:app/donors/[slug]/page.tsx:42bc9c7cf1', JSON.stringify([names])], tableTags('political_donations'), () => supabase
     .from('political_donations')
     .select('donor_name')
     .in('donor_name', names)
-    .limit(2000);
+    .limit(2000));
   const counts = new Map<string, number>();
   for (const r of (ranked2 || []) as Array<{ donor_name: string | null }>) {
     const n = (r.donor_name || '').trim();
     counts.set(n, (counts.get(n) ?? 0) + 1);
   }
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? names[0];
-});
+}));
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): the donor's records, kept in the shared data cache under the
+// political-donations tag (refreshed by the donations sync and sweep only when they wrote rows); no timer.
+const loadDonations = (names: string[] | null, ranked: string[], slug: string, DONATION_COLS: string): Promise<DonationRow[]> =>
+  tagged(['donor-donations-v1', JSON.stringify(names), JSON.stringify(ranked), slug, DONATION_COLS], tableTags('political_donations'), async () => {
+    let donations: DonationRow[] = [];
+    if (names) {
+      for (let i = 0; i < names.length; i += 100) {
+        const chunk = names.slice(i, i + 100);
+        for (let from = 0; ; from += 1000) {
+          // Every name quoted: supabase-js's .in() quotes a value only when it holds a comma or a bracket, and PostgREST
+          // trims an unquoted one, so a name stored with a leading space (" Christopher Harborne") would match nothing.
+          const list = `(${chunk.map((n: string) => `"${n.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`).join(',')})`;
+          const { data, error } = await cachedQuery(['q:app/donors/[slug]/page.tsx:8c863871e3', JSON.stringify([DONATION_COLS, list, from])], tableTags('political_donations'), () => supabase.from('political_donations').select(DONATION_COLS)
+            .filter('donor_name', 'in', list).order('accepted_date', { ascending: false }).order('id', { ascending: true }).range(from, from + 999));
+          if (error) throw new Error(`donor donations: ${error.message}`);
+          donations.push(...((data ?? []) as unknown as DonationRow[]));
+          if (!data || data.length < 1000) break;
+        }
+      }
+      // Newest first across all spellings (no date first, as the database orders them).
+      donations.sort((a, b) => (a.accepted_date === b.accepted_date ? a.id - b.id : !a.accepted_date ? -1 : !b.accepted_date ? 1 : a.accepted_date < b.accepted_date ? 1 : -1));
+    } else {
+      let dq = supabase
+        .from('political_donations')
+        .select(DONATION_COLS)
+        .order('accepted_date', { ascending: false })
+        .limit(2000);
+      for (const t of ranked) {
+        dq = dq.ilike('donor_name', `%${t}%`);
+      }
+      const { data: rawDonations, error: donErr } = await dq;
+      if (donErr) throw new Error(`donor donations: ${donErr.message}`);
+      donations = ((rawDonations || []) as unknown as DonationRow[]).filter((d) => d.donor_name && donorNameToSlug(d.donor_name) === slug);
+    }
+    return donations;
+  });
 
 type ResolvedDonor = { name: string; names: string[] | null; others: { slug: string; label: string }[] };
 
@@ -184,36 +224,7 @@ export default async function DonorPage({ params }: PageProps) {
   // newest first); otherwise the old word search, filtered to names whose slug matches.
   const ranked = narrowTokens(slug);
   const DONATION_COLS = 'id, donor_name, donor_type, donor_status, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, accounting_unit_name, is_anonymous, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, trust_name, trust_creator_name, company_registration_number, addr_line1, addr_town, addr_country, ec_ref, is_bequest';
-  let donations: DonationRow[] = [];
-  if (resolved.names) {
-    for (let i = 0; i < resolved.names.length; i += 100) {
-      const chunk = resolved.names.slice(i, i + 100);
-      for (let from = 0; ; from += 1000) {
-        // Every name quoted: supabase-js's .in() quotes a value only when it holds a comma or a bracket, and PostgREST
-        // trims an unquoted one, so a name stored with a leading space (" Christopher Harborne") would match nothing.
-        const list = `(${chunk.map((n) => `"${n.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`).join(',')})`;
-        const { data, error } = await supabase.from('political_donations').select(DONATION_COLS)
-          .filter('donor_name', 'in', list).order('accepted_date', { ascending: false }).order('id', { ascending: true }).range(from, from + 999);
-        if (error) throw new Error(`donor donations: ${error.message}`);
-        donations.push(...((data ?? []) as DonationRow[]));
-        if (!data || data.length < 1000) break;
-      }
-    }
-    // Newest first across all spellings (no date first, as the database orders them).
-    donations.sort((a, b) => (a.accepted_date === b.accepted_date ? a.id - b.id : !a.accepted_date ? -1 : !b.accepted_date ? 1 : a.accepted_date < b.accepted_date ? 1 : -1));
-  } else {
-    let dq = supabase
-      .from('political_donations')
-      .select(DONATION_COLS)
-      .order('accepted_date', { ascending: false })
-      .limit(2000);
-    for (const t of ranked) {
-      dq = dq.ilike('donor_name', `%${t}%`);
-    }
-    const { data: rawDonations, error: donErr } = await dq;
-    if (donErr) throw new Error(`donor donations: ${donErr.message}`);
-    donations = ((rawDonations || []) as DonationRow[]).filter((d) => d.donor_name && donorNameToSlug(d.donor_name) === slug);
-  }
+  const donations: DonationRow[] = await loadDonations(resolved.names, ranked, slug, DONATION_COLS);
 
   if (donations.length === 0) notFound();
 
@@ -272,11 +283,11 @@ export default async function DonorPage({ params }: PageProps) {
   const recipientRows = Array.from(byRecipient.values()).sort((a, b) => b.total - a.total);
 
   // Cross-link: APPGs this donor funds (using their canonical name)
-  const { data: appgFunderHits, error: appgFunderHitsErr } = await supabase
+  const { data: appgFunderHits, error: appgFunderHitsErr } = await cachedQuery(['q:app/donors/[slug]/page.tsx:f8e77b0e7d', JSON.stringify([ranked, canonicalName])], tableTags('appg_funders'), () => supabase
     .from('appg_funders')
     .select('appg_slug, value_band, description, received_date, source')
     .ilike('source', `%${ranked[0] ?? canonicalName}%`)
-    .limit(200);
+    .limit(200));
   if (appgFunderHitsErr && appgFunderHitsErr.code !== 'PGRST116') throw new Error(`/donors/[slug] appg_funders: ${appgFunderHitsErr.message}`);
   const matchedAppgFunderRows = (appgFunderHits || []).filter(
     (f: { source: string }) => donorNameToSlug(f.source) === slug,
@@ -291,13 +302,13 @@ export default async function DonorPage({ params }: PageProps) {
   type ContractRow = { id: number; dept_slug: string; title: string | null; value: number | null; awarded_date: string | null; supplier: string | null; ocid: string | null; is_framework: boolean };
   let numberMatched: ContractRow[] = [];
   if (donorNumbers.length) {
-    const { data: contractHits, error: contractHitsErr } = await supabase
+    const { data: contractHits, error: contractHitsErr } = await cachedQuery(['q:app/donors/[slug]/page.tsx:546b2e5bae', JSON.stringify([donorNumbers])], tableTags('organisation_contracts'), () => supabase
       .from('organisation_contracts')
       .select('id, dept_slug, title, value, awarded_date, supplier, ocid, is_framework')
       .in('company_number', donorNumbers)
       .eq('superseded', false)
       .order('awarded_date', { ascending: false, nullsFirst: false })
-      .limit(2000);
+      .limit(2000));
     if (contractHitsErr) throw new Error(`/donors/[slug] organisation_contracts: ${contractHitsErr.message}`);
     numberMatched = (contractHits || []) as ContractRow[];
   }
@@ -358,10 +369,10 @@ export default async function DonorPage({ params }: PageProps) {
   let appgsFunded: Array<{ slug: string; title: string; category: string | null }> = [];
   if (matchedAppgFunderRows.length > 0) {
     const slugs = Array.from(new Set(matchedAppgFunderRows.map((f) => f.appg_slug)));
-    const { data: appgRows, error: appgRowsErr } = await supabase
+    const { data: appgRows, error: appgRowsErr } = await cachedQuery(['q:app/donors/[slug]/page.tsx:ecc607f774', JSON.stringify([slugs])], tableTags('appgs'), () => supabase
       .from('appgs')
       .select('slug, title, category')
-      .in('slug', slugs);
+      .in('slug', slugs));
     if (appgRowsErr && appgRowsErr.code !== 'PGRST116') throw new Error(`/donors/[slug] appgs: ${appgRowsErr.message}`);
     appgsFunded = (appgRows || []) as Array<{ slug: string; title: string; category: string | null }>;
   }
@@ -377,7 +388,7 @@ export default async function DonorPage({ params }: PageProps) {
   if (uniqueMpNames.length > 0) {
     // For each unique recipient name, try to find a current MP that matches.
     // We just need first-word + last-word substring match.
-    const { data: mps, error: mpsErr } = await supabase.from('mps').select('member_id, display_name, name').eq('current_member', true);
+    const { data: mps, error: mpsErr } = await cachedQuery(['q:app/donors/[slug]/page.tsx:fda0ab2a36'], tableTags('mps'), () => supabase.from('mps').select('member_id, display_name, name').eq('current_member', true));
     if (mpsErr && mpsErr.code !== 'PGRST116') throw new Error(`/donors/[slug] mps: ${mpsErr.message}`);
     if (mps) {
       for (const rn of uniqueMpNames) {

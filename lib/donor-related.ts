@@ -9,13 +9,15 @@ import { readAll } from '@/lib/read-all';
 import { donorRegistry, type DonorPageEntry } from '@/lib/donor-registry';
 // The name rules, without database reads (lib/donor-name-match.ts, 13 Nov 2026), so the sitemap and tests can use them.
 import { normalisedDonorWords, donorNameKey, editDistanceAtMost, SMALL_MAX, LARGE_MIN } from '@/lib/donor-name-match';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 export { normalisedDonorWords, donorNameKey, minorSpellingSlugs } from '@/lib/donor-name-match';
 
 export type RelatedDonorName = { name: string; slug: string };
 
 // Other donor pages whose normalised name shares the first and last word with this one. Each linked page exists
 // (donorPageSlug); the current page and repeats of one page are left out. Read only.
-export async function relatedDonorNames(name: string, ownSlug: string): Promise<RelatedDonorName[]> {
+async function relatedDonorNamesRead(name: string, ownSlug: string): Promise<RelatedDonorName[]> {
   const key = donorNameKey(name);
   if (!key) return [];
   const [first, last] = key.split('|');
@@ -55,7 +57,7 @@ export async function relatedDonorNames(name: string, ownSlug: string): Promise<
 // same first and last word (donorNameKey), or names that differ by one or two letters. The larger page must have at
 // least 5 records and five times as many.
 
-export async function mainSpellingFor(slug: string): Promise<RelatedDonorName | null> {
+async function mainSpellingForRead(slug: string): Promise<RelatedDonorName | null> {
   const { bySlug } = await donorRegistry();
   const own = bySlug.get(slug);
   if (!own || own.records > SMALL_MAX) return null;
@@ -72,3 +74,6 @@ export async function mainSpellingFor(slug: string): Promise<RelatedDonorName | 
   return best ? { name: best.e.label, slug: best.e.slug } : null;
 }
 
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tables' tags, no timer.
+export const relatedDonorNames = (...a: Parameters<typeof relatedDonorNamesRead>) => tagged(['relatedDonorNames-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('political_donations'), () => relatedDonorNamesRead(...a));
+export const mainSpellingFor = (...a: Parameters<typeof mainSpellingForRead>) => tagged(['mainSpellingFor-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('political_donations'), () => mainSpellingForRead(...a));

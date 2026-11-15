@@ -49,7 +49,6 @@
   "page /donations/sponsored-visits",
   "page /donations/trust-funded",
   "page /donors",
-  "page /donors/[slug]",
   "page /earnings",
   "page /editorials/[slug]",
   "page /editorials/[slug]/sources",

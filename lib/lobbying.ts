@@ -15,6 +15,8 @@ import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
 
 import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 export { ORG_TYPE_LABEL, type OrgType };
 
 export type RankingRow = {
@@ -171,7 +173,7 @@ export const getOrgBySlug = cache(async (slug: string): Promise<RankingRow | nul
 
 // Every meeting entry naming the organisation, newest first; an entry that names it twice
 // is listed once.
-export const getOrgMeetings = cache(async (orgId: number): Promise<OrgMeeting[]> => {
+export const getOrgMeetings = cache((orgId: number): Promise<OrgMeeting[]> => tagged(['getOrgMeetings-v1', JSON.stringify(orgId ?? null)], tableTags('lobby_meeting_mentions'), async () => {
   const rows = await readAll<OrgMeeting & { position: number }>((from, to) =>
     supabase
       .from('lobby_meeting_mentions')
@@ -191,10 +193,10 @@ export const getOrgMeetings = cache(async (orgId: number): Promise<OrgMeeting[]>
     out.push(r);
   }
   return out;
-});
+}));
 
 // Consultant lobbying firms that named the organisation as a client, with the quarters.
-export const getOrgLobbying = cache(async (orgId: number): Promise<OrgLobbying[]> => {
+export const getOrgLobbying = cache((orgId: number): Promise<OrgLobbying[]> => tagged(['getOrgLobbying-v1', JSON.stringify(orgId ?? null)], tableTags('orcl_client_returns'), async () => {
   const rows = await readAll<{ firm_name: string; firm_norm: string; client_name: string; quarter_start: string; quarter_label: string }>((from, to) =>
     supabase
       .from('orcl_client_returns')
@@ -211,4 +213,4 @@ export const getOrgLobbying = cache(async (orgId: number): Promise<OrgLobbying[]
     byFirm.set(r.firm_norm, f);
   }
   return [...byFirm.values()].sort((a, b) => (b.quarters[0]?.start || '').localeCompare(a.quarters[0]?.start || '') || a.firm.localeCompare(b.firm));
-});
+}));

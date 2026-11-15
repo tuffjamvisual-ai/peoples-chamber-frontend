@@ -15,6 +15,7 @@ import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 import { noteChanged } from '@/lib/refresh-count';
 import { runAppgSync } from '@/lib/appg-dataset';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 240;
@@ -50,6 +51,9 @@ async function GET_impl(req: Request) {
   const changedMps = run.changedMps as Set<number>;
   noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
+  // A16 (owner rule 15 Nov 2026, ENTRY 129): the APPG tables' tags, only when rows were written.
+  const w = (run.result as { written?: { appgs?: number; officers?: number; funders?: number } }).written ?? {};
+  if (!dry && (w.appgs ?? 0) + (w.officers ?? 0) + (w.funders ?? 0) > 0) refreshTables('appgs', 'appg_officers', 'appg_funders');
 
   return NextResponse.json({
     ok: true,

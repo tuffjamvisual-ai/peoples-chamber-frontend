@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { refreshStore } from '@/lib/refresh-stores';
+import { tableFingerprint } from '@/lib/table-fingerprint';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 180;
@@ -20,11 +22,21 @@ async function GET_impl(req: Request) {
   if (!bearerMatches(req.headers.get('authorization'), expected)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
+  // A16 (owner rule 15 Nov 2026, ENTRY 129): the rebuild replaces every row daily; the pages that read these views are
+  // refreshed only if the rebuilt rows differ from before (a fingerprint of each view, refresh times left out).
+  const fp = async () => Promise.all([
+    tableFingerprint(supabaseAdmin, 'organisation_index', 'slug', ['refreshed_at']),
+    tableFingerprint(supabaseAdmin, 'organisation_contracts', 'id'),
+  ]).then((x) => x.join('|')).catch(() => null);
+  const before = await fp();
   const r = await refreshStore(supabaseAdmin, 'refresh_organisation_index');
+  const after = r.ok ? await fp() : null;
+  const changed = r.ok && (before === null || after === null || before !== after);
+  if (changed) refreshTables('organisation_index', 'organisation_contracts');
   if (r.ok && !(typeof r.result === 'number' && r.result > 0)) {
     return NextResponse.json({ ok: false, error: `refresh returned ${String(r.result)} rows`, ms: r.ms }, { status: 500 });
   }
-  return NextResponse.json({ ok: r.ok, rows: typeof r.result === 'number' ? r.result : null, ms: r.ms, ...(r.error ? { error: r.error } : {}) },
+  return NextResponse.json({ ok: r.ok, rows: typeof r.result === 'number' ? r.result : null, ms: r.ms, changed, ...(r.error ? { error: r.error } : {}) },
     { status: r.ok ? 200 : 500 });
 }
 

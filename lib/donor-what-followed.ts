@@ -9,6 +9,8 @@
 import { supabase } from '@/lib/supabase';
 import { normaliseCompanyNumber, getOrgRegistryRecords, type OrgIndexRow, type OrgGrant } from '@/lib/organisations';
 import type { OrgMeeting } from '@/lib/lobbying';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export const WHAT_FOLLOWED_CAP = 50;
 
@@ -33,7 +35,7 @@ function numberStrings(numbers: string[], raws: string[]): string[] {
   return [...out].filter((s) => s && want.has(normaliseCompanyNumber(s) ?? ''));
 }
 
-export async function getDonorWhatFollowed(numbers: string[], raws: string[]): Promise<WhatFollowedData | null> {
+async function getDonorWhatFollowedRead(numbers: string[], raws: string[]): Promise<WhatFollowedData | null> {
   if (numbers.length === 0) return null;
   try {
     const strings = numberStrings(numbers, raws);
@@ -73,3 +75,6 @@ export async function getDonorWhatFollowed(numbers: string[], raws: string[]): P
     return null;
   }
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tables' tags, no timer.
+export const getDonorWhatFollowed = (...a: Parameters<typeof getDonorWhatFollowedRead>) => tagged(['getDonorWhatFollowed-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('government_grants', 'organisation_index', 'lobby_meeting_mentions', 'orcl_client_returns'), () => getDonorWhatFollowedRead(...a));
