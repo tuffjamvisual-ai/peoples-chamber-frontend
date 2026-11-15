@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const MONO = "var(--font-special-elite), monospace";

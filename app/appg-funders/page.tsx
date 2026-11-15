@@ -14,8 +14,10 @@ import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll, inList } from '@/lib/read-all';
 import { storedSpellings } from '@/lib/donor-registry';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { cachedQuery, tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'APPG funders: who pays for All-Party Parliamentary Groups' },
@@ -30,11 +32,11 @@ const ACCENT = '#7a1612';
 
 export default async function AppgFundersIndex() {
   // Pull every funder row with appg slug. ~520 rows total.
-  const { data: funders, error: fundersErr } = await supabase
+  const { data: funders, error: fundersErr } = await cachedQuery(['q:app/appg-funders/page.tsx:618db7d76e'], tableTags('appg_funders'), () => supabase
     .from('appg_funders')
     .select('source, appg_slug, value_band')
     .not('source', 'is', null)
-    .limit(2000);
+    .limit(2000));
   if (fundersErr && fundersErr.code !== 'PGRST116') throw new Error(`/appg-funders appg_funders: ${fundersErr.message}`);
 
   type Agg = { name: string; appgs: Set<string>; paymentLines: number };
@@ -63,12 +65,12 @@ export default async function AppgFundersIndex() {
     // Every stored spelling of each name, quoted, so donor names saved with leading or trailing spaces match, and every
     // row via lib/read-all.ts (the old .limit(2000) stopped at the API's 1,000 rows). 24 Oct 2026, report 37.
     const spellings = await storedSpellings(multi.map((m) => m.name));
-    const ec = await readAll<{ donor_name: string | null }>(() => supabase.from('political_donations'), {
+    const ec = await tagged(['ra:app/appg-funders/page.tsx:949bece289', JSON.stringify([spellings])], tableTags('political_donations'), () => readAll<{ donor_name: string | null }>(() => supabase.from('political_donations'), {
       columns: 'id, donor_name',
       filter: (q) => q.filter('donor_name', 'in', inList(spellings)),
       orderBy: 'id',
       label: '/appg-funders political_donations',
-    });
+    }));
     for (const r of ec) {
       if (r.donor_name?.trim()) ecMatchedSlugs.add(donorNameToSlug(r.donor_name.trim()));
     }

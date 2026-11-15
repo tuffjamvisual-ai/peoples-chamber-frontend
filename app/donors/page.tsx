@@ -17,7 +17,7 @@ import '../components/phone-table.css';
 import { SubFold } from '../components/PhoneFolds';
 import { phoneUpTo } from '@/lib/breakpoints';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: "UK Political Donors: Who Funds Westminster",
@@ -107,7 +107,7 @@ const rankDonors = unstable_cache(async (): Promise<{ top: Ranked[]; publicListe
   const publicListed = everyone.slice(0, 200).filter((d) => d.isPublic);
   const publicOthers = everyone.filter((d) => d.isPublic).length - publicListed.length;
   return { top, publicListed, publicOthers };
-}, ['donors-ranking-v1'], { tags: [DONATIONS_TAG], revalidate: 86400 });
+}, ['donors-ranking-v1'], { tags: [DONATIONS_TAG], revalidate: false });
 
 export default async function DonorsIndex() {
   const { top, publicListed, publicOthers } = await rankDonors();

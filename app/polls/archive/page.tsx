@@ -4,8 +4,11 @@ import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink'
 import { SubFold } from '../../components/PhoneFolds'
 import { ShowAll } from '../../components/NoJsPager'
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const dynamic = 'force-dynamic'
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
+
 
 export const metadata: Metadata = {
   title: 'Archived Polls',
@@ -37,11 +40,11 @@ const httpsSources = (s: Poll['explainer_sources']) =>
   (Array.isArray(s) ? s : []).filter((x) => x && typeof x.url === 'string' && x.url.startsWith('https://') && typeof x.label === 'string' && x.label.trim())
 
 export default async function ArchivedPollsPage() {
-  const { data, error: dataErr } = await supabase
+  const { data, error: dataErr } = await cachedQuery(['q:app/polls/archive/page.tsx:0632641ee0'], tableTags('polls'), () => supabase
     .from('polls')
     .select('id, question, constituency, vote_count_yes, vote_count_no, explainer, explainer_sources')
     .eq('archived', true)
-    .order('id', { ascending: false })
+    .order('id', { ascending: false }))
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/polls/archive polls: ${dataErr.message}`);
 
   const polls = (data || []) as Poll[]

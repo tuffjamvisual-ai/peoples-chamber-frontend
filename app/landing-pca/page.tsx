@@ -7,6 +7,8 @@ import MpDossier from '../mps/[id]/MpDossier';
 import { mpPay } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import { displayMpName } from '@/lib/mp-name';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 
 const PAGE_METADATA: Metadata = {
@@ -19,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // ISR — render once, serve cached for 6h.
-export const revalidate = 21600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 // Demo of the dossier profile template (Charlie Dewhirst, member 5169). The live profile
 // pages at /mps/[id] render the same shared <MpDossier> with each MP's own data.
@@ -30,17 +32,17 @@ export default async function LandingPcaPage() {
     mpRes, contactRes, bioRes, sponsoredBillsRes, votesRes, interestsRes,
     expensesRes, expensesDetailRes, pay, outsideRowRes, siDivisionsRes,
   ] = await Promise.all([
-    supabase.from('mps').select('*').eq('member_id', memberId).single(),
-    supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
+    cachedQuery(['q:app/landing-pca/page.tsx:b72a2cc083', JSON.stringify([memberId])], tableTags('mps'), () => supabase.from('mps').select('*').eq('member_id', memberId).single()),
+    cachedQuery(['q:app/landing-pca/page.tsx:183a6a1541', JSON.stringify([memberId])], tableTags('mp_contact'), () => supabase.from('mp_contact').select('*').eq('member_id', memberId).single()),
     getMpBiography(supabase, memberId),
-    supabase.from('bill').select('id, title, status, current_stage, plain_summary, is_act, last_update').eq('sponsor_member_id', memberId).is('hidden_reason', null).order('created_at', { ascending: false }),
-    supabase.from('mp_division_votes').select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id').eq('member_id', memberId).order('division_date', { ascending: false }).range(0, 199),
-    supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true }),
-    supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
-    supabase.from('mp_expenses_detail').select('claim_number, year, claim_date, category, cost_type, short_description, amount_paid, status').eq('member_id', memberId).order('claim_date', { ascending: false }).range(0, 49),
+    cachedQuery(['q:app/landing-pca/page.tsx:b809a5dffc', JSON.stringify([memberId])], tableTags('bill'), () => supabase.from('bill').select('id, title, status, current_stage, plain_summary, is_act, last_update').eq('sponsor_member_id', memberId).is('hidden_reason', null).order('created_at', { ascending: false })),
+    cachedQuery(['q:app/landing-pca/page.tsx:e9dbcf1ecd', JSON.stringify([memberId])], tableTags('mp_division_votes'), () => supabase.from('mp_division_votes').select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id').eq('member_id', memberId).order('division_date', { ascending: false }).range(0, 199)),
+    cachedQuery(['q:app/landing-pca/page.tsx:2b5e9c48b1', JSON.stringify([memberId])], tableTags('mp_registered_interests'), () => supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true })),
+    cachedQuery(['q:app/landing-pca/page.tsx:1345cf0f50', JSON.stringify([memberId])], tableTags('mp_expenses_summary'), () => supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false })),
+    cachedQuery(['q:app/landing-pca/page.tsx:1c8c76d6bb', JSON.stringify([memberId])], tableTags('mp_expenses_detail'), () => supabase.from('mp_expenses_detail').select('claim_number, year, claim_date, category, cost_type, short_description, amount_paid, status').eq('member_id', memberId).order('claim_date', { ascending: false }).range(0, 49)),
     mpPay(memberId),
-    supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
-    supabase.from('statutory_instrument').select('division_id'),
+    cachedQuery(['q:app/landing-pca/page.tsx:9ee4a9fe95', JSON.stringify([memberId])], tableTags('mp_outside_earnings_summary'), () => supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle()),
+    cachedQuery(['q:app/landing-pca/page.tsx:96680e83b3'], tableTags('statutory_instrument'), () => supabase.from('statutory_instrument').select('division_id')),
   ]);
   const mp = mpRes.data;
   const siDivisionIds = new Set<number>((siDivisionsRes.data || []).map((r: { division_id: number }) => r.division_id));

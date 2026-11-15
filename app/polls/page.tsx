@@ -4,7 +4,7 @@ import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 import { PHONE } from '@/lib/breakpoints';
 import VotingIntegrity from '../components/VotingIntegrity';
-import { timedClient } from '@/lib/page-reads';
+import { tagDb } from '@/lib/page-reads';
 import type { Poll } from './PollsClient';
 
 export const metadata: Metadata = {
@@ -16,11 +16,11 @@ export const metadata: Metadata = {
 
 // The open polls are read here, on the server (T1-CITE, Cowork 13 Nov 2026), so the page arrives with them and their count,
 // with or without JavaScript; it used to arrive saying "0 polls" and "Loading polls…" until the script fetched them.
-// Rebuilt every 5 minutes; PollsClient still refreshes the counts on load. A failed read falls back to loading them there.
-export const revalidate = 300;
+// Rebuilt when a vote or a poll change refreshes the polls tag (A16); PollsClient still refreshes the counts on load. A failed read falls back to loading them there.
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export default async function PollsPage() {
-  const { data, error } = await timedClient(300)
+  const { data, error } = await tagDb()
     .from('polls')
     .select('*')
     .eq('archived', false)
