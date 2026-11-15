@@ -16,7 +16,7 @@ import NoJsPager, { NoJsFold, ShowAll } from '@/app/components/NoJsPager';
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { pageDb, DONATIONS_TAG, setPageReadTimer } from '@/lib/page-reads';
+import { DONATIONS_TAG, tagDb } from '@/lib/page-reads';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
 import { sectorForDonor } from '@/lib/donor-sectors';
@@ -27,15 +27,15 @@ import AboutThisData from '../../../components/AboutThisData';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 import BackLink from '@/app/components/BackLink';
-export const revalidate = 21600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
 // cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
 // reads in 48 h, none from the cache). That cache survives deploys, so those renders read from it instead of the
 // database. Corrected 30 Oct 2026: this line alone keeps a read with no timer of its own FOR EVER (Next sets
 // INFINITE_CACHE), not for the page's revalidate period, so the hourly rebuild showed old rows. Every read here now
-// has its own timer: setPageReadTimer(revalidate) below makes pageDb() reads (lib/page-reads.ts) last the page's
+// has its own timer: setPageReadTimer(revalidate) below makes tagDb() reads (lib/page-reads.ts) last the page's
 // period, under a tag where a sync refreshes one; other reads are tagged unstable_cache reads with their own timers.
-// A stale entry is read again before the page is stored. Keep it that way: a new read on this page must use pageDb()
+// A stale entry is read again before the page is stored. Keep it that way: a new read on this page must use tagDb()
 // or have its own timer, or it will never change.
 export const fetchCache = 'default-cache';
 export function generateStaticParams() { return []; }
@@ -65,9 +65,8 @@ type Donation = {
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  setPageReadTimer(revalidate);
   const { slug } = await params;
-  const { data: party, error: partyErr } = await pageDb().from('parties').select('name').eq('slug', slug).maybeSingle();
+  const { data: party, error: partyErr } = await tagDb().from('parties').select('name').eq('slug', slug).maybeSingle();
   if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/money parties: ${partyErr.message}`);
   // No party has this address: a real 404 with noindex, as /mps/99999999 (T1-DONOR404, owner approved 12 Nov 2026).
   if (!party) notFound();
@@ -80,9 +79,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function PartyMoney({ params }: { params: Promise<{ slug: string }> }) {
-  setPageReadTimer(revalidate);
   const { slug } = await params;
-  const { data: partyRow, error: partyRowErr } = await pageDb()
+  const { data: partyRow, error: partyRowErr } = await tagDb()
     .from('parties')
     .select('slug, name, party_colour, recipient_name, mp_party_string')
     .eq('slug', slug)
@@ -104,7 +102,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
   // Most major parties have 10-20k records; pagination handles it.
   // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces paged
   // with no order and stopped quietly on an error.
-  const donations = await readAll<Donation>(() => pageDb([DONATIONS_TAG]).from('political_donations'), {
+  const donations = await readAll<Donation>(() => tagDb([DONATIONS_TAG]).from('political_donations'), {
     columns: 'id, donor_name, donor_type, amount, accepted_date, received_date, reported_date, accounting_unit_name, nature',
     filter: (q) => q.eq('recipient_name', party.recipient_name),
     orderBy: 'id',

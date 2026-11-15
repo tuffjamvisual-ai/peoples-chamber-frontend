@@ -15,8 +15,10 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ManifestoPicker, { type ThemeRow } from './ManifestoPicker';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -86,20 +88,20 @@ const MP_PARTY_TO_SLUG: Record<string, string> = {
 
 async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Record<string, Policy>>; mpCounts: Record<string, number> }> {
   const [{ data: partyRows, error: partyRowsErr }, { data: policyRows, error: policyRowsErr }, { data: mpRows, error: mpRowsErr }] = await Promise.all([
-    supabase
+    cachedQuery(['q:app/parties/manifestos/page.tsx:017356bc38'], tableTags('parties'), () => supabase
       .from('parties')
       .select('slug, name, party_colour, founded_year')
       // Drop Speaker + Independents from the comparison grid — they
       // are not parties with manifestos.
       .not('slug', 'in', '(speaker,independent)')
-      .order('name'),
-    supabase
+      .order('name')),
+    cachedQuery(['q:app/parties/manifestos/page.tsx:a6e2f1cf78'], tableTags('party_policies'), () => supabase
       .from('party_policies')
-      .select('party_slug, theme, manifesto_position, current_shift'),
-    supabase
+      .select('party_slug, theme, manifesto_position, current_shift')),
+    cachedQuery(['q:app/parties/manifestos/page.tsx:b4cde23639'], tableTags('mps'), () => supabase
       .from('mps')
       .select('party')
-      .eq('current_member', true),
+      .eq('current_member', true)),
   ]);
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [partyRowsErr, policyRowsErr, mpRowsErr]) if (e && e.code !== 'PGRST116') throw new Error(`/parties (parties, party_policies, mps): ${e.message}`);

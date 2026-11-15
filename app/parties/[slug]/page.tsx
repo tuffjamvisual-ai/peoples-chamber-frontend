@@ -18,13 +18,15 @@ import { THEME_TOPIC, partySecondJobs } from '@/lib/party-links';
 import { PHONE } from '@/lib/breakpoints';
 
 import BackLink from '@/app/components/BackLink';
-export const revalidate = 21600;
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/parties/[slug]/page.tsx:8dd3758443'], tableTags('parties'), () => supabase
     .from('parties')
     .select('slug')
-    .limit(20);
+    .limit(20));
   if (error || !data?.length) throw new Error(`generateStaticParams parties: ${error?.message || 'zero rows'}`);
   const slugs = data.map((r) => String(r.slug)).filter(Boolean);
   if (!slugs.length) throw new Error('generateStaticParams parties: zero usable values');
@@ -64,16 +66,16 @@ async function getPartyAndPolicies(slug: string): Promise<{
   donationsTotal: number;
 }> {
   const [{ data: partyRow, error: partyErr }, { data: policyRows, error: policyErr }] = await Promise.all([
-    supabase
+    cachedQuery(['q:app/parties/[slug]/page.tsx:6cfe9f888e', JSON.stringify([slug])], tableTags('parties'), () => supabase
       .from('parties')
       .select('slug, name, party_colour, website, founded_year, brief, critique, mp_party_string, recipient_name')
       .eq('slug', slug)
-      .maybeSingle(),
-    supabase
+      .maybeSingle()),
+    cachedQuery(['q:app/parties/[slug]/page.tsx:a405081369', JSON.stringify([slug])], tableTags('party_policies'), () => supabase
       .from('party_policies')
       .select('theme, theme_order, position_label, manifesto_position, manifesto_source, current_shift, shift_source, last_verified')
       .eq('party_slug', slug)
-      .order('theme_order', { ascending: true }),
+      .order('theme_order', { ascending: true })),
   ]);
 
   // A failed read throws (owner's approval, 21 Oct 2026); before, it fell through to "no party" and a cached 404.
@@ -93,10 +95,10 @@ async function getPartyAndPolicies(slug: string): Promise<{
       party.slug === 'labour'
         ? ['Labour', 'Labour (Co-op)', 'Labour and Co-operative']
         : [party.mp_party_string];
-    const { count, error: countErr } = await supabase
+    const { count, error: countErr } = await cachedQuery(['q:app/parties/[slug]/page.tsx:c96827edad', JSON.stringify([variants])], tableTags('mps'), () => supabase
       .from('mps')
       .select('member_id', { count: 'exact', head: true })
-      .in('party', variants);
+      .in('party', variants));
     if (countErr) throw new Error(`mps count ${slug}: ${countErr.message}`);
     mpCount = count || 0;
   }
@@ -106,7 +108,7 @@ async function getPartyAndPolicies(slug: string): Promise<{
   // most 1,000 rows, so parties with more donations than that showed a partial total.
   let donationsTotal = 0;
   if (party.recipient_name) {
-    const { data: total, error: totalErr } = await supabase.rpc('party_donations_total', { p_recipient_name: party.recipient_name });
+    const { data: total, error: totalErr } = await cachedQuery(['q:app/parties/[slug]/page.tsx:6d4e1eae22', JSON.stringify([party.recipient_name])], tableTags('political_donations'), () => supabase.rpc('party_donations_total', { p_recipient_name: party.recipient_name }));
     if (totalErr) throw new Error(`party_donations_total: ${totalErr.message}`);
     donationsTotal = Number(total) || 0;
   }
@@ -134,7 +136,7 @@ function sourceLabel(url: string): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data: party, error: partyErr2 } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  const { data: party, error: partyErr2 } = await cachedQuery(['q:app/parties/[slug]/page.tsx:e73e5db871', JSON.stringify([slug])], tableTags('parties'), () => supabase.from('parties').select('name').eq('slug', slug).maybeSingle());
   if (partyErr2 && partyErr2.code !== 'PGRST116') throw new Error(`/parties/[slug] parties: ${partyErr2.message}`);
   // No party has this address: a real 404 with noindex, as /mps/99999999 (T1-DONOR404, owner approved 12 Nov 2026).
   if (!party) notFound();

@@ -4,6 +4,8 @@
 import { supabase } from '@/lib/supabase';
 import { partyToSlug } from '@/app/second-jobs/_lib/data';
 import type { ReadNextLink } from '@/lib/read-next';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // party_policies.theme -> lib/topics.ts slug
 export const THEME_TOPIC: Record<string, { slug: string; title: string }> = {
@@ -25,7 +27,7 @@ export const THEME_TOPIC: Record<string, { slug: string; title: string }> = {
 export async function partySecondJobs(mpPartyString: string | null): Promise<{ slug: string; count: number } | null> {
   if (!mpPartyString) return null;
   const slug = partyToSlug(mpPartyString);
-  const { data, error } = await supabase.rpc('second_jobs_summary');
+  const { data, error } = await cachedQuery(['q:lib/party-links.ts:e2335eb8ca'], tableTags('mp_outside_earnings_summary', 'mp_registered_interests'), () => supabase.rpc('second_jobs_summary'));
   if (error) throw new Error(`second_jobs_summary: ${error.message}`);
   const mps = ((data as { mps?: { party: string | null }[] } | null)?.mps) || [];
   const count = mps.filter((m) => partyToSlug(m.party) === slug).length;

@@ -21,13 +21,15 @@ import { PHONE } from '@/lib/breakpoints';
 import BackLink from '@/app/components/BackLink';
 import { redirect } from 'next/navigation';
 import { partyVerdictShown } from '@/lib/party-verdict';
-export const revalidate = 21600;
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/parties/[slug]/bio/page.tsx:8dd3758443'], tableTags('parties'), () => supabase
     .from('parties')
     .select('slug')
-    .limit(20);
+    .limit(20));
   if (error || !data?.length) throw new Error(`generateStaticParams parties (bio): ${error?.message || 'zero rows'}`);
   const slugs = data.map((r) => String(r.slug)).filter(Boolean);
   if (!slugs.length) throw new Error('generateStaticParams parties/bio: zero usable values');
@@ -46,11 +48,11 @@ type Party = {
 };
 
 async function getPartyBio(slug: string): Promise<Party | null> {
-  const { data: partyRow, error } = await supabase
+  const { data: partyRow, error } = await cachedQuery(['q:app/parties/[slug]/bio/page.tsx:b875405684', JSON.stringify([slug])], tableTags('parties'), () => supabase
     .from('parties')
     .select('slug, name, party_colour, critique, mp_party_string, evidence')
     .eq('slug', slug)
-    .maybeSingle();
+    .maybeSingle());
   // A failed read throws (owner's approval, 21 Oct 2026) rather than showing "Party not found".
   if (error) throw new Error(`parties ${slug}: ${error.message}`);
   return (partyRow as Party | null) || null;
@@ -58,7 +60,7 @@ async function getPartyBio(slug: string): Promise<Party | null> {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data: party, error: partyErr } = await supabase.from('parties').select('name, critique').eq('slug', slug).maybeSingle();
+  const { data: party, error: partyErr } = await cachedQuery(['q:app/parties/[slug]/bio/page.tsx:f1f49ceae1', JSON.stringify([slug])], tableTags('parties'), () => supabase.from('parties').select('name, critique').eq('slug', slug).maybeSingle());
   if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/bio parties: ${partyErr.message}`);
   const name = party?.name || 'Party';
   // Title and description (owner, 7 Nov 2026, L4): "<Party>: <what the page covers>", the longest that fits in 60

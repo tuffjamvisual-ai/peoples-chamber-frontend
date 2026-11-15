@@ -5,8 +5,6 @@
     "/second-jobs",
     "/second-jobs/[slug]",
     "/second-jobs/[slug]/[memberId]",
-    "/parties/[slug]",
-    "/parties/[slug]/bio",
     "/lobbying",
     "/lobbying/[slug]",
     "/organisations",

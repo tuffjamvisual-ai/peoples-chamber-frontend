@@ -19,7 +19,9 @@ import PartySidebar from '../../../components/PartySidebar';
 import { displayMpName } from '@/lib/mp-name';
 
 import BackLink from '@/app/components/BackLink';
-export const revalidate = 21600;
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';
@@ -36,7 +38,7 @@ type Party = {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const { data: party, error: partyErr } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  const { data: party, error: partyErr } = await cachedQuery(['q:app/parties/[slug]/whip/page.tsx:e73e5db871', JSON.stringify([slug])], tableTags('parties'), () => supabase.from('parties').select('name').eq('slug', slug).maybeSingle());
   if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/whip parties: ${partyErr.message}`);
   // No party has this address: a real 404 with noindex, as /mps/99999999 (T1-DONOR404, owner approved 12 Nov 2026).
   if (!party) notFound();
@@ -51,11 +53,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PartyWhip({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data: partyRow, error: partyRowErr } = await supabase
+  const { data: partyRow, error: partyRowErr } = await cachedQuery(['q:app/parties/[slug]/whip/page.tsx:84c1c90571', JSON.stringify([slug])], tableTags('parties'), () => supabase
     .from('parties')
     .select('slug, name, party_colour, mp_party_string')
     .eq('slug', slug)
-    .maybeSingle();
+    .maybeSingle());
   if (partyRowErr && partyRowErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/whip parties: ${partyRowErr.message}`);
   const party = partyRow as Party | null;
 
@@ -86,12 +88,12 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   type StatRow = { member_id: number; votes: number; rebellions: number; last_vote: string };
   const splits: SplitRow[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await supabase
+    const { data, error } = await cachedQuery(['q:app/parties/[slug]/whip/page.tsx:57268bcfef', JSON.stringify([partyName, from])], tableTags('party_division_splits'), () => supabase
       .from('party_division_splits')
       .select('division_id, division_date_only, division_number, division_title, ayes, noes')
       .eq('party', partyName)
       .order('division_id')
-      .range(from, from + 999);
+      .range(from, from + 999));
     if (error) throw new Error(`/parties/${slug}/whip party_division_splits: ${error.message}`); // loud, not partial (report 36)
     if (!data) break;
     splits.push(...(data as SplitRow[]));
@@ -99,12 +101,12 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   }
   const stats: StatRow[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await supabase
+    const { data, error } = await cachedQuery(['q:app/parties/[slug]/whip/page.tsx:e07111f3c8', JSON.stringify([partyName, from])], tableTags('party_member_vote_stats'), () => supabase
       .from('party_member_vote_stats')
       .select('member_id, votes, rebellions, last_vote')
       .eq('party', partyName)
       .order('member_id')
-      .range(from, from + 999);
+      .range(from, from + 999));
     if (error) throw new Error(`/parties/${slug}/whip party_member_vote_stats: ${error.message}`); // loud, not partial (report 36)
     if (!data) break;
     stats.push(...(data as StatRow[]));
@@ -155,7 +157,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   type MpRow = { member_id: number; display_name: string | null; name: string | null; party: string | null; current_member: boolean | null };
   const mpById = new Map<number, MpRow>();
   if (topIds.length) {
-    const { data: mpRows, error: mpRowsErr } = await supabase.from('mps').select('member_id, display_name, name, party, current_member').in('member_id', topIds);
+    const { data: mpRows, error: mpRowsErr } = await cachedQuery(['q:app/parties/[slug]/whip/page.tsx:dd997b538e', JSON.stringify([topIds])], tableTags('mps'), () => supabase.from('mps').select('member_id, display_name, name, party, current_member').in('member_id', topIds));
     if (mpRowsErr && mpRowsErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/whip mps: ${mpRowsErr.message}`);
     for (const m of (mpRows || []) as MpRow[]) mpById.set(m.member_id, m);
   }
@@ -165,7 +167,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   const rebelVotes: RebelVote[] = [];
   if (topIds.length) {
     for (let from = 0; ; from += 1000) {
-      const { data, error } = await supabase
+      const { data, error } = await cachedQuery(['q:app/parties/[slug]/whip/page.tsx:be55feae03', JSON.stringify([partyName, topIds, from])], tableTags('mp_division_votes'), () => supabase
         .from('mp_division_votes')
         .select('member_id, division_date_only, division_number, division_title')
         .eq('party', partyName)
@@ -177,7 +179,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
         .in('member_id', topIds)
         .order('division_date_only', { ascending: false })
         .order('id', { ascending: false })
-        .range(from, from + 999);
+        .range(from, from + 999));
       if (error) throw new Error(`/parties/${slug}/whip rebel votes: ${error.message}`); // loud, not partial (report 36)
       if (!data) break;
       rebelVotes.push(...(data as RebelVote[]));

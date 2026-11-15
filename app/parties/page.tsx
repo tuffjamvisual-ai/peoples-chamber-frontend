@@ -12,8 +12,10 @@ import { PAGE_DESCRIPTIONS, PARTY_NAMES, partyDescription } from '@/lib/page-des
 import { normaliseParty } from '@/lib/party-helpers';
 import { fitTitle } from '@/lib/seo-title';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: fitTitle('UK Political Parties: Promises, Record and Donations', 'UK Parties: Promises, Record and Donations'),
@@ -37,8 +39,8 @@ const SLUGS = NAV.find((n) => n.label === 'Parliament')!.children!
 // matched to each party by parties.mp_party_string.
 async function currentMps(): Promise<Map<string, number>> {
   const [{ data: mps, error: mErr }, { data: parties, error: pErr }] = await Promise.all([
-    supabase.from('mps').select('party').eq('current_member', true),
-    supabase.from('parties').select('slug, mp_party_string'),
+    cachedQuery(['q:app/parties/page.tsx:e00c012152'], tableTags('mps'), () => supabase.from('mps').select('party').eq('current_member', true)),
+    cachedQuery(['q:app/parties/page.tsx:4c7c7aacd3'], tableTags('parties'), () => supabase.from('parties').select('slug, mp_party_string')),
   ]);
   if (mErr) throw new Error(`/parties mps: ${mErr.message}`);
   if (pErr) throw new Error(`/parties parties: ${pErr.message}`);

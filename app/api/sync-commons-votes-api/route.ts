@@ -289,7 +289,7 @@ async function GET_impl(req: Request) {
     noteChanged(dryRun ? 0 : divisionsAdded);
     const mpRefresh: MpRefresh | null = !dryRun && divisionsAdded > 0 ? refreshAllMps() : null;
     // A16 (owner rule 15 Nov 2026, ENTRY 129): pages that read these tables are rebuilt only now, after a real change.
-    if (!dryRun && (divisionsAdded > 0 || partiesApplied > 0)) refreshTables(...DIVISION_TABLES, 'statutory_instrument');
+    if (!dryRun && (divisionsAdded > 0 || partiesApplied > 0)) refreshTables(...DIVISION_TABLES, 'statutory_instrument', 'party_division_splits', 'party_member_vote_stats');
 
     // Statutory instruments are the Commons divisions on an SI (migration 2026-10-21n): add new ones and refresh
     // vote counts whenever a division was added or changed.
