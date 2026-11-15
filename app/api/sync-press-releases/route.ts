@@ -51,8 +51,8 @@ async function GET_impl(req: Request) {
   const supabase = createClient(url, key);
 
   try {
-    const res = await politeFetch(
-      'https://www.gov.uk/api/search.json?count=20&order=-public_timestamp&filter_content_store_document_type=press_release',
+    const SEARCH = 'https://www.gov.uk/api/search.json?order=-public_timestamp&filter_content_store_document_type=press_release';
+    const res = await politeFetch(`${SEARCH}&count=20`,
       { headers: { Accept: 'application/json', 'User-Agent': 'PeoplesChamber/1.0' } },
       { budget },
     );
@@ -60,6 +60,31 @@ async function GET_impl(req: Request) {
     const checkedAt = new Date().toISOString(); // GOV.UK answered: the 'Checked GOV.UK at' time (T1-PR)
 
     const data = (await res.json()) as { results?: GovukSearchResult[] };
+    // T1-PRESSWEEKDAY (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 128): the press jobs run Monday to Friday only, so
+    // on Mondays (UTC) the look-back goes at least 3 days: further pages of 100, newest first, until a release older than
+    // 3 days is reached (at most 300), and any of those not already stored are added after the usual newest 20, which are
+    // handled as on every run. GOV.UK published 2 to 20 releases a day in the two weeks to 14 Nov (fewer at weekends).
+    let weekendExtra = 0;
+    if (new Date().getUTCDay() === 1) {
+      const since = Date.now() - 3 * 86_400_000;
+      const extra: GovukSearchResult[] = [];
+      for (let start = 0; start < 300; start += 100) {
+        const r = await politeFetch(`${SEARCH}&count=100&start=${start}`,
+          { headers: { Accept: 'application/json', 'User-Agent': 'PeoplesChamber/1.0' } }, { budget });
+        if (!r.ok) break;
+        const page = ((await r.json()) as { results?: GovukSearchResult[] }).results || [];
+        extra.push(...page);
+        const oldest = page.at(-1)?.public_timestamp;
+        if (page.length < 100 || (oldest && Date.parse(oldest) < since)) break;
+      }
+      const seen = new Set((data.results || []).map((x) => x.link));
+      const links = extra.filter((x) => x.link && !seen.has(x.link)).map((x) => `https://www.gov.uk${x.link}`);
+      const { data: have } = links.length ? await supabase.from('press_releases').select('gov_url').in('gov_url', links) : { data: [] };
+      const stored = new Set(((have ?? []) as { gov_url: string }[]).map((h) => h.gov_url));
+      const missing = extra.filter((x) => x.link && !seen.has(x.link) && !stored.has(`https://www.gov.uk${x.link}`));
+      weekendExtra = missing.length;
+      data.results = [...(data.results || []), ...missing];
+    }
     const failing = await ItemFailures.load(supabase, '/api/sync-press-releases');
     const linkOf = (r: GovukSearchResult) => `https://www.gov.uk${r.link}`;
     // Flagged releases go after the others.
@@ -182,7 +207,7 @@ async function GET_impl(req: Request) {
       not_reached: notReached,
       write_errors: writeErrors,
       fetched: results.length,
-      upserted,
+      upserted, weekend_extra: weekendExtra,
       pages_refreshed: pagesRefreshed,
       added,
       latest_refreshed: latestRefreshed,

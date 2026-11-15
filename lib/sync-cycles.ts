@@ -11,9 +11,10 @@
 const DAY_H = 24;
 
 export const CYCLE_HOURS: Record<string, number> = {
-  '/api/sync-press-releases': 1 * DAY_H,
-  '/api/sync-commons-press-releases': 1 * DAY_H,
-  '/api/check-press-release-liveness': 2 * DAY_H,
+  // Monday to Friday only since 15 Nov 2026 (T1-PRESSWEEKDAY, ENTRY 128): the period includes the weekend's 2 days.
+  '/api/sync-press-releases': 3 * DAY_H,
+  '/api/sync-commons-press-releases': 3 * DAY_H,
+  '/api/check-press-release-liveness': 4 * DAY_H,
   '/api/sync-members-contributions': 2 * DAY_H,
   '/api/sync-committees': 8 * DAY_H, // weekly since 15 Nov 2026 (T1-CRONDAILY)
   '/api/sync-edms': 3 * DAY_H,

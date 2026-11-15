@@ -34,11 +34,11 @@
     },
     {
       "path": "/api/sync-press-releases",
-      "schedule": "17 */2 * * *"
+      "schedule": "17 */2 * * 1-5"
     },
     {
       "path": "/api/sync-press-releases?slot=odd",
-      "schedule": "16 1-23/2 * * *"
+      "schedule": "16 1-23/2 * * 1-5"
     },
     {
       "path": "/api/sync-statutory-instruments-treaties",
@@ -46,11 +46,11 @@
     },
     {
       "path": "/api/sync-commons-press-releases",
-      "schedule": "33 */2 * * *"
+      "schedule": "33 */2 * * 1-5"
     },
     {
       "path": "/api/check-press-release-liveness",
-      "schedule": "51 */2 * * *"
+      "schedule": "51 */2 * * 1-5"
     },
     {
       "path": "/api/sync-voting-intention",

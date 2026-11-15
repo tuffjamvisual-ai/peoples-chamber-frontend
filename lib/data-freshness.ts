@@ -21,6 +21,7 @@ export interface DataSource {
   source: string;   // upstream provider (shown to the reader, plain text)
   page: string;     // primary page path it feeds (used in monitor alerts)
   syncRoute?: string; // the /api route that refreshes it (heartbeat key); omit if no automated sync yet
+  maxAgeDays?: number; // overrides CADENCE_MAX_AGE_DAYS[cadence] (T1-PRESSWEEKDAY: a weekday-only sync needs the weekend added)
   zeroRunTolerance?: number; // consecutive zero-row runs before the zero-run WATCH flags it (default 5).
                              // Raise for sitting-day sources (Commons votes, register of interests) that
                              // legitimately return nothing over weekends and recess, so they don't sit
@@ -52,7 +53,7 @@ export const DATA_SOURCES: DataSource[] = [
   // reliable automated feed of council leaders, so this is checked yearly, not weekly.
   { key: 'councils',             table: 'councils',              column: 'updated_at',   cadence: 'annual',    label: 'Council details',            source: 'MHCLG and council publications, updated by hand', page: '/councils/[slug]' },
   { key: 'mp_expenses',          table: 'mp_expenses_detail',    column: 'updated_at',   cadence: 'quarterly', label: 'MP expenses',                source: 'IPSA',                          page: '/expenses', /* loaded by hand since 21 Oct 2026 (theipsa.org.uk robots.txt disallows /api/*); the Monday hand-loaded check emails on a new IPSA release */ },
-  { key: 'press_releases',       table: 'press_releases',        column: 'published_at', cadence: 'daily',     label: 'Government press releases',   source: 'GOV.UK',                        page: '/transparency/press-releases',          syncRoute: '/api/sync-press-releases' },
+  { key: 'press_releases',       table: 'press_releases',        column: 'published_at', cadence: 'daily',     label: 'Government press releases',   source: 'GOV.UK',                        page: '/transparency/press-releases',          maxAgeDays: 4 /* daily, plus the weekend: the sync runs Monday to Friday since 15 Nov 2026 (ENTRY 128) */, syncRoute: '/api/sync-press-releases' },
   { key: 'bills',                table: 'bill',                  column: 'last_update',  cadence: 'daily',     label: 'Bills',                      source: 'UK Parliament Bills API',       page: '/bills',                                syncRoute: '/github-actions/bills' /* Daily Data Sync workflow, sync-bills-incremental.js */ },
   { key: 'division_votes',       table: 'mp_division_votes',     column: 'created_at',   cadence: 'daily',     label: 'Commons division votes',     source: 'Commons Votes API',             page: '/divisions',                            syncRoute: '/api/sync-commons-votes-api', zeroRunTolerance: 14 },
   { key: 'registered_interests', table: 'mp_registered_interests', column: 'last_seen_date', cadence: 'daily', label: 'Register of interests',      source: 'UK Parliament',                 page: '/transparency/register-of-interests',   syncRoute: '/github-actions/registered-interests' /* Daily Department Updates workflow; the Vercel route is no longer scheduled */ },

@@ -1,10 +1,22 @@
 // The most recent time a five-field cron schedule (as in vercel.json, UTC) fired at or before a given time. Supports
-// what vercel.json uses: *, numbers, comma lists and */n steps. Used by the freshness monitor to spot a cron that
-// missed its run (owner's approval, 21 Oct 2026).
+// what vercel.json uses: *, numbers, comma lists, */n steps, and ranges a-b and a-b/n (since 15 Nov 2026, T1-PRESSWEEKDAY:
+// the press jobs run on days 1-5, and '16 1-23/2' was already in use; without ranges such a schedule never matched, so its
+// missed runs went unseen). Used by the freshness monitor to spot a cron that missed its run (owner's approval, 21 Oct 2026).
+
+function partMatches(p: string, n: number): boolean {
+  const [range, stepText] = p.split('/');
+  const step = stepText ? Number(stepText) : 1;
+  if (range === '*') return n % step === 0;
+  if (range.includes('-')) {
+    const [a, b] = range.split('-').map(Number);
+    return n >= a && n <= b && (n - a) % step === 0;
+  }
+  return Number(range) === n;
+}
 
 function fieldMatches(field: string, n: number): boolean {
   if (field === '*') return true;
-  return field.split(',').some((p) => (p.startsWith('*/') ? n % Number(p.slice(2)) === 0 : Number(p) === n));
+  return field.split(',').some((p) => partMatches(p, n));
 }
 
 export function lastFireAtOrBefore(schedule: string, at: Date, lookbackDays = 40): Date | null {

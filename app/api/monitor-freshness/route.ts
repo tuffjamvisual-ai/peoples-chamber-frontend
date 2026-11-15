@@ -80,7 +80,7 @@ async function GET_impl(req: Request) {
     let content: Date | null = null;
     try { content = await newestTimestampLive(src); } catch (e) { console.error('monitor-freshness:', (e as Error).message); }
     const contentAgeDays = content ? ageInDays(content, now) : null;
-    const maxAge = CADENCE_MAX_AGE_DAYS[src.cadence];
+    const maxAge = src.maxAgeDays ?? CADENCE_MAX_AGE_DAYS[src.cadence];
 
     let runStatus: 'ok' | 'overdue' | 'failing' | 'not-instrumented' | 'no-sync' = 'no-sync';
     let sinceRunDays: number | null = null;
