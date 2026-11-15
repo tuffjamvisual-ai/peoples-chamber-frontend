@@ -5,13 +5,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { handleSendIssue, type OutEmail, type SendDeps } from '@/lib/newsletter-send';
+import { authorised, handleSendIssue, type OutEmail, type SendDeps } from '@/lib/newsletter-send';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 const HEADERS = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' };
-// Rate limit, per server instance: at most 10 requests in 10 minutes (refused ones count too).
+// Rate limit, per server instance: at most 10 authorised requests in 10 minutes. Requests without the secret are refused
+// first and do not count, so they cannot use up the owner's allowance (security review L8).
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_IN_WINDOW = 10;
 const recent: number[] = [];
@@ -78,6 +79,8 @@ const deps: SendDeps = {
 };
 
 export async function POST(request: NextRequest) {
+  if (!deps.secret) return NextResponse.json({ error: 'not configured' }, { status: 503, headers: HEADERS });
+  if (!authorised(request.headers.get('authorization'), deps.secret)) return NextResponse.json({ error: 'unauthorised' }, { status: 401, headers: HEADERS });
   const now = Date.now();
   while (recent.length && now - recent[0] > WINDOW_MS) recent.shift();
   if (recent.length >= MAX_IN_WINDOW) return NextResponse.json({ error: 'too many requests' }, { status: 429, headers: { ...HEADERS, 'Retry-After': '600' } });
