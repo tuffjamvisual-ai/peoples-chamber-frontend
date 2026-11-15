@@ -15,7 +15,7 @@ import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background
 import { careerTimeline, dateLabel, type CareerEntry } from '@/lib/career-timeline';
 import BioText from './BioText';
 import type { MpCareer } from '@/lib/mp-career';
-import type { QuestionsSummary } from '@/lib/mp-written-questions';
+import type { QuestionsSummary } from '@/lib/written-question-shared';
 import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';

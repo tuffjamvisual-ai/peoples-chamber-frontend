@@ -10,21 +10,9 @@ import { readAll } from '@/lib/read-all';
 import { tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 
-export const QUESTIONS_PER_PAGE = 25;
-export const QUESTION_COLUMNS = 'id, uin, date_tabled, date_answered, answering_body, heading, url, is_withdrawn';
-
-export type WrittenQuestion = {
-  id: number;
-  uin: string;
-  date_tabled: string | null;
-  date_answered: string | null;
-  answering_body: string | null;
-  heading: string | null;
-  url: string | null;
-  is_withdrawn: boolean | null;
-};
-export type QuestionsSummary = { total: number; firstDate: string | null; recent: WrittenQuestion[] };
-export type House = 'Commons' | 'Lords';
+// Shared with the browser components: lib/written-question-shared.ts (no server cache code there).
+import { QUESTIONS_PER_PAGE, QUESTION_COLUMNS, type WrittenQuestion, type QuestionsSummary, type House } from '@/lib/written-question-shared';
+export { QUESTIONS_PER_PAGE, QUESTION_COLUMNS, questionUrl, type WrittenQuestion, type QuestionsSummary, type House } from '@/lib/written-question-shared';
 
 // The Supabase builders are deeply generic; this only chains two filters on them.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,7 +55,7 @@ async function questionsPageRead(db: SupabaseClient, memberId: number, page: num
 // Every department the MP has asked, with counts, most asked first (one column of every question, paged by readAll).
 export async function questionDepartments(db: SupabaseClient, memberId: number, house: House = 'Commons'): Promise<Array<{ name: string; count: number }>> {
   const commons = (q: unknown, id: number) => byMember(q, id, house);
-  const rows = await tagged(['ra:lib/mp-written-questions.ts:cb8ce28d91', JSON.stringify([db, memberId])], tableTags('parliament_written_questions'), () => readAll<{ answering_body: string | null }>(() => db.from('parliament_written_questions'), {
+  const rows = await tagged(['ra:lib/mp-written-questions.ts:cb8ce28d91', memberId, house], tableTags('parliament_written_questions'), () => readAll<{ answering_body: string | null }>(() => db.from('parliament_written_questions'), {
     columns: 'id, answering_body',
     filter: (q) => commons(q, memberId),
     orderBy: 'id',
@@ -78,11 +66,6 @@ export async function questionDepartments(db: SupabaseClient, memberId: number, 
   return [...counts].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
-// The official record: the stored URL, or the Parliament written question page built from the date and UIN.
-export function questionUrl(q: Pick<WrittenQuestion, 'url' | 'date_tabled' | 'uin'>): string | null {
-  if (q.url) return q.url;
-  return q.date_tabled && q.uin ? `https://questions-statements.parliament.uk/written-questions/detail/${q.date_tabled}/${q.uin}` : null;
-}
 
 // A16 (owner rule 15 Nov 2026, ENTRY 129): in the shared data cache under the written questions tag (refreshed by the
 // archive sync when it stored rows), keyed by member, house and page.

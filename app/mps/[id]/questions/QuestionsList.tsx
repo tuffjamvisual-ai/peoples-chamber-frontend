@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { showNewResults } from '@/lib/show-new-results';
-import { QUESTIONS_PER_PAGE, type WrittenQuestion } from '@/lib/mp-written-questions';
+import { QUESTIONS_PER_PAGE, type WrittenQuestion } from '@/lib/written-question-shared';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 // The list on /mps/[id]/questions (owner, 3 Nov 2026): page 1 of all questions comes from the cached page; other pages
