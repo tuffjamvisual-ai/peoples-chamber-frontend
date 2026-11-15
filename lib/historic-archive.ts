@@ -3,6 +3,7 @@
 // live MP figure keep reading mp_division_votes, and these votes have no rebellion figures. Text is as published (EXACT_COLUMNS in lib/no-em-dash.ts).
 // The archive does not change, so nothing here needs a sync.
 import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 
 export const ARCHIVE_LAST_DATE = '2016-03-08';
@@ -100,7 +101,12 @@ export async function archiveYearRows(year: number, from: number, to: number): P
 export type MemberVote = { side: 'aye' | 'no'; is_teller: boolean; division_date: string; division_number: number; division_external_id: string };
 export type NamedVote = MemberVote & { title: string };
 
-const memberVotes = cache(async (memberId: number): Promise<MemberVote[]> => {
+// T1-MEM (COWORK-TO-T1 ENTRY 116, owner approved 15 Nov 2026): the archive tables were loaded once (2004 to 2016,
+// scripts/load-historic-archive.py) and no sync writes them, so a member's votes and register history are kept in
+// Vercel's shared cache for 30 days (tag historic-archive) instead of being read again for every render of /mps/[id]
+// (20,963 + 56,864 reads in 80 hours before). Same rows, same order. A failed read throws and is not cached.
+const ARCHIVE_CACHE = { revalidate: 30 * 86400, tags: ['historic-archive'] };
+const memberVotes = cache(unstable_cache(async (memberId: number): Promise<MemberVote[]> => {
   const out: MemberVote[] = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await supabase.from('historic_commons_votes').select('side, is_teller, division_date, division_number, division_external_id')
@@ -109,7 +115,7 @@ const memberVotes = cache(async (memberId: number): Promise<MemberVote[]> => {
     out.push(...((data ?? []) as MemberVote[]));
     if ((data ?? []).length < 1000) return out;
   }
-});
+}, ['historic-member-votes-v1'], ARCHIVE_CACHE));
 
 async function withTitles(votes: MemberVote[]): Promise<NamedVote[]> {
   const titles = new Map<string, string>();
@@ -158,7 +164,9 @@ const labelKey = (s: string) => s.toLowerCase().replace(/[.,\s]+/g, ' ').trim();
 const categoryPlace = (key: string, first: string) => (key.startsWith('(') ? `9999 ${key}` : first);
 const tidyLabel = (s: string) => s.replace(/\s+/g, ' ').trim();
 
-export async function registerHistory(memberId: number): Promise<RegisterHistory | null> {
+export const registerHistory = unstable_cache(registerHistoryRead, ['historic-register-history-v1'], ARCHIVE_CACHE);
+
+async function registerHistoryRead(memberId: number): Promise<RegisterHistory | null> {
   const { data, error } = await supabase.from('register_archive_entries')
     .select('entry_id, member_name, category_type, category_name, row_kind, text, first_edition, last_edition')
     .in('member_id', idsFor(memberId)).limit(2000);
