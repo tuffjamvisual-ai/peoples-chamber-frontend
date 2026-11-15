@@ -6,7 +6,7 @@ import TopicBillsListing from './TopicBillsListing';
 
 // /topics/[slug]/bills: page 1 of a topic's full list of bills and Acts; page 2 onwards is /topics/[slug]/bills/page/N.
 // Cached for a day, like the topic page.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export function generateStaticParams() {
   return topics.map((t) => ({ slug: t.slug }));

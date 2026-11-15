@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/pmqs/1945-to-1961' },
 };
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 // The notes page for the questions before the fixed time. The questions themselves are listed on /pmqs, under the oldest session.
 export default async function PreFixedNotesPage() {

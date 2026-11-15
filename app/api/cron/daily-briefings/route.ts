@@ -4,6 +4,7 @@ import { revalidatePath } from '@/lib/refresh-count';
 import { randomUUID } from 'node:crypto';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { sendBriefingNotification } from '@/lib/email';
+import { refreshTables } from '@/lib/source-tags';
 
 // Disabled at John's instruction, 23 Oct 2026: GET and POST return 410 Gone after the auth check (see ROUTE_DISABLED).
 // Daily automated briefings. Triggered by Vercel cron (GET) at 06:00 and 07:00
@@ -422,6 +423,7 @@ export async function GET(req: Request) {
       run_date: runDate,
     });
     if (!error) saved.push({ headline: b.headline, slug: s, published: publishNow });
+    if (!error) refreshTables('briefings'); // A16: a briefing was stored
   }
 
   if (saved.length === 0) {

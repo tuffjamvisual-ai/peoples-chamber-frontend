@@ -5,7 +5,7 @@ import { getTopic } from '@/lib/topics';
 import TopicBillsListing from '../../TopicBillsListing';
 
 // /topics/[slug]/bills/page/N: page 2 onwards, built on first visit and cached for a day. Page 1 is /topics/[slug]/bills.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; page: string }> }): Promise<Metadata> {

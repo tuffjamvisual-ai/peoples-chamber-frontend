@@ -14,7 +14,7 @@ import ArchiveSessionView from './ArchiveSessionView';
 import BackLink from '@/app/components/BackLink';
 // One session of Prime Minister's Questions (owner, 5 Nov 2026): rendered on first request and refreshed every six hours,
 // because Hansard can correct a session for about two weeks.
-export const revalidate = 21600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export function generateStaticParams() {
   return [];

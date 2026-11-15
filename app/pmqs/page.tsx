@@ -18,7 +18,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export default async function PmqsPage({ searchParams }: { searchParams: Promise<PmqsFilters> }) {
   const sp = await searchParams;

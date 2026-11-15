@@ -6,7 +6,7 @@ import BackLink from '../components/BackLink';
 import { topics } from '@/lib/topics';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: 'Policy Topics',

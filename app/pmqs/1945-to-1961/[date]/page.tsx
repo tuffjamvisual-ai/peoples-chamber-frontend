@@ -12,7 +12,7 @@ import PreFixedNotes, { ExperimentNote, UNCONFIRMED_NOTE } from '../PreFixedNote
 
 import BackLink from '@/app/components/BackLink';
 // One day's questions to the Prime Minister before the fixed time (owner, 6 Nov 2026): a day, never a session. Rendered on first request; the record does not change.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export function generateStaticParams() {
   return [];

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { getSessionUserId } from '@/lib/session';
 import { touchLastSeen } from '@/lib/touch-last-seen';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
     .from('polls')
     .update({ [field]: (poll as any)[field] + 1 })
     .eq('id', pollId);
+  refreshTables('polls'); // A16: the totals changed
 
   return NextResponse.json({ success: true });
 }

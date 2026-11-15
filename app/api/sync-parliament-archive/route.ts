@@ -55,6 +55,7 @@ import { noteChanged, revalidatePath, revalidateTag } from '@/lib/refresh-count'
 import { answerChanged, answerPaths, type AnswerRow } from '@/lib/written-answers-refresh';
 import { htmlToText, questionRow, type WQ } from '@/lib/written-question-row';
 import { questionTag } from '@/lib/question-pages';
+import { TOPIC_READS_TAG } from '@/lib/topic-reads';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 270;
@@ -1010,6 +1011,9 @@ async function GET_impl(req: Request) {
   } finally {
     // In a finally, so rows written before a failure still reach their pages: the next pass would see nothing to refresh.
     refreshed = refreshAnswerPages(run);
+    // A16 (owner rule 15 Nov 2026, ENTRY 129): the PMQs pages read speeches under the pmqs tag; refreshed when this run
+    // (once a day) stored rows.
+    if (!run.dry && run.rows > 0) { revalidateTag('pmqs', 'max'); revalidateTag(TOPIC_READS_TAG, 'max'); } // and the topic pages' top askers
   }
 
   const partial = Object.values(results).some((r) => r === 'partial' || r === 'refused');

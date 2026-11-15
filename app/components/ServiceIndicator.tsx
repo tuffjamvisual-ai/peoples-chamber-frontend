@@ -1,6 +1,8 @@
 import { SubFold } from './PhoneFolds';
 import { supabase } from '@/lib/supabase';
 import { fmtPeriod } from '@/lib/dashboard-format';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // Compact embed of Broken State Dashboard headline indicators, for department and
 // topic pages. Reads dashboard_indicators for the services mapped to that page and
@@ -41,7 +43,7 @@ function fmt(v: number | null, unit: string): string {
 // phoneFold (T1-GUARD, owner approved 13 Nov 2026): on phones the panel folds under its name (SubFold); from 768px as before.
 export default async function ServiceIndicator({ services, phoneFold = false }: { services: string[]; phoneFold?: boolean }) {
   if (!services.length) return null;
-  const { data, error: dataErr } = await supabase.from('dashboard_indicators').select('*').in('service', services);
+  const { data, error: dataErr } = await cachedQuery(['q:app/components/ServiceIndicator.tsx:7e69a57e6a', JSON.stringify([services])], tableTags('dashboard_indicators'), () => supabase.from('dashboard_indicators').select('*').in('service', services));
   // An optional side panel: a failed read leaves it out and logs the error (lib/optional-section.ts, 22 Oct 2026).
   if (dataErr && dataErr.code !== 'PGRST116') {
     console.error(`[optional section hidden] ServiceIndicator dashboard_indicators: ${dataErr.message}`);
