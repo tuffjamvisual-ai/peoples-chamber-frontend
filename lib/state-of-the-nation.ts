@@ -113,8 +113,11 @@ export function formatValue(v: number, f: Format): string {
 
 // The change on the previous figure, in plain words, with the previous period. For a rate, the previous figure itself
 // ("up from 3.1% in August 2026"); no judgement of whether that is good or bad.
+// ONS works out changes from unrounded figures and publishes rounded ones, so two equal published figures can still be
+// a rise or a fall in the bulletin (inactivity: 20.9% and 20.9%, 'down by 0.1 percentage points'); equal figures are
+// therefore not called 'the same' (ENTRY 107).
 export function changeText(cur: number, prev: number, prevPeriod: string, f: Format): string {
-  if (cur === prev) return `the same as in ${prevPeriod}`;
+  if (formatValue(cur, f) === formatValue(prev, f)) return `also ${formatValue(prev, f)} in ${prevPeriod} when rounded`;
   return `${cur > prev ? 'up' : 'down'} from ${formatValue(prev, f)} in ${prevPeriod}`;
 }
 

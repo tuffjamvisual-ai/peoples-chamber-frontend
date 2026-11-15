@@ -20,7 +20,7 @@ test('values and changes are written plainly, with no judgement', () => {
   assert.equal(formatValue(97832, 'gbp-m'), '£97.8bn');
   assert.equal(formatValue(3005, 'gbp-bn'), '£3,005bn');
   assert.equal(changeText(3.5, 3.1, 'August 2026', 'pct'), 'up from 3.1% in August 2026');
-  assert.equal(changeText(4.7, 4.7, 'March to May 2026', 'pct'), 'the same as in March to May 2026');
+  assert.equal(changeText(20.9, 20.9, 'March to May 2026', 'pct'), 'also 20.9% in March to May 2026 when rounded');
 });
 
 test('financial year to date sums April to the latest month, and compares the same months a year earlier', () => {

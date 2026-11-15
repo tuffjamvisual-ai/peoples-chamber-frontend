@@ -14,18 +14,18 @@
     },
     "energy-cap": {
       "value": "£1,723",
-      "period": "A year for a typical home paying by Direct Debit, 1 October to 31 December 2026",
+      "period": "1 October to 31 December 2026",
       "previous": "up 4% from £1,663 (July to September 2026)",
       "sourceUrl": "https://www.ofgem.gov.uk/sites/default/files/2026-08/Summary-of-changes-to-energy-price-cap-1-October-to-31-December-2026.pdf",
       "sourceName": "Ofgem",
       "publishedOn": "2026-08-26",
       "checkedOn": "2026-11-15",
       "checkedBy": "Cowork",
-      "note": "Typical use: 2,500 kWh electricity, 9,500 kWh gas"
+      "note": "A year for a typical home paying by Direct Debit (2,500 kWh electricity, 9,500 kWh gas)"
     },
     "house-price": {
       "value": "£273,000",
-      "period": "UK average, August 2026 (provisional)",
+      "period": "August 2026 (provisional)",
       "previous": "up 0.9% on a year earlier (1.2% in July 2026)",
       "sourceUrl": "https://www.gov.uk/government/statistics/uk-house-price-index-for-august-2026/uk-house-price-index-summary-august-2026",
       "sourceName": "HM Land Registry and ONS",
@@ -91,7 +91,7 @@
     },
     "crown-court": {
       "value": "80,829",
-      "period": "Open Crown Court cases, end of June 2026",
+      "period": "End of June 2026",
       "previous": "up 392 on the quarter and 2,603 (3%) on a year earlier; the highest since the series began",
       "sourceUrl": "https://www.gov.uk/government/statistics/criminal-court-statistics-quarterly-april-to-june-2026/criminal-court-statistics-quarterly-april-to-june-2026",
       "sourceName": "Ministry of Justice",
@@ -113,7 +113,7 @@
     },
     "temp-accommodation": {
       "value": "135,580",
-      "period": "Households in temporary accommodation, England, 31 March 2026",
+      "period": "England, 31 March 2026",
       "previous": "up 1.1% on the quarter and 3.6% on a year earlier",
       "sourceUrl": "https://www.gov.uk/government/statistics/statutory-homelessness-in-england-january-to-march-2026/statutory-homelessness-in-england-january-to-march-2026",
       "sourceName": "MHCLG",
@@ -124,7 +124,7 @@
     },
     "temp-accommodation-children": {
       "value": "177,530",
-      "period": "Children in temporary accommodation, England, 31 March 2026",
+      "period": "England, 31 March 2026",
       "previous": "up 0.8% on the quarter and 5.2% on a year earlier",
       "sourceUrl": "https://www.gov.uk/government/statistics/statutory-homelessness-in-england-january-to-march-2026/statutory-homelessness-in-england-january-to-march-2026",
       "sourceName": "MHCLG",
