@@ -18,6 +18,8 @@ import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
 import { optionalSection } from '@/lib/optional-section';
 import { displayMpName } from '@/lib/mp-name';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 const ACCENT = '#7a1612';
 const INK = '#14100d';
@@ -211,17 +213,17 @@ async function renderBill(props: BillProps) {
   let sponsorHasProfile = false;
   if (props.sponsorMemberId != null) {
     const [{ data: bills, error: billsErr }, { data: sponsorRow, error: sponsorRowErr }] = await Promise.all([
-      supabase
+      cachedQuery(['q:app/components/RelatedLinks.tsx:0ff31ba017', JSON.stringify([props.sponsorMemberId, props.billId])], tableTags('bill'), () => supabase
         .from('bill')
         .select('id, title')
         .eq('sponsor_member_id', props.sponsorMemberId)
         .neq('id', props.billId)
         .is('hidden_reason', null)
         .order('last_update', { ascending: false, nullsFirst: false })
-        .range(0, 4),
+        .range(0, 4)),
       // Only current MPs have a /mps/<id> page. A former-MP sponsor (e.g. a bill
       // from an earlier Parliament) has no profile, so link only if present.
-      supabase.from('mps').select('member_id').eq('member_id', props.sponsorMemberId).maybeSingle(),
+      cachedQuery(['q:app/components/RelatedLinks.tsx:7e249d3e61', JSON.stringify([props.sponsorMemberId])], tableTags('mps'), () => supabase.from('mps').select('member_id').eq('member_id', props.sponsorMemberId).maybeSingle()),
     ]);
     // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
     for (const e of [billsErr, sponsorRowErr]) if (e && e.code !== 'PGRST116') throw new Error(`RelatedLinks (bill, mps): ${e.message}`);
@@ -297,10 +299,10 @@ async function renderDepartment(props: DepartmentProps) {
   // the dept page)
   let ministerLinks: Array<{ member_id: number; display_name: string | null; constituency: string | null; party: string | null }> = [];
   if (props.ministerMemberIds.length > 0) {
-    const { data, error: dataErr2 } = await supabase
+    const { data, error: dataErr2 } = await cachedQuery(['q:app/components/RelatedLinks.tsx:fa8228c67c', JSON.stringify([props.ministerMemberIds])], tableTags('mps'), () => supabase
       .from('mps')
       .select('member_id, display_name, constituency, party')
-      .in('member_id', props.ministerMemberIds);
+      .in('member_id', props.ministerMemberIds));
     if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`RelatedLinks mps: ${dataErr2.message}`);
     ministerLinks = data || [];
   }
@@ -308,13 +310,13 @@ async function renderDepartment(props: DepartmentProps) {
   // Bills sponsored by any minister of this dept (top 5 most recent)
   let deptBills: Array<{ id: number; title: string }> = [];
   if (props.ministerMemberIds.length > 0) {
-    const { data, error: dataErr } = await supabase
+    const { data, error: dataErr } = await cachedQuery(['q:app/components/RelatedLinks.tsx:3ec3713b21', JSON.stringify([props.ministerMemberIds])], tableTags('bill'), () => supabase
       .from('bill')
       .select('id, title')
       .in('sponsor_member_id', props.ministerMemberIds)
       .is('hidden_reason', null)
       .order('last_update', { ascending: false, nullsFirst: false })
-      .range(0, 4);
+      .range(0, 4));
     if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`RelatedLinks bill: ${dataErr.message}`);
     deptBills = data || [];
   }
@@ -384,23 +386,23 @@ async function renderPressRelease(props: PressReleaseProps) {
   // the block renders gracefully with whatever resolves.
   const [sosResult, recentResult] = await Promise.all([
     deptSlug
-      ? supabase
+      ? cachedQuery(['q:app/components/RelatedLinks.tsx:cced15578a', JSON.stringify([deptSlug])], tableTags('dept_ministers'), () => supabase
           .from('dept_ministers')
           .select('name, member_id, role')
           .eq('dept_slug', deptSlug)
           .eq('is_secretary_of_state', true)
           .neq('resigned', true)
-          .maybeSingle()
+          .maybeSingle())
       : Promise.resolve({ data: null }),
     org
-      ? supabase
+      ? cachedQuery(['q:app/components/RelatedLinks.tsx:def7cf0716', JSON.stringify([org])], tableTags('press_releases'), () => supabase
           .from('press_releases')
           .select('title, gov_url, published_at')
           .eq('organisation', org)
           .not('gov_url', 'is', null)
           .not('removed_upstream', 'is', true)
           .order('published_at', { ascending: false })
-          .limit(7)
+          .limit(7))
       : Promise.resolve({ data: [] }),
   ]);
 
@@ -502,14 +504,14 @@ async function renderEditorial(props: EditorialProps) {
 
   const [mpRows, billRows, programmeRows] = await Promise.all([
     memberIds.length > 0
-      ? supabase.from('mps').select('member_id, display_name').in('member_id', memberIds)
+      ? cachedQuery(['q:app/components/RelatedLinks.tsx:8465a2fe60', JSON.stringify([memberIds])], tableTags('mps'), () => supabase.from('mps').select('member_id, display_name').in('member_id', memberIds))
       : Promise.resolve({ data: [] as { member_id: number; display_name: string | null }[] }),
     billIds.length > 0
-      ? supabase.from('bill').select('id, title').in('id', billIds).is('hidden_reason', null)
+      ? cachedQuery(['q:app/components/RelatedLinks.tsx:758543d64b', JSON.stringify([billIds])], tableTags('bill'), () => supabase.from('bill').select('id, title').in('id', billIds).is('hidden_reason', null))
       : Promise.resolve({ data: [] as { id: number; title: string }[] }),
     // Anon client — RLS enforces is_live=true; unresolved slugs simply return no row.
     programmeSlugs.length > 0
-      ? supabase.from('policy_programmes').select('slug, name').in('slug', programmeSlugs).eq('is_live', true)
+      ? cachedQuery(['q:app/components/RelatedLinks.tsx:11c4bc726e', JSON.stringify([programmeSlugs])], tableTags('policy_programmes'), () => supabase.from('policy_programmes').select('slug, name').in('slug', programmeSlugs).eq('is_live', true))
       : Promise.resolve({ data: [] as { slug: string; name: string }[] }),
   ]);
 
@@ -610,12 +612,12 @@ async function renderDivision(props: DivisionProps) {
 
   // Fetch up to 2 to detect ambiguity — 2 results means we cannot know which
   // bill is correct, so we show nothing rather than guess.
-  const { data: matchedBills, error: matchedBillsErr } = await supabase
+  const { data: matchedBills, error: matchedBillsErr } = await cachedQuery(['q:app/components/RelatedLinks.tsx:fea580f9dc', JSON.stringify([candidateTitle])], tableTags('bill'), () => supabase
     .from('bill')
     .select('id, title, sponsor_member_id')
     .ilike('title', candidateTitle)
     .is('hidden_reason', null)
-    .limit(2);
+    .limit(2));
   if (matchedBillsErr && matchedBillsErr.code !== 'PGRST116') throw new Error(`RelatedLinks bill: ${matchedBillsErr.message}`);
 
   if (!matchedBills || matchedBills.length !== 1) return null;
@@ -627,13 +629,13 @@ async function renderDivision(props: DivisionProps) {
   let deptSlug: string | null = null;
   let deptName: string | null = null;
   if (bill.sponsor_member_id != null) {
-    const { data: dmRow, error: dmRowErr } = await supabase
+    const { data: dmRow, error: dmRowErr } = await cachedQuery(['q:app/components/RelatedLinks.tsx:8cbcd71093', JSON.stringify([bill.sponsor_member_id])], tableTags('dept_ministers'), () => supabase
       .from('dept_ministers')
       .select('dept_slug')
       .eq('member_id', bill.sponsor_member_id)
       .neq('resigned', true)
       .limit(1)
-      .maybeSingle();
+      .maybeSingle());
     if (dmRowErr && dmRowErr.code !== 'PGRST116') throw new Error(`RelatedLinks dept_ministers: ${dmRowErr.message}`);
     if (dmRow?.dept_slug) {
       deptSlug = dmRow.dept_slug;

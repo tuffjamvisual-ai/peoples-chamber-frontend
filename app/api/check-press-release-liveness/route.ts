@@ -9,6 +9,7 @@ import { newsPath } from '@/lib/news-path';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { LISTING, LISTING_PAGE, listingComplete, livenessPlan, govPath, type Pending, type StoredRelease } from '@/lib/press-liveness';
+import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -187,6 +188,7 @@ async function GET_impl(req: Request) {
   // Refresh only the release pages this run changed (owner's approval, 29 Oct 2026, cache Stage 1).
   changedPaths.delete(null);
   for (const p of changedPaths) if (p) revalidatePath(p);
+  if (changedPaths.size) refreshTables('press_releases'); // A16: table tag after a real change
   // A release GOV.UK has withdrawn or moved: its page changed, which IndexNow asks to hear about too.
   indexNowAfter([...changedPaths].filter((p): p is string => !!p), 'press-release-liveness');
   const failuresSaved = await failing.save();

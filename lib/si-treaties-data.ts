@@ -8,6 +8,8 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { supabase } from '@/lib/supabase';
 import type { SiRow, TreatyRow } from '@/lib/parliament-si-treaties';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags, SI_TABLES } from '@/lib/source-tags';
 
 export const PER_PAGE = 50;
 export type SiFlag = 'committee' | 'prayed' | 'debated';
@@ -28,7 +30,7 @@ function fixtures<T>(name: string): T[] | null {
 const byLaidDesc = <T extends { laid_date: string | null }>(a: T, b: T) => (b.laid_date || '').localeCompare(a.laid_date || '');
 const yearAgo = () => new Date(Date.now() - 365 * 86400_000).toISOString().slice(0, 10);
 
-export async function listSis(f: SiFilters): Promise<{ rows: SiListRow[]; total: number }> {
+async function listSisRead(f: SiFilters): Promise<{ rows: SiListRow[]; total: number }> {
   const from = (f.page - 1) * PER_PAGE;
   const fx = fixtures<SiRow>('si.json');
   if (fx) {
@@ -46,7 +48,7 @@ export async function listSis(f: SiFilters): Promise<{ rows: SiListRow[]; total:
 }
 
 // Laid in the last 12 months, and how many of those were debated.
-export async function siYear(): Promise<{ laid: number; debated: number }> {
+async function siYearRead(): Promise<{ laid: number; debated: number }> {
   const since = yearAgo();
   const fx = fixtures<SiRow>('si.json');
   if (fx) {
@@ -61,7 +63,7 @@ export async function siYear(): Promise<{ laid: number; debated: number }> {
   return { laid: a.count ?? 0, debated: b.count ?? 0 };
 }
 
-export async function siDepartments(): Promise<string[]> {
+async function siDepartmentsRead(): Promise<string[]> {
   const fx = fixtures<SiRow>('si.json');
   if (fx) return [...new Set(fx.map((r) => r.laying_department).filter(Boolean) as string[])].sort();
   const { data, error } = await supabase.from('statutory_instrument_departments').select('laying_department').order('laying_department');
@@ -69,7 +71,7 @@ export async function siDepartments(): Promise<string[]> {
   return (data ?? []).map((r) => r.laying_department as string);
 }
 
-export async function getSi(apiId: string): Promise<SiRow | null> {
+async function getSiRead(apiId: string): Promise<SiRow | null> {
   const fx = fixtures<SiRow>('si.json');
   if (fx) return fx.find((r) => r.api_id === apiId) ?? null;
   const { data, error } = await supabase.from('statutory_instruments').select('*').eq('api_id', apiId).maybeSingle();
@@ -107,7 +109,7 @@ export function pickVersions(si: SiRow, rows: (SiVersion & Pick<SiRow, 'preceded
   return { made: made ? strip(made) : null, draft: draft ? strip(draft) : null };
 }
 
-export async function getSiVersions(si: SiRow): Promise<SiVersions> {
+async function getSiVersionsRead(si: SiRow): Promise<SiVersions> {
   const fx = fixtures<SiRow>('si.json');
   if (fx) return pickVersions(si, fx);
   const ids = [si.preceded_by_id, si.followed_by_id].filter((x): x is string => !!x);
@@ -124,7 +126,7 @@ export async function getSiVersions(si: SiRow): Promise<SiVersions> {
   return pickVersions(si, [si, ...rows.filter((r, i, a) => r.api_id !== si.api_id && a.findIndex((x) => x.api_id === r.api_id) === i)]);
 }
 
-export async function listTreaties(page: number): Promise<{ rows: TreatyListRow[]; total: number }> {
+async function listTreatiesRead(page: number): Promise<{ rows: TreatyListRow[]; total: number }> {
   const from = (page - 1) * PER_PAGE;
   const fx = fixtures<TreatyRow>('treaties.json');
   if (fx) { const all = [...fx].sort(byLaidDesc); return { rows: all.slice(from, from + PER_PAGE), total: all.length }; }
@@ -134,7 +136,7 @@ export async function listTreaties(page: number): Promise<{ rows: TreatyListRow[
   return { rows: (data ?? []) as TreatyListRow[], total: count ?? 0 };
 }
 
-export async function treatyYear(): Promise<{ laid: number; open: number }> {
+async function treatyYearRead(): Promise<{ laid: number; open: number }> {
   const since = yearAgo();
   const fx = fixtures<TreatyRow>('treaties.json');
   if (fx) return { laid: fx.filter((r) => (r.laid_date || '') >= since).length, open: fx.filter((r) => !r.scrutiny_concluded && (r.laid_date || '') >= since).length };
@@ -146,7 +148,7 @@ export async function treatyYear(): Promise<{ laid: number; open: number }> {
   return { laid: a.count ?? 0, open: b.count ?? 0 };
 }
 
-export async function getTreaty(apiId: string): Promise<TreatyRow | null> {
+async function getTreatyRead(apiId: string): Promise<TreatyRow | null> {
   const fx = fixtures<TreatyRow>('treaties.json');
   if (fx) return fx.find((r) => r.api_id === apiId) ?? null;
   const { data, error } = await supabase.from('treaties').select('*').eq('api_id', apiId).maybeSingle();
@@ -170,3 +172,16 @@ export function scrutinyLabel(t: { scrutiny_concluded: boolean; conclusion: stri
   if (t.crag_end_date) return `Objection period ended ${fmtDate(t.crag_end_date)}`;
   return 'Scrutiny not concluded';
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): the reads below are kept in the shared data cache under their
+// source tags, with no timer (lib/tagged-read.ts); the syncs that write those sources refresh the tags after a real change.
+export const listSis = (...a: Parameters<typeof listSisRead>) => tagged(['si-list-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...SI_TABLES), () => listSisRead(...a));
+// The last 365 days from today: the day is part of the key, so the count moves on with the date.
+export const siYear = (...a: Parameters<typeof siYearRead>) => tagged(['si-year-v1', new Date().toISOString().slice(0, 10), ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...SI_TABLES), () => siYearRead(...a));
+export const siDepartments = (...a: Parameters<typeof siDepartmentsRead>) => tagged(['si-departments-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...SI_TABLES), () => siDepartmentsRead(...a));
+export const getSi = (...a: Parameters<typeof getSiRead>) => tagged(['si-one-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...SI_TABLES), () => getSiRead(...a));
+export const getSiVersions = (...a: Parameters<typeof getSiVersionsRead>) => tagged(['si-versions-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...SI_TABLES), () => getSiVersionsRead(...a));
+export const listTreaties = (...a: Parameters<typeof listTreatiesRead>) => tagged(['treaty-list-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...SI_TABLES), () => listTreatiesRead(...a));
+// The last 365 days from today: the day is part of the key, so the count moves on with the date.
+export const treatyYear = (...a: Parameters<typeof treatyYearRead>) => tagged(['treaty-year-v1', new Date().toISOString().slice(0, 10), ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...SI_TABLES), () => treatyYearRead(...a));
+export const getTreaty = (...a: Parameters<typeof getTreatyRead>) => tagged(['treaty-one-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...SI_TABLES), () => getTreatyRead(...a));

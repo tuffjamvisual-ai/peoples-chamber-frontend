@@ -10,6 +10,7 @@ import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 import { normaliseParty } from '@/lib/party-helpers';
 import { noteChanged } from '@/lib/refresh-count';
 import { partyUpdate, type ApiParty } from '@/lib/party-fields';
+import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -146,7 +147,7 @@ async function GET_impl(req: Request) {
   }
   noteChanged(dry ? 0 : changes.length);
   const mpRefresh = !dry && toRefresh.size ? refreshMps(toRefresh) : null;
-  if (!dry && changes.length > 0) revalidatePath('/mps');
+  if (!dry && changes.length > 0) { revalidatePath('/mps'); refreshTables('mps'); } // A16: the mps table's tag after a real change
 
   return NextResponse.json({ ok: true, checked, changed: changes.length, changes, mps_to_refresh: toRefresh.size, mp_refresh: mpRefresh, ...(dry ? { dry_run: true } : {}) });
 }

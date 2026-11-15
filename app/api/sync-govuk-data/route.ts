@@ -10,6 +10,7 @@ import { govukSlugs } from '@/lib/govuk-slugs';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { noteChanged } from '@/lib/refresh-count';
+import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -428,7 +429,7 @@ async function GET_impl(req: Request) {
   // MP pages of ministers whose row changed (MP pages keep for a week).
   noteChanged(dry ? 0 : rowsChanged);
   // A failed write may follow one that succeeded (ministers written, officials not), so the pages refresh then too.
-  if ((rowsChanged > 0 || writeFailed) && !dry) revalidateTag(GOVUK_DEPT_TAG, 'max');
+  if ((rowsChanged > 0 || writeFailed) && !dry) { revalidateTag(GOVUK_DEPT_TAG, 'max'); refreshTables('dept_ministers', 'dept_officials', 'dept_agencies'); } // A16: table tags too
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
   return NextResponse.json({
     ok: results.filter((r) => r.status === 'ok').length,

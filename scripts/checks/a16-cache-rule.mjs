@@ -29,7 +29,7 @@ const SHA = opt('--sha');
 const ROOT = process.cwd();
 const EXC_FILE = 'scripts/checks/a16-exceptions.json';
 const BASE_FILE = 'scripts/checks/a16-baseline.json';
-const CACHED_HELPERS = ['unstable_cache', 'mpCached', 'mpCachedCount'];
+const CACHED_HELPERS = ['unstable_cache', 'mpCached', 'mpCachedCount', 'tagged', 'cachedQuery']; // tagged(), cachedQuery(): lib/tagged-read.ts
 
 // Files, from the commit (--sha) or the working tree.
 const git = (...a) => execFileSync('git', a, { encoding: 'utf8', maxBuffer: 1 << 28 });
@@ -172,6 +172,7 @@ function resolve(from, spec) {
 const inSpan = (spans, i) => spans.some(([a, b]) => i >= a && i <= b);
 const fnAt = (fi, i) => { let best = null; for (const [n, [a, b]] of fi.fns) if (i >= a && i <= b && (!best || a > best[1])) best = [n, a]; return best?.[0] ?? null; };
 const calledNames = (s, a, b) => new Set([...s.slice(a, b + 1).matchAll(/([A-Za-z_$][\w$]*)\s*(?:<[^>(]*>)?\s*\(/g)].map((m) => m[1]));
+const calledAt = (s, a, b) => { const seen = new Map(); for (const m of s.slice(a, b + 1).matchAll(/([A-Za-z_$][\w$]*)\s*(?:<[^>(]*>)?\s*\(/g)) { const at = a + m.index; const prev = seen.get(m[1]); seen.set(m[1], prev === undefined ? at : prev); } return [...seen]; };
 const exportDefault = (fi) => /export\s+default\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/.exec(fi.s)?.[1];
 
 // Is a function (file, name) cached: inside a cached span of its own file, or passed by name to a cached helper.
@@ -201,8 +202,8 @@ function pageProblems(file) {
       if (!ok) problems.push(`${r.viaPageDb ? 'pageDb read (timer, not tag)' : 'read outside the tagged cache'}: ${r.what} at ${f}:${r.line}`);
     }
     // follow calls
-    for (const name of calledNames(fi.s, a, b)) {
-      const callCovered = covered;
+    for (const [name, at] of calledAt(fi.s, a, b)) {
+      const callCovered = covered || inSpan(fi.cachedSpans, at); // a call made inside a cached span is cached
       if (fi.fns.has(name) && !(n !== '*' && name === n)) { if (n !== '*') push(f, name, callCovered || fnCached(f, name)); }
       const imp = fi.imports.get(name);
       if (imp) push(imp.file, imp.name === 'default' ? (exportDefault(info.get(imp.file) || {}) || 'default') : imp.name, callCovered || fnCached(imp.file, imp.name));

@@ -3,6 +3,7 @@
 // paths and the 'bill:<id>' tag (its publications and text, lib/bill-text.ts), and the page of each MP who sponsors it.
 // Only bills whose stored data actually changed are refreshed, at most REFRESH_BATCH at a time.
 import { revalidatePath, revalidateTag } from '@/lib/refresh-count';
+import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
 
 export const billTag = (id: number) => `bill:${id}`;
 export const REFRESH_BATCH = 300;
@@ -13,6 +14,8 @@ export const sponsorOf = (row: { sponsor_member_id?: number | null }): number[] 
 
 // Refreshes the given bills and MPs; returns how many of each.
 export function refreshBills(billIds: Iterable<number>, memberIds: Iterable<number> = []): { bills: number; mps: number } {
+  billIds = [...billIds];
+  if ((billIds as number[]).length) refreshTables('bill'); // A16: the bill table's tag, only when bills changed
   const bills = [...new Set(billIds)].filter((n) => Number.isInteger(n) && n > 0);
   const mps = [...new Set(memberIds)].filter((n) => Number.isInteger(n) && n > 0);
   for (let i = 0; i < bills.length; i += REFRESH_BATCH) {

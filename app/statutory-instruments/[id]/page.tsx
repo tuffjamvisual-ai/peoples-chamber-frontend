@@ -12,8 +12,10 @@ import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
 import { getSi, getSiVersions, isApiId } from '@/lib/si-treaties-data';
 import ApiInstrument from './ApiInstrument';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400
+export const revalidate = false // A16: rebuilt only when its data changes (table tags on every read), or on a deploy
 
 // Titles for API records (report 81); division pages keep the site default as before.
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<import('next').Metadata> {
@@ -23,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!isApiId(id)) {
     const divisionId = parseInt(id, 10)
     if (!Number.isFinite(divisionId)) notFound()
-    const { count, error } = await supabase.from('statutory_instrument').select('division_id', { count: 'exact', head: true }).eq('division_id', divisionId)
+    const { count, error } = await cachedQuery(['q:app/statutory-instruments/[id]/page.tsx:c8e6e72df9', JSON.stringify([divisionId])], tableTags('statutory_instrument'), () => supabase.from('statutory_instrument').select('division_id', { count: 'exact', head: true }).eq('division_id', divisionId))
     if (error) throw new Error(`/statutory-instruments/[id] metadata: ${error.message}`)
     if (!count) notFound()
     return {}
@@ -39,10 +41,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/statutory-instruments/[id]/page.tsx:bcf4f0e0a0'], tableTags('statutory_instrument'), () => supabase
     .from('statutory_instrument')
     .select('division_id')
-    .limit(20)
+    .limit(20))
   if (error || !data?.length) throw new Error(`generateStaticParams statutory_instrument: ${error?.message || 'zero rows'}`)
   const ids = data.map((r) => String(r.division_id)).filter(Boolean)
   if (!ids.length) throw new Error('generateStaticParams statutory-instruments: zero usable values')
@@ -77,11 +79,11 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
   const divisionId = parseInt(id, 10)
   if (!Number.isFinite(divisionId)) notFound()
 
-  const { data: si, error: siErr } = await supabase
+  const { data: si, error: siErr } = await cachedQuery(['q:app/statutory-instruments/[id]/page.tsx:396b65ad14', JSON.stringify([divisionId])], tableTags('statutory_instrument'), () => supabase
     .from('statutory_instrument')
     .select('*')
     .eq('division_id', divisionId)
-    .single()
+    .single())
   if (siErr && siErr.code !== 'PGRST116') throw new Error(`/statutory-instruments/[id] statutory_instrument: ${siErr.message}`);
   if (!si) notFound()
 
@@ -90,20 +92,20 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
   // Fetch the vote rows, then look up MP metadata separately and merge in JS.
   // Orphan voters (member_id absent from mps) render without a profile link
   // instead of failing the whole query.
-  const { data: voteRows, error: voteRowsErr } = await supabase
+  const { data: voteRows, error: voteRowsErr } = await cachedQuery(['q:app/statutory-instruments/[id]/page.tsx:6db80c23b8', JSON.stringify([divisionId])], tableTags('mp_division_votes'), () => supabase
     .from('mp_division_votes')
     .select('vote_type, member_id, is_rebellion, party')
     .eq('division_id', divisionId)
-    .order('vote_type')
+    .order('vote_type'))
   if (voteRowsErr && voteRowsErr.code !== 'PGRST116') throw new Error(`/statutory-instruments/[id] mp_division_votes: ${voteRowsErr.message}`);
 
   const memberIds = [...new Set((voteRows ?? []).map((v) => v.member_id))]
   const mpRows = memberIds.length
     ? (
-        await supabase
+        await cachedQuery(['q:app/statutory-instruments/[id]/page.tsx:ba3af916b8', JSON.stringify([memberIds])], tableTags('mps'), () => supabase
           .from('mps')
           .select('member_id, display_name, party, constituency, photo_url')
-          .in('member_id', memberIds)
+          .in('member_id', memberIds))
       ).data
     : []
   const mpById = new Map((mpRows ?? []).map((m) => [m.member_id, m]))

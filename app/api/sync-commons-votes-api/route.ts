@@ -6,6 +6,7 @@ import { refreshStore, type StoreRefreshResult } from '@/lib/refresh-stores';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { refreshAllMps, type MpRefresh } from '@/lib/mp-refresh';
 import { noteChanged } from '@/lib/refresh-count';
+import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -287,6 +288,8 @@ async function GET_impl(req: Request) {
     // an MP page (party on the day is reapplied to divisions already held, which changes nothing).
     noteChanged(dryRun ? 0 : divisionsAdded);
     const mpRefresh: MpRefresh | null = !dryRun && divisionsAdded > 0 ? refreshAllMps() : null;
+    // A16 (owner rule 15 Nov 2026, ENTRY 129): pages that read these tables are rebuilt only now, after a real change.
+    if (!dryRun && (divisionsAdded > 0 || partiesApplied > 0)) refreshTables(...DIVISION_TABLES, 'statutory_instrument');
 
     // Statutory instruments are the Commons divisions on an SI (migration 2026-10-21n): add new ones and refresh
     // vote counts whenever a division was added or changed.

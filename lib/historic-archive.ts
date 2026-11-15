@@ -5,6 +5,8 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export const ARCHIVE_LAST_DATE = '2016-03-08';
 export const ARCHIVE_FIRST_YEAR = 2004;
@@ -43,16 +45,16 @@ export const archiveTitle = (d: { title: string | null; division_number: number 
 // The one division whose printed record contradicts itself (14 May 2008, no. 183): its note says so, and its printed result is not repeated as fact.
 export const recordInconsistent = (d: { count_note: string | null }) => !!d.count_note?.includes('printed record is inconsistent');
 
-export const archiveDivision = cache(async (date: string, number: number): Promise<ArchiveDivision | null> => {
+export const archiveDivision = cache((date: string, number: number): Promise<ArchiveDivision | null> => tagged(['archive-division-v1', date, number], tableTags('historic_commons_divisions'), async () => {
   if (date > ARCHIVE_LAST_DATE) return null;
   const { data, error } = await supabase.from('historic_commons_divisions')
     .select('external_id, division_date, division_number, title, ayes_shown, noes_shown, count_shown, count_note, aye_tellers, noe_tellers, evel_ayes, evel_noes, text_before, text_after')
     .eq('division_date', date).eq('division_number', number).maybeSingle();
   if (error) throw new Error(`archive division ${date} ${number}: ${error.message}`);
   return data as ArchiveDivision | null;
-});
+}));
 
-export async function archiveVotes(externalId: string): Promise<ArchiveVote[]> {
+async function archiveVotesRead(externalId: string): Promise<ArchiveVote[]> {
   const { data, error } = await supabase.from('historic_commons_votes')
     .select('id, side, is_teller, list_as, party_as_listed, member_id, profile_link_id')
     .eq('division_external_id', externalId).order('id', { ascending: true }).limit(1000);
@@ -65,7 +67,7 @@ type RefRow = { division_date: string; division_number: number; title: string | 
 const toRef = (r: RefRow): ArchiveRef => ({ date: String(r.division_date).slice(0, 10), number: r.division_number, title: archiveTitle(r) });
 
 // The votes either side of one, and up to 10 others that day, as divisionNeighbours gives for current votes.
-export async function archiveNeighbours(date: string, number: number): Promise<{ previous: ArchiveRef | null; next: ArchiveRef | null; sameDay: ArchiveRef[] }> {
+async function archiveNeighboursRead(date: string, number: number): Promise<{ previous: ArchiveRef | null; next: ArchiveRef | null; sameDay: ArchiveRef[] }> {
   const cols = 'division_date, division_number, title';
   const table = () => supabase.from('historic_commons_divisions').select(cols);
   const [prev, next, day] = await Promise.all([
@@ -82,14 +84,14 @@ export async function archiveNeighbours(date: string, number: number): Promise<{
 }
 
 // The year pages: a year's archive divisions, newest first.
-export async function archiveYearCount(year: number): Promise<number> {
+async function archiveYearCountRead(year: number): Promise<number> {
   if (year < ARCHIVE_FIRST_YEAR || year > ARCHIVE_LAST_YEAR) return 0;
   const { count, error } = await supabase.from('historic_commons_divisions').select('division_number', { count: 'exact', head: true })
     .gte('division_date', `${year}-01-01`).lte('division_date', `${year}-12-31`);
   if (error) throw new Error(`archive count ${year}: ${error.message}`);
   return count ?? 0;
 }
-export async function archiveYearRows(year: number, from: number, to: number): Promise<(ArchiveRef & { ayes: number; noes: number })[]> {
+async function archiveYearRowsRead(year: number, from: number, to: number): Promise<(ArchiveRef & { ayes: number; noes: number })[]> {
   const { data, error } = await supabase.from('historic_commons_divisions').select('division_date, division_number, title, ayes_shown, noes_shown')
     .gte('division_date', `${year}-01-01`).lte('division_date', `${year}-12-31`)
     .order('division_date', { ascending: false }).order('division_number', { ascending: false }).range(from, to);
@@ -130,7 +132,7 @@ async function withTitles(votes: MemberVote[]): Promise<NamedVote[]> {
 
 export type MemberVoteSummary = { total: number; ayes: number; noes: number; first: string; last: string; years: { year: number; count: number }[]; latest: NamedVote[] };
 
-export async function memberVoteSummary(memberId: number): Promise<MemberVoteSummary | null> {
+async function memberVoteSummaryRead(memberId: number): Promise<MemberVoteSummary | null> {
   const votes = await memberVotes(memberId);
   if (!votes.length) return null;
   const perYear = new Map<number, number>();
@@ -146,7 +148,7 @@ export async function memberVoteSummary(memberId: number): Promise<MemberVoteSum
   };
 }
 
-export async function memberVotesInYear(memberId: number, year: number): Promise<{ summary: MemberVote[]; votes: NamedVote[] }> {
+async function memberVotesInYearRead(memberId: number, year: number): Promise<{ summary: MemberVote[]; votes: NamedVote[] }> {
   const all = await memberVotes(memberId);
   return { summary: all, votes: await withTitles(all.filter((v) => v.division_date.startsWith(`${year}-`))) };
 }
@@ -221,3 +223,12 @@ async function registerHistoryRead(memberId: number): Promise<RegisterHistory | 
     categories,
   };
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): the reads below are kept in the shared data cache under their
+// source tags, with no timer (lib/tagged-read.ts); the syncs that write those sources refresh the tags after a real change.
+export const archiveVotes = (...a: Parameters<typeof archiveVotesRead>) => tagged(['archive-votes-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('historic_commons_divisions'), () => archiveVotesRead(...a));
+export const archiveNeighbours = (...a: Parameters<typeof archiveNeighboursRead>) => tagged(['archive-neighbours-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('historic_commons_divisions'), () => archiveNeighboursRead(...a));
+export const archiveYearCount = (...a: Parameters<typeof archiveYearCountRead>) => tagged(['archive-year-count-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('historic_commons_divisions'), () => archiveYearCountRead(...a));
+export const archiveYearRows = (...a: Parameters<typeof archiveYearRowsRead>) => tagged(['archive-year-rows-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('historic_commons_divisions'), () => archiveYearRowsRead(...a));
+export const memberVoteSummary = (...a: Parameters<typeof memberVoteSummaryRead>) => tagged(['archive-member-summary-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('historic_commons_divisions'), () => memberVoteSummaryRead(...a));
+export const memberVotesInYear = (...a: Parameters<typeof memberVotesInYearRead>) => tagged(['archive-member-year-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('historic_commons_divisions'), () => memberVotesInYearRead(...a));

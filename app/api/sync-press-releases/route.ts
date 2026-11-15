@@ -11,6 +11,7 @@ import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
+import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -177,7 +178,7 @@ async function GET_impl(req: Request) {
     // read), so every hourly run made the next visitor wait while the State of the nation figures were read again from
     // the ONS, one request a second: 13 to 15 s rebuilds, every hour from 02:00 on 15 Nov.
     if (added > 0 || !checkedErr) revalidatePath('/transparency/press-releases');
-    if (added > 0 || changedNews.length) freshnessChanged();
+    if (added > 0 || changedNews.length) { freshnessChanged(); refreshTables('press_releases'); } // A16: table tag after a real change
     indexNowAfter([...changedNews, ...(added > 0 ? ['/'] : [])], 'sync-press-releases');
     const failuresSaved = await failing.save();
     if (writeErrors > 0 && upserted === 0) {

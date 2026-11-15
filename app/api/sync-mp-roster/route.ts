@@ -9,6 +9,7 @@ import { buildRepresentations, fetchHistory } from '@/lib/commons-representation
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { colourForParty, type ApiParty } from '@/lib/party-fields';
+import { refreshTables } from '@/lib/source-tags';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -353,6 +354,7 @@ async function GET_impl(req: Request) {
     if (added.length || retired.length) {
       revalidatePath('/mps');
       revalidatePath('/');
+      refreshTables('mps'); // A16: MPs joined or left
     }
     return NextResponse.json(
       { ok: false, error: `profile gap filling: ${(e as Error).message}`, added: added.length, retired: retired.length },
@@ -363,6 +365,7 @@ async function GET_impl(req: Request) {
   if (added.length || retired.length) {
     revalidatePath('/mps');
     revalidatePath('/');
+    refreshTables('mps'); // A16: MPs joined or left
   }
 
   return NextResponse.json({

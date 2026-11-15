@@ -25,6 +25,7 @@ import { ItemFailures } from '@/lib/sync-item-failures';
 import { revalidatePath, noteChanged } from '@/lib/refresh-count';
 import { newsPath } from '@/lib/news-path';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
 
 export const COMMITTEES_API = 'https://committees-api.parliament.uk/api/Publications';
 export const CURSOR_ROUTE = '/api/sync-commons-press-releases';
@@ -212,6 +213,7 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
       // Reports already stored whose details changed are refreshed; new ones render on their first visit (not counted).
       noteChanged(changed.filter((r) => byUrl.has(r.gov_url) && newsPath(r.gov_url)).length);
       for (const r of changed) if (byUrl.has(r.gov_url)) { const p = newsPath(r.gov_url); if (p) revalidatePath(p); }
+      if (changed.length) refreshTables('press_releases'); // A16: table tag after a real change
       unchanged += records.length - changed.length;
     }
     for (const p of items) done.add(p.id);

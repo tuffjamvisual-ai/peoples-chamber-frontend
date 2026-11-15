@@ -30,8 +30,10 @@ import { fetchDivisionVotes, divisionTally, isRebel, type Vote as DivisionVote }
 import { ARCHIVE_LAST_DATE, archiveDate, archiveDivision, archiveNeighbours, archiveTitle } from '@/lib/historic-archive';
 import ArchiveDivisionPage from './ArchiveDivision';
 import { PHONE } from '@/lib/breakpoints';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags, DIVISION_TABLES } from '@/lib/source-tags';
 
-export const revalidate = 86400;  // divisions don't change after the vote happens
+export const revalidate = false; // A16: rebuilt only when its data changes (source tags on every read), or on a deploy  // divisions don't change after the vote happens
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -139,14 +141,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const { data: row, error: rowErr } = await supabase
+  const { data: row, error: rowErr } = await cachedQuery(['division-meta-row', dateOnly, divisionNumber], tableTags(...DIVISION_TABLES), () => supabase
     .from('mp_division_votes')
     .select('division_title, division_date, bill_id, division_id')
     .eq('division_date_only', dateOnly)
     .eq('division_number', divisionNumber)
     .order('bill_id', { ascending: true, nullsFirst: false })
     .limit(1)
-    .maybeSingle();
+    .maybeSingle());
   if (rowErr && rowErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] mp_division_votes: ${rowErr.message}`);
   if (!row) notFound();
 
@@ -162,14 +164,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const motion = (row.division_title ?? '').replace(/\s+/g, ' ').trim() || `Commons Division ${divisionNumber}`;
   let billName: string | null = null;
   if (row.bill_id != null) {
-    const { data: bill, error: billErr2 } = await supabase.from('bill').select('title').eq('id', row.bill_id).is('hidden_reason', null).maybeSingle();
+    const { data: bill, error: billErr2 } = await cachedQuery(['division-meta-bill', row.bill_id], tableTags('bill'), () => supabase.from('bill').select('title').eq('id', row.bill_id).is('hidden_reason', null).maybeSingle());
     if (billErr2 && billErr2.code !== 'PGRST116') throw new Error(`/divisions/[slug] bill: ${billErr2.message}`);
     billName = (bill?.title as string | undefined)?.replace(/\s+/g, ' ').trim() || null;
   }
   // "X Act 2022" was "X Bill" when the vote was held, so compare on the name without Bill, Act and the year.
   const billCore = billName ? billName.replace(/\s*(\[[^\]]*\]|\bBill\b|\bAct\b(\s+\d{4})?)\s*/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase() : '';
   const showBill = !!billName && !!billCore && !motion.toLowerCase().includes(billCore);
-  const { data: sameDay, error: sameDayErr } = await supabase.from('commons_divisions_fts').select('division_number, division_title').eq('division_date_only', dateOnly);
+  const { data: sameDay, error: sameDayErr } = await cachedQuery(['division-same-day', dateOnly], tableTags(...DIVISION_TABLES), () => supabase.from('commons_divisions_fts').select('division_number, division_title').eq('division_date_only', dateOnly));
   if (sameDayErr) throw new Error(`/divisions/[slug] commons_divisions_fts: ${sameDayErr.message}`);
   const title = divisionSeoTitle(
     showBill ? `${billName}: ${motion}` : motion,
@@ -182,13 +184,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // none, and the result they give. A tie is left without a result: the data does not record the casting vote.
   let ayes: number | null = null, noes: number | null = null;
   if (row.division_id != null) {
-    const { data: t, error: tErr } = await supabase.from('commons_division_totals').select('aye_count, no_count').eq('division_id', row.division_id).maybeSingle();
+    const { data: t, error: tErr } = await cachedQuery(['division-totals', row.division_id], tableTags(...DIVISION_TABLES), () => supabase.from('commons_division_totals').select('aye_count, no_count').eq('division_id', row.division_id).maybeSingle());
     if (tErr && tErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] commons_division_totals: ${tErr.message}`);
     if (t) { ayes = t.aye_count as number; noes = t.no_count as number; }
   }
   if (ayes == null || noes == null) {
-    const count = (voteType: string) => supabase.from('mp_division_votes').select('member_id', { count: 'exact', head: true })
-      .eq('division_date_only', dateOnly).eq('division_number', divisionNumber).eq('vote_type', voteType).not('is_teller', 'is', true);
+    const count = (voteType: string) => cachedQuery(['division-vote-count', dateOnly, divisionNumber, voteType], tableTags(...DIVISION_TABLES), () => supabase.from('mp_division_votes').select('member_id', { count: 'exact', head: true })
+      .eq('division_date_only', dateOnly).eq('division_number', divisionNumber).eq('vote_type', voteType).not('is_teller', 'is', true));
     const [a, n] = await Promise.all([count('aye'), count('no')]);
     if (a.error) throw new Error(`/divisions/[slug] aye count: ${a.error.message}`);
     if (n.error) throw new Error(`/divisions/[slug] no count: ${n.error.message}`);
@@ -209,8 +211,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     `Ayes ${ayes}, Noes ${noes}: ${result ? `MPs ${result} ${subject(motionText)}` : subject(motionText)} on ${dateLabel}${margin}.`;
   // Each party's side, from the same vote rows the page lists (party stored with the vote, tellers left out): parties with
   // 10 or more MPs voting and a majority one way, largest first. "Most" unless every one of them voted the same way.
-  const { data: partyRows, error: partyErr } = await supabase.from('mp_division_votes').select('party, vote_type, is_teller')
-    .eq('division_date_only', dateOnly).eq('division_number', divisionNumber);
+  const { data: partyRows, error: partyErr } = await cachedQuery(['division-party-sides', dateOnly, divisionNumber], tableTags(...DIVISION_TABLES), () => supabase.from('mp_division_votes').select('party, vote_type, is_teller')
+    .eq('division_date_only', dateOnly).eq('division_number', divisionNumber));
   if (partyErr) throw new Error(`/divisions/[slug] party sides: ${partyErr.message}`);
   const sides = new Map<string, { aye: number; no: number }>();
   for (const v of (partyRows ?? []) as { party: string | null; vote_type: string; is_teller: boolean | null }[]) {
@@ -245,12 +247,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // copy of commons_divisions_titled, fast enough for the anon role's 3-second
 // timeout), so no dedupe is needed against the per-MP rows in mp_division_votes.
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['division-static-params'], tableTags(...DIVISION_TABLES), () => supabase
     .from('commons_divisions_fts')
     .select('division_date_only, division_number')
     .not('division_date_only', 'is', null)
     .not('division_number', 'is', null)
-    .limit(20);
+    .limit(20));
   if (error) {
     throw new Error(
       `generateStaticParams(/divisions/[slug]) query failed: ${error.message}`
@@ -313,12 +315,12 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   let billTitle: string | null = null;
   let billSummary: string | null = null;
   if (billId != null) {
-    const { data: bill, error: billErr } = await supabase
+    const { data: bill, error: billErr } = await cachedQuery(['division-bill', billId], tableTags('bill'), () => supabase
       .from('bill')
       .select('title, description, long_title')
       .eq('id', billId)
       .is('hidden_reason', null)
-      .maybeSingle();
+      .maybeSingle());
     if (billErr && billErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] bill: ${billErr.message}`);
     if (!bill) billId = null;
     billTitle = bill?.title ?? null;
@@ -331,11 +333,11 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   const cvaId = voteRows.find((v) => v.division_id != null)?.division_id ?? null;
   let siDescription: string | null = null;
   if (!billSummary && cvaId != null) {
-    const { data: si, error: siErr } = await supabase
+    const { data: si, error: siErr } = await cachedQuery(['division-si', cvaId], tableTags('statutory_instrument'), () => supabase
       .from('statutory_instrument')
       .select('description')
       .eq('division_id', cvaId)
-      .maybeSingle();
+      .maybeSingle());
     if (siErr && siErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] statutory_instrument: ${siErr.message}`);
     siDescription = si?.description ?? null;
   }

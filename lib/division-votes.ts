@@ -4,6 +4,8 @@
 import { supabase } from '@/lib/supabase';
 import { normaliseParty, partyColourForMember } from '@/lib/party-helpers';
 import formerNames from '@/lib/data/former-mp-names.json';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags, DIVISION_TABLES } from '@/lib/source-tags';
 
 export type VoteRow = {
   member_id: number;
@@ -33,7 +35,7 @@ export type PartyGroup = { party: string; partyColour: string; rows: Vote[] };
 
 // The vote rows of one division (natural key index), Parliament's official totals (division_id) and the MPs who voted
 // (one batch by member_id). Returns null when the division has no vote rows (the division page's 404).
-export async function fetchDivisionVotes(dateOnly: string, divisionNumber: number, label: string): Promise<{ voteRows: VoteRow[]; votes: Vote[]; totals: Totals } | null> {
+async function fetchDivisionVotesRead(dateOnly: string, divisionNumber: number, label: string): Promise<{ voteRows: VoteRow[]; votes: Vote[]; totals: Totals } | null> {
   const { data: voteRows, error: voteErr } = await supabase
     .from('mp_division_votes')
     .select('member_id, vote_type, is_teller, is_rebellion, party, bill_id, division_title, division_date, division_id')
@@ -111,3 +113,7 @@ export function divisionTally(votes: Vote[], totals: Totals) {
   const rebels = [...ayes, ...noes].filter(isRebel);
   return { ayes, noes, boths, tellers, ayeTotal, noTotal, ayeNamed, noNamed, ayeGroups, noeGroups, rebels };
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): the reads below are kept in the shared data cache under their
+// source tags, with no timer (lib/tagged-read.ts); the syncs that write those sources refresh the tags after a real change.
+export const fetchDivisionVotes = (...a: Parameters<typeof fetchDivisionVotesRead>) => tagged(['division-votes-v1', ...a.slice(0, 2).map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES, 'mps'), () => fetchDivisionVotesRead(...a));

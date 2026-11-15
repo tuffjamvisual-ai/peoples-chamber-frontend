@@ -6,6 +6,8 @@
 // bill_id. No full-table reads.
 import { supabase } from '@/lib/supabase';
 import { ARCHIVE_FIRST_YEAR, ARCHIVE_LAST_YEAR, archiveYearCount, archiveYearRows } from './historic-archive';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags, DIVISION_TABLES } from '@/lib/source-tags';
 
 export type DivisionRef = { date: string; number: number; title: string };
 export type YearDivision = DivisionRef & { ayes: number | null; noes: number | null };
@@ -22,7 +24,7 @@ const ref = (r: { division_date_only: string; division_number: number; division_
 
 // The years that have divisions, oldest first: the first and last division's years, then every year between that has
 // at least one (one indexed count per year, 11 years today).
-export async function divisionYears(): Promise<number[]> {
+async function divisionYearsRead(): Promise<number[]> {
   return [...new Set([...Array.from({ length: ARCHIVE_LAST_YEAR - ARCHIVE_FIRST_YEAR + 1 }, (_, i) => ARCHIVE_FIRST_YEAR + i), ...(await currentYears())])].sort((a, b) => a - b);
 }
 
@@ -41,7 +43,7 @@ async function currentYears(): Promise<number[]> {
 }
 
 // How many divisions a year has (one indexed count).
-export async function yearCount(year: number): Promise<number> {
+async function yearCountRead(year: number): Promise<number> {
   const [current, archive] = await Promise.all([currentYearCount(year), archiveYearCount(year)]);
   return current + archive;
 }
@@ -56,7 +58,7 @@ async function currentYearCount(year: number): Promise<number> {
 // One page of a year's divisions, newest first, with their Aye and No totals (commons_division_totals, the figures the
 // division page shows).
 // The current divisions come first in 2016, the one year with both: the archive ends on 8 March 2016, the day before they start.
-export async function yearDivisions(year: number, page: number, perPage: number): Promise<{ rows: YearDivision[]; total: number }> {
+async function yearDivisionsRead(year: number, page: number, perPage: number): Promise<{ rows: YearDivision[]; total: number }> {
   const from = (page - 1) * perPage;
   if (year <= ARCHIVE_LAST_YEAR) {
     const [current, archive] = await Promise.all([currentYearCount(year), archiveYearCount(year)]);
@@ -95,7 +97,7 @@ async function currentYearDivisions(year: number, page: number, perPage: number)
 }
 
 // The divisions around one: the one before and after (by date, then number), and up to 10 others on the same day.
-export async function divisionNeighbours(date: string, number: number): Promise<{ previous: DivisionRef | null; next: DivisionRef | null; sameDay: DivisionRef[] }> {
+async function divisionNeighboursRead(date: string, number: number): Promise<{ previous: DivisionRef | null; next: DivisionRef | null; sameDay: DivisionRef[] }> {
   const cols = 'division_date_only, division_number, division_title';
   const [prev, next, day] = await Promise.all([
     supabase.from('commons_divisions_fts').select(cols)
@@ -119,7 +121,7 @@ export async function divisionNeighbours(date: string, number: number): Promise<
 
 // The Commons divisions matched to a bill (mp_division_votes.bill_id), oldest first. The vote rows are one per MP, so
 // up to 2,000 are read and reduced to their divisions (71 divisions have a bill today, one bill each).
-export async function billDivisions(billId: number): Promise<DivisionRef[]> {
+async function billDivisionsRead(billId: number): Promise<DivisionRef[]> {
   const { data, error } = await supabase.from('mp_division_votes')
     .select('division_date_only, division_number, division_title')
     .eq('bill_id', billId).not('division_date_only', 'is', null).not('division_number', 'is', null)
@@ -132,3 +134,11 @@ export async function billDivisions(billId: number): Promise<DivisionRef[]> {
   }
   return [...seen.values()].sort((a, b) => a.date.localeCompare(b.date) || a.number - b.number);
 }
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): the reads below are kept in the shared data cache under their
+// source tags, with no timer (lib/tagged-read.ts); the syncs that write those sources refresh the tags after a real change.
+export const divisionYears = (...a: Parameters<typeof divisionYearsRead>) => tagged(['division-years-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES, 'historic_commons_divisions'), () => divisionYearsRead(...a));
+export const yearCount = (...a: Parameters<typeof yearCountRead>) => tagged(['division-year-count-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES, 'historic_commons_divisions'), () => yearCountRead(...a));
+export const yearDivisions = (...a: Parameters<typeof yearDivisionsRead>) => tagged(['division-year-rows-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES, 'historic_commons_divisions'), () => yearDivisionsRead(...a));
+export const divisionNeighbours = (...a: Parameters<typeof divisionNeighboursRead>) => tagged(['division-neighbours-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES), () => divisionNeighboursRead(...a));
+export const billDivisions = (...a: Parameters<typeof billDivisionsRead>) => tagged(['bill-divisions-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES), () => billDivisionsRead(...a));

@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { runSiTreatiesSync } from '@/lib/si-treaties-sync';
+import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -27,6 +28,9 @@ async function GET_impl(req: Request) {
 
   try {
     const { status, body } = await runSiTreatiesSync({ supabase: createClient(url, key) });
+    // A16 (owner rule 15 Nov 2026, ENTRY 129): pages that read these tables are rebuilt only now, after a real change.
+    const b = body as { siWritten?: number; flagsWritten?: number; treatiesWritten?: number; siTimelines?: number; treatyTimelines?: number };
+    if ((b.siWritten ?? 0) + (b.flagsWritten ?? 0) + (b.treatiesWritten ?? 0) + (b.siTimelines ?? 0) + (b.treatyTimelines ?? 0) > 0) refreshTables(...SI_TABLES);
     return NextResponse.json(body, { status });
   } catch (err) {
     return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 });
