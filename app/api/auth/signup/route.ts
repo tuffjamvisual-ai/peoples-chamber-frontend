@@ -9,6 +9,7 @@ import { emailEnabled, sendVerificationEmail, sendSignupNotification } from '@/l
 import { setSessionCookie } from '@/lib/session';
 import disposableDomains from 'disposable-email-domains';
 import { safeReturnPath } from '@/lib/safe-return';
+import { clientIp, dailyCapReached, overIpLimit } from '@/lib/email-limits';
 
 // Permissive but blocks obvious garbage. Real format validation happens
 // at the deliverability layer (MX check + send a verification email).
@@ -31,6 +32,10 @@ async function domainAcceptsMail(email: string): Promise<boolean> {
 }
 
 export async function POST(request: NextRequest) {
+  // Security review M2 (lib/email-limits.ts): at most 5 sign-ups an hour from one IP.
+  if (overIpLimit('signup', clientIp(request.headers))) {
+    return NextResponse.json({ error: 'Too many sign-ups from here. Please try again in an hour.' }, { status: 429 });
+  }
   try {
     const body = await request.json();
     const password = body.password as string | undefined;
@@ -110,6 +115,10 @@ export async function POST(request: NextRequest) {
     // cannot be reached (lib/email.ts logs why), the visitor is told so and no account is made, so trying again later
     // works instead of meeting "address already registered" with no email on the way.
     if (!verified) {
+      // At most 20 sign-up confirmation emails a UTC day (M2); the visitor is told to try later, nothing is created.
+      if (await dailyCapReached(supabase, 'signup')) {
+        return NextResponse.json({ error: "We can't send confirmation emails just now. Please try again later." }, { status: 503 });
+      }
       const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
       const sent = await sendVerificationEmail(email, token.raw, base);
       if (!sent.sent) {

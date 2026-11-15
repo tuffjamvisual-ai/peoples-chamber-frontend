@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { emailEnabled, sendNewsletterConfirmation } from '@/lib/email';
+import { clientIp, dailyCapReached, overIpLimit } from '@/lib/email-limits';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
   }
   const source = typeof body.source === 'string' ? body.source.slice(0, 40) : null;
+  // Security review M2 (lib/email-limits.ts): at most 5 an hour from one IP, and 30 confirmation emails a UTC day.
+  if (overIpLimit('newsletter', clientIp(request.headers))) {
+    return NextResponse.json({ error: 'Too many sign-ups from here. Please try again in an hour.' }, { status: 429 });
+  }
 
   const { data: existing, error: readErr } = await supabase
     .from('newsletter_subscribers')
@@ -38,6 +43,12 @@ export async function POST(request: NextRequest) {
   if (existing?.status === 'confirmed') return NextResponse.json({ ok: true });
   if (existing?.last_sent_at && Date.now() - new Date(existing.last_sent_at).getTime() < RESEND_GAP_MS) {
     return NextResponse.json({ ok: true });
+  }
+
+  // Only a request that would send an email counts against the day's cap (an address already confirmed, or emailed
+  // in the last 10 minutes, has been answered above without one).
+  if (await dailyCapReached(supabase, 'newsletter')) {
+    return NextResponse.json({ error: 'Signing up is unavailable just now. Please try again later.' }, { status: 503 });
   }
 
   let token: string;
