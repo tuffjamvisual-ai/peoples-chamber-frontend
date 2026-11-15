@@ -37,7 +37,9 @@ export async function GET(request: NextRequest) {
     
     if (error) {
       console.error('Supabase error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      // L10 (security review, owner approved 14 Nov 2026): the database's own error text is logged, not shown.
+      console.error('[bills]', error.message);
+      return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
     }
     
     // Format response

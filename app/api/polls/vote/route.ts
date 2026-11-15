@@ -14,6 +14,9 @@ export async function POST(request: NextRequest) {
   if (!pollId || !choice) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
+  // L10 (security review, owner approved 14 Nov 2026, COWORK-TO-T1 ENTRY 59): only 'yes' and 'no' are votes; anything
+  // else used to be counted as 'no'.
+  if (choice !== 'yes' && choice !== 'no') return NextResponse.json({ error: 'Choice must be yes or no' }, { status: 400 });
 
   const { data: voter } = await supabase
     .from('users')
@@ -39,10 +42,13 @@ export async function POST(request: NextRequest) {
     // The time is sent as well as left to the column default, the same as bill votes (25 Oct 2026, report 58).
     .insert({ user_id: userId, poll_id: pollId, choice, created_at: new Date().toISOString() });
 
-  if (voteError) return NextResponse.json({ error: voteError.message }, { status: 500 });
+  if (voteError) { console.error('[polls/vote]', voteError.message); return NextResponse.json({ error: 'Your vote could not be saved. Please try again.' }, { status: 500 }); }
 
   const field = choice === 'yes' ? 'vote_count_yes' : 'vote_count_no';
 
+  // Read, plus one, write (unchanged): the shown totals start from published figures, not only this site's votes, so they
+  // cannot be recounted from poll_vote. Two votes at the same moment can still lose one +1; the fix needs a database
+  // function (drafted for Cowork, scripts/migrations/draft-poll-vote-increment.sql, not applied).
   const { data: poll } = await supabase
     .from('polls')
     .select('vote_count_yes, vote_count_no')

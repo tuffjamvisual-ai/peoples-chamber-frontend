@@ -50,7 +50,8 @@ export async function GET(req: Request) {
 
   if (error) {
     console.error('[bills/search] supabase error:', error.message);
-    return NextResponse.json({ bills: [], total: 0, error: error.message }, { status: 500 });
+    // L10 (security review, owner approved 14 Nov 2026): the database's own error text is logged, not shown.
+    return NextResponse.json({ bills: [], total: 0, error: 'Search is unavailable just now.' }, { status: 500 });
   }
 
   const bills = ((data as unknown as Record<string, unknown>[]) || []).map(toCardBill);

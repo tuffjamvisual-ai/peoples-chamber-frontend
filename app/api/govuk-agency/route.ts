@@ -9,6 +9,8 @@ export async function GET(request: Request) {
   const slug = searchParams.get('slug');
 
   if (!slug) return NextResponse.json({ error: 'slug required' }, { status: 400 });
+  // L9 (security review, owner approved 14 Nov 2026, COWORK-TO-T1 ENTRY 59): GOV.UK slugs are lower-case letters, digits and hyphens only.
+  if (!/^[a-z0-9-]{1,120}$/.test(slug)) return NextResponse.json({ error: 'invalid slug' }, { status: 400 });
 
   try {
     // Try Supabase first

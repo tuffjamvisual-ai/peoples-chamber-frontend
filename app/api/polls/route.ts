@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
     .eq('poll_type', 'yesno') // exclude the reader voting-intention poll from the yes/no list
     .order('created_at', { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // L10 (security review, owner approved 14 Nov 2026): the database's own error text is logged, not shown.
+  if (error) { console.error('[polls]', error.message); return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 }); }
   return NextResponse.json({ polls: data });
 }
