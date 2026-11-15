@@ -5,6 +5,8 @@ import { bandForCivilServiceRole, type ScsBand } from '@/lib/civil-service-salar
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
+import { refreshTables } from '@/lib/source-tags';
+import { sameValue } from '@/lib/mp-refresh';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -139,6 +141,7 @@ async function GET_impl(req: Request) {
   const results: Array<{ slug: string; status: 'ok' | 'fail'; detail?: string }> = [];
   let stoppedBy: string | null = null;
   let notReached = 0;
+  let personChanged = 0;
   for (const [i, slug] of slugs.entries()) {
     if (budget.stopStarting()) { stoppedBy = 'time budget'; notReached = slugs.length - i; break; }
     try {
@@ -149,7 +152,7 @@ async function GET_impl(req: Request) {
       // the work of the photo-backfill (Lord Livermore et al.).
       const { data: existing } = await supabase
         .from('person_cache')
-        .select('photo')
+        .select('*')
         .eq('slug', slug)
         .maybeSingle();
       const photo =
@@ -157,6 +160,9 @@ async function GET_impl(req: Request) {
           ? existing.photo
           : p.photo;
 
+      // A16 (owner rule 15 Nov 2026, ENTRY 129): a real change is a new person or a different stored value.
+      const next: Record<string, unknown> = { ...p, photo };
+      if (!existing || Object.keys(next).some((k) => !sameValue((existing as Record<string, unknown>)[k], next[k]))) personChanged++;
       const { error } = await supabase.from('person_cache').upsert(
         { slug, ...p, photo, last_synced: new Date().toISOString() },
         { onConflict: 'slug' },
@@ -170,6 +176,7 @@ async function GET_impl(req: Request) {
   }
 
   const refreshed = results.filter((r) => r.status === 'ok').length;
+  if (personChanged > 0) refreshTables('person_cache'); // A16: only after a real change
   return NextResponse.json({
     ok: refreshed,
     partial: stoppedBy !== null,

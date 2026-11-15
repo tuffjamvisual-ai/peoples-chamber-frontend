@@ -5,6 +5,7 @@ import { ORGANOGRAM_DATASET_URL } from '@/lib/organogram-urls';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
+import { refreshTables } from '@/lib/source-tags';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -135,11 +136,13 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, datasetUrl: 
     // membership).
     const { data: existing } = await supabase
       .from('person_cache')
-      .select('slug')
+      .select('slug, actual_pay_floor, actual_pay_ceiling, pay_period, fte')
       .eq('slug', slug)
       .maybeSingle();
     if (!existing) continue;
     matched++;
+    // A16 (owner rule 15 Nov 2026, ENTRY 129): an unchanged row is left as it is and refreshes nothing.
+    if (existing.actual_pay_floor === row.payFloor && existing.actual_pay_ceiling === row.payCeiling && existing.pay_period === latest.periodLabel && existing.fte === row.fte) continue;
     const { error } = await supabase
       .from('person_cache')
       .update({
@@ -181,6 +184,8 @@ async function GET_impl(req: Request) {
       results.push({ deptSlug, matched: 0, updated: 0, note: 'err: ' + (err as Error).message });
     }
   }
+  const updatedTotal = results.reduce((a, r) => a + (r.updated || 0), 0);
+  if (updatedTotal > 0) refreshTables('person_cache'); // A16: only after a real change
   return NextResponse.json({
     departments: results.length,
     matched: results.reduce((a, r) => a + (r.matched || 0), 0),

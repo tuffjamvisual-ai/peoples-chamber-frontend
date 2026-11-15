@@ -12,6 +12,7 @@ import { refreshStore } from '@/lib/refresh-stores';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
+import { newsTagForPath } from '@/lib/news-tag';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -156,7 +157,7 @@ async function GET_impl(req: Request) {
         if (!old) added++;
         if (old && (old.title !== record.title || old.description !== record.description || (body && old.body !== body))) {
           const p = newsPath(govUrl);
-          if (p) { revalidatePath(p); pagesRefreshed++; changedNews.push(p); }
+          if (p) { revalidatePath(p); revalidateTag(newsTagForPath(p), 'max'); pagesRefreshed++; changedNews.push(p); }
         }
       } else { writeErrors++; lastWriteError = error.message; }
     }

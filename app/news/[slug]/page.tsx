@@ -14,13 +14,16 @@ import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
 import { piecesExaminingRelease } from '@/lib/editorials/release-links'
 import type { EditorialListEntry } from '@/lib/editorials-source'
+import { cachedQuery } from '@/lib/tagged-read'
+import { newsTag } from '@/lib/news-tag'
+import { tableTags } from '@/lib/source-tags';
 
 // Plain text of an HTML fragment, for comparing the summary with the body's opening.
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase()
 
 // Press release copies do not change once published, so a week is only a safety net (owner's approval, 29 Oct 2026,
 // cache Stage 1): the press release crons refresh any release they change (lib/news-path.ts, /api/revalidate).
-export const revalidate = 604800
+export const revalidate = false // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const SERIF = 'var(--font-special-elite), monospace'
 const INK = '#14100d'
@@ -44,13 +47,15 @@ async function getPressRelease(slug: string): Promise<PressRelease | null> {
   if (!safeSlug) return null
   // Indexed slug column (migration 2026-10-16k). A database error throws rather than
   // returning null, so a slow moment can never be served, and cached, as a 404.
-  const { data, error } = await supabase
+  // A16 (owner rule 15 Nov 2026, ENTRY 129): this release's row, under its own tag news:<slug>, refreshed by the press
+  // syncs only when the release changed (they refresh /news/<slug> and this tag together); no timer.
+  const { data, error } = await cachedQuery(['news-release-v1', safeSlug.toLowerCase()], [newsTag(safeSlug)], () => supabase
     .from('press_releases')
     .select('id, title, description, organisation, published_at, gov_url, body, removed_upstream')
     .eq('news_slug', safeSlug.toLowerCase())
     .order('published_at', { ascending: false, nullsFirst: false })
     .limit(1)
-    .maybeSingle()
+    .maybeSingle())
   if (error) throw new Error(`press_releases lookup failed: ${error.message}`)
   return data
 }
@@ -96,11 +101,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // person the Related box shows); otherwise, or with no start date, it is left out (owner's approval, 23 Oct 2026).
   let hasMinister = false
   if (deptSlug && release.published_at) {
-    const { data: sos, error: sosErr } = await supabase.from('dept_ministers').select('slug, role')
-      .eq('dept_slug', deptSlug).eq('is_secretary_of_state', true).neq('resigned', true).maybeSingle()
+    const { data: sos, error: sosErr } = await cachedQuery(['q:app/news/[slug]/page.tsx:19830f1b95', JSON.stringify([deptSlug])], tableTags('dept_ministers'), () => supabase.from('dept_ministers').select('slug, role')
+      .eq('dept_slug', deptSlug).eq('is_secretary_of_state', true).neq('resigned', true).maybeSingle())
     if (sosErr && sosErr.code !== 'PGRST116') throw new Error(`/news/[slug] metadata minister: ${sosErr.message}`)
     if (sos?.slug) {
-      const { data: person, error: personErr } = await supabase.from('person_cache').select('current_roles').eq('slug', sos.slug).maybeSingle()
+      const { data: person, error: personErr } = await cachedQuery(['q:app/news/[slug]/page.tsx:bedd72c605', JSON.stringify([sos.slug])], tableTags('person_cache'), () => supabase.from('person_cache').select('current_roles').eq('slug', sos.slug).maybeSingle())
       if (personErr && personErr.code !== 'PGRST116') throw new Error(`/news/[slug] metadata minister start: ${personErr.message}`)
       const post = ((person?.current_roles as { title?: string; startDate?: string }[] | null) || [])
         .find((r) => (r.title || '').trim().toLowerCase() === String(sos.role || '').trim().toLowerCase())

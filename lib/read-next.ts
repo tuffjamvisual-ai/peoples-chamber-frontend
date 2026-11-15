@@ -11,6 +11,8 @@ import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import { exploreNextSelection } from '@/lib/explore-next';
 import { optionalSection } from '@/lib/optional-section';
 import { displayMpName } from '@/lib/mp-name';
+import { tagged, keyHash } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export type ReadNextLink = { href: string; label: string; note?: string };
 
@@ -197,8 +199,8 @@ async function debateReadNextImpl(d: { title: string; speakers: { memberId: numb
 
 // Entry points: a failed read leaves the block out (lib/optional-section.ts).
 export const newsReadNext = (r: Parameters<typeof newsReadNextImpl>[0]) =>
-  optionalSection(`read next (news ${r.id})`, () => newsReadNextImpl(r), [] as ReadNextLink[]);
+  optionalSection(`read next (news ${r.id})`, () => tagged(['news-read-next-v1', keyHash(r)], tableTags('press_releases', 'dept_ministers', 'mps', 'bill', 'welfare_constituency_geography', 'councils', 'editorials'), () => newsReadNextImpl(r)), [] as ReadNextLink[]);
 export const editorialReadNext = (piece: EditorialEntry) =>
-  optionalSection(`read next (editorial ${piece.slug})`, () => editorialReadNextImpl(piece), [] as ReadNextLink[]);
+  optionalSection(`read next (editorial ${piece.slug})`, () => tagged(['editorial-read-next-v1', keyHash(piece)], [...tableTags('press_releases', 'dept_ministers', 'mps', 'bill', 'welfare_constituency_geography', 'councils'), 'editorials'], () => editorialReadNextImpl(piece)), [] as ReadNextLink[]);
 export const debateReadNext = (d: Parameters<typeof debateReadNextImpl>[0]) =>
-  optionalSection(`read next (debate ${d.title})`, () => debateReadNextImpl(d), [] as ReadNextLink[]);
+  optionalSection(`read next (debate ${d.title})`, () => tagged(['debate-read-next-v1', keyHash(d)], [...tableTags('press_releases', 'dept_ministers', 'mps', 'bill', 'welfare_constituency_geography', 'councils'), 'editorials'], () => debateReadNextImpl(d)), [] as ReadNextLink[]);

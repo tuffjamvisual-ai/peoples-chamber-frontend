@@ -74,7 +74,6 @@
   "page /mps/[id]/questions",
   "page /mps/[id]/reports",
   "page /mps/[id]/votes-from-hansard/[year]",
-  "page /news/[slug]",
   "page /organisations",
   "page /organisations/[slug]",
   "page /organisations/[slug]/[dataset]",

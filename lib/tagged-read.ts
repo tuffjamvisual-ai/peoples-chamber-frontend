@@ -4,6 +4,10 @@
 //   export const yearCount = (year: number) => tagged(['year-count', year], [DIVISIONS_TAG], () => yearCountRead(year));
 // The key must name the read and every argument it depends on. The value must be plain JSON (no Map, Date or class).
 import { unstable_cache } from 'next/cache';
+import { createHash } from 'node:crypto';
+
+// A short key for a large argument (a release with its body, a debate with its speeches): a hash of its JSON.
+export const keyHash = (v: unknown) => createHash('sha256').update(JSON.stringify(v ?? null)).digest('hex').slice(0, 24);
 
 export function tagged<T>(key: (string | number | boolean | null)[], tags: string[], read: () => Promise<T>): Promise<T> {
   if (!tags.length) throw new Error('tagged(): a cached read needs at least one source tag');
