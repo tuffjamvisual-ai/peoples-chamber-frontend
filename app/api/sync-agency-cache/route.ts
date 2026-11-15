@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { refreshTables } from '@/lib/source-tags';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -98,6 +99,10 @@ async function GET_impl(req: Request) {
   );
 
   const results: Array<{ slug: string; status: 'ok' | 'fail'; detail?: string }> = [];
+  // A16 (ENTRY 129): the stored rows, so the pages are refreshed only when an agency's details really changed.
+  const { data: storedRows } = await supabase.from('agency_cache').select('*');
+  const stored = new Map(((storedRows ?? []) as Record<string, unknown>[]).map((r) => [String(r.slug), r]));
+  let changed = 0;
   for (const slug of slugs) {
     try {
       const a = await fetchAgency(slug);
@@ -106,6 +111,8 @@ async function GET_impl(req: Request) {
         { onConflict: 'slug' },
       );
       if (error) throw error;
+      const o = stored.get(slug);
+      if (!o || Object.entries(a).some(([k, v]) => JSON.stringify(v ?? null) !== JSON.stringify(o[k] ?? null))) changed++;
       results.push({ slug, status: 'ok' });
     } catch (err) {
       if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
@@ -113,7 +120,9 @@ async function GET_impl(req: Request) {
     }
   }
 
+  if (changed > 0) refreshTables('agency_cache');
   return NextResponse.json({
+    changed,
     ok: results.filter((r) => r.status === 'ok').length,
     fail: results.filter((r) => r.status === 'fail').length,
     syncedAt: new Date().toISOString(),

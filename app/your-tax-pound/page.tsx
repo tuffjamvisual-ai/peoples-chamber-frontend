@@ -16,7 +16,7 @@ import BackLink from '../components/BackLink';
 import { notFound } from 'next/navigation';
 import { SHOW_YOUR_TAX_POUND, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const PAGE_METADATA: Metadata = {
   title: 'Your Tax Pound, Where £1 Goes',

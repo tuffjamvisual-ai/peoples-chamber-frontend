@@ -7,14 +7,16 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import Link from 'next/link';
 import BackLink from '../../components/BackLink';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 21600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/agencies/[slug]/page.tsx:2c9e23554f'], tableTags('agency_cache'), () => supabase
     .from('agency_cache')
     .select('slug')
-    .limit(20);
+    .limit(20));
   if (error || !data?.length) throw new Error(`generateStaticParams agency_cache: ${error?.message || 'zero rows'}`);
   const slugs = data.map((r) => String(r.slug)).filter(Boolean);
   if (!slugs.length) throw new Error('generateStaticParams agencies: zero usable values');
@@ -72,11 +74,11 @@ const DEPT_SLUGS: Record<string, string> = {
 };
 
 async function getAgency(slug: string): Promise<AgencyData | null> {
-  const { data, error: dataErr } = await supabase
+  const { data, error: dataErr } = await cachedQuery(['q:app/agencies/[slug]/page.tsx:aff5c816e6', JSON.stringify([slug])], tableTags('agency_cache'), () => supabase
     .from('agency_cache')
     .select('name, description, body, acronym, ministers, board_members, parent_orgs, featured_docs, social_media')
     .eq('slug', slug)
-    .maybeSingle();
+    .maybeSingle());
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/agencies/[slug] agency_cache: ${dataErr.message}`);
 
   if (!data) return null;
@@ -118,7 +120,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
     ? Array.from(new Set([...agency.ministers, ...agency.boardMembers].map((m) => m.slug).filter(Boolean)))
     : [];
   const { data: pcRows } = peopleSlugs.length
-    ? await supabase.from('person_cache').select('slug').in('slug', peopleSlugs)
+    ? await cachedQuery(['q:app/agencies/[slug]/page.tsx:e9427a1814', JSON.stringify([peopleSlugs])], tableTags('person_cache'), () => supabase.from('person_cache').select('slug').in('slug', peopleSlugs))
     : { data: [] as { slug: string }[] };
   const linkablePeople = new Set((pcRows || []).map((r: { slug: string }) => r.slug));
 

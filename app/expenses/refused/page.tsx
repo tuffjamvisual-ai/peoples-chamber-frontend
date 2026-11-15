@@ -7,6 +7,8 @@ import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
 import { ShowAll, NoJsFold } from '@/app/components/NoJsPager';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export const metadata: Metadata = {
   title: 'MP expenses refused or repaid: IPSA rejections',
@@ -15,7 +17,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/expenses/refused' },
 };
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -46,7 +48,7 @@ type Summary = {
   totals: { refused: number; refused_count: number; repaid: number; repaid_count: number; mps: number; rows: number };
 };
 async function fetchSummary(): Promise<Summary> {
-  const { data, error } = await supabase.rpc('expenses_refused_summary');
+  const { data, error } = await cachedQuery(['q:app/expenses/refused/page.tsx:b88891c8db'], tableTags('rpc:expenses_refused_summary'), () => supabase.rpc('expenses_refused_summary'));
   // A failed read must not publish empty totals: throw, so the last good version of the page stays up.
   if (error || !data) throw new Error(`expenses_refused_summary: ${error?.message ?? 'no data'}`);
   return data as Summary;
@@ -74,12 +76,12 @@ const yearLabel = (y: string) => { const m = y.match(/^(\d{2})_(\d{2})$/); retur
 async function fetchCurrentMps(): Promise<Map<number, MpLookup>> {
   const out = new Map<number, MpLookup>();
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await supabase
+    const { data, error } = await cachedQuery(['q:app/expenses/refused/page.tsx:67afe7c591', JSON.stringify([from])], tableTags('mps'), () => supabase
       .from('mps')
       .select('member_id, display_name, name, party')
       .eq('current_member', true)
       .order('member_id')
-      .range(from, from + 999);
+      .range(from, from + 999));
     // Throw rather than stop early: a partial MP list would publish a page missing MPs (or empty).
     if (error || !data) throw new Error(`mps: ${error?.message ?? 'no data'}`);
     for (const m of data as MpLookup[]) out.set(m.member_id, m);
@@ -97,7 +99,7 @@ export default async function RefusedExpensesPage() {
   const years = summary.by_year;
   // The newest year with IPSA's year-end totals published is complete; anything after it is
   // still being filled in as IPSA publishes claims every two months.
-  const { data: lastFull, error: lastFullErr } = await supabase.from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1);
+  const { data: lastFull, error: lastFullErr } = await cachedQuery(['q:app/expenses/refused/page.tsx:d65701ee9b'], tableTags('mp_expenses_summary'), () => supabase.from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1));
   if (lastFullErr && lastFullErr.code !== 'PGRST116') throw new Error(`/expenses/refused mp_expenses_summary: ${lastFullErr.message}`);
   const latestComplete = (lastFull?.[0]?.year as string | undefined) ?? null;
   const isPartial = (y: string) => !!latestComplete && y > latestComplete;

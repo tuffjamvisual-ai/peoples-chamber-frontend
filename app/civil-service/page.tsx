@@ -8,6 +8,8 @@ import BackLink from '../components/BackLink';
 import { fmtHeadcount } from '@/lib/department-civil-service';
 import { ShowAll } from '@/app/components/NoJsPager';
 import { SubFold } from '../components/PhoneFolds';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export const metadata: Metadata = {
   title: 'UK Civil Service Headcount by Department',
@@ -16,7 +18,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/civil-service' },
 };
 
-export const revalidate = 21600;     // 6h — sync is weekly, page is cheap
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const ink = '#14100d';
 const ACCENT = '#7a1612';
@@ -37,10 +39,10 @@ export default async function CivilServicePage() {
   // at a time so the latest period_end_date is shared across all rows
   // in any given sync — we still order by it defensively in case a sync
   // partially completes.
-  const { data: rows, error: rowsErr } = await supabase
+  const { data: rows, error: rowsErr } = await cachedQuery(['q:app/civil-service/page.tsx:f68f0e0e18'], tableTags('department_staffing'), () => supabase
     .from('department_staffing')
     .select('department_slug,period,period_end_date,headcount,fte,change_from_previous_percent,is_proxy,proxy_note')
-    .order('period_end_date', { ascending: false });
+    .order('period_end_date', { ascending: false }));
   if (rowsErr && rowsErr.code !== 'PGRST116') throw new Error(`/civil-service department_staffing: ${rowsErr.message}`);
 
   const byDept = new Map<string, Row>();

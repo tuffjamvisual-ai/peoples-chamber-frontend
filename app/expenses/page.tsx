@@ -12,6 +12,8 @@ import { displayMpName } from '@/lib/mp-name';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { ShowAll } from '../components/NoJsPager';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export async function generateMetadata(): Promise<Metadata> {
   const year = await latestYear();
@@ -35,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // Cached and rebuilt at most hourly (25 Oct 2026, report 43); it used to be force-dynamic, rendered for every visitor.
 // See app/departments/page.tsx.
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 
 // Feature essay rendered below the Top 10 list. Stored as one
@@ -103,25 +105,25 @@ type MpRow = {
 // page and its description through React's request cache).
 const topSpenders = cache(async (YEAR: string) => {
   // Fetch a few extra rows so we can drop any non-current MPs and still hit 10.
-  const { data: expenseRows, error: expenseRowsErr } = await supabase
+  const { data: expenseRows, error: expenseRowsErr } = await cachedQuery(['q:app/expenses/page.tsx:74f3d30961', JSON.stringify([YEAR])], tableTags('mp_expenses_summary'), () => supabase
     .from('mp_expenses_summary')
     .select(
       'member_id, year, total_spend, staffing_spend, office_spend, accommodation_spend, travel_subsistence_spend, other_costs_spend, winding_up_spend'
     )
     .eq('year', YEAR)
     .order('total_spend', { ascending: false, nullsFirst: false })
-    .limit(20);
+    .limit(20));
   if (expenseRowsErr && expenseRowsErr.code !== 'PGRST116') throw new Error(`/expenses mp_expenses_summary: ${expenseRowsErr.message}`);
 
   const ids = (expenseRows || []).map((r: ExpenseRow) => r.member_id);
 
   const { data: mpRows } = ids.length
-    ? await supabase
+    ? await cachedQuery(['q:app/expenses/page.tsx:0cf4f4e8b6', JSON.stringify([ids])], tableTags('mps'), () => supabase
         .from('mps')
         .select(
           'member_id, name, display_name, current_member'
         )
-        .in('member_id', ids)
+        .in('member_id', ids))
     : { data: [] as MpRow[] };
 
   const mpById = new Map<number, MpRow>(

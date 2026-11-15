@@ -7,6 +7,8 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { fmtMillions } from '@/lib/department-civil-service';
 import { ShowAll, NoJsFold } from '@/app/components/NoJsPager';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export const metadata: Metadata = {
   // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
@@ -16,7 +18,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/spending' },
 };
 
-export const revalidate = 21600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const ink = '#14100d';
 const ACCENT = '#7a1612';
@@ -33,11 +35,11 @@ type Row = {
 };
 
 export default async function SpendingPage() {
-  const { data: rows, error: rowsErr } = await supabase
+  const { data: rows, error: rowsErr } = await cachedQuery(['q:app/spending/page.tsx:7c7667660d'], tableTags('department_budgets'), () => supabase
     .from('department_budgets')
     .select('department_slug,financial_year,resource_del_millions,capital_del_millions,total_del_millions,change_from_previous_percent,caveat_note,source_release_date')
     .eq('source', 'hmt_main_estimates')
-    .order('financial_year', { ascending: false });
+    .order('financial_year', { ascending: false }));
   if (rowsErr && rowsErr.code !== 'PGRST116') throw new Error(`/spending department_budgets: ${rowsErr.message}`);
 
   const byDept = new Map<string, Row>();

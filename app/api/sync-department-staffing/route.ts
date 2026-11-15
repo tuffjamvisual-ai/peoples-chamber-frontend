@@ -1,6 +1,8 @@
 import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { refreshTables } from '@/lib/source-tags';
+import { tableFingerprint } from '@/lib/table-fingerprint';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
@@ -241,13 +243,18 @@ async function GET_impl(req: Request) {
   // updated_at is set on every refresh (the column default only applies when a row is
   // first inserted), so "last updated" and the freshness monitor reflect each run.
   const refreshedAt = new Date().toISOString();
+  // A16 (ENTRY 129): fingerprint before and after, so the pages are refreshed only when the figures really changed.
+  const before = await tableFingerprint(supabase, 'department_staffing', 'id', ['updated_at']);
   const { error } = await supabase
     .from('department_staffing')
     .upsert(out.map((r) => ({ ...r, updated_at: refreshedAt })), { onConflict: 'department_slug,period_end_date' });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const changed = before !== (await tableFingerprint(supabase, 'department_staffing', 'id', ['updated_at']));
+  if (changed) refreshTables('department_staffing');
 
   return NextResponse.json({
     ok: true,
+    changed,
     period: ref.period,
     period_end_date: ref.endDate,
     rows_written: out.length,

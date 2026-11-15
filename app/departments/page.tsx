@@ -5,6 +5,8 @@ import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export const metadata: Metadata = {
   title: { absolute: 'UK Government Departments, Ministers, Budgets & Reports' },
@@ -16,7 +18,7 @@ export const metadata: Metadata = {
 // Cached and rebuilt at most hourly (25 Oct 2026, report 43). It used to be force-dynamic, which ignores revalidate and
 // rendered the page for every visitor; the build-time database pressure that prompted that has gone (the build now
 // uses 2 workers and the page's reads take well under a second).
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const ink = '#14100d';
 
@@ -34,12 +36,12 @@ export default async function DepartmentsPage() {
   };
 
   const [{ data: ministerRows, error: ministerRowsErr }, { data: mpRows, error: mpRowsErr }] = await Promise.all([
-    supabase
+    cachedQuery(['q:app/departments/page.tsx:527b07eb7e'], tableTags('dept_ministers'), () => supabase
       .from('dept_ministers')
       .select('dept_slug, name, photo_url, member_id, is_secretary_of_state')
       .order('dept_slug')
-      .order('id'),
-    supabase.from('mps').select('member_id, name, display_name, photo_url').eq('current_member', true),
+      .order('id')),
+    cachedQuery(['q:app/departments/page.tsx:5369305b93'], tableTags('mps'), () => supabase.from('mps').select('member_id, name, display_name, photo_url').eq('current_member', true)),
   ]);
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [ministerRowsErr, mpRowsErr]) if (e && e.code !== 'PGRST116') throw new Error(`/departments (dept_ministers, mps): ${e.message}`);

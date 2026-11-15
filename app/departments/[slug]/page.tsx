@@ -22,8 +22,6 @@ import { getGovukDept } from '../../api/govuk-dept/route';
 import PageSources from '@/app/components/PageSources';
 import { govukSlugs } from '@/lib/govuk-slugs';
 import { foiSource } from '@/lib/foi-statistics';
-import { createClient } from '@supabase/supabase-js';
-import { fetchWithoutEmDashes } from '@/lib/no-em-dash';
 import { editorialsBySlug } from '@/lib/editorials-source';
 import { topics, matchWords } from '@/lib/topics';
 import { getDeptContext } from '../../api/department-context/route';
@@ -34,7 +32,7 @@ import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { loadDeptPressReleases } from '@/lib/press-releases-latest';
 import { RECOMMENDATIONS_PUBLIC, isBuildPhase, retrySoon } from '@/lib/pac';
 import { getDepartmentRecommendations, RecommendationsSlot } from './RecommendationsSlot';
-import { pageDb, setPageReadTimer } from '@/lib/page-reads';
+import { tagDb } from '@/lib/page-reads';
 import { phoneUpTo } from '@/lib/breakpoints';
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -50,30 +48,21 @@ export function generateStaticParams() {
 
 // ISR — refresh prerendered HTML hourly so any backend changes
 // (dept_ministers, dept_agencies, etc.) propagate without a deploy.
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
 // cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
 // reads in 48 h, none from the cache). That cache survives deploys, so those renders read from it instead of the
 // database. Corrected 30 Oct 2026: this line alone keeps a read with no timer of its own FOR EVER (Next sets
 // INFINITE_CACHE), not for the page's revalidate period, so the hourly rebuild showed old rows. Every read here now
-// has its own timer: setPageReadTimer(revalidate) below makes pageDb() reads (lib/page-reads.ts) last the page's
-// period, under a tag where a sync refreshes one; other reads are tagged unstable_cache reads with their own timers.
-// A stale entry is read again before the page is stored. Keep it that way: a new read on this page must use pageDb()
-// or have its own timer, or it will never change.
+// A16 (owner rule 15 Nov 2026, ENTRY 129): every read is kept under its table's tag (tagDb, lib/page-reads.ts, or a
+// tagged unstable_cache read) and changes when the sync that writes that table refreshes the tag. A new read on this
+// page must do the same, or it will never change.
 export const fetchCache = 'default-cache';
 
-// The Reports tab's investigations are a tagged read (owner's approval, 29 Oct 2026, cache Stage 1): cached for a day
-// under the 'editorials' tag, and refreshed as soon as an editorial is published, because the publish step runs
-// node scripts/revalidate.js --tag editorials after its database sync. Every other read keeps its hour. Same server
-// key and dash cleaning as lib/supabase.ts. (It replaced a 60 second read, which kept the whole page refreshing every
-// minute.)
-const editorialsTagged = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
-  auth: { persistSession: false },
-  global: { fetch: (input, init) => fetchWithoutEmDashes(input, { ...init, next: { tags: ['editorials'], revalidate: 86400 } }) },
-});
+// The Reports tab's investigations are read under the 'editorials' tag (and the table's tag), refreshed as soon as an
+// editorial is published: the publish step runs node scripts/revalidate.js --tag editorials after its database sync.
 
 export default async function DepartmentPage({ params }: PageProps) {
-  setPageReadTimer(revalidate);
   const { slug } = await params;
   const dept = departments.find((d) => d.slug === slug);
   // Old council URLs (e.g. /departments/leeds-city-council) are 308'd to
@@ -102,13 +91,13 @@ export default async function DepartmentPage({ params }: PageProps) {
     (async (): Promise<InvestigationItem[]> => {
       const deptTopics = topics.filter((t) => t.departmentSlugs.includes(slug));
       const [edRes, brRes] = await Promise.all([
-        editorialsTagged
+        tagDb(['editorials'])
           .from('editorials')
           .select('slug, headline, standfirst, summary, published_at, kicker, kind')
           .contains('related_dept_slugs', [slug])
           .order('published_at', { ascending: false }),
         deptTopics.length
-          ? pageDb().from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true).not('published_at', 'is', null)
+          ? tagDb().from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true).not('published_at', 'is', null)
           : Promise.resolve({ data: [], error: null }),
       ]);
       if (edRes.error && edRes.error.code !== 'PGRST116') throw new Error(`/departments/[slug] editorials: ${edRes.error.message}`);
@@ -130,7 +119,7 @@ export default async function DepartmentPage({ params }: PageProps) {
     // B4 — programmes tab: live policy_programmes tagged with this dept slug.
     // GIN index on dept_slugs (policy_programmes_dept_slugs_idx) makes the
     // @> containment fast. RLS enforces is_live=true for the anon client.
-    pageDb()
+    tagDb()
       .from('policy_programmes')
       .select('id, slug, name, status, summary')
       .contains('dept_slugs', [slug])
@@ -170,7 +159,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   // The same read says which bodies have an agency page (owner's approval, 24 Oct 2026): only those are linked.
   const agencySlugs = childOrgsRaw.map((o) => o.url.split('/government/organisations/')[1] || '').filter(Boolean);
   const { data: agencyDescRows, error: agencyDescErr } = agencySlugs.length
-    ? await pageDb().from('agency_cache').select('slug, description').in('slug', agencySlugs)
+    ? await tagDb().from('agency_cache').select('slug, description').in('slug', agencySlugs)
     : { data: [] as { slug: string; description: string | null }[], error: null };
   if (agencyDescErr) throw new Error(`/departments/[slug] agency_cache: ${agencyDescErr.message}`);
   const descBySlug = new Map((agencyDescRows || []).map((r) => [r.slug, (r.description || '').trim()]));

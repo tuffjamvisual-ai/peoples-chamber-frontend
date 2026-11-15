@@ -8,6 +8,8 @@ import {
   CATEGORY_LABEL, ministerialRatesByMember, mpSalaryRate, mpSalarySource, ministerialSalaryText, salaryRates,
 } from '@/lib/ministerial-salaries'
 import { displayMpName } from '@/lib/mp-name';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export const metadata: Metadata = {
   // A plain title naming the data and its source (owner's brief, 3 Nov 2026).
@@ -20,8 +22,7 @@ export const metadata: Metadata = {
 // Render on demand. See app/departments/page.tsx for rationale —
 // Vercel's 3-worker build saturates Supabase when this, /departments,
 // and /expenses all prerender concurrently.
-export const dynamic = 'force-dynamic'
-export const revalidate = 3600
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const YEAR = '24_25'
 const YEAR_LABEL = '2024 / 2025'
@@ -50,19 +51,19 @@ export default async function EarningsPage() {
     { data: outsideRows },
     { data: expenseRows },
   ] = await Promise.all([
-    supabase
+    cachedQuery(['q:app/earnings/page.tsx:2ad539d560'], tableTags('mps'), () => supabase
       .from('mps')
       .select('member_id, name, display_name, constituency, party, party_colour, photo_url, current_member')
-      .eq('current_member', true),
+      .eq('current_member', true)),
     // Each MP minister's rate from ministerial_salary_rates (highest claimed among their posts; N1).
     ministerialRatesByMember(),
-    supabase
+    cachedQuery(['q:app/earnings/page.tsx:5b3cdd1cc5'], tableTags('mp_outside_earnings_summary'), () => supabase
       .from('mp_outside_earnings_summary')
-      .select('member_id, total_extracted'),
-    supabase
+      .select('member_id, total_extracted')),
+    cachedQuery(['q:app/earnings/page.tsx:66affdffc5', JSON.stringify([YEAR])], tableTags('mp_expenses_summary'), () => supabase
       .from('mp_expenses_summary')
       .select('member_id, total_spend')
-      .eq('year', YEAR),
+      .eq('year', YEAR)),
   ])
 
   const [mpRate, rates] = await Promise.all([mpSalaryRate(), salaryRates()])

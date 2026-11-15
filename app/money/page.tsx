@@ -15,8 +15,10 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'Money & Power: UK political money across every register' },
@@ -42,12 +44,12 @@ async function fetchHeadlineNumbers() {
     appgFundersRes,
     secretariatsRes,
   ] = await Promise.all([
-    supabase.from('political_donations').select('id', { count: 'exact', head: true }).not('addr_country', 'is', null).not('addr_country', 'in', `(${UK_EQUIV.map((c) => `"${c}"`).join(',')})`),
-    supabase.from('political_donations').select('id', { count: 'exact', head: true }).not('purpose_of_visit', 'is', null).neq('purpose_of_visit', ''),
-    supabase.from('political_donations').select('id', { count: 'exact', head: true }).not('trust_name', 'is', null),
-    supabase.from('political_donations').select('id', { count: 'exact', head: true }).eq('is_bequest', true),
-    supabase.from('appg_funders').select('source', { count: 'exact', head: true }).not('source', 'is', null),
-    supabase.from('appgs').select('slug', { count: 'exact', head: true }).not('secretariat', 'is', null),
+    cachedQuery(['q:app/money/page.tsx:8f94ac0dbe', JSON.stringify([UK_EQUIV])], tableTags('political_donations'), () => supabase.from('political_donations').select('id', { count: 'exact', head: true }).not('addr_country', 'is', null).not('addr_country', 'in', `(${UK_EQUIV.map((c) => `"${c}"`).join(',')})`)),
+    cachedQuery(['q:app/money/page.tsx:a32aa801ed'], tableTags('political_donations'), () => supabase.from('political_donations').select('id', { count: 'exact', head: true }).not('purpose_of_visit', 'is', null).neq('purpose_of_visit', '')),
+    cachedQuery(['q:app/money/page.tsx:56ba5e8ea7'], tableTags('political_donations'), () => supabase.from('political_donations').select('id', { count: 'exact', head: true }).not('trust_name', 'is', null)),
+    cachedQuery(['q:app/money/page.tsx:551cc972a8'], tableTags('political_donations'), () => supabase.from('political_donations').select('id', { count: 'exact', head: true }).eq('is_bequest', true)),
+    cachedQuery(['q:app/money/page.tsx:e0713007c5'], tableTags('appg_funders'), () => supabase.from('appg_funders').select('source', { count: 'exact', head: true }).not('source', 'is', null)),
+    cachedQuery(['q:app/money/page.tsx:60e1d5203b'], tableTags('appgs'), () => supabase.from('appgs').select('slug', { count: 'exact', head: true }).not('secretariat', 'is', null)),
   ]);
 
   return {

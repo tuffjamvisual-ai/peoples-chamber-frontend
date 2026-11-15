@@ -194,6 +194,8 @@ async function main() {
   await upsert('government_grant_schemes', schemes, 'fy,scheme_code');
   await upsert('government_grants', awards, 'identifier');
   await upsert('government_grants_summary', summaryRows, 'fy,department_code,body_name');
+  // A16 (ENTRY 129): the department and organisation pages read these through the data cache; refresh them after a write.
+  if (!DRY_RUN) await require('./lib/refresh-site.js').refreshTableTags(['government_grant_schemes', 'government_grants', 'government_grants_summary']);
   console.log(`\n${DRY_RUN ? 'Computed' : 'Written'}: ${schemes.length.toLocaleString()} schemes, ${awards.length.toLocaleString()} awards, ${summaryRows.length} summary rows`);
 }
 

@@ -1,6 +1,8 @@
 import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { refreshTables } from '@/lib/source-tags';
+import { tableFingerprint } from '@/lib/table-fingerprint';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
@@ -260,6 +262,9 @@ async function GET_impl(req: Request) {
   // updated_at is set on every refresh (the column default only applies when a row is
   // first inserted), so "last updated" and the freshness monitor reflect each run.
   const refreshedAt = new Date().toISOString();
+  // A16 (ENTRY 129): fingerprint before and after (the year-on-year step included), so the pages are refreshed only
+  // when the figures really changed.
+  const before = await tableFingerprint(supabase, 'department_budgets', 'id', ['updated_at']);
   const { error } = await supabase
     .from('department_budgets')
     .upsert(allRows.map((r) => ({ ...r, updated_at: refreshedAt })), { onConflict: 'department_slug,financial_year,source', ignoreDuplicates: false });
@@ -300,8 +305,11 @@ async function GET_impl(req: Request) {
     }
   }
 
+  const changed = before !== (await tableFingerprint(supabase, 'department_budgets', 'id', ['updated_at']));
+  if (changed) refreshTables('department_budgets');
   return NextResponse.json({
     ok: true,
+    changed,
     publications: results,
     rows_written: allRows.length,
     syncedAt: new Date().toISOString(),
