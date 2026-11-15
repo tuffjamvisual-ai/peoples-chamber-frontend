@@ -47,7 +47,8 @@ const BODY = `font-family:${TYPE};font-size:16px;line-height:1.45;letter-spacing
 // Section headings: red typewriter capitals, not bold (T1-NLHEAD, owner approved 14 Nov 2026, COWORK-TO-T1 ENTRY 88; they
 // were Bebas Neue 24px). 20px on every screen (there is no phone style for headings).
 // ENTRY 95: bold, letter spacing 1px (was 2px), 22px above and 6px below (was 28px and 8px).
-const HEAD = `font-family:${TYPE};font-size:20px;line-height:1.3;font-weight:bold;letter-spacing:1px;color:${ACCENT};margin:22px 0 6px`;
+// ENTRY 99: letters 0.5px apart (was 1px) and words 5px closer: the typewriter face's spaces are a full character wide.
+const HEAD = `font-family:${TYPE};font-size:20px;line-height:1.3;font-weight:bold;letter-spacing:0.5px;word-spacing:-5px;color:${ACCENT};margin:22px 0 6px`;
 const SMALL = `font-family:${TYPE};font-size:13px;line-height:1.5;color:${MUTED};margin:0 0 4px`;
 
 const links = (html: string) => html.replace(/<a href/g, '<a class="ogw-il" href').replace(/style="color:#7a1612"/g, `style="color:${ACCENT};text-decoration:underline"`);

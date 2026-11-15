@@ -59,7 +59,7 @@ test('one stream on the folder: no cards, boxes, tabs, borders or shaded panels;
   assert.deepEqual([...bgs].sort(), ['#2a221c', '#e8d3a2'], 'the dark surround and the paper colour only');
   assert.ok(html.includes(`background-image:url(${FOLDER_TOP}),url(${FOLDER_MID})`) && html.includes(`background="${FOLDER_MID}"`), 'folder art, paper colour underneath');
   assert.ok(html.includes('fonts.googleapis.com/css2?family=Special+Elite&display=swap') && !html.includes('Bebas'), 'Special Elite only; no Bebas Neue left');
-  assert.ok(/font-family:'Special Elite','Courier New',Courier,monospace;font-size:20px;line-height:1.3;font-weight:bold;letter-spacing:1px;color:#7a1612[^"]*margin:22px 0 6px[^"]*">THE SHORT VERSION</.test(html), 'headings in Special Elite 20px red, bold, 1px spacing, 22/6px margins (ENTRY 88, 95)');
+  assert.ok(/font-family:'Special Elite','Courier New',Courier,monospace;font-size:20px;line-height:1.3;font-weight:bold;letter-spacing:0.5px;word-spacing:-5px;color:#7a1612[^"]*margin:22px 0 6px[^"]*">THE SHORT VERSION</.test(html), 'headings in Special Elite 20px red, bold, 0.5px letters, -5px words, 22/6px margins (ENTRY 88, 95, 99)');
   assert.ok(/font-family:'Special Elite','Courier New',Courier,monospace;font-size:16px/.test(html), 'body in Special Elite');
   assert.ok(html.indexOf(`src="${LOGO_URL}"`) < html.indexOf('By <strong>JOHN SANDERS</strong>'));
 });
