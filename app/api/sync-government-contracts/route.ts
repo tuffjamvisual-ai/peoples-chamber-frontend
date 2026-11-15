@@ -6,6 +6,7 @@ import { contractTag } from '@/lib/contract-tags';
 import { createClient } from '@supabase/supabase-js';
 import { noticeRows, uniqueNoticeRows, lotRows, newerLotRows, type NoticeRow } from '@/lib/contract-notices';
 import { walkFeed, readState, type WalkState, type PageResult } from './feed-walk';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -264,6 +265,7 @@ async function GET_impl(req: Request) {
   });
   const pagesError = walk.error;
   for (const ocid of changedOcids) revalidateTag(contractTag(ocid), 'max');
+  if (changedOcids.size) refreshTables('government_contracts', 'contract_notices', 'contract_lots'); // A16: the contract lists
   noteChanged(changedOcids.size);
 
   let cursorSaved: boolean | null = null;

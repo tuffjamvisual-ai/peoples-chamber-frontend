@@ -7,8 +7,10 @@ import { fmtPeriod, fmtChange } from '@/lib/dashboard-format';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 import BackLink from '@/app/components/BackLink';
 import PageSources from '@/app/components/PageSources';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -65,7 +67,7 @@ function fmt(v: number | null, unit: string): string {
 }
 
 export default async function StateDashboard() {
-  const { data, error } = await supabase.from('dashboard_indicators').select('*');
+  const { data, error } = await cachedQuery(['q:app/transparency/state-dashboard/page.tsx:5e0d56bbfc'], tableTags('dashboard_indicators'), () => supabase.from('dashboard_indicators').select('*'));
   if (error) {
     throw new Error(`StateDashboard: dashboard_indicators query failed - ${error.message}`);
   }

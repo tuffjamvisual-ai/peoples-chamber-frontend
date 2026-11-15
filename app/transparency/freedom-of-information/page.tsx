@@ -10,7 +10,7 @@ import BackLink from '../../components/BackLink';
 import { DEPT_BY_FOI_BODY, foiSource, getFoiLatestQuarter, periodName } from '@/lib/foi-statistics';
 import FoiTable, { type FoiTableRow } from './FoiTable';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'Freedom of Information Requests by Government Department' },

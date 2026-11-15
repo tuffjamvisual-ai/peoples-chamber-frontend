@@ -41,6 +41,13 @@ jobs:
         run: |
           export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f foi.sql
+      - name: Refresh the pages that show FOI statistics (A16, only after a new release was imported)
+        if: steps.foi-import.outcome == 'success'
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+        run: node -e "require('./scripts/lib/refresh-site.js').refreshTableTags(['foi_statistics']).then((r) => console.log(JSON.stringify(r)))"
       - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
         if: always()
         env:

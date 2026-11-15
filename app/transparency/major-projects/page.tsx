@@ -16,7 +16,7 @@ import { departments } from '@/lib/departments';
 import { fetchMajorProjectList, DEPT_FULL_NAMES, deptLabel, ratingText, dateText, lastReported, projectHref, REPORT_PAGES } from '@/lib/major-projects';
 import MajorProjectsBrowser, { type ProjectLine } from './MajorProjectsBrowser';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';

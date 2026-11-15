@@ -10,6 +10,8 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import Pagination from '../../components/Pagination';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // Static /transparency/press-releases route. Lives outside the dynamic
 // [section] route because press releases aren't a tabular dataset — each
@@ -20,7 +22,7 @@ import { ShowAll } from '@/app/components/NoJsPager';
 // the index URL + every /news/[slug] URL it lists, so Google can crawl
 // the release pages from the transparency surface. Added 2026-06-04.
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -198,7 +200,7 @@ const SEARCH_PER = 100;
 // count on every request and 47 page reads of the whole table. A failed read throws and is not cached.
 const getPressStats = unstable_cache(
   async (): Promise<{ govTotal: number }> => {
-    const { data, error } = await supabase.rpc('press_release_stats');
+    const { data, error } = await cachedQuery(['q:app/transparency/press-releases/page.tsx:2fc73a5af5'], tableTags('press_releases'), () => supabase.rpc('press_release_stats'));
     if (error || !data) throw new Error(`press_release_stats: ${error?.message ?? 'no data'}`);
     // The function also returns the busiest days; their row of buttons was removed (owner decision 12 Nov 2026, T1-DECLUT
     // item 8, in T1-DONOR404), so only the total is read.
@@ -250,12 +252,12 @@ export default async function PressReleasesIndexPage({
     const pat = `*${safeQ}*`;
     const orFilter = `title.ilike.${pat},description.ilike.${pat},organisation.ilike.${pat}`;
     const offset = (pageNum - 1) * SEARCH_PER;
-    const { data: matchRows, count } = await supabase
+    const { data: matchRows, count } = await cachedQuery(['q:app/transparency/press-releases/page.tsx:816882f3c5', JSON.stringify([COLS, orFilter, offset, SEARCH_PER])], tableTags('press_releases'), () => supabase
       .from('press_releases')
       .select(COLS, { count: 'exact' })
       .or(orFilter)
       .order('published_at', { ascending: false, nullsFirst: false })
-      .range(offset, offset + SEARCH_PER - 1);
+      .range(offset, offset + SEARCH_PER - 1));
     const matches = (matchRows || []) as Release[];
     const total = count ?? 0;
     const totalPages = Math.max(1, Math.ceil(total / SEARCH_PER));
@@ -297,8 +299,8 @@ export default async function PressReleasesIndexPage({
   } else {
     // DAY MODE — one day's press releases per page, with day navigation.
     const [latestRes, earliestRes] = await Promise.all([
-      supabase.from('press_releases').select('published_at').order('published_at', { ascending: false, nullsFirst: false }).limit(1).maybeSingle(),
-      supabase.from('press_releases').select('published_at').order('published_at', { ascending: true, nullsFirst: false }).limit(1).maybeSingle(),
+      cachedQuery(['q:app/transparency/press-releases/page.tsx:97340b95e8'], tableTags('press_releases'), () => supabase.from('press_releases').select('published_at').order('published_at', { ascending: false, nullsFirst: false }).limit(1).maybeSingle()),
+      cachedQuery(['q:app/transparency/press-releases/page.tsx:502db1fb39'], tableTags('press_releases'), () => supabase.from('press_releases').select('published_at').order('published_at', { ascending: true, nullsFirst: false }).limit(1).maybeSingle()),
     ]);
     const latestDate = toDateStr(latestRes.data?.published_at);
     const earliestDate = toDateStr(earliestRes.data?.published_at);
@@ -307,9 +309,9 @@ export default async function PressReleasesIndexPage({
     const dayEnd = `${currentDate}T23:59:59.999Z`;
 
     const [dayRes, prevRes, nextRes] = await Promise.all([
-      supabase.from('press_releases').select(COLS).gte('published_at', dayStart).lte('published_at', dayEnd).order('published_at', { ascending: false, nullsFirst: false }),
-      supabase.from('press_releases').select('published_at').lt('published_at', dayStart).order('published_at', { ascending: false, nullsFirst: false }).limit(1).maybeSingle(),
-      supabase.from('press_releases').select('published_at').gt('published_at', dayEnd).order('published_at', { ascending: true, nullsFirst: false }).limit(1).maybeSingle(),
+      cachedQuery(['q:app/transparency/press-releases/page.tsx:208a949039', JSON.stringify([COLS, dayStart, dayEnd])], tableTags('press_releases'), () => supabase.from('press_releases').select(COLS).gte('published_at', dayStart).lte('published_at', dayEnd).order('published_at', { ascending: false, nullsFirst: false })),
+      cachedQuery(['q:app/transparency/press-releases/page.tsx:e5f66bcc48', JSON.stringify([dayStart])], tableTags('press_releases'), () => supabase.from('press_releases').select('published_at').lt('published_at', dayStart).order('published_at', { ascending: false, nullsFirst: false }).limit(1).maybeSingle()),
+      cachedQuery(['q:app/transparency/press-releases/page.tsx:9494c4a815', JSON.stringify([dayEnd])], tableTags('press_releases'), () => supabase.from('press_releases').select('published_at').gt('published_at', dayEnd).order('published_at', { ascending: true, nullsFirst: false }).limit(1).maybeSingle()),
     ]);
     const dayRows = (dayRes.data || []) as Release[];
     const gov = dayRows.filter((r) => !isCommonsRow(r));

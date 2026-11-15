@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { applyWindow, countedThrough, windowStart, INCREMENTAL_CURSOR, type Contribution, type IncrementalCursor } from '@/lib/mp-contributions-incremental';
 import { RateLimited, retryAfterSeconds, loadCursor, saveCursor } from '@/lib/sync-budget';
+import { refreshTables } from '@/lib/source-tags';
 import {
   countMember, planQueue, yesterday, PARLIAMENT_START, PAGE, RUN_BUDGET_MS, START_CUTOFF_MS, DB_TIMEOUT_MS, CURSOR_ROUTE,
   type Cursor, type InProgress, type Page,
@@ -188,6 +189,7 @@ async function GET_impl(req: Request) {
   const dueBefore = new Date(Date.now() - DUE_DAYS * 86_400_000).toISOString();
   const fresh = new Set((have || []).filter((r) => ((r.spoken_synced_at as string | null) || '') >= dueBefore).map((r) => r.member_id as number));
   const toppedUp = (incr.mps as number) > 0 && !incr.write_error ? (incr.mps as number) : 0;
+  if (toppedUp > 0 || upserted > 0) refreshTables('mp_contribution_totals'); // A16: totals written this run
   const overdue = Math.max(0, (mps || []).filter((m) => !fresh.has(m.member_id as number)).length - upserted - toppedUp);
 
   return NextResponse.json({

@@ -10,6 +10,7 @@ import { runSpadBackgroundSync } from '@/lib/spad-background-sync';
 import { syncMinisterStatus } from '@/lib/spad-minister-status';
 import { refreshMps } from '@/lib/mp-refresh';
 import { noteChanged } from '@/lib/refresh-count';
+import { refreshTables } from '@/lib/source-tags';
 
 const ROUTE = '/api/sync-spad-roster';
 const CONTENT = 'https://www.gov.uk/api/content';
@@ -44,6 +45,7 @@ export async function runSpadRosterSync(opts: { supabase: SupabaseClient; maxDur
     }
     noteChanged(mps.size);
     const mpRefresh = mps.size ? refreshMps(mps) : null;
+    if (mps.size) refreshTables('spad_appointments', 'spad_interests'); // A16: advisers' details changed
     return { status: 200, body: { ...body, ministers, background, mps_changed: mps.size, mp_refresh: mpRefresh, elapsed_ms: budget.spent() } };
   };
   try {
@@ -88,6 +90,7 @@ export async function runSpadRosterSync(opts: { supabase: SupabaseClient; maxDur
     const { error: relError } = await supabase.from('spad_releases').upsert({ ...release, updated_at: now }, { onConflict: 'release_slug' });
     if (relError) throw new Error(`spad_releases: ${relError.message}`);
     spadReleasesChanged();
+    refreshTables('spad_releases', 'spad_appointments', 'spad_interests'); // A16: a new or changed release was stored
     const out = rows.map((r) => ({ ...r, release_slug: slug, as_at: release.as_at, minister_member_id: r.minister_name ? ids.get(r.minister_name) ?? null : null, source_url: sourceUrl, updated_at: now }));
     for (const r of out) if (typeof r.minister_member_id === 'number') releaseMps.add(r.minister_member_id);
     const { error: apError } = await supabase.from('spad_appointments').upsert(out, { onConflict: 'release_slug,adviser_name,minister_title' });

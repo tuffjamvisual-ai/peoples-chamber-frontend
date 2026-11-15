@@ -11,8 +11,10 @@ import TransparencyClient from './TransparencyClient'
 import { PHONE } from '@/lib/breakpoints'
 import { SubFold } from '../../components/PhoneFolds'
 import BackLink from '@/app/components/BackLink';
+import { cachedQuery, tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 3600
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const ACCENT = '#7a1612'
 // The donations dataset's related pages: in "Explore this dataset" after the first results, at every width (UX2c, UX4e).
@@ -45,15 +47,17 @@ const REVOLVING_DOOR_SOURCES = [
 ]
 const longDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
 
-async function revolvingDoorRange() {
-  const one = async (asc: boolean, cmp?: ['lte' | 'gt', string]) => {
+// A16: the first and latest dates, in the shared data cache under the revolving_door tag.
+const revolvingDoorRange = () => tagged(['revolving-door-range-v1'], tableTags('revolving_door'), revolvingDoorRangeRead)
+async function revolvingDoorRangeRead() {
+  const oneDate = async (asc: boolean, cmp?: ['lte' | 'gt', string]) => {
     let q = supabase.from('revolving_door').select('approval_date').not('approval_date', 'is', null).order('approval_date', { ascending: asc }).limit(1)
     if (cmp) q = cmp[0] === 'lte' ? q.lte('approval_date', cmp[1]) : q.gt('approval_date', cmp[1])
     const { data, error } = await q
     if (error) throw new Error(`revolving_door range: ${error.message}`)
     return (data?.[0]?.approval_date as string | undefined) ?? null
   }
-  const [first, latest, lastAcoba, firstAfter] = await Promise.all([one(true), one(false), one(false, ['lte', ACOBA_CLOSED]), one(true, ['gt', ACOBA_CLOSED])])
+  const [first, latest, lastAcoba, firstAfter] = await Promise.all([oneDate(true), oneDate(false), oneDate(false, ['lte', ACOBA_CLOSED]), oneDate(true, ['gt', ACOBA_CLOSED])])
   return { first, latest, lastAcoba, firstAfter }
 }
 
@@ -155,7 +159,7 @@ export default async function TransparencySectionPage({
   if (section === 'contracts' && rows?.length) {
     const ocids = [...new Set(rows.map((r) => r.ocid).filter((o): o is string => typeof o === 'string' && OCID_RE.test(o)))]
     if (ocids.length) {
-      const { data: found, error: ocidErr } = await supabase.rpc('contract_ocids_with_notices', { p_ocids: ocids })
+      const { data: found, error: ocidErr } = await cachedQuery(['q:app/transparency/[section]/page.tsx:88680424c7', JSON.stringify([ocids])], tableTags('contract_notices'), () => supabase.rpc('contract_ocids_with_notices', { p_ocids: ocids }))
       if (ocidErr) console.error('[transparency/contracts] contract_ocids_with_notices:', ocidErr.message)
       else linkedOcids = (found as string[] | null) ?? []
     }

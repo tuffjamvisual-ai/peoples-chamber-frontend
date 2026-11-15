@@ -2,6 +2,7 @@ import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { COUNCIL_LEAGUE_TAG } from '@/lib/council-league';
+import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
 // Called by scripts/score-areas.js and the council finance and ratings imports after they write, so the
 // cached council league data (lib/council-league.ts) and the council pages are rebuilt on the next visit. Needs
@@ -14,6 +15,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   revalidateTag(COUNCIL_LEAGUE_TAG, 'max');
+  revalidateTag(COUNCIL_DATA_TAG, 'max'); // A16: every council page's reads (lib/page-reads.ts)
   // The council pages too (owner, 30 Oct 2026, cache Stage 2a part 4): they keep for a week, and the hand loaders that
   // call this (scripts/lib/refresh-site.js) write data every council page shows.
   const paths = ['/councils/[slug]', '/councils/[slug]/schools', '/councils/[slug]/sewage', '/councils/[slug]/panel/[tab]'];

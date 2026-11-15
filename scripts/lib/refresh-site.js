@@ -94,4 +94,22 @@ async function recordRefresh(name, { changed, sent, status }, log = console.log)
   }
 }
 
-module.exports = { refreshCouncilPages, refreshMpPages, recordRefresh, REFRESH_BATCH };
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): after a script changed rows of these tables, refresh every page
+// that read them (their table tags, lib/source-tags.ts). Refused or unreachable: queued in sync_cursor
+// ('tag-refresh-queue', merged with tags already queued) for /api/refresh-nightly-pages at 05:15 UTC.
+const EXISTING_TAGS = { political_donations: 'political-donations', bill_current: 'table:bill', bill_in_session_stored: 'table:bill', parliament_session_bill_counts_stored: 'table:bill' };
+const tableTagJs = (t) => EXISTING_TAGS[t] || `table:${t}`;
+async function refreshTableTags(tables, log = console.log) {
+  const tags = [...new Set(tables.map(tableTagJs))];
+  const r = await post('/api/revalidate', { tags }, log);
+  if (r.status === 200) { log(`Site refresh: pages reading ${tables.join(', ')} will be rebuilt on their next visit.`); return { sent: tags.length, status: 200 }; }
+  let queued = [];
+  try { const { data } = await client().from('sync_cursor').select('cursor').eq('route', 'tag-refresh-queue').maybeSingle(); queued = (data && data.cursor && data.cursor.tags) || []; } catch { /* none */ }
+  if (await queue('tag-refresh-queue', { tags: [...new Set([...queued, ...tags])], queued_at: new Date().toISOString() }, log)) {
+    log(`Site refresh refused (HTTP ${r.status || 'no answer'}); tags queued for /api/refresh-nightly-pages at 05:15 UTC.`);
+    return { sent: tags.length, status: 202 };
+  }
+  return { sent: 0, status: r.status };
+}
+
+module.exports = { refreshCouncilPages, refreshMpPages, refreshTableTags, recordRefresh, REFRESH_BATCH };

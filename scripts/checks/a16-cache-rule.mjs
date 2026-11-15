@@ -133,6 +133,17 @@ for (const [f, raw] of src) {
       void callRaw;
     }
   }
+  // A function passed by name into a cached call (tagged(key, tags, read), cachedQuery(key, tags, buildQuery)) is cached,
+  // if every other mention of it (not its definition) is inside a cached span too.
+  for (const [a, b] of cachedSpans) {
+    for (const m of s.slice(a, b + 1).matchAll(/[(,]\s*([A-Za-z_$][\w$]*)\s*(?=[,)])/g)) {
+      const name = m[1];
+      const outside = [...s.matchAll(new RegExp(`(?<![\\w$.])${name.replace(/\$/g, '\\$')}(?![\\w$])`, 'g'))]
+        .filter((x) => !cachedSpans.some(([c, d]) => x.index >= c && x.index <= d))
+        .filter((x) => !/(?:const|let|function)\s*\*?\s*$/.test(s.slice(Math.max(0, x.index - 12), x.index)));
+      if (!outside.length) cachedNames.add(name);
+    }
+  }
   // timedClient(seconds, [tags]).from(...) or a const holding one: tagged.
   const taggedClients = new Set();
   for (const m of s.matchAll(/(?:const|let)\s+([A-Za-z_$][\w$]*)\s*=\s*timedClient\s*\(([^)]*)\)/g)) if (m[2].includes(',')) taggedClients.add(m[1]);
@@ -203,7 +214,7 @@ function pageProblems(file) {
       // In the page file's whole-file pass, a read inside a named function is judged when that function is reached
       // (from the page's exports below, or from a call); only reads outside any named function are judged here.
       if (n === '*' && fnAt(fi, r.at)) continue;
-      const ok = covered || r.tagged || inSpan(fi.cachedSpans, r.at) || (fnAt(fi, r.at) && fnCached(f, fnAt(fi, r.at)));
+      const ok = covered || r.tagged || inSpan(fi.cachedSpans, r.at) || [...fi.fns].some(([fn, [x, y]]) => r.at >= x && r.at <= y && fnCached(f, fn));
       if (!ok) problems.push(`${r.viaPageDb ? 'pageDb read (timer, not tag)' : 'read outside the tagged cache'}: ${r.what} at ${f}:${r.line}`);
     }
     // follow calls

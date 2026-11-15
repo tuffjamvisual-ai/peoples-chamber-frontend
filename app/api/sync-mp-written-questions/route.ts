@@ -6,6 +6,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { readAll } from '@/lib/read-all';
 import { isDryRun, sameValue } from '@/lib/mp-refresh';
 import { countByMember, WQ_COUNT_FROM, type ArchiveQuestion } from '@/lib/mp-written-question-counts';
+import { refreshTables } from '@/lib/source-tags';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -76,6 +77,7 @@ async function GET_impl(req: Request) {
       upserted += batch.length;
     }
   }
+  if (upserted > 0) refreshTables('mp_contribution_totals'); // A16: only MPs whose figures changed are written
 
   return NextResponse.json({
     ok: true,

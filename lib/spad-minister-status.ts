@@ -4,6 +4,7 @@
 // Saved in spad_minister_status by /api/sync-spad-roster every week, so the page follows reshuffles on its own.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { SyncBudget, politeFetch, sleep } from '@/lib/sync-budget';
+import { refreshTables } from '@/lib/source-tags';
 
 const API = 'https://members-api.parliament.uk/api';
 const UA = 'OpenGovt/1.0 (contact@opengovt.uk)';
@@ -116,5 +117,6 @@ export async function syncMinisterStatus(supabase: SupabaseClient, budget: SyncB
   if (upError) throw new Error(`spad_minister_status: ${upError.message}`);
   const { error: delError } = await supabase.from('spad_minister_status').delete().lt('checked_at', now);
   if (delError) throw new Error(`spad_minister_status remove: ${delError.message}`);
+  if (changedMps.size) refreshTables('spad_minister_status'); // A16: only when a minister's status changed
   return { changed_mps: [...changedMps], listed: listedCount, still_in_post: rows.filter((r) => r.kind === 'listed' && r.still_in_post).length, current_posts: rows.filter((r) => r.kind === 'current').length };
 }

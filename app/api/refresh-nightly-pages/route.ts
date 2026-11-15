@@ -61,11 +61,12 @@ async function GET_impl(req: Request) {
   const queue = await emptyBillQueue();
   const mps = await refreshNightlyMps();
   const councils = await refreshQueuedCouncils();
+  const tags = await refreshQueuedTags();
   if (trigger) {
     const { error } = await supabaseAdmin.from('sync_cursor').upsert({ route: MARKER_ROUTE, cursor: withTrigger(marker, trigger, new Date()), updated_at: new Date().toISOString() }, { onConflict: 'route' });
     if (error) console.error(`refresh-nightly-pages: trigger marker: ${error.message}`);
   }
-  return NextResponse.json({ ok: true, trigger: trigger ?? 'clock', rows_written: NIGHTLY.paths.length, paths: NIGHTLY.paths, bill_queue: queue, mps, councils, at: new Date().toISOString() });
+  return NextResponse.json({ ok: true, trigger: trigger ?? 'clock', rows_written: NIGHTLY.paths.length, paths: NIGHTLY.paths, bill_queue: queue, tag_queue: tags, mps, councils, at: new Date().toISOString() });
 }
 
 // Council pages a hand or GitHub loader could not get the site to refresh (scripts/lib/refresh-site.js queues them in
@@ -131,3 +132,15 @@ async function emptyBillQueue(): Promise<{ refreshed: number; error?: string }> 
 }
 
 export const GET = withHeartbeat('/api/refresh-nightly-pages', GET_impl);
+
+// A16: table tags queued by a script whose refresh request was refused (scripts/lib/refresh-site.js refreshTableTags).
+async function refreshQueuedTags(): Promise<{ queued: number }> {
+  try {
+    const { data, error } = await supabaseAdmin.from('sync_cursor').select('cursor').eq('route', 'tag-refresh-queue').maybeSingle();
+    if (error || !data) return { queued: 0 };
+    const tags = ((data.cursor as { tags?: string[] } | null)?.tags ?? []).filter((t) => typeof t === 'string');
+    for (const t of tags) revalidateTag(t, 'max');
+    await supabaseAdmin.from('sync_cursor').delete().eq('route', 'tag-refresh-queue');
+    return { queued: tags.length };
+  } catch { return { queued: 0 }; }
+}

@@ -12,6 +12,8 @@ import RegisterSearchClient from './RegisterSearchClient';
 import DonationsCounter from './DonationsCounter';
 import { getDeclaredMpDonationsTotal } from '@/lib/mpDonationsTotal';
 import { displayMpName } from '@/lib/mp-name';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // The Register of Members' Financial Interests — a searchable, cross-MP view of
 // what MPs declare to Parliament (gifts, hospitality, employment, property,
@@ -27,7 +29,7 @@ import { displayMpName } from '@/lib/mp-name';
 // inline within the entry text. Reading searchParams makes this page dynamic;
 // filtered/paginated states are noindex so we don't spawn thin query-string URLs.
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -134,26 +136,31 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
   const bucket = BUCKETS.find((b) => b.key === cat);
 
   // Results query (filters + count), plus the MP list for the autocomplete.
-  let query = supabase
-    .from('mp_registered_interests')
-    .select('id, member_id, category_name, interest_text, created_when', { count: 'exact' });
+  const buildQuery = () => {
+    let query = supabase
+      .from('mp_registered_interests')
+      .select('id, member_id, category_name, interest_text, created_when', { count: 'exact' });
 
-  // Current register only by default: historical/expired entries (retained for
-  // cumulative views once the backfill lands) are excluded from this default
-  // search view. A current/historical toggle is added in the results redesign.
-  query = query.eq('is_current', true);
+    // Current register only by default: historical/expired entries (retained for
+    // cumulative views once the backfill lands) are excluded from this default
+    // search view. A current/historical toggle is added in the results redesign.
+    query = query.eq('is_current', true);
 
-  if (q) query = query.textSearch('interest_search', q, { type: 'websearch', config: 'english' });
-  if (mpId) query = query.eq('member_id', mpId);
-  if (bucket) query = query.or(bucket.prefixes.map((p) => `category_name.like.${p}*`).join(','));
-  if (isValidDate(from)) query = query.gte('created_when', from);
-  if (isValidDate(to)) query = query.lte('created_when', `${to}T23:59:59`);
+    if (q) query = query.textSearch('interest_search', q, { type: 'websearch', config: 'english' });
+    if (mpId) query = query.eq('member_id', mpId);
+    if (bucket) query = query.or(bucket.prefixes.map((p) => `category_name.like.${p}*`).join(','));
+    if (isValidDate(from)) query = query.gte('created_when', from);
+    if (isValidDate(to)) query = query.lte('created_when', `${to}T23:59:59`);
 
-  query = query.order('created_when', { ascending: false, nullsFirst: false }).range(offset, offset + PAGE_LIMIT - 1);
+    query = query.order('created_when', { ascending: false, nullsFirst: false }).range(offset, offset + PAGE_LIMIT - 1);
+    return query;
+  };
 
+  // A16 (owner rule 15 Nov 2026, ENTRY 129): the search result in the shared data cache under the interests tag, keyed by
+  // every filter, refreshed when the nightly scripts change the register.
   const [{ data: rows, count, error }, mpListRes, donationsTotal] = await Promise.all([
-    query,
-    supabase.from('mps').select('member_id, name, display_name').eq('current_member', true).order('name'),
+    cachedQuery(['register-search-v1', q ?? '', mpId ?? '', cat ?? '', from ?? '', to ?? '', offset], tableTags('mp_registered_interests'), buildQuery),
+    cachedQuery(['q:app/transparency/register-of-interests/page.tsx:16f39c2f49'], tableTags('mps'), () => supabase.from('mps').select('member_id, name, display_name').eq('current_member', true).order('name')),
     getDeclaredMpDonationsTotal(),
   ]);
 
@@ -166,10 +173,10 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
   const memberIds = Array.from(new Set(interests.map((r) => r.member_id)));
   let mpsById = new Map<number, MpRow>();
   if (memberIds.length) {
-    const { data: mpRows, error: mpRowsErr } = await supabase
+    const { data: mpRows, error: mpRowsErr } = await cachedQuery(['q:app/transparency/register-of-interests/page.tsx:23731faf06', JSON.stringify([memberIds])], tableTags('mps'), () => supabase
       .from('mps')
       .select('member_id, name, display_name, photo_url')
-      .in('member_id', memberIds);
+      .in('member_id', memberIds));
     if (mpRowsErr && mpRowsErr.code !== 'PGRST116') throw new Error(`/transparency/register-of-interests mps: ${mpRowsErr.message}`);
     mpsById = new Map((mpRows ?? []).map((m) => [m.member_id, m as MpRow]));
   }

@@ -6,10 +6,11 @@ import MpActivityTable, { type Row, type ViewKey, VIEWS, DEFAULT_VIEW } from './
 import Pagination from '../../components/Pagination'
 import { displayMpName } from '@/lib/mp-name';
 import AboutThisData from '../../components/AboutThisData';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // Dynamic: the view, party, search and page come from the query string (owner, 31 Oct 2026: 50 MPs a page, sorted,
 // filtered and sliced on the server instead of sending every MP to the browser).
-export const dynamic = 'force-dynamic'
 
 const PER_PAGE = 50
 
@@ -45,12 +46,12 @@ const INK = '#14100d'
 export default async function MpActivityPage({ searchParams }: { searchParams: Promise<SP> }) {
   const params = readParams(await searchParams)
   const [{ data: totals, error: totalsErr }, { data: mps, error: mpsErr }, { data: ministers, error: ministersErr }] = await Promise.all([
-    supabase.from('mp_contribution_totals').select('member_id, total_contributions, word_count, written_questions, wq_top_departments'),
-    supabase.from('mps').select('member_id, name, party, constituency, start_date').or('current_member.is.null,current_member.eq.true'),
+    cachedQuery(['q:app/transparency/mp-activity/page.tsx:9648dc39b2'], tableTags('mp_contribution_totals'), () => supabase.from('mp_contribution_totals').select('member_id, total_contributions, word_count, written_questions, wq_top_departments')),
+    cachedQuery(['q:app/transparency/mp-activity/page.tsx:232a53c21e'], tableTags('mps'), () => supabase.from('mps').select('member_id, name, party, constituency, start_date').or('current_member.is.null,current_member.eq.true')),
     // Government ministers AND whips (Assistant Whip, Junior Lord of the Treasury,
     // etc. are all here); used to exclude the front bench from the "fewest written
     // questions" ranking, since they table few or none by role.
-    supabase.from('dept_ministers').select('member_id').or('resigned.is.null,resigned.eq.false'),
+    cachedQuery(['q:app/transparency/mp-activity/page.tsx:40c41c20d7'], tableTags('dept_ministers'), () => supabase.from('dept_ministers').select('member_id').or('resigned.is.null,resigned.eq.false')),
   ])
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [totalsErr, mpsErr, ministersErr]) if (e && e.code !== 'PGRST116') throw new Error(`/transparency/mp-activity (mp_contribution_totals, mps, dept_ministers): ${e.message}`);

@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { readAll } from '@/lib/read-all';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // Single source of truth for the "declared donations to MPs" running total.
 //
@@ -72,12 +74,12 @@ export async function getDeclaredMpDonationsTotal(): Promise<DonationsTotal> {
   // Paginate past Supabase's 1000-row cap (Cat 2 is ~625 rows, but be safe).
   // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts (the loop it replaces paged
   // with no order and stopped quietly on an error).
-  rows.push(...await readAll<InterestRow>(() => supabase.from('mp_registered_interests'), {
+  rows.push(...await tagged(['ra:lib/mpDonationsTotal.ts:cf0e485774'], tableTags('mp_registered_interests'), () => readAll<InterestRow>(() => supabase.from('mp_registered_interests'), {
     columns: 'id, interest_text, is_correction, created_when, last_amended_when',
     filter: (q) => q.like('category_name', '2.%').eq('is_current', true),
     orderBy: 'id',
     label: 'mpDonationsTotal',
-  }));
+  })));
   // Rows are already Cat 2-filtered by the query.
   return sumDeclaredDonations(rows, false);
 }

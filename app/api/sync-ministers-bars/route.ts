@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
+import { refreshTables } from '@/lib/source-tags';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -140,11 +141,13 @@ async function GET_impl(req: Request) {
     const payload = fresh.map(({ urls, ...rest }) => rest);
     for (let i = 0; i < payload.length; i += 100) {
       const batch = payload.slice(i, i + 100);
-      const { error } = await supabase
+      const { data: added, error } = await supabase
         .from('revolving_door')
-        .upsert(batch, { onConflict: 'person_name,previous_role,approval_date', ignoreDuplicates: true });
-      if (!error) inserted += batch.length;
+        .upsert(batch, { onConflict: 'person_name,previous_role,approval_date', ignoreDuplicates: true })
+        .select('person_name'); // A16: only the rows really inserted come back (duplicates are skipped)
+      if (!error) inserted += (added ?? []).length;
     }
+    if (inserted > 0) refreshTables('revolving_door'); // A16: only after new rows
     return NextResponse.json({ ok: true, parsed: rows.length, newRows: fresh.length, inserted, syncedAt: new Date().toISOString() });
   } catch (err) {
     if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)

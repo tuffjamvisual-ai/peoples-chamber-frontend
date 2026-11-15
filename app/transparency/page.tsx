@@ -7,7 +7,7 @@ import { SubFold } from '../components/PhoneFolds';
 import JsonLd from '@/lib/JsonLd';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns'
 
-export const revalidate = 3600
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'UK Government Transparency: Lobbying, Donations, Contracts' },

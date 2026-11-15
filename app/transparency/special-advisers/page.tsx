@@ -23,6 +23,8 @@ import { SPAD_LIST_ANCHOR, longDate, totalsLine, buildBackground, plainName, qua
 import Link from 'next/link';
 import SpadRosterTable from './SpadRosterTable';
 import QuarterSections, { type RosterRow, type GiftRow, type HospRow, type MeetRow } from './QuarterSections';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // The returns label departments by short name. Map them to department pages; anything
 // not listed falls back to the GOV.UK name lookup, and unknown names get no link.
@@ -35,7 +37,7 @@ const AREA_DEPT: Record<string, string> = {
 };
 const deptFor = (area: string): string | null => AREA_DEPT[area] ?? resolveOrgToDeptSlug(area);
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
@@ -76,15 +78,15 @@ export default async function SpecialAdvisersPage() {
     fetchAll<GiftRow>('spad_gifts', 'spad_name, area, quarter, gift_date, gift_descr, donor, value_gbp, outcome'),
     fetchAll<HospRow>('spad_hospitality', 'spad_name, area, quarter, hosp_date, hosp_descr, provider, purpose'),
     fetchAll<MeetRow>('spad_media_meetings', 'spad_name, area, quarter, meeting_date, media_org, individual, purpose'),
-    supabase.from('spad_releases').select('release_slug, as_at, headcount, fte, paybill, prior_paybill, source_url').order('as_at', { ascending: false }).limit(1).maybeSingle(),
+    cachedQuery(['q:app/transparency/special-advisers/page.tsx:8cc453ae29'], tableTags('spad_releases'), () => supabase.from('spad_releases').select('release_slug, as_at, headcount, fte, paybill, prior_paybill, source_url').order('as_at', { ascending: false }).limit(1).maybeSingle()),
   ]);
   if (releaseRes.error) throw new Error(`/transparency/special-advisers spad_releases: ${releaseRes.error.message}`);
   const release = releaseRes.data as SpadReleaseRow | null;
   let appointments: SpadRow[] = [];
   if (release) {
-    const { data, error } = await supabase.from('spad_appointments')
+    const { data, error } = await cachedQuery(['q:app/transparency/special-advisers/page.tsx:fc1155d04d', JSON.stringify([release.release_slug])], tableTags('spad_appointments'), () => supabase.from('spad_appointments')
       .select('adviser_name, minister_title, minister_name, minister_member_id, pay_band, salary_band_text, salary_band_min, notes')
-      .eq('release_slug', release.release_slug).order('id', { ascending: true });
+      .eq('release_slug', release.release_slug).order('id', { ascending: true }));
     if (error) throw new Error(`/transparency/special-advisers spad_appointments: ${error.message}`);
     appointments = (data ?? []) as SpadRow[];
   }
@@ -97,7 +99,7 @@ export default async function SpecialAdvisersPage() {
       fetchAll<SpadInterestRow>('spad_interests', 'adviser_name, department, period, entry_text, category, is_recusal, end_date_text, source_title, source_url, source_page'),
       fetchAll<SpadHistoryRow>('spad_appointments', 'adviser_name, minister_title, as_at, source_url'),
       fetchAll<SpadPostRow>('spad_post_appointments', 'adviser_name, former_department, new_employer, new_role, advice_date, conditions_text, source_url'),
-      supabase.from('spad_releases').select('as_at').then(({ data, error }) => { if (error) throw new Error(`/transparency/special-advisers spad_releases: ${error.message}`); return (data ?? []) as { as_at: string }[]; }),
+      cachedQuery(['q:app/transparency/special-advisers/page.tsx:145aa012f6'], tableTags('spad_releases'), () => supabase.from('spad_releases').select('as_at')).then(({ data, error }) => { if (error) throw new Error(`/transparency/special-advisers spad_releases: ${error.message}`); return (data ?? []) as { as_at: string }[]; }),
     ]);
     background = buildBackground(appointments.map((a) => a.adviser_name), ints, hist, posts, editions.map((e) => e.as_at));
   }
@@ -106,8 +108,8 @@ export default async function SpecialAdvisersPage() {
   // Every Cabinet post is shown with TODAY's minister: where that is the person the list names for the post, their
   // advisers from the list; otherwise "Waiting for update" and any advisers named for the department in quarterly
   // declarations since the minister took office. Advisers of ministers who have since left are in a folded section.
-  const { data: statusData, error: statusError } = await supabase.from('spad_minister_status')
-    .select('kind, minister_title, minister_name, member_id, gender, post_id, post_name, started_on, left_on, still_in_post, area');
+  const { data: statusData, error: statusError } = await cachedQuery(['q:app/transparency/special-advisers/page.tsx:459ded7d24'], tableTags('spad_minister_status'), () => supabase.from('spad_minister_status')
+    .select('kind, minister_title, minister_name, member_id, gender, post_id, post_name, started_on, left_on, still_in_post, area'));
   if (statusError) throw new Error(`/transparency/special-advisers spad_minister_status: ${statusError.message}`);
   const status = (statusData ?? []) as (SpadMinisterStatus & { post_id: number | null })[];
   const listedStatus = new Map(status.filter((s) => s.kind === 'listed').map((s) => [s.minister_title, s]));
@@ -145,7 +147,7 @@ export default async function SpecialAdvisersPage() {
   const stillTitles = new Set([...listedStatus.values()].filter((s) => s.still_in_post).map((s) => s.minister_title));
   // Link only to MP pages we have.
   const cIds = current.map((s) => s.member_id).filter((x): x is number => x != null);
-  const { data: cMps } = cIds.length ? await supabase.from('mps').select('member_id').in('member_id', cIds) : { data: [] };
+  const { data: cMps } = cIds.length ? await cachedQuery(['q:app/transparency/special-advisers/page.tsx:dccc59ea53', JSON.stringify([cIds])], tableTags('mps'), () => supabase.from('mps').select('member_id').in('member_id', cIds)) : { data: [] };
   const mpPages = new Set((cMps ?? []).map((m: { member_id: number }) => m.member_id));
   const listedCount = listedStatus.size || new Set(appointments.map((a) => a.minister_title)).size;
   const pm = status.find((s) => s.kind === 'current' && /^prime minister/i.test(s.post_name ?? ''));

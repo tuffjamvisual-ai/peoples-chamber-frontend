@@ -14,7 +14,7 @@ import { departments } from '@/lib/departments';
 import { fetchMajorProject, deptLabel, projectHref, evaluationLines, REPORT_PAGES, longDate, type MajorProject } from '@/lib/major-projects';
 import { MajorProjectMeta, MajorProjectTable } from '../../../components/MajorProjectHistory';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 // Built on first visit and kept for a day (none at build time; there are 261 projects).
 export async function generateStaticParams() { return []; }
 
