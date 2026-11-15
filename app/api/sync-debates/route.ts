@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { refreshTables } from '@/lib/source-tags';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -141,13 +142,20 @@ async function GET_impl(req: Request) {
   await Promise.all(Array.from({ length: ENRICH_CONCURRENCY }, () => enrichWorker()));
 
   let upserted = 0;
+  let changed = 0;
   for (let i = 0; i < payload.length; i += 500) {
     const chunk = payload.slice(i, i + 500);
+    // A16: count rows that are new or differ from what is stored, so pages refresh only on a real change.
+    const cols = Object.keys(chunk[0] ?? {});
+    const { data: before } = await supabase.from('debates').select(cols.join(',')).in('hansard_ext_id', chunk.map((r) => r.hansard_ext_id));
+    const stored = new Map(((before ?? []) as unknown as Record<string, unknown>[]).map((r) => [String(r.hansard_ext_id), r]));
+    const differs = chunk.filter((r) => { const o = stored.get(String(r.hansard_ext_id)); return !o || cols.some((c) => JSON.stringify((r as Record<string, unknown>)[c] ?? null) !== JSON.stringify(o[c] ?? null)); }).length;
     const { error } = await supabase.from('debates').upsert(chunk, { onConflict: 'hansard_ext_id' });
-    if (!error) upserted += chunk.length;
+    if (!error) { upserted += chunk.length; changed += differs; }
   }
+  if (changed > 0) refreshTables('debates');
 
-  return NextResponse.json({ ok: true, window: { start, end }, scanned: skip, collected: payload.length, upserted });
+  return NextResponse.json({ ok: true, window: { start, end }, scanned: skip, collected: payload.length, upserted, changed });
 }
 
 export const GET = withHeartbeat('/api/sync-debates', GET_impl);

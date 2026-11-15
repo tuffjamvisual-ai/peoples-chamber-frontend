@@ -12,7 +12,7 @@ import { SubFold } from '../../components/PhoneFolds';
 
 // Every statutory instrument laid before Parliament, newest laid first (report 81), from the statutory_instruments
 // table (UK Parliament Statutory Instruments API, loaded daily by /api/sync-statutory-instruments-treaties).
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: 'Laws Made Without a Vote',

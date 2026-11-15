@@ -5,8 +5,10 @@ import MagazineMPsClient from './MagazineMPsClient';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: { absolute: 'UK MPs, Voting Records, Earnings & Registered Interests' },
@@ -16,11 +18,11 @@ export const metadata: Metadata = {
 };
 
 export default async function MPsPage() {
-  const { data: rows, error } = await supabase
+  const { data: rows, error } = await cachedQuery(['q:app/mps/page.tsx:9281e4b54b'], tableTags('mps'), () => supabase
     .from('mps')
     .select('member_id, name, display_name, party, party_colour, constituency, photo_url')
     .eq('current_member', true)
-    .order('name', { ascending: true });
+    .order('name', { ascending: true }));
 
   if (error) console.error('Error fetching MPs:', error);
 

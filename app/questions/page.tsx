@@ -14,7 +14,6 @@ import { wideFrom } from '@/lib/breakpoints';
 // Written questions this Parliament (owner, backlog item 15c, 6 Nov 2026): search by words, MP or peer, department and date, newest first,
 // 25 at a time. A plain form and links, so it all works with JavaScript off. Filter links are nofollow, so crawlers do not read every
 // combination; Show more stays followable.
-export const dynamic = 'force-dynamic';
 
 type Search = { words?: string; who?: string; member?: string; department?: string; from?: string; to?: string; status?: string; before?: string; at?: string; uin?: string };
 const INK = '#14100d';

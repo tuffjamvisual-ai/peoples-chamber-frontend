@@ -10,7 +10,6 @@ import { PetitionCredit } from './PetitionCredit';
 // Every petition this Parliament that reached 10,000 signatures (owner, backlog item 15a, 6 Nov 2026), newest first, 25 at a
 // time. The filters and search are links and a plain form, so they work with JavaScript off; they filter a cached list, so
 // they cost no database read. /petitions?constituency=<code> is the MP page's "more" link.
-export const dynamic = 'force-dynamic';
 
 type Search = { state?: string; responded?: string; debated?: string; q?: string; constituency?: string };
 

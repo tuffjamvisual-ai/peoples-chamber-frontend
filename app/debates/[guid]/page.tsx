@@ -20,6 +20,8 @@ import { displayMpName } from '@/lib/mp-name'
 import { fetchDivisionVotes, divisionTally } from '@/lib/division-votes'
 import DebateSummary, { type Speaker, type VoteSummary } from './DebateSummary'
 import { SubFold } from '../../components/PhoneFolds';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // In-house rendering of a Hansard debate. opengovt never links out, so rather
 // than send readers to hansard.parliament.uk we pull the debate transcript from
@@ -27,16 +29,16 @@ import { SubFold } from '../../components/PhoneFolds';
 // with 24h ISR — same approved carve-out as /bills/[id]/full: heavy payload, low
 // per-debate traffic. Speaker names link to their on-site MP profile where we
 // hold one, and the previous/next debate links stay on site.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 // On phones a long speech opens with its first 600 characters, then "Continue reading", and the debate with its first two
 // speeches, then "Show all" (UX5, T1-6, 11 Nov 2026: the 2,500px phone length; 2,000 and five before). Wider: as before.
 const SPEECH_OPENS = 600;
 
 export async function generateStaticParams() {
-  const { data, error } = await supabase
+  const { data, error } = await cachedQuery(['q:app/debates/[guid]/page.tsx:f7c11c55b6'], tableTags('debates'), () => supabase
     .from('debates')
     .select('hansard_ext_id')
-    .limit(3);
+    .limit(3));
   if (error || !data?.length) throw new Error(`generateStaticParams debates: ${error?.message || 'zero rows'}`);
   const guids = data.map((r) => String(r.hansard_ext_id).toUpperCase()).filter(Boolean);
   if (!guids.length) throw new Error('generateStaticParams debates: zero usable values');
@@ -67,7 +69,7 @@ type Debate = {
 // This debate's row in our debates table (its sitting date and the divisions held in it), read once per render.
 // The table keeps Hansard's own case, which is lower for some debates, while the address is always upper case.
 const debateRow = cache(async (guid: string): Promise<{ sitting_date: string | null; division_ids: unknown; house: string | null } | null> => {
-  const { data, error } = await supabase.from('debates').select('sitting_date, division_ids, house').in('hansard_ext_id', [guid, guid.toLowerCase()]).maybeSingle();
+  const { data, error } = await cachedQuery(['q:app/debates/[guid]/page.tsx:778b5b52cb', JSON.stringify([guid])], tableTags('debates'), () => supabase.from('debates').select('sitting_date, division_ids, house').in('hansard_ext_id', [guid, guid.toLowerCase()]).maybeSingle());
   if (error) throw new Error(`debate ${guid} divisions: ${error.message}`);
   return data;
 });
@@ -300,7 +302,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   // The same one read as before, now with each MP's name, party and constituency for "Who spoke" (owner, 31 Oct 2026).
   const mpInfo = new Map<number, { name: string | null; party: string | null; constituency: string | null }>();
   if (memberIds.length) {
-    const { data, error } = await supabase.from('mps').select('member_id, display_name, name, party, constituency').in('member_id', memberIds);
+    const { data, error } = await cachedQuery(['q:app/debates/[guid]/page.tsx:a6c5aed153', JSON.stringify([memberIds])], tableTags('mps'), () => supabase.from('mps').select('member_id, display_name, name, party, constituency').in('member_id', memberIds));
     if (error) throw new Error(`debate ${guid} speakers: ${error.message}`);
     for (const r of data || []) {
       linkable.add(r.member_id as number);

@@ -17,7 +17,7 @@ import BackLink from '@/app/components/BackLink';
 // One petition (owner, backlog item 15a, 6 Nov 2026): the title, background and details as written, its dates and count, the
 // government response in full, any debate, and signatures by constituency. Kept for a day and refreshed by /api/sync-petitions
 // when the petition changes. A petition that crosses 10,000 gets a row from the sync, and so this page, on its first visit.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';

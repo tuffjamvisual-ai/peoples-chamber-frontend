@@ -17,6 +17,7 @@ import { isDryRun } from '@/lib/mp-refresh';
 import { MP_PETITIONS_TAG } from '@/lib/mp-petitions';
 import { PETITIONS_TAG } from '@/lib/petition-tags';
 import { noteChanged } from '@/lib/refresh-count';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -137,6 +138,7 @@ async function GET_impl(req: Request) {
   // The list after any change; only the pages of petitions that changed. MP pages keep their dated top 5 (lib/petition-pages.ts).
   if (!dry && changedIds.length) {
     revalidateTag(PETITIONS_TAG, 'max');
+    refreshTables('petitions', 'petition_constituency_signatures'); // A16
     for (const id of changedIds) revalidatePath(`/petitions/${id}`);
     if (changedIds.length) freshnessChanged();
     indexNowAfter([...changedIds].map((id) => `/petitions/${id}`), 'sync-petitions');

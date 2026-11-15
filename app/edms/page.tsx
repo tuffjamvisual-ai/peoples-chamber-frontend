@@ -9,13 +9,14 @@ import { supabaseAdminRead } from '@/lib/supabase-admin';
 import { allEdms, edmState, memberEdmIds } from '@/lib/edm-pages';
 import { petitionDate } from '@/lib/petition-pages';
 import { ShowAll } from '@/app/components/NoJsPager';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // Early day motions this Parliament (owner, backlog item 15b, 6 Nov 2026), newest first, 25 at a time. With over 4,000 motions the
 // whole list cannot sit in the page, so Show more is a link that asks for 25 more and lands on the first new one, and it works with
 // JavaScript off. Filters, sort and search filter a cached list, so they cost no database read. Filter links are nofollow, so crawlers
 // do not read every combination (owner, 6 Nov 2026: bots read /feedback once per page). Show more stays followable, so every motion
 // can be reached by link. data-own-more stops lib/phone-enhance.ts folding the list a second time.
-export const dynamic = 'force-dynamic';
 
 type Search = { state?: string; prayer?: string; q?: string; sort?: string; member?: string; role?: string; show?: string };
 const INK = '#14100d';
@@ -45,7 +46,7 @@ export default async function EdmsPage({ searchParams }: { searchParams: Promise
 
   const [{ rows, sessionStart }, member] = await Promise.all([allEdms(), memberId ? memberEdmIds(memberId) : null]);
   const memberName = memberId
-    ? await supabaseAdminRead.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle().then(({ data }) => displayMpName((data?.display_name || data?.name) as string | undefined) ?? null)
+    ? await cachedQuery(['q:app/edms/page.tsx:65196be815', JSON.stringify([memberId])], tableTags('mps'), () => supabaseAdminRead.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle()).then(({ data }) => displayMpName((data?.display_name || data?.name) as string | undefined) ?? null)
     : null;
   const inMember = member ? new Set(role === 'tabled' ? member.tabled : role === 'signed' ? member.signed : [...member.tabled, ...member.signed]) : null;
 

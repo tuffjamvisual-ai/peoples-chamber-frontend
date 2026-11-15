@@ -11,7 +11,7 @@ import { dataListPage } from '@/app/components/DataList';
 // /api/sync-peers, which refreshes this page when the list changes), filterable by party and type of peerage.
 // The list is a DataList (T1-GUARD, owner approved 13 Nov 2026): phones and tablets page it at ?page=, so the page renders on
 // each visit; the peers read is cached for an hour (timedClient), so the database is read at most once an hour.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: 'House of Lords',

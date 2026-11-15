@@ -6,6 +6,7 @@ import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { refreshMps, sameValue } from '@/lib/mp-refresh';
 import { noteChanged } from '@/lib/refresh-count';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -255,6 +256,7 @@ async function GET_impl(req: Request) {
   const elapsed_ms = Date.now() - startedAt;
   noteChanged(dryRun ? 0 : changedMps.size);
   const mpRefresh = !dryRun && changedMps.size ? refreshMps(changedMps) : null;
+  if (!dryRun && changedMps.size) refreshTables('mp_committee_memberships'); // A16: committee pages list members
   const failuresSaved = dryRun ? null : await failing.save();
   if (apiFailures.length) console.warn(`[sync-committee-memberships] Members API failed for ${apiFailures.length} of ${processed} members: ${apiFailures.map((f) => `${f.member_id} (${f.message})`).join(', ')}`);
   if (errors.length) console.error(`[sync-committee-memberships] ${errors.length} database write errors: ${errors.map((e) => `${e.member_id}: ${e.message}`).join('; ')}`);

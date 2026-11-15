@@ -11,11 +11,13 @@ import { questionsPage, questionDepartments } from '@/lib/mp-written-questions';
 import QuestionsList from './QuestionsList';
 
 import BackLink from '@/app/components/BackLink';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 // Every Commons written question an MP has asked (owner, 3 Nov 2026), newest first, from parliament_written_questions
 // (lib/mp-written-questions.ts). Page 1 and the department list are rendered on first request and cached for a day; no
 // searchParams, so the page stays cached like /mps/[id]/reports. Other pages and the department filter come from
 // /api/mps/[id]/questions. Not in the sitemap.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export function generateStaticParams() {
   return [];
@@ -24,7 +26,7 @@ export function generateStaticParams() {
 const INK = '#14100d';
 
 const getMpName = cache(async (memberId: number): Promise<string | null> => {
-  const { data, error } = await supabase.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle();
+  const { data, error } = await cachedQuery(['q:app/mps/[id]/questions/page.tsx:ab0fcc9d82', JSON.stringify([memberId])], tableTags('mps'), () => supabase.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle());
   if (error) throw new Error(`/mps/[id]/questions mps: ${error.message}`);
   if (!data) return null;
   return displayMpName((data.display_name || data.name || '').trim()) || null;

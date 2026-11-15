@@ -12,7 +12,7 @@ import Unavailable from '@/app/components/Unavailable';
 // Every treaty laid before Parliament under the Constitutional Reform and Governance Act 2010, newest laid first
 // (report 81), from the treaties table (UK Parliament Treaties API, loaded daily by
 // /api/sync-statutory-instruments-treaties).
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: fitTitle('Treaties laid before Parliament', 'Treaties'), // T1-A3 (6) (owner approved)

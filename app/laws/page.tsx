@@ -3,11 +3,12 @@ import { supabase } from '@/lib/supabase'
 import LawsClient from './LawsClient'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 // Render on demand — large Supabase query (all Acts) hits the 60s
 // build-budget under concurrent worker pressure. Same pattern as
 // /bills, /departments, /earnings, /expenses.
-export const dynamic = 'force-dynamic'
-export const revalidate = 600
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: 'UK Laws, every Act of Parliament',
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 }
 
 export default async function LawsPage() {
-  const { data: laws, error } = await supabase
+  const { data: laws, error } = await cachedQuery(['q:app/laws/page.tsx:8e1997d987'], tableTags('bill'), () => supabase
     .from('bill')
     .select(
       // Same select shape as /bills so the shared BillCoverCard
@@ -27,7 +28,7 @@ export default async function LawsPage() {
     .eq('is_act', true)
     .is('hidden_reason', null)
     .order('last_update', { ascending: false })
-    .range(0, 4999)
+    .range(0, 4999))
 
   if (error) console.error('Error fetching laws:', error)
 

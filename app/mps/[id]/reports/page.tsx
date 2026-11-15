@@ -11,10 +11,12 @@ import { MpReportList } from '../MagazineProfileSections';
 import { displayMpName } from '@/lib/mp-name';
 
 import BackLink from '@/app/components/BackLink';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 // Every report that names an MP (owner's approval, 24 Oct 2026), the full list behind the profile's "Reports mentioning
 // this MP", newest first, from the editorial registry at build time (lib/mp-reports.ts). Rendered on first request and
 // cached like the profile; no searchParams. Not in the sitemap, and noindex, follow.
-export const revalidate = 604800;  // a week (owner, 30 Oct 2026, cache Stage 2a part 3): the syncs refresh an MP's page when its data changes (lib/mp-refresh.ts)
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy  // a week (owner, 30 Oct 2026, cache Stage 2a part 3): the syncs refresh an MP's page when its data changes (lib/mp-refresh.ts)
 
 export function generateStaticParams() {
   return [];
@@ -23,7 +25,7 @@ export function generateStaticParams() {
 const INK = '#14100d';
 
 const getMpName = cache(async (memberId: number): Promise<string | null> => {
-  const { data, error } = await supabase.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle();
+  const { data, error } = await cachedQuery(['q:app/mps/[id]/reports/page.tsx:ab0fcc9d82', JSON.stringify([memberId])], tableTags('mps'), () => supabase.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle());
   if (error) throw new Error(`/mps/[id]/reports mps: ${error.message}`);
   if (!data) return null;
   return displayMpName((data.display_name || data.name || '').trim()) || null;

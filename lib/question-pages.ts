@@ -22,7 +22,7 @@ let statsInFlight: Promise<DepartmentStats[]> | null = null;
 let statsLastGood: DepartmentStats[] | null = null;
 async function readDepartmentStats(): Promise<DepartmentStats[]> {
   for (let attempt = 0; ; attempt++) {
-    const { data, error } = await db.rpc('written_question_department_stats');
+    const { data, error } = await cachedQuery(['q:lib/question-pages.ts:cb4c81422c'], tableTags('rpc:written_question_department_stats'), () => db.rpc('written_question_department_stats'));
     if (!error) {
       statsLastGood = ((data ?? []) as DepartmentStats[]).map((r) => ({ ...r, asked: Number(r.asked), answered: Number(r.answered), average_days: r.average_days == null ? null : Number(r.average_days) }));
       return statsLastGood;
@@ -43,8 +43,8 @@ export type Person = { id: number; name: string; house: 'Commons' | 'Lords'; hre
 // Everyone who can ask or answer: MPs link to /mps/<id>, peers with a page to /lords/<id>.
 export const questionPeople = unstable_cache(async (): Promise<Person[]> => {
   const [mps, peers] = await Promise.all([
-    db.from('mps').select('member_id, display_name, name').limit(2000),
-    db.from('peers').select('member_id, name_display, is_current, end_date').limit(3000),
+    cachedQuery(['q:lib/question-pages.ts:7109e83912'], tableTags('mps'), () => db.from('mps').select('member_id, display_name, name').limit(2000)),
+    cachedQuery(['q:lib/question-pages.ts:d71534f581'], tableTags('peers'), () => db.from('peers').select('member_id, name_display, is_current, end_date').limit(3000)),
   ]);
   if (mps.error) throw new Error(`question people, MPs: ${mps.error.message}`);
   if (peers.error) throw new Error(`question people, peers: ${peers.error.message}`);
@@ -55,7 +55,7 @@ export const questionPeople = unstable_cache(async (): Promise<Person[]> => {
 }, ['question-people'], { revalidate: false, tags: tableTags('mps', 'peers') }); // A16: refreshed when the MP or peer lists change
 
 // One screen of questions, newest first, after `before` (date_id of the last row shown), and the total when it is the first screen.
-export async function searchQuestions(f: QuestionFilters, before: string | null, wantTotal: boolean, pageSize = QUESTION_PAGE_SIZE): Promise<{ rows: QuestionRow[]; more: string | null; total: number | null }> {
+async function searchQuestionsRead(f: QuestionFilters, before: string | null, wantTotal: boolean, pageSize = QUESTION_PAGE_SIZE): Promise<{ rows: QuestionRow[]; more: string | null; total: number | null }> {
   let q = db.from('parliament_written_questions').select(LIST, wantTotal ? { count: 'exact' } : undefined);
   if (f.status === 'withdrawn') q = q.eq('is_withdrawn', true);
   else q = q.eq('is_withdrawn', false);
@@ -84,7 +84,7 @@ export type Attachment = { url?: string; title?: string; fileType?: string; file
 export type Question = QuestionRow & { question_text: string | null; answer_html: string | null; answer_text: string | null; original_answer_html: string | null; answering_member_id: number | null; answering_body: string | null; attachments: Attachment[] | null; url: string | null };
 
 async function getQuestionRead(id: number): Promise<Question | null> {
-  const { data, error } = await db.from('parliament_written_questions').select(`${LIST}, question_text, answer_html, answer_text, original_answer_html, answering_member_id, answering_body, attachments, url`).eq('id', id).maybeSingle();
+  const { data, error } = await cachedQuery(['q:lib/question-pages.ts:2b24223cb8', JSON.stringify([LIST, id])], tableTags('parliament_written_questions'), () => db.from('parliament_written_questions').select(`${LIST}, question_text, answer_html, answer_text, original_answer_html, answering_member_id, answering_body, attachments, url`).eq('id', id).maybeSingle());
   if (error) throw new Error(`question ${id}: ${error.message}`);
   return data as unknown as Question | null;
 }
@@ -95,6 +95,7 @@ async function getQuestionRead(id: number): Promise<Question | null> {
 import { phraseOf, PHRASE_MAX } from '@/lib/question-phrase';
 import { tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import { cachedQuery } from '@/lib/tagged-read';
 export { PHRASE_MAX };
 export async function phraseQuestions(f: QuestionFilters): Promise<QuestionRow[]> {
   const phrase = phraseOf(f.words);
@@ -107,3 +108,6 @@ export async function phraseQuestions(f: QuestionFilters): Promise<QuestionRow[]
 // (question:<id>), refreshed by sync-parliament-archive only when that question's answer changed; no timer.
 export const questionTag = (id: number) => `question:${id}`;
 export const getQuestion = (id: number) => tagged(['question-v1', id], [questionTag(id)], () => getQuestionRead(id));
+
+// A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept in the shared data cache under its tables' tags, no timer.
+export const searchQuestions = (...a: Parameters<typeof searchQuestionsRead>) => tagged(['searchQuestions-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags('parliament_written_questions'), () => searchQuestionsRead(...a));

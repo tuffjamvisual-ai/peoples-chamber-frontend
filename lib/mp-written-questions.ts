@@ -7,6 +7,8 @@
 // the departments, server rendered and cached) and /api/mps/[id]/questions (further pages and the department filter).
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { readAll } from '@/lib/read-all';
+import { tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export const QUESTIONS_PER_PAGE = 25;
 export const QUESTION_COLUMNS = 'id, uin, date_tabled, date_answered, answering_body, heading, url, is_withdrawn';
@@ -29,7 +31,7 @@ export type House = 'Commons' | 'Lords';
 const byMember = (q: any, memberId: number, house: House) => q.eq('asking_member_id', memberId).eq('house', house);
 
 // Three small reads on the (asking_member_id, date_tabled) index: the count, the oldest date and the newest five.
-export async function questionsSummary(db: SupabaseClient, memberId: number, house: House = 'Commons'): Promise<QuestionsSummary> {
+async function questionsSummaryRead(db: SupabaseClient, memberId: number, house: House = 'Commons'): Promise<QuestionsSummary> {
   const commons = (q: unknown, id: number) => byMember(q, id, house);
   const t = () => db.from('parliament_written_questions');
   const [countRes, firstRes, recentRes] = await Promise.all([
@@ -48,7 +50,7 @@ export async function questionsSummary(db: SupabaseClient, memberId: number, hou
 }
 
 // One page, newest first, optionally for one department (answering body).
-export async function questionsPage(db: SupabaseClient, memberId: number, page: number, department: string | null, house: House = 'Commons'): Promise<{ rows: WrittenQuestion[]; total: number }> {
+async function questionsPageRead(db: SupabaseClient, memberId: number, page: number, department: string | null, house: House = 'Commons'): Promise<{ rows: WrittenQuestion[]; total: number }> {
   const commons = (q: unknown, id: number) => byMember(q, id, house);
   const start = (page - 1) * QUESTIONS_PER_PAGE;
   const filtered = (q: any) => (department ? commons(q, memberId).eq('answering_body', department) : commons(q, memberId)); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -65,12 +67,12 @@ export async function questionsPage(db: SupabaseClient, memberId: number, page: 
 // Every department the MP has asked, with counts, most asked first (one column of every question, paged by readAll).
 export async function questionDepartments(db: SupabaseClient, memberId: number, house: House = 'Commons'): Promise<Array<{ name: string; count: number }>> {
   const commons = (q: unknown, id: number) => byMember(q, id, house);
-  const rows = await readAll<{ answering_body: string | null }>(() => db.from('parliament_written_questions'), {
+  const rows = await tagged(['ra:lib/mp-written-questions.ts:cb8ce28d91', JSON.stringify([db, memberId])], tableTags('parliament_written_questions'), () => readAll<{ answering_body: string | null }>(() => db.from('parliament_written_questions'), {
     columns: 'id, answering_body',
     filter: (q) => commons(q, memberId),
     orderBy: 'id',
     label: 'written question departments',
-  });
+  }));
   const counts = new Map<string, number>();
   for (const r of rows) if (r.answering_body) counts.set(r.answering_body, (counts.get(r.answering_body) ?? 0) + 1);
   return [...counts].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
@@ -81,3 +83,13 @@ export function questionUrl(q: Pick<WrittenQuestion, 'url' | 'date_tabled' | 'ui
   if (q.url) return q.url;
   return q.date_tabled && q.uin ? `https://questions-statements.parliament.uk/written-questions/detail/${q.date_tabled}/${q.uin}` : null;
 }
+
+// A16 (owner rule 15 Nov 2026, ENTRY 129): in the shared data cache under the written questions tag (refreshed by the
+// archive sync when it stored rows), keyed by member, house and page.
+export const questionsSummary = (db: SupabaseClient, memberId: number, house: House = 'Commons') =>
+  tagged(['wq-summary-v1', memberId, house], tableTags('parliament_written_questions'), () => questionsSummaryRead(db, memberId, house));
+
+// A16 (owner rule 15 Nov 2026, ENTRY 129): in the shared data cache under the written questions tag (refreshed by the
+// archive sync when it stored rows), keyed by member, house and page.
+export const questionsPage = (db: SupabaseClient, memberId: number, page: number, department: string | null, house: House = 'Commons') =>
+  tagged(['wq-page-v1', memberId, page, department, house], tableTags('parliament_written_questions'), () => questionsPageRead(db, memberId, page, department, house));

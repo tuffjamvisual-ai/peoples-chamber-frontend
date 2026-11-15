@@ -9,6 +9,7 @@ import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 import { EDM_API, EDM_PARLIAMENT_START, fetchEdmJson, listEdmsResumable, buildEdmRows, writeEdm, type EdmListEntry, type EdmListPages } from '@/lib/edms';
 import { noteChanged, revalidatePath, revalidateTag } from '@/lib/refresh-count';
 import { EDMS_TAG } from '@/lib/edm-tags';
+import { refreshTables } from '@/lib/source-tags';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -194,6 +195,7 @@ async function GET_impl(req: Request) {
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
   if (!dry && changedMotions.size) {
     revalidateTag(EDMS_TAG, 'max');
+    refreshTables('early_day_motions', 'early_day_motion_signatures'); // A16
     for (const id of changedMotions) revalidatePath(`/edms/${id}`);
     indexNowAfter([...changedMotions].map((id) => `/edms/${id}`), 'sync-edms');
   }

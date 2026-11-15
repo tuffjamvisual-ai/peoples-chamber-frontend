@@ -19,13 +19,15 @@ import { questionsSummary } from '@/lib/mp-written-questions';
 import { lookupMember } from '@/lib/former-mps';
 
 import BackLink from '@/app/components/BackLink';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 // A member of the House of Lords (owner's yes, 3 Nov 2026): name, party, type of peerage, sitting since, posts held,
 // a voting record summary with recent votes, the register of interests (owner, 4 Nov 2026), written questions and links
 // to the official Parliament profile. No biography. Pages exist for current peers and anyone who has sat since 4 July 2024 (lib/peers.ts peerHasPage); earlier
 // former peers go to their Parliament profile, and a member who was only ever an MP goes to /mps/[id]. A former MP now
 // in the Lords links to their Commons record, and that record links back. Cached for a day; /api/sync-peers refreshes a
 // peer's page when their stored row changes.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export function generateStaticParams() {
   return [];
@@ -61,7 +63,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!peerHasPage(p)) return { title: 'House of Lords', robots: { index: false, follow: true } };
   const what = [p.party, p.peerage_type].filter(Boolean).join(', ');
   // A title another member has held too (two Archbishops of Canterbury) adds their years in the Lords from Parliament's data, so no two pages share a title (owner, 7 Nov 2026).
-  const { count: sameName, error: sameErr } = await supabase.from('peers').select('member_id', { count: 'exact', head: true }).eq('name_display', p.name_display);
+  const { count: sameName, error: sameErr } = await cachedQuery(['q:app/lords/[id]/page.tsx:dc6ef93acd', JSON.stringify([p.name_display])], tableTags('peers'), () => supabase.from('peers').select('member_id', { count: 'exact', head: true }).eq('name_display', p.name_display));
   if (sameErr) throw new Error(`/lords/[id] same name: ${sameErr.message}`);
   const from = p.start_date?.slice(0, 4), to = p.end_date?.slice(0, 4);
   const years = (sameName ?? 0) > 1 && from ? ` (${to ? (to === from ? from : `${from} to ${to}`) : `since ${from}`})` : '';

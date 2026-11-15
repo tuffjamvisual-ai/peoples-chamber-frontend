@@ -15,11 +15,13 @@ import { failSoft } from '@/lib/fail-soft';
 import NoJsPager, { NoJsPagerLinks, njpItem, pagesByHeight } from '../../../components/NoJsPager';
 
 import BackLink from '@/app/components/BackLink';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 // Every question an MP has asked at Prime Minister's Questions since July 2024 (owner, 5 Nov 2026), newest first, then
 // their questions and answers in the archive, 1961 to 2024, by year. A former MP's page too (owner, 6 Nov 2026): the name comes from Parliament's record when they
 // are not in the mps table. On a day someone answered the session their words are answers, listed apart by session rather than as questions they asked.
 // Not in the sitemap, like /mps/[id]/questions.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export function generateStaticParams() {
   return [];
@@ -29,7 +31,7 @@ const INK = '#14100d';
 const ACCENT = '#7a1612';
 
 const getMpName = cache(async (memberId: number): Promise<string | null> => {
-  const { data, error } = await supabase.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle();
+  const { data, error } = await cachedQuery(['q:app/mps/[id]/pmqs/page.tsx:ab0fcc9d82', JSON.stringify([memberId])], tableTags('mps'), () => supabase.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle());
   if (error) throw new Error(`/mps/[id]/pmqs mps: ${error.message}`);
   if (data) return displayMpName((data.display_name || data.name || '').trim()) || null;
   const member = await lookupMember(memberId);
@@ -37,7 +39,7 @@ const getMpName = cache(async (memberId: number): Promise<string | null> => {
 });
 // No profile of their own, so the way back is Parliament's page for them.
 const hasProfile = cache(async (memberId: number): Promise<boolean> => {
-  const { data, error } = await supabase.from('mps').select('member_id').eq('member_id', memberId).maybeSingle();
+  const { data, error } = await cachedQuery(['q:app/mps/[id]/pmqs/page.tsx:9b5d63f4d5', JSON.stringify([memberId])], tableTags('mps'), () => supabase.from('mps').select('member_id').eq('member_id', memberId).maybeSingle());
   if (error) throw new Error(`/mps/[id]/pmqs mps: ${error.message}`);
   return !!data || (await lookupMember(memberId)).kind !== 'unknown';
 });

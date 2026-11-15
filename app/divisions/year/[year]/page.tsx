@@ -13,7 +13,7 @@ import { ARCHIVE_LAST_YEAR, ARCHIVE_NOTE } from '@/lib/historic-archive';
 // links, so each division page is two clicks from /divisions (Search Console: most division pages were found only in
 // the sitemap). /divisions/[slug] takes one path segment, so this two-segment route does not clash with it. A year
 // with no divisions, or not a four digit year, is a 404. Each page names itself canonical.
-export const revalidate = 600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';

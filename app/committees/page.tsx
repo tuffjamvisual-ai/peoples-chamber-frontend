@@ -6,8 +6,10 @@ import OpenGovShell from '../components/OpenGovShell';
 import { displayMpName } from '@/lib/mp-name';
 import { ShowAll } from '@/app/components/NoJsPager';
 import BackLink from '@/app/components/BackLink';
+import { cachedQuery, tagged } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export const metadata: Metadata = {
   title: 'Select Committees: UK Parliament',
@@ -45,18 +47,18 @@ const GROUPS: { label: string; typeIds: number[] }[] = [
 
 export default async function CommitteesIndexPage() {
   const [committeesRes, membershipsRes] = await Promise.all([
-    supabase
+    cachedQuery(['q:app/committees/page.tsx:0e711077ce'], tableTags('committees'), () => supabase
       .from('committees')
       .select('id, name, committee_type_id')
-      .order('name'),
+      .order('name')),
     // Every current membership (24 Oct 2026, report 36): a single read stops at 1,000 rows (822 today), in the
     // table's primary key order so paging is stable. lib/read-all.ts throws on any failure.
-    readAll<MembershipRow>(() => supabase.from('mp_committee_memberships'), {
+    tagged(['ra:app/committees/page.tsx:432ac19324'], tableTags('mp_committee_memberships'), () => readAll<MembershipRow>(() => supabase.from('mp_committee_memberships'), {
       columns: 'committee_id, member_id, role',
       filter: (q) => q.is('end_date', null),
       orderBy: ['member_id', 'committee_id', 'start_date'].map((column) => ({ column })),
       label: '/committees memberships',
-    }),
+    })),
   ]);
   if (committeesRes.error) throw new Error(`/committees committees: ${committeesRes.error.message}`);
 
@@ -74,10 +76,10 @@ export default async function CommitteesIndexPage() {
 
   let mps: MpRow[] = [];
   if (chairMemberIds.length > 0) {
-    const { data, error: dataErr } = await supabase
+    const { data, error: dataErr } = await cachedQuery(['q:app/committees/page.tsx:01463b9c9a', JSON.stringify([chairMemberIds])], tableTags('mps'), () => supabase
       .from('mps')
       .select('member_id, display_name')
-      .in('member_id', chairMemberIds);
+      .in('member_id', chairMemberIds));
     if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/committees mps: ${dataErr.message}`);
     mps = data ?? [];
   }

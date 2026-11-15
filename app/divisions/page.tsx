@@ -11,6 +11,8 @@ import { divisionYears } from '@/lib/division-links';
 import { handled } from '@/lib/settle';
 import DivisionYearLinks from './DivisionYearLinks';
 import { ShowAll } from '../components/NoJsPager';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // Browsable index of Commons divisions (recorded votes), newest first. Each
 // links to the in-house division page. Data we already hold in mp_division_votes
@@ -18,7 +20,7 @@ import { ShowAll } from '../components/NoJsPager';
 // the commons_divisions_titled view: the live view re-aggregates ~1.14M vote rows and
 // exceeds the anon role's 3-second statement timeout. refresh_sitemap_views(), called
 // after every votes sync, refreshes the copy).
-export const revalidate = 600;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 // Each list page names itself canonical (owner, 31 Oct 2026): pages 2 to 49 used to name /divisions, which told Google
 // they were copies of page 1, so it did not follow them back to the older divisions. All stay indexable.
@@ -56,12 +58,12 @@ export default async function DivisionsIndexPage({
   // Started before the page's own read and awaited after it, so handled at once (lib/settle.ts): a failed read still
   // throws where it is awaited, but can no longer end the whole server process while the page read is running.
   const yearsP = handled(divisionYears());
-  const { data, count } = await supabase
+  const { data, count } = await cachedQuery(['q:app/divisions/page.tsx:bd6bc8a52e', JSON.stringify([from, PER_PAGE])], tableTags('commons_divisions_fts'), () => supabase
     .from('commons_divisions_fts')
     .select('division_date_only, division_number, division_title', { count: 'exact' })
     .order('division_date_only', { ascending: false })
     .order('division_number', { ascending: false })
-    .range(from, from + PER_PAGE - 1);
+    .range(from, from + PER_PAGE - 1));
 
   const rows = data || [];
   const total = count || 0;

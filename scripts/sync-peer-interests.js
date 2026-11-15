@@ -254,6 +254,8 @@ function saveState(done) {
   console.log(`peers read: ${totals.read}, with entries: ${totals.withEntries}, failed: ${totals.failed}${failures.length ? `\n  ${failures.join('\n  ')}` : ''}`);
   console.log(`rows: ${totals.entries} entries on the register, ${totals.children} child items inside them`);
   console.log(`rows ${WRITE ? '' : 'that would be '}inserted ${totals.added}, updated ${totals.changed}, left unchanged ${totals.unchanged}, set not current ${totals.ended}`);
+  // A16 (ENTRY 129): the Lords pages read the register through the data cache; refresh it only after a real change.
+  if (WRITE && (totals.added || totals.changed || totals.ended)) await require('./lib/refresh-site.js').refreshTableTags(['peer_registered_interests']);
   if (OUT) { fs.writeFileSync(OUT, JSON.stringify(dump)); console.log(`${dump.length} rows saved to the --out file`); }
   if (stopped) {
     console.error(`STOPPED: ${stopped}. ${done.size} of ${peers.length} peers done${WRITE ? '; run it again later and it carries on from here' : ''}.`);

@@ -13,7 +13,6 @@ import TookOnNote from '../../../components/TookOnNote';
 import BackLink from '@/app/components/BackLink';
 // One answering department (owner, 6 Nov 2026), one page per Parliament id, with links between reorganised departments. Newest first,
 // 25 at a time. Counts leave out withdrawn questions. Days to answer run from the date tabled to the date answered.
-export const dynamic = 'force-dynamic';
 
 type Search = { before?: string; at?: string };
 const INK = '#14100d';

@@ -18,7 +18,7 @@ import BackLink from '@/app/components/BackLink';
 // with date and party, withdrawn signatures marked, and amendments. Addressed by Parliament's motion id, because numbers repeat
 // across sessions; /edms/<number> goes to the list of motions with that number. Kept for a day and refreshed by /api/sync-edms.
 // Signature dates are the date part of Parliament's time, which carries no time zone, so no conversion can move one to another day.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';

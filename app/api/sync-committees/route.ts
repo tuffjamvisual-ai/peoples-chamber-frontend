@@ -1,6 +1,7 @@
 import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { refreshTables } from '@/lib/source-tags';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
@@ -38,8 +39,10 @@ async function GET_impl(req: Request) {
   let notReached = 0;
 
   // Stalest first: committees never synced, then the oldest synced_at.
-  const { data: seen, error: seenErr } = await supabaseAdmin.from('committees').select('id, synced_at').in('id', COMMITTEE_IDS);
+  const { data: seen, error: seenErr } = await supabaseAdmin.from('committees').select('id, synced_at, name, category, committee_type_id, committee_type, purpose, start_date, end_date').in('id', COMMITTEE_IDS);
   if (seenErr) return NextResponse.json({ ok: false, error: seenErr.message }, { status: 500 });
+  const storedRows = new Map((seen ?? []).map((r) => [r.id as number, r as Record<string, unknown>]));
+  let changed = 0;
   const syncedAt = new Map((seen ?? []).map((r) => [r.id as number, (r.synced_at as string | null) ?? '']));
   const order = [...COMMITTEE_IDS].sort((a, b) => (syncedAt.get(a) ?? '').localeCompare(syncedAt.get(b) ?? '') || a - b);
 
@@ -89,14 +92,19 @@ async function GET_impl(req: Request) {
       errors.push({ id: cid, message: error.message });
     } else {
       upserted++;
+      // A16: a real change is a new committee or a stored value that differs (synced_at aside).
+      const o = storedRows.get(cid);
+      if (!o || (Object.keys(row) as (keyof typeof row)[]).some((k) => k !== 'synced_at' && (row[k] ?? null) !== (o[k] ?? null))) changed++;
     }
   }
+  if (changed > 0) refreshTables('committees');
 
   return NextResponse.json(
     {
       ok: errors.length === 0,
       total: COMMITTEE_IDS.length,
       upserted,
+      changed,
       partial: stoppedBy !== null,
       stopped_by: stoppedBy,
       not_reached: notReached,

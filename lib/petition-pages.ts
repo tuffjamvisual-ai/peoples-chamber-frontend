@@ -5,6 +5,8 @@ import { unstable_cache } from 'next/cache';
 import { supabaseAdminRead as db } from '@/lib/supabase-admin';
 import { PETITIONS_TAG } from '@/lib/petition-tags';
 import { tagged } from '@/lib/tagged-read';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export type PetitionListRow = {
   id: number; action: string; state: string; signature_count: number; opened_at: string | null; closed_at: string | null;
@@ -16,7 +18,7 @@ const LIST_COLUMNS = 'id, action, state, signature_count, opened_at, closed_at, 
 export const allPetitions = unstable_cache(async (): Promise<PetitionListRow[]> => {
   const out: PetitionListRow[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await db.from('petitions').select(LIST_COLUMNS).order('opened_at', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).range(from, from + 999);
+    const { data, error } = await cachedQuery(['q:lib/petition-pages.ts:6da5b29a9e', JSON.stringify([LIST_COLUMNS, from])], tableTags('petitions'), () => db.from('petitions').select(LIST_COLUMNS).order('opened_at', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).range(from, from + 999));
     if (error) throw new Error(`petitions list: ${error.message}`);
     out.push(...((data ?? []) as unknown as PetitionListRow[]));
     if (!data || data.length < 1000) return out;
@@ -27,7 +29,7 @@ export type ConstituencyCounts = { name: string | null; counts: Record<number, n
 
 // One constituency's signatures on each petition, for /petitions?constituency=<code>, from the MP page's link.
 export const petitionsInConstituency = unstable_cache(async (gss: string): Promise<ConstituencyCounts> => {
-  const { data, error } = await db.from('petition_constituency_signatures').select('petition_id, signature_count, constituency_name').eq('constituency_gss_code', gss).limit(5000);
+  const { data, error } = await cachedQuery(['q:lib/petition-pages.ts:ee682d17d7', JSON.stringify([gss])], tableTags('petition_constituency_signatures'), () => db.from('petition_constituency_signatures').select('petition_id, signature_count, constituency_name').eq('constituency_gss_code', gss).limit(5000));
   if (error) throw new Error(`petitions in ${gss}: ${error.message}`);
   const rows = (data ?? []) as { petition_id: number; signature_count: number; constituency_name: string }[];
   return { name: rows[0]?.constituency_name ?? null, counts: Object.fromEntries(rows.map((r) => [Number(r.petition_id), r.signature_count])) };
@@ -40,9 +42,9 @@ export type Petition = PetitionListRow & {
 };
 
 export async function getPetition(id: number): Promise<Petition | null> {
-  const { data, error } = await db.from('petitions')
+  const { data, error } = await cachedQuery(['q:lib/petition-pages.ts:4234671934', JSON.stringify([LIST_COLUMNS, id])], tableTags('petitions'), () => db.from('petitions')
     .select(`${LIST_COLUMNS}, background, additional_details, government_response_summary, government_response_details, scheduled_debate_date, debate_transcript_url, debate_overview, debate_outcome_at, checked_at, url, constituency_count`)
-    .eq('id', id).maybeSingle();
+    .eq('id', id).maybeSingle());
   if (error) throw new Error(`petition ${id}: ${error.message}`);
   return data as unknown as Petition | null;
 }
@@ -52,8 +54,8 @@ export type PetitionConstituency = { gss: string; name: string; count: number; m
 // Every constituency with a signature, most signed first, with its current MP's id.
 export async function petitionConstituencies(id: number): Promise<PetitionConstituency[]> {
   const [{ data, error }, { data: mps, error: mpErr }] = await Promise.all([
-    db.from('petition_constituency_signatures').select('constituency_gss_code, constituency_name, signature_count').eq('petition_id', id).order('signature_count', { ascending: false }).order('constituency_name').limit(1000),
-    db.from('mps').select('member_id, constituency_gss_code').eq('current_member', true).not('constituency_gss_code', 'is', null).limit(1000),
+    cachedQuery(['q:lib/petition-pages.ts:ab8068ac17', JSON.stringify([id])], tableTags('petition_constituency_signatures'), () => db.from('petition_constituency_signatures').select('constituency_gss_code, constituency_name, signature_count').eq('petition_id', id).order('signature_count', { ascending: false }).order('constituency_name').limit(1000)),
+    cachedQuery(['q:lib/petition-pages.ts:ca4d57ddf5'], tableTags('mps'), () => db.from('mps').select('member_id, constituency_gss_code').eq('current_member', true).not('constituency_gss_code', 'is', null).limit(1000)),
   ]);
   if (error) throw new Error(`petition ${id} constituencies: ${error.message}`);
   if (mpErr) throw new Error(`petition ${id} MPs: ${mpErr.message}`);
@@ -67,7 +69,7 @@ export async function petitionConstituencies(id: number): Promise<PetitionConsti
 export async function ourDebateGuid(transcriptUrl: string | null): Promise<string | null> {
   const guid = transcriptUrl?.match(/debates\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i)?.[1]?.toUpperCase();
   if (!guid) return null;
-  const { data, error } = await db.from('hansard_debates').select('guid').eq('guid', guid).is('gone_at', null).maybeSingle();
+  const { data, error } = await cachedQuery(['q:lib/petition-pages.ts:d9bd0507cb', JSON.stringify([guid])], tableTags('hansard_debates'), () => db.from('hansard_debates').select('guid').eq('guid', guid).is('gone_at', null).maybeSingle());
   if (error) throw new Error(`hansard_debates ${guid}: ${error.message}`);
   return data ? guid : null;
 }
@@ -77,9 +79,9 @@ export type MpPetitionsTop = { petitions: { id: number; title: string; here: num
 // The MP page's "Petitions in this constituency": the five most signed. The page keeps for a week, so it says when the
 // counts were checked; the Petitions tab and /petitions?constituency= stay current.
 async function topPetitionsInConstituencyRead(gss: string): Promise<MpPetitionsTop> {
-  const { data, error } = await db.from('petition_constituency_signatures')
+  const { data, error } = await cachedQuery(['q:lib/petition-pages.ts:5360d5d08d', JSON.stringify([gss])], tableTags('petition_constituency_signatures'), () => db.from('petition_constituency_signatures')
     .select('petition_id, signature_count, petitions(action, signature_count, state, checked_at)')
-    .eq('constituency_gss_code', gss).order('signature_count', { ascending: false }).limit(5);
+    .eq('constituency_gss_code', gss).order('signature_count', { ascending: false }).limit(5));
   if (error) throw new Error(`top petitions ${gss}: ${error.message}`);
   type Row = { petition_id: number; signature_count: number; petitions: { action: string; signature_count: number; state: string; checked_at: string | null } | null };
   const rows = ((data ?? []) as unknown as Row[]).filter((r) => r.petitions);

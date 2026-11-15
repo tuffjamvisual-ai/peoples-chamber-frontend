@@ -7,6 +7,8 @@ import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { supabaseAdminRead as db } from '@/lib/supabase-admin';
 import { EDMS_TAG } from '@/lib/edm-tags';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 export type EdmListRow = { id: number; uin: number | null; uin_with_suffix: string | null; title: string; date_tabled: string; signature_count: number; status: string; is_prayer: boolean | null };
 export type EdmState = 'Open' | 'Closed' | 'Withdrawn';
@@ -45,7 +47,7 @@ export const memberEdmIds = unstable_cache(async (memberId: number): Promise<{ t
 export type Edm = EdmListRow & { motion_text: string | null; primary_sponsor_id: number | null; amendment_to_motion_id: number | null; statutory_instrument_title: string | null };
 
 export async function getEdm(id: number): Promise<Edm | null> {
-  const { data, error } = await db.from('early_day_motions').select('id, uin, uin_with_suffix, title, date_tabled, signature_count, status, is_prayer, motion_text, primary_sponsor_id, amendment_to_motion_id, statutory_instrument_title').eq('id', id).maybeSingle();
+  const { data, error } = await cachedQuery(['q:lib/edm-pages.ts:f0b1d013fe', JSON.stringify([id])], tableTags('early_day_motions'), () => db.from('early_day_motions').select('id, uin, uin_with_suffix, title, date_tabled, signature_count, status, is_prayer, motion_text, primary_sponsor_id, amendment_to_motion_id, statutory_instrument_title').eq('id', id).maybeSingle());
   if (error) throw new Error(`motion ${id}: ${error.message}`);
   return data as unknown as Edm | null;
 }
@@ -55,15 +57,15 @@ export type LinkedEdm = { id: number; uin_with_suffix: string | null; title: str
 
 export async function edmDetail(edm: Edm) {
   const [sigs, amendments, parent] = await Promise.all([
-    db.from('early_day_motion_signatures').select('member_id, member_name, party, sponsoring_order, signed_at, is_withdrawn, withdrawn_at').eq('edm_id', edm.id).limit(2000),
-    db.from('early_day_motions').select('id, uin_with_suffix, title').eq('amendment_to_motion_id', edm.id).order('id').limit(100),
-    edm.amendment_to_motion_id ? db.from('early_day_motions').select('id, uin_with_suffix, title').eq('id', edm.amendment_to_motion_id).maybeSingle() : Promise.resolve({ data: null, error: null }),
+    cachedQuery(['q:lib/edm-pages.ts:61756acb96', JSON.stringify([edm.id])], tableTags('early_day_motion_signatures'), () => db.from('early_day_motion_signatures').select('member_id, member_name, party, sponsoring_order, signed_at, is_withdrawn, withdrawn_at').eq('edm_id', edm.id).limit(2000)),
+    cachedQuery(['q:lib/edm-pages.ts:8dde86a3ec', JSON.stringify([edm.id])], tableTags('early_day_motions'), () => db.from('early_day_motions').select('id, uin_with_suffix, title').eq('amendment_to_motion_id', edm.id).order('id').limit(100)),
+    edm.amendment_to_motion_id ? cachedQuery(['q:lib/edm-pages.ts:2ff369927b', JSON.stringify([edm.amendment_to_motion_id])], tableTags('early_day_motions'), () => db.from('early_day_motions').select('id, uin_with_suffix, title').eq('id', edm.amendment_to_motion_id).maybeSingle()) : Promise.resolve({ data: null, error: null }),
   ]);
   const err = sigs.error ?? amendments.error ?? parent.error;
   if (err) throw new Error(`motion ${edm.id}: ${err.message}`);
   const rows = (sigs.data ?? []) as Omit<EdmSignature, 'has_page'>[];
   // Two signers have no MP page, so no link.
-  const { data: pagesHeld, error: pageErr } = await db.from('mps').select('member_id').in('member_id', [...new Set(rows.map((r) => r.member_id))]);
+  const { data: pagesHeld, error: pageErr } = await cachedQuery(['q:lib/edm-pages.ts:02947e26c7', JSON.stringify([rows])], tableTags('mps'), () => db.from('mps').select('member_id').in('member_id', [...new Set(rows.map((r) => r.member_id))]));
   if (pageErr) throw new Error(`motion ${edm.id} MPs: ${pageErr.message}`);
   const held = new Set(((pagesHeld ?? []) as { member_id: number }[]).map((p) => p.member_id));
   // Sponsors first in Parliament's order, then by date, with withdrawn signatures last.
@@ -90,8 +92,8 @@ export type MpEdmsTop = { tabled: LinkedEdm[]; signed: LinkedEdm[] };
 // The MP page's section: the latest 5 tabled and the latest 5 signed. /api/sync-edms refreshes the page when these change.
 export async function latestEdmsForMp(memberId: number): Promise<MpEdmsTop> {
   const [tabled, signed] = await Promise.all([
-    db.from('early_day_motions').select('id, uin_with_suffix, title').eq('primary_sponsor_id', memberId).order('date_tabled', { ascending: false }).order('id', { ascending: false }).limit(5),
-    db.from('early_day_motion_signatures').select('edm_id, early_day_motions(uin_with_suffix, title, primary_sponsor_id)').eq('member_id', memberId).eq('is_withdrawn', false).order('signed_at', { ascending: false }).limit(15),
+    cachedQuery(['q:lib/edm-pages.ts:719bd24d93', JSON.stringify([memberId])], tableTags('early_day_motions'), () => db.from('early_day_motions').select('id, uin_with_suffix, title').eq('primary_sponsor_id', memberId).order('date_tabled', { ascending: false }).order('id', { ascending: false }).limit(5)),
+    cachedQuery(['q:lib/edm-pages.ts:aa49590eb6', JSON.stringify([memberId])], tableTags('early_day_motion_signatures'), () => db.from('early_day_motion_signatures').select('edm_id, early_day_motions(uin_with_suffix, title, primary_sponsor_id)').eq('member_id', memberId).eq('is_withdrawn', false).order('signed_at', { ascending: false }).limit(15)),
   ]);
   if (tabled.error) throw new Error(`motions tabled by ${memberId}: ${tabled.error.message}`);
   if (signed.error) throw new Error(`motions signed by ${memberId}: ${signed.error.message}`);

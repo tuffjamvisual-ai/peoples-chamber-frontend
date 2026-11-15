@@ -8,12 +8,14 @@ import { COMMITTEE_IDS } from '@/lib/committees';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // dynamicParams = false: any committee ID not in generateStaticParams returns a
 // clean Next.js 404 without hitting the database. mp_committee_memberships holds
 // 309 distinct committee IDs; only the 29 in COMMITTEE_IDS get pages.
 export const dynamicParams = false;
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export async function generateStaticParams() {
   return COMMITTEE_IDS.map((id) => ({ id: String(id) }));
@@ -68,11 +70,11 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const { data, error: dataErr2 } = await supabase
+  const { data, error: dataErr2 } = await cachedQuery(['q:app/committees/[id]/page.tsx:6734be3007', JSON.stringify([id])], tableTags('committees'), () => supabase
     .from('committees')
     .select('name')
     .eq('id', Number(id))
-    .single();
+    .single());
   if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/committees/[id] committees: ${dataErr2.message}`);
   if (!data) return { title: 'Committee' };
   return {
@@ -88,12 +90,12 @@ export default async function CommitteeProfilePage({ params }: Props) {
   const idNum = Number(id);
 
   const [committeeRes, membershipsRes] = await Promise.all([
-    supabase.from('committees').select('*').eq('id', idNum).single(),
-    supabase
+    cachedQuery(['q:app/committees/[id]/page.tsx:7d5069ec34', JSON.stringify([idNum])], tableTags('committees'), () => supabase.from('committees').select('*').eq('id', idNum).single()),
+    cachedQuery(['q:app/committees/[id]/page.tsx:2df2c6e6d5', JSON.stringify([idNum])], tableTags('mp_committee_memberships'), () => supabase
       .from('mp_committee_memberships')
       .select('member_id, role, start_date, end_date')
       .eq('committee_id', idNum)
-      .order('start_date', { ascending: false }),
+      .order('start_date', { ascending: false })),
   ]);
 
   if (committeeRes.error) throw new Error(`committee ${idNum}: ${committeeRes.error.message}`);
@@ -108,10 +110,10 @@ export default async function CommitteeProfilePage({ params }: Props) {
   const currentMemberIds = currentMemberships.map((m) => m.member_id);
   let mpRows: { member_id: number; display_name: string; list_as: string; party: string | null; constituency: string | null }[] = [];
   if (currentMemberIds.length > 0) {
-    const { data, error: dataErr } = await supabase
+    const { data, error: dataErr } = await cachedQuery(['q:app/committees/[id]/page.tsx:fb04a952fa', JSON.stringify([currentMemberIds])], tableTags('mps'), () => supabase
       .from('mps')
       .select('member_id, display_name, list_as, party, constituency')
-      .in('member_id', currentMemberIds);
+      .in('member_id', currentMemberIds));
     if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/committees/[id] mps: ${dataErr.message}`);
     mpRows = data ?? [];
   }

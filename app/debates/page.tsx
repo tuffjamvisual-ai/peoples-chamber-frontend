@@ -6,11 +6,12 @@ import BackLink from '../components/BackLink';
 import Unavailable from '@/app/components/Unavailable';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { SubFold } from '@/app/components/PhoneFolds';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
 // Commons debates index. Metadata is held in our `debates` table (synced daily
 // from Hansard); the full transcript is rendered in-house on /debates/[extId].
 // No outbound links anywhere.
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Commons Debates',
@@ -44,16 +45,19 @@ export default async function DebatesPage({
   const pageNum = Math.max(1, parseInt(sp.page || '1', 10) || 1);
   const from = (pageNum - 1) * PER_PAGE;
 
-  let query = supabase
-    .from('debates')
-    .select('hansard_ext_id, title, sitting_date, section, summary, division_ids', { count: 'exact' })
-    .order('sitting_date', { ascending: false })
-    .order('title', { ascending: true })
-    .range(from, from + PER_PAGE - 1);
-  if (section) query = query.eq('section', section);
-  if (q) query = query.ilike('title', `%${q}%`);
-
-  const { data, count } = await query;
+  const buildQuery = () => {
+    let query = supabase
+      .from('debates')
+      .select('hansard_ext_id, title, sitting_date, section, summary, division_ids', { count: 'exact' })
+      .order('sitting_date', { ascending: false })
+      .order('title', { ascending: true })
+      .range(from, from + PER_PAGE - 1);
+    if (section) query = query.eq('section', section);
+    if (q) query = query.ilike('title', `%${q}%`);
+    return query;
+  };
+  // A16: the list in the shared data cache under the debates tag, keyed by the filters and page.
+  const { data, count } = await cachedQuery(['debates-list-v1', section ?? '', q ?? '', pageNum], tableTags('debates'), buildQuery);
   const rows = data || [];
   const total = count || 0;
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));

@@ -10,7 +10,7 @@ import { getTreaty, isApiId, fmtDate, scrutinyLabel } from '@/lib/si-treaties-da
 import ParliamentSourceCredit from '../../components/ParliamentSourceCredit';
 
 // One treaty laid before Parliament under CRaG, with its timeline (report 81), from the treaties table.
-export const revalidate = 86400;
+export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;

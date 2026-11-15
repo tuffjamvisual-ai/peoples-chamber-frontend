@@ -5,6 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Post } from '@/lib/peers';
 import { tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import { cachedQuery } from '@/lib/tagged-read';
 
 export type Peer = {
   member_id: number; name_display: string; name_list_as: string | null; name_full_title: string | null;
@@ -26,9 +27,9 @@ export type PeerInterestCategory = { id: number; name: string; entries: PeerInte
 export const lordsDivisionUrl = (id: number) => `https://votes.parliament.uk/Votes/Lords/Division/${id}`;
 
 async function getPeerRead(db: SupabaseClient, memberId: number): Promise<Peer | null> {
-  const { data, error } = await db.from('peers')
+  const { data, error } = await cachedQuery(['q:lib/lords.ts:6f1557ff2e', JSON.stringify([memberId])], tableTags('peers'), () => db.from('peers')
     .select('member_id, name_display, name_list_as, name_full_title, party, party_colour, peerage_type, start_date, end_date, end_reason, status, is_current, thumbnail_url, government_posts, opposition_posts, other_posts, committee_memberships, posts_checked_at')
-    .eq('member_id', memberId).maybeSingle();
+    .eq('member_id', memberId).maybeSingle());
   if (error) throw new Error(`peer ${memberId}: ${error.message}`);
   return (data as Peer | null) ?? null;
 }
@@ -36,10 +37,10 @@ async function getPeerRead(db: SupabaseClient, memberId: number): Promise<Peer |
 // A peer's entries on the register of interests now (peer_registered_interests, scripts/sync-peer-interests.js), grouped
 // by category in the register's order.
 export async function peerInterests(db: SupabaseClient, memberId: number): Promise<PeerInterestCategory[]> {
-  const { data, error } = await db.from('peer_registered_interests')
+  const { data, error } = await cachedQuery(['q:lib/lords.ts:7f6493a285', JSON.stringify([memberId])], tableTags('peer_registered_interests'), () => db.from('peer_registered_interests')
     .select('interest_id, category_id, category_name, category_sort_order, interest_text, child_interests')
     .eq('member_id', memberId).eq('is_current', true)
-    .order('category_sort_order', { ascending: true }).order('interest_id', { ascending: true }).range(0, 1999);
+    .order('category_sort_order', { ascending: true }).order('interest_id', { ascending: true }).range(0, 1999));
   if (error) throw new Error(`peer interests: ${error.message}`);
   const groups = new Map<number, PeerInterestCategory>();
   for (const row of (data ?? []) as PeerInterest[]) {
@@ -52,9 +53,9 @@ export async function peerInterests(db: SupabaseClient, memberId: number): Promi
 
 // Every current peer (816 on 3 Nov 2026), in Parliament's list order (surname or title).
 export async function currentPeers(db: SupabaseClient): Promise<PeerListRow[]> {
-  const { data, error } = await db.from('peers')
+  const { data, error } = await cachedQuery(['q:lib/lords.ts:69d3e624db'], tableTags('peers'), () => db.from('peers')
     .select('member_id, name_display, name_list_as, party, party_colour, peerage_type, start_date, status')
-    .eq('is_current', true).order('name_list_as', { ascending: true }).order('member_id', { ascending: true }).range(0, 1999);
+    .eq('is_current', true).order('name_list_as', { ascending: true }).order('member_id', { ascending: true }).range(0, 1999));
   if (error) throw new Error(`current peers: ${error.message}`);
   return (data ?? []) as PeerListRow[];
 }
@@ -62,18 +63,18 @@ export async function currentPeers(db: SupabaseClient): Promise<PeerListRow[]> {
 // Votes since the first stored division (a peer votes in at most every division, 446 on 3 Nov 2026, so one read).
 export async function peerVoting(db: SupabaseClient, memberId: number, recentCount = 10): Promise<LordsVoting> {
   const [votesRes, divCountRes, firstRes] = await Promise.all([
-    db.from('lords_division_votes').select('division_id, vote').eq('member_id', memberId).range(0, 1999),
-    db.from('lords_divisions').select('division_id', { count: 'exact', head: true }),
-    db.from('lords_divisions').select('division_date').order('division_date', { ascending: true }).limit(1),
+    cachedQuery(['q:lib/lords.ts:3d2a3624e1', JSON.stringify([memberId])], tableTags('lords_division_votes'), () => db.from('lords_division_votes').select('division_id, vote').eq('member_id', memberId).range(0, 1999)),
+    cachedQuery(['q:lib/lords.ts:25dc7cb381'], tableTags('lords_divisions'), () => db.from('lords_divisions').select('division_id', { count: 'exact', head: true })),
+    cachedQuery(['q:lib/lords.ts:689cfb88f2'], tableTags('lords_divisions'), () => db.from('lords_divisions').select('division_date').order('division_date', { ascending: true }).limit(1)),
   ]);
   if (votesRes.error) throw new Error(`peer votes: ${votesRes.error.message}`);
-  if (divCountRes.error) throw new Error(`lords divisions count: ${divCountRes.error.message || divCountRes.status}`);
+  if (divCountRes.error) throw new Error(`lords divisions count: ${divCountRes.error.message}`);
   const votes = (votesRes.data ?? []) as Array<{ division_id: number; vote: string }>;
   const byDivision = new Map(votes.map((v) => [v.division_id, v.vote]));
   let recent: LordsVote[] = [];
   if (votes.length) {
-    const { data, error } = await db.from('lords_divisions').select('division_id, division_date, title, bill_id, is_government_win')
-      .in('division_id', [...byDivision.keys()]).order('division_date', { ascending: false }).order('division_id', { ascending: false }).limit(recentCount);
+    const { data, error } = await cachedQuery(['q:lib/lords.ts:c764fb30b8', JSON.stringify([recentCount])], tableTags('lords_divisions'), () => db.from('lords_divisions').select('division_id, division_date, title, bill_id, is_government_win')
+      .in('division_id', [...byDivision.keys()]).order('division_date', { ascending: false }).order('division_id', { ascending: false }).limit(recentCount));
     if (error) throw new Error(`peer recent divisions: ${error.message}`);
     recent = ((data ?? []) as Array<Omit<LordsVote, 'vote'>>).map((d) => ({ ...d, vote: byDivision.get(d.division_id) ?? '' }));
   }
