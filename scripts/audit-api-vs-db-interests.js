@@ -13,6 +13,7 @@
  */
 
 const { execSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL required'); process.exit(1); }
@@ -21,9 +22,9 @@ const THROTTLE_MS = 120;
 const UA = 'PeoplesChamber-RegisterAudit/1.0';
 
 function psql(sql) {
-  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -v ON_ERROR_STOP=1`, {
+  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -q -v ON_ERROR_STOP=1`, {
     encoding: 'utf8',
-    input: sql,
+    input: withTimeouts(sql),
   }).trim();
 }
 

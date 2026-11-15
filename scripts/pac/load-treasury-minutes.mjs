@@ -23,10 +23,11 @@ import { createRequire } from 'node:module';
 import { monthDate } from './parse-treasury-minutes.mjs';
 
 createRequire(import.meta.url)('dotenv').config({ path: '.env.local', quiet: true });
+const { withTimeouts } = createRequire(import.meta.url)('../lib/db-timeouts.js');
 
 function psql(sql) {
   if (!process.env.DATABASE_URL) { console.error('DATABASE_URL is not set in .env.local'); process.exit(1); }
-  const r = spawnSync('psql', [process.env.DATABASE_URL, '-X', '-At', '-F', '\t', '-v', 'ON_ERROR_STOP=1'], { input: sql, encoding: 'utf8', maxBuffer: 1 << 28 });
+  const r = spawnSync('psql', [process.env.DATABASE_URL, '-X', '-At', '-F', '\t', '-v', 'ON_ERROR_STOP=1'], { input: withTimeouts(sql), encoding: 'utf8', maxBuffer: 1 << 28 });
   if (r.status !== 0) { console.error(`database error: ${(r.stderr || '').replace(/postgres(ql)?:\/\/\S+/gi, '[url]').trim()}`); process.exit(1); }
   return r.stdout;
 }
@@ -144,7 +145,7 @@ ${apply ? 'COMMIT' : 'ROLLBACK'};
   // recommendations pages (lib/pac.ts reads under the 'pac' tag).
   if (apply) {
     // Its own psql call: psql() above exits on an error, and a failed refresh must not skip the page refresh below.
-    const rs = spawnSync('psql', [process.env.DATABASE_URL, '-X', '-At', '-v', 'ON_ERROR_STOP=1', '-c', 'SELECT public.refresh_pac_status();'], { encoding: 'utf8' });
+    const rs = spawnSync('psql', [process.env.DATABASE_URL, '-X', '-At', '-q', '-v', 'ON_ERROR_STOP=1', '-c', withTimeouts('SELECT public.refresh_pac_status();')], { encoding: 'utf8' });
     if (rs.status === 0) console.log(`  stored status copy refreshed: ${rs.stdout.trim()} rows`);
     else console.error('  the stored status copy did not refresh; run: psql "$DATABASE_URL" -c "SELECT public.refresh_pac_status();"');
     const r = spawnSync('node', ['scripts/revalidate.js', '--tag', 'pac'], { encoding: 'utf8' });

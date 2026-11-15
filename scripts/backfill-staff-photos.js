@@ -13,6 +13,7 @@
  */
 
 const { execSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -22,8 +23,8 @@ if (!DATABASE_URL) {
 }
 
 function psql(sql) {
-  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -c ${JSON.stringify(sql)}`, {
-    encoding: 'utf8',
+  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -q -v ON_ERROR_STOP=1`, {
+    encoding: 'utf8', input: withTimeouts(sql)
   });
 }
 

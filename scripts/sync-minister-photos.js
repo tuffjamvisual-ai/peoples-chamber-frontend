@@ -1,6 +1,7 @@
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const fs = require('fs');
 const path = require('path');
 
@@ -102,7 +103,7 @@ async function run() {
   console.log(`Wrote ${updates.length} UPDATEs to ${sqlPath}`);
 
   console.log('Executing via psql...');
-  const out = execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-f', sqlPath], { encoding: 'utf8' });
+  const out = execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1'], { input: withTimeouts(fs.readFileSync(sqlPath, 'utf8')), encoding: 'utf8' });
   process.stdout.write(out);
 
   for (const u of updates) console.log(`  ${u.how === 'exact' ? '  ' : '~ '}${u.name} → ${u.member_id}`);

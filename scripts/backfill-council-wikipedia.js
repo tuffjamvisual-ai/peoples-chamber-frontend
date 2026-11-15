@@ -13,6 +13,7 @@
 
 require('dotenv').config({ path: '.env.local' });
 const { spawn } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
@@ -31,15 +32,15 @@ function runPsql(sql) {
       if (code !== 0) reject(new Error(stderr.trim() || `psql exit ${code}`));
       else resolve();
     });
-    p.stdin.write(sql);
+    p.stdin.write(withTimeouts(sql));
     p.stdin.end();
   });
 }
 
 async function fetchCouncils() {
   return new Promise((resolve, reject) => {
-    const p = spawn('psql', [DATABASE_URL, '-t', '-A', '-F', '|', '-c',
-      "SELECT slug, name FROM councils WHERE description IS NULL OR wikipedia_url IS NULL OR population IS NULL ORDER BY slug"],
+    const p = spawn('psql', [DATABASE_URL, '-t', '-A', '-F', '|', '-q', '-c',
+      withTimeouts("SELECT slug, name FROM councils WHERE description IS NULL OR wikipedia_url IS NULL OR population IS NULL ORDER BY slug")],
       { stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
     let err = '';

@@ -29,6 +29,7 @@ require('dotenv').config({ path: `${__dirname}/../.env.local`, quiet: true });
 const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const arg = (n, d = '') => (process.argv.find((a) => a.startsWith(`--${n}=`)) || `--${n}=${d}`).slice(n.length + 3);
 const WRITE = process.argv.includes('--write');
@@ -45,7 +46,7 @@ const fail = (m) => { console.error(m); process.exit(1); };
 if (WRITE && LEAVE_OUT) fail('--leave-out-unmatched is for a rehearsal only, not with --write.');
 const db = () => (process.env.DATABASE_URL || fail('DATABASE_URL is not set in .env.local.')).trim();
 const psql = (sql) => {
-  const r = spawnSync('psql', [db(), '-X', '-q', '-v', 'ON_ERROR_STOP=1', '-At', '-f', '-'], { input: sql, encoding: 'utf8', maxBuffer: 1 << 26 });
+  const r = spawnSync('psql', [db(), '-X', '-q', '-v', 'ON_ERROR_STOP=1', '-At', '-f', '-'], { input: withTimeouts(sql), encoding: 'utf8', maxBuffer: 1 << 26 });
   const out = ((r.stdout || '') + (r.stderr || '')).replace(/postgres(ql)?:\/\/\S+/gi, '[url]');
   if (r.status !== 0) fail(`psql failed:\n${out}`);
   return r.stdout;
@@ -97,7 +98,7 @@ if (problems.length) fail(`Stopped, nothing written:\n  ${problems.join('\n  ')}
 
 // Councils, exact match only.
 const norm = (s) => s.toLowerCase().replace(/&/g, 'and').replace(/\s+/g, ' ').trim();
-const councils = psql("SET statement_timeout = '60s';\nSELECT slug || '|' || name || '|' || coalesce(short_name, '') FROM public.councils;")
+const councils = psql("SELECT slug || '|' || name || '|' || coalesce(short_name, '') FROM public.councils;")
   .trim().split('\n').filter(Boolean).map((l) => { const [slug, name, short] = l.split('|'); return { slug, name, short }; });
 const byName = new Map();
 for (const c of councils) {
@@ -143,9 +144,9 @@ const upsert = `INSERT INTO public.council_byelections (${COLS.join(', ')}) VALU
 
 // What a write would change, against the rows already saved (none before migration 2026-10-30e is applied).
 const saved = new Map();
-const exists = psql("SET statement_timeout = '60s';\nSELECT to_regclass('public.council_byelections') IS NOT NULL;").trim().split('\n').pop() === 't';
+const exists = psql("SELECT to_regclass('public.council_byelections') IS NOT NULL;").trim().split('\n').pop() === 't';
 if (exists) {
-  const json = psql(`SET statement_timeout = '60s';\nSELECT coalesce(json_agg(json_build_object(${COLS.map((c) => `'${c}', ${c}`).join(', ')})), '[]') FROM public.council_byelections;`).trim().split('\n').pop();
+  const json = psql(`SELECT coalesce(json_agg(json_build_object(${COLS.map((c) => `'${c}', ${c}`).join(', ')})), '[]') FROM public.council_byelections;`).trim().split('\n').pop();
   for (const r of JSON.parse(json)) saved.set(`${r.council_slug}|${r.ward_name}|${r.poll_date}`, r);
 }
 const same = (a, b, c) => (c === 'joint_runners_up' ? JSON.stringify(a == null ? null : JSON.parse(a)) === JSON.stringify(b ?? null)

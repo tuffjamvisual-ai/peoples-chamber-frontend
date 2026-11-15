@@ -2,10 +2,11 @@
 // debates.division_ids (exact division slugs from the in-transcript division
 // numbers, cross-checked against our divisions). No LLM.
 const { execSync, exec } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const fs = require('fs');
 const DB = process.env.DATABASE_URL;
 
-function q(sql) { return execSync(`psql "${DB}" -tA -c "${sql}"`).toString().trim(); }
+function q(sql) { return execSync(`psql "${DB}" -tAq -c "${withTimeouts(sql)}"`).toString().trim(); }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function curlOnce(url) {
   return new Promise((res) => {
@@ -106,6 +107,6 @@ async function pool(items, n, fn) {
     sql += `UPDATE debates SET summary=${sumSql}, division_ids=${arrSql} WHERE id=${u.id};\n`;
   }
   fs.writeFileSync('/tmp/debate-extras.sql', sql);
-  execSync(`psql "${DB}" -f /tmp/debate-extras.sql`, { stdio: 'inherit' });
+  execSync(`psql "${DB}" -v ON_ERROR_STOP=1`, { input: withTimeouts(fs.readFileSync('/tmp/debate-extras.sql', 'utf8')), stdio: ['pipe', 'inherit', 'inherit'] });
   console.log(`Updated ${updates.length} debates.`);
 })();

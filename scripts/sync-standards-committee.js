@@ -27,6 +27,7 @@
 
 require('dotenv').config({ path: '.env.local' });
 const { spawn } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL not set'); process.exit(1); }
@@ -37,7 +38,7 @@ const PAGE_SIZE = 300;          // 223 total publications today; one page covers
 
 function psql(sql) {
   return new Promise((resolve, reject) => {
-    const p = spawn('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1'], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const p = spawn('psql', [DATABASE_URL, '-q', '-v', 'ON_ERROR_STOP=1'], { stdio: ['pipe', 'pipe', 'pipe'] });
     let out = '', err = '';
     p.stdout.on('data', d => { out += d.toString(); });
     p.stderr.on('data', d => { err += d.toString(); });
@@ -46,13 +47,13 @@ function psql(sql) {
       if (err) console.error('psql warnings:', err.split('\n').slice(0,3).join(' | '));
       resolve(out);
     });
-    p.stdin.end(sql);
+    p.stdin.end(withTimeouts(sql));
   });
 }
 
 function psqlQ(sql) {
   return new Promise((resolve, reject) => {
-    const p = spawn('psql', [DATABASE_URL, '-At', '-F', '\t', '-c', sql], { stdio: ['ignore', 'pipe', 'pipe'] });
+    const p = spawn('psql', [DATABASE_URL, '-At', '-F', '\t', '-q', '-c', withTimeouts(sql)], { stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '', err = '';
     p.stdout.on('data', d => { out += d.toString(); });
     p.stderr.on('data', d => { err += d.toString(); });

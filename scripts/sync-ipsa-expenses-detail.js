@@ -30,6 +30,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL required'); process.exit(1); }
@@ -119,7 +120,7 @@ async function fetchYear(year) {
 
 // Member ids of MPs serving now (for --current-mps-only).
 function currentMpIds() {
-  const out = execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-t', '-A', '-c', 'SELECT member_id FROM mps WHERE current_member = true'], { encoding: 'utf8' });
+  const out = execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-t', '-A', '-c', withTimeouts('SELECT member_id FROM mps WHERE current_member = true')], { encoding: 'utf8' });
   const ids = new Set(out.split('\n').map((l) => parseInt(l.trim(), 10)).filter(Number.isFinite));
   if (ids.size < 600) throw new Error(`only ${ids.size} current MPs found; expected about 650`);
   return ids;
@@ -249,7 +250,7 @@ COMMIT;
 
     console.log(`  loading ${stagePath} via psql...`);
     const t0 = Date.now();
-    execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-f', sqlPath], { stdio: 'inherit' });
+    execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1'], { input: withTimeouts(fs.readFileSync(sqlPath, 'utf8')), stdio: ['pipe', 'inherit', 'inherit'] });
     console.log(`  loaded in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
   }
 

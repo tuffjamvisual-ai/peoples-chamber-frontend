@@ -43,6 +43,7 @@ require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const arg = (n, d = '') => (process.argv.find((a) => a.startsWith(`--${n}=`)) || `--${n}=${d}`).slice(n.length + 3);
 const CACHE = arg('cache');
@@ -262,8 +263,8 @@ function councils() {
   const f = arg('councils');
   const rows = f
     ? fs.readFileSync(f, 'utf8').trim().split('\n').map((l) => l.split('\t'))
-    : execFileSync('psql', [process.env.DATABASE_URL || fail('DATABASE_URL not set'), '-AtF', '\t', '-c',
-      'select slug, name, type, wikipedia_url, website_url, gss_code from public.councils order by slug'], { encoding: 'utf8' }).trim().split('\n').map((l) => l.split('\t'));
+    : execFileSync('psql', [process.env.DATABASE_URL || fail('DATABASE_URL not set'), '-AtF', '\t', '-q', '-c',
+      withTimeouts('select slug, name, type, wikipedia_url, website_url, gss_code from public.councils order by slug')], { encoding: 'utf8' }).trim().split('\n').map((l) => l.split('\t'));
   return rows.map(([slug, name, type, wikipedia_url, website_url, gss_code]) => ({ slug, name, type, wikipedia_url, website_url, gss_code }));
 }
 

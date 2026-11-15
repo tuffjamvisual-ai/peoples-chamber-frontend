@@ -16,6 +16,7 @@
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const { execSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 // Storage writes use the service key: the photos bucket no longer lets the public key list files (22 Oct 2026).
@@ -33,7 +34,7 @@ const LIMIT = limitArg ? parseInt(limitArg.split('=')[1], 10) : null;
 const s = createClient(SUPABASE_URL, SERVICE_KEY);
 
 function psql(sql) {
-  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -c ${JSON.stringify(sql)}`, { encoding: 'utf8' });
+  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -q -v ON_ERROR_STOP=1`, { encoding: 'utf8', input: withTimeouts(sql) });
 }
 
 function sqlLiteral(str) {

@@ -33,6 +33,7 @@
 
 require('dotenv').config({ path: '.env.local' });
 const { spawn } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -59,7 +60,7 @@ const PEOPLE_JSON = path.join(TMP_DIR, 'people.json');
 
 function psqlQuery(sql) {
   return new Promise((resolve, reject) => {
-    const p = spawn('psql', [DATABASE_URL, '-At', '-c', sql], { stdio: ['ignore', 'pipe', 'pipe'] });
+    const p = spawn('psql', [DATABASE_URL, '-At', '-q', '-c', withTimeouts(sql)], { stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '', err = '';
     p.stdout.on('data', d => { out += d.toString(); });
     p.stderr.on('data', d => { err += d.toString(); });
@@ -69,11 +70,11 @@ function psqlQuery(sql) {
 
 function psqlWrite(sql) {
   return new Promise((resolve, reject) => {
-    const p = spawn('psql', [DATABASE_URL, '-q'], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const p = spawn('psql', [DATABASE_URL, '-q', '-v', 'ON_ERROR_STOP=1'], { stdio: ['pipe', 'pipe', 'pipe'] });
     let err = '';
     p.stderr.on('data', d => { err += d.toString(); });
     p.on('close', c => c === 0 ? resolve() : reject(new Error(err)));
-    p.stdin.end(sql);
+    p.stdin.end(withTimeouts(sql));
   });
 }
 

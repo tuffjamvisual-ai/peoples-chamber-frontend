@@ -22,6 +22,7 @@ require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL required (psql is used to bypass anon RLS)'); process.exit(1); }
@@ -218,7 +219,7 @@ async function main() {
   console.log(`Wrote SQL → ${sqlPath}`);
 
   console.log('Executing via psql...');
-  const out = execFileSync('psql', [DATABASE_URL, '-X', '-At', '-v', 'ON_ERROR_STOP=1', '-f', sqlPath], { encoding: 'utf8', maxBuffer: 1 << 26 });
+  const out = execFileSync('psql', [DATABASE_URL, '-X', '-At', '-v', 'ON_ERROR_STOP=1'], { input: withTimeouts(fs.readFileSync(sqlPath, 'utf8')), encoding: 'utf8', maxBuffer: 1 << 26 });
   fs.unlinkSync(sqlPath);
   // The MPs whose figures changed: their pages keep for a week, so they are refreshed now (scripts/lib/refresh-site.js).
   const changed = [...new Set(out.split('\n').filter((l) => l.startsWith('changed:')).map((l) => Number(l.slice(8))))];

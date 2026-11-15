@@ -6,6 +6,7 @@
 
 require('dotenv').config({ path: '.env.local' });
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -81,7 +82,7 @@ function clean(text) {
   for (const c of changes) {
     const sql = `UPDATE mp_biography SET political_bio = ${sqlEsc(c.after)} WHERE member_id = ${c.member_id};`;
     try {
-      execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-c', sql], { stdio: 'pipe' });
+      execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-c', withTimeouts(sql)], { stdio: 'pipe' });
       ok++;
     } catch (e) {
       console.error(`Failed member_id ${c.member_id}:`, e.stderr ? e.stderr.toString() : e.message);

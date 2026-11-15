@@ -18,6 +18,7 @@
  */
 
 const { execSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const fs = require('fs');
 const path = require('path');
 
@@ -68,7 +69,7 @@ function psql(sql) {
   // meta-command separators).
   return execSync(`psql "${DATABASE_URL}" -v ON_ERROR_STOP=1`, {
     encoding: 'utf8',
-    input: sql,
+    input: withTimeouts(sql),
   });
 }
 

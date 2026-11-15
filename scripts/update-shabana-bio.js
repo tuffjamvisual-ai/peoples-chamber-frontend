@@ -6,6 +6,7 @@ require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -53,7 +54,7 @@ const sqlEsc = (v) => v == null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`;
 
   const sql = `UPDATE mp_biography SET political_bio = ${sqlEsc(NEW_BIO)} WHERE member_id = ${MEMBER_ID};`;
   try {
-    execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-c', sql], { stdio: 'pipe' });
+    execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-c', withTimeouts(sql)], { stdio: 'pipe' });
   } catch (e) {
     console.error('psql failed:', e.stderr ? e.stderr.toString() : e.message);
     process.exit(1);

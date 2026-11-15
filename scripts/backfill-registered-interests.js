@@ -15,6 +15,7 @@
  */
 
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL required'); process.exit(1); }
@@ -26,16 +27,16 @@ const PARLIAMENT_API = 'https://members-api.parliament.uk/api/Members';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function psql(sql) {
-  return execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-t', '-A', '-F', '|'], {
+  return execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-t', '-A', '-F', '|', '-q'], {
     encoding: 'utf8',
-    input: sql,
+    input: withTimeouts(sql),
   }).trim();
 }
 
 function psqlJson(sql) {
   return execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-q'], {
     encoding: 'utf8',
-    input: sql,
+    input: withTimeouts(sql),
   });
 }
 

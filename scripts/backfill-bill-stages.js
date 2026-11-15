@@ -30,6 +30,7 @@
  */
 
 const { execSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const ONLY_MISSING = process.argv.includes('--only-missing');
@@ -47,13 +48,13 @@ if (!DATABASE_URL) {
 function psql(sql) {
   return execSync(`psql "${DATABASE_URL}" -v ON_ERROR_STOP=1`, {
     encoding: 'utf8',
-    input: sql,
+    input: withTimeouts(sql),
   });
 }
 function psqlT(sql) {
-  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -v ON_ERROR_STOP=1`, {
+  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -q -v ON_ERROR_STOP=1`, {
     encoding: 'utf8',
-    input: sql,
+    input: withTimeouts(sql),
   });
 }
 function sqlLiteral(s) {

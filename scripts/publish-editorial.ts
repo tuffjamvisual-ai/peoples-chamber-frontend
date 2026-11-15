@@ -25,6 +25,7 @@
 import { refreshOrder } from '../lib/refresh-order';
 import { config } from 'dotenv';
 import { spawnSync } from 'node:child_process';
+import { withTimeouts } from './lib/db-timeouts';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { EditorialEntry } from '../lib/editorials/types';
@@ -63,7 +64,7 @@ function fail(message: string): never {
 function psql(sql: string): string {
   const url = process.env.DATABASE_URL;
   if (!url) fail('DATABASE_URL is not set in .env.local');
-  const r = spawnSync('psql', [url, '-X', '-At', '-v', 'ON_ERROR_STOP=1'], { input: sql, encoding: 'utf8' });
+  const r = spawnSync('psql', [url, '-X', '-At', '-v', 'ON_ERROR_STOP=1'], { input: withTimeouts(sql), encoding: 'utf8' });
   if (r.status !== 0) fail(`database error: ${(r.stderr || '').replace(/postgres(ql)?:\/\/\S+/gi, '[url]').trim()}`);
   return r.stdout;
 }

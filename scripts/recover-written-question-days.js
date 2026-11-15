@@ -23,6 +23,7 @@
 require('dotenv').config({ path: '.env.local', quiet: true });
 const fs = require('fs');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const OUT = 'Claude outputs/written-question-short-days.json';
 const START = '2024-07-04';
@@ -35,7 +36,7 @@ const addDays = (iso, n) => { const d = new Date(`${iso}T00:00:00Z`); d.setUTCDa
 // Stored counts by day, read only (BEGIN READ ONLY inside the transaction, never a session setting).
 function storedCounts(days) {
   const where = days ? `date_tabled = ANY(ARRAY[${days.map((d) => `'${d}'`).join(',')}]::date[])` : `date_tabled >= '${START}'`;
-  const out = execFileSync('psql', [process.env.DATABASE_URL, '-X', '-A', '-t', '-F', '|', '-c', 'BEGIN READ ONLY',
+  const out = execFileSync('psql', [process.env.DATABASE_URL, '-X', '-A', '-t', '-F', '|', '-c', withTimeouts('BEGIN READ ONLY;'),
     '-c', `SELECT date_tabled, count(*) FROM parliament_written_questions WHERE ${where} GROUP BY 1`, '-c', 'COMMIT'], { encoding: 'utf8' });
   const m = new Map();
   for (const line of out.split('\n')) { const [d, n] = line.split('|'); if (/^\d{4}-\d{2}-\d{2}$/.test(d)) m.set(d, Number(n)); }

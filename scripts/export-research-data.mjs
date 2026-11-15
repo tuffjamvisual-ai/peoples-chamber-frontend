@@ -11,8 +11,11 @@
 // Parliament's member id where the table has one. political_donations is never exported.
 // DATABASE_URL comes from .env.local and is never printed. Uses psql's \copy and the system zip (no new dependencies).
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+const require = createRequire(import.meta.url);
+const { withTimeouts } = require('./lib/db-timeouts.js');
 
 // The drive that holds the research data and the evidence archive (owner, 4 Nov 2026: EDGE_SSD; GoliathSSD keeps a
 // weekly copy). One setting for both scripts.
@@ -228,8 +231,10 @@ const DATASETS = [
 const PGENV = { ...process.env, PGOPTIONS: '-c default_transaction_read_only=on -c statement_timeout=600000' };
 // quiet: false keeps psql's "COPY n" line, which gives the row count of a \copy.
 function psql(sql, { quiet = true } = {}) {
-  const args = [DATABASE_URL, '-X', ...(quiet ? ['-q'] : []), '-A', '-t', '-v', 'ON_ERROR_STOP=1', '-c', sql];
-  const r = spawnSync('psql', args, { env: PGENV, encoding: 'utf8', maxBuffer: 1 << 26 });
+  const args = [DATABASE_URL, '-X', ...(quiet ? ['-q'] : []), '-A', '-t', '-v', 'ON_ERROR_STOP=1'];
+  // Standard input, not -c: a \copy cannot share a -c with SQL. The lone ; ends a query that has none (not added to the \copy line).
+  const input = withTimeouts(`BEGIN READ ONLY;\n${sql}\n;\nROLLBACK;\n`);
+  const r = spawnSync('psql', args, { input, env: PGENV, encoding: 'utf8', maxBuffer: 1 << 26 });
   if (r.status !== 0) throw new Error((r.stderr || '').split(DATABASE_URL).join('<DATABASE_URL>').trim());
   return r.stdout.trim();
 }

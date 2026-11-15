@@ -19,6 +19,7 @@ require('dotenv').config({ path: '.env.local' });
 
 const { createClient } = require('@supabase/supabase-js');
 const { execSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const sharp = require('sharp');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -43,16 +44,16 @@ const THROTTLE_MS   = 250;
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
 function psql(sql) {
-  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -v ON_ERROR_STOP=1`, {
+  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -q -v ON_ERROR_STOP=1`, {
     encoding: 'utf8',
-    input: sql,
+    input: withTimeouts(sql),
   }).trim();
 }
 
 function psqlExec(sql) {
   execSync(`psql "${DATABASE_URL}" -v ON_ERROR_STOP=1`, {
     encoding: 'utf8',
-    input: sql,
+    input: withTimeouts(sql),
     stdio: ['pipe', 'ignore', 'inherit'],
   });
 }

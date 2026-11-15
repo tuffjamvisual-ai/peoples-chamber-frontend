@@ -32,6 +32,7 @@
 require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const XLSX = require('xlsx');
 
 const arg = (n, d = '') => (process.argv.find((a) => a.startsWith(`--${n}=`)) || `--${n}=${d}`).slice(n.length + 3);
@@ -158,8 +159,8 @@ function readPopulation(file) {
 
 function councils() {
   const f = arg('councils');
-  const text = f ? fs.readFileSync(f, 'utf8') : execFileSync('psql', [process.env.DATABASE_URL || fail('DATABASE_URL not set'), '-AtF', '\t', '-c',
-    "select slug, name, type, gss_code, country, coalesce(parent_slug, '') from public.councils order by slug"], { encoding: 'utf8' });
+  const text = f ? fs.readFileSync(f, 'utf8') : execFileSync('psql', [process.env.DATABASE_URL || fail('DATABASE_URL not set'), '-AtF', '\t', '-q', '-c',
+    withTimeouts("select slug, name, type, gss_code, country, coalesce(parent_slug, '') from public.councils order by slug")], { encoding: 'utf8' });
   return text.trim().split('\n').map((l) => { const [slug, name, type, gss, country, parent] = l.split('\t'); return { slug, name, type, gss, country, parent }; });
 }
 

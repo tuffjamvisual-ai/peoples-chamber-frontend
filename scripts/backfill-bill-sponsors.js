@@ -2,6 +2,7 @@ require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -105,7 +106,7 @@ async function main() {
   console.log(`Wrote ${ok.length + 4} SQL lines to ${sqlPath} (one txn)`);
 
   console.log('Executing via psql...');
-  execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-f', sqlPath], { stdio: 'inherit' });
+  execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1'], { input: withTimeouts(fs.readFileSync(sqlPath, 'utf8')), stdio: ['pipe', 'inherit', 'inherit'] });
   fs.unlinkSync(sqlPath);
   console.log('Done.');
 }

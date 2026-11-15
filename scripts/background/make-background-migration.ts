@@ -24,6 +24,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { withTimeouts } from '../lib/db-timeouts';
 import { validate as validateBackground, sortTimeline, type BackgroundEntry } from '../../lib/background-timeline';
 import { validate as validateCareer, careerTimeline, type CareerEntry } from '../../lib/career-timeline';
 import { runDelivery } from './delivery-migration';
@@ -79,7 +80,7 @@ function databaseUrl(): string {
 // One read only query through psql, returning the single text value it selects.
 function readOnly(url: string, select: string): string {
   const sql = `BEGIN READ ONLY;\nSET LOCAL statement_timeout = '60s';\n${select};\nROLLBACK;\n`;
-  return execFileSync('psql', [url, '-X', '-q', '-A', '-t', '-v', 'ON_ERROR_STOP=1'], { input: sql, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
+  return execFileSync('psql', [url, '-X', '-q', '-A', '-t', '-v', 'ON_ERROR_STOP=1'], { input: withTimeouts(sql), encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
 }
 
 const q = (s: string) => `'${s.replace(/'/g, "''")}'`;
@@ -158,7 +159,7 @@ function main() {
   fs.mkdirSync(BACKUPS, { recursive: true });
   const backup = path.join(BACKUPS, `${tag}-mp-biography-before.csv`);
   execFileSync('psql', [url, '-X', '-q', '-v', 'ON_ERROR_STOP=1'], {
-    input: `BEGIN READ ONLY;\nSET LOCAL statement_timeout = '60s';\n\\copy (SELECT * FROM public.mp_biography WHERE member_id IN (${idList}) ORDER BY member_id) TO ${q(backup)} CSV HEADER\nROLLBACK;\n`,
+    input: withTimeouts(`BEGIN READ ONLY;\nSET LOCAL statement_timeout = '60s';\n\\copy (SELECT * FROM public.mp_biography WHERE member_id IN (${idList}) ORDER BY member_id) TO ${q(backup)} CSV HEADER\nROLLBACK;\n`),
     encoding: 'utf8',
   });
 

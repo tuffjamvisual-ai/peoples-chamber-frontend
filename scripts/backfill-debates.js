@@ -2,6 +2,7 @@
 // `debates` table. Metadata only (title, date, section, ext id) — the full
 // transcript is fetched live and rendered in-house on the detail page.
 const { execSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const fs = require('fs');
 
 const DB = execSync(`grep -E '^DATABASE_URL=' .env.local | cut -d= -f2- | sed 's/^"//; s/"$//'`).toString().trim();
@@ -67,8 +68,8 @@ async function main() {
     sql += `INSERT INTO debates (hansard_ext_id, title, sitting_date, section, house) VALUES\n${chunk}\nON CONFLICT (hansard_ext_id) DO UPDATE SET title=EXCLUDED.title, sitting_date=EXCLUDED.sitting_date, section=EXCLUDED.section, updated_at=now();\n`;
   }
   fs.writeFileSync('/tmp/debates-upsert.sql', sql);
-  execSync(`psql "${DB}" -f /tmp/debates-upsert.sql`, { stdio: 'inherit' });
-  const count = execSync(`psql "${DB}" -tA -c "SELECT count(*) FROM debates;"`).toString().trim();
+  execSync(`psql "${DB}" -v ON_ERROR_STOP=1`, { input: withTimeouts(fs.readFileSync('/tmp/debates-upsert.sql', 'utf8')), stdio: ['pipe', 'inherit', 'inherit'] });
+  const count = execSync(`psql "${DB}" -tAq -c "${withTimeouts('SELECT count(*) FROM debates;')}"`).toString().trim();
   console.log(`debates table now has ${count} rows.`);
 }
 main();

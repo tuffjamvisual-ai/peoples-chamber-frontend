@@ -8,6 +8,7 @@
 // Read only (one READ ONLY transaction). DATABASE_URL comes from .env.local and is never printed.
 import { config } from 'dotenv';
 import { spawnSync } from 'node:child_process';
+import { withTimeouts } from './lib/db-timeouts';
 import { writeFileSync, mkdirSync } from 'node:fs';
 
 config({ path: '.env.local', quiet: true });
@@ -22,7 +23,7 @@ if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) fail('usage: npx tsx scri
 const url = process.env.DATABASE_URL;
 if (!url) fail('DATABASE_URL is not set in .env.local');
 const sql = `BEGIN READ ONLY;\nSET LOCAL statement_timeout = '60s';\nSELECT (to_jsonb(e) - 'search_vec')::text FROM public.editorials e WHERE slug = '${slug.replace(/'/g, "''")}';\nROLLBACK;\n`;
-const r = spawnSync('psql', [url, '-X', '-At', '-v', 'ON_ERROR_STOP=1'], { input: sql, encoding: 'utf8', maxBuffer: 1 << 26 });
+const r = spawnSync('psql', [url, '-X', '-At', '-v', 'ON_ERROR_STOP=1'], { input: withTimeouts(sql), encoding: 'utf8', maxBuffer: 1 << 26 });
 if (r.status !== 0) fail(`database error: ${(r.stderr || '').replace(/postgres(ql)?:\/\/\S+/gi, '[url]').trim()}`);
 const line = r.stdout.split('\n').find((l) => l.startsWith('{'));
 if (!line) fail(`no editorial "${slug}"`);

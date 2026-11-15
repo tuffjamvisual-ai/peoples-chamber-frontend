@@ -12,6 +12,7 @@ require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -188,7 +189,7 @@ const sqlEsc = (v) => v == null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`;
   for (const r of matched) {
     const sql = `UPDATE dept_ministers SET member_id = ${r.memberId} WHERE id = ${r.minister.id};`;
     try {
-      execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-c', sql], { stdio: 'pipe' });
+      execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-c', withTimeouts(sql)], { stdio: 'pipe' });
       ok++;
     } catch (e) {
       console.error(`  failed id=${r.minister.id} (${r.minister.name}):`, e.stderr ? e.stderr.toString() : e.message);

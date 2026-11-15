@@ -2,10 +2,11 @@
 // SpokenResultCount for every current MP. Reports discrepancies and fixes the
 // stored totals. Word counts for false-zeros are recomputed too.
 const { execSync, exec } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const DB = execSync(`grep -E '^DATABASE_URL=' .env.local | cut -d= -f2- | sed 's/^"//; s/"$//'`).toString().trim();
 const START = '2024-07-04';
 
-function q(sql) { return execSync(`psql "${DB}" -tA -c "${sql}"`).toString().trim(); }
+function q(sql) { return execSync(`psql "${DB}" -tAq -c "${withTimeouts(sql)}"`).toString().trim(); }
 function curlJson(url) {
   return new Promise((res) => {
     exec(`/usr/bin/curl -s -m 30 "${url}"`, { maxBuffer: 1 << 26 }, (e, out) => {

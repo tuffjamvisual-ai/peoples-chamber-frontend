@@ -21,8 +21,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { createClient } from '@supabase/supabase-js';
 import { lotRows, lotIdsOf, newerLotRows } from '../lib/contract-notices.ts';
+const require = createRequire(import.meta.url);
+const { withTimeouts } = require('./lib/db-timeouts.js');
 
 try { (await import('dotenv')).config({ path: '.env.local', quiet: true }); } catch { /* environment set elsewhere */ }
 
@@ -58,7 +61,7 @@ if (!ANY_TIME && !inNight()) { console.log('outside 23:00 to 05:00 UK time: not 
 
 // The work list, read once (read only) and kept in the state file.
 function psqlJson(sql) {
-  const out = execFileSync('psql', [process.env.DATABASE_URL, '-X', '-q', '-At', '-c', 'BEGIN READ ONLY', '-c', "SET LOCAL statement_timeout='60s'", '-c', sql, '-c', 'ROLLBACK'], { encoding: 'utf8', maxBuffer: 64e6 });
+  const out = execFileSync('psql', [process.env.DATABASE_URL, '-X', '-q', '-At', '-c', withTimeouts('BEGIN READ ONLY;'), '-c', "SET LOCAL statement_timeout='60s'", '-c', sql, '-c', 'ROLLBACK'], { encoding: 'utf8', maxBuffer: 64e6 });
   return JSON.parse(out.trim().split('\n').filter(Boolean).pop() || 'null') ?? [];
 }
 let state = fs.existsSync(STATE) ? JSON.parse(fs.readFileSync(STATE, 'utf8')) : null;

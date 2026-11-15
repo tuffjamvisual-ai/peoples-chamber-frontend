@@ -2,6 +2,7 @@ require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const { createClient } = require('@supabase/supabase-js');
 const ws = require('ws');
 const sharp = require('sharp');
@@ -92,7 +93,7 @@ async function readBytes() {
 }
 
 function runPsql(sql) {
-  const out = execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-At', '-F', '\t', '-c', sql], {
+  const out = execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-At', '-F', '\t', '-q', '-c', withTimeouts(sql)], {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   // psql -At still prints command tags ("UPDATE 0", "INSERT 0 N", etc.) on

@@ -15,14 +15,15 @@
  */
 
 const { execSync } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL required'); process.exit(1); }
 
 function psqlT(sql) {
-  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -v ON_ERROR_STOP=1`, {
+  return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -q -v ON_ERROR_STOP=1`, {
     encoding: 'utf8',
-    input: sql,
+    input: withTimeouts(sql),
   });
 }
 
@@ -60,14 +61,14 @@ async function main() {
 
   // psql -A -F'|' splits on '|' but a bio can contain '|' AND newlines.
   // Easier: emit one row per fetch and use a record separator that bios won't contain.
-  const raw = execSync(`psql "${DATABASE_URL}" -t -A -F$'\\x1f' -R $'\\x1e' -v ON_ERROR_STOP=1`, {
+  const raw = execSync(`psql "${DATABASE_URL}" -t -A -F$'\\x1f' -R $'\\x1e' -q -v ON_ERROR_STOP=1`, {
     encoding: 'utf8',
-    input: `SELECT b.member_id, m.display_name, m.party, m.constituency, b.political_bio
+    input: withTimeouts(`SELECT b.member_id, m.display_name, m.party, m.constituency, b.political_bio
             FROM mp_biography b
             JOIN mps m ON m.member_id = b.member_id
             ${where}
             ORDER BY ${order}
-            ${limit};`,
+            ${limit};`),
   });
   const lines = raw.split('\x1e').map((l) => l.trim()).filter(Boolean);
 

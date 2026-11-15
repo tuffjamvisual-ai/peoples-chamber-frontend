@@ -1,11 +1,12 @@
 // Backfill per-MP written-question counts + top answering departments from the
 // Questions & Statements API (Commons, this Parliament) into mp_contribution_totals.
 const { execSync, exec } = require('child_process');
+const { withTimeouts } = require('./lib/db-timeouts');
 const DB = process.env.DATABASE_URL;
 const API = 'https://questions-statements-api.parliament.uk/api/writtenquestions/questions';
 const START = '2024-07-04';
 
-function q(sql) { return execSync(`psql "${DB}" -tA -c "${sql}"`).toString().trim(); }
+function q(sql) { return execSync(`psql "${DB}" -tAq -c "${withTimeouts(sql)}"`).toString().trim(); }
 function curlJson(url) {
   return new Promise((res) => {
     exec(`/usr/bin/curl -s -L -m 30 "${url}"`, { maxBuffer: 1 << 26 }, (e, out) => {
@@ -60,7 +61,7 @@ async function pool(items, n, fn) {
     sql += `UPDATE mp_contribution_totals SET written_questions=${r.total}, wq_top_departments=$q$${JSON.stringify(r.top)}$q$::jsonb, updated_at=now() WHERE member_id=${r.id};\n`;
   }
   fs.writeFileSync('/tmp/wq-update.sql', sql);
-  execSync(`psql "${DB}" -f /tmp/wq-update.sql`, { stdio: 'inherit' });
+  execSync(`psql "${DB}" -v ON_ERROR_STOP=1`, { input: withTimeouts(fs.readFileSync('/tmp/wq-update.sql', 'utf8')), stdio: ['pipe', 'inherit', 'inherit'] });
   console.log(`Updated ${good.length} rows.`);
   console.log('Top 5 askers:');
   const top = q(`SELECT m.name, t.written_questions FROM mp_contribution_totals t JOIN mps m ON m.member_id=t.member_id ORDER BY t.written_questions DESC NULLS LAST LIMIT 5`);
