@@ -207,7 +207,9 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
       />
 
       <header style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
+        {/* T1-QA-A6 (COWORK-TO-T1 ENTRY 110, 15 Nov 2026): line height 1.2 for the two-line title (it was 1.5, 69px a line at
+            1280px), so the search box starts above the cookie bar on a first visit at 1280 x 720 (it was 641px, the bar 654px). */}
+        <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: '14px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           Register of Members&rsquo; Financial Interests
         </h1>
         {/* T1-5x (owner, 10 Nov 2026): one line, and the caveat that stays visible; the rest is in About this data. */}

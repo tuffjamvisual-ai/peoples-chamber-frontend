@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { pressSyncCheckedAt } from '@/lib/press-sync-checked';
 import { checkedLine } from '@/lib/press-checked-line';
+import { PHONE } from '@/lib/breakpoints';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import Pagination from '../../components/Pagination';
@@ -420,11 +421,14 @@ export default async function PressReleasesIndexPage({
           {' '}UK Government department press releases spanning the full archive from 2007 to today, plus House of Commons select committee reports. Browse a day at a time, or search across every release.
         </p>
         {pressCheckedAt && (
-          <p data-press-checked="" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, marginTop: '8px' }}>
+          <p data-press-checked="" className="press-checked-top" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, marginTop: '8px' }}>
             {checkedLine(pressCheckedAt)}
           </p>
         )}
       </header>
+      {/* T1-QA-A6 (COWORK-TO-T1 ENTRY 110, 15 Nov 2026): on phones the "Checked GOV.UK" line moves below the search box, so
+          the box starts above the cookie bar on a first visit at 320 x 568 (it was 450px, the bar 458px). Same words. */}
+      <style>{`.press-checked-below { display: none; } @media ${PHONE} { .press-checked-top { display: none; } .press-checked-below { display: block; } }`}</style>
 
       {/* Search box — GET form, crawlable, no client JS. Switches to search mode. */}
       <form data-main-action method="GET" action="/transparency/press-releases" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px', maxWidth: '640px' }}>
@@ -438,6 +442,11 @@ export default async function PressReleasesIndexPage({
         />
         <button type="submit" style={btnStyle}>Search</button>
       </form>
+      {pressCheckedAt && (
+        <p className="press-checked-below" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, margin: '-20px 0 24px' }}>
+          {checkedLine(pressCheckedAt)}
+        </p>
+      )}
 
       {content}
 
