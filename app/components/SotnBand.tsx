@@ -19,7 +19,7 @@ export default async function SotnBand() {
         .og-sotn-fig { display: block; color: inherit; text-decoration: none; border: 1px solid ${HAIRLINE}; padding: 10px 12px; min-height: 44px; }
         .og-sotn-fig:hover .og-sotn-v, .og-sotn-fig:focus-visible .og-sotn-v { text-decoration: underline; }
         .og-sotn-all { display: inline-block; min-height: 44px; line-height: 44px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; font-size: 15px; }
-        @media (max-width: 899.98px) { .og-sotn-grid { grid-template-columns: 1fr 1fr; gap: 8px; } }`}</style>
+        @media (max-width: 599.98px) { .og-sotn-grid { grid-template-columns: 1fr 1fr; gap: 8px; } }`}</style>
       <h2 id="sotn-band-h" style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', margin: '0 0 10px' }}>State of the nation</h2>
       <div className="og-sotn-grid">
         {four.map((f) => (

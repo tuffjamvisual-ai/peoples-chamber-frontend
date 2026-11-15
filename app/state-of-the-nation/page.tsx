@@ -54,7 +54,7 @@ export default async function StateOfTheNation() {
   return (
     <OpenGovShell pageStamp="Figures">
       <style>{`.sotn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-        @media (max-width: 639.98px) { .sotn-gh { display: none; } }
+        @media (max-width: 1023.98px) { .sotn-gh { display: none; } }
         @media (max-width: 599.98px) { .sotn-grid { grid-template-columns: 1fr 1fr; gap: 8px; } .sotn-card { padding: 10px !important; } .sotn-src { display: inline-block; min-height: 44px; line-height: 44px; } }
         @media (max-width: 359.98px) { .sotn-grid { grid-template-columns: 1fr; } }`}</style>
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
@@ -66,9 +66,9 @@ export default async function StateOfTheNation() {
         const list = figures.filter((f) => f.group === g);
         if (!list.length) return null;
         return (
-          // On phones each group is a closed fold named by the group (the site's phone rule: nothing cut, the page short);
-          // from 640px up the groups are open with their headings.
-          <SubFold key={g} label={g}>
+          // On phones and tablets (up to 1,023px) each group is a closed fold named by the group (the site's length rules:
+          // nothing cut, the page under 2,500px on phones and 3,000px on tablets); from 1,024px up the groups are open.
+          <SubFold key={g} label={g} tablets>
             <section aria-labelledby={groupId(g)} style={{ marginBottom: '28px' }}>
               <h2 id={groupId(g)} className="sotn-gh" style={{ fontFamily: MONO, fontSize: '20px', fontWeight: 'bold', color: ACCENT, margin: '0 0 10px' }}>{g}</h2>
               <div className="sotn-grid">{list.map((f) => <Card key={f.id} f={f} />)}</div>
