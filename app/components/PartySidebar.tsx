@@ -59,14 +59,14 @@ export default function PartySidebar({
         {/* Phones (UX3b, 10 Nov 2026): the party's pages in one closed native fold, so the page's own content starts on the
             first screen (A6). From 640px up the tabs show as before. */}
         <SubFold label={`Party pages (${items.length})`}>
-        <nav className="party-tabs" style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0' }}>
+        <nav className="party-tabs og-sidenav" style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0' }}>
           {items.map((item) => {
             const on = item.key === active;
             return (
               <a
                 key={item.key}
                 href={item.href}
-                className="no-hover-scale"
+                className="no-hover-scale og-sidenav-item"
                 style={{
                   display: 'block',
                   padding: '12px 16px',

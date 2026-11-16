@@ -177,7 +177,7 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare, shor
       <button
         key={t.id}
         type="button"
-        className={className}
+        className={[className, 'og-sidenav-item'].filter(Boolean).join(' ')}
         data-council-tab={t.id}
         aria-pressed={isActive}
         onClick={() => choose(t.id)}
@@ -245,7 +245,7 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare, shor
       `}</style>
       <aside>
         <div ref={floatRef} style={{ transform: floatOffset ? `translateY(${floatOffset}px)` : undefined, willChange: 'transform' }}>
-        <nav ref={navRef} aria-label="Council information" className={moreRight ? 'more-right' : undefined}>
+        <nav ref={navRef} aria-label="Council information" className={moreRight ? 'og-sidenav more-right' : 'og-sidenav'}>
           {tabs.filter((t) => visible.includes(t.id)).map((t) => tabButton(t, shortcuts.includes(t.id) ? 'ct-short' : undefined))}
           <details ref={sectionsRef} className="ct-sections">
             {/* The site's one fold marker (A15): + on the right, level with the label, − when open. */}

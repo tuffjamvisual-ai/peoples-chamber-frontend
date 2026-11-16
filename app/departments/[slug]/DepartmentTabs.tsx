@@ -112,12 +112,13 @@ export default function DepartmentTabs({
               {tabs.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
             </select>
           </label>
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
+          <nav className="og-sidenav" style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
             {tabs.map((t) => {
               const isActive = t.id === active;
               return (
                 <button
                   key={t.id}
+                  className="og-sidenav-item"
                   onClick={() => choose(t.id)}
                   style={{
                     padding: '12px 16px',

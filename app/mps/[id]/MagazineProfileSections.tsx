@@ -16,7 +16,8 @@ import { careerTimeline, dateLabel, type CareerEntry } from '@/lib/career-timeli
 import BioText from './BioText';
 import type { MpCareer } from '@/lib/mp-career';
 import type { QuestionsSummary } from '@/lib/written-question-shared';
-import WrittenQuestionsSummary from '../../components/WrittenQuestionsSummary';
+
+const MP_GRID_TOP = '-64px';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';
 import PhoneTable from '../../components/PhoneTable';
@@ -647,7 +648,7 @@ export default function MagazineProfileSections({
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1 || contact.council)),
     voting: (votingAll ?? totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
-    house: contributions.length > 0 || (writtenQuestions?.total ?? 0) > 0 || pmqsLinks(memberId, pmqsQuestions).length > 0,
+    house: contributions.length > 0 || pmqsLinks(memberId, pmqsQuestions).length > 0,
     petitions: petitionsAvailable || !!constituencyPetitions,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
     interests: interests.length > 0 || formerInterests.length > 0 || !!earlierRegisters,
@@ -1409,9 +1410,8 @@ export default function MagazineProfileSections({
                 <Link href={l.href} style={{ ...inkLink, fontWeight: 'bold' }}>{l.label}</Link>
               </p>
             ))}
-            {writtenQuestions && writtenQuestions.total > 0 && (
-              <WrittenQuestionsSummary summary={writtenQuestions} allHref={`/mps/${memberId}/questions`} style={{ marginTop: contributions.length > 0 ? '26px' : 0 }} />
-            )}
+            {/* Written questions (ENTRY 159, owner 16 Nov 2026): no longer on this page; the sidebar's "Written questions"
+                item links to /mps/[id]/questions, which lists them all. */}
           </>
         )}
 
@@ -2874,7 +2874,7 @@ export default function MagazineProfileSections({
   const questionTotal = writtenQuestions?.total ?? 0;
   // The phone sub-folds of Parliamentary activity (PF3): each part's name and count, from figures already in the page.
   const activityParts: Partial<Record<SectionId, { label: string; summary: string | null }>> = {
-    house: { label: 'In the House', summary: [contributions.length > 0 && countOf(contributions.length, 'recent debate'), questionTotal > 0 && countOf(questionTotal, 'written question')].filter(Boolean).join(', ') || null },
+    house: { label: 'In the House', summary: contributions.length > 0 ? countOf(contributions.length, 'recent debate') : null },
     edms: { label: 'Early day motions', summary: edms && edms.startedCount + edms.signedCount > 0 ? countOf(edms.startedCount + edms.signedCount, 'motion') : null },
     petitions: { label: 'Petitions', summary: (() => {
       const ids = new Set([...(constituencyPetitions?.top.petitions ?? []).map((p) => p.id), ...(petitionsAnswer?.petitions ?? []).map((p) => p.petitionId)]);
@@ -2899,7 +2899,9 @@ export default function MagazineProfileSections({
 
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px mp-sections-grid" style={{ marginTop: '-80px' }}>
+    // ENTRY 157 (owner, 16 Nov 2026: the sidebar and text "start too high up the page"): the grid was pulled up 80px under the
+    // name and photo; PROPOSAL, two versions for the owner: -64px (+16px) and -48px (+32px), the same at every width.
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px mp-sections-grid" style={{ marginTop: MP_GRID_TOP }}>
       {/* MP2g (9 Nov 2026): the four headline figure cards that showed under the photo on phones are gone; the same
           figures are in the folder titles below. They never showed from 640px up. */}
       {/* Hold the content pane at a uniform height across tabs on desktop, so
@@ -2945,8 +2947,10 @@ export default function MagazineProfileSections({
            the sections again, compact so it is short (one line per item, small gaps, Follow at the foot) and kept in view
            while the page scrolls (jsSticky, as the tilted folder stops CSS sticky). The open item is marked on the left. */
         @media (min-width: 1024px){
-          .mp-sections-nav { gap: 0 !important; padding: 4px 4px 8px !important; margin-right: 12px !important; }
-          .mp-sections-nav a[data-section] > span { padding: 7px 8px !important; white-space: nowrap; letter-spacing: 0 !important; line-height: 1.3; }
+          /* ENTRY 158 (owner, 16 Nov 2026): the padding and spacing are the shared sidebar style (globals.css .og-sidenav), as
+             the departments sidebar; the compact 4px padding, no gap and 7px 8px items are gone. */
+          .mp-sections-nav { margin-right: 12px !important; }
+          .mp-sections-nav a[data-section] > span { white-space: nowrap; letter-spacing: 0 !important; line-height: 1.3; }
           .mp-sections-content { padding-top: 10px !important; }
           .mp-sections-content .pf-sub > h2 { margin-bottom: 10px !important; }
         }
@@ -2972,7 +2976,7 @@ export default function MagazineProfileSections({
           <nav
             ref={sectionNavRef}
             aria-label="MP profile sections"
-            className={`mp-sections-nav${navMoreRight ? ' more-right' : ''}`}
+            className={`mp-sections-nav og-sidenav${navMoreRight ? ' more-right' : ''}`}
             style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}
           >
             {sections.map((s) => {
@@ -2996,6 +3000,7 @@ export default function MagazineProfileSections({
                   {/* The tab's look is on this span: the site's link rule (opengov-shell.css) takes any rotation off a
                       link, so the span carries the tab's styles, its slight tilt included, exactly as the button did. */}
                   <span
+                    className="og-sidenav-item"
                     style={{
                       display: 'block',
                       padding: '12px 16px',
@@ -3021,6 +3026,15 @@ export default function MagazineProfileSections({
                 </a>
               );
             })}
+            {/* ENTRY 159: written questions are a page of their own, so this item is a link to it, not a section. It is not a
+                [data-section] item, so it also shows where the phone hides the section tabs. */}
+            {questionTotal > 0 && (
+              <a href={`/mps/${memberId}/questions`} className="mp-wq-link" style={{ display: 'block', textDecoration: 'none', color: '#14100d' }}>
+                <span className="og-sidenav-item" style={{ display: 'block', padding: '12px 16px', borderLeft: '4px solid transparent', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                  Written questions ({questionTotal.toLocaleString('en-GB')})
+                </span>
+              </a>
+            )}
           </nav>
         </div>
       </aside>
