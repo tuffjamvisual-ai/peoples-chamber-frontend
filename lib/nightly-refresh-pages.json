@@ -1,6 +1,4 @@
 {
-  "about": "Pages refreshed after the nightly workflow (.github/workflows/daily-context-update.yml) in place of its old redeploy, and again by the cron /api/refresh-nightly-pages at 05:15 UTC (owner's approval, 30 Oct 2026, cache Stage 2b). A path with [brackets] is a route pattern: every page of that route. /mps/[id] left the list on 30 Oct 2026 (cache Stage 2a part 3): only the MPs the nightly scripts changed are refreshed (lib/mp-nightly.ts). /landing-pca left it on 15 Nov 2026 (A16, ENTRY 129): its reads carry their table tags.",
-  "paths": [
-    "/sitemap.xml"
-  ]
+  "about": "Pages refreshed after the nightly workflow (.github/workflows/daily-context-update.yml) in place of its old redeploy, and again by the cron /api/refresh-nightly-pages at 05:15 UTC (owner's approval, 30 Oct 2026, cache Stage 2b). A path with [brackets] is a route pattern: every page of that route. /mps/[id] left the list on 30 Oct 2026 (cache Stage 2a part 3): only the MPs the nightly scripts changed are refreshed (lib/mp-nightly.ts). /landing-pca left it on 15 Nov 2026 (A16, ENTRY 129): its reads carry their table tags. /sitemap.xml left it on 16 Nov 2026 (F07, ENTRY 134; T2's audit/t2-prep/f07-nightly.md): the sitemap is drawn on each request from the data cache, so expiring it rebuilt nothing. The list is empty; the workflow's refresh step is gone; the cron route still reads it, so a page can be added back if one ever needs a nightly refresh.",
+  "paths": []
 }

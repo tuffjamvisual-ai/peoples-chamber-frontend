@@ -194,28 +194,8 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: node scripts/build-lobbying-index.js --write
         continue-on-error: true
-      # The nightly redeploy was removed 30 Oct 2026 (owner's approval, cache Stage 2b): a deploy empties every cached
-      # page on the site. Instead the pages that read what this workflow writes are refreshed (the list is
-      # lib/nightly-refresh-pages.json; a path with [brackets] means every page of that route). Vercel's bot protection
-      # may refuse a request from a cloud runner (403/429): not a failure, as the cron /api/refresh-nightly-pages
-      # refreshes the same pages inside the site at 05:15 UTC. Anything else that is not 200 fails the step.
-      - name: Refresh the pages this workflow's data feeds
-        id: refresh-pages
-        timeout-minutes: 2
-        env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-        run: |
-          if [ -z "$CRON_SECRET" ]; then echo "::warning::CRON_SECRET is not a repository secret; the 05:15 UTC cron refreshes these pages instead."; exit 0; fi
-          set +e
-          out=$(node scripts/revalidate.js --paths-file lib/nightly-refresh-pages.json 2>&1)
-          status=$?
-          set -e
-          echo "$out"
-          if [ "$status" = "0" ]; then exit 0; fi
-          if echo "$out" | grep -qE 'HTTP (403|429) '; then echo "::warning::page refresh was refused by bot protection; the 05:15 UTC cron refreshes these pages instead."; exit 0; fi
-          exit 1
-      # JF1d (9 Nov 2026): the site's nightly page refresh, now this sync has ended, rather than at the next 05:15 UTC
-      # (/api/refresh-nightly-pages?trigger=...). A refusal by bot protection is a warning: the 05:15 run covers it.
+      # F07 (ENTRY 134, 16 Nov 2026): the step that refreshed lib/nightly-refresh-pages.json is gone; the list is empty
+      # (the sitemap is drawn from the data cache on each request). The nightly scripts refresh what they change.
       - name: Trigger the nightly page refresh
         id: nightly-refresh
         if: always()
