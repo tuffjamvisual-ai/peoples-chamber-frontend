@@ -17,6 +17,8 @@ import type { EditorialListEntry } from '@/lib/editorials-source'
 import { cachedQuery } from '@/lib/tagged-read'
 import { newsTag } from '@/lib/news-tag'
 import { tableTags } from '@/lib/source-tags';
+import { splitHtmlLead } from '@/lib/html-lead'
+import { ContinueReading } from '../../components/ReadOn'
 
 // Plain text of an HTML fragment, for comparing the summary with the body's opening.
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase()
@@ -214,6 +216,10 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const rawBody = release.body || (release.removed_upstream ? null : await getBodyHtmlLive(release.gov_url || ''))
   // Security review M4: GOV.UK's HTML through the one allow-list sanitiser (lib/html-sanitize.ts); its links are kept.
   const bodyHtml = rawBody ? sanitizeHtml(rawBody, { links: 'keep', hansardColumns: false }) : null
+  // The summary shown in italics above the body is the article's first paragraph, so the body adds two more to the
+  // opening of three (ENTRY 135 H2); without it, three.
+  const showsSummary = !!release.description && !(bodyHtml && plain(bodyHtml).slice(0, 1500).includes(plain(release.description).slice(0, 80)))
+  const bodyLead = bodyHtml ? splitHtmlLead(bodyHtml, showsSummary ? 2 : 3) : null
 
   const examined = await piecesExaminingRelease(release.title, release.gov_url)
   // Read next (lib/read-next.ts) once, after the full text (owner's request, 25 Oct 2026).
@@ -268,7 +274,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         {/* The summary is left out when the body's opening repeats it (audit E4: the opening
             paragraph used to appear twice). The first 1,500 characters are checked because
             many releases open with a bullet list before the first paragraph. */}
-        {release.description && !(bodyHtml && plain(bodyHtml).slice(0, 1500).includes(plain(release.description).slice(0, 80))) && (
+        {showsSummary && (
           <p
             className="text-[17px] sm:text-[19px] leading-[1.55] text-[#14100d]/95 mb-6"
             style={{ fontFamily: SERIF, fontStyle: 'italic' }}
@@ -279,12 +285,22 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
         {bodyHtml ? (
           <>
-            {/* data-article-body: the release text, never folded; the phone length check leaves it out (QA2d). */}
-            <div
-              data-article-body=""
-              className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]"
-              dangerouslySetInnerHTML={{ __html: bodyHtml }}
-            />
+            {/* The release text. On phones and tablets (owner, 15 Nov 2026, ENTRY 135 H2: no exemption for articles) its first
+                3 paragraphs, then the rest behind one "Continue reading" fold (globals.css .rf-d, .rf-b; lib/html-lead.ts); from
+                1,024px up it reads straight through. */}
+            {bodyLead ? (
+              <div data-article-body="" className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]">
+                <div dangerouslySetInnerHTML={{ __html: bodyLead.lead }} />
+                <details className="rf-d rf-more"><summary>Continue reading</summary></details>
+                <div className="rf-b" dangerouslySetInnerHTML={{ __html: bodyLead.rest }} />
+              </div>
+            ) : (
+              <div
+                data-article-body=""
+                className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]"
+                dangerouslySetInnerHTML={{ __html: bodyHtml }}
+              />
+            )}
             <ReadNext links={readNext} />
           </>
         ) : (
@@ -297,6 +313,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
       <InvestigationBox pieces={examined} placement="end" />
 
+      {/* On phones and tablets the department context and related links sit in one closed "Related" fold, so the page
+          keeps within the length limit (ENTRY 135 H2, 16 Nov 2026); from 1,024px up they show as before. */}
+      <ContinueReading label="Related">
       {/* B1 — department context, after the release so the release itself comes first. */}
       <DeptContextBlock organisation={release.organisation} />
 
@@ -306,6 +325,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         organisation={release.organisation}
         currentGovUrl={release.gov_url}
       />
+      </ContinueReading>
     </OpenGovShell>
   )
 }

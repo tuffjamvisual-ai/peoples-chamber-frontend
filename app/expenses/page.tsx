@@ -269,6 +269,9 @@ export default async function ExpensesPage() {
         >
           Feature · Analysis
         </p>
+        {/* The essay (owner, 15 Nov 2026, ENTRY 135 H3): on phones and tablets a closed fold with its title as the label
+            (globals.css .rf-d, .rf-b, .rf-h, up to 1,023px); from 1,024px up the title and the essay as before. */}
+        <div className="rf-h">
         <h2
           style={{
             fontFamily: 'var(--font-special-elite), monospace',
@@ -283,6 +286,9 @@ export default async function ExpensesPage() {
         >
           {FEATURE_TITLE}
         </h2>
+        </div>
+        <details className="rf-d"><summary>{FEATURE_TITLE}</summary></details>
+        <div className="rf-b">
         <div
           className="pca-cols"
           style={{
@@ -316,6 +322,7 @@ export default async function ExpensesPage() {
                 {p}
               </p>
             ))}
+        </div>
         </div>
       </section>
 

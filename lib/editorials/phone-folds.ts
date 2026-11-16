@@ -1,56 +1,34 @@
-// The 10,000px rule for reports on phones (owner, 5 Nov 2026): every report and briefing opens at 10,000px or less at 375px,
-// with JavaScript on and off. So a long report is planned here on the server, from an estimate of its height, and folded
-// with native details under 640px (globals.css .rf-d, .rf-b). From 640px up those are not there and it reads as before.
-// A report with level 2 headings folds under them, the first open; one with no headings, like most reports, shows its
-// opening and then "Continue reading". Nothing is removed.
+// Reports and briefings on phones and tablets (owner, 5 Nov 2026; 15 Nov 2026, COWORK-TO-T1 ENTRY 135 H2 and 141 N3,
+// which replace the 6,000px plan used until then): the opening, up to the third paragraph (fewer when the first ones are
+// long), then the rest
+// behind one "Continue reading" fold (native details: globals.css .rf-d, .rf-b, up to 1,023px wide and on a phone held
+// sideways). From 1,024px up the fold is not there and the report reads straight through. Nothing is removed, and it
+// works with JavaScript off.
 import type { Block } from './types';
-
-// About how tall a block is at 375px: at 16px and a line height of 1.75, about 36 characters to a 28px line.
-function heightOf(b: Block): number {
-  switch (b.type) {
-    case 'paragraph': return Math.ceil(b.text.replace(/\]\([^)]*\)/g, ']').length / 36) * 28 + 20;
-    case 'heading': return b.level === 2 ? 110 : b.photo ? 300 : 80;
-    case 'bioLine': return Math.ceil(b.text.length / 34) * 23 + 20;
-    case 'list': return b.items.reduce((px, t) => px + Math.ceil(t.replace(/\]\([^)]*\)/g, ']').length / 33) * 28 + 8, 20);
-    default: return 160;
-  }
-}
-const heightOfAll = (bs: Block[]) => bs.reduce((px, b) => px + heightOf(b), 0);
-
-// Text that fits in about this many pixels leaves room within the limit for the rest of the page.
-const ROOM = 6000;
 
 export type Chain = { blocks: Block[]; next: Chain | null };
 export type Section = { heading: Block; chain: Chain; open: boolean };
 export type PhonePlan = { lead: Chain; sections: Section[] };
 
-// Blocks into runs of about `room` pixels, then ROOM each.
-function chain(blocks: Block[], room: number): Chain {
-  const taken: Block[] = [];
-  let px = 0, i = 0;
-  for (; i < blocks.length; i++) {
-    px += heightOf(blocks[i]);
-    if (px > room && taken.length) break;
-    taken.push(blocks[i]);
-  }
-  return { blocks: taken, next: i < blocks.length ? chain(blocks.slice(i), ROOM) : null };
-}
+// The opening also stops before a paragraph that would take it past this many characters (the first always shows), so a report whose first paragraphs are
+// long still opens within the phone limit at 320px (reports are set in a monospace face, about 24 characters to a line
+// there; ENTRY 141 N3, the owner's limits).
+const OPENING_CHARS = 900;
+const chars = (b: Block) => (b.type === 'paragraph' ? b.text.replace(/\]\([^)]*\)/g, ']').length : 0);
 
-// Null where the report is short enough to read straight through.
-export function phonePlan(body: Block[]): PhonePlan | null {
-  if (heightOfAll(body) <= ROOM) return null;
-  const firstHeading = body.findIndex((b) => b.type === 'heading' && b.level === 2);
-  if (firstHeading < 0) return { lead: chain(body, ROOM), sections: [] };
-  const lead = body.slice(0, firstHeading);
-  const parts: { heading: Block; blocks: Block[] }[] = [];
-  for (const b of body.slice(firstHeading)) {
-    if (b.type === 'heading' && b.level === 2) parts.push({ heading: b, blocks: [] });
-    else parts[parts.length - 1].blocks.push(b);
+/** Null where nothing follows the opening. `paragraphs`: 3, or 2 when the standfirst shows above the text (it is the
+ *  article's first paragraph, as the summary is on a news release). */
+export function phonePlan(body: Block[], paragraphs = 3): PhonePlan | null {
+  const want = paragraphs;
+  let seen = 0, length = 0, i = 0;
+  for (; i < body.length; i++) {
+    if (body[i].type !== 'paragraph') continue;
+    // A paragraph that would take the opening past the cap starts the fold instead (the first one always shows).
+    if (seen > 0 && length + chars(body[i]) > OPENING_CHARS) break;
+    seen++;
+    length += chars(body[i]);
+    if (seen === want) { i++; break; }
   }
-  // The closed sections' lines take room on the page too.
-  const room = Math.max(1500, ROOM - heightOfAll(lead) - parts.length * 50);
-  return {
-    lead: { blocks: lead, next: null },
-    sections: parts.map((p, i) => ({ heading: p.heading, chain: chain(p.blocks, i === 0 ? room : ROOM), open: i === 0 })),
-  };
+  if (i >= body.length) return null;
+  return { lead: { blocks: body.slice(0, i), next: { blocks: body.slice(i), next: null } }, sections: [] };
 }

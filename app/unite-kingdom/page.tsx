@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import { ContinueReading } from '../components/ReadOn';
 
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
@@ -109,6 +110,8 @@ export default function UniteKingdomPage() {
             <p style={body()}>
               That should tell you everything about how seriously Westminster takes the concerns of people who do not speak its language, share its assumptions, or believe its promises anymore.
             </p>
+            {/* The rest behind "Continue reading" on phones and tablets (owner, 15 Nov 2026, ENTRY 141 N3). */}
+            <ContinueReading>
 
             <h2 style={h2()}>What They Were Actually Saying</h2>
 
@@ -191,6 +194,7 @@ export default function UniteKingdomPage() {
             <p style={{ ...lead(), marginBottom: 0 }}>
               Over 100,000 people marched through London on Saturday. They were not asking for the impossible. They were asking for what they were promised: control over borders, functioning public services, and a government that represents them instead of dismissing them. If Westminster cannot deliver that, or even take the question seriously, then more people will march. And eventually, someone will offer them answers that are far uglier than anything seen on Saturday.
             </p>
+            </ContinueReading>
           </div>
         </article>
       </div>

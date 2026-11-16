@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { ContinueReading } from '../../components/ReadOn';
 
 export const metadata: Metadata = {
   title: { absolute: 'How UK Political Donations Work and Why the System Fails' },
@@ -52,6 +53,8 @@ export default function DonationsExplainer() {
         <p style={bodyP}>
           The second is thresholds. Donations below £500 to individual MPs need not be registered. Donations to parties below £11,180 need not be reported to the Electoral Commission. A donor giving £499 to twenty MPs distributes nearly £10,000 across the Commons without triggering a single declaration.
         </p>
+            {/* The rest behind "Continue reading" on phones and tablets (owner, 15 Nov 2026, ENTRY 141 N3). */}
+            <ContinueReading>
         <p style={bodyP}>
           The third is intermediaries. Unincorporated associations can donate without revealing who contributed to the association. Trusts can donate without the settlors or beneficiaries appearing in any public filing. The Electoral Commission has flagged both routes as transparency gaps for years. Both remain open.
         </p>
@@ -67,6 +70,7 @@ export default function DonationsExplainer() {
         <p style={{ ...bodyP, marginBottom: 0 }}>
           No major reform has been implemented since the Political Parties, Elections and Referendums Act 2000. The methods of moving money into politics have grown more sophisticated. The methods of tracking it have not. The register remains a record of what politicians chose to tell us, not a record of what actually happened.
         </p>
+            </ContinueReading>
       </article>
 
     </OpenGovShell>

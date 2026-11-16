@@ -20,6 +20,7 @@ import { shownUpdateIso } from '@/lib/JsonLd';
 import { PHONE } from '@/lib/breakpoints';
 import { standfirstRepeatsOpening } from '@/lib/editorials/standfirst';
 import { phonePlan, type Chain } from '@/lib/editorials/phone-folds';
+import { SectionFold } from './ReadOn';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -108,16 +109,24 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
         {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
         {/* The main action (UX3a, A6): the standfirst when it shows, otherwise the start of the text. */}
         <article id="article-text" data-own-folds="" data-article-body="" data-main-action={showStandfirst ? undefined : ''} style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
-          <ReportBody body={piece.body} />
+          <ReportBody body={piece.body} paragraphs={showStandfirst ? 2 : 3} />
           {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
           {piece.updateNote && piece.updateNote.length > 0 && (
             <section aria-labelledby="article-updates" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
-              <h2 id="article-updates" style={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>Updates</h2>
+              {/* On phones and tablets a closed fold labelled with the number of updates (ENTRY 135 H2, 16 Nov 2026), so the
+                  report keeps within the length limit; the label says updates exist. From 1,024px up as before. */}
+              <SectionFold
+                title="Updates"
+                label={`Updates (${piece.updateNote.length})`}
+                headingId="article-updates"
+                headingStyle={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}
+              >
               {piece.updateNote.map((u) => (
                 <p key={u.date + u.text.slice(0, 20)} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 10px', overflowWrap: 'break-word' }}>
                   Updated {new Date(u.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}: {u.text}
                 </p>
               ))}
+              </SectionFold>
             </section>
           )}
           {/* One "Sources (N)" link to the article's sources page, never the full list (owner's standing instruction,
@@ -165,10 +174,10 @@ function withLinks(text: string): React.ReactNode {
   return out;
 }
 
-// The body as it reads from 640px up, with folds that only show under 640px on a long report (lib/editorials/phone-folds.ts).
+// The body as it reads from 1,024px up; on phones and tablets the first 3 paragraphs, then "Continue reading" (lib/editorials/phone-folds.ts).
 // afterFirst: shown after the first block (the phones' "On this page" list for a report without a standfirst, UX3b).
-function ReportBody({ body, afterFirst }: { body: Block[]; afterFirst?: ReactNode }) {
-  const plan = phonePlan(body);
+function ReportBody({ body, afterFirst, paragraphs = 3 }: { body: Block[]; afterFirst?: ReactNode; paragraphs?: number }) {
+  const plan = phonePlan(body, paragraphs);
   if (!plan) return <>{body.map((block, i) => <Fragment key={`b${i}`}>{renderBlock(block, i)}{i === 0 && afterFirst}</Fragment>)}</>;
   let at = 0; // keeps each block's index as it is in the body
   const run = (blocks: Block[]) => blocks.map((block) => { const i = at++; return <Fragment key={`b${i}`}>{renderBlock(block, i)}{i === 0 && afterFirst}</Fragment>; });

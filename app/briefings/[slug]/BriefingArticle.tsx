@@ -5,6 +5,7 @@ import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { textReadingLabel } from '@/lib/reading-time';
+import { ContinueReading } from '../../components/ReadOn';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -51,11 +52,19 @@ export default function BriefingArticle({ b, slug, banner, sourcesHref }: { b: B
         )}
       </header>
 
-      {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
+      {/* data-article-body: the article text (QA2d, owner, 9 Nov 2026); folded after 3 paragraphs on phones and tablets since 16 Nov 2026. */}
       <article data-article-body="" style={{ maxWidth: '680px', fontSize: '18px', lineHeight: 1.75, color: INK }}>
-        {paragraphs.map((p, i) => (
+        {/* The first 3 paragraphs, then the rest behind "Continue reading" on phones and tablets (ENTRY 141 N3). */}
+        {paragraphs.slice(0, 3).map((p, i) => (
           <p key={i} style={{ margin: '0 0 18px' }}>{p}</p>
         ))}
+        {paragraphs.length > 3 && (
+          <ContinueReading>
+            {paragraphs.slice(3).map((p, i) => (
+              <p key={i + 3} style={{ margin: '0 0 18px' }}>{p}</p>
+            ))}
+          </ContinueReading>
+        )}
       </article>
 
       

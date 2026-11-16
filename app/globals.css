@@ -274,9 +274,11 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .njp-nav.njp-w { justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0 14px; font-size: 15px; color: #14100d; }
   .njp-nav.njp-w a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; color: #14100d; font-weight: bold; text-decoration: none; }
 }
+/* Article folds (lib/editorials/phone-folds.ts, lib/html-lead.ts): phones and tablets up to 1,023px (ENTRY 135 H2, 16 Nov 2026;
+   phones only until then), and a phone held sideways. */
 .rf-d { display: none; }
 .rf-b, .rf-h { display: contents; }
-@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .rf-h { display: none; }
   .rf-d { display: block; border-top: 1px solid rgba(20,16,13,0.25); }
   .rf-b { display: block; }

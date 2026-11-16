@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink'
 import Link from 'next/link'
+import { SectionFold } from '../components/ReadOn'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -34,8 +35,7 @@ export default function PrivacyPage() {
         <p style={p}>
           This privacy policy explains what data opengovt collects, why it is collected, and how it is used. The site is operated independently and is not affiliated with GOV.UK, the UK Government, Parliament, any government department, local authority, public body, official public service, political party or commercial organisation.
         </p>
-
-        <h2 style={h2}>What we collect and how we use it</h2>
+        <SectionFold headingStyle={h2} title={<>What we collect and how we use it</>}>
         <p style={p}>
           When you create an account, we collect your name, your email address and a password. Your email address is used to confirm your account, to sign you in, and, if you opt in, to send you the newsletter. When an account is created we send ourselves a short email with the name and email address, so we know a new account exists.
         </p>
@@ -51,61 +51,62 @@ export default function PrivacyPage() {
         <p style={p}>
           We do not collect your home address, phone number or card details. Card payments are taken by Stripe on its own page (see below). We do not share your email or postcode with anyone except the services listed below, which process it only to run this site for us, and we will never send you marketing from other organisations.
         </p>
-
-        <h2 style={h2}>Commission research requests</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Commission research requests</>}>
         <p style={p}>
           If you ask us for commissioned research, the form sends us your name, email address, organisation (if you give one), your question, any deadline, and whether you intend to publish the results. We use these only to reply with a quote and, if you go ahead, to do the work. The request is not stored in our database: it is sent by email to our inbox, where only we read it, and kept there as part of our correspondence with you.
         </p>
-
-        <h2 style={h2}>Following and saved searches</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Following and saved searches</>}>
         <p style={p}>
           If you follow MPs, donors, bills or organisations, or save searches, we keep that list so we can send you a weekly email of what changed. Because what you follow could show your political views, we only keep it with your clear agreement, which you give when you first follow something. You can stop the emails from any email, remove any item, or delete your account, and it is all deleted. We keep a record of the alert emails we send for up to 12 months, to keep within our sending limits. We do not share this with anyone, and we do not use it for advertising.
         </p>
-
-        <h2 style={h2}>Cookies</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Cookies</>}>
         <p style={p}>
           The site uses essential cookies required for the site to function: a session cookie that keeps you signed in for up to 30 days, and a small marker that tells the site you are signed in. We do not use advertising cookies. Only if you accept additional cookies, we use PostHog cookies to see which pages you visit, in order, and what you search for on the site (with any email address or postcode removed), so we can improve the site; the data is stored in the European Union (Frankfurt), kept for one year and never used for advertising, and you can change your choice at any time at <Link href="/cookies" style={{ color: INK }}>/cookies</Link>. We do not use Google Analytics.
         </p>
         <p style={p}>
           The site also keeps a few things in your browser&rsquo;s own storage, which are never sent to us: your account name and email address while you are signed in, so pages can show that you are signed in, and, for the sign up note on search, how many searches you have made in this visit and whether you closed the note (remembered for 30 days).
         </p>
-
-        <h2 style={h2}>Analytics</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Analytics</>}>
         <p style={p}>
           We use Vercel Web Analytics to count page views and Vercel Speed Insights to measure how fast pages load. For each page view, Web Analytics records the page address, the page you came from, the time, your approximate location (country, region and city), and your browser, operating system and type of device. Speed Insights records the page, your network speed, browser, device, operating system and country, and the page&rsquo;s speed measurements, for one in five visits. They do not use third party cookies: Vercel tells visits apart with a code made from the request, which it deletes after 24 hours, and we only see totals that are not tied to any person or IP address. We also count how many visitors accept or reject additional cookies, as totals only.
         </p>
-
-        <h2 style={h2}>Services that process data for us</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Services that process data for us</>}>
         <p style={p}>
           Supabase stores our database, in Amazon Web Services&rsquo; Ireland region (eu-west-1). Vercel hosts the site and runs the analytics above. PostHog, only if you accept additional cookies, records which pages you visit and what you search for on the site (with any email address or postcode removed), in its EU Cloud in Frankfurt. Resend sends our emails: account confirmation, password reset, the newsletter, alert emails and commission requests. Stripe takes card payments for donations and commissioned research on its own secure page; we receive confirmation of the payment, not your card details.
         </p>
-
-        <h2 style={h2}>Data storage</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Data storage</>}>
         <p style={p}>
           Your data is stored securely using Supabase, a cloud database service hosted in the European Union (Ireland). Passwords are hashed and never stored in plain text. We do not have access to your password.
         </p>
-
-        <h2 style={h2}>Your rights</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Your rights</>}>
         <p style={p}>
           You can request a copy of all data we hold about you. You can request deletion of your account and all associated data. You can withdraw consent for any optional data processing at any time. To exercise any of these rights, email contact@opengovt.uk.
         </p>
-
-        <h2 style={h2}>Data sharing</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Data sharing</>}>
         <p style={p}>
           We do not sell, rent, share or trade your personal data with any third party. The services listed above process it only to run this site for us. We do not share data with advertisers. We do not share data with political parties, campaigns or government bodies.
         </p>
-
-        <h2 style={h2}>Changes to this policy</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Changes to this policy</>}>
         <p style={p}>
           If this policy changes we will update it on this page. We will not reduce your rights under this policy without notifying registered users by email.
         </p>
-
-        <h2 style={h2}>Contact</h2>
+        </SectionFold>
+        <SectionFold headingStyle={h2} title={<>Contact</>}>
         <p style={p}>
           For any questions about this policy or your data, email contact@opengovt.uk.
         </p>
 
         <p style={{ ...p, marginTop: '30px', fontSize: '15px' }}>Last updated: 25 October 2026</p>
+        </SectionFold>
       </div>
     </OpenGovShell>
   )
