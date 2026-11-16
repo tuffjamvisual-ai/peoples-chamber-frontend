@@ -3069,6 +3069,14 @@ export default function MagazineProfileSections({
               )),
           }))}
         />
+        {/* ENTRY 159 on phones (under 768px the sidebar is hidden and the sections fold): the written questions page as a
+            row after the folds, in place of the questions block the "In the House" section had. */}
+        {questionTotal > 0 && (
+          <>
+            <style>{`.mp-wq-phone { display: none; } @media ${phoneUpTo(PHONE_MAX)} { .mp-wq-phone { display: flex; align-items: center; min-height: 48px; padding: 8px 0; border-bottom: 1px solid rgba(20,16,13,0.2); font-family: var(--font-special-elite), monospace; font-size: 16px; font-weight: bold; color: #14100d; text-decoration: none; } }`}</style>
+            <a href={`/mps/${memberId}/questions`} className="mp-wq-phone">Written questions ({questionTotal.toLocaleString('en-GB')}) →</a>
+          </>
+        )}
       </div>
     </div>
   );
