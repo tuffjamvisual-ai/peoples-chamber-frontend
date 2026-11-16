@@ -120,6 +120,12 @@ try {
     fs.mkdirSync(path.dirname(wtFetch), { recursive: true });
     run('cp', [process.platform === 'darwin' ? '-cR' : '-R', FETCH_CACHE_KEEP, wtFetch]);
     console.log(`push checks: fetch-cache copied from ${FETCH_CACHE_KEEP} into the check build`);
+    // Cowork ENTRY 195: entries older than 24 hours are dropped from the check build's copy, so old answers (a biography
+    // loaded since, say) never show in a check build; the database writes also purge their tables' entries from the saved
+    // copy (scripts/fetch-cache-purge.mjs --tag table:<name>).
+    const { purge } = await import(path.join(HERE, '..', 'fetch-cache-purge.mjs'));
+    const pr = purge(wtFetch, { olderThanHours: 24 });
+    console.log(`push checks: fetch-cache entries older than 24 h dropped from the check build's copy: ${pr.dropped} (kept ${pr.kept})`);
   } else console.log('push checks: no saved fetch-cache; the build reads the database');
   // A dry run (PUSH_CHECKS_DRY=1, ENTRY 185) stops here, before the build: the layout lock, A16 and the copies ran.
   if (DRY) { console.log(`push checks: dry run, stopping before the build of ${sha.slice(0, 8)}`); code = 0; throw new Error('dry run'); }
