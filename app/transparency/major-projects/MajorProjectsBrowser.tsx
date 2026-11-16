@@ -219,12 +219,12 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
           {depts.map(([c, label]) => <option key={c} value={c}>{label}</option>)}
         </select>
         <select aria-label="Delivery confidence rating" value={state.rating} onChange={(e) => set({ rating: e.target.value })} style={{ ...field, cursor: 'pointer' }}>
-          <option value="">Any rating (latest)</option>
+          <option value="">Any rating (each project&rsquo;s last report)</option>
           {RATINGS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
         </select>
         <select aria-label="Last reported in" value={state.year} onChange={(e) => set({ year: e.target.value })} style={{ ...field, cursor: 'pointer' }}>
           <option value="">Any report</option>
-          {years.map((y) => <option key={y} value={String(y)}>{y === latestYear ? `In the March ${y} report (latest)` : `Last reported March ${y}`}</option>)}
+          {years.map((y) => <option key={y} value={String(y)}>{y === latestYear ? `In the March ${y} report (the newest)` : `Last reported March ${y}`}</option>)}
         </select>
         <label className="mpb-eval" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: MONO, fontSize: '15px', cursor: 'pointer' }}>
           <input type="checkbox" checked={state.evaluation === 'no'} onChange={(e) => set({ evaluation: e.target.checked ? 'no' : '' })} style={{ width: '18px', height: '18px', accentColor: ACCENT }} />
@@ -235,7 +235,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
       {/* Phones (T1-GUARD, Cowork 13 Nov 2026): this note in its own fold, so the search box can stay in view within 2,500px at 320. */}
       <SubFold label="About the ratings">
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 6px', maxWidth: '70ch' }}>
-        The rating and department are each project&rsquo;s latest. &ldquo;Last reported&rdquo; means the project is not in the March {latestYear} report.
+        The rating and department are from each project&rsquo;s last report. &ldquo;Last reported&rdquo; means the project is not in the March {latestYear} report.
       </p>
       </SubFold>
       {state.evaluation === 'no' && (
