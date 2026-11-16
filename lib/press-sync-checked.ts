@@ -13,7 +13,7 @@ const read = unstable_cache(async (): Promise<string | null> => {
   if (error) throw new Error(`press sync checked: ${error.message}`);
   const at = (data?.cursor as { at?: unknown } | null)?.at;
   return typeof at === 'string' ? at : null;
-}, ['press-sync-checked-v1'], { tags: [PRESS_SYNC_CHECKED_TAG], revalidate: 3600 });
+}, ['press-sync-checked-v1'], { tags: [PRESS_SYNC_CHECKED_TAG], revalidate: false }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 // No line when the time cannot be read.
 export async function pressSyncCheckedAt(): Promise<string | null> {

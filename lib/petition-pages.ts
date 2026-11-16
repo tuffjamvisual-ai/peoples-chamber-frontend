@@ -23,7 +23,7 @@ export const allPetitions = unstable_cache(async (): Promise<PetitionListRow[]> 
     out.push(...((data ?? []) as unknown as PetitionListRow[]));
     if (!data || data.length < 1000) return out;
   }
-}, ['petitions-list'], { tags: [PETITIONS_TAG], revalidate: 86400 });
+}, ['petitions-list'], { tags: [PETITIONS_TAG], revalidate: false }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 export type ConstituencyCounts = { name: string | null; counts: Record<number, number> };
 
@@ -33,7 +33,7 @@ export const petitionsInConstituency = unstable_cache(async (gss: string): Promi
   if (error) throw new Error(`petitions in ${gss}: ${error.message}`);
   const rows = (data ?? []) as { petition_id: number; signature_count: number; constituency_name: string }[];
   return { name: rows[0]?.constituency_name ?? null, counts: Object.fromEntries(rows.map((r) => [Number(r.petition_id), r.signature_count])) };
-}, ['petitions-in-constituency'], { tags: [PETITIONS_TAG], revalidate: 86400 });
+}, ['petitions-in-constituency'], { tags: [PETITIONS_TAG], revalidate: false }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 export type Petition = PetitionListRow & {
   background: string | null; additional_details: string | null; government_response_summary: string | null; government_response_details: string | null;

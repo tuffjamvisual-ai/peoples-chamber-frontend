@@ -37,7 +37,7 @@ async function readDepartmentStats(): Promise<DepartmentStats[]> {
 export const questionDepartmentStats = unstable_cache(async (): Promise<DepartmentStats[]> => {
   statsInFlight ??= readDepartmentStats().finally(() => { statsInFlight = null; });
   return statsInFlight;
-}, ['question-department-stats'], { revalidate: 86400 });
+}, ['question-department-stats'], { revalidate: false, tags: tableTags('parliament_written_questions', 'rpc:written_question_department_stats') }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 export type Person = { id: number; name: string; house: 'Commons' | 'Lords'; href: string | null };
 // Everyone who can ask or answer: MPs link to /mps/<id>, peers with a page to /lords/<id>.

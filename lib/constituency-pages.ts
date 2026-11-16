@@ -24,7 +24,7 @@ export const allConstituencies = unstable_cache(async (): Promise<SeatListRow[]>
   for (const t of (terms.data ?? []) as { ons_code: string; start_date: string; end_date: string | null }[]) { see(t.ons_code, t.start_date); see(t.ons_code, t.end_date); }
   for (const b of (byes.data ?? []) as { ons_code: string; election_date: string }[]) see(b.ons_code, b.election_date);
   return ((seats.data ?? []) as Omit<SeatListRow, 'last_change'>[]).map((s) => ({ ...s, last_change: latest.get(s.ons_code) ?? '2024-07-04' }));
-}, ['constituencies-list'], { revalidate: 86400 });
+}, ['constituencies-list'], { revalidate: false, tags: tableTags('constituencies', 'constituency_mp_terms', 'constituency_byelections') }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 export type CouncilLink = { code: string; name: string; slug: string };
 export type Seat = SeatListRow & {

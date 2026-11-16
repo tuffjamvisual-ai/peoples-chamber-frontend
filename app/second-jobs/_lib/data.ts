@@ -4,7 +4,6 @@
 
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
-import { timedClient } from '@/lib/page-reads';
 import { displayMpName } from '@/lib/mp-name';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
@@ -400,7 +399,7 @@ export const currentPartySlug = cache(async (memberId: number): Promise<string |
 // Read through a one hour cache (T1-GUARD, owner approved 13 Nov 2026): the MP page reads ?page= for its DataList, so it is drawn on
 // each visit; the database is read at most once an hour for each MP.
 export const loadMember = cache(async (slug: string, memberId: number): Promise<MpDetail | null> => {
-  const db = timedClient(3600);
+  const db = supabase; // F04 batch 1: each read is in cachedQuery under its table's tag; no hourly fetch timer
   const [{ data: mp, error: mpError }, { data: rows, error: rowsError }, { data: summary, error: summaryError }] = await Promise.all([
     cachedQuery(['q:app/second-jobs/_lib/data.ts:0980ed5bd2', JSON.stringify([memberId])], tableTags('mps'), () => db.from('mps').select('member_id, display_name, name, constituency, party, party_colour')
       .eq('current_member', true).eq('member_id', memberId).maybeSingle()),

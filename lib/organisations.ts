@@ -125,7 +125,7 @@ export const listOrganisations = cache(async (): Promise<OrgListRow[]> => {
 });
 
 // The same list cached for an hour across requests, for /organisations and the Organisations group on /search.
-export const cachedOrganisationList = unstable_cache(async () => listOrganisations(), ['organisation-list-v2'], { revalidate: 3600 });
+export const cachedOrganisationList = unstable_cache(async () => listOrganisations(), ['organisation-list-v2'], { revalidate: false, tags: tableTags('organisation_index') }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 // A Companies House number as Companies House writes it (normalise_company_number in SQL), or null.
 export function normaliseCompanyNumber(raw: string): string | null {

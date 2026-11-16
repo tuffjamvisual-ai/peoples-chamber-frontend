@@ -208,7 +208,7 @@ const getPressStats = unstable_cache(
     return { govTotal: Number(j.gov_total) || 0 };
   },
   ['press-release-stats-v2'],
-  { revalidate: 3600 },
+  { revalidate: false, tags: tableTags('press_releases') }, // F04 batch 1 (A16): no timer; refreshed by its tag
 );
 
 const inputStyle: React.CSSProperties = {

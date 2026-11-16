@@ -33,7 +33,7 @@ export const allEdms = unstable_cache(async (): Promise<{ rows: EdmListRow[]; se
   const rows = await pages<EdmListRow>((f, t) => db.from('early_day_motions').select('id, uin, uin_with_suffix, title, date_tabled, signature_count, status, is_prayer').order('date_tabled', { ascending: false }).order('id', { ascending: false }).range(f, t), 'motions list');
   const firsts = rows.filter((r) => r.uin_with_suffix === '1').map((r) => r.date_tabled).sort();
   return { rows, sessionStart: firsts[firsts.length - 1] ?? '1970-01-01' };
-}, ['edms-list'], { tags: [EDMS_TAG], revalidate: 86400 });
+}, ['edms-list'], { tags: [EDMS_TAG], revalidate: false }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 // The motions an MP tabled and signed, for /edms?member=<id>. Signed leaves out signatures they withdrew.
 export const memberEdmIds = unstable_cache(async (memberId: number): Promise<{ tabled: number[]; signed: number[] }> => {
@@ -42,7 +42,7 @@ export const memberEdmIds = unstable_cache(async (memberId: number): Promise<{ t
     pages<{ edm_id: number }>((f, t) => db.from('early_day_motion_signatures').select('edm_id').eq('member_id', memberId).eq('is_withdrawn', false).order('edm_id').range(f, t), 'motions signed'),
   ]);
   return { tabled: tabled.map((r) => r.id), signed: signed.map((r) => r.edm_id) };
-}, ['edms-of-member'], { tags: [EDMS_TAG], revalidate: 86400 });
+}, ['edms-of-member'], { tags: [EDMS_TAG], revalidate: false }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 export type Edm = EdmListRow & { motion_text: string | null; primary_sponsor_id: number | null; amendment_to_motion_id: number | null; statutory_instrument_title: string | null };
 
@@ -85,7 +85,7 @@ export const edmSitemapRows = unstable_cache(async (): Promise<{ id: number; las
   const sigs = await pages<{ edm_id: number; signed_at: string | null }>((f, t) => db.from('early_day_motion_signatures').select('edm_id, signed_at').eq('is_withdrawn', false).order('edm_id').order('member_id').range(f, t), 'motion signatures');
   for (const s of sigs) if (s.signed_at && big.has(s.edm_id) && s.signed_at > (latest.get(s.edm_id) ?? '')) latest.set(s.edm_id, s.signed_at);
   return rows.filter((r) => big.has(r.id)).map((r) => ({ id: r.id, last: latest.get(r.id) ?? r.date_tabled }));
-}, ['edms-sitemap'], { tags: [EDMS_TAG], revalidate: 86400 });
+}, ['edms-sitemap'], { tags: [EDMS_TAG], revalidate: false }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 export type MpEdmsTop = { tabled: LinkedEdm[]; signed: LinkedEdm[] };
 

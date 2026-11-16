@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { timedClient } from '@/lib/page-reads';
+import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { currentPeers } from '@/lib/lords';
@@ -25,7 +25,7 @@ export default async function LordsPage({ searchParams }: { searchParams: Promis
   const sp = await searchParams;
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? '';
   const page = dataListPage(sp.page);
-  const peers = await currentPeers(timedClient(3600));
+  const peers = await currentPeers(supabase); // F04 batch 1: cachedQuery keeps it under the peers tag; no hourly fetch timer
   return (
     <OpenGovShell>
       <BackLink fallbackHref="/" />
