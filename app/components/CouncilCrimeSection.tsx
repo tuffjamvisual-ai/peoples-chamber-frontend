@@ -67,7 +67,7 @@ function changeText(current: number, previous: number | null, period: string): s
   if (previous == null || previous <= 0) return null;
   const pct = ((current - previous) / previous) * 100;
   if (Math.abs(pct) < 0.05) return `No change on the ${period}`;
-  return `${pct > 0 ? 'Up' : 'Down'} ${Math.abs(pct).toFixed(1)}% on the ${period}`;
+  return `${pct > 0 ? 'Up' : 'Down'} ${Math.abs(pct).toFixed(1)} per cent on the ${period}`; // "per cent" in a sentence (ENTRY 135 L3)
 }
 
 const SOURCE_NOTES: Record<string, string> = {

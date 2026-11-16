@@ -150,6 +150,8 @@ const nextConfig: NextConfig = {
       { source: '/departments/london-borough-of-enfield', destination: '/councils/enfield', statusCode: 301 as const },
       // Search Console 404 review (2 Nov 2026): two contract buyers linked as departments that do have a page. These
       // run before the proxy, so they win over its 410 for a /departments/<slug> that is not a department.
+      // /donations has no index page (ENTRY 135 L1, owner approved 15 Nov 2026): the donors index is /donors.
+      { source: '/donations', destination: '/donors', permanent: true },
       { source: '/departments/uk-biobank-limited', destination: '/organisations/uk-biobank', permanent: true },
       { source: '/departments/secretary-of-state-for-health-and-social-care-acting-as-part-of-the-crown-through-uk-health-security-agency', destination: '/agencies/uk-health-security-agency', permanent: true },
     ];

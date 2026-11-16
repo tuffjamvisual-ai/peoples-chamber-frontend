@@ -62,8 +62,9 @@ const big: CSSProperties = { fontFamily: MONO, fontSize: '20px', lineHeight: 1.4
 const link: CSSProperties = { color: ACCENT, textDecoration: 'underline' };
 
 const n0 = (n: number) => Math.round(n).toLocaleString('en-GB');
-const pct1 = (n: number) => `${n.toFixed(1)}%`;
-const upDown = (n: number, unit = '%') => (n === 0 ? 'no change' : `${n > 0 ? 'up' : 'down'} ${unit === '%' ? `${Math.abs(n).toFixed(1)}%` : n0(Math.abs(n))}`);
+// "per cent" in sentences (house style; ENTRY 135 L3), not "%".
+const pct1 = (n: number) => `${n.toFixed(1)} per cent`;
+const upDown = (n: number, unit = '%') => (n === 0 ? 'no change' : `${n > 0 ? 'up' : 'down'} ${unit === '%' ? `${Math.abs(n).toFixed(1)} per cent` : n0(Math.abs(n))}`);
 const fyText = (fye: number) => `${fye - 1}/${String(fye).slice(2)}`;
 
 type Council = { slug: string; name: string; short_name: string | null; type: string; type_label: string | null; political_control: string | null; parent_slug: string | null; population: number | null; gss_code: string | null };
@@ -262,7 +263,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     key: 'claimant', href: page(council, 'work'), linkText: 'Work and benefits in full',
     lines: [
       <p key="a" style={big}><strong>{n0(claimant!.claimants)}</strong> people claiming benefits because they are out of work, {claimant!.month}</p>,
-      <p key="b" style={para}>{[claimant!.rate != null ? `${claimant!.rate.toFixed(1)}% of residents aged 16 to 64` : null, claimant!.change != null && claimant!.yearAgoMonth ? `${upDown(claimant!.change, 'n')} on ${claimant!.yearAgoMonth}` : null].filter(Boolean).join(' · ')}</p>,
+      <p key="b" style={para}>{[claimant!.rate != null ? `${claimant!.rate.toFixed(1)} per cent of residents aged 16 to 64` : null, claimant!.change != null && claimant!.yearAgoMonth ? `${upDown(claimant!.change, 'n')} on ${claimant!.yearAgoMonth}` : null].filter(Boolean).join(' · ')}</p>,
     ],
   }));
   add('Child poverty', council && child && (child.ahc || child.bhc), () => {

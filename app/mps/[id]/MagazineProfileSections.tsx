@@ -2936,6 +2936,8 @@ export default function MagazineProfileSections({
           .mp-sections-nav a[data-section] { flex: 0 0 auto; }
           .mp-sections-nav button[data-active="true"], .mp-sections-nav a[data-section][data-active="true"] > span { border-bottom-color: #7a1612 !important; }
           .mp-sections-content { padding: 20px 2px !important; }
+          /* The tabs wrap onto two or three lines rather than scroll sideways with the last label cut off (ENTRY 135 L8). */
+          .mp-sections-nav { flex-wrap: wrap !important; overflow-x: visible !important; -webkit-mask-image: none !important; mask-image: none !important; }
         }
         /* From 1024px (T1-SIDE, owner decision 12 Nov 2026, reversing UX4h of 10 Nov): the section list is a sidebar beside
            the sections again, compact so it is short (one line per item, small gaps, Follow at the foot) and kept in view

@@ -244,7 +244,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
             )}
           </>
         ) : (
-          <>Showing all {total.toLocaleString('en-GB')} entries, most recently registered first</>
+          <>Showing all {total.toLocaleString('en-GB')} entries, newest first</>
         )}
       </div>
 

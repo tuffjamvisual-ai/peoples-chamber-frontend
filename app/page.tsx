@@ -304,8 +304,8 @@ export default async function HomePage() {
 
               <a className="og-block og-card" href="/this-week">
                 <div className="og-head">This week in Parliament</div>
-                <p>The bills before the House of Commons this week and the most recent votes MPs have held.</p>
-                <div className="og-cta">See this week&apos;s parliamentary business &rarr;</div>
+                <p>The bills due in the House of Commons over the next seven days, and the votes MPs have held.</p>
+                <div className="og-cta">See the business in Parliament &rarr;</div>
               </a>
 
               <Link className="og-news-line" href="/newsletter" style={{ display: 'none' }}>Sign up for opengovt Weekly, the weekly newsletter &rarr;</Link>

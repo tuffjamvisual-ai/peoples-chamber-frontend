@@ -216,6 +216,9 @@ export default function CouncilTabs({ tabs, slots, slug, lazyTabs, welfare, shor
         .council-tabs nav::-webkit-scrollbar { display:none; }
         .council-tabs nav.more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
         .council-tabs nav button { white-space:nowrap; flex:0 0 auto; }
+        /* Phones and tablets up to 1,023px: the tabs wrap onto two or three lines rather than scroll sideways with the last
+           label cut off (ENTRY 135 L8). */
+        @media (max-width: 1023.98px) { .council-tabs nav { flex-wrap:wrap; overflow-x:visible; -webkit-mask-image:none !important; mask-image:none !important; } }
         @media (min-width: 1024px) {
           .council-tabs { grid-template-columns: 200px minmax(0, 1fr) !important; gap: 28px !important; }
           .council-tabs aside { position: relative; }

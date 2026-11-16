@@ -83,6 +83,8 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
     p.set('council', a.councilCode);
     if (a.place) p.set('place', a.place);
     router.push(`/your-area?${p.toString()}`);
+    // The space held while the results load is let go once they are in (or after 10 seconds).
+    window.setTimeout(() => document.documentElement.classList.remove('ya-wait'), 10000);
   }
 
   async function lookup(url: string) {
@@ -91,6 +93,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
       const r = await fetch(url);
       const j = await r.json();
       if (!r.ok) {
+        document.documentElement.classList.remove('ya-wait');
         const msg = j?.message || 'Lookup failed. Please try again.';
         setError(j?.error === 'notfound' && councils.length > 0 ? 'No town or village has that name. Pick a council from the list, or enter a postcode.' : msg);
         if (councils.length > 0) setOpen(true);
@@ -98,11 +101,13 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
       }
       // No exact match: suggestions of councils and places, or the "No council or place matches" message
       // (lib/area-resolve.ts; T1-MP, 11 Nov 2026).
+      if (j.kind === 'suggest' || j.kind === 'choices') document.documentElement.classList.remove('ya-wait');
       if (j.kind === 'suggest') { setError(j.message as string); setSuggestions((j.suggestions || []) as Suggestion[]); setChoices([]); setOpen(false); return; }
       if (j.kind === 'choices') { setChoices(j.choices as Choice[]); setOpen(false); return; }
       setChoices([]);
       go(j as Area);
     } catch {
+      document.documentElement.classList.remove('ya-wait');
       setError('Lookup is unavailable right now. Please try again.');
     } finally {
       setBusy(false);
@@ -116,6 +121,9 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
     setChoices([]);
     setSuggestions([]);
     setOpen(false);
+    // Layout shift (ENTRY 135 L6: 0.399 at 375): as the search is sent, the page holds a full screen of space, so the
+    // footer moves out of view at the tap (a move the reader caused) and nothing visible jumps when the results arrive.
+    document.documentElement.classList.add('ya-wait');
     lookup(`/api/area/lookup?q=${encodeURIComponent(text)}`);
   }
 

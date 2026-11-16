@@ -43,7 +43,7 @@ const BANNER_CSS = `
   .og-cookie-banner .og-cb-narrow { display: inline; }
   .og-cookie-banner .og-cb-actions { gap: 8px !important; margin-top: 0 !important; flex-wrap: nowrap !important; }
   .og-cookie-banner .og-cb-btn { flex: 1 1 0; min-width: 0; min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 0 6px !important; }
-  body:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set) body:has(.og-cookie-banner) { padding-bottom: 130px; }
+  body:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set) body:has(.og-cookie-banner) { padding-bottom: 130px; background-color: #e1c495; } /* the space kept for the banner in the paper colour, not a dark strip (ENTRY 135 L5) */
 }
 /* Tablet and desktop (T1-7ab, owner via Cowork, 10 Nov 2026): the same idea as UX2o, a slim bar fixed to the foot of the
    screen, out of the page flow, so it never pushes the page down or covers the top of it. One line of text ending in

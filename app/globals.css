@@ -531,3 +531,7 @@ details[open] > summary .st-more { display: none; }
   .srch-r { flex-direction: column !important; gap: 4px !important; }
   .srch-r > span:first-child { align-self: flex-start; margin-top: 0 !important; }
 }
+
+/* While a /your-area search is being looked up (AreaSearch.tsx, ENTRY 135 L6): a full screen of space, so the footer is out
+   of view before the results arrive and nothing visible jumps when they do. */
+html.ya-wait .og-main-content { min-height: 110vh; }
