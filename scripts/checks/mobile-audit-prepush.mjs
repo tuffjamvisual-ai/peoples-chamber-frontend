@@ -6,8 +6,10 @@
 // per commit: pushing the same commit to main after work does not run it again.
 // 11 Nov 2026 (owner approved): a push whose changes are only under app/api/, scripts/ or data files is not checked (app/api
 // is left out of PAGE_CODE below; scripts and data files were never in it); anything else under app, lib, public or
-// next.config still runs the full check. The build reuses the main checkout's .next/cache/turbopack (the build cache only,
-// never .next/cache/fetch-cache, which can hold old database answers), and the rendered checks run with --push (A6 at
+// next.config still runs the full check. The build reuses the main checkout's .next/cache/turbopack (the build cache) and
+// the last check build's .next/cache/fetch-cache (owner approved 16 Nov 2026, COWORK-TO-T1 ENTRY 167: a fresh folder
+// otherwise re-reads every cached database answer, about 79 s of database time a build; the check's pages then show the
+// data as of that copy, which does not matter for layout checks), and the rendered checks run with --push (A6 at
 // 375 x 812 and 1280 x 720, no first-visit banner pass, no council tab opening); the full rendered checks run daily
 // against the live site (scripts/checks/qa/rendered-checks-daily.mjs).
 // T1-VR (owner, 12 Nov 2026: 'one step forward and two steps back'; Cowork 12 Nov: under 5 minutes): then the before and
@@ -77,6 +79,8 @@ if (!todo.length) process.exit(0);
 
 const sha = todo[0];
 const wt = fs.mkdtempSync(path.join(os.tmpdir(), 'opengovt-audit-'));
+// ENTRY 167: where the last check build's .next/cache/fetch-cache is kept between pushes.
+const FETCH_CACHE_KEEP = process.env.FETCH_CACHE_KEEP || path.join(os.homedir(), 'opengovt-backup', 'fetch-cache-last');
 // The server's own output, kept so a page that fails shows why (owner, 7 Nov 2026, AA1: /questions returned HTTP 500 twice
 // with nothing recorded). On the SSD when it is mounted, else beside the other audit output. AUDIT_LOG_DIR overrides it.
 const SSD_LOGS = '/Volumes/EDGE_SSD/opengovt-work/claude-tmp/push-check-logs';
@@ -102,8 +106,21 @@ try {
     fs.mkdirSync(path.join(wt, '.next/cache'), { recursive: true });
     run('cp', [process.platform === 'darwin' ? '-cR' : '-R', '.next/cache/turbopack', path.join(wt, '.next/cache/turbopack')]);
   }
+  // The last check build's data cache (ENTRY 167), kept outside the repository so the main checkout's own .next is never
+  // touched; with none yet, the build reads the database as before.
+  const wtFetch = path.join(wt, '.next/cache/fetch-cache');
+  if (fs.existsSync(FETCH_CACHE_KEEP)) {
+    fs.mkdirSync(path.dirname(wtFetch), { recursive: true });
+    run('cp', [process.platform === 'darwin' ? '-cR' : '-R', FETCH_CACHE_KEEP, wtFetch]);
+  }
   const env = { ...process.env, RECOMMENDATIONS_PUBLIC: '1' };
   execFileSync('npx', ['next', 'build'], { cwd: wt, env, stdio: ['ignore', 'ignore', 'inherit'] });
+  // Keep this build's data cache for the next check build (replaced whole, so it never grows stale entries forever).
+  if (fs.existsSync(wtFetch)) {
+    fs.rmSync(FETCH_CACHE_KEEP, { recursive: true, force: true });
+    fs.mkdirSync(path.dirname(FETCH_CACHE_KEEP), { recursive: true });
+    run('cp', [process.platform === 'darwin' ? '-cR' : '-R', wtFetch, FETCH_CACHE_KEEP]);
+  }
   const port = 3198;
   const out = fs.openSync(serverLog, 'a');
   server = spawn('npx', ['next', 'start', '-p', String(port)], { cwd: wt, env, stdio: ['ignore', out, out], detached: true });
