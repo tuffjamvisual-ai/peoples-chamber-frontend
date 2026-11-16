@@ -1,5 +1,6 @@
 'use client';
 
+import PageSources from '../../components/PageSources';
 import { shortDayMonthYear, shortMonthYear } from '@/lib/short-date';
 import { pageview } from '@vercel/analytics';
 import { billSummary } from '@/lib/bill-summary';
@@ -1085,6 +1086,21 @@ export default function MagazineProfileSections({
                     Last reviewed: {new Date(`${bio.bio_last_reviewed}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </p>
                 )}
+              </div>
+            )}
+            {/* The biography's sources (owner approved 16 Nov 2026, COWORK-TO-T1 ENTRY 180, T1-BIOSOURCES; reversing T1-MPCLEAN for
+                the biography only): one closed "Sources (N)" fold listing mp_biography.bio_sources, each title linked, with
+                what it supports on its own line. The site's Sources fold (PageSources, A9); the inline links beside each claim
+                stay as they are. Only https addresses, as BioText's links. Nothing when there are none. */}
+            {(bio?.bio_sources?.length ?? 0) > 0 && (
+              <div className="mp-bio-sources">
+                <PageSources
+                  marginTop="12px"
+                  sources={(bio?.bio_sources ?? []).map((s) =>
+                    s.url && /^https:\/\//.test(s.url)
+                      ? { label: s.title, href: s.url, note: s.supports ? <span style={{ display: 'block' }}>{s.supports}</span> : undefined }
+                      : null)}
+                />
               </div>
             )}
 

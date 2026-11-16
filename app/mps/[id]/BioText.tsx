@@ -7,7 +7,8 @@ import type { CSSProperties, ReactNode } from 'react';
 //   a paragraph that is only **Label.**           a small subheading (h3), so commitments scan on a phone
 //   [descriptive text](https://...)               a link to the source beside the claim, in the same tab; any other
 //                                                 scheme (http:, javascript:, ...) shows the descriptive text alone
-// The "Sources (N)" list under the biography is built from bio_sources and is not touched here.
+// The "Sources (N)" fold under the biography (MagazineProfileSections.tsx, PageSources; ENTRY 180) is built from
+// mp_biography.bio_sources and is not touched here.
 
 // "**Label.**" then the rest: the label is any text without asterisks or line breaks, ending in a full stop.
 export const BIO_LABEL = /^\*\*([^*\n]+\.)\*\*(?:\s+([\s\S]*))?$/;
