@@ -3,7 +3,9 @@ import { revalidatePath, revalidateTag, noteChanged } from '@/lib/refresh-count'
 import { COUNCIL_LEAGUE_TAG } from '@/lib/council-league';
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import NIGHTLY from '@/lib/nightly-refresh-pages.json';
+import NIGHTLY_FILE from '@/lib/nightly-refresh-pages.json';
+// Typed here: with the list empty (F07) the JSON's type would be never[].
+const NIGHTLY: { paths: string[] } = NIGHTLY_FILE as { paths: string[] };
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { refreshBills, REFRESH_BATCH } from '@/lib/bill-refresh';
 import { revalidateBillPages } from '@/lib/revalidate-bills';
