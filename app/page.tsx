@@ -5,7 +5,6 @@ import OpenGovShell from './components/OpenGovShell';
 import { editorialsBySlug } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { listReadingLabel } from '@/lib/reading-time';
-import ContinueToArticle from './components/ContinueToArticle';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
 import AreaSearch from './components/AreaSearch';
@@ -16,7 +15,9 @@ import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
 import { loadLatestWhitehall } from '@/lib/press-releases-latest';
 import { pressSyncCheckedAt } from '@/lib/press-sync-checked';
 import { checkedLine } from '@/lib/press-checked-line';
-import { setPageReadTimer } from '@/lib/page-reads';
+import { londonDay } from '@/lib/london-date';
+import type { FeaturedItem } from '@/lib/home-rotation';
+import { HomeFeaturedProvider, FeaturedLead, FeaturedBrief } from './components/HomeFeatured';
 import './home-front.css';
 import { phoneUpTo } from '@/lib/breakpoints';
 
@@ -30,16 +31,12 @@ function fmtGovDate(iso: string | null | undefined): string {
 
 // The new "OPEN GOVERNMENT" front page: the dossier-folder template (OpenGovShell)
 // with the front-page article layout. Replaces the previous pca-art newspaper.
-export const revalidate = 3600;
-// Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
-// cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
-// reads in 48 h, none from the cache). That cache survives deploys, so those renders read from it instead of the
-// database. Corrected 30 Oct 2026: this line alone keeps a read with no timer of its own FOR EVER (Next sets
-// INFINITE_CACHE), not for the page's revalidate period, so the hourly rebuild showed old rows. Every read here now
-// has its own timer: setPageReadTimer(revalidate) below makes pageDb() reads (lib/page-reads.ts) last the page's
-// period, under a tag where a sync refreshes one; other reads are tagged unstable_cache reads with their own timers.
-// A stale entry is read again before the page is stored. Keep it that way: a new read on this page must use pageDb()
-// or have its own timer, or it will never change.
+// A16 (ENTRY 129, 140): rebuilt only when its data changes; the daily rotation of the featured reports is worked out in
+// the browser (app/components/HomeFeatured.tsx), so a new day does not rebuild the page.
+export const revalidate = false;
+// Database reads on this page go through Next's data cache (25 Oct 2026, report 43), each under its source's tag (A16,
+// 15 Nov 2026): a read is kept until the sync that writes its table refreshes the tag. A new read on this page must do
+// the same.
 export const fetchCache = 'default-cache';
 
 const HOME_DESCRIPTION =
@@ -75,14 +72,8 @@ export const metadata: Metadata = {
 // The report held as the homepage lead, whatever the daily rotation would put there. Empty: the lead rotates with the rest.
 const HOMEPAGE_LEAD_SLUG: string = 'q1yfr4lome';
 
-// Days since 1 Jan 1970 (UTC): the homepage's featured pieces rotate on it. A function outside the component, so the
-// render reads the clock through one named call (react-hooks/purity).
-function todayIndex(): number {
-  return Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-}
 
 export default async function HomePage() {
-  setPageReadTimer(revalidate);
 
   // Investigation pool: all entries where kind is absent (investigations only),
   // sorted publishedAt DESC then by registry declaration order as tiebreaker.
@@ -97,28 +88,12 @@ export default async function HomePage() {
     const cmp = b.publishedAt.localeCompare(a.publishedAt);
     return cmp !== 0 ? cmp : a.registryIndex - b.registryIndex;
   });
-  // All 4 slots rotate daily through the 16 most recent editorials so newer
-  // stories cycle through every position rather than locking into place.
-  const dayIndex = todayIndex();
-  const featuredPool = investigations.slice(0, Math.min(16, investigations.length));
-  const shuffled = [...featuredPool];
-  let rngSeed = dayIndex;
-  for (let idx = shuffled.length - 1; idx > 0; idx--) {
-    rngSeed = (rngSeed * 1664525 + 1013904223) & 0x7fffffff;
-    const pick = rngSeed % (idx + 1);
-    [shuffled[idx], shuffled[pick]] = [shuffled[pick], shuffled[idx]];
-  }
-  // A chosen report can hold the lead (owner, 5 Nov 2026): it swaps places with whichever report the rotation put first, so
-  // every other position stays as the rotation set it. Clear HOMEPAGE_LEAD_SLUG to go back to rotating the lead too.
-  const leadAt = shuffled.findIndex((e) => e.slug === HOMEPAGE_LEAD_SLUG);
-  if (leadAt > 0) [shuffled[0], shuffled[leadAt]] = [shuffled[leadAt], shuffled[0]];
-  else if (leadAt < 0) {
-    const lead = investigations.find((e) => e.slug === HOMEPAGE_LEAD_SLUG);
-    if (lead) shuffled[0] = lead;
-  }
-  const [slot1, slot2, slot3, slot4] = shuffled;
-  // For slot 1's lede: body[0] text if it's a plain paragraph (stored in the editorials index as lede).
-  const ledeText = slot1.lede ?? null;
+  // The four featured reports rotate daily through the 16 most recent (lib/home-rotation.ts). ENTRY 140: the browser
+  // picks today's (app/components/HomeFeatured.tsx); the server sends only these candidates and renders its own day.
+  const asItem = (e: (typeof investigations)[number]): FeaturedItem => ({ slug: e.slug, headline: e.headline, label: listReadingLabel(e), summary: listSummary(e), lede: e.lede ?? null });
+  const featuredPool = investigations.slice(0, Math.min(16, investigations.length)).map(asItem);
+  const heldLead = featuredPool.some((e) => e.slug === HOMEPAGE_LEAD_SLUG) ? null : (() => { const l = investigations.find((e) => e.slug === HOMEPAGE_LEAD_SLUG); return l ? asItem(l) : null; })();
+  const renderedOn = londonDay();
 
   // Each item links only to its press release (owner, 30 Oct 2026), so the department or agency name is plain text and
   // agency_cache is no longer read here. The read is tagged 'press-releases-latest' (lib/press-releases-latest.ts), which
@@ -138,6 +113,7 @@ export default async function HomePage() {
   return (
     <>
       <OpenGovShell pageStamp="Front Page" brandAsHeading>
+      <HomeFeaturedProvider pool={featuredPool} lead={heldLead} leadSlug={HOMEPAGE_LEAD_SLUG} renderedOn={renderedOn}>
               {/* Under 640px (owner, 4 Nov 2026; current coverage first, 8 Nov 2026, HP1b): the two searches, the first
                   investigation, This week in Parliament, then the archive
                   ("The record, going back decades"), the other reports, Latest from Whitehall and the rest of the rail in
@@ -231,19 +207,9 @@ export default async function HomePage() {
                   after it, so a screen reader hears the headline as the link's name rather than the whole block. On
                   phones the opening is cut to four lines (the CSS above). */}
               <style>{`.og-lead-head { display: block; text-decoration: none; color: inherit; } .og-lead-head:hover, .og-lead-head:focus-visible { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; } .og-lead-head:focus-visible { outline: 3px solid #7a1612; outline-offset: 3px; }`}</style>
-              <article className="og-block og-lead-story">
-                <a className="og-head og-lead-head" href={`/editorials/${slot1.slug}`}>{slot1.headline}</a>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{listReadingLabel(slot1)}</div>
-                <div className="og-standfirst">{listSummary(slot1)}</div>
-                {ledeText && <p className="og-lede">{ledeText}</p>}
-              </article>
+              <FeaturedLead />
 
-              <a className="og-block og-brief" href={`/editorials/${slot2.slug}`}>
-                <div className="og-head">{slot2.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{listReadingLabel(slot2)}</div>
-                <p>{listSummary(slot2)}</p>
-                <ContinueToArticle />
-              </a>
+              <FeaturedBrief n={1} plainLink />
 
 
               {/* Phones (owner, 10 Nov 2026, S5-home2): a closed native fold labelled with the heading and item count, opened
@@ -307,19 +273,9 @@ export default async function HomePage() {
                 <p>Follow what Parliament is doing, in plain English, then cast your own vote on every bill. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Browse bills and reader polls &rarr;</span></p>
               </Link>
 
-              <Link className="og-block og-brief" href={`/editorials/${slot3.slug}`}>
-                <div className="og-head">{slot3.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{listReadingLabel(slot3)}</div>
-                <p>{listSummary(slot3)}</p>
-                <ContinueToArticle />
-              </Link>
+              <FeaturedBrief n={2} />
 
-              <Link className="og-block og-brief" href={`/editorials/${slot4.slug}`}>
-                <div className="og-head">{slot4.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{listReadingLabel(slot4)}</div>
-                <p>{listSummary(slot4)}</p>
-                <ContinueToArticle />
-              </Link>
+              <FeaturedBrief n={3} />
 
               <Link className="og-block og-card" href="/expenses">
                 <div className="og-head">The biggest expenses bill</div>
@@ -357,6 +313,7 @@ export default async function HomePage() {
             </div>
           </div>
 
+      </HomeFeaturedProvider>
       </OpenGovShell>
     </>
   );

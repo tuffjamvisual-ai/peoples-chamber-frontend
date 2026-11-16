@@ -31,7 +31,8 @@ import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { loadDeptPressReleases } from '@/lib/press-releases-latest';
 import { RECOMMENDATIONS_PUBLIC, isBuildPhase, retrySoon } from '@/lib/pac';
-import { getDepartmentRecommendations, RecommendationsSlot } from './RecommendationsSlot';
+import { getDepartmentRecommendations } from './RecommendationsData';
+import { RecommendationsSlot } from './RecommendationsSlot';
 import { tagDb } from '@/lib/page-reads';
 import { phoneUpTo } from '@/lib/breakpoints';
 interface PageProps {

@@ -1,46 +1,17 @@
+'use client';
+// The department page's "Recommendations" tab (see RecommendationsData.ts for what it shows). Sorted into its lists here,
+// in the browser, by today's date in London (ENTRY 140): a target still to come moves to "target passed" once its
+// month is over without the page being rebuilt. The first render uses the day the page was rendered (useToday).
 import Link from 'next/link';
-import { allStatus, wording, departmentSlugs, recPath, relatedBodies, laterEvidence, type StatusRow, type StatusLink } from '@/lib/pac';
+import { onDay } from '@/lib/pac-dated';
+import { useToday } from '../../components/useToday';
+import type { DepartmentRecommendations, DeptItem } from './RecommendationsData';
 
-// Department page "Recommendations" tab (owner's approval, 29 Oct 2026, "go stage 4"; fixes 30 Oct 2026): a count line
-// (open, delivered, rejected, target passed and being checked), then this department's Committee of Public Accounts
-// recommendations that are still open, the ones whose target has moved, the ones whose target has passed (being checked
-// against later evidence, and checked by Open Govt), and short lists of delivered and rejected ones. "See all" opens
-// /recommendations filtered to this department and that status. Under the count line, "Also: <body> (<role>)" for a
-// body cross referenced to this department (lib/pac.ts "related"), linking to the list filtered to that body; its
-// recommendations are not counted here. Shown only when RECOMMENDATIONS_PUBLIC=1 (the caller
-// checks). An item Open Govt found partly delivered also shows its "Later evidence" line, in short form.
-type Item = { href: string; title: string; status: string; later?: StatusLink[] };
-export type DepartmentRecommendations = {
-  slug: string;
-  related: { key: string; name: string; role: string }[];
-  counts: { open: number; delivered: number; rejected: number; beingChecked: number };
-  open: Item[]; moved: Item[]; checked: Item[]; beingChecked: Item[]; delivered: Item[]; rejected: Item[];
-};
-
+type Item = { href: string; title: string; status: string; later?: DeptItem['later'] };
 const OPEN = new Set(['target_in_future', 'no_dated_target']);
 const DELIVERED = new Set(['implemented', 'delivered_elsewhere']);
 const CLOSED = new Set(['implemented', 'delivered_elsewhere', 'split', 'rejected', 'report_completed', 'not_listed_in_later_update']);
 const SHORT = 5;
-
-export async function getDepartmentRecommendations(slug: string): Promise<DepartmentRecommendations | null> {
-  const [rows, w] = await Promise.all([allStatus(), wording()]);
-  const mine = rows.filter((r) => departmentSlugs(r.department).includes(slug))
-    .sort((a, b) => b.session.localeCompare(a.session) || b.report_number - a.report_number || a.rec_number.localeCompare(b.rec_number, 'en', { numeric: true }));
-  if (!mine.length) return null;
-  const item = (r: StatusRow): Item => ({ href: recPath(r), title: `${r.report_title}: recommendation ${r.rec_number}`, status: w.text(r), later: laterEvidence(r, true) ?? undefined });
-  const of = (keys: Set<string>) => mine.filter((r) => keys.has(r.status));
-  return {
-    slug,
-    related: relatedBodies(slug),
-    counts: { open: of(OPEN).length, delivered: of(DELIVERED).length, rejected: mine.filter((r) => r.status === 'rejected').length, beingChecked: mine.filter((r) => r.status === 'target_passed_unchecked').length },
-    open: of(OPEN).map(item),
-    moved: mine.filter((r) => r.times_target_moved > 0 && !CLOSED.has(r.status)).map(item),
-    checked: mine.filter((r) => r.status === 'target_passed_checked').map(item),
-    beingChecked: mine.filter((r) => r.status === 'target_passed_unchecked').map(item),
-    delivered: of(DELIVERED).slice(0, SHORT).map(item),
-    rejected: mine.filter((r) => r.status === 'rejected').slice(0, SHORT).map(item),
-  };
-}
 
 const INK = '#14100d';
 const H2 = 'text-[15px] uppercase tracking-[0.25em] mb-4 font-semibold';
@@ -73,10 +44,23 @@ function List({ heading, items, more }: { heading: string; items: Item[]; more?:
   );
 }
 
-export function RecommendationsSlot({ data }: { data: DepartmentRecommendations }) {
+export function RecommendationsSlot({ data: given }: { data: DepartmentRecommendations }) {
+  const today = useToday(given.renderedOn);
+  const mine = given.items.map((i) => { const [key, words] = onDay(i.status, today); return { ...i, key, words }; });
+  const item = (r: (typeof mine)[number]): Item => ({ href: r.href, title: r.title, status: r.words, later: r.later });
+  const of = (keys: Set<string>) => mine.filter((r) => keys.has(r.key));
+  const data = {
+    slug: given.slug, related: given.related,
+    open: of(OPEN).map(item),
+    moved: mine.filter((r) => r.moved && !CLOSED.has(r.key)).map(item),
+    checked: mine.filter((r) => r.key === 'target_passed_checked').map(item),
+    beingChecked: mine.filter((r) => r.key === 'target_passed_unchecked').map(item),
+    delivered: of(DELIVERED).slice(0, SHORT).map(item),
+    rejected: mine.filter((r) => r.key === 'rejected').slice(0, SHORT).map(item),
+  };
+  const c = { open: of(OPEN).length, delivered: of(DELIVERED).length, rejected: mine.filter((r) => r.key === 'rejected').length, beingChecked: data.beingChecked.length };
   const all = `/recommendations?department=${data.slug}`;
   const by = (status: string) => `${all}&status=${status}`;
-  const c = data.counts;
   return (
     <section>
       <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 8px' }}>

@@ -24,13 +24,14 @@
 // changes. See recommendationDetail for why it is not itself wrapped in unstable_cache.
 import 'server-only';
 import { unstable_cache } from 'next/cache';
+import { londonDay, monthPassed } from '@/lib/london-date';
+import type { Dated } from '@/lib/pac-dated';
 import { createClient } from '@supabase/supabase-js';
 import { fetchWithoutEmDashes } from '@/lib/no-em-dash';
 
 export { RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 export const RECOMMENDATIONS_OVERDUE = process.env.RECOMMENDATIONS_OVERDUE === '1';
 
-const DAY = 86400;
 const db = () => createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
   auth: { persistSession: false },
   global: { fetch: fetchWithoutEmDashes },
@@ -104,10 +105,10 @@ async function readStatus(): Promise<StatusRow[]> {
 const cachedStatus = unstable_cache(() => {
   statusInFlight ??= readStatus().finally(() => { statusInFlight = null; });
   return statusInFlight;
-}, ['pac-status-v3'], { tags: ['pac'], revalidate: DAY });
-// The view works out "target passed" when it is read, and that read is cached for up to a day. So the rule is applied
-// again here, at render, against today's date: a target whose period has ended moves out of "target in future"
-// (an October 2026 target on 1 November 2026) without a code change. Pages using this revalidate every 86400 s.
+}, ['pac-status-v3'], { tags: ['pac'], revalidate: false });
+// The view works out "target passed" when it is read, and that read is kept until the pac tag is refreshed (A16). So the
+// rule is applied again against today's date: at render here, and in the browser (datedStatus, lib/pac-dated.ts): a
+// target whose period has ended moves out of "target in future" (an October 2026 target on 1 November 2026).
 export function effectiveStatus(r: StatusRow, today = new Date()): StatusKey {
   if (r.status !== 'target_in_future' || !targetPassed(r.latest_target_month, today)) return r.status;
   const [y, m] = (r.latest_target_month ?? '').slice(0, 10).split('-').map(Number);
@@ -124,17 +125,31 @@ export async function retrySoon(): Promise<void> {
   await unstable_cache(async () => true, ['pac-retry-soon'], { revalidate: RETRY_SOON })();
 }
 
+// The rows as the view stored them (the status as of the read), for pages that send the date-dependent form to the
+// browser (datedStatus).
+export async function allStatusStored(): Promise<StatusRow[]> {
+  return cachedStatus();
+}
+const FAR_FUTURE = new Date(Date.UTC(9999, 0, 1));
+// A stored row's status in both forms (ENTRY 140): as stored, and, for a target still to come, as it will be once its
+// month is over; make() turns a row into what the page shows (its words, its status key, ...).
+export function datedStatus<T>(r: StatusRow, make: (row: StatusRow) => T): Dated<T> {
+  const base = make(r);
+  if (r.status !== 'target_in_future' || !r.latest_target_month) return { base };
+  return { base, month: r.latest_target_month.slice(0, 10), passed: make({ ...r, status: effectiveStatus(r, FAR_FUTURE) }) };
+}
+
 export async function allStatus(): Promise<StatusRow[]> {
   const today = new Date();
   return (await cachedStatus()).map((r) => ({ ...r, status: effectiveStatus(r, today) }));
 }
-export const allDocuments = unstable_cache(() => readAll<SourceDocument>('pac_source_documents', 'id, kind, cp_number, title, published_on, url, pages', 'published_on'), ['pac-documents'], { tags: ['pac'], revalidate: DAY });
+export const allDocuments = unstable_cache(() => readAll<SourceDocument>('pac_source_documents', 'id, kind, cp_number, title, published_on, url, pages', 'published_on'), ['pac-documents'], { tags: ['pac'], revalidate: false });
 // Every event's targets (as written and as months), without the long texts: for the first target as written, and
 // for the document each implemented recommendation was reported in.
 type EventTargets = Pick<EventRow, 'recommendation_id' | 'document_id' | 'status' | 'target_text' | 'target_month' | 'original_target_text' | 'original_target_month' | 'revised_target_text' | 'revised_target_month'>;
 const allEventTargets = unstable_cache(
   () => readAll<EventTargets>('pac_recommendation_events', 'recommendation_id, document_id, status, target_text, target_month, original_target_text, original_target_month, revised_target_text, revised_target_month', 'id'),
-  ['pac-event-targets'], { tags: ['pac'], revalidate: DAY },
+  ['pac-event-targets'], { tags: ['pac'], revalidate: false },
 );
 
 export type RecommendationDetail = {
@@ -161,7 +176,7 @@ const detailRecords = unstable_cache(async (id: number): Promise<DetailRecords> 
       .sort((a, b) => a.document.published_on.localeCompare(b.document.published_on)),
     evidence: (evidence.data ?? []) as Evidence[],
   };
-}, ['pac-recommendation-records-v1'], { tags: ['pac'], revalidate: DAY });
+}, ['pac-recommendation-records-v1'], { tags: ['pac'], revalidate: false });
 
 // A recommendation page's data (7 Nov 2026, K1). Its status row, and the rows of any recommendations it was split into,
 // come from the cached whole list (allStatus), matched by session, report and number. This function is deliberately not
@@ -334,7 +349,7 @@ export const latestMinutesUsed = unstable_cache(async (): Promise<SourceDocument
     if (count) return d;
   }
   return null;
-}, ['pac-latest-minutes-used'], { revalidate: 3600 });
+}, ['pac-latest-minutes-used'], { tags: ['pac'], revalidate: false });
 export const documentShort = (d: SourceDocument) => `${d.title} (${d.cp_number})`;
 // Official text as published, with words the PDF broke across a line put back together ("semi- permanent"); a
 // shared hyphen before and, or or to ("short- and long-term") is left as printed.
@@ -358,10 +373,10 @@ export function datePart(t: string | null): string {
 export const asWritten = (t: string | null) => asPublished(t).replace(/\.$/, '').trim();
 // A target has passed once the month its period ends in is over (Summer 2026 passes on 1 September 2026; October 2026
 // on 1 November 2026). The month is the first day of that month, as stored.
+// By the calendar in London (ENTRY 140; lib/london-date.ts monthPassed). Pages show it as rendered and the browser
+// checks it again (lib/pac-dated.ts).
 export function targetPassed(month: string | null, today = new Date()): boolean {
-  if (!month) return false;
-  const [y, m] = month.slice(0, 10).split('-').map(Number);
-  return y * 12 + m < today.getUTCFullYear() * 12 + today.getUTCMonth() + 1;
+  return monthPassed(month, londonDay(today));
 }
 export const recPath = (r: Pick<StatusRow, 'session' | 'report_number' | 'rec_number'>) => `/recommendations/${r.session}/${r.report_number}/${r.rec_number}`;
 

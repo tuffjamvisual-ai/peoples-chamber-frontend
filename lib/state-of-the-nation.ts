@@ -14,11 +14,12 @@
 // No opinion and no good-or-bad colours: figures, periods, changes and sources only.
 import { unstable_cache } from 'next/cache';
 import REVIEWED from '@/data/state-of-the-nation.json';
+import { isRecent, londonDay } from '@/lib/london-date';
 
 export const SOTN_TAG = 'state-of-the-nation-ons';
 const UA = 'opengovt-archive/1.0 (+https://www.opengovt.uk; contact@opengovt.uk)';
 const ONS = 'https://www.ons.gov.uk';
-const NEW_DAYS = 7;
+export const NEW_DAYS = 7; // a figure is marked new on its publication day and the 6 days after (lib/london-date.ts isRecent)
 
 export type Group = 'Cost of living' | 'Economy' | 'Public money' | 'Public services' | 'Housing and homelessness' | 'Immigration';
 export const GROUPS: Group[] = ['Cost of living', 'Economy', 'Public money', 'Public services', 'Housing and homelessness', 'Immigration'];
@@ -140,7 +141,8 @@ export function fytd(months: { date: string; value: string }[]): { sum: number; 
   return { sum: sum(cur), prevSum: sum(prev), label: `April to ${MONTH_NAMES[i]} ${y}`, prevLabel: `April to ${MONTH_NAMES[i]} ${y - 1}` };
 }
 
-const daysAgo = (iso: string | null, now = Date.now()) => (iso ? (now - Date.parse(`${iso.slice(0, 10)}T00:00:00Z`)) / 86400000 : Infinity);
+// As of the moment given, in London; the page shows it as rendered and the browser checks it again (ENTRY 140).
+const recent = (iso: string | null, now = Date.now()) => isRecent(iso, NEW_DAYS, londonDay(new Date(now)));
 
 export function onsFigure(s: OnsSeries, d: OnsData, now = Date.now()): Figure {
   const base = { id: s.id, group: s.group, label: s.label, note: s.note, sourceName: 'Office for National Statistics',
@@ -150,7 +152,7 @@ export function onsFigure(s: OnsSeries, d: OnsData, now = Date.now()): Figure {
   if (s.period === 'fytd') {
     const f = fytd(d.months ?? []);
     if (!f) return { ...base, value: null, period: null, change: null, publishedOn, isNew: false };
-    return { ...base, value: formatValue(sign * f.sum, s.format), period: f.label, change: changeText(sign * f.sum, sign * f.prevSum, f.prevLabel, s.format), publishedOn, isNew: daysAgo(publishedOn, now) <= NEW_DAYS };
+    return { ...base, value: formatValue(sign * f.sum, s.format), period: f.label, change: changeText(sign * f.sum, sign * f.prevSum, f.prevLabel, s.format), publishedOn, isNew: recent(publishedOn, now) };
   }
   const series = s.period === 'quarter' ? d.quarters ?? [] : d.months ?? [];
   const last = series[series.length - 1], prev = series[series.length - 2];
@@ -164,11 +166,11 @@ export function onsFigure(s: OnsSeries, d: OnsData, now = Date.now()): Figure {
     period: periodLabel(last.date, s.period),
     change: before ? changeText(cur, sign * Number(before.value), periodLabel(before.date, s.period), s.format) : null,
     publishedOn,
-    isNew: daysAgo(publishedOn, now) <= NEW_DAYS,
+    isNew: recent(publishedOn, now),
   };
 }
 
-async function readOns(): Promise<Record<string, OnsData>> {
+export async function readOns(): Promise<Record<string, OnsData>> {
   const out: Record<string, OnsData> = {};
   const seen = new Map<string, OnsData>();
   for (const s of ONS_SERIES) {
@@ -187,7 +189,9 @@ async function readOns(): Promise<Record<string, OnsData>> {
   return out;
 }
 // One shared copy for every server instance, kept a day; refreshed each morning (tag) after the ONS releases.
-export const onsData = unstable_cache(readOns, ['state-of-the-nation-ons-v1'], { tags: [SOTN_TAG], revalidate: 86400 });
+// A16 (ENTRY 129, 140): no timer; /api/refresh-state-of-the-nation reads the ONS each morning and refreshes the tag only
+// when the figures differ from this copy.
+export const onsData = unstable_cache(readOns, ['state-of-the-nation-ons-v1'], { tags: [SOTN_TAG], revalidate: false });
 
 type ReviewedEntry = { value: string | null; label?: string; period: string | null; previous: string | null; sourceUrl: string | null; sourceName?: string | null; publishedOn: string | null; checkedOn: string | null; checkedBy: string | null; note?: string | null };
 export function reviewedFigure(item: { id: string; group: Group; label: string }, file: Record<string, ReviewedEntry | undefined>, now = Date.now()): Figure {
@@ -197,7 +201,7 @@ export function reviewedFigure(item: { id: string; group: Group; label: string }
   return {
     ...item, label: e!.label || item.label, value: e!.value, period: e!.period, change: e!.previous ?? null,
     sourceUrl: e!.sourceUrl, sourceName: e!.sourceName ?? null, publishedOn: e!.publishedOn,
-    isNew: daysAgo(e!.publishedOn, now) <= NEW_DAYS, note: e!.note ?? undefined,
+    isNew: recent(e!.publishedOn, now), note: e!.note ?? undefined,
   };
 }
 

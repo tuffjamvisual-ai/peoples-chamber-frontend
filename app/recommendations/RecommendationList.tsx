@@ -8,10 +8,13 @@ import NoJsPager from '@/app/components/NoJsPager';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { monthPassed } from '@/lib/london-date';
+import { useToday } from '../components/useToday';
 
 export type ListReport = { title: string; meta: string; bodies: string[]; pages: string[]; other: boolean };
-// [report key "session/number", rec number, status key, status in words]
-export type ListRow = [string, string, string, string];
+// [report key "session/number", rec number, status key, status in words] and, for a target still to come, [target month,
+// status key and words once that month is over]: the browser shows the form for today (ENTRY 140, useToday).
+export type ListRow = [string, string, string, string] | [string, string, string, string, string, string, string];
 type Option = { value: string; label: string };
 
 const INK = '#14100d';
@@ -95,10 +98,12 @@ function RecommendationCard({ path, title, meta, words }: { path: string; title:
   );
 }
 
-export default function RecommendationList({ reports, rows, departmentOptions, statusOptions, pageNames, bodyNotes }: {
+export default function RecommendationList({ reports, rows: given, departmentOptions, statusOptions, pageNames, bodyNotes, renderedOn }: {
   reports: Record<string, ListReport>; rows: ListRow[]; departmentOptions: Option[]; statusOptions: Option[]; pageNames: Record<string, string>;
-  bodyNotes: Record<string, string>;
+  bodyNotes: Record<string, string>; renderedOn: string;
 }) {
+  const today = useToday(renderedOn);
+  const rows = useMemo(() => given.map((r): [string, string, string, string] => (r.length === 7 && monthPassed(r[4], today) ? [r[0], r[1], r[5], r[6]] : [r[0], r[1], r[2], r[3]])), [given, today]);
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
   const [limit, setLimit] = useState(PAGE);

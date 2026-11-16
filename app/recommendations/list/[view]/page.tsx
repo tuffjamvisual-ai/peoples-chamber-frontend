@@ -6,16 +6,20 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import { departments } from '@/lib/departments';
 import BackLink from '../../../components/BackLink';
 import RecommendationList, { type ListRow, type ListReport } from '../../RecommendationList';
+import RecStatusSummary, { type DatedKey } from '../../RecStatusSummary';
+import OnDate from '../../../components/OnDate';
+import { londonDay } from '@/lib/london-date';
 import {
   RECOMMENDATIONS_PUBLIC, allStatus, wording, bodiesFor, departmentWords, departmentSlugs, sessionWords, recPath, documentWords, latestMinutesUsed,
-  STATUS_ORDER, STATUS_LABELS, datePart, targetPassed, BODY_NOTES,
+  STATUS_ORDER, STATUS_LABELS, datePart, datedStatus, BODY_NOTES,
 } from '@/lib/pac';
 
 // /recommendations (owner's approval, 29 Oct 2026, "go stage 4"): the Committee of Public Accounts recommendations
 // tracker. Only exists when RECOMMENDATIONS_PUBLIC=1; then it and every recommendation page are in the sitemap, and
 // the menu links to it under Departments (30 Oct 2026, "go public").
-// Data from lib/pac.ts, cached for a day under the 'pac' tag.
-export const revalidate = 86400;
+// Data from lib/pac.ts, cached under the 'pac' tag until the loader refreshes it (A16). "Target passed" follows today's
+// date in the browser (ENTRY 140: RecommendationList, RecStatusSummary, OnDate), so the page is not rebuilt for the date.
+export const revalidate = false;
 // Served at /recommendations through a rewrite in next.config.ts (owner, 7 Nov 2026, AB1). A page at a fixed address is
 // rendered during `next build`, and its read of pac_recommendation_status passed the statement timeout twice on 7 Nov
 // while other pages loaded the database, failing the deployment. As a route with no paths built in advance it renders on
@@ -40,7 +44,13 @@ export default async function RecommendationsPage({ params }: { params: Promise<
   const [rows, w, latestMinutes] = await Promise.all([allStatus(), wording(), latestMinutesUsed()]);
   // The total and every box come from the same rows, so the boxes add up to the total.
   const total = rows.length;
-  const totals = STATUS_ORDER.map((k) => ({ key: k, label: STATUS_LABELS[k], count: rows.filter((r) => r.status === k).length })).filter((t) => t.count > 0);
+  const renderedOn = londonDay();
+  // Each row's status in its stored form and, for a target still to come, as it will be once its month is over.
+  const dated = new Map(rows.map((r) => [r.recommendation_id, datedStatus(r, (x) => [x.status, w.text(x)] as [string, string])]));
+  const statuses: DatedKey[] = rows.map((r) => { const d = dated.get(r.recommendation_id)!; return d.passed && d.month ? [d.base[0], d.month, d.passed[0]] : [d.base[0]]; });
+  // Every status a row can show, today or once its target month is over: the filter's choices.
+  const possible = new Set(statuses.flatMap((d) => (d.length === 3 ? [d[0], d[2]] : [d[0]])));
+  const totals = STATUS_ORDER.filter((k) => possible.has(k)).map((k) => ({ key: k, label: STATUS_LABELS[k] }));
   const moved = [...rows].filter((r) => r.times_target_moved > 0)
     .sort((a, b) => b.times_target_moved - a.times_target_moved || (b.latest_target_month ?? '').localeCompare(a.latest_target_month ?? '') || a.recommendation_id - b.recommendation_id)
     .slice(0, 10);
@@ -60,7 +70,8 @@ export default async function RecommendationsPage({ params }: { params: Promise<
         other: bodies.length === 0 || bodies.some((b) => !b.page),
       };
     }
-    return [key, r.rec_number, r.status, w.text(r)];
+    const d = dated.get(r.recommendation_id)!;
+    return d.passed && d.month ? [key, r.rec_number, d.base[0], d.base[1], d.month, d.passed[0], d.passed[1]] : [key, r.rec_number, d.base[0], d.base[1]];
   });
   const departmentOptions = [
     ...[...seenBodies].map(([value, label]) => ({ value: `body:${value}`, label })).sort((a, b) => a.label.localeCompare(b.label)),
@@ -117,18 +128,7 @@ export default async function RecommendationsPage({ params }: { params: Promise<
           { id: 'status', label: 'Where the recommendations stand', summary: `${total.toLocaleString('en-GB')} in all`, node: (
         <div className="rec-status">
         <h2 style={h2}>Where the recommendations stand</h2>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, maxWidth: '40em' }}>
-          {totals.map((t) => (
-            <li key={t.key} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', borderBottom: '1px dotted rgba(20,16,13,0.2)', padding: '6px 0', fontSize: '16px' }}>
-              <span>{t.label}</span>
-              <span style={{ fontWeight: 600 }}>{t.count.toLocaleString('en-GB')}</span>
-            </li>
-          ))}
-          <li style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', fontSize: '16px', fontWeight: 700 }}>
-            <span>Total</span>
-            <span>{total.toLocaleString('en-GB')}</span>
-          </li>
-        </ul>
+        <RecStatusSummary statuses={statuses} order={STATUS_ORDER} labels={STATUS_LABELS} renderedOn={renderedOn} />
 
         </div>
           ) },
@@ -142,7 +142,15 @@ export default async function RecommendationsPage({ params }: { params: Promise<
                 {r.report_title}: recommendation {r.rec_number}
               </Link>
               <span style={{ display: 'block', fontSize: '15px' }}>
-                Moved {r.times_target_moved} time{r.times_target_moved === 1 ? '' : 's'}, from {datePart(w.firstTarget(r))} to {datePart(r.latest_target_text)}.{targetPassed(r.latest_target_month) ? ' Target passed.' : ''}{r.status !== 'target_in_future' ? ` ${w.text(r)}.` : ''}
+                Moved {r.times_target_moved} time{r.times_target_moved === 1 ? '' : 's'}, from {datePart(w.firstTarget(r))} to {datePart(r.latest_target_text)}.{(() => {
+                  // As before ENTRY 140: "Target passed." once the month is over, then the status words unless still to come.
+                  const d = dated.get(r.recommendation_id)!;
+                  const tail = (st: string, words: string) => (st !== 'target_in_future' ? ` ${words}.` : '');
+                  return (<>
+                    <OnDate month={r.latest_target_month} renderedOn={renderedOn} before={null} passed=" Target passed." />
+                    <OnDate month={d.month ?? null} renderedOn={renderedOn} before={tail(d.base[0], d.base[1])} passed={d.passed ? tail(d.passed[0], d.passed[1]) : tail(d.base[0], d.base[1])} />
+                  </>);
+                })()}
               </span>
             </li>
           ))}
@@ -154,7 +162,7 @@ export default async function RecommendationsPage({ params }: { params: Promise<
 
         <div className="rec-all">
         <h2 style={h2}>All recommendations</h2>
-        <RecommendationList reports={reports} rows={list} departmentOptions={departmentOptions} statusOptions={statusOptions} pageNames={pageNames} bodyNotes={BODY_NOTES} />
+        <RecommendationList reports={reports} rows={list} departmentOptions={departmentOptions} statusOptions={statusOptions} pageNames={pageNames} bodyNotes={BODY_NOTES} renderedOn={renderedOn} />
         </div>
       </section>
     </OpenGovShell>

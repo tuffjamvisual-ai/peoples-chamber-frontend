@@ -6,9 +6,11 @@ import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { SubFold } from '../components/PhoneFolds';
-import { GROUPS, stateOfTheNation, type Figure } from '@/lib/state-of-the-nation';
+import { GROUPS, NEW_DAYS, stateOfTheNation, type Figure } from '@/lib/state-of-the-nation';
+import { londonDay } from '@/lib/london-date';
+import NewMark from './NewMark';
 
-export const revalidate = 3600;
+export const revalidate = false; // A16: rebuilt only when its data changes; the "new" marks follow today's date in the browser (ENTRY 140)
 
 export const metadata: Metadata = {
   title: 'State of the Nation: the UK’s Latest Official Figures',
@@ -24,12 +26,12 @@ const MONO = 'var(--font-special-elite), monospace';
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const groupId = (g: string) => g.toLowerCase().replace(/[^a-z]+/g, '-');
 
-function Card({ f }: { f: Figure }) {
+function Card({ f, renderedOn }: { f: Figure; renderedOn: string }) {
   return (
     <article className="sotn-card" style={{ border: `1px solid ${HAIRLINE}`, background: 'rgba(255,255,255,0.18)', padding: '14px 14px 12px', fontFamily: MONO, color: INK, display: 'flex', flexDirection: 'column', gap: '6px' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
         <h3 style={{ fontSize: '15px', lineHeight: 1.35, fontWeight: 'bold', margin: 0 }}>{f.label}</h3>
-        {f.isNew && <span style={{ flex: 'none', fontSize: '13px', letterSpacing: '0.12em', border: `1px solid ${INK}`, padding: '1px 6px' }}>NEW</span>}
+        <NewMark publishedOn={f.publishedOn} days={NEW_DAYS} renderedOn={renderedOn} color={INK} />
       </div>
       {f.value ? (
         <>
@@ -51,6 +53,7 @@ function Card({ f }: { f: Figure }) {
 
 export default async function StateOfTheNation() {
   const { figures } = await stateOfTheNation();
+  const renderedOn = londonDay();
   return (
     <OpenGovShell pageStamp="Figures">
       <style>{`.sotn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
@@ -71,7 +74,7 @@ export default async function StateOfTheNation() {
           <SubFold key={g} label={g} tablets>
             <section aria-labelledby={groupId(g)} style={{ marginBottom: '28px' }}>
               <h2 id={groupId(g)} className="sotn-gh" style={{ fontFamily: MONO, fontSize: '20px', fontWeight: 'bold', color: ACCENT, margin: '0 0 10px' }}>{g}</h2>
-              <div className="sotn-grid">{list.map((f) => <Card key={f.id} f={f} />)}</div>
+              <div className="sotn-grid">{list.map((f) => <Card key={f.id} f={f} renderedOn={renderedOn} />)}</div>
             </section>
           </SubFold>
         );

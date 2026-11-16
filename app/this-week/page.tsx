@@ -4,12 +4,17 @@ import { SITE } from '@/lib/JsonLd'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink'
 import { isInProgress } from '@/lib/bill-status';
+import { tableTag } from '@/lib/source-tags';
+import { addDays, londonDay } from '@/lib/london-date';
+import { divisionsFrom } from '@/lib/this-week-window';
+import ThisWeekLists, { type WeekBill, type WeekVote } from './ThisWeekLists';
+import { cachedQuery } from '@/lib/tagged-read';
+import { tableTags } from '@/lib/source-tags';
 
-// Reflects the current week's Commons business on a 10-minute ISR window, so
-// visitors are served from cache rather than triggering two live Parliament API
-// calls on every request. Sources: Parliament Bills API (stages + sitting dates)
-// and the Commons Votes API (recent divisions).
-export const revalidate = 600
+// The current week's Commons business. Sources: Parliament Bills API (stages + sitting dates) and the Commons Votes API
+// (recent divisions). A16 (ENTRY 129, 140): no timer; rebuilt when our bill or votes sync records a change, and the
+// week shown follows today's date in the browser.
+export const revalidate = false
 
 export const metadata: Metadata = {
   title: 'This Week in Parliament',
@@ -29,56 +34,35 @@ type Stage = { description?: string; house?: string; stageSittings?: Sitting[] }
 type BillItem = { billId: number; shortTitle: string; currentHouse?: string; lastUpdate?: string; isAct?: boolean; billWithdrawn?: string | null; currentStage?: Stage }
 type Division = { DivisionId: number; Date: string; Title: string; AyeCount?: number; NoCount?: number }
 
-// The bills window (23 Oct 2026): today and the next six days, rolling, as UK calendar dates (YYYY-MM-DD in London).
-// Sittings are UK dates too, so they are compared as plain dates.
-function londonYmd(d: Date): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d)
-}
-function weekRange() {
-  const start = londonYmd(new Date())
-  const end = new Date(Date.parse(`${start}T12:00:00Z`) + 6 * 86400000).toISOString().slice(0, 10)
-  return { start, end }
-}
-
-// Recent divisions still look back from the Monday of the current week, less seven days, as before.
-function divisionsFrom(): string {
-  const now = new Date()
-  const diffToMon = (now.getUTCDay() + 6) % 7
-  const monday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diffToMon)
-  return new Date(monday - 7 * 86400000).toISOString().slice(0, 10)
-}
-
-async function getCommonsBills() {
+// The bills and votes for two weeks around today are read here; the browser shows today's seven days (ThisWeekLists,
+// ENTRY 140). Parliament's lists are kept under our own tags (A16, no timers): the bills list until the bill sync
+// changes a bill (table:bill), the votes until the Commons votes sync stores a new division (table:mp_division_votes).
+async function getCommonsBills(today: string): Promise<{ bills: BillItem[]; fallback: BillItem[] }> {
   try {
-    // Kept for an hour (25 Oct 2026, report 43): this list answers slowly whenever Parliament's own cache is cold (p50
-    // 7.4 s, p95 27 s from Vercel), and at 10 minutes nearly every rebuild of this page waited for it. The page still
-    // rebuilds every 10 minutes, with the divisions below as fresh as before.
-    const res = await fetch('https://bills-api.parliament.uk/api/v1/Bills?SortOrder=DateUpdatedDescending', { next: { revalidate: 3600 } })
-    if (!res.ok) return [] as BillItem[]
+    const res = await fetch('https://bills-api.parliament.uk/api/v1/Bills?SortOrder=DateUpdatedDescending', { next: { revalidate: false, tags: [tableTag('bill')] } })
+    if (!res.ok) return { bills: [], fallback: [] }
     const j = (await res.json()) as { items?: BillItem[] }   // Parliament's titles word for word (owner, 5 Nov 2026)
     const items: BillItem[] = (j.items || []).filter((b: BillItem) => isInProgress(b))
-    const { start, end } = weekRange()
-    // Bills with a COMMONS stage sitting from today to six days ahead.
-    const thisWeek = items.filter((b) =>
+    const end = addDays(today, 13)
+    // Bills with a COMMONS stage sitting from today to 13 days ahead (the browser narrows it to seven days).
+    const bills = items.filter((b) =>
       b.currentStage?.house === 'Commons' &&
       (b.currentStage.stageSittings || []).some((s) => {
         const d = (s.date || '').slice(0, 10)
-        return d >= start && d <= end
+        return d >= today && d <= end
       })
     )
-    if (thisWeek.length) return thisWeek.slice(0, 12)
     // Fallback (e.g. recess): bills currently before the Commons, most recent first.
-    return items.filter((b) => b.currentHouse === 'Commons').slice(0, 8)
+    return { bills: bills.slice(0, 30), fallback: items.filter((b) => b.currentHouse === 'Commons').slice(0, 8) }
   } catch {
-    return [] as BillItem[]
+    return { bills: [], fallback: [] }
   }
 }
 
-async function getRecentDivisions() {
+async function getRecentDivisions(today: string) {
   try {
-    const from = divisionsFrom()
-    const to = new Date().toISOString().slice(0, 10)
-    const res = await fetch(`https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.startDate=${from}&queryParameters.endDate=${to}&queryParameters.take=12`, { next: { revalidate: 600 } })
+    const from = addDays(divisionsFrom(today), -7)
+    const res = await fetch(`https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.startDate=${from}&queryParameters.take=40`, { next: { revalidate: false, tags: [tableTag('mp_division_votes')] } })
     if (!res.ok) return [] as Division[]
     return (await res.json()) as Division[]
   } catch {
@@ -87,14 +71,16 @@ async function getRecentDivisions() {
 }
 
 export default async function ThisWeekPage() {
-  const [bills, divisions] = await Promise.all([getCommonsBills(), getRecentDivisions()])
+  const renderedOn = londonDay()
+  const [{ bills: upcoming, fallback }, divisions] = await Promise.all([getCommonsBills(renderedOn), getRecentDivisions(renderedOn)])
+  const bills = [...upcoming, ...fallback.filter((f) => !upcoming.some((b) => b.billId === f.billId))]
 
   // Map Parliament billId -> our internal bill id so we can link on-site.
   const ids = bills.map((b) => b.billId)
   let internal: Record<number, number> = {}
   if (ids.length) {
     // Hidden bills (bill.hidden_reason) have no page, so they are not linked.
-    const { data, error: dataErr2 } = await supabase.from('bill').select('id, parliament_id').in('parliament_id', ids).is('hidden_reason', null)
+    const { data, error: dataErr2 } = await cachedQuery(['q:app/this-week/page.tsx:9b4e5d7b20', JSON.stringify([ids])], tableTags('bill'), () => supabase.from('bill').select('id, parliament_id').in('parliament_id', ids).is('hidden_reason', null))
     if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/this-week bill: ${dataErr2.message}`);
     internal = Object.fromEntries((data || []).map((r: { id: number; parliament_id: number }) => [r.parliament_id, r.id]))
   }
@@ -109,12 +95,12 @@ export default async function ThisWeekPage() {
   let divSlug: Record<number, string> = {}
   if (divIds.length) {
     const found = await Promise.all(divIds.map(async (id) => {
-      const { data, error: dataErr } = await supabase
+      const { data, error: dataErr } = await cachedQuery(['q:app/this-week/page.tsx:41bbe7add7', JSON.stringify([id])], tableTags('mp_division_votes'), () => supabase
         .from('mp_division_votes')
         .select('division_id, division_date_only, division_number')
         .eq('division_id', id)
         .limit(1)
-        .maybeSingle()
+        .maybeSingle())
       if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/this-week mp_division_votes ${id}: ${dataErr.message}`);
       return data as { division_id: number; division_date_only: string | null; division_number: number | null } | null
     }))
@@ -125,10 +111,12 @@ export default async function ThisWeekPage() {
     )
   }
 
-  const fmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-  // Sittings are UK calendar dates (YYYY-MM-DDT00:00:00), compared with today's date in London as plain dates.
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
-  const fmtDay = (ymd: string) => new Date(`${ymd}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+  const weekBill = (b: BillItem): WeekBill => ({
+    billId: b.billId, title: b.shortTitle, stage: b.currentStage?.description || 'Before the Commons',
+    sittings: (b.currentStage?.stageSittings || []).map((x) => (x.date || '').slice(0, 10)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort(),
+    href: internal[b.billId] ? `/bills/${internal[b.billId]}` : null,
+  })
+  const votes: WeekVote[] = divisions.map((d) => ({ id: d.DivisionId, title: d.Title, date: d.Date, ayes: d.AyeCount ?? null, noes: d.NoCount ?? null, href: divSlug[d.DivisionId] || null }))
 
   return (
     <OpenGovShell>
@@ -148,61 +136,7 @@ export default async function ThisWeekPage() {
         </p>
       </header>
 
-      <section style={{ marginBottom: '8%' }}>
-        <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '14px' }}>
-          Coming up in the Commons, next seven days
-        </h2>
-        {bills.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No Commons bills listed right now (the House may be in recess).</p>}
-        {bills.map((b) => {
-          // The next sitting of the current stage on or after today; if none is upcoming, the latest past one.
-          const days = (b.currentStage?.stageSittings || []).map((s) => (s.date || '').slice(0, 10)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort()
-          const next = days.find((d) => d >= today)
-          const last = days.filter((d) => d < today).slice(-1)[0]
-          const sitting = next ? `next sitting ${fmtDay(next)}` : last ? `last sitting ${fmtDay(last)}` : null
-          const href = internal[b.billId] ? `/bills/${internal[b.billId]}` : null
-          const inner = (
-            <>
-              <div style={{ fontSize: 'clamp(16px, 1.9vw, 20px)', fontWeight: 'bold', lineHeight: 1.3 }}>{b.shortTitle}</div>
-              <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>
-                {b.currentStage?.description || 'Before the Commons'}{sitting ? ` · ${sitting}` : ''}
-              </div>
-            </>
-          )
-          const rowStyle = { display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' } as const
-          return href ? (
-            <a key={b.billId} href={href} className="no-hover-scale" style={rowStyle}>{inner}</a>
-          ) : (
-            <div key={b.billId} style={rowStyle}>{inner}</div>
-          )
-        })}
-      </section>
-
-      <section>
-        <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '14px' }}>
-          Recent Commons votes
-        </h2>
-        {divisions.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No divisions recorded in the last week.</p>}
-        {divisions.map((d) => {
-          const href = divSlug[d.DivisionId] || null
-          const inner = (
-            <>
-              <div style={{ fontSize: 'clamp(15px, 1.8vw, 18px)', fontWeight: 'bold', lineHeight: 1.3 }}>{d.Title}</div>
-              <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>
-                {fmt(d.Date)}{typeof d.AyeCount === 'number' ? ` · Ayes ${d.AyeCount} / Noes ${d.NoCount}` : ''}
-              </div>
-              {!href && (
-                <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>Full voting list not yet available</div>
-              )}
-            </>
-          )
-          const rowStyle = { display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' } as const
-          return href ? (
-            <a key={d.DivisionId} href={href} className="no-hover-scale" style={rowStyle}>{inner}</a>
-          ) : (
-            <div key={d.DivisionId} style={rowStyle}>{inner}</div>
-          )
-        })}
-      </section>
+      <ThisWeekLists bills={upcoming.map(weekBill)} fallback={fallback.map(weekBill)} votes={votes} renderedOn={renderedOn} />
 
     </OpenGovShell>
   )
