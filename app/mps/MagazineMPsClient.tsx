@@ -16,6 +16,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import PhoneMore from '../components/PhoneMore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { normaliseParty, isCoop, resolvePartyColour } from '@/lib/party-helpers';
@@ -361,7 +362,10 @@ function SinglePartyView({
         </p>
       )}
 
+      {/* L7 (owner, 16 Nov 2026, ENTRY 155): on phones and tablets up to 1,023px the page's cards open with 3, then "Show N
+          more" adds 10, with "Show fewer" (PhoneMore; with JavaScript off every card shows). Desktop unchanged. */}
       <div
+        id="mps-party-grid"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
@@ -373,6 +377,7 @@ function SinglePartyView({
           <MPCard key={mp.member_id} mp={mp} fromParty={partyName} idx={idx} />
         ))}
       </div>
+      <PhoneMore key={`${partyName}-${currentPage}`} selector="#mps-party-grid" total={pageMPs.length} />
 
       {partyMPs.length === 0 && searchTerm.trim() && (
         <p style={{ fontSize: '15px', marginTop: '24px' }}>

@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import PartySidebar from '../../components/PartySidebar';
 import { SubFold } from '../../components/PhoneFolds';
+import PhoneMore from '../../components/PhoneMore';
 import Link from 'next/link';
 import { THEME_TOPIC, partySecondJobs } from '@/lib/party-links';
 import { PHONE } from '@/lib/breakpoints';
@@ -217,6 +218,9 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             Policy positions not yet researched for this party. Coming soon.
           </p>
         )}
+        {/* L7 (owner, 16 Nov 2026, ENTRY 155): on phones and tablets up to 1,023px the policy blocks open with 3, then "Show N
+            more" adds 10, with "Show fewer" (PhoneMore; with JavaScript off every block shows). Desktop unchanged. */}
+        <div id="party-policies">
         {policies.map((p) => (
           <section
             key={p.theme}
@@ -280,6 +284,8 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             </SubFold>
           </section>
         ))}
+        </div>
+        <PhoneMore selector="#party-policies" total={policies.length} />
       </div>
 
       </PartySidebar>

@@ -1,4 +1,6 @@
 import { SubFold } from '../components/PhoneFolds';
+import PhoneMore from '../components/PhoneMore';
+import { LIST_FOLD } from '@/lib/breakpoints';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
@@ -42,6 +44,23 @@ function firstSentence(s: string) {
   return m ? m[0].trim() : s;
 }
 
+type TopicItem = (typeof topics)[number];
+function TopicCard({ t }: { t: TopicItem }) {
+  return (
+    <Link
+      href={`/topics/${t.slug}`}
+      className="no-hover-scale"
+      style={{ display: 'block', textDecoration: 'none', color: INK, borderTop: `1px solid ${HAIRLINE}`, padding: '14px 0 18px' }}
+    >
+      <div style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 'bold', marginBottom: '8px' }}>
+        {t.title} <span style={{ color: ACCENT }}>→</span>
+      </div>
+      <p className={SHORT[t.slug] ? 'og-desc' : undefined} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{firstSentence(t.blurb)}</p>
+      {SHORT[t.slug] && <p className="og-short" style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{SHORT[t.slug]}</p>}
+    </Link>
+  );
+}
+
 export default function TopicsIndexPage() {
   return (
     <OpenGovShell>
@@ -66,23 +85,18 @@ export default function TopicsIndexPage() {
 
       {/* Two balanced columns, no boxes. */}
       <style>{TWO_COLUMN_CSS}</style>
+      {/* L7 (owner, 16 Nov 2026, ENTRY 155): on phones and tablets up to 1,023px one list in topic order, opening with 3, then
+          "Show N more" adds 10, with "Show fewer" (PhoneMore; with JavaScript off every topic shows); from 1,024px the two
+          balanced columns as before. */}
+      <style>{`.tp-one { display: none; } @media ${LIST_FOLD} { .tp-one { display: block; } .tp-one + .og-two { display: none; } }`}</style>
+      <div className="tp-one">
+        <div id="topics-one">{topics.map((t) => <TopicCard key={t.slug} t={t} />)}</div>
+        <PhoneMore selector="#topics-one" total={topics.length} />
+      </div>
       <div data-main-action className="og-two">
         {balanceColumns(topics, (t) => 3 + firstSentence(t.blurb).length / 45).map((col, ci) => (
           <div key={ci}>
-            {col.map((t) => (
-              <Link
-                key={t.slug}
-                href={`/topics/${t.slug}`}
-                className="no-hover-scale"
-                style={{ display: 'block', textDecoration: 'none', color: INK, borderTop: `1px solid ${HAIRLINE}`, padding: '14px 0 18px' }}
-              >
-                <div style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 'bold', marginBottom: '8px' }}>
-                  {t.title} <span style={{ color: ACCENT }}>→</span>
-                </div>
-                <p className={SHORT[t.slug] ? 'og-desc' : undefined} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{firstSentence(t.blurb)}</p>
-                {SHORT[t.slug] && <p className="og-short" style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{SHORT[t.slug]}</p>}
-              </Link>
-            ))}
+            {col.map((t) => <TopicCard key={t.slug} t={t} />)}
           </div>
         ))}
       </div>

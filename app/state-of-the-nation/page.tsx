@@ -64,7 +64,7 @@ export default async function StateOfTheNation() {
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '16px', marginBottom: '20px' }}>
         <h1 style={{ fontFamily: MONO, fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 10px', lineHeight: 1.15 }}>State of the nation</h1>
-        <p style={{ fontFamily: MONO, fontSize: '16px', lineHeight: 1.6, margin: 0, maxWidth: '60ch' }}>The latest official figures, with the period each covers and a link to the source.</p>
+        <p style={{ fontFamily: MONO, fontSize: '16px', lineHeight: 1.6, margin: 0, maxWidth: '60ch' }}>Official figures, with the period each covers and a link to the source.</p>
       </header>
       {GROUPS.map((g) => {
         const list = figures.filter((f) => f.group === g);

@@ -223,10 +223,10 @@ export default async function HomePage() {
                   in full; from 640px up as before. The wrapper carries the phone order. */}
               {whitehallItems.length > 0 && (
                 <div className="og-whitehall-f">
-                <SubFold tablets label={`Latest from Whitehall (${whitehallItems.length})`}>
-                <section aria-label="Latest from Whitehall" style={{ marginTop: '28px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
+                <SubFold tablets label={`From Whitehall (${whitehallItems.length})`}>
+                <section aria-label="From Whitehall" style={{ marginTop: '28px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
                   <h2 style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
-                    Latest from Whitehall
+                    From Whitehall
                   </h2>
                   <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
                     Government press releases, published as issued
