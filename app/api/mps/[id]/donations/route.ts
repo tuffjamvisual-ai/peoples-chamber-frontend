@@ -4,6 +4,7 @@ import { SECTORS, sectorForDonor, sectorForVote, ALL_VOTE_KEYWORDS } from '@/lib
 import { readAll, inList } from '@/lib/read-all';
 import { storedSpellings } from '@/lib/donor-registry';
 import { recipientIsMp, stripHonorific } from '@/lib/mp-recipient-match';
+import { readAllById } from '@/lib/read-all';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { whoTheyAreLine } from '@/lib/donor-profile';
 
@@ -107,16 +108,21 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   let sectorCrossRef: Array<{ key: string; label: string; colour: string; votes: unknown[] }> = [];
   if (donorSectorKeys.size > 0) {
-    const orClause = ALL_VOTE_KEYWORDS.map((kw) => `division_title.ilike.%${kw.replace(/[%_,]/g, '')}%`).join(',');
-    const { data: rawVotes, error: votesErr } = await supabase
-      .from('mp_division_votes')
-      .select('id, division_title, division_date, division_date_only, division_number, vote_type, is_rebellion, division_id')
-      .eq('member_id', memberId)
-      .or(orClause)
-      .in('vote_type', ['aye', 'no', 'both'])
-      .order('division_date', { ascending: false })
-      .limit(500);
-    if (votesErr) throw new Error(`/api/mps/${memberId}/donations votes: ${votesErr.message}`);
+    // F09 (ENTRY 134, owner approved 15 Nov 2026): the MP's votes are read by member_id alone, page by page on the primary
+    // key (lib/read-all.ts readAllById; a few thousand rows at most), and the 119 title keywords are matched here. The
+    // database used to match them as 119 ILIKE patterns in one query (955 ms a call in pg_stat_statements, the slowest
+    // regular page read). Same result: the newest 500 votes whose title holds a keyword (any case), then the sector filter.
+    const kws = ALL_VOTE_KEYWORDS.map((kw) => kw.replace(/[%_,]/g, '').toLowerCase()).filter(Boolean);
+    type VoteRow = { id: number; division_title: string | null; division_date: string | null };
+    const allVotes = await readAllById<VoteRow>(() => supabase.from('mp_division_votes'), {
+      columns: 'id, division_title, division_date, division_date_only, division_number, vote_type, is_rebellion, division_id',
+      filter: (q) => q.eq('member_id', memberId).in('vote_type', ['aye', 'no', 'both']),
+      label: `/api/mps/${memberId}/donations votes`,
+    });
+    const rawVotes = allVotes
+      .filter((v) => { const t = (v.division_title || '').toLowerCase(); return kws.some((k) => t.includes(k)); })
+      .sort((a, b) => (b.division_date || '').localeCompare(a.division_date || '') || a.id - b.id)
+      .slice(0, 500);
 
     const sectorVotesByKey: Record<string, unknown[]> = {};
     for (const v of (rawVotes ?? []) as Array<{ division_title: string | null }>) {
