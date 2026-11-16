@@ -38,10 +38,10 @@ const updated = (table: string, column: string): DateSource => ({ updated: [tabl
 export async function recordText(source: DateSource): Promise<string | null> {
   if (!source) return null;
   if ('updated' in source) {
-    const d = await updatedDate(...source.updated);
+    const d = await updatedDate(...source.updated, [COUNCIL_DATA_TAG]);
     return d && `Updated ${d}`;
   }
-  const p = await latestPeriod(...source.period);
+  const p = await latestPeriod(...source.period, [COUNCIL_DATA_TAG]);
   return p && `Period ${p}`;
 }
 
