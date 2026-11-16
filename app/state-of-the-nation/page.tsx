@@ -9,6 +9,7 @@ import { SubFold } from '../components/PhoneFolds';
 import { GROUPS, NEW_DAYS, stateOfTheNation, type Figure } from '@/lib/state-of-the-nation';
 import { londonDay } from '@/lib/london-date';
 import NewMark from './NewMark';
+import PageSources from '../components/PageSources';
 
 export const revalidate = false; // A16: rebuilt only when its data changes; the "new" marks follow today's date in the browser (ENTRY 140)
 
@@ -41,7 +42,8 @@ function Card({ f, renderedOn }: { f: Figure; renderedOn: string }) {
           {f.note && <div style={{ fontSize: '15px', color: 'rgba(20,16,13,0.8)' }}>{f.note}</div>}
           {/* 15px at least (ENTRY 141 N10; was 14px). */}
           <div style={{ fontSize: '15px', marginTop: 'auto', paddingTop: '4px' }}>
-            {f.sourceUrl && <a className="sotn-src" href={f.sourceUrl} rel="noopener" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Source{f.sourceName ? `: ${f.sourceName}` : ''}</a>}
+            {/* D6 (owner rule A9, ENTRY 161): the source is named here; its link is in the page's one Sources fold below. */}
+            {f.sourceName && <div>Source: {f.sourceName}</div>}
             {f.publishedOn && <div style={{ marginTop: '2px' }}>Published {fmtDate(f.publishedOn)}</div>}
           </div>
         </>
@@ -80,6 +82,9 @@ export default async function StateOfTheNation() {
           </SubFold>
         );
       })}
+      {/* D6 (owner rule A9, "only sources link outside", ENTRY 161): every figure's source in the page's one Sources fold,
+          not 19 links in the cards. */}
+      <PageSources sources={figures.map((f) => f.sourceUrl ? { label: `${f.label}: ${f.sourceName ?? 'source'}`, href: f.sourceUrl } : null)} />
     </OpenGovShell>
   );
 }

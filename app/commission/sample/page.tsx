@@ -125,7 +125,8 @@ export default function CommissionSamplePage() {
       {/* T1-GUARD (owner approved 13 Nov 2026): on phones the sources and the supporting data fold under their headings;
           from 768px as before. */}
       <SubFold tablets label={`The ${SOURCES.length} sources`}>
-      <ol style={{ margin: 0, paddingLeft: '1.6em', maxWidth: '720px' }}>
+      {/* D6 (owner rule A9, ENTRY 161): the page's marked Sources place (data-og-sources), so its outside links pass A9. */}
+      <ol data-og-sources="" style={{ margin: 0, paddingLeft: '1.6em', maxWidth: '720px' }}>
         {SOURCES.map((s) => (
           <li key={s.url} style={{ fontSize: '16px', lineHeight: 1.7, marginBottom: '10px' }}>
             <a href={s.url} target="_blank" rel="noopener noreferrer" className="og-tap" style={link}>{s.title}</a> {s.supports}

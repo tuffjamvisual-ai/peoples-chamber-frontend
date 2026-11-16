@@ -253,7 +253,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           {/* A1 — original source, linked (owner's decision, 16 Oct 2026; previously plain text). */}
           {release.gov_url && !release.removed_upstream && (
             <p style={{ marginTop: '14px', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: ACCENT, letterSpacing: '0.04em', wordBreak: 'break-all' }}>
-              Original: <a href={release.gov_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{release.gov_url.replace(/^https?:\/\//, '')}</a>
+              Original: <a data-og-row-source="" href={release.gov_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{release.gov_url.replace(/^https?:\/\//, '')}</a>
             </p>
           )}
         </header>

@@ -29,7 +29,8 @@ export default function SourcesPage({ stamp, articleHref, headline, records, evi
           <Link href={articleHref} style={{ color: INK, textDecoration: 'none' }}>{headline}</Link>
         </h1>
       </header>
-      <div style={{ maxWidth: '760px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK }}>
+      {/* D6 (owner rule A9, ENTRY 161): this whole page is an article's sources, so its body is the marked Sources place. */}
+      <div data-og-sources="" style={{ maxWidth: '760px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK }}>
         <SourcesList records={records} />
         {evidence && <EvidencePanel {...evidence} sourcesShownAbove />}
       </div>
