@@ -445,7 +445,11 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
   .ng-page a { max-width: 100%; overflow-wrap: break-word; }
   /* A grid column with a fixed minimum wider than a small phone. */
   .ng-page [style*="minmax(320px"], .ng-page [style*="minmax(280px"], .ng-page [style*="minmax(260px"] { grid-template-columns: minmax(0, 1fr) !important; }
-  /* Black ink rule on phones: faded and pale words reach 4.5 to 1 on the paper. Wider screens are on the desktop backlog. */
+}
+
+/* Black ink rule (ENTRY 135 M6, 16 Nov 2026: tablets too, up to 1,023px and any touch screen; phones only until then):
+   faded and pale words reach 4.5 to 1 on the paper. The desktop is still on the backlog. */
+@media (max-width: 1023.98px), (pointer: coarse) {
   .ng-page [class*="text-[#14100d]/"] { color: #14100d !important; }
   .ng-page [style^="color:rgba(20,16,13"], .ng-page [style*=";color:rgba(20,16,13"], .ng-page [style^="color: rgba(20, 16, 13"], .ng-page [style*="; color: rgba(20, 16, 13"] { color: #14100d !important; }
   .ng-page [style^="color:#a85f00"], .ng-page [style*=";color:#a85f00"], .ng-page [style^="color: rgb(168, 95, 0)"], .ng-page [style*="; color: rgb(168, 95, 0)"] { color: #6e3f00 !important; }
@@ -519,4 +523,11 @@ details[open] > summary .st-more { display: none; }
    (TOUCH, lib/breakpoints.ts), as it already was on small phones. Desktop with a mouse unchanged. */
 @media (max-width: 1023.98px), (pointer: coarse) {
   .og-scroll-arrow { display: none !important; }
+}
+
+/* Search results under 480px (ENTRY 135 M5): the type label ("Organisation", "MP") on its own line above the name, so the
+   name has the full width (at 320 the label took 137 of 296px and names broke mid word). */
+@media (max-width: 479px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+  .srch-r { flex-direction: column !important; gap: 4px !important; }
+  .srch-r > span:first-child { align-self: flex-start; margin-top: 0 !important; }
 }

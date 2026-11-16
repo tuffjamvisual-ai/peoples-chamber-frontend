@@ -45,7 +45,7 @@ function ResultRow({ r }: { r: SearchResult }) {
   const meta = TYPE_META[r.type] ?? { label: r.type, color: '#14100d' };
   return (
     <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+      <div className="srch-r" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
         <span
           style={{
             fontFamily: MONO,
@@ -101,7 +101,7 @@ function ResultRow({ r }: { r: SearchResult }) {
 function CouncilRow({ c }: { c: CouncilSearchResult }) {
   return (
     <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+      <div className="srch-r" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
         <span
           style={{
             fontFamily: MONO,
@@ -140,7 +140,7 @@ function CouncilRow({ c }: { c: CouncilSearchResult }) {
 function ConstituencyRow({ c }: { c: ConstituencySearchResult }) {
   return (
     <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+      <div className="srch-r" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
         <span
           style={{
             fontFamily: MONO,
@@ -181,7 +181,7 @@ const DONOR_META = { label: 'Donor', color: '#5c3a1a' };
 function DonorRow({ d }: { d: DonorNameResult }) {
   return (
     <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+      <div className="srch-r" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
         <span
           style={{
             fontFamily: MONO,
@@ -220,7 +220,7 @@ function OrgRow({ o }: { o: OrgListRow }) {
   const held = [o.donations && 'donations', (o.contracts || o.framework_places) && 'contracts', o.grants && 'grants', o.meetings && 'meetings with ministers', o.lobbying_quarters && 'lobbying'].filter(Boolean).join(', ');
   return (
     <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+      <div className="srch-r" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
         <span
           style={{
             fontFamily: MONO,
@@ -260,7 +260,7 @@ function PeerRow({ p }: { p: PeerSearchResult }) {
   const link: React.CSSProperties = { display: 'block', fontSize: '16px', fontWeight: 600, color: INK, textDecoration: 'none', lineHeight: 1.4 };
   return (
     <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+      <div className="srch-r" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
         <span style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.1em', color: INK, border: `1px solid ${PEER_META.color}`, padding: '2px 6px', whiteSpace: 'nowrap', flexShrink: 0, marginTop: '3px', textTransform: 'uppercase' }}>
           {PEER_META.label}
         </span>
