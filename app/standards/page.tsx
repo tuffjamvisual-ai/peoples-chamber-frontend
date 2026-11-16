@@ -90,10 +90,12 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
         .sc-pager { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0 12px; }
       `}</style>
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', minHeight: '44px' }} />
+      {/* The page's header: its title and short introduction (a <header>, so the 70ch line rule for running text, D4, leaves
+          the introduction at its width and the main action still starts on the first screen at 1280 x 720, A6). */}
+      <header style={{ color: INK }}>
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(26px, 4vw, 44px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 16px', color: INK }}>
         MPs&rsquo; standards cases: Commissioner decisions
       </h1>
-      <div style={{ color: INK }}>
         {/* Phones (UX3b, 10 Nov 2026): in a closed native fold, so the page's main action starts on the first screen (A6). From 640px up, as before. */}
         <SubFold label="About these cases and their source">
         <p style={p}>
@@ -105,7 +107,8 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
           the end of the page). Lists collected on 7 November 2026.
         </p>
         </SubFold>
-
+      </header>
+      <div style={{ color: INK }}>
 
         {OUTCOMES.map((outcome, si) => {
           const groups = byPeriodNewestFirst(STANDARDS.cases.filter((c) => c.outcome === outcome));

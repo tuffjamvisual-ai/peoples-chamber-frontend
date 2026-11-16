@@ -422,9 +422,10 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
    wide or any touch screen (TOUCH in lib/breakpoints.ts). Phones only until then. */
 /* D4 (owner approved 16 Nov 2026, ENTRY 161): running text about 75 characters a line on desktop (it ran 92 to 116, and
    177 on a council panel). Paragraphs, quotes and article list items stop at 70ch from 1,024px; a max-width only limits,
-   so narrower text, tables, list boxes and cards are unchanged, and text in a table cell is left alone. */
+   so narrower text, tables, list boxes and cards are unchanged, and text in a table cell is left alone, and so is a
+   page header's short introduction (it pushed /standards' first screen past 720px at 1280 x 720, A6). */
 @media (min-width: 1024px) {
-  .og-main-content p:not(td p, th p), .og-main-content blockquote, #article-text li, .wq-html li { max-width: 70ch; }
+  .og-main-content p:not(td p, th p, header p), .og-main-content blockquote, #article-text li, .wq-html li { max-width: 70ch; }
 }
 /* D3 (owner approved 16 Nov 2026, ENTRY 161): a control reached with Tab is scrolled clear of the floating scroll arrow
    (36px, 24px from the foot of the screen; FloatingScrollDownButton.tsx), on desktop where the arrow shows. The cookie bar
