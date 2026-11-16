@@ -28,7 +28,9 @@ export const PHONE = phoneUpTo(767.98);
 // 1,023px wide (and phones held sideways). The shared list folds use it: NoJsPager's 'Show all', PhoneMore, ScreenMore,
 // MoreChain (globals.css) and the phone script's long lists. Section folds, tables as cards and the rest stay at PHONE.
 // From 1,024px up nothing changes.
-export const LIST_FOLD = phoneUpTo(1023.98);
+// D5 (owner approved 16 Nov 2026, COWORK-TO-T1 ENTRY 161, DECISIONS 15 Nov: lists open with 3, Show N more adds 10, Show
+// fewer at the end, at EVERY width): the list folds now apply on desktop too; was phoneUpTo(1023.98).
+export const LIST_FOLD = 'all';
 // Touch sizes (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 135 H1, "Layout change approved T1-MOBILEFIX"): every tap
 // target at least 44 x 44px and every text box and menu at 16px, on phones and tablets up to 1,023px wide and on any
 // screen with a coarse pointer (a touch screen of any size). The plain CSS files repeat these exact words.

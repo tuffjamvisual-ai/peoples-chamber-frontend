@@ -1,5 +1,5 @@
 import { cloneElement, type ReactElement } from 'react';
-import { phoneUpTo } from '@/lib/breakpoints';
+import { LIST_FOLD } from '@/lib/breakpoints';
 
 // DataList (T1-GUARD, owner approved 13 Nov 2026): the shared list for data that grows. New data lists use it; existing
 // lists move onto it when their page is changed.
@@ -24,7 +24,7 @@ import { phoneUpTo } from '@/lib/breakpoints';
 //   children  the list element itself (ul, ol, table or div); DataList adds a class to it and wraps it
 
 export const DATALIST_PER_PAGE = 20;
-const FOLD = phoneUpTo(1023.98);
+const FOLD = LIST_FOLD; // every width since D5 (ENTRY 161); was phoneUpTo(1023.98)
 
 export function dataListPage(raw: string | string[] | undefined): number {
   const v = Array.isArray(raw) ? raw[0] : raw;

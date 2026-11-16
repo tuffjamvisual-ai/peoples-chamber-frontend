@@ -199,7 +199,8 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .mc-phone, .mc-n-phone, .mc-n-js { display: none; }
 /* The chain stepped 10 a press with JavaScript (lib/phone-enhance.ts, Cowork ENTRY 152): rows past the step and the opened folds' own summaries. */
 .mc-h, .mc-more.mc-js > summary { display: none !important; }
-@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+/* D5 (owner approved 16 Nov 2026, ENTRY 161: lists open with 3 at every width): was up to 1,023px only. */
+@media all {
   .mc-phone { display: block; }
   .mc-n-phone { display: inline; }
   .mc-n-wide { display: none; }
@@ -264,7 +265,8 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 /* NoJsPager "Show all" (MP2f, 9 Nov 2026): on phones and tablets (up to 1,023px, T1-TABFOLD, owner approved 13 Nov 2026), a
    native <details> after a long list's first rows; nothing from 1,024px up. */
 .njp-sa { display: none; }
-@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+/* D5 (owner approved 16 Nov 2026, ENTRY 161: lists open with 3 at every width): was up to 1,023px only. */
+@media all {
   .njp-sa { display: block; margin: 10px 0 14px; }
   .njp-sa > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; }
   .njp-sa > summary::-webkit-details-marker { display: none; }
@@ -298,7 +300,8 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .pc-d { display: none; }
 .pc-b { display: contents; }
 /* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026: tablets follow the growing lists rule, as T1-TABFOLD): up to 1,023px. */
-@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+/* D5 (owner approved 16 Nov 2026, ENTRY 161: lists open with 3 at every width): was up to 1,023px only. */
+@media all {
   .pc-d { display: block; }
   .pc-b { display: block; }
   .pc-d:not([open]) + .pc-b { display: none; }
@@ -528,7 +531,8 @@ summary:has(> .og-fold-mark)::-webkit-details-marker { display: none; }
 .st-less { display: none; }
 details[open] > summary .st-less { display: inline; }
 details[open] > summary .st-more { display: none; }
-@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+/* D5 (owner approved 16 Nov 2026, ENTRY 161: lists open with 3 at every width): was up to 1,023px only. */
+@media all {
   /* The phone Show more and Show fewer buttons (PhoneMore, lib/phone-enhance.ts) on tablets too, where the lists step
      (ENTRY 135 M7). The tablet rule above sits inside the phone query, so on tablets from 768px the button was hidden
      while its list stayed cut: /donors showed 5 of 200 rows with no button (found 16 Nov 2026, Cowork ENTRY 152 item 1). */
