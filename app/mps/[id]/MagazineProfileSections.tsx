@@ -2950,7 +2950,7 @@ export default function MagazineProfileSections({
           /* ENTRY 158 (owner, 16 Nov 2026): the padding and spacing are the shared sidebar style (globals.css .og-sidenav), as
              the departments sidebar; the compact 4px padding, no gap and 7px 8px items are gone. */
           .mp-sections-nav { margin-right: 12px !important; }
-          .mp-sections-nav a[data-section] > span { white-space: nowrap; letter-spacing: 0 !important; line-height: 1.3; }
+          .mp-sections-nav a[data-section] > span { white-space: nowrap; letter-spacing: 0 !important; }
           .mp-sections-content { padding-top: 10px !important; }
           .mp-sections-content .pf-sub > h2 { margin-bottom: 10px !important; }
         }
