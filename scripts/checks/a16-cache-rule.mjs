@@ -154,10 +154,12 @@ for (const [f, raw] of src) {
   for (const m of s.matchAll(/\.(from|rpc)\s*\(/g)) {
     const before = s.slice(Math.max(0, m.index - 200), m.index);
     if (/storage\s*$/.test(before) || /Array\s*$/.test(before) || /\bBuffer\s*$/.test(before)) continue;
-    // a database read: the call's first argument is a string (blanked by strip, so check the raw text)
+    // a database read: the call's first argument is a string (blanked by strip, so check the raw text), or (F04, ENTRY 134,
+    // 16 Nov 2026) any argument when the receiver is a database client: supabase.from(config.table) is a read too.
     const after = raw.slice(m.index + m[0].length, m.index + m[0].length + 3);
-    if (!/^\s*['"`]/.test(after)) continue;
     const recv = /([A-Za-z_$][\w$]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\))?)\s*$/.exec(before.replace(/\s+$/, ''))?.[1] ?? '';
+    const dbClient = /^(?:tagDb|timedClient|pageDb|createClient)\(|^(?:supabase\w*|db|sb|client|admin\w*|adminDb|readDb|\w*(?:Db|Client|Supabase))(?:\(\))?$/.test(recv);
+    if (!/^\s*['"`]/.test(after) && !dbClient) continue;
     const tagged = /^tagDb\(/.test(recv) || (/^timedClient\(/.test(recv) && recv.includes(',')) || taggedClients.has(recv.split('(')[0]) || taggedClients.has(recv.replace(/\(\)$/, ''));
     const viaPageDb = /^pageDb\(/.test(recv);
     reads.push({ at: m.index, line: lineOf(raw, m.index), what: `${m[1]}(${raw.slice(m.index + m[0].length).match(/^\s*['"`]([^'"`]+)/)?.[1] ?? '?'})`, tagged, viaPageDb });
@@ -248,6 +250,9 @@ for (const f of pages) {
   const rv = /export\s+const\s+revalidate\s*=\s*([0-9_]+)/.exec(fi.s.replace(/ +/g, ' ')) || /export\s+const\s+revalidate\s*=\s*([0-9_]+)/.exec(fi.raw);
   if (rv) reasons.push(`revalidate = ${rv[1]}`);
   if (/export\s+const\s+dynamic\s*=\s*['"]force-dynamic['"]/.test(fi.raw)) reasons.push('force-dynamic');
+  // F04 (ENTRY 134, 16 Nov 2026): a page that reads searchParams is rendered on every request in this Next.js, whatever
+  // its revalidate says (/mps/[id] keeps clear of it for that reason). Flagged unless on the exceptions list.
+  else if (/\bsearchParams\b/.test(fi.s) && !fi.isClient) reasons.push('reads searchParams (rendered on every request)');
   reasons.push(...pageProblems(f));
   results.push({ route, kind, file: f, excepted: isExcepted(route), reasons });
 }
