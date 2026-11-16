@@ -4,6 +4,7 @@
 // enforced (step 2). POST only; body at most 8 KB; no database, no storage, no auth; at most 60 reports a minute per
 // server instance; always 204 (nothing for a browser or anyone else to read back).
 import { NextResponse } from 'next/server';
+import { safeUri } from '@/lib/csp-safe-uri';
 
 export const dynamic = 'force-dynamic'; // a POST receiver, never a page (A16 covers pages and layouts, not API routes)
 
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
     // The older report-uri format wraps the report in "csp-report"; the Reporting API sends a list with a "body".
     const items = Array.isArray(body) ? body.map((x) => (x as { body?: Record<string, unknown> }).body ?? {}) : [(body['csp-report'] as Record<string, unknown>) ?? body];
     for (const r of items.slice(0, 5)) {
-      console.warn('[csp]', clip(r['effective-directive'] ?? r['effectiveDirective'] ?? r['violated-directive']), clip(r['blocked-uri'] ?? r['blockedURL']), clip(r['document-uri'] ?? r['documentURL']));
+      console.warn('[csp]', clip(r['effective-directive'] ?? r['effectiveDirective'] ?? r['violated-directive']), safeUri(r['blocked-uri'] ?? r['blockedURL']), safeUri(r['document-uri'] ?? r['documentURL']));
     }
   } catch { /* not JSON: ignored */ }
   return NO_CONTENT();
