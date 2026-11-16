@@ -21,7 +21,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { unitNameToSlug, partyRefs, isNationalUnit } from '@/lib/association-units';
-import { readAll } from '@/lib/read-all';
+import { readAllByDateDescId } from '@/lib/read-all';
 import { DONATIONS_TAG } from '@/lib/page-reads';
 
 // T1-MEM A2 (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 116 and 126): served from Vercel's cache for a day (it
@@ -72,10 +72,12 @@ const loadConstituencies = unstable_cache(
   async () => {
     // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces stopped
     // quietly on an error, had no unique tiebreaker and stopped after 60,000 rows.
-    const allRows = await readAll<Row>(() => supabase.from('political_donations'), {
+    // Keyset paging (ENTRY 166): the same rows in the same order (date newest first, no date first, then id), so ties
+    // give the same party, top donor and spelling; each page now reads only its own rows.
+    const allRows = await readAllByDateDescId<Row>(() => supabase.from('political_donations'), {
       columns: 'id, donor_name, recipient_name, accounting_unit_name, amount, accepted_date',
       filter: (q) => q.not('accounting_unit_name', 'is', null).neq('accounting_unit_name', ''),
-      orderBy: [{ column: 'accepted_date', ascending: false }, { column: 'id' }],
+      dateColumn: 'accepted_date',
       label: '/donations/constituencies',
     });
     // The parties using each unit slug, over every row (as the association pages count them), so a unit name several

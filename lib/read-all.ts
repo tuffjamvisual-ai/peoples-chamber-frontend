@@ -66,6 +66,68 @@ export async function readAll<T>(from: () => Builder, opts: ReadAllOptions): Pro
   return rows;
 }
 
+// Keyset paging (ENTRY 166, 16 Nov 2026, from T2's d1-cause.md; the same change as the donor registry, 4afa0817): each
+// read starts after the last row seen, so the database reads only that page's rows through an index. readAll's OFFSET
+// pages make it scan every earlier row again on each page (on 16 Nov the /donations/constituencies read was 713 ms a page
+// and /donations/double-dip 297 ms, 7,177 and 8,439 calls in pg_stat_statements). Same count check as readAll, so a
+// short read still throws. One page after another (each needs the last row of the one before).
+type KeysetOptions = { columns: string; filter?: (q: Builder) => Builder; pageSize?: number; label?: string };
+type Page<T> = { data: T[] | null; error: PgError | null; status?: number; statusText?: string };
+
+async function countRows(from: () => Builder, columns: string, filter: (q: Builder) => Builder, label: string): Promise<number> {
+  const { count, error, status, statusText } = await filter(from().select(columns, { count: 'exact', head: true }));
+  if (error) throw new Error(`${label} count: ${describe(error, status, statusText)}`);
+  return count ?? 0;
+}
+
+// Rows in id order (ascending), as readAll with orderBy 'id'. The columns must include id.
+export async function readAllById<T extends { id: number }>(from: () => Builder, opts: KeysetOptions): Promise<T[]> {
+  const pageSize = opts.pageSize ?? 1000;
+  const label = opts.label ?? 'readAllById';
+  const filter = opts.filter ?? ((q: Builder) => q);
+  const total = await countRows(from, opts.columns, filter, label);
+  const rows: T[] = [];
+  for (let last: number | null = null; ;) {
+    let q = filter(from().select(opts.columns));
+    if (last !== null) q = q.gt('id', last);
+    const { data, error, status, statusText } = (await q.order('id', { ascending: true }).limit(pageSize)) as Page<T>;
+    if (error) throw new Error(`${label}: ${describe(error, status, statusText)}`);
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < pageSize) break;
+    last = page[page.length - 1].id;
+  }
+  if (rows.length !== total) throw new Error(`${label}: read ${rows.length} rows, expected ${total}`);
+  return rows;
+}
+
+// Rows in the order readAll gives for orderBy [{ column: <date>, ascending: false }, { column: 'id' }]: PostgreSQL puts
+// nulls first in a descending order, so the rows with no date come first (by id), then the dated rows, newest first and
+// by id within a date. The columns must include id and the date column.
+export async function readAllByDateDescId<T extends { id: number }>(from: () => Builder, opts: KeysetOptions & { dateColumn: string }): Promise<T[]> {
+  const pageSize = opts.pageSize ?? 1000;
+  const label = opts.label ?? 'readAllByDateDescId';
+  const filter = opts.filter ?? ((q: Builder) => q);
+  const col = opts.dateColumn;
+  const total = await countRows(from, opts.columns, filter, label);
+  const rows: T[] = await readAllById<T>(from, { ...opts, label: `${label} (no ${col})`, filter: (q: Builder) => filter(q).is(col, null) });
+  for (let last: T | null = null; ;) {
+    let q = filter(from().select(opts.columns)).not(col, 'is', null);
+    if (last !== null) {
+      const d = (last as unknown as Record<string, string>)[col];
+      q = q.or(`${col}.lt.${d},and(${col}.eq.${d},id.gt.${last.id})`);
+    }
+    const { data, error, status, statusText } = (await q.order(col, { ascending: false }).order('id', { ascending: true }).limit(pageSize)) as Page<T>;
+    if (error) throw new Error(`${label}: ${describe(error, status, statusText)}`);
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < pageSize) break;
+    last = page[page.length - 1];
+  }
+  if (rows.length !== total) throw new Error(`${label}: read ${rows.length} rows, expected ${total}`);
+  return rows;
+}
+
 // The same, for exact matches on a text column whose stored values may carry leading or trailing spaces (donor names):
 // PostgREST trims unquoted values in an in.(...) list, and supabase-js quotes only values with a comma or a bracket, so
 // every value is quoted here. Use as filter: (q) => q.filter('donor_name', 'in', inList(names)).

@@ -25,7 +25,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { displayMpName } from '@/lib/mp-name';
-import { readAll } from '@/lib/read-all';
+import { readAll, readAllById } from '@/lib/read-all';
 import { tableTags } from '@/lib/source-tags';
 import { SubFold } from '../../components/PhoneFolds';
 
@@ -60,7 +60,7 @@ function norm(s: string): string {
 }
 
 type InterestRow = { member_id: number; interest_text: string };
-type DonationRow = { donor_name: string | null; recipient_name: string | null; amount: number | null };
+type DonationRow = { id: number; donor_name: string | null; recipient_name: string | null; amount: number | null };
 
 async function fetchEmploymentPayers(): Promise<Map<number, Map<string, { display: string; appearances: number }>>> {
   // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces paged
@@ -88,10 +88,10 @@ async function fetchEmploymentPayers(): Promise<Map<number, Map<string, { displa
 async function fetchAllDonations(): Promise<DonationRow[]> {
   // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces paged
   // with no order and stopped quietly on an error.
-  return readAll<DonationRow>(() => supabase.from('political_donations'), {
+  // Keyset paging (ENTRY 166): the same rows in the same order (id), each page reading only its own rows.
+  return readAllById<DonationRow>(() => supabase.from('political_donations'), {
     columns: 'id, donor_name, recipient_name, amount',
     filter: (q) => q.not('donor_name', 'is', null),
-    orderBy: 'id',
     label: '/donations/double-dip donations',
   });
 }
