@@ -46,14 +46,17 @@ export default async function DebatesPage({
   // F05 (ENTRY 134, owner approved 15 Nov 2026): the search words through ilikeWords (lib/ilike-words.ts), so % and _ in
   // a search are not patterns; the page number stops at the last page, from a count kept in the tagged data cache.
   const pattern = ilikeWords(q);
-  const total = await tagged(['debates-count-v1', section ?? '', pattern], tableTags('debates'), async () => {
+  // A search is read per request (Cowork ENTRY 181: one cache entry per visitor search would grow without bound), at
+  // most one page of rows; the unfiltered lists (by section) are cached under the debates tag.
+  const countRead = async () => {
     let cq = supabase.from('debates').select('hansard_ext_id', { count: 'exact', head: true });
     if (section) cq = cq.eq('section', section);
     if (pattern) cq = cq.ilike('title', pattern);
     const { count, error } = await cq;
     if (error) throw new Error(`/debates count: ${error.message}`);
     return count ?? 0;
-  });
+  };
+  const total = pattern ? await countRead() : await tagged(['debates-count-v1', section ?? ''], tableTags('debates'), countRead);
   const lastPage = Math.max(1, Math.ceil(total / PER_PAGE));
   const pageNum = Math.min(lastPage, Math.max(1, parseInt(sp.page || '1', 10) || 1));
   const from = (pageNum - 1) * PER_PAGE;
@@ -70,7 +73,7 @@ export default async function DebatesPage({
     return query;
   };
   // A16: the list in the shared data cache under the debates tag, keyed by the filters and page.
-  const { data } = await cachedQuery(['debates-list-v2', section ?? '', pattern, pageNum], tableTags('debates'), buildQuery);
+  const { data } = pattern ? await buildQuery() : await cachedQuery(['debates-list-v2', section ?? '', pageNum], tableTags('debates'), buildQuery);
   const rows = data || [];
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 

@@ -3,7 +3,7 @@ import PageSources from '@/app/components/PageSources';
 import type { Metadata } from 'next'
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions'
 import { supabase } from '@/lib/supabase'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import OpenGovShell from '../../components/OpenGovShell'
 import Pagination from '../../components/Pagination'
@@ -112,38 +112,63 @@ export default async function TransparencySectionPage({
     'revolving-door': ['person_name', 'organisation', 'new_role', 'previous_role'],
     appgs: ['appg_name', 'chair', 'purpose'],
   }
-  const cleaned = (q || '').replace(/[,()*%"\\]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100)
+  // '_' too (F05): a one-character wildcard in ILIKE.
+  const cleaned = (q || '').replace(/[,()*%_"\\]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100)
   const searchTerm = cleaned && SEARCH_COLS[section] ? cleaned : null
   const searchFilter = searchTerm ? SEARCH_COLS[section].map((c) => `${c}.ilike.%${searchTerm}%`).join(',') : null
+
+  const page = Math.max(1, parseInt(pageParam || '1', 10) || 1)
+  const from = (page - 1) * PAGE_LIMIT
+  const to = from + PAGE_LIMIT - 1
 
   // Ministerial meetings are a retrospective register, so any meeting dated
   // in the future is a source typo — hide those rows (data is corrected from
   // the `quarter` field on sync, this is the display safety net).
   const todayIso = new Date().toISOString().slice(0, 10)
-  const dated = (q: any) => section === 'ministers-meetings' ? q.lte('meeting_date', todayIso) : section === 'hospitality' ? q.lte('hospitality_date', todayIso) : q // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  // F05 (ENTRY 134, owner approved 15 Nov 2026): the total is counted once into the tagged data cache (refreshed when the
-  // table's sync writes), not on every request; a head count is not kept by the fetch cache, so it goes through tagged().
-  const total = await tagged(['transparency-count-v1', section, searchTerm ?? '', todayIso], tableTags(config.table), async () => {
-    let countQ = supabase.from(config.table).select('*', { count: 'exact', head: true })
-    if (searchFilter) countQ = countQ.or(searchFilter)
-    const { count, error: countErr } = await dated(countQ)
-    if (countErr) throw new Error(`transparency/${section} count: ${countErr.message}`)
-    return count ?? 0
-  })
-  const totalPages = Math.max(1, Math.ceil((total ?? 0) / PAGE_LIMIT))
-  // The page number stops at the last page (F05): a deeper ?page= shows the last page instead of reading past the end.
-  const page = Math.min(totalPages, Math.max(1, parseInt(pageParam || '1', 10) || 1))
-  const from = (page - 1) * PAGE_LIMIT
-  const to = from + PAGE_LIMIT - 1
-
-  // Data rows — server-side paginated via .range(), each page in the tagged data cache (F05).
-  const { data: rows, error } = (await cachedQuery(['transparency-rows-v1', section, searchTerm ?? '', String(page), todayIso], tableTags(config.table), () => {
-    let dataQ = supabase.from(config.table).select('*').range(from, to)
-    if (config.orderBy) dataQ = dataQ.order(config.orderBy, { ascending: false, nullsFirst: false })
-    if (searchFilter) dataQ = dataQ.or(searchFilter)
-    return dated(dataQ)
-  })) as { data: Record<string, unknown>[] | null; error: { message?: string } | null }
+  // F05 (ENTRY 134, owner approved 15 Nov 2026; Cowork ENTRY 181; T2's audit/t2-prep/f05-exact.md): the unfiltered view's
+  // count and each page are read once into the table's tagged data cache, with the shown columns only, a stable order and
+  // the page number capped at the last page. A search reads per request (one cache entry per visitor search would grow
+  // without bound), at most one page of rows. A failed read throws, so nothing empty is cached.
+  // Rows shown per section (the fields TransparencyClient.tsx reads; appgs shows every field it has, folded).
+  const COLUMNS: Record<string, string> = {
+    'revolving-door': 'id, person_name, previous_role, new_role, organisation, approval_date, description',
+    'ministers-meetings': 'id, minister_name, minister_dept, organisation, purpose, meeting_date',
+    hospitality: 'id, minister_name, minister_dept, donor, description, value, hospitality_date',
+    donations: 'id, donor_name, donor_type, recipient_name, recipient_type, amount, cash_value, non_cash_value, accepted_date, received_date, reported_date, reporting_period_name, nature, donation_type_label, donation_action, manner_in_which_made, campaigning_name, company_registration_number, accounting_unit_name, addr_line, addr_town, addr_county, addr_postcode, addr_country, ec_ref, explanatory_notes, purpose_of_visit, position_standing_for, impermissibility_reason, attempted_concealment, concealment_details, trust_name, trust_creator_name, trust_creator_status, trust_created_date, is_aggregation, is_anonymous, is_bequest, is_irish_source, is_reported_pre_poll, is_sponsorship',
+    contracts: 'id, ocid, title, supplier, dept_slug, description, status, value, awarded_date, updated_at',
+    appgs: '*',
+  }
+  // Meetings and hospitality hide rows dated in the future (source typos): the cut-off day is part of the key, so the
+  // cached count and page change at most once a day for those two sections, and never for the others.
+  const dayKey = section === 'ministers-meetings' || section === 'hospitality' ? todayIso : ''
+  const filtered = (q: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    if (searchFilter) q = q.or(searchFilter)
+    if (section === 'ministers-meetings') q = q.lte('meeting_date', todayIso)
+    if (section === 'hospitality') q = q.lte('hospitality_date', todayIso)
+    return q
+  }
+  const countRead = async () => {
+    const { count, error } = await filtered(supabase.from(config.table).select('id', { count: 'exact', head: true }))
+    if (error) throw new Error(`/transparency/${section} count: ${error.message}`)
+    return (count ?? 0) as number
+  }
+  const total = searchTerm
+    ? await countRead()
+    : await tagged(['transparency-count-v1', section, dayKey], tableTags(config.table), countRead)
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT))
+  if (page > totalPages) redirect(`/transparency/${section}${totalPages > 1 ? `?page=${totalPages}` : ''}${searchTerm ? `${totalPages > 1 ? '&' : '?'}q=${encodeURIComponent(searchTerm)}` : ''}`)
+  const pageRead = async () => {
+    let q = filtered(supabase.from(config.table).select(COLUMNS[section] ?? '*').range(from, to))
+    if (config.orderBy) q = q.order(config.orderBy, { ascending: false, nullsFirst: false })
+    q = q.order('id', { ascending: false })
+    const { data, error } = await q
+    if (error) throw new Error(`/transparency/${section} rows: ${error.message}`)
+    return (data ?? []) as Record<string, any>[] // eslint-disable-line @typescript-eslint/no-explicit-any
+  }
+  const rows = searchTerm
+    ? await pageRead()
+    : await tagged(['transparency-page-v1', section, page, dayKey], tableTags(config.table), pageRead)
 
   const range = section === 'revolving-door' ? await revolvingDoorRange() : null
 
@@ -152,9 +177,6 @@ export default async function TransparencySectionPage({
   const prevHref = page > 1 ? `${baseUrl}?page=${page - 1}${qPart}` : null
   const nextHref = page < totalPages ? `${baseUrl}?page=${page + 1}${qPart}` : null
 
-  if (error) {
-    console.error(`[transparency/${section}] supabase error querying '${config.table}':`, error.message || error)
-  }
 
   // Contracts (23 Oct 2026): an entry's title links to /contracts/<ocid> only when that OCID has rows in
   // contract_notices, checked for the whole page in one call (migration 2026-10-23h). If the check fails the list
