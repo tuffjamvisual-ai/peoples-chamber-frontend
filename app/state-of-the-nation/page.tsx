@@ -38,8 +38,9 @@ function Card({ f, renderedOn }: { f: Figure; renderedOn: string }) {
           <div style={{ fontSize: 'clamp(26px, 3vw, 32px)', lineHeight: 1.1, fontWeight: 'bold' }}>{f.value}</div>
           {f.period && <div style={{ fontSize: '15px' }}>{f.period}</div>}
           {f.change && <div style={{ fontSize: '15px' }}>{f.change.charAt(0).toUpperCase() + f.change.slice(1)}</div>}
-          {f.note && <div style={{ fontSize: '14px', color: 'rgba(20,16,13,0.8)' }}>{f.note}</div>}
-          <div style={{ fontSize: '14px', marginTop: 'auto', paddingTop: '4px' }}>
+          {f.note && <div style={{ fontSize: '15px', color: 'rgba(20,16,13,0.8)' }}>{f.note}</div>}
+          {/* 15px at least (ENTRY 141 N10; was 14px). */}
+          <div style={{ fontSize: '15px', marginTop: 'auto', paddingTop: '4px' }}>
             {f.sourceUrl && <a className="sotn-src" href={f.sourceUrl} rel="noopener" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Source{f.sourceName ? `: ${f.sourceName}` : ''}</a>}
             {f.publishedOn && <div style={{ marginTop: '2px' }}>Published {fmtDate(f.publishedOn)}</div>}
           </div>
@@ -58,7 +59,7 @@ export default async function StateOfTheNation() {
     <OpenGovShell pageStamp="Figures">
       <style>{`.sotn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
         @media (max-width: 1023.98px) { .sotn-gh { display: none; } }
-        @media (max-width: 599.98px) { .sotn-grid { grid-template-columns: 1fr 1fr; gap: 8px; } .sotn-card { padding: 10px !important; } .sotn-src { display: inline-block; min-height: 44px; line-height: 44px; } }
+        @media (max-width: 599.98px) { .sotn-grid { grid-template-columns: 1fr 1fr; gap: 8px; } .sotn-card { padding: 10px !important; } .sotn-src { display: inline-flex; align-items: center; min-height: 44px; line-height: 1.35; } }
         @media (max-width: 359.98px) { .sotn-grid { grid-template-columns: 1fr; } }`}</style>
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '16px', marginBottom: '20px' }}>

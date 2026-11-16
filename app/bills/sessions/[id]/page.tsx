@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
+import { SubFold } from '@/app/components/PhoneFolds';
 import {
   getParliamentSession, getParliamentSessions, getSessionBills, sessionBillGroup, sessionDates, sessionTitle,
   SESSION_GROUPS, type SessionBill, type SessionBillGroup,
@@ -83,14 +84,16 @@ export default async function BillSessionPage({ params }: Props) {
         </ul>
       </header>
 
-      {SESSION_GROUPS.filter((g) => groups.has(g.key)).map((g) => (
+      {SESSION_GROUPS.filter((g) => groups.has(g.key)).map((g, gi) => (
         <section key={g.key} id={g.key} style={{ marginBottom: '32px', scrollMarginTop: '120px' }}>
           <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: ACCENT, borderBottom: `1px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '6px' }}>
             {g.heading} <span style={{ fontWeight: 'normal', color: INK }}>({groups.get(g.key)!.length.toLocaleString()})</span>
           </h2>
           <p style={{ fontSize: '15px', marginBottom: '8px' }}>{g.note}</p>
           {/* Phones: the first 2 of each group (step 5, 10 Nov 2026: page length). */}
-          <NoJsPager id={`bs-${g.key}`} first={2} count={(groups.get(g.key)!).length} rows="> li" size={25}>
+{/* On phones every group after the first folds under its heading (ENTRY 141 N5: 2,569px at 320); from 768px up as before. */}
+          <MaybeFold fold={gi > 0} label={`The ${groups.get(g.key)!.length.toLocaleString('en-GB')} bills`}>
+                    <NoJsPager id={`bs-${g.key}`} first={2} count={(groups.get(g.key)!).length} rows="> li" size={25}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {groups.get(g.key)!.map((b) => {
               const meta = [
@@ -111,6 +114,7 @@ export default async function BillSessionPage({ params }: Props) {
             })}
           </ul>
           </NoJsPager>
+          </MaybeFold>
         </section>
       ))}
 
@@ -120,4 +124,10 @@ export default async function BillSessionPage({ params }: Props) {
       </nav>
     </OpenGovShell>
   );
+}
+
+
+// A group's list in a phone fold, or as it is (the first group).
+function MaybeFold({ fold, label, children }: { fold: boolean; label: string; children: React.ReactNode }) {
+  return fold ? <SubFold label={label}>{children}</SubFold> : <>{children}</>;
 }

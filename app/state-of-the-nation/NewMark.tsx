@@ -11,7 +11,7 @@ export default function NewMark({ publishedOn, days, renderedOn, color }: { publ
   const shown = isRecent(publishedOn, days, today);
   if (!publishedOn) return null;
   return (
-    <span aria-hidden={!shown} style={{ flex: 'none', fontSize: '13px', letterSpacing: '0.12em', border: `1px solid ${color}`, padding: '1px 6px', visibility: shown ? 'visible' : 'hidden' }}>
+    <span aria-hidden={!shown} style={{ flex: 'none', fontSize: '15px', letterSpacing: '0.12em', border: `1px solid ${color}`, padding: '1px 6px', visibility: shown ? 'visible' : 'hidden' }}>
       NEW
     </span>
   );

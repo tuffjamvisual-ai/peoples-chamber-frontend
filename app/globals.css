@@ -535,3 +535,7 @@ details[open] > summary .st-more { display: none; }
 /* While a /your-area search is being looked up (AreaSearch.tsx, ENTRY 135 L6): a full screen of space, so the footer is out
    of view before the results arrive and nothing visible jumps when they do. */
 html.ya-wait .og-main-content { min-height: 110vh; }
+
+/* Text set in the browser's plain monospace with no size of its own drops to 13px (browsers shrink generic monospace);
+   15px is the site's smallest text (ENTRY 141 N10: the rank numbers and vote counts on /parties/<party>/whip). */
+.ng-page [style*="font-family:monospace"]:not([style*="font-size"]) { font-size: 15px; }

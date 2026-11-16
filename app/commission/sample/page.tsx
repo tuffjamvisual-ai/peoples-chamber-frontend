@@ -103,7 +103,8 @@ export default function CommissionSamplePage() {
       <p style={{ ...p, fontWeight: 'bold' }}>{CHECKED}</p>
 
       <h2 style={h2}>Findings</h2>
-      <ShowAll id="sample-findings" count={(FINDINGS).length} rows="> li">
+      {/* The first 2 findings (each long), then Show more (ENTRY 141 N4: 2,703px at 320 with 3). */}
+      <ShowAll id="sample-findings" count={(FINDINGS).length} rows="> li" first={2}>
       <ol style={{ margin: 0, paddingLeft: '1.6em', maxWidth: '720px' }}>
         {FINDINGS.map((f) => (
           <li key={f.heading} style={{ fontSize: '16px', lineHeight: 1.8, marginBottom: '14px' }}>
@@ -116,13 +117,14 @@ export default function CommissionSamplePage() {
       </ShowAll>
 
       <h2 style={h2}>Methodology</h2>
-      <p style={p}>{METHODOLOGY}</p>
+      {/* Phones and tablets (ENTRY 141 N4: the page was 3,805px at 375 and 3,898px at 768): folded under its heading. */}
+      <SubFold tablets label="How we checked"><p style={p}>{METHODOLOGY}</p></SubFold>
       </div>
 
       <h2 style={h2}>Sources</h2>
       {/* T1-GUARD (owner approved 13 Nov 2026): on phones the sources and the supporting data fold under their headings;
           from 768px as before. */}
-      <SubFold label={`The ${SOURCES.length} sources`}>
+      <SubFold tablets label={`The ${SOURCES.length} sources`}>
       <ol style={{ margin: 0, paddingLeft: '1.6em', maxWidth: '720px' }}>
         {SOURCES.map((s) => (
           <li key={s.url} style={{ fontSize: '16px', lineHeight: 1.7, marginBottom: '10px' }}>
@@ -133,7 +135,7 @@ export default function CommissionSamplePage() {
       </SubFold>
 
       <h2 style={h2}>Supporting data</h2>
-      <SubFold label="The table and spreadsheet">
+      <SubFold tablets label="The table and spreadsheet">
       <p style={{ ...p, fontSize: '15px' }}>{DATA_CAPTION}</p>
       {/* Wider than a phone: the table scrolls inside its own box, so the page itself never scrolls sideways. */}
       <div style={{ overflowX: 'auto', maxWidth: '100%', margin: '0 0 12px' }}>

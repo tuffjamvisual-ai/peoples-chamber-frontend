@@ -13,6 +13,8 @@
 import Link from 'next/link';
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
+import { ShowAll } from './NoJsPager';
+import { SubFold } from './PhoneFolds';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -178,6 +180,22 @@ export default async function CouncilSchoolInspectionsSection({
   const link = (s: School, text: string) =>
     s.web_link ? <a data-og-row-source="" href={s.web_link} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{text}</a> : text;
 
+  // Shown inside the earlier inspections fold when there is one, otherwise on its own (ENTRY 141 N4).
+  const ungradedTable = ungradedCounts.length > 0 ? (
+        <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '8px' }}>
+          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>
+            Schools whose only inspection in Ofsted&rsquo;s file is an ungraded one ({fmtNum(ungradedOnly.length)}), by outcome
+          </caption>
+          <tbody>
+            {ungradedCounts.map(([outcome, n]) => (
+              <tr key={outcome} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+                <td style={{ padding: '6px 20px 6px 0' }}>{outcome}</td>
+                <td style={{ padding: '6px 0', textAlign: 'right' }}>{fmtNum(n)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+  ) : null;
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <Heading />
@@ -193,6 +211,8 @@ export default async function CouncilSchoolInspectionsSection({
           </p>
           {areaRows.length > 0 && (
             <div style={{ overflowX: 'auto', marginBottom: '18px' }}>
+              {/* Phones and tablets: the first 3 areas, then Show more (ENTRY 141 N4: /councils/walsall/schools was 3,892px at 375). */}
+              <ShowAll id="schools-area" count={areaRows.length}>
               <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, minWidth: '560px', width: '100%' }}>
                 <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>Number of schools at each grade, by area</caption>
                 <thead>
@@ -210,6 +230,7 @@ export default async function CouncilSchoolInspectionsSection({
                   ))}
                 </tbody>
               </table>
+              </ShowAll>
             </div>
           )}
         </>
@@ -218,6 +239,8 @@ export default async function CouncilSchoolInspectionsSection({
       {oeifCounts.length > 0 && (
         <>
           <h3 style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }}>Earlier inspections (schools without a report card yet)</h3>
+          {/* On phones the two tables of earlier inspections fold under one label (ENTRY 141 N4); from 768px up as before. */}
+          <SubFold label="Earlier and ungraded inspections">
           <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '8px' }}>
             <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>Overall effectiveness at the last graded inspection</caption>
             <tbody>
@@ -229,25 +252,13 @@ export default async function CouncilSchoolInspectionsSection({
               ))}
             </tbody>
           </table>
+          {ungradedTable}
+          </SubFold>
         </>
       )}
 
-      {ungradedCounts.length > 0 && (
-        <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '8px' }}>
-          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>
-            Schools whose only inspection in Ofsted&rsquo;s file is an ungraded one ({fmtNum(ungradedOnly.length)}), by outcome
-          </caption>
-          <tbody>
-            {ungradedCounts.map(([outcome, n]) => (
-              <tr key={outcome} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px 20px 6px 0' }}>{outcome}</td>
-                <td style={{ padding: '6px 0', textAlign: 'right' }}>{fmtNum(n)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      {notInspected > 0 && (
+      {oeifCounts.length === 0 && ungradedTable}
+            {notInspected > 0 && (
         <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 18px' }}>
           {fmtNum(notInspected)} {notInspected === 1 ? 'school has' : 'schools have'} no inspection on record yet (for example, newly opened schools).
         </p>
@@ -300,9 +311,13 @@ export default async function CouncilSchoolInspectionsSection({
       </details>
       )}
 
+      {/* On phones the explanation of report cards folds (ENTRY 141 N4: /councils/walsall/schools was 2,694px at 320 after the
+          first fixes); from 768px up as before. */}
+      <SubFold label="About report cards">
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         Since 10 November 2025 Ofsted inspects schools under a renewed framework and publishes a report card grading up to eight areas on a scale of five points, plus whether safeguarding standards are met. Ofsted says these grades cannot be compared with grades from the previous framework, so they are shown separately. Graded inspections between 1 September 2024 and 9 November 2025 gave no overall grade (&ldquo;Not judged&rdquo;). Ungraded inspections check whether a school is still at its previous grade; the &ldquo;Earlier inspections&rdquo; figures use the last graded inspection.
       </p>
+      </SubFold>
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Ofsted, State-funded schools inspections and outcomes as at {fmtDate(snapshot)} (official statistics). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>

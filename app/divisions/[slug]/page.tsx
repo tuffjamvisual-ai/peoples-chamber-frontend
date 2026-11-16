@@ -32,6 +32,7 @@ import ArchiveDivisionPage from './ArchiveDivision';
 import { PHONE } from '@/lib/breakpoints';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags, DIVISION_TABLES } from '@/lib/source-tags';
+import { SubFold } from '@/app/components/PhoneFolds';
 
 export const revalidate = false; // A16: rebuilt only when its data changes (source tags on every read), or on a deploy  // divisions don't change after the vote happens
 
@@ -578,6 +579,9 @@ function VoteColumn({
             <strong>{g.party}</strong>
             <span >({g.rows.length})</span>
           </div>
+          {/* Phones and tablets (ENTRY 141 N5: the page was 3,846px at 768): each party's names in a closed fold under its
+              heading and count; from 1,024px up as before. */}
+          <SubFold tablets label={`${g.rows.length.toLocaleString('en-GB')} ${g.rows.length === 1 ? 'name' : 'names'}`}>
           <NoJsPager id={`dv-${heading.split(" ")[1]}-${g.party}`.replace(/[^a-zA-Z0-9-]+/g, "-")} count={(g.rows).length} rows="> li" size={15}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
             {g.rows.map((v) => (
@@ -595,6 +599,7 @@ function VoteColumn({
             ))}
           </ul>
           </NoJsPager>
+          </SubFold>
         </div>
       ))}
       </div>

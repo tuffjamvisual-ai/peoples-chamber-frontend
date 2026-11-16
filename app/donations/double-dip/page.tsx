@@ -27,6 +27,7 @@ import { donorPageSlug } from '@/lib/donor-slug';
 import { displayMpName } from '@/lib/mp-name';
 import { readAll } from '@/lib/read-all';
 import { tableTags } from '@/lib/source-tags';
+import { SubFold } from '../../components/PhoneFolds';
 
 // T1-MEM A2 (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 116 and 126): served from Vercel's cache for a day (it
 // was force-dynamic: rendered on every visit). The heavy read below stays in the shared data cache for a day, now also
@@ -210,9 +211,12 @@ export default async function DoubleDipPage() {
         </table>
       </section>
 
+      {/* On phones this note folds (ENTRY 141 N5: the page was 2,565px at 320); from 768px up as before. */}
+      <SubFold label="What this list isn’t">
       <section style={{ background: CREAM, padding: '12px 14px', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
         <strong>What this list isn&rsquo;t.</strong> A pairing of this kind is not in itself a rule breach. UK MPs are legally allowed to take outside employment income and accept political donations from the same body provided both are declared on their respective registers. What the list shows is the small number of cases where the public has been told the same fact twice in two different places without ever being shown the overlap. The interpretation belongs to the reader.
       </section>
+      </SubFold>
 
       <p style={{ fontSize: '15px' }}>
         Sources: parliament.uk Register of Members&rsquo; Financial Interests (category 1. Employment and earnings) matched against the Electoral Commission donations register. Payer name extracted from the Register entry by taking everything before the first comma or opening parenthesis. Matching a donation to an MP requires the EC recipient_name to include both the MP&rsquo;s first and last name.

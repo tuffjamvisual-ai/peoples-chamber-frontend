@@ -241,10 +241,10 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
             return (
               <div key={r.memberId} style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                  <span style={{ fontFamily: 'monospace' }}>{i + 1}.</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{i + 1}.</span>
                   <Link href={`/mps/${r.memberId}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{r.name}</Link>
                   {r.now && <span style={{ fontSize: '15px' }}>({r.now})</span>}
-                  <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{r.rebellions} vote{r.rebellions === 1 ? '' : 's'} against</span>
+                  <span style={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '15px' }}>{r.rebellions} vote{r.rebellions === 1 ? '' : 's'} against</span>
                   <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}% of {r.totalVotes} votes</span>
                 </div>
                 {shown.length > 0 && (
@@ -293,8 +293,8 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
                     <td style={td}>
                       <Link href={`/divisions/pw-${d.date}-${d.num}-commons`} style={{ color: ACCENT, textDecoration: 'underline' }}>{title}</Link>
                     </td>
-                    <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{d.ayes} / {d.noes}</td>
-                    <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', color: ACCENT }}>{(split * 100).toFixed(0)}%</td>
+                    <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontSize: '15px' }}>{d.ayes} / {d.noes}</td>
+                    <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontSize: '15px', color: ACCENT }}>{(split * 100).toFixed(0)}%</td>
                   </tr>
                 );
               })}

@@ -133,9 +133,12 @@ export default async function MoneyLanding() {
       </section>
       </SubFold>
 
+      {/* On phones this note folds (ENTRY 141 N5: /money was 2,626px at 320); from 768px up as before. */}
+      <SubFold label="What none of this is">
       <section style={{ fontSize: '15px', lineHeight: 1.65, borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '14px' }}>
         <strong>What none of this is.</strong> A pattern visible on more than one public register is not evidence of wrongdoing. UK MPs are legally allowed to take outside employment income, attend visits paid for by foreign governments, accept political donations, and officer All-Party Parliamentary Groups provided each is declared on its appropriate register. UK companies are legally allowed to bid for public contracts and donate to political parties provided each is declared. What none of this is is hidden. What much of it has been until now is unfindable. Putting it in one place is the work.
       </section>
+      </SubFold>
 
       {/* Folded on phones (step 5, 10 Nov 2026: page length). */}
       <SubFold label="Sources">
