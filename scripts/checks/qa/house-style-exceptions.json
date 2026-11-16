@@ -16,10 +16,7 @@
  ],
  "skip_files": [
   "app/internal/",
-  "app/landing-preview/",
-  "app/newspaper-demo/",
   "app/preview-2/",
-  "app/preview-3/",
   "app/preview-4/",
   "app/preview-5/",
   "app/preview-footer/"

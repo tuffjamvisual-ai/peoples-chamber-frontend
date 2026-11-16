@@ -28,23 +28,12 @@ const ROOT = path.resolve(__dirname, '..');
 
 const EXCLUDE_DIR_PATTERNS = [
   /\/newspaper-\d+/,
-  /\/newspaper-blank/,
-  /\/newspaper-new1/,
-  /\/newspaper-demo/,
-  /\/newspaper-preview/,
   /\/preview-3/,
   /\/preview-home2/,
   /\/preview-footer/,
   /\/preview\//,
-  /\/landing-pca/,
-  /\/landing-demo/,
-  /\/landing-preview/,
-  /\/blank-landing/,
-  /\/land101/,
-  /\/mp121/,
   /\/unite-kingdom/,
   /\/new2/,
-  /\/newpage/,
 ];
 const EXCLUDE_FILE_PATTERNS = [
   /\.old-dark-theme$/,

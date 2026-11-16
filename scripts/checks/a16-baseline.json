@@ -2,10 +2,6 @@
  "_note": "A16 to-do list (COWORK-TO-T1 ENTRY 129, 15 Nov 2026): routes flagged when the check started. It only shrinks: remove a route once it passes.",
  "routes": [
   "page /",
-  "page /internal/humaniser",
-  "page /preview",
-  "page /preview-3",
-  "page /preview-home2/[id]",
   "page /recommendations/[session]/[report]/[rec]",
   "page /recommendations/list/[view]",
   "page /state-of-the-nation",

@@ -14,9 +14,11 @@ export const SHOW_YOUR_TAX_POUND = false;
 export const SHOW_BUDGET_CHOICES = false;
 
 // Demo and preview pages: hidden (owner's decisions, 20 Oct 2026). false: the page returns 404. Covers /homepage-v2,
-// /landing-demo2, /blank-landing, /folder-bg, /landing-demo, /landing-pca, /landing-preview, /landing1012, /new2,
-// /newspaper-demo, /preview, /preview-2 to /preview-5, /preview-footer, /preview-home2 and /template.
-// No page code is deleted: set to true to restore.
+// /folder-bg, /new2, /preview-2, /preview-4, /preview-5, /preview-footer and /template. /preview, /preview-3 and
+// /preview-home2 were deleted on 16 Nov 2026 (owner, COWORK-TO-T1 ENTRY 139 item 3).
+// Seven more (/landing-demo2, /blank-landing, /landing-demo, /landing-pca, /landing-preview, /landing1012,
+// /newspaper-demo) were removed with eight other prototypes on 14 Nov 2026 (owner approved 13 Nov 2026; the code is
+// kept on branch archive/prototypes). Set to true to restore the rest.
 export const SHOW_DEMO_PAGES = false;
 
 // Council pages' "Founded" row: hidden (owner's decision, 20 Oct 2026). The year mixes a town's charter, an earlier

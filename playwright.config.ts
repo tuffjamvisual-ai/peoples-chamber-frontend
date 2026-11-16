@@ -1,9 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // Scoped to ./tests so the stale root-level test-site.spec.ts (which points at the
-// old peoples-chamber-frontend.vercel.app domain) is not picked up. The Humaniser
-// spec runs against a local dev server with the Anthropic proxy route mocked, so it
-// needs no API key and makes no external calls.
+// old peoples-chamber-frontend.vercel.app domain) is not picked up. The Humaniser specs
+// that lived there were removed with the Humaniser (owner, 15 Nov 2026, COWORK-TO-T1 ENTRY 131).
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
