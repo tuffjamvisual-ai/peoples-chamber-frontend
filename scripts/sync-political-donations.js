@@ -6,7 +6,9 @@ const ws = require('ws');
 
 const SUPABASE_URL = 'https://nwnsvnbudmfkhhwcjwwr.supabase.co';
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, { realtime: { transport: ws } });
+// F04 batch 1 (A16): the tables this script writes are fingerprinted (scripts/lib/table-refresh.js) and their tags
+// refreshed at the end only if their rows changed (political_donations: every donations page). It refreshed nothing.
+const supabase = require('./lib/table-refresh').trackTables(createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, { realtime: { transport: ws } }));
 
 const ENDPOINT = 'https://search.electoralcommission.org.uk/api/search/Donations';
 const FROM_DATE = '2024-07-04';
@@ -156,4 +158,4 @@ async function main() {
 }
 
 // A fatal error must fail the run (exit 1) so the workflow reports it; it used to exit 0.
-main().catch((e) => { console.error('[political-donations] fatal:', e?.message || e); process.exit(1); });
+main().then(() => supabase.finishRefresh()).catch((e) => { console.error('[political-donations] fatal:', e?.message || e); process.exit(1); });

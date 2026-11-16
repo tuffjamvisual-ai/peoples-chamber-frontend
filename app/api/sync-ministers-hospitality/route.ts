@@ -1,5 +1,6 @@
 import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
+import { refreshTables } from '@/lib/source-tags';
 import { replaceRows } from '@/lib/replace-rows';
 import { createClient } from '@supabase/supabase-js';
 import { parse } from 'csv-parse/sync';
@@ -431,6 +432,8 @@ async function GET_impl(req: Request) {
     // Counted by the MP pages it changes (a minister who is not a current MP has no page to refresh).
     noteChanged(dry ? 0 : changedMps.length);
     const mpRefresh = !dry && changedMps.length ? refreshMps(changedMps) : null;
+    // A16 (F04 batch 1): the table's own tag too, for pages that read ministers_hospitality under it; it refreshed none.
+    if (!dry && changedPubs > 0) refreshTables('ministers_hospitality');
     return NextResponse.json({
       ok: true,
       publications_changed: changedPubs,
