@@ -3,7 +3,7 @@
 // MP's: at most REFRESH_BATCH paths at a time. When nearly every MP changed at once (a new Commons division changes
 // every voter's counts) the route pattern is sent once instead (refreshAllMps).
 import { voteCountsChanged } from '@/lib/mp-page-cache';
-import { allMpDataChanged, mpDataChanged } from '@/lib/mp-cache';
+import { allMpVotesChanged, mpDataChanged } from '@/lib/mp-cache';
 import { freshnessChanged } from '@/lib/data-freshness';
 import { indexNowAfter } from '@/lib/indexnow';
 import { revalidatePath } from '@/lib/refresh-count';
@@ -27,12 +27,15 @@ export function refreshMps(memberIds: Iterable<number>, reports = false): MpRefr
   return { mps: ids.length };
 }
 
-// Every MP page, as one route pattern.
+// Every MP page, after a change that touches nearly every MP at once: a new Commons division (every voter's counts) or
+// a recompute of the activity figures. F03 (ENTRY 134, owner approved 15 Nov 2026): only the reads that change are
+// expired (the votes, vote counts and activity figures, and the "last updated" dates); every page that used them is
+// rebuilt from the data cache with only those re-read. It used to expire the route pattern and every read of every MP
+// page (mp-pages), about 43 reads a page, 650 pages (pg_stat_statements: about 23,100 calls of each MP-page read in 91 hours).
 export function refreshAllMps(): MpRefresh {
-  revalidatePath('/mps/[id]', 'page');
   freshnessChanged();
   voteCountsChanged();
-  allMpDataChanged();
+  allMpVotesChanged();
   return { mps: 0, all: true };
 }
 
