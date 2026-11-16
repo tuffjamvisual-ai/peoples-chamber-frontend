@@ -159,18 +159,21 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
    strip (55), the scroll button and mobile menu (60, 70), dialogs (1000), toasts (9999) and the menu panel. */
 .og-cookie-banner { position: relative; z-index: 50; }
 
-/* ---- Phones under 640px: every tap target at least 44px tall (owner, 4 Nov 2026). Its own box, not an invisible layer:
+/* ---- Phones and tablets (touch sizes, ENTRY 135 H1: up to 1,023px, or any touch screen; phones only until 16 Nov 2026):
+   every tap target at least 44px tall (owner, 4 Nov 2026). Its own box, not an invisible layer:
    rows get taller, text stays the same size. Links in running paragraph text and the footer are left alone. The rules
    sit in the base layer, so a page's own display (a flex row, a block link) wins and only plain inline links become
-   boxes. Nothing here applies from 640px up. */
+   boxes. From 1,024px up with a mouse nothing here applies. */
 @layer base {
-  @media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+  @media (max-width: 1023.98px), (pointer: coarse) {
     .ng-page a:not(p a, blockquote a, figcaption a, footer a),
     .ng-page button:not(footer button),
     .ng-page summary:not(footer summary),
     .ng-page select,
     .ng-page input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
     .ng-page textarea { min-height: 44px; box-sizing: border-box; align-content: center; }
+    /* 44px wide as well (ENTRY 135 H1 and L2: year links "2025" were 35px, a party "GMB" 29px). */
+    .ng-page a:not(p a, blockquote a, figcaption a, footer a), .ng-page button:not(footer button) { min-width: 44px; }
     .ng-page a:not(p a, blockquote a, figcaption a, footer a):not(:has(> div, > article, > section, > h1, > h2, > h3, > h4, > ul, > ol, > table, > figure)) { display: inline-block; }
   }
 }
@@ -401,8 +404,6 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   /* Answers as published: numbers stay whole, cells a little tighter so most tables fit; a very wide one scrolls inside itself. An empty table takes no room. */
   .wq-html td, .wq-html th { overflow-wrap: normal; padding: 4px 2px; }
   .wq-html table[data-empty-table] { display: none; }
-  /* A link alone in its paragraph, a tap target like any other. */
-  .ng-page a.og-tap, .ng-page a[data-pt-tap] { display: inline-block; min-height: 44px; align-content: center; }
 }
 
 /* Without JavaScript the menu button is a link to /directory (MobileMenu.tsx). */
@@ -410,7 +411,9 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
 
 /* ---- Phones (owner, 5 Nov 2026). Under 640px, and a phone on its side (a touch screen under 500px tall, whatever its
    width, so never a desktop window). */
-@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+/* Touch sizes (ENTRY 135 H1, 16 Nov 2026): fields, menus and the small controls, on phones and on tablets up to 1,023px
+   wide or any touch screen (TOUCH in lib/breakpoints.ts). Phones only until then. */
+@media (max-width: 1023.98px), (pointer: coarse) {
   /* iPhone zooms in on any field under 16px. */
   input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea { font-size: 16px !important; }
   /* Safari ignores height on a native dropdown: its own look off, and an arrow drawn in. An inline background keeps its colour. */
@@ -425,6 +428,10 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
   .og-help-i::before { content: ''; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; box-sizing: border-box; border: 1.5px solid #14100d; border-radius: 50%; transform: translate(-50%, -50%); }
   /* A short column heading link in a table. */
   .ng-page th a { display: inline-block; min-width: 44px; min-height: 44px; align-content: center; }
+  /* A link alone in its paragraph, a tap target like any other (phones only until ENTRY 135 H1). */
+  .ng-page a.og-tap, .ng-page a[data-pt-tap] { display: inline-block; min-height: 44px; align-content: center; }
+}
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   /* Rows that were one line and did not fit: they wrap. */
   .pca-row, .pca-row > a { flex-wrap: wrap !important; }
   .pca-row [data-pca-leader] { display: none !important; }

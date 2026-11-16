@@ -5,7 +5,7 @@ import { noteSearch } from '@/lib/search-note';
 import { SUBMITTED_SEARCH_KEY } from '@/lib/search-analytics';
 import { useRouter } from 'next/navigation';
 import { departments } from '@/lib/departments';
-import { phoneUpTo } from '@/lib/breakpoints';
+import { phoneUpTo, TOUCH } from '@/lib/breakpoints';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -149,8 +149,8 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
         />
         {q && (
           <>
-          {/* Phones (under 640px, owner, 4 Nov 2026): a 44px box at the end of the field; the mark stays the same size. */}
-          <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(767.98)} { .og-search-clear { width: 44px; height: 44px; right: 0 !important; padding: 0 !important; display: inline-flex; align-items: center; justify-content: center; } }` }} />
+          {/* Phones and tablets (owner, 4 Nov 2026; tablets ENTRY 135 H1): a 44px box at the end of the field; the mark stays the same size. */}
+          <style dangerouslySetInnerHTML={{ __html: `@media ${TOUCH} { .og-search-clear { width: 44px; height: 44px; right: 0 !important; padding: 0 !important; display: inline-flex; align-items: center; justify-content: center; } }` }} />
           <button
             type="button"
             onClick={handleClear}

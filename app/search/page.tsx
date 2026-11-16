@@ -500,7 +500,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <PhoneMore selector="#results-orgs" total={orgs.length} step={10} />
           {orgMatches.length > orgs.length && (
             <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
-              <Link href={`/organisations?q=${encodeURIComponent(q)}`} style={{ color: ACCENT }}>All organisations matching &ldquo;{q}&rdquo;</Link>
+              <Link href={`/organisations?q=${encodeURIComponent(q)}`} className="og-tap" style={{ color: ACCENT }}>All organisations matching &ldquo;{q}&rdquo;</Link>
             </p>
           )}
         </section>

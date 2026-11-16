@@ -161,6 +161,7 @@
   .og-stamp-text { font-size: 18px !important; }
   /* At least 44 x 44px: "Terms" was 43px wide (T2 ENTRY 1 item 4, Cowork 14 Nov 2026). */
   .og-footer-links a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+  .og-masthead-wrap a { display: inline-flex; align-items: center; min-height: 44px; }
 }
 
 /* ---- Phones held sideways (owner, 8 Nov 2026, RT1; lib/breakpoints.ts): the phone layout above, just wider. The page's
@@ -201,4 +202,14 @@
   /* A page whose column is widened to the full width (a cards table straight inside it, globals.css) has no margin
      for the arrow, so its content starts below the arrow, as on a phone held upright. */
   .dossier-content:has(.og-back):has(> .og-main-content > table[data-pt-table="cards"]) { padding-top: 56px !important; }
+}
+
+/* ---- Touch sizes (owner approved 15 Nov 2026, ENTRY 135 H1; TOUCH in lib/breakpoints.ts): on tablets up to 1,023px and
+   any touch screen too, the header menu links, the account tab links and the footer links are 44px taps (on tablets
+   they were 31px and 21px tall). ---- */
+@media (max-width: 1023.98px), (pointer: coarse) {
+  .og-navwrap .ng-nav > li > a { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; }
+  .ng-tab a { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; }
+  .og-footer-links a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+  .og-masthead-wrap a { display: inline-flex; align-items: center; min-height: 44px; }
 }

@@ -22,14 +22,15 @@
 // Added 2026-06-05.
 
 import Link from 'next/link';
-import { PHONE, phoneUpTo } from '@/lib/breakpoints';
+import { PHONE, TOUCH, phoneUpTo } from '@/lib/breakpoints';
 
-// Phones (T2 ENTRY 1 item 4, Cowork 14 Nov 2026): every page link and button is a 44 x 44px tap; the page numbers were 32px
-// wide. From 768px up nothing changes.
+// Phones and tablets (T2 ENTRY 1 item 4, Cowork 14 Nov 2026; tablets ENTRY 135 H1, 16 Nov 2026): every page link and
+// button is a 44 x 44px tap and the page number box has 16px text; the page numbers were 32px wide.
 // One row on phones (Cowork 14 Nov 2026, ENTRY 10): 4px between boxes (3px under 430px, so Prev, 1, 2, 3, …, last and Next
 // fit 320px) and 6px inside them, the gap mark (…) only as wide
 // as itself, and under 430px Prev and Next as arrows only (the word stays for screen readers, and in the link's name).
-const PHONE_CSS = `@media ${PHONE} { .og-pg { min-width: 44px !important; min-height: 44px; box-sizing: border-box; padding: 0 6px !important; } .og-pg-gap { min-width: 0 !important; padding: 0 !important; margin: 0 -2px; } }
+const PHONE_CSS = `@media ${TOUCH} { .og-pg { min-width: 44px !important; min-height: 44px; box-sizing: border-box; } }
+@media ${PHONE} { .og-pg { padding: 0 6px !important; } .og-pg-gap { min-width: 0 !important; padding: 0 !important; margin: 0 -2px; } }
 .og-pg-g1, .og-pg-g0 { display: none !important; }
 @media ${phoneUpTo(429.98)} { .og-pg-x1, .og-pg-g2 { display: none !important; } .og-pg-g1 { display: inline-flex !important; } }
 @media ${phoneUpTo(389.98)} { .og-pg-x0, .og-pg-g1 { display: none !important; } .og-pg-g0 { display: inline-flex !important; } }

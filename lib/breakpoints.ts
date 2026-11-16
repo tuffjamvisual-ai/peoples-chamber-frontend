@@ -29,3 +29,7 @@ export const PHONE = phoneUpTo(767.98);
 // MoreChain (globals.css) and the phone script's long lists. Section folds, tables as cards and the rest stay at PHONE.
 // From 1,024px up nothing changes.
 export const LIST_FOLD = phoneUpTo(1023.98);
+// Touch sizes (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 135 H1, "Layout change approved T1-MOBILEFIX"): every tap
+// target at least 44 x 44px and every text box and menu at 16px, on phones and tablets up to 1,023px wide and on any
+// screen with a coarse pointer (a touch screen of any size). The plain CSS files repeat these exact words.
+export const TOUCH = '(max-width: 1023.98px), (pointer: coarse)';
