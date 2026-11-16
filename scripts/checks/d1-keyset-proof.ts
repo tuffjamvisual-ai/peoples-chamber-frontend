@@ -18,14 +18,16 @@ async function timed<T>(f: () => Promise<T>): Promise<[T, number]> { const t = D
 (async () => {
   let ok = true;
   const cCols = 'id, donor_name, recipient_name, accounting_unit_name, amount, accepted_date';
-  const cFilter = (q: ReturnType<typeof from>) => q.not('accounting_unit_name', 'is', null).neq('accounting_unit_name', '');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cFilter = (q: any) => q.not('accounting_unit_name', 'is', null).neq('accounting_unit_name', '');
   const [cOld, tcOld] = await timed(() => readAll<Row>(from, { columns: cCols, filter: cFilter, orderBy: [{ column: 'accepted_date', ascending: false }, { column: 'id' }], concurrency: 1, label: 'constituencies old' }));
   const [cNew, tcNew] = await timed(() => readAllByDateDescId<Row>(from, { columns: cCols, filter: cFilter, dateColumn: 'accepted_date', label: 'constituencies new' }));
   const same1 = sha(cOld) === sha(cNew);
   ok &&= same1;
   console.log(`/donations/constituencies rows: OFFSET ${cOld.length} in ${tcOld}s, keyset ${cNew.length} in ${tcNew}s; sha256 ${sha(cOld).slice(0, 16)} / ${sha(cNew).slice(0, 16)}; identical: ${same1}`);
   const dCols = 'id, donor_name, recipient_name, amount';
-  const dFilter = (q: ReturnType<typeof from>) => q.not('donor_name', 'is', null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dFilter = (q: any) => q.not('donor_name', 'is', null);
   const [dOld, tdOld] = await timed(() => readAll<Row>(from, { columns: dCols, filter: dFilter, orderBy: 'id', concurrency: 1, label: 'double-dip old' }));
   const [dNew, tdNew] = await timed(() => readAllById<Row>(from, { columns: dCols, filter: dFilter, label: 'double-dip new' }));
   const same2 = sha(dOld) === sha(dNew);
