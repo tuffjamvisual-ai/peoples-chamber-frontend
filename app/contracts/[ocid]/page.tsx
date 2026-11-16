@@ -207,7 +207,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
                   ))}
                 </ul>
                 </NoJsPager>
-                {latestValue != null && <p style={figure}><strong>Latest published value: {gbp(latestValue)}</strong></p>}
+                {latestValue != null && <p style={figure}><strong>Last published value: {gbp(latestValue)}</strong></p>}
               </>
             )}
 

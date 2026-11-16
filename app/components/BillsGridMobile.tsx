@@ -210,7 +210,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages,
                 cursor: 'pointer',
               }}
             >
-              {tab === 'latest' ? 'Latest' : tab === 'trending' ? 'Trending' : tab === 'controversial' ? 'Controversial' : 'You voted'}
+              {tab === 'latest' ? 'Newest first' : tab === 'trending' ? 'Trending' : tab === 'controversial' ? 'Controversial' : 'You voted'}
             </button>
           ))}
         </div>

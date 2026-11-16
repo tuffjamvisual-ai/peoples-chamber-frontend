@@ -2339,7 +2339,7 @@ export default function MagazineProfileSections({
                     <th style={thStyle}>Donor</th>
                     <th className="mp-col-wide" style={thStyle}>Donations</th>
                     <th className="mp-col-wide" style={thStyle}>First</th>
-                    <th className="mp-col-wide" style={thStyle}>Latest</th>
+                    <th className="mp-col-wide" style={thStyle}>Last</th>
                     <th style={{ ...thStyle, textAlign: 'right' }}>Total</th>
                   </tr>
                 </thead>
@@ -2592,7 +2592,7 @@ export default function MagazineProfileSections({
                         <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
                           <th style={thStyle}>Organisation</th>
                           <th style={thStyle}>Meetings</th>
-                          <th style={thStyle}>Latest</th>
+                          <th style={thStyle}>Last meeting</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2642,7 +2642,7 @@ export default function MagazineProfileSections({
                         <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
                           <th style={thStyle}>Provider</th>
                           <th style={thStyle}>Items</th>
-                          <th style={thStyle}>Latest</th>
+                          <th style={thStyle}>Last recorded</th>
                           <th style={{ ...thStyle, textAlign: 'right' }}>Recorded £</th>
                         </tr>
                       </thead>

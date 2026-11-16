@@ -103,7 +103,7 @@ export function TransparencySlot({ foi, meetings }: { foi: DeptFoi[]; meetings: 
               {m.label && <p className="text-[#14100d] text-[16px] font-bold mb-1">{m.label}</p>}
               <P>
                 {m.latestQuarter
-                  ? <>Latest ministers&rsquo; meetings return: {m.latestQuarter}{m.publishedOn ? `, published ${m.publishedOn}` : ''}.
+                  ? <>Newest ministers&rsquo; meetings return: {m.latestQuarter}{m.publishedOn ? `, published ${m.publishedOn}` : ''}.
                       {m.gaps.map((g) => <span key={g.quarter}> {g.text}</span>)}</>
                   : <>No ministers&rsquo; meetings return found on GOV.UK for any quarter since January 2025.</>}
               </P>

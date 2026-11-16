@@ -13,7 +13,7 @@ import NewMark from './NewMark';
 export const revalidate = false; // A16: rebuilt only when its data changes; the "new" marks follow today's date in the browser (ENTRY 140)
 
 export const metadata: Metadata = {
-  title: 'State of the Nation: the UK’s Latest Official Figures',
+  title: 'State of the Nation: the UK’s Official Figures',
   description: 'Inflation, growth, jobs, public borrowing and debt, NHS waits, courts, homelessness and migration: the latest official figures, each with its period, the change on the last figure and a link to the source.',
   alternates: { canonical: '/state-of-the-nation' },
 };

@@ -206,7 +206,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
 
           {agency.featuredDocs.length > 0 && (
             <div className="mb-6 pb-6 border-b border-[#14100d]/20">
-              <h2 className="text-[15px] font-semibold text-[#14100d] mb-3">Latest Publications</h2>
+              <h2 className="text-[15px] font-semibold text-[#14100d] mb-3">Publications, newest first</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                 {agency.featuredDocs.map((doc, i) => (
                   <div key={i} className="py-2 border-b border-[#14100d]/10">

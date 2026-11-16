@@ -20,7 +20,7 @@ export default async function HistoricRecord({ memberId }: { memberId: number })
           <p style={para}>
             {votes.total.toLocaleString('en-GB')} votes ({votes.ayes.toLocaleString('en-GB')} Aye, {votes.noes.toLocaleString('en-GB')} No) from {archiveDate(votes.first)} to {archiveDate(votes.last)}. These are not counted in any other figure on this page. {ARCHIVE_NOTE}
           </p>
-          <h3 style={{ fontSize: '17px', fontWeight: 'bold', margin: '12px 0 4px' }}>Latest</h3>
+          <h3 style={{ fontSize: '17px', fontWeight: 'bold', margin: '12px 0 4px' }}>Newest first</h3>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {votes.latest.map((v) => (
               <li key={v.division_external_id} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
@@ -114,7 +114,7 @@ export function VotingArchiveMerged({ memberId, votes, currentTotal, currentYear
       <p style={para}>
         {votes.total.toLocaleString('en-GB')} votes ({votes.ayes.toLocaleString('en-GB')} Aye, {votes.noes.toLocaleString('en-GB')} No) from {archiveDate(votes.first)} to {archiveDate(votes.last)}. {ARCHIVE_NOTE}
       </p>
-      <h4 style={{ fontSize: '15px', fontWeight: 'bold', margin: '10px 0 4px' }}>Latest from Hansard</h4>
+      <h4 style={{ fontSize: '15px', fontWeight: 'bold', margin: '10px 0 4px' }}>From Hansard, newest first</h4>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {votes.latest.map((v) => (
           <li key={v.division_external_id} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>

@@ -288,7 +288,7 @@ export default async function CouncilSchoolInspectionsSection({
               <tr style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <th style={th}>School</th>
                 <th style={th}>Phase</th>
-                <th style={th}>Latest inspection</th>
+                <th style={th}>Last inspection</th>
                 <th style={th}>Result</th>
               </tr>
             </thead>
