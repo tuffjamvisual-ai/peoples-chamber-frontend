@@ -148,7 +148,7 @@ export default function MpActivityTable({ rows, firstRank, total, view, party, q
 
       <div style={{ overflowX: 'auto' }}>
         {/* UX5 (T1-6, 11 Nov 2026): on phones the first 4 MPs (each row is about 210px tall there), then "Show all" (a native fold); from 640px up, as before. */}
-        <NoJsPager id="mpa" count={rows.length} rows="> tbody > tr" size={rows.length} first={4}>
+        <NoJsPager id="mpa" count={rows.length} rows="> tbody > tr" size={rows.length} first={3}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>

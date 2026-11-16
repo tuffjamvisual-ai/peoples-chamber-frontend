@@ -169,6 +169,41 @@ function shorten(){
   if(opened||document.querySelector('.pf-list,[data-own-folds]'))return;
   tall();folds();
 }
+// Growing lists step by 10 (owner, 15 Nov 2026, COWORK-TO-T1 ENTRY 135 M3 and M7, 141 N6): a list's "Show N more" fold
+// (details[data-step-style]: NoJsPager, DataList, the questions and debates lists) opens the whole of the rest without
+// JavaScript; with it, on phones and tablets each press shows 10 more by moving the list's own hide rule (the <style> named
+// in data-step-style, :nth-child(n+<data-step-from>); or, with data-step-rank, rows marked data-rank from data-step-from - 1
+// on are let through 10 at a time), and the fold opens only for the last of them. Once more than the
+// first rows show, a "Show fewer" button after the fold goes back to the first rows; the open fold's own summary says
+// "Show fewer" too.
+var STEP=10;
+function stepLabel(d,left){var m=d.querySelector('.st-more');if(!m)return;var n=Math.min(STEP,left),one=d.getAttribute('data-step-one'),many=d.getAttribute('data-step-many');m.textContent='Show '+n.toLocaleString('en-GB')+' more'+(one?' '+(n===1?one:many):'')}
+function stepTo(d,added){
+  var st=document.getElementById(d.getAttribute('data-step-style'));if(!st)return;
+  if(st.__orig==null)st.__orig=st.textContent;
+  var from=+d.getAttribute('data-step-from');
+  var rank=d.getAttribute('data-step-rank'),not='';
+  if(rank){for(var k=from-1;k<from-1+added;k++)not+=':not([data-rank="'+k+'"])';st.textContent=added?st.__orig.split(rank).join(rank+not):st.__orig}
+  else st.textContent=added?st.__orig.split(':nth-child(n+'+from).join(':nth-child(n+'+(from+added)):st.__orig;
+  d.__added=added;
+  stepLabel(d,+d.getAttribute('data-step-left')-added);
+  var f=d.__fewer;
+  if(added>0&&!(f&&f.isConnected)){
+    f=document.createElement('button');f.type='button';f.className='og-phone-more st-fewer';f.textContent='Show fewer';
+    f.addEventListener('click',function(){d.open=false;stepTo(d,0);var r=d.getBoundingClientRect();if(r.top<0)d.scrollIntoView({block:'center'})});
+    d.after(f);d.__fewer=f;
+  }
+  if(!added&&f){f.remove();d.__fewer=null}
+}
+document.addEventListener('click',function(e){
+  var s=e.target.closest&&e.target.closest('details[data-step-style] > summary');
+  if(!s||!listsWide())return;
+  var d=s.parentElement;
+  if(d.open){setTimeout(function(){stepTo(d,0)},0);return}
+  var added=(d.__added||0)+STEP,left=+d.getAttribute('data-step-left');
+  if(added>=left){if(d.__fewer){d.__fewer.remove();d.__fewer=null}return}
+  e.preventDefault();stepTo(d,added);
+});
 window.__ogPhone=function(buttons){
   if(location.href!==here){
     here=location.href;

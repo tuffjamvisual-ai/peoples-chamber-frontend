@@ -194,7 +194,6 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .pa-year { margin-left: 12px; }
 .pa-year > summary { font-size: 15px; }
 .mc-more > summary { justify-content: center; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }
-.mc-more[open] > summary { display: none; }
 /* MoreChain on phones and tablets (MP2f; up to 1,023px, T1-TABFOLD, owner approved 13 Nov 2026): the first 5 of the opening
    list until the first "Show more" opens; its count from there. */
 .mc-phone, .mc-n-phone { display: none; }
@@ -202,7 +201,7 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .mc-phone { display: block; }
   .mc-n-phone { display: inline; }
   .mc-n-wide { display: none; }
-  .mc-first:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+6) { display: none !important; }
+  .mc-first:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4) { display: none !important; }
   /* MoreChain phoneFirst (UX5, T1-6, 11 Nov 2026): fewer than five of the opening list, for long items. */
   .mc-first.mc-pf1:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+2), .mc-first.mc-pf2:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+3), .mc-first.mc-pf3:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4), .mc-first.mc-pf4:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+5) { display: none !important; }
 }
@@ -299,7 +298,6 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .pc-d { display: block; }
   .pc-b { display: block; }
   .pc-d:not([open]) + .pc-b { display: none; }
-  .pc-d[open] > summary { display: none; }
   .pc-d > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; cursor: pointer; list-style: none; }
   .pc-d > summary::-webkit-details-marker { display: none; }
   .pc-wide { display: none; }
@@ -505,3 +503,13 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
 details[open] > summary > .og-fold-mark::before { content: '\2212'; }
 summary:has(> .og-fold-mark) { display: flex; align-items: center; list-style: none; }
 summary:has(> .og-fold-mark)::-webkit-details-marker { display: none; }
+
+/* Two labels on a growing list's fold (ENTRY 135 M7, 141 N6): "Show N more" while closed, "Show fewer" while open, so an
+   open list can always be folded again (the step of 10 is lib/phone-enhance.ts). */
+.st-less { display: none; }
+details[open] > summary .st-less { display: inline; }
+details[open] > summary .st-more { display: none; }
+@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+  /* The step script's "Show fewer" (lib/phone-enhance.ts) on tablets too, where the lists step (ENTRY 135 M7). */
+  html.og-js .og-phone-more.st-fewer { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
+}

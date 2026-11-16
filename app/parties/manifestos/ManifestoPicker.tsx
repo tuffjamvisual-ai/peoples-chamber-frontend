@@ -1,19 +1,23 @@
 'use client';
 
 // Phones (under 640px, owner, 4 Nov 2026): "Compare by policy" comes first, one theme with every party's position on it,
-// with "By party" as the alternative, the full list the page shows at every other width (children). From 640px up the
-// picker is hidden and only the list shows. Styles are in the <style> below, so nothing here applies from 640px up.
+// with "By party" as the alternative: one party at a time, its position on every theme (ENTRY 141 N1, 16 Nov 2026; it
+// was the full list for every party, 49,254px at 375). From 1,024px up the picker is hidden and only the full list
+// (children) shows. Styles are in the <style> below, so nothing here applies from 640px up.
 import { useState, type ReactNode } from 'react';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { ShowAll } from '@/app/components/NoJsPager';
 
 // Phones and tablets (T1-GUARD, owner approved 13 Nov 2026: tablets up to 1,023px get the picker; the full grid was 23,216px at 768).
 const CSS = `
-.mf-controls, .mf-policy { display: none; }
+.mf-controls, .mf-policy, .mf-byparty { display: none; }
 @media ${phoneUpTo(1023.98)} {
   .mf-controls { display: block; margin-bottom: 18px; }
   .mf-root[data-mode="policy"] .mf-policy { display: block; }
   .mf-root[data-mode="policy"] .mf-party { display: none; }
+  /* By party (ENTRY 141 N1, 16 Nov 2026): one party at a time, chosen from a menu, in place of every party's full list. */
+  .mf-root .mf-party { display: none; }
+  .mf-root[data-mode="party"] .mf-byparty { display: block; }
   .mf-modes { display: flex; gap: 8px; margin-bottom: 14px; }
   .mf-modes button { flex: 1 1 0; min-height: 44px; padding: 6px 8px; font-size: 15px; font-family: inherit; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
   .mf-modes button[aria-pressed="true"] { background: #14100d; color: #f4e8d4; font-weight: bold; }
@@ -34,6 +38,11 @@ export default function ManifestoPicker({ themes, children }: { themes: ThemeRow
   const [mode, setMode] = useState<'policy' | 'party'>('policy');
   const [theme, setTheme] = useState(themes[0]?.theme ?? '');
   const row = themes.find((t) => t.theme === theme) ?? themes[0];
+  // By party: the parties in the order they appear on the first theme, and the chosen one's position on every theme.
+  const parties = themes[0]?.positions.map((p) => ({ slug: p.slug, name: p.name, colour: p.colour })) ?? [];
+  const [party, setParty] = useState(parties[0]?.slug ?? '');
+  const chosen = parties.find((p) => p.slug === party) ?? parties[0];
+  const partyRows = chosen ? themes.map((t) => ({ theme: t.theme, href: t.href, position: t.positions.find((p) => p.slug === chosen.slug) })) : [];
   return (
     <div className="mf-root" data-mode={mode}>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
@@ -52,8 +61,36 @@ export default function ManifestoPicker({ themes, children }: { themes: ThemeRow
             <p className="mf-key"><span className="mf-dot" aria-hidden />A dot after a position: the party has shifted since 2024.</p>
           </>
         )}
+        {mode === 'party' && (
+          <>
+            <label className="mf-label" htmlFor="mf-party">Choose a party</label>
+            <select id="mf-party" className="mf-select" value={party} onChange={(e) => setParty(e.target.value)}>
+              {parties.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}
+            </select>
+            <p className="mf-key"><span className="mf-dot" aria-hidden />A dot after a position: the party has shifted since 2024.</p>
+          </>
+        )}
       </div>
-      {row && (
+      {mode === 'party' && chosen && (
+        <ShowAll id="manifesto-party" count={partyRows.length} rows="> *">
+        <div className="mf-byparty">
+          {partyRows.map((r) => (
+            <div key={r.theme} className="mf-row" style={{ borderLeft: `3px solid ${chosen.colour}`, paddingLeft: '10px' }}>
+              <span className="mf-name">{r.theme}</span>
+              {r.position?.text ? (
+                <a className="mf-text" href={`/parties/${chosen.slug}${r.href}`}>
+                  {r.position.text}
+                  {r.position.shifted && <span className="mf-dot" title="Shifted since 2024" aria-label="Shifted since 2024" style={{ background: chosen.colour }} />}
+                </a>
+              ) : (
+                <span style={{ fontSize: '15px', fontStyle: 'italic' }}>Coming soon</span>
+              )}
+            </div>
+          ))}
+        </div>
+        </ShowAll>
+      )}
+      {mode === 'policy' && row && (
         <ShowAll id="manifesto-policy" count={(row.positions).length} rows="> *">
         <div className="mf-policy">
           {row.positions.map((p) => (

@@ -83,7 +83,7 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
           ? ' questions. Where the Speaker stepped in and no answer was given, the Speaker\u2019s words are shown. The Speaker\u2019s other interventions, shouted asides and points of order are left out'
           : ' questions. The Speaker\u2019s interventions, shouted asides and points of order are left out'}{session.hansardUrl ? '; the full record in Hansard is in Sources at the end of the page' : ''}.
       </p>
-      <MoreChain mainAction ordered phoneOnly style={{ color: INK }} first={phoneOpening(exchanges.map((e) => 120 + textHeightAt375(e.question) + e.answers.reduce((px, a) => px + textHeightAt375(a), 0) + (e.speaker.length ? 150 : 0)))} items={exchanges.map((e) => (
+      <MoreChain mainAction ordered phoneOnly step={10} style={{ color: INK }} first={phoneOpening(exchanges.map((e) => 120 + textHeightAt375(e.question) + e.answers.reduce((px, a) => px + textHeightAt375(a), 0) + (e.speaker.length ? 150 : 0)))} items={exchanges.map((e) => (
           <li key={e.id} id={`q-${e.id}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
             <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>{firstMention(e.asker.id) ? <Link href={`/mps/${e.asker.id}`} style={link}>{e.asker.name}</Link> : e.asker.name}</p>
             <p style={body}>{e.question}</p>

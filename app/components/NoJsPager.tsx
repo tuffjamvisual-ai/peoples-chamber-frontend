@@ -24,19 +24,24 @@ export const njpItem = (id: string) => `njp-i-${id}`;
 // (on the list's parent, :has, so no wrapper goes round the list); open, every row shows. The same in the HTML with
 // JavaScript on or off; Previous and Next are not used on phones. A link to a row (an address with #) shows them all.
 // Tablets too, up to 1,023px (T1-TABFOLD, owner approved 13 Nov 2026); from 1,024px up nothing changes (wide lists keep
-// their paging). first: rows shown before "Show all" (default 5).
-export const PHONE_FIRST = 5;
+// their paging). first: rows shown before "Show all" (default 3). With JavaScript each press shows 10 more and the fold
+// opens only for the last of them (lib/phone-enhance.ts, ENTRY 135 M7); without it, one press shows the rest. Either way
+// "Show fewer" folds it again.
+// 3 since 16 Nov 2026 (owner approved 15 Nov 2026, ENTRY 135 M3: lists open with 3 everywhere); 5 from 9 Nov.
+export const PHONE_FIRST = 3;
 export const showAllClass = (id: string) => `njp-sa-${id}`;
 // The button names the rows it adds (house rule, Cowork 13 Nov 2026, ENTRY 8: "Show 47 more", not "Show all 50"); first is
 // the rows already shown before it.
 // noun (optional): what a row is, so two buttons near each other say what each adds ("Show 4 more divisions on 3 November",
 // "Show 11 more sitting days"; Cowork 13 Nov 2026, ENTRY 9); without it, "Show N more".
 export type MoreNoun = { one: string; many: string };
-export function ShowAllDetails({ id, count, first, noun }: { id: string; count: number; first: number; noun?: MoreNoun }) {
+export function ShowAllDetails({ id, count, first, noun, stepStyle }: { id: string; count: number; first: number; noun?: MoreNoun; stepStyle?: string }) {
   const n = Math.max(0, count - first);
+  // The first press shows 10 with JavaScript (lib/phone-enhance.ts), the rest without it; the label names what it adds.
+  const shown = stepStyle ? Math.min(10, n) : n;
   return (
-    <details className={`njp-sa ${showAllClass(id)}`}>
-      <summary><span className="njp-sa-more">Show {n.toLocaleString('en-GB')} more{noun ? ` ${n === 1 ? noun.one : noun.many}` : ''}</span><span className="njp-sa-less">Show fewer</span></summary>
+    <details className={`njp-sa ${showAllClass(id)}`} data-step-style={stepStyle} data-step-from={stepStyle ? first + 1 : undefined} data-step-left={stepStyle ? n : undefined} data-step-one={noun?.one} data-step-many={noun?.many}>
+      <summary><span className="njp-sa-more st-more">Show {shown.toLocaleString('en-GB')} more{noun ? ` ${shown === 1 ? noun.one : noun.many}` : ''}</span><span className="njp-sa-less">Show fewer</span></summary>
     </details>
   );
 }
@@ -69,9 +74,11 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
   const phoneCss = showAll
     ? `@media ${LIST_FOLD} {${rows ? `${jsOff}${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${jsOff}${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}}`
     : '';
-  const phoneStyle = phoneCss ? <style dangerouslySetInnerHTML={{ __html: phoneCss }} /> : null;
+  // Its own id, so the step script can move the rule on by 10 rows a press (ShowAllDetails' data-step-style).
+  const stepStyle = `njp-css-${id}`;
+  const phoneStyle = phoneCss ? <style id={stepStyle} dangerouslySetInnerHTML={{ __html: phoneCss }} /> : null;
   const ownList = (extra: string) => children ? cloneElement(children as ReactElement<{ className?: string; 'data-own-more'?: string }>, { className: [children.props.className, extra, cardClass].filter(Boolean).join(' '), ...(showAll ? { 'data-own-more': '' } : {}) }) : null;
-  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} /> : null}</>;
+  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} stepStyle={ownMore ? undefined : stepStyle} /> : null}</>;
   const pages = split.length;
   const nums = Array.from({ length: pages }, (_, i) => i + 1);
   const upTo = (k: number) => split.slice(0, k).reduce((a, b) => a + b, 0);   // rows on screens 1 to k
@@ -100,7 +107,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
       {nums.map((k) => <PagerNav key={`top-${k}`} id={id} k={k} pages={pages} always={always} wide={wide && always} top />)}
       {ownList(list)}
       {children && nums.map((k) => <PagerNav key={k} id={id} k={k} pages={pages} always={always} wide={wide && always} />)}
-      {children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} /> : null}
+      {children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} stepStyle={ownMore ? undefined : stepStyle} /> : null}
     </>
   );
 }

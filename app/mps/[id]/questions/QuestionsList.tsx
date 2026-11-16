@@ -19,10 +19,13 @@ const button: CSSProperties = { padding: '8px 14px', background: 'transparent', 
 // stay below. Desktop (1,024px up) unchanged.
 const FIRST = 3;
 const FOLD_CSS = `.ql-more { display: none; } @media ${phoneUpTo(1023.98)} {`
-  + ` .ql-box:has(> .ql-more:not([open])) > .ql-list > li:nth-child(n+${FIRST + 1}) { display: none; }`
-  + ` .ql-box > .ql-more { display: block; margin: 0 0 14px; } .ql-box > .ql-more[open] { display: none; }`
+  + ` .ql-box > .ql-more { display: block; margin: 0 0 14px; }`
   + ` .ql-more > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; }`
   + ` .ql-more > summary::-webkit-details-marker { display: none; } }`;
+
+// The rule hiding the questions after the first ones, in its own style element so the step script (lib/phone-enhance.ts)
+// can show 10 more a press (ENTRY 135 M7, 141 N6); a new one for each page or filter, so stepping starts again.
+const STEP_CSS = `@media ${phoneUpTo(1023.98)} { .ql-box:has(> .ql-more:not([open])) > .ql-list > li:nth-child(n+${FIRST + 1}) { display: none; } }`;
 
 const fmt = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '');
 
@@ -66,6 +69,7 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
   return (
     <div className="ql-box" data-own-more="" style={{ color: INK, fontSize: '15px' }}>
       <style dangerouslySetInnerHTML={{ __html: FOLD_CSS }} />
+      <style key={`${page}-${department}`} id={`ql-step-${page}`} dangerouslySetInnerHTML={{ __html: STEP_CSS }} />
       <label htmlFor="questions-department" style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px' }}>Department</label>
       <select
         id="questions-department"
@@ -98,8 +102,8 @@ export default function QuestionsList({ memberId, initial, total: initialTotal, 
       </ul>
       {rows.length > FIRST && (
         // A new page or department starts folded again (the key changes).
-        <details key={`${page}-${department}`} className="ql-more">
-          <summary>Show {(rows.length - FIRST).toLocaleString('en-GB')} more</summary>
+        <details key={`${page}-${department}`} className="ql-more" data-step-style={`ql-step-${page}`} data-step-from={FIRST + 1} data-step-left={rows.length - FIRST}>
+          <summary><span className="st-more">Show {Math.min(10, rows.length - FIRST).toLocaleString('en-GB')} more</span><span className="st-less">Show fewer</span></summary>
         </details>
       )}
 

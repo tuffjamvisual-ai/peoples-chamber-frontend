@@ -5,8 +5,8 @@ import { phoneUpTo } from '@/lib/breakpoints';
 // lists move onto it when their page is changed.
 //
 //   Phones and tablets (under 1,024px): the list is paged, 20 rows a page, at stable addresses (?page=2). Each page shows its
-//   first 3 rows, then a "Show N more" button (a native <details>, 44px, works without JavaScript) for the rest of that
-//   page, and Previous and Next links under it. Nothing is cut: every row is on one of the pages.
+//   first 3 rows, then a "Show N more" button (a native <details>, 44px, works without JavaScript; with JavaScript each
+//   press shows 10 more, then "Show fewer", ENTRY 135 M7) for the rest of that page, and Previous and Next links under it. Nothing is cut: every row is on one of the pages.
 //   Desktop (1,024px and up): the whole list, as before (owner decision 13 Nov 2026: desktop is not paginated here).
 //
 // The server draws every row (it cannot tell a phone from a desktop); rows outside the page are hidden on phones and
@@ -49,19 +49,22 @@ export default function DataList({ id, count, page, href, rows = '> li', perPage
     `@media ${FOLD} {`,
     start > 0 ? `${row}:nth-child(-n+${start}) { display: none !important; }` : '',
     end < count ? `${row}:nth-child(n+${end + 1}) { display: none !important; }` : '',
-    more > 0 ? `.${box}:has(> .dl-more:not([open])) > .${list} ${rows}:nth-child(n+${start + first + 1}) { display: none !important; }` : '',
-    more > 0 ? `.${box} > .dl-more { display: block; margin: 10px 0 6px; } .${box} > .dl-more > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .${box} > .dl-more > summary::-webkit-details-marker { display: none; } .${box} > .dl-more[open] { display: none; }` : '',
+    more > 0 ? `.${box} > .dl-more { display: block; margin: 10px 0 6px; } .${box} > .dl-more > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .${box} > .dl-more > summary::-webkit-details-marker { display: none; }` : '',
     pages > 1 ? `.${box} > .dl-pages { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0 14px; font-size: 15px; color: #14100d; } .${box} > .dl-pages a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; color: #14100d; font-weight: bold; text-decoration: none; }` : '',
     '}',
   ].join('');
+  // The rule hiding the rows after the first ones, in its own style element so the step script (lib/phone-enhance.ts) can
+  // move it on by 10 rows a press (ENTRY 135 M7, 141 N6).
+  const stepCss = more > 0 ? `@media ${FOLD} { .${box}:has(> .dl-more:not([open])) > .${list} ${rows}:nth-child(n+${start + first + 1}) { display: none !important; } }` : '';
   const listEl = cloneElement(children, { className: [children.props.className, list].filter(Boolean).join(' ') });
   return (
     <div className={box} data-own-more="">
       <style dangerouslySetInnerHTML={{ __html: css }} />
+      {stepCss && <style id={`dl-step-${id}`} dangerouslySetInnerHTML={{ __html: stepCss }} />}
       {listEl}
       {more > 0 && (
-        <details className="dl-more">
-          <summary>Show {more.toLocaleString('en-GB')} more</summary>
+        <details className="dl-more" data-step-style={`dl-step-${id}`} data-step-from={start + first + 1} data-step-left={more}>
+          <summary><span className="st-more">Show {Math.min(10, more).toLocaleString('en-GB')} more</span><span className="st-less">Show fewer</span></summary>
         </details>
       )}
       {pages > 1 && (

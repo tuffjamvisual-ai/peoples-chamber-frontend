@@ -145,7 +145,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
             {askedInArchive.length.toLocaleString('en-GB')} {answered ? (askedInArchive.length === 1 ? 'question' : 'questions') : (askedInArchive.length === 1 ? 'question or answer' : 'questions and answers')} at {questions.length > 0 ? 'Prime Minister\u2019s Questions' : <Link href="/pmqs" style={{ color: ACCENT, textDecoration: 'underline' }}>Prime Minister&rsquo;s Questions</Link>} before July 2024, by year.
           </p>
           {/* UX5 (T1-6, 11 Nov 2026): on phones the first five years, then "Show all"; from 640px up, as before. */}
-          <NoJsPager id="pa-years" count={archiveYears.length} size={archiveYears.length} first={5} />
+          <NoJsPager id="pa-years" count={archiveYears.length} size={archiveYears.length} first={3} />
           {archiveYears.map((y) => (
             <details key={y.year} className={`pa-fold ${njpItem('pa-years')}`}>
               <summary>{y.year}: {y.rows.length.toLocaleString('en-GB')}</summary>
@@ -161,7 +161,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
               </NoJsPager>
             </details>
           ))}
-          <NoJsPagerLinks id="pa-years" count={archiveYears.length} size={archiveYears.length} first={5} />
+          <NoJsPagerLinks id="pa-years" count={archiveYears.length} size={archiveYears.length} first={3} />
         </section>
       )}
       </div>

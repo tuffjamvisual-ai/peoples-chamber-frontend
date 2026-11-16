@@ -11,7 +11,9 @@ import type { ReactNode } from 'react';
 // "Show more" opens (globals.css .mc-first, a rule on the list, no JavaScript), and that control counts what is left from
 // there. A list of more than PHONE_FIRST and no more than the opening gets a phone only "Show all <N>". Nothing changes
 // from 640px up.
-const PHONE_FIRST = 5;
+// 3 since 16 Nov 2026 (owner approved 15 Nov 2026, ENTRY 135 M3); 5 from 9 Nov. An open fold's summary says "Show fewer"
+// (ENTRY 135 M7, 141 N6), so the list can be folded again from where it opened.
+const PHONE_FIRST = 3;
 
 // first: how many items show as the page opens, when fewer than a step, so a page of long items stays within the 10,000px limit.
 // mainAction (UX3a): the first list carries data-main-action, the page's main action that the A6 check measures.
@@ -26,7 +28,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
   const list = (some: ReactNode[], firstList = false, mark = false) => <Tag className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
   if (items.length <= opening) {
     if (phoneOnly || items.length <= pf) return list(items, false, mainAction);
-    return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary>Show {(items.length - pf).toLocaleString('en-GB')} more</summary></details></>;
+    return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary><span className="st-more">Show {(items.length - pf).toLocaleString('en-GB')} more</span><span className="st-less">Show fewer</span></summary></details></>;
   }
   // "Show N more" (T1-GUARD, Cowork 13 Nov 2026, as DataList): N is what the press shows, the next `step` items; on phones the
   // first press also shows the rest of the opening list (globals.css .mc-first).
@@ -34,11 +36,12 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
   const label = (from: number) => (
     // One span: the summary is a flex box, and separate pieces would lose the spaces around the number.
     <summary>
-      <span>
+      <span className="st-more">
         Show {from === opening && !phoneOnly
           ? <><span className="mc-n-wide">{next(from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{(next(from) + from - Math.min(pf, from)).toLocaleString('en-GB')}</span></>
           : next(from).toLocaleString('en-GB')} more
       </span>
+      <span className="st-less">Show fewer</span>
     </summary>
   );
   const rest = (from: number): ReactNode => {

@@ -172,15 +172,18 @@ export default async function DebatesPage({
       {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026, growing lists rule): the newest 3 debates of this page, then
           'Show N more' for the rest of it (a native details, no JavaScript needed); Previous and Next as before. From 1,024px up
           every debate on the page shows, as before. */}
-      <style>{`@media ${phoneUpTo(1023.98)} { .deb-box:has(> .deb-show:not([open])) .deb-later { display: none !important; } .deb-show { display: block !important; margin: 10px 0 6px; } .deb-show > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .deb-show > summary::-webkit-details-marker { display: none; } .deb-show[open] { display: none !important; } }`}</style>
+      <style>{`@media ${phoneUpTo(1023.98)} { .deb-show { display: block !important; margin: 10px 0 6px; } .deb-show > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .deb-show > summary::-webkit-details-marker { display: none; } }`}</style>
+      {/* The rule hiding the later debates, in its own style element: the step script (lib/phone-enhance.ts) lets them through
+          10 at a time by their data-rank (ENTRY 135 M7, 141 N6). */}
+      <style id="deb-step" dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(1023.98)} { .deb-box:has(> .deb-show:not([open])) .deb-later { display: none !important; } }` }} />
       <div className="deb-box">
       {byDate.map((group) => (
-        <section key={group.date} className={rank.get(group.items[0]) !== undefined && rank.get(group.items[0])! >= 3 ? 'deb-later' : undefined} style={{ marginBottom: '28px' }}>
+        <section key={group.date} data-rank={rank.get(group.items[0])} className={rank.get(group.items[0]) !== undefined && rank.get(group.items[0])! >= 3 ? 'deb-later' : undefined} style={{ marginBottom: '28px' }}>
           <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '8px' }}>
             {fmtDate(group.date)}
           </h2>
           {group.items.map((d) => (
-            <div key={d.hansard_ext_id} className={rank.get(d)! >= 3 ? 'deb-later' : undefined} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
+            <div key={d.hansard_ext_id} data-rank={rank.get(d)} className={rank.get(d)! >= 3 ? 'deb-later' : undefined} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <Link href={`/debates/${String(d.hansard_ext_id).toUpperCase()}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK }}>
                 <div style={{ fontSize: 'clamp(15px, 1.8vw, 19px)', fontWeight: 'bold', lineHeight: 1.3 }}>{d.title}</div>
                 {d.summary && <div style={{ fontSize: '15px', color: INK, marginTop: '4px', lineHeight: 1.5 }}>{d.summary}</div>}
@@ -195,7 +198,7 @@ export default async function DebatesPage({
           ))}
         </section>
       ))}
-      {rows.length > 3 && <details className="deb-show" style={{ display: 'none' }}><summary>Show {(rows.length - 3).toLocaleString('en-GB')} more</summary></details>}
+      {rows.length > 3 && <details className="deb-show" style={{ display: 'none' }} data-step-style="deb-step" data-step-rank=".deb-later" data-step-from={4} data-step-left={rows.length - 3}><summary><span className="st-more">Show {Math.min(10, rows.length - 3).toLocaleString('en-GB')} more</span><span className="st-less">Show fewer</span></summary></details>}
       </div>
 
       {totalPages > 1 && (
