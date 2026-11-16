@@ -1062,7 +1062,9 @@ export default function MagazineProfileSections({
                 defined below. Reinstate by restoring the <section> block
                 here if the metrics view is wanted back. */}
 
-            <div style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
+            {/* data-article-body: the biography's inline source links are citations in its text, which A9 allows there
+                (rendered-checks.mjs). Without the mark, an MP whose biography shows first failed A9 (/mps/206, 16 Nov 2026). */}
+            <div data-article-body="" style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
               {paragraphs.length === 0 ? (
                 <p>Biography unavailable.</p>
               ) : (
