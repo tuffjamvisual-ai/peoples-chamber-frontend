@@ -1,12 +1,11 @@
 import { SubFold } from '../components/PhoneFolds';
 import PhoneMore from '../components/PhoneMore';
-import { LIST_FOLD } from '@/lib/breakpoints';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { topics } from '@/lib/topics';
-import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
+import { TWO_COLUMN_CSS } from '@/lib/balance-columns';
 
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
@@ -83,22 +82,13 @@ export default function TopicsIndexPage() {
         </SubFold>
       </header>
 
-      {/* Two balanced columns, no boxes. */}
+      {/* L7 and D5 (owner, 16 Nov 2026, ENTRY 155 and 161; DECISIONS 16 Nov): one list in topic order at every width, opening
+          with 3, then "Show N more" adds 10, with "Show fewer" (PhoneMore; with JavaScript off every topic shows). The
+          two balanced columns it replaces are gone. TWO_COLUMN_CSS still gives phones each topic's short description. */}
       <style>{TWO_COLUMN_CSS}</style>
-      {/* L7 (owner, 16 Nov 2026, ENTRY 155): on phones and tablets up to 1,023px one list in topic order, opening with 3, then
-          "Show N more" adds 10, with "Show fewer" (PhoneMore; with JavaScript off every topic shows); from 1,024px the two
-          balanced columns as before. */}
-      <style>{`.tp-one { display: none; } @media ${LIST_FOLD} { .tp-one { display: block; } .tp-one + .og-two { display: none; } }`}</style>
-      <div className="tp-one">
+      <div data-main-action className="og-two" style={{ gridTemplateColumns: '1fr' }}>
         <div id="topics-one">{topics.map((t) => <TopicCard key={t.slug} t={t} />)}</div>
         <PhoneMore selector="#topics-one" total={topics.length} />
-      </div>
-      <div data-main-action className="og-two">
-        {balanceColumns(topics, (t) => 3 + firstSentence(t.blurb).length / 45).map((col, ci) => (
-          <div key={ci}>
-            {col.map((t) => <TopicCard key={t.slug} t={t} />)}
-          </div>
-        ))}
       </div>
 
     </OpenGovShell>

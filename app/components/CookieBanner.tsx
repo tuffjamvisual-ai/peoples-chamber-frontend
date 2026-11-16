@@ -44,6 +44,8 @@ const BANNER_CSS = `
   .og-cookie-banner .og-cb-actions { gap: 8px !important; margin-top: 0 !important; flex-wrap: nowrap !important; }
   .og-cookie-banner .og-cb-btn { flex: 1 1 0; min-width: 0; min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 0 6px !important; }
   body:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set) body:has(.og-cookie-banner) { padding-bottom: 130px; background-color: #e1c495; } /* the space kept for the banner in the paper colour, not a dark strip (ENTRY 135 L5) */
+  /* D3 (ENTRY 161, 175): on phones too a control reached with Tab is scrolled clear of the bar (up to 130px tall). */
+  html:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set):has(.og-cookie-banner) { scroll-padding-bottom: 138px; }
 }
 /* Tablet and desktop (T1-7ab, owner via Cowork, 10 Nov 2026): the same idea as UX2o, a slim bar fixed to the foot of the
    screen, out of the page flow, so it never pushes the page down or covers the top of it. One line of text ending in
@@ -59,7 +61,8 @@ const BANNER_CSS = `
   .og-cookie-banner .og-cb-actions { display: grid !important; grid-template-columns: 1fr 1fr; gap: 12px !important; margin: 0 !important; flex: none; }
   .og-cookie-banner .og-cb-btn { min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 6px 14px !important; flex: none; }
   body:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set) body:has(.og-cookie-banner) { padding-bottom: 96px; }
-  /* D3 (owner approved 16 Nov 2026, ENTRY 161): while the bar shows, a control reached with Tab is scrolled clear of it. */
+  /* D3 (owner approved 16 Nov 2026, ENTRY 161): from 768px (this block), while the bar shows, a control reached with Tab
+     is scrolled clear of it (the bar is about 66px tall here; 104px leaves room). Phones: the block above (138px). */
   html:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set):has(.og-cookie-banner) { scroll-padding-bottom: 104px; }
 }
 @media ${wideFrom(768)} {
