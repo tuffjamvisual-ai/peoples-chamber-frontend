@@ -2950,7 +2950,8 @@ export default function MagazineProfileSections({
           /* ENTRY 158 (owner, 16 Nov 2026): the padding and spacing are the shared sidebar style (globals.css .og-sidenav), as
              the departments sidebar; the compact 4px padding, no gap and 7px 8px items are gone. */
           .mp-sections-nav { margin-right: 12px !important; }
-          .mp-sections-nav a[data-section] > span { white-space: nowrap; letter-spacing: 0 !important; }
+          /* Long labels wrap inside the 144px item ("Written questions (N)", "Early day motions": Cowork ENTRY 182 item 4, T2 13:12), 44px at least. */
+          .mp-sections-nav a[data-section] > span, .mp-sections-nav a.mp-wq-link > span { white-space: normal !important; letter-spacing: 0 !important; min-height: 44px; box-sizing: border-box; }
           .mp-sections-content { padding-top: 10px !important; }
           .mp-sections-content .pf-sub > h2 { margin-bottom: 10px !important; }
         }
@@ -3030,7 +3031,7 @@ export default function MagazineProfileSections({
                 [data-section] item, so it also shows where the phone hides the section tabs. */}
             {questionTotal > 0 && (
               <a href={`/mps/${memberId}/questions`} className="mp-wq-link" style={{ display: 'block', textDecoration: 'none', color: '#14100d' }}>
-                <span className="og-sidenav-item" style={{ display: 'block', padding: '12px 16px', borderLeft: '4px solid transparent', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                <span className="og-sidenav-item" style={{ display: 'block', padding: '12px 16px', borderLeft: '4px solid transparent', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'inherit', }}>
                   Written questions ({questionTotal.toLocaleString('en-GB')})
                 </span>
               </a>
