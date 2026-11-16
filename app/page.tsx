@@ -136,6 +136,13 @@ export default async function HomePage() {
                 .og-rail > #newsletter:not(:target) { display: none !important; }
                 .og-rail > .og-news-line { display: block !important; }
               }`}</style>
+              {/* Tablets too, up to 1,023px (owner approved 15 Nov 2026, ENTRY 135 M2: the homepage was 3,672px at 768, limit
+                  3,000): the other reports and the promotion cards show their headlines only, which are the links, and the two
+                  folds below fold here as well. The phone layout itself (one column, the order above) stays phones only. */}
+              {/* Small phones, under 480px (ENTRY 135 M2: the homepage was 2,623px at 320, limit 2,500): the lead story keeps its
+                  headline and summary without the opening extract, and the "This week in Parliament" card's text is two lines. */}
+              <style>{`@media ${phoneUpTo(479)} { .og-lead-story .og-lede { display: none !important; } .og-rail > a.og-card[href="/this-week"] > :not(.og-head) { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } }`}</style>
+              <style>{`@media ${phoneUpTo(1023.98)} { .og-brief > :not(.og-head) { display: none !important; } .og-rail > a.og-card:not([href="/this-week"]) > :not(.og-head) { display: none !important; } }`}</style>
               {/* Phones only (owner, 10 Nov 2026, S5-home; the page was 4,689px at 375px): folded, nothing cut. The other
                   reports show their headlines only, which are the links, and so do the four promotion cards (Bills tracker, expenses,
                   manifestos, departments; UX5, T1-6, 11 Nov 2026); the research promotion is in a closed native
@@ -216,7 +223,7 @@ export default async function HomePage() {
                   in full; from 640px up as before. The wrapper carries the phone order. */}
               {whitehallItems.length > 0 && (
                 <div className="og-whitehall-f">
-                <SubFold label={`Latest from Whitehall (${whitehallItems.length})`}>
+                <SubFold tablets label={`Latest from Whitehall (${whitehallItems.length})`}>
                 <section aria-label="Latest from Whitehall" style={{ marginTop: '28px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
                   <h2 style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
                     Latest from Whitehall
@@ -255,7 +262,7 @@ export default async function HomePage() {
                   together in the main column. On phones the rail follows the main column, so it comes after the reports
                   and Latest from Whitehall. Labelled as a service so it reads apart from the journalism. Plain
                   server-rendered markup: no image and no script. */}
-              <SubFold label="Commission research from opengovt">
+              <SubFold tablets label="Commission research from opengovt">
               <section className="og-promo" aria-labelledby="og-promo-head">
                 <div className="og-kicker">opengovt service</div>
                 <h2 id="og-promo-head" className="og-promo-head">Want something investigated from the public record?</h2>

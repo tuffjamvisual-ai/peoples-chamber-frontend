@@ -30,6 +30,7 @@ import { getLeagueData, bandLabel, ordinal } from '@/lib/council-league';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 import BackLink from '@/app/components/BackLink';
+import { LIST_FOLD } from '@/lib/breakpoints';
 import { cachedQuery } from '@/lib/tagged-read';
 import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { tableTags } from '@/lib/source-tags';
@@ -67,6 +68,8 @@ const fyText = (fye: number) => `${fye - 1}/${String(fye).slice(2)}`;
 
 type Council = { slug: string; name: string; short_name: string | null; type: string; type_label: string | null; political_control: string | null; parent_slug: string | null; population: number | null; gss_code: string | null };
 type Card = { key: string; title: string; lines: ReactNode[]; href: string; linkText: string };
+// Sections shown before "Show N more" on phones and tablets (ENTRY 135 M1), after the council.
+const FIRST_CARDS = 3;
 
 // A topic that fails to load is left out (and logged) rather than taking the page down.
 async function settle<T>(label: string, p: Promise<T>): Promise<T | null> {
@@ -377,7 +380,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
           <h2 style={h2}>Your council</h2>
           {council ? (
             <>
-              <p style={big}><a href={`/councils/${council.slug}`} style={{ color: INK }}><strong>{council.name}</strong></a></p>
+              <p style={big}><a href={`/councils/${council.slug}`} className="og-tap" style={{ color: INK }}><strong>{council.name}</strong></a></p>
               {control(council) && <p style={para}>{control(council)}</p>}
               {county && (
                 <p style={para}>
@@ -385,7 +388,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
                   {control(county) ? ` · ${control(county)}` : ''}
                 </p>
               )}
-              <p style={para}><a href={`/councils/${council.slug}`} style={link}>Spending, leadership and services</a></p>
+              <p style={para}><a href={`/councils/${council.slug}`} className="og-tap" style={link}>Spending, leadership and services</a></p>
             </>
           ) : (
             <p style={para}>We could not match a council for this area.</p>
@@ -393,19 +396,30 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
         </section>
       </div>
 
+      {/* Phones and tablets (owner approved 15 Nov 2026, ENTRY 135 M1): the council and the first 3 sections, then the rest
+          behind one "Show N more" (a native details, no JavaScript needed; "Show fewer" folds them again). From 1,024px up
+          every section shows, as before. */}
+      {cards.length > FIRST_CARDS && <style>{`.ya-more { display: none; } @media ${LIST_FOLD} { .ya-box:has(> .ya-more:not([open])) .ya-later { display: none !important; } .ya-more { display: block; margin: 10px 0 6px; } .ya-more > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; } .ya-more > summary::-webkit-details-marker { display: none; } }`}</style>}
       {cards.length > 0 && (
+        <div className="ya-box">
         <div className="og-two">
           {columns.map((col, ci) => (
             <div key={ci}>
               {col.map((c) => (
-                <section key={c.key} style={{ borderTop: `1px solid ${HAIRLINE}`, padding: '14px 0 18px' }}>
+                <section key={c.key} className={cards.indexOf(c) >= FIRST_CARDS ? 'ya-later' : undefined} style={{ borderTop: `1px solid ${HAIRLINE}`, padding: '14px 0 18px' }}>
                   <h2 style={h2}>{c.title}</h2>
                   <div>{c.lines}</div>
-                  <p style={{ ...para, marginTop: '8px', marginBottom: 0 }}><a href={c.href} style={link}>{c.linkText} →</a></p>
+                  <p style={{ ...para, marginTop: '8px', marginBottom: 0 }}><a href={c.href} className="og-tap" style={link}>{c.linkText} →</a></p>
                 </section>
               ))}
             </div>
           ))}
+        </div>
+        {cards.length > FIRST_CARDS && (
+          <details className="ya-more">
+            <summary><span className="st-more">Show {(cards.length - FIRST_CARDS).toLocaleString('en-GB')} more</span><span className="st-less">Show fewer</span></summary>
+          </details>
+        )}
         </div>
       )}
 

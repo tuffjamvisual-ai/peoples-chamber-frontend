@@ -13,6 +13,8 @@ import { notFound } from 'next/navigation'
 import { billStageLine, NO_SUMMARY_TEXT } from '@/lib/bill-summary'
 import BillVotingClient from './BillVotingClient'
 import { NoJsFold } from '@/app/components/NoJsPager'
+import { SubFold } from '@/app/components/PhoneFolds'
+import { phoneUpTo } from '@/lib/breakpoints'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBillLegislation, buildBreadcrumbs } from '@/lib/JsonLd';
@@ -518,10 +520,16 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         </section>
       )}
 
+      {/* Small phones, under 480px (ENTRY 135 M2: /bills/4033 was 2,576px at 320): a little less space around the passage and
+          the poll, so the page keeps within 2,500px. */}
+      <style>{`@media ${phoneUpTo(479)} { #bill-passage { padding-top: 18px !important; margin-bottom: 24px !important; } #vote { padding-top: 18px !important; margin-bottom: 24px !important; } }`}</style>
       {/* Bill passage */}
       {stages.length > 0 && (
         <section id="bill-passage" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '28px', marginBottom: '38px', scrollMarginTop: '16px' }}>
           <Eyebrow>Bill passage</Eyebrow>
+          {/* Phones (owner approved 15 Nov 2026, ENTRY 135 M2: /bills/4033 was 2,576px at 320): the stages in a closed fold
+              under the heading; from 768px up as before. */}
+          <SubFold label={`Stages in Parliament (${commonsStages.length + lordsStages.length + (royalAssent ? 1 : 0)})`}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
             {commonsStages.length > 0 && <StageGroup label="Commons" colour={ACCENT} stages={commonsStages} cancelled={(d) => sittingCancelled(bill, d)} />}
             {lordsStages.length > 0 && <StageGroup label="Lords" colour={DANGER} stages={lordsStages} cancelled={(d) => sittingCancelled(bill, d)} />}
@@ -537,6 +545,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               </div>
             )}
           </div>
+          </SubFold>
         </section>
       )}
 
