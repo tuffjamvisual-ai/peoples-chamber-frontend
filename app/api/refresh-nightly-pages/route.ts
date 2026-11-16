@@ -10,7 +10,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { refreshBills, REFRESH_BATCH } from '@/lib/bill-refresh';
 import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
-import { queuedMps, dequeueMps, mpsDueByDate } from '@/lib/mp-nightly';
+import { queuedMps, dequeueMps } from '@/lib/mp-nightly';
 import { MARKER_ROUTE, clockSkip, withTrigger, triggerName, type TriggerMarker } from '@/lib/nightly-trigger';
 import { refreshTables } from '@/lib/source-tags';
 import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
@@ -41,8 +41,8 @@ async function GET_impl(req: Request) {
   }
   const dry = isDryRun(req);
   if (dry) {
-    const [queued, due] = await Promise.all([queuedMps(supabaseAdmin), mpsDueByDate(supabaseAdmin)]);
-    return NextResponse.json({ dry_run: true, mp_queue: queued.length, earnings_until_yesterday: due.earnings, meetings_dated_yesterday_or_today: due.meetings });
+    const queued = await queuedMps(supabaseAdmin);
+    return NextResponse.json({ dry_run: true, mp_queue: queued.length });
   }
   // A sync's trigger, or the clock (JF1d). A marker that cannot be read or written is logged and never stops the refresh.
   const trigger = triggerName(new URL(req.url).searchParams.get('trigger'));
@@ -102,14 +102,8 @@ async function refreshNightlyMps(): Promise<Record<string, unknown>> {
   } catch (e) {
     out.queue_error = (e as Error).message;
   }
-  try {
-    const due = await mpsDueByDate(supabaseAdmin);
-    refreshMps([...due.earnings, ...due.meetings]);
-    out.earnings_ended = due.earnings.length;
-    out.meetings_due = due.meetings.length;
-  } catch (e) {
-    out.dates_error = (e as Error).message;
-  }
+  // F07 (ENTRY 134): no MP page is refreshed for the date any more (mpsDueByDate is gone): the earnings "Until" day and
+  // the meetings dated today are worked out in the browser (app/mps/[id]/MagazineProfileSections.tsx, useToday).
   return out;
 }
 

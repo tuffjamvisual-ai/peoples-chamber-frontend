@@ -25,28 +25,13 @@ export async function dequeueMps(db: SupabaseClient, done: number[]): Promise<vo
   if (error) throw new Error(`mp-refresh-queue write: ${error.message}`);
 }
 
-const ukLong = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
 // The name key the MP page matches ministers' meetings on (app/mps/[id]/page.tsx, mpNameKey).
 export const mpNameKey = (name: string) =>
   name.replace(/^(?:Rt Hon|Sir|Dame|Dr|Ms|Mrs|Mr|The )\s+/i, '').replace(/\s+(?:MP|QC|KC|CBE|OBE|MBE)\s*$/i, '').trim();
 
-export async function mpsDueByDate(db: SupabaseClient, now = new Date()): Promise<{ earnings: number[]; meetings: number[] }> {
-  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const yesterday = new Date(today.getTime() - 86400_000);
-  const until = `Until: ${ukLong(yesterday)}`;
-  // The current earnings entries (a few hundred), with the "Until:" line in the entry or one of its payments.
-  const earnings = new Set<number>();
-  const { data: rows, error: eErr } = await db.from('mp_registered_interests').select('member_id, interest_text, child_interests')
-    .eq('category_name', '1. Employment and earnings').eq('is_current', true).limit(5000);
-  if (eErr) throw new Error(`earnings until: ${eErr.message}`);
-  for (const r of rows ?? []) if (`${r.interest_text ?? ''} ${JSON.stringify(r.child_interests ?? [])}`.includes(until)) earnings.add(r.member_id as number);
-  const d = (x: Date) => x.toISOString().slice(0, 10);
-  const { data: meet, error: mErr } = await db.from('ministers_meetings').select('minister_name').gte('meeting_date', d(yesterday)).lte('meeting_date', d(today)).limit(5000);
-  if (mErr) throw new Error(`ministers_meetings: ${mErr.message}`);
-  const meetings = await mpsForMinisterNames(db, (meet ?? []).map((r) => String(r.minister_name ?? '')));
-  return { earnings: [...earnings], meetings };
-}
+// mpsDueByDate (the MPs whose page changed with the date) was removed on 16 Nov 2026 (F07, ENTRY 134): those parts are
+// worked out in the browser now.
 
 // MPs whose page lists a minister's meetings or hospitality: the page matches minister_name containing the MP's name
 // key (app/mps/[id]/page.tsx), so the same match is made here.

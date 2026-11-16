@@ -3,6 +3,8 @@
 import PageSources from '../../components/PageSources';
 import PhoneMore from '../../components/PhoneMore';
 import { shortDayMonthYear, shortMonthYear } from '@/lib/short-date';
+import { useToday } from '@/app/components/useToday';
+import { londonDay } from '@/lib/london-date';
 import { pageview } from '@vercel/analytics';
 import { billSummary } from '@/lib/bill-summary';
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
@@ -321,6 +323,8 @@ interface Props {
   /** The Electoral Commission cross check of APPG funders failed for this render (page.tsx); shows one line instead. */
   appgDonorCheckFailed?: boolean;
   ministerMeetings?: MinisterMeeting[];
+  /** The London day the server rendered the page (F07, ENTRY 134): the first render's 'today', so the HTML and the browser match. */
+  renderedOn?: string;
   ministerHospitality?: MinisterHospitality[];
   /** Special advisers this minister appointed (Cabinet Office named list), shown in Roles. */
   spadAdvisers?: { release: SpadReleaseRow; rows: SpadRow[]; interests?: Record<string, { total: number; recusals: number }>; leftOn?: Record<string, string | null>; ministerName: string; gender: string | null } | null;
@@ -594,8 +598,9 @@ export default function MagazineProfileSections({
   constituencyDonations = [],
   appgs = [],
   appgDonorCheckFailed = false,
-  ministerMeetings = [],
+  ministerMeetings: ministerMeetingsAll = [],
   ministerHospitality = [],
+  renderedOn,
   spadAdvisers = null,
   conductFindings = [],
   career = null,
@@ -622,6 +627,11 @@ export default function MagazineProfileSections({
   edms = null,
   lastUpdated = {},
 }: Props) {
+  // F07 (ENTRY 134, owner approved 15 Nov 2026): the date-dependent parts are worked out in the browser (useToday, as
+  // f5fde0cb did for other pages), so the page is not rebuilt each night for the date: ministers' meetings dated after
+  // today (source typos) are hidden, and an earnings role counts as current through its "Until" day.
+  const today = useToday(renderedOn ?? londonDay());
+  const ministerMeetings = ministerMeetingsAll.filter((m) => !m.meeting_date || String(m.meeting_date).slice(0, 10) <= today);
   // Biography visibility: the database switch (mp_biography.bio_visible) decides
   // whenever that column exists (the page selects the whole row, so it arrives as
   // true/false). The code list BIO_VISIBLE_MEMBER_IDS is only used if the column
@@ -1947,7 +1957,6 @@ export default function MagazineProfileSections({
             anyOngoing: boolean;     // any role with no Until date
           };
           const byPayer = new Map<string, Row>();
-          const now = new Date();
 
           for (const i of cat1) {
             const raw = String(i.interest_text || '').replace(/\r\n/g, '|');
@@ -2008,7 +2017,9 @@ export default function MagazineProfileSections({
 
           function isActiveRow(r: Row): boolean {
             if (r.anyOngoing) return true;
-            return r.untilDate ? r.untilDate >= now : false;
+            // The stated Until day (its own calendar day, as parsed) against today's London day (F07): current through it.
+            const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            return r.untilDate ? ymd(r.untilDate) >= today : false;
           }
 
           // Earnings in the role of MP (salary + ministerial supplement) are

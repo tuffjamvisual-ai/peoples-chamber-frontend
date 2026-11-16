@@ -40,6 +40,7 @@ import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-
 import { councilForConstituency } from '@/lib/related-links';
 import { handled, orNull } from '@/lib/settle';
 import { cachedQuery, tagged } from '@/lib/tagged-read';
+import { londonDay } from '@/lib/london-date';
 import { tableTags } from '@/lib/source-tags';
 
 
@@ -379,10 +380,11 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // Reeves and Peter Kyle.
   const diaryPart = lastNamePrefilter(lastWord).replace(/[%_,]/g, '');
   // Kept per member for an hour (lib/mp-cache.ts, W2): readAll starts with a head count the fetch cache does not keep.
-  const pMeetingsHosp = handled(withTimeout(mpCached('ministers-diary', memberId, () => Promise.all([
+  const pMeetingsHosp = handled(withTimeout(mpCached('ministers-diary-v2', memberId, () => Promise.all([
     readAll<MinisterMeeting>(() => supabase.from('ministers_meetings'), {
       columns: 'id, minister_name, minister_dept, meeting_date, organisation, purpose, quarter, enriched_description, source_publication_slug',
-      filter: (q) => q.ilike('minister_name', `%${diaryPart}%`).lte('meeting_date', new Date().toISOString().slice(0, 10)),
+      // Every meeting; one dated after today (a source typo) is hidden in the browser (F07, MagazineProfileSections).
+      filter: (q) => q.ilike('minister_name', `%${diaryPart}%`),
       orderBy: [{ column: 'meeting_date', ascending: false }, { column: 'id', ascending: false }],
       label: `/mps/${memberId} ministers_meetings`,
     }),
@@ -819,6 +821,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         appgs: mpAppgs,
         appgDonorCheckFailed,
         ministerMeetings: meetings,
+        renderedOn: londonDay(),
         ministerHospitality: hospitality,
         spadAdvisers: spadAdvisers ? { ...spadAdvisers, ministerName: fullName, gender: mp.gender ?? null } : null,
         contributions,
