@@ -26,6 +26,7 @@ import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { displayMpName } from '@/lib/mp-name';
 import { readAll, readAllById } from '@/lib/read-all';
+import { recipientIsMp, stripHonorific } from '@/lib/mp-recipient-match';
 import { tableTags } from '@/lib/source-tags';
 import { SubFold } from '../../components/PhoneFolds';
 
@@ -106,6 +107,8 @@ const loadMatches = unstable_cache(
     fetchAllDonations(),
     supabase.from('mps').select('member_id, display_name').eq('current_member', true),
   ]);
+  // F01: a failed MP read throws, so the cache keeps its last good version instead of storing no pairings.
+  if (mpsRes.error) throw new Error(`/donations/double-dip mps: ${mpsRes.error.message}`);
   const mpById = new Map<number, { member_id: number; display_name: string | null }>();
   for (const m of (mpsRes.data || []) as Array<{ member_id: number; display_name: string | null }>) {
     mpById.set(m.member_id, m);
@@ -129,16 +132,17 @@ const loadMatches = unstable_cache(
   for (const [memberId, payerMap] of payerByMp) {
     const mp = mpById.get(memberId);
     if (!mp || !mp.display_name) continue;
-    const mpFirst = mp.display_name.split(/\s+/)[0]?.toLowerCase() || '';
-    const mpLast = mp.display_name.split(/\s+/).pop()?.toLowerCase() || '';
+    // F01 (ENTRY 134, owner approved 15 Nov 2026): the MP's name and the recipient test are the Donations tab's
+    // (app/api/mps/[id]/donations/route.ts): honorifics off, then lib/mp-recipient-match.ts recipientIsMp (whole words,
+    // the last name exactly, a first name or a longer form of it). The old test kept "Rt Hon" or "Dr" as the first name and
+    // matched substrings ("dan" in "Jordan").
+    const mpKey = stripHonorific(mp.display_name);
+    const mpFirst = mpKey.split(/\s+/)[0]?.toLowerCase() ?? '';
+    const mpLast = mpKey.split(/\s+/).slice(-1)[0]?.toLowerCase() ?? '';
     for (const [normPayer, payerInfo] of payerMap) {
       const donations = donationsByNormDonor.get(normPayer);
       if (!donations || donations.length === 0) continue;
-      const matched = donations.filter((d) => {
-        if (!d.recipient_name) return false;
-        const r = d.recipient_name.toLowerCase();
-        return r.includes(mpFirst) && r.includes(mpLast);
-      });
+      const matched = donations.filter((d) => recipientIsMp(d.recipient_name, mpFirst, mpLast));
       if (matched.length === 0) continue;
       const matchedTotal = matched.reduce((s, d) => s + Number(d.amount || 0), 0);
       matches.push({
@@ -157,7 +161,7 @@ const loadMatches = unstable_cache(
   matches.sort((a, b) => b.donatedTotal - a.donatedTotal);
     return { matches };
   },
-  ['double-dip-matches-v1'],
+  ['double-dip-matches-v2'], // v2: F01's matching (ENTRY 134), so the old result is not served
   { revalidate: false, tags: [DONATIONS_TAG, ...tableTags('mp_registered_interests', 'mps')] },
 );
 
