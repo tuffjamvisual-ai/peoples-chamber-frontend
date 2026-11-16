@@ -77,7 +77,7 @@ export default async function SpendingPage() {
       <div style={{ zoom: 1.18, fontFamily: 'var(--font-special-elite), monospace' }}>
         <p style={{ fontSize: '16px', lineHeight: 1.7, marginBottom: '8px', maxWidth: '720px' }}>
           {fmtMillions(totalReported)} in Total Departmental Expenditure Limits across {reported.length} of the
-          24 ministerial departments, FY {fy} plans. {top ? `${top.name} alone is ${topShare}% of it.` : ''}
+          24 ministerial departments, FY {fy} plans. {top ? `${top.name} alone is ${topShare} per cent of it.` : ''}
         </p>
 <ShowAll id="spending-reported" count={(reported).length} rows="> li">
 <ol data-main-action style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -88,7 +88,8 @@ export default async function SpendingPage() {
             return (
               <li key={m.slug} style={{ marginBottom: '14px' }}>
                 <Link href={`/departments/${m.slug}`} style={{ display: 'block', color: ink, textDecoration: 'none' }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '4px' }}>
+                  {/* flex-wrap: on a narrow phone the figures go under the name instead of touching the edge (ENTRY 141 N11). */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '0 12px', marginBottom: '4px' }}>
                     <span style={{ fontSize: '15px' }}>
                       <span style={{ marginRight: 8 }}>{(i + 1).toString().padStart(2, '0')}</span>
                       {m.name}

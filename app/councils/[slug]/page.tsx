@@ -853,7 +853,7 @@ function lastElectionSub(year: number | null | undefined, comp: CouncilCompositi
   // Turnout only where the council-wide figure is stored; a note for each extra poll counted in, with its reason.
   const fmt = (d: string) => `${Number(d.slice(8, 10))} ${MONTH_NAMES[Number(d.slice(5, 7)) - 1]} ${d.slice(0, 4)}`;
   const extra = sum
-    ? (sum.turnout != null ? ` Turnout ${sum.turnout}%.` : '') +
+    ? (sum.turnout != null ? ` Turnout ${sum.turnout} per cent.` : '') +
       sum.extraPolls.map((p) => p.reason === 'postponed'
         ? ` Includes the ${p.ward} poll, postponed to ${fmt(p.date)}.`
         : ` Includes the ${p.ward} poll of ${fmt(p.date)}, held for seats left unfilled on ${fmt(sum.date)}.`).join('')

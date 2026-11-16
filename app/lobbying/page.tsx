@@ -180,7 +180,7 @@ export default async function LobbyingPage() {
           it. Organisations are counted only when their name matches a spelling checked by hand,
           GOV.UK’s official list of public bodies or the name of a council; people’s names, job titles,
           generic entries (“various stakeholders”) and names that could mean more than one organisation
-          are left out of the rankings but kept in the meeting records.{summary ? ` So far ${matchedShare}% of the ${(summary.mentions - summary.mentions_excluded).toLocaleString('en-GB')} organisation names in the meeting returns are matched${summary.meetings_counted > 0 ? `, and a matched organisation is named in ${meetingShare}% of meetings` : ''}; the rest are still to be checked, so less frequent visitors may be missing from the rankings.` : ''}{' '}
+          are left out of the rankings but kept in the meeting records.{summary ? ` ${matchedShare} per cent of the ${(summary.mentions - summary.mentions_excluded).toLocaleString('en-GB')} organisation names in the meeting returns are matched${summary.meetings_counted > 0 ? `, and a matched organisation is named in ${meetingShare} per cent of meetings` : ''}; the rest are still to be checked, so less frequent visitors may be missing from the rankings.` : ''}{' '}
           Departments publish their returns months after the meetings, so the most recent months
           are incomplete. The lobbyist register covers {summary ? registerSpan(summary.orcl_first_quarter, summary.orcl_last_quarter) : 'recent quarters'}.
           Sources: GOV.UK ministers’ meetings transparency returns and the Registrar of Consultant

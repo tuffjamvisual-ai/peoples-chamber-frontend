@@ -75,9 +75,9 @@ function WithdrawnNotice() {
           <Link href="/editorials/0w7zrd55z9" style={link}>Every Council &lsquo;Bankruptcy&rsquo; Notice Since 2018, Listed</Link>.
         </p>
         <p style={para}>
-          <Link href="/councils" style={link}>All councils</Link>
+          <Link href="/councils" className="og-tap" style={link}>All councils</Link>
           {' · '}
-          <Link href="/councils/search" style={link}>Search for a council</Link>
+          <Link href="/councils/search" className="og-tap" style={link}>Search for a council</Link>
         </p>
       </article>
     </OpenGovShell>

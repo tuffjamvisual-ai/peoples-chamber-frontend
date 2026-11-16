@@ -75,7 +75,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
         </header>
         {orgPage?.kind === 'registry' && orgPage.lobby_org_id === org.org_id && (
           <p style={{ ...para, margin: '-12px 0 24px' }}>
-            <Link href={`/organisations/${org.slug}`} style={{ color: ACCENT }}>{org.name} across all our records</Link>
+            <Link href={`/organisations/${org.slug}`} className="og-tap" style={{ color: ACCENT }}>{org.name} across all our records</Link>
           </p>
         )}
 

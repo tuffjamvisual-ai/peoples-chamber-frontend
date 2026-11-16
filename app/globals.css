@@ -196,11 +196,15 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .mc-more > summary { justify-content: center; margin: 12px 0 8px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; }
 /* MoreChain on phones and tablets (MP2f; up to 1,023px, T1-TABFOLD, owner approved 13 Nov 2026): the first 5 of the opening
    list until the first "Show more" opens; its count from there. */
-.mc-phone, .mc-n-phone { display: none; }
+.mc-phone, .mc-n-phone, .mc-n-js { display: none; }
+/* The chain stepped 10 a press with JavaScript (lib/phone-enhance.ts, Cowork ENTRY 152): rows past the step and the opened folds' own summaries. */
+.mc-h, .mc-more.mc-js > summary { display: none !important; }
 @media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   .mc-phone { display: block; }
   .mc-n-phone { display: inline; }
   .mc-n-wide { display: none; }
+  html.og-js .mc-n-js { display: inline; }
+  html.og-js .mc-n-nojs { display: none; }
   .mc-first:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4) { display: none !important; }
   /* MoreChain phoneFirst (UX5, T1-6, 11 Nov 2026): fewer than five of the opening list, for long items. */
   .mc-first.mc-pf1:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+2), .mc-first.mc-pf2:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+3), .mc-first.mc-pf3:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4), .mc-first.mc-pf4:has(+ .mc-more:not([open])):not(:has(:target)) > :nth-child(n+5) { display: none !important; }

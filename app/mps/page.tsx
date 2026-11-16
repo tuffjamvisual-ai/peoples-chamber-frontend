@@ -17,7 +17,12 @@ export const metadata: Metadata = {
   alternates: { canonical: '/mps' },
 };
 
-export default async function MPsPage() {
+// The list reads its filters from the address (MagazineMPsClient, useSearchParams). Built ahead of time, the page held only
+// the Suspense placeholder (400px) and the list arrived in the browser: a layout shift of 0.08 on tablets and no list
+// without JavaScript (ENTRY 135 L6, Cowork ENTRY 148). Awaiting searchParams renders it per request with the list in the
+// HTML, as /laws does; the read stays cached under the mps tag.
+export default async function MPsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  await searchParams;
   const { data: rows, error } = await cachedQuery(['q:app/mps/page.tsx:9281e4b54b'], tableTags('mps'), () => supabase
     .from('mps')
     .select('member_id, name, display_name, party, party_colour, constituency, photo_url')

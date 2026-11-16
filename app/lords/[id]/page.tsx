@@ -83,7 +83,8 @@ function PostList({ posts, current }: { posts: Post[]; current: boolean }) {
         <li key={`${p.name}-${p.startDate}-${i}`} style={{ padding: '5px 0', borderBottom: divider }}>
           <strong>{p.name}</strong>
           {p.additionalInfo && p.additionalInfo !== p.name && <span>, {p.additionalInfo}</span>}
-          <span style={{ whiteSpace: 'nowrap' }}> · {p.startDate ? fmt(p.startDate) : ''}{p.endDate ? ` to ${fmt(p.endDate)}` : ' to date'}</span>
+          {/* inline-block, not nowrap: the whole date range moves to the next line in every browser (ENTRY 141 N7: WebKit cut it off). */}
+          <span style={{ display: 'inline-block' }}> · {p.startDate ? fmt(p.startDate) : ''}{p.endDate ? ` to ${fmt(p.endDate)}` : ' to date'}</span>
         </li>
       ))}
     </ul>

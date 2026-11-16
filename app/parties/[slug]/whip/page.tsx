@@ -247,18 +247,19 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
                   <span style={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '15px' }}>{r.rebellions} vote{r.rebellions === 1 ? '' : 's'} against</span>
                   <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}% of {r.totalVotes} votes</span>
                 </div>
+                {/* Each vote's title is a 44px tap on phones and tablets (globals.css .og-tap; Cowork ENTRY 152 item 2). */}
                 {shown.length > 0 && (
                   <p style={{ fontSize: '15px', margin: '5px 0 0', lineHeight: 1.55 }}>
                     {shown.map((k, j) => (
                       <span key={k.key}>
-                        <Link href={`/divisions/pw-${k.date}-${k.num}-commons`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '2px' }}>{k.title || `Division ${k.num} (${k.date})`}</Link>
+                        <Link href={`/divisions/pw-${k.date}-${k.num}-commons`} className="og-tap" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '2px' }}>{k.title || `Division ${k.num} (${k.date})`}</Link>
                         {j < shown.length - 1 ? '; ' : ''}
                       </span>
                     ))}
                     {moreCount > 0 && (
                       <>
                         {'; '}
-                        <Link href={`/mps/${r.memberId}#voting`} style={{ color: ACCENT, textDecoration: 'underline' }}>+{moreCount} more</Link>
+                        <Link href={`/mps/${r.memberId}#voting`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline' }}>+{moreCount} more</Link>
                       </>
                     )}
                   </p>

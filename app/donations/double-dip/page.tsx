@@ -176,7 +176,7 @@ export default async function DoubleDipPage() {
           Double dipping: MPs paid both as employees and as donors
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {matches.length} confirmed pairings where an MP names an entity on their Register of Interests employment and earnings entry that also appears on the Electoral Commission donations register as a donor to that same MP. Both registers are public. Reading them side by side has not been possible until now. The match rule is deliberately conservative (an exact entity name, ignoring case), so the list misses subsidiary chains and trading variants. Every pairing below is a direct overlap with the same entity.
+          {matches.length} confirmed pairings where an MP names an entity on their Register of Interests employment and earnings entry that also appears on the Electoral Commission donations register as a donor to that same MP. Both registers are public. Reading them side by side was not possible before this list. The match rule is deliberately conservative (an exact entity name, ignoring case), so the list misses subsidiary chains and trading variants. Every pairing below is a direct overlap with the same entity.
         </p>
       </header>
 

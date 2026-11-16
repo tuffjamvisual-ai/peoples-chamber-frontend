@@ -204,6 +204,41 @@ document.addEventListener('click',function(e){
   if(added>=left){if(d.__fewer){d.__fewer.remove();d.__fewer=null}return}
   e.preventDefault();stepTo(d,added);
 });
+// MoreChain on phones and tablets (Cowork ENTRY 152 item 1, owner rule, 16 Nov 2026): /petitions, /edms/[id] and the PMQs
+// archive keep 25 a press from 1,024px up and without JavaScript; with it, up to 1,023px, each press adds 10 across the
+// chain: its folds open as the rows reach them (their own summaries hidden, .mc-js), rows past the step are hidden (.mc-h),
+// and "Show N more" and "Show fewer" buttons follow the chain. "Show fewer" goes back to the opening rows and folds.
+function chainOf(d){
+  while(d.parentElement&&d.parentElement.matches('details.mc-more'))d=d.parentElement;
+  if(d.__chain)return d.__chain;
+  var first=d.previousElementSibling;if(!first||!first.classList.contains('mc-first'))return null;
+  var pf=3;for(var k=1;k<5;k++)if(first.classList.contains('mc-pf'+k))pf=k;
+  var items=[].slice.call(first.children),ds=[],x=d;
+  while(x){x.__start=items.length;ds.push(x);var l=x.querySelector(':scope > ul, :scope > ol');if(l)items=items.concat([].slice.call(l.children));x=x.querySelector(':scope > details.mc-more')}
+  pf=Math.min(pf,items.length);
+  d.__chain={first:first,top:d,pf:pf,items:items,ds:ds,n:pf};return d.__chain;
+}
+function chainShow(c,n){
+  n=Math.min(n,c.items.length);c.n=n;var on=n>c.pf;
+  c.items.forEach(function(e,i){e.classList.toggle('mc-h',on&&i>=n)});
+  c.ds.forEach(function(d,j){d.classList.toggle('mc-js',on);d.open=on&&(j===0||d.__start<n)});
+  if(!on){if(c.more){c.more.remove();c.fewer.remove();c.more=c.fewer=null}return}
+  if(!c.more){
+    c.more=document.createElement('button');c.more.type='button';c.more.className='og-phone-more';
+    c.more.addEventListener('click',function(){chainShow(c,c.n+STEP)});
+    c.fewer=document.createElement('button');c.fewer.type='button';c.fewer.className='og-phone-more st-fewer';c.fewer.textContent='Show fewer';
+    c.fewer.addEventListener('click',function(){chainShow(c,c.pf);var r=c.first.getBoundingClientRect();if(r.top<0)c.first.scrollIntoView({block:'start'})});
+    c.top.after(c.more,c.fewer);
+  }
+  var left=c.items.length-n;
+  c.more.style.display=left>0?'':'none';c.more.textContent='Show '+Math.min(STEP,left).toLocaleString('en-GB')+' more';
+}
+document.addEventListener('click',function(e){
+  var s=e.target.closest&&e.target.closest('details.mc-more > summary');
+  if(!s||!listsWide())return;
+  var c=chainOf(s.parentElement);if(!c)return;
+  e.preventDefault();chainShow(c,c.n+STEP);
+});
 window.__ogPhone=function(buttons){
   if(location.href!==here){
     here=location.href;

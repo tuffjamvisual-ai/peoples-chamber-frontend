@@ -19,6 +19,11 @@ const PHONE_FIRST = 3;
 // mainAction (UX3a): the first list carries data-main-action, the page's main action that the A6 check measures.
 // phoneFirst (UX5, T1-6, 11 Nov 2026): how many of the opening list show on phones, in place of PHONE_FIRST, for items too
 // long for five to fit the 2,500px phone length. Nothing changes from 640px up.
+// On phones and tablets with JavaScript each press adds 10 (owner rule; Cowork ENTRY 152 item 1, 16 Nov 2026): the chain's
+// folds are opened 10 items at a time by lib/phone-enhance.ts, so the first label says 10 (mc-n-js, html.og-js); without
+// JavaScript a press opens the next fold whole and the label says so (mc-n-nojs). From 1,024px up nothing changes: 25 a press.
+const phoneCount = (n: number) => <><span className="mc-n-nojs">{n.toLocaleString('en-GB')}</span><span className="mc-n-js">{Math.min(10, n).toLocaleString('en-GB')}</span></>;
+
 type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean; mainAction?: boolean; phoneFirst?: number };
 
 export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false, mainAction = false, phoneFirst = PHONE_FIRST }: Props) {
@@ -28,7 +33,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
   const list = (some: ReactNode[], firstList = false, mark = false) => <Tag className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
   if (items.length <= opening) {
     if (phoneOnly || items.length <= pf) return list(items, false, mainAction);
-    return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary><span className="st-more">Show {(items.length - pf).toLocaleString('en-GB')} more</span><span className="st-less">Show fewer</span></summary></details></>;
+    return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary><span className="st-more">Show {phoneCount(items.length - pf)} more</span><span className="st-less">Show fewer</span></summary></details></>;
   }
   // "Show N more" (T1-GUARD, Cowork 13 Nov 2026, as DataList): N is what the press shows, the next `step` items; on phones the
   // first press also shows the rest of the opening list (globals.css .mc-first).
@@ -38,7 +43,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
     <summary>
       <span className="st-more">
         Show {from === opening && !phoneOnly
-          ? <><span className="mc-n-wide">{next(from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{(next(from) + from - Math.min(pf, from)).toLocaleString('en-GB')}</span></>
+          ? <><span className="mc-n-wide">{next(from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{phoneCount(next(from) + from - Math.min(pf, from))}</span></>
           : next(from).toLocaleString('en-GB')} more
       </span>
       <span className="st-less">Show fewer</span>

@@ -51,6 +51,8 @@ const SELECT = 'month, average_price, change_1m_pct, change_12m_pct, sales_volum
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const fmtMonth = (iso: string) => `${MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`;
 const fmtPrice = (n: number) => `£${Math.round(n).toLocaleString('en-GB')}`;
+// In a sentence (ENTRY 141 N13): "up 12.4 per cent", not "+12.4%"; fmtChange stays for the table.
+const changeWords = (p: number) => (p === 0 ? 'no change' : `${p > 0 ? 'up' : 'down'} ${Math.abs(p).toFixed(1)} per cent`);
 const fmtChange = (p: number | null) => (p == null ? 'n/a' : `${p > 0 ? '+' : p < 0 ? '−' : ''}${Math.abs(p).toFixed(1)}%`);
 
 function Section({ children }: { children: React.ReactNode }) {
@@ -146,8 +148,8 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 16px' }}>
         {[
-          latest.change_12m_pct != null ? `${fmtChange(latest.change_12m_pct)} over 12 months` : null,
-          latest.change_1m_pct != null ? `${fmtChange(latest.change_1m_pct)} over 1 month` : null,
+          latest.change_12m_pct != null ? `${changeWords(latest.change_12m_pct)} over 12 months` : null,
+          latest.change_1m_pct != null ? `${changeWords(latest.change_1m_pct)} over 1 month` : null,
           latestSales ? `${latestSales.sales_volume!.toLocaleString('en-GB')} sales in ${fmtMonth(latestSales.month)}` : null,
         ].filter(Boolean).join(' · ')}
       </p>
@@ -177,7 +179,7 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
             <span>{trend[trend.length - 1].month.slice(0, 4)}</span>
           </div>
           <details style={{ marginTop: '6px' }}>
-            <summary style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, cursor: 'pointer' }}>Yearly figures</summary>
+            <summary style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, cursor: 'pointer', minHeight: '44px', display: 'flex', alignItems: 'center' }}>Yearly figures</summary>
             <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '6px' }}>
               <tbody>
                 {trend.map((t) => (
