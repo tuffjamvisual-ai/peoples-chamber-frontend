@@ -22,6 +22,12 @@ import os from 'os';
 import path from 'path';
 import { execFileSync, spawn } from 'child_process';
 import { checkRange } from './layout-lock.mjs';
+import { fileURLToPath } from 'url';
+
+// This script's own folder (ENTRY 185): its helper scripts come from the code being pushed (scripts/git-hooks/pre-push runs
+// this file from a worktree of the pushed commit), never from whatever branch the checkout is on.
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const DRY = process.env.PUSH_CHECKS_DRY === '1';
 
 const git = (...a) => execFileSync('git', a, { encoding: 'utf8' }).trim();
 const ZERO = /^0+$/;
@@ -70,7 +76,8 @@ for (const [, local, , remote] of refs) {
       }
     }
   }
-  try { execFileSync('node', [path.join('scripts', 'checks', 'a16-cache-rule.mjs'), '--sha', local], { stdio: 'inherit' }); }
+  console.log(`push checks: A16 from ${path.join(HERE, 'a16-cache-rule.mjs')}`);
+  try { execFileSync('node', [path.join(HERE, 'a16-cache-rule.mjs'), '--sha', local], { stdio: 'inherit' }); }
   catch { process.exit(1); }
 }
 const passed = fs.existsSync(passedFile) ? fs.readFileSync(passedFile, 'utf8').trim() : '';
@@ -112,7 +119,10 @@ try {
   if (fs.existsSync(FETCH_CACHE_KEEP)) {
     fs.mkdirSync(path.dirname(wtFetch), { recursive: true });
     run('cp', [process.platform === 'darwin' ? '-cR' : '-R', FETCH_CACHE_KEEP, wtFetch]);
-  }
+    console.log(`push checks: fetch-cache copied from ${FETCH_CACHE_KEEP} into the check build`);
+  } else console.log('push checks: no saved fetch-cache; the build reads the database');
+  // A dry run (PUSH_CHECKS_DRY=1, ENTRY 185) stops here, before the build: the layout lock, A16 and the copies ran.
+  if (DRY) { console.log(`push checks: dry run, stopping before the build of ${sha.slice(0, 8)}`); code = 0; throw new Error('dry run'); }
   const env = { ...process.env, RECOMMENDATIONS_PUBLIC: '1' };
   execFileSync('npx', ['next', 'build'], { cwd: wt, env, stdio: ['ignore', 'ignore', 'inherit'] });
   // Keep this build's data cache for the next check build (replaced whole, so it never grows stale entries forever).
@@ -151,7 +161,8 @@ try {
     console.error(`Server log: ${serverLog}${lines.length ? `; its error lines:\n  ${lines.join('\n  ')}` : ' (no error lines)'}`);
   }
 } catch (e) {
-  if (vrStopped) console.error(`Push ${e.message}.`);
+  if (DRY && e.message === 'dry run') { /* the dry run's planned stop */ }
+  else if (vrStopped) console.error(`Push ${e.message}.`);
   else console.error(`Push refused: the mobile audit could not run: ${e.message.split('\n')[0]}`);
 } finally {
   if (server) { try { process.kill(-server.pid); } catch { /* already gone */ } }

@@ -1,4 +1,35 @@
 #!/bin/sh
-# Refuses a push when the fast mobile audit fails (owner, 4 Nov 2026). Turn on once per clone:
-#   git config core.hooksPath scripts/git-hooks
-exec node scripts/checks/mobile-audit-prepush.mjs
+# The push checks, run from the code being pushed, never from whatever branch this checkout is on (owner approved
+# 16 Nov 2026, COWORK-TO-T1 ENTRY 185). The pushed commit is checked out on its own into a temporary worktree and ITS
+# scripts/checks/mobile-audit-prepush.mjs runs (layout lock, A16, then the build and page checks, the fetch-cache copy),
+# with this checkout only lending node_modules and .env.local. A commit not built on origin/main is refused: rebase first.
+# Install outside any checkout so a branch switch can never change it (see scripts/git-hooks/README.md):
+#   mkdir -p ~/opengovt-backup/git-hooks && cp scripts/git-hooks/pre-push ~/opengovt-backup/git-hooks/
+#   git config core.hooksPath ~/opengovt-backup/git-hooks
+# PUSH_CHECKS_DRY=1 runs the checks up to the build (layout lock, A16, worktree and cache copies) and then stops.
+set -eu
+top=$(git rev-parse --show-toplevel)
+input=$(cat)
+sha=$(printf '%s\n' "$input" | awk '$2 !~ /^0+$/ { print $2; exit }')
+[ -n "$sha" ] || exit 0   # only deletions
+git fetch -q origin main 2>/dev/null || true
+if ! git merge-base --is-ancestor origin/main "$sha"; then
+  echo "Push refused: ${sha%"${sha#????????}"} is not built on origin/main. Rebase it on origin/main, then push again." >&2
+  exit 1
+fi
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/opengovt-hook-XXXXXX")
+cleanup() { git -C "$top" worktree remove --force "$tmp" >/dev/null 2>&1 || true; git -C "$top" worktree prune >/dev/null 2>&1 || true; rm -rf "$tmp"; }
+trap cleanup EXIT
+git -C "$top" worktree add -q --detach "$tmp" "$sha"
+# The checks run inside that worktree, so every path they use (their own scripts, node_modules, .env.local, the build
+# cache) is the pushed commit's or a copy: clones of this checkout's node_modules and turbopack cache (APFS, instant) and
+# .env.local, which the cleanup removes with the worktree.
+cp -cR "$top/node_modules" "$tmp/node_modules" 2>/dev/null || cp -R "$top/node_modules" "$tmp/node_modules"
+cp "$top/.env.local" "$tmp/.env.local"
+if [ -d "$top/.next/cache/turbopack" ]; then mkdir -p "$tmp/.next/cache"; cp -cR "$top/.next/cache/turbopack" "$tmp/.next/cache/turbopack" 2>/dev/null || true; fi
+echo "push checks: running scripts/checks/mobile-audit-prepush.mjs from ${sha%"${sha#????????}"} in its own worktree (not from this checkout's branch)"
+cd "$tmp"
+status=0
+printf '%s\n' "$input" | node "$tmp/scripts/checks/mobile-audit-prepush.mjs" || status=$?
+rm -f "$tmp/.env.local"
+exit $status
