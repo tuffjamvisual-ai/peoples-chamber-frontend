@@ -23,7 +23,7 @@ export const CYCLE_HOURS: Record<string, number> = {
   '/api/sync-committee-memberships': 3 * DAY_H,
   '/api/sync-hansard-contributions': 3 * DAY_H,
   '/api/sync-person-cache': 3 * DAY_H,
-  '/api/sync-electoral-commission-donations': 4 * DAY_H,
+  '/api/sync-electoral-commission-donations': 8 * DAY_H, // weekly (Sunday 02:13 UTC) since 16 Nov 2026 (ENTRY 160)
   // The weekly full sweep (day job 27 Oct 2026, Part 3): starts on Saturdays and takes about 5 daily runs.
   '/api/sweep-electoral-commission-donations': 8 * DAY_H,
   '/api/sync-mp-contributions': 8 * DAY_H, // weekly (Sunday 00:43 UTC) since 15 Nov 2026: one run tops up every MP (ENTRY 124, 125)

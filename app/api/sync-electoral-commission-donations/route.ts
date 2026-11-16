@@ -2,7 +2,8 @@
 // Same shape as scripts/sync-electoral-commission-donations.js but
 // running inside a Vercel function so it can run on a cron.
 //
-// Strategy: each daily pass reads the donations reported in the last WINDOW_DAYS (below) and upserts on ec_ref; the
+// Strategy: each weekly pass (Sunday 02:13 UTC since 16 Nov 2026, owner: donations refresh once a week, ENTRY 160; was
+// daily at 01:13) reads the donations reported in the last WINDOW_DAYS (below) and upserts on ec_ref; the
 // full register was loaded out of band by the script. A pass that runs out of time carries on next run (job 79).
 
 import { bearerMatches } from '@/lib/cron-auth';

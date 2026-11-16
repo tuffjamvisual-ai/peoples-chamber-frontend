@@ -114,7 +114,7 @@
     },
     {
       "path": "/api/sync-electoral-commission-donations",
-      "schedule": "13 1 * * *"
+      "schedule": "13 2 * * 0"
     },
     {
       "path": "/api/sweep-electoral-commission-donations",
