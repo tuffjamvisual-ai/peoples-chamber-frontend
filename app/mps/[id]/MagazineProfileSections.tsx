@@ -1,13 +1,14 @@
 'use client';
 
 import PageSources from '../../components/PageSources';
+import PhoneMore from '../../components/PhoneMore';
 import { shortDayMonthYear, shortMonthYear } from '@/lib/short-date';
 import { pageview } from '@vercel/analytics';
 import { billSummary } from '@/lib/bill-summary';
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
 import { pmqsLinks, type PmqsCounts } from '@/lib/pmqs-counts';
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useId } from 'react';
 import { showNewResults } from '@/lib/show-new-results';
 import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
@@ -1005,7 +1006,7 @@ export default function MagazineProfileSections({
                       <SubFold label={heading} summary={countOf(rows.length, 'entry', 'entries')}>
                       <div style={backgroundLabel}>{heading}</div>
                       <FirstThenAll wrap={(kids) => <>{kids}</>} items={rows.map((e, idx) => (
-                        <TimelineEntry key={idx} entry={e} last={idx === rows.length - 1 || idx === FIRST_ITEMS - 1} />
+                        <TimelineEntry key={idx} entry={e} last={idx === rows.length - 1} />
                       ))} />
                       </SubFold>
                     </div>
@@ -3116,16 +3117,20 @@ export function MpReportList({ items }: { items: MpReports['items'] }) {
   );
 }
 
-// MP2c (9 Nov 2026): a list longer than FIRST_ITEMS shows its first FIRST_ITEMS; on phones the rest wait in a closed
+// MP2c (9 Nov 2026), before FirstThenAll followed the list rule (ENTRY 182): a list showed its first five; on phones the rest waited in a closed
 // fold, "Show all <N>" (SubFold: a native <details> under 640px, shown as before from 640px up). wrap draws the items
 // in their list (the same <ul> as before, or none).
-const FIRST_ITEMS = 5;
+// A list on the MP page (the Background timeline's phases, Roles, ...) follows the owner's list rule at every width
+// (DECISIONS 15 and 16 Nov 2026; Cowork ENTRY 182 item 5, T2's mp-768-heights.md): it opens with 3, "Show N more" adds 10,
+// with "Show fewer" (PhoneMore, LIST_FOLD). Every item is in the HTML; without JavaScript all show. It showed 5 and then
+// the rest in a fold that opened only under 768px, so ten MP pages ran past 3,000px at 768.
 function FirstThenAll({ items, wrap }: { items: React.ReactNode[]; wrap: (kids: React.ReactNode[]) => React.ReactNode }) {
-  if (items.length <= FIRST_ITEMS) return <>{wrap(items)}</>;
+  const id = `ftl-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  if (items.length <= 3) return <>{wrap(items)}</>;
   return (
     <>
-      {wrap(items.slice(0, FIRST_ITEMS))}
-      <SubFold label={`Show ${(items.length - FIRST_ITEMS).toLocaleString('en-GB')} more`}>{wrap(items.slice(FIRST_ITEMS))}</SubFold>
+      <div id={id}>{wrap(items)}</div>
+      <PhoneMore selector={`#${id}`} total={items.length} />
     </>
   );
 }
