@@ -6,7 +6,8 @@ import BackLink from '../components/BackLink';
 import Unavailable from '@/app/components/Unavailable';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { SubFold } from '@/app/components/PhoneFolds';
-import { cachedQuery } from '@/lib/tagged-read';
+import { ilikeWords } from '@/lib/ilike-words';
+import { cachedQuery, tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 
 // Commons debates index. Metadata is held in our `debates` table (synced daily
@@ -42,24 +43,35 @@ export default async function DebatesPage({
   const sp = await searchParams;
   const section = sp.section && SECTIONS.includes(sp.section) ? sp.section : null;
   const q = (sp.q || '').trim();
-  const pageNum = Math.max(1, parseInt(sp.page || '1', 10) || 1);
+  // F05 (ENTRY 134, owner approved 15 Nov 2026): the search words through ilikeWords (lib/ilike-words.ts), so % and _ in
+  // a search are not patterns; the page number stops at the last page, from a count kept in the tagged data cache.
+  const pattern = ilikeWords(q);
+  const total = await tagged(['debates-count-v1', section ?? '', pattern], tableTags('debates'), async () => {
+    let cq = supabase.from('debates').select('hansard_ext_id', { count: 'exact', head: true });
+    if (section) cq = cq.eq('section', section);
+    if (pattern) cq = cq.ilike('title', pattern);
+    const { count, error } = await cq;
+    if (error) throw new Error(`/debates count: ${error.message}`);
+    return count ?? 0;
+  });
+  const lastPage = Math.max(1, Math.ceil(total / PER_PAGE));
+  const pageNum = Math.min(lastPage, Math.max(1, parseInt(sp.page || '1', 10) || 1));
   const from = (pageNum - 1) * PER_PAGE;
 
   const buildQuery = () => {
     let query = supabase
       .from('debates')
-      .select('hansard_ext_id, title, sitting_date, section, summary, division_ids', { count: 'exact' })
+      .select('hansard_ext_id, title, sitting_date, section, summary, division_ids')
       .order('sitting_date', { ascending: false })
       .order('title', { ascending: true })
       .range(from, from + PER_PAGE - 1);
     if (section) query = query.eq('section', section);
-    if (q) query = query.ilike('title', `%${q}%`);
+    if (pattern) query = query.ilike('title', pattern);
     return query;
   };
   // A16: the list in the shared data cache under the debates tag, keyed by the filters and page.
-  const { data, count } = await cachedQuery(['debates-list-v1', section ?? '', q ?? '', pageNum], tableTags('debates'), buildQuery);
+  const { data } = await cachedQuery(['debates-list-v2', section ?? '', pattern, pageNum], tableTags('debates'), buildQuery);
   const rows = data || [];
-  const total = count || 0;
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
   // Each debate's place on the page, newest first, for the phone and tablet 'newest 3' rule below.

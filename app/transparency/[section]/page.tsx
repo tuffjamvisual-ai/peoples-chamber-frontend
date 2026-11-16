@@ -116,33 +116,37 @@ export default async function TransparencySectionPage({
   const searchTerm = cleaned && SEARCH_COLS[section] ? cleaned : null
   const searchFilter = searchTerm ? SEARCH_COLS[section].map((c) => `${c}.ilike.%${searchTerm}%`).join(',') : null
 
-  const page = Math.max(1, parseInt(pageParam || '1', 10) || 1)
-  const from = (page - 1) * PAGE_LIMIT
-  const to = from + PAGE_LIMIT - 1
-
   // Ministerial meetings are a retrospective register, so any meeting dated
   // in the future is a source typo — hide those rows (data is corrected from
   // the `quarter` field on sync, this is the display safety net).
   const todayIso = new Date().toISOString().slice(0, 10)
+  const dated = (q: any) => section === 'ministers-meetings' ? q.lte('meeting_date', todayIso) : section === 'hospitality' ? q.lte('hospitality_date', todayIso) : q // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  // Total count (with search filter applied for donations).
-  let countQ = supabase.from(config.table).select('*', { count: 'exact', head: true })
-  if (searchFilter) countQ = countQ.or(searchFilter)
-  if (section === 'ministers-meetings') countQ = countQ.lte('meeting_date', todayIso)
-  if (section === 'hospitality') countQ = countQ.lte('hospitality_date', todayIso)
-  const { count: total } = await countQ
+  // F05 (ENTRY 134, owner approved 15 Nov 2026): the total is counted once into the tagged data cache (refreshed when the
+  // table's sync writes), not on every request; a head count is not kept by the fetch cache, so it goes through tagged().
+  const total = await tagged(['transparency-count-v1', section, searchTerm ?? '', todayIso], tableTags(config.table), async () => {
+    let countQ = supabase.from(config.table).select('*', { count: 'exact', head: true })
+    if (searchFilter) countQ = countQ.or(searchFilter)
+    const { count, error: countErr } = await dated(countQ)
+    if (countErr) throw new Error(`transparency/${section} count: ${countErr.message}`)
+    return count ?? 0
+  })
+  const totalPages = Math.max(1, Math.ceil((total ?? 0) / PAGE_LIMIT))
+  // The page number stops at the last page (F05): a deeper ?page= shows the last page instead of reading past the end.
+  const page = Math.min(totalPages, Math.max(1, parseInt(pageParam || '1', 10) || 1))
+  const from = (page - 1) * PAGE_LIMIT
+  const to = from + PAGE_LIMIT - 1
 
-  // Data rows — server-side paginated via .range().
-  let dataQ = supabase.from(config.table).select('*').range(from, to)
-  if (config.orderBy) dataQ = dataQ.order(config.orderBy, { ascending: false, nullsFirst: false })
-  if (searchFilter) dataQ = dataQ.or(searchFilter)
-  if (section === 'ministers-meetings') dataQ = dataQ.lte('meeting_date', todayIso)
-  if (section === 'hospitality') dataQ = dataQ.lte('hospitality_date', todayIso)
-  const { data: rows, error } = await dataQ
+  // Data rows — server-side paginated via .range(), each page in the tagged data cache (F05).
+  const { data: rows, error } = (await cachedQuery(['transparency-rows-v1', section, searchTerm ?? '', String(page), todayIso], tableTags(config.table), () => {
+    let dataQ = supabase.from(config.table).select('*').range(from, to)
+    if (config.orderBy) dataQ = dataQ.order(config.orderBy, { ascending: false, nullsFirst: false })
+    if (searchFilter) dataQ = dataQ.or(searchFilter)
+    return dated(dataQ)
+  })) as { data: Record<string, unknown>[] | null; error: { message?: string } | null }
 
   const range = section === 'revolving-door' ? await revolvingDoorRange() : null
 
-  const totalPages = Math.max(1, Math.ceil((total ?? 0) / PAGE_LIMIT))
   const baseUrl = `/transparency/${section}`
   const qPart = searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''
   const prevHref = page > 1 ? `${baseUrl}?page=${page - 1}${qPart}` : null
