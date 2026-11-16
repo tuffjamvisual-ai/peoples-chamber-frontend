@@ -22,6 +22,7 @@
 
 import { bearerMatches } from '@/lib/cron-auth';
 import { NextResponse } from 'next/server';
+import { refreshTables } from '@/lib/source-tags';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
@@ -283,13 +284,17 @@ async function GET_impl(req: Request) {
   }
 
   // 4. Upsert the quarter; other quarters stay as they are.
+  // `inserted` counts the rows really added (F04 batch 1, item 2.2): with ignoreDuplicates the rows returned are only the
+  // new ones, so a run that re-reads the same quarter inserts nothing and refreshes nothing.
+  let inserted: Record<string, number> = {};
   async function upsert(table: string, rows: unknown[], onConflict: string, ignoreDuplicates: boolean) {
     let written = 0;
     for (let i = 0; i < rows.length; i += 500) {
       const slice = rows.slice(i, i + 500);
-      const { error } = await supabase.from(table).upsert(slice, { onConflict, ignoreDuplicates });
+      const { data, error } = await supabase.from(table).upsert(slice, { onConflict, ignoreDuplicates }).select('id');
       if (error) throw new Error(`upsert ${table}: ${error.message}`);
       written += slice.length;
+      if (ignoreDuplicates) inserted = { ...inserted, [table]: (inserted[table] ?? 0) + (data?.length ?? 0) };
     }
     return written;
   }
@@ -313,6 +318,11 @@ async function GET_impl(req: Request) {
   const giftRows = withRowKeys(gifts, ['quarter', 'area', 'spad_name', 'gift_date', 'gift_descr', 'donor', 'value_gbp', 'outcome']);
   const hospRows = withRowKeys(hosps, ['quarter', 'area', 'spad_name', 'hosp_date', 'hosp_descr', 'provider', 'purpose']);
   const meetRows = withRowKeys(meets, ['quarter', 'area', 'spad_name', 'meeting_date', 'media_org', 'individual', 'purpose']);
+  // The roster's upsert rewrites updated_at on every row, so its new advisers are the keys not yet saved for the quarter.
+  const { data: savedKeys, error: savedErr } = await supabase.from('special_advisers').select('name, area').eq('quarter', latestQuarter);
+  if (savedErr) throw new Error(`read special_advisers: ${savedErr.message}`);
+  const saved = new Set(((savedKeys ?? []) as { name: string; area: string }[]).map((r) => `${r.name}|${r.area}`));
+  const rosterNew = rosterRows.filter((r) => !saved.has(`${r.name}|${r.area}`)).length;
   const rosterWritten = await upsert('special_advisers', rosterRows, 'name,area,quarter', false);
   const giftsWritten = await upsert('spad_gifts', giftRows, 'row_key', true);
   const hospsWritten = await upsert('spad_hospitality', hospRows, 'row_key', true);
@@ -325,9 +335,20 @@ async function GET_impl(req: Request) {
     media_meetings: await removeStale('spad_media_meetings', readAreas.meetings, new Set(meetRows.map((r) => r.row_key)), 'row_key'),
   };
 
+  // A16 (F04 batch 1, item 2.2): the special advisers page reads these four tables whole from the data cache under their
+  // tags; refresh only the tables whose rows changed (new or removed), so an unchanged run rebuilds nothing.
+  const changedTables = [
+    ...(rosterNew || removed.roster ? ['special_advisers'] : []),
+    ...(inserted.spad_gifts || removed.gifts ? ['spad_gifts'] : []),
+    ...(inserted.spad_hospitality || removed.hospitality ? ['spad_hospitality'] : []),
+    ...(inserted.spad_media_meetings || removed.media_meetings ? ['spad_media_meetings'] : []),
+  ];
+  if (changedTables.length) refreshTables(...changedTables);
+
   return NextResponse.json({
     ok: errors.length === 0,
     quarter: latestQuarter,
+    refreshed_tables: changedTables,
     publications_seen: pubs.length,
     roster: rosterWritten,
     gifts: giftsWritten,

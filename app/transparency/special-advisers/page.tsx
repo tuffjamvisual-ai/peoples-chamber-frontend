@@ -23,7 +23,7 @@ import { SPAD_LIST_ANCHOR, longDate, totalsLine, buildBackground, plainName, qua
 import Link from 'next/link';
 import SpadRosterTable from './SpadRosterTable';
 import QuarterSections, { type RosterRow, type GiftRow, type HospRow, type MeetRow } from './QuarterSections';
-import { cachedQuery } from '@/lib/tagged-read';
+import { cachedQuery, tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 
 // The returns label departments by short name. Map them to department pages; anything
@@ -51,7 +51,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/transparency/special-advisers' },
 };
 
-async function fetchAll<T>(table: string, columns: string): Promise<T[]> {
+// A16 (F04 batch 1, item 2.2): each table read whole into the shared data cache under its own tag, refreshed by
+// /api/sync-spad-transparency when its rows change. It was read on every render with no cache and no tag.
+const fetchAll = <T,>(table: string, columns: string) => tagged(['spad-all-v1', table, columns], tableTags(table), () => fetchAllRead<T>(table, columns));
+async function fetchAllRead<T>(table: string, columns: string): Promise<T[]> {
   const PAGE = 1000;
   const out: T[] = [];
   for (let from = 0; ; from += PAGE) {
