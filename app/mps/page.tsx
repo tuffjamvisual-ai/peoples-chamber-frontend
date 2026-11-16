@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
-import MagazineMPsClient from './MagazineMPsClient';
+import MagazineMPsClient, { MagazineMPsStatic } from './MagazineMPsClient';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
@@ -17,12 +17,11 @@ export const metadata: Metadata = {
   alternates: { canonical: '/mps' },
 };
 
-// The list reads its filters from the address (MagazineMPsClient, useSearchParams). Built ahead of time, the page held only
-// the Suspense placeholder (400px) and the list arrived in the browser: a layout shift of 0.08 on tablets and no list
-// without JavaScript (ENTRY 135 L6, Cowork ENTRY 148). Awaiting searchParams renders it per request with the list in the
-// HTML, as /laws does; the read stays cached under the mps tag.
-export default async function MPsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  await searchParams;
+// The list reads its filters from the address (MagazineMPsClient, useSearchParams), so it renders in the browser. Its
+// Suspense fallback is the same list with no address (MagazineMPsStatic): the page stays prerendered (A16; Cowork ENTRY
+// 169) with the full default list in its HTML, and nothing moves when the address-aware list replaces it. It was a 400px
+// placeholder: a layout shift of 0.08 on tablets and no list without JavaScript (ENTRY 135 L6, Cowork ENTRY 148).
+export default async function MPsPage() {
   const { data: rows, error } = await cachedQuery(['q:app/mps/page.tsx:9281e4b54b'], tableTags('mps'), () => supabase
     .from('mps')
     .select('member_id, name, display_name, party, party_colour, constituency, photo_url')
@@ -59,7 +58,14 @@ export default async function MPsPage({ searchParams }: { searchParams: Promise<
       <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 18px', maxWidth: '60ch' }}>
         All {mps.length.toLocaleString('en-GB')} MPs. Search by name, party, constituency or postcode.
       </p>
-      <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
+      <Suspense fallback={
+        <div id="mps-static" suppressHydrationWarning>
+          {/* An address with a search (?q=) shows a different list: keep the placeholder's 400px, hidden, until the
+              address-aware list arrives, as before, so the full list does not show and then shrink (?q= at 768: 0.14). */}
+          <script dangerouslySetInnerHTML={{ __html: "if(/[?&]q=/.test(location.search)){var s=document.currentScript.parentElement.style;s.visibility='hidden';s.height='400px';s.overflow='hidden'}" }} />
+          <MagazineMPsStatic mps={mps} />
+        </div>
+      }>
         <MagazineMPsClient mps={mps} />
       </Suspense>
     </OpenGovShell>

@@ -38,15 +38,29 @@ const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/;
 
 const MPS_PER_PAGE = 21;
 
-export default function MagazineMPsClient({ mps, expand }: { mps: MP[]; expand?: string | null }) {
-  const searchParams = useSearchParams();
+// The address-aware list (useSearchParams), rendered in the browser under the page's Suspense boundary. The page's
+// fallback is the same list with an empty address (MagazineMPsStatic), so /mps is prerendered with the full default list in
+// its HTML and nothing moves when this replaces it (Cowork ENTRY 169: /mps stays static, A16; ENTRY 148 layout shift 0).
+type ViewProps = { mps: MP[]; expand?: string | null };
+type Params = Pick<URLSearchParams, 'get'>;
+const NO_PARAMS: Params = new URLSearchParams();
+
+export default function MagazineMPsClient(props: ViewProps) {
+  return <MPsView {...props} searchParams={useSearchParams()} />;
+}
+
+export function MagazineMPsStatic(props: ViewProps) {
+  return <MPsView {...props} searchParams={NO_PARAMS} />;
+}
+
+function MPsView({ mps, expand, searchParams }: ViewProps & { searchParams: Params }) {
   // Prefer the server-resolved ?expand prop (drives view + re-render on nav);
   // fall back to the client param if the prop is not supplied.
   const selectedParty = expand !== undefined ? expand : searchParams.get('expand');
   const pageParam = parseInt(searchParams.get('page') || '1', 10);
   const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
-  // The address bar's ?q= on first render. This component renders in the browser only (it reads useSearchParams under
-  // the page's Suspense boundary), so the server HTML never disagrees with it.
+  // The address bar's ?q= on first render. The address-aware list renders in the browser only (useSearchParams under the
+  // page's Suspense boundary); the prerendered fallback has no address, so no ?q=.
   const [searchTerm, setSearchTerm] = useState(() => searchParams.get('q') ?? '');
 
   // Keep ?q= in step with the box, beside ?expand= and ?page=, without adding history entries. It also runs when the
