@@ -8,14 +8,16 @@ import { revalidateTag, unstable_cache } from 'next/cache';
 export const mpTag = (memberId: number) => `mp:${memberId}`;
 // Every MP's cached reads at once, for a refresh of every MP page (/mps/[id]).
 export const MP_PAGES_TAG = 'mp-pages';
-// F03 (ENTRY 134, owner approved 15 Nov 2026): the MP page's reads of votes and of the activity figures carry these too, so
-// a new Commons division (every voter's counts change) or a recompute of the activity figures expires only those reads,
-// not every read of every MP page (refreshAllMps, lib/mp-refresh.ts).
-export const MP_VOTES_TAG = 'mp-votes';
-export const MP_ACTIVITY_TAG = 'mp-activity';
+// F03 (ENTRY 134, owner approved 15 Nov 2026; T2's audit/t2-prep/f03-exact.md): per MP, the votes reads (the votes list,
+// the vote years, the vote counts) and the activity figures, so a new division refreshes only its voters' vote reads
+// (refreshMpVotes) and an activity recompute only the changed MPs' figures (refreshMpActivity), lib/mp-refresh.ts.
+export const mpVotesTag = (memberId: number) => `mp-votes:${memberId}`;
+export const mpActivityTag = (memberId: number) => `mp-activity:${memberId}`;
 
 export function mpCached<T>(name: string, memberId: number, read: () => Promise<T>, extraTags: string[] = []): Promise<T> {
-  return unstable_cache(read, [`mp-cache-v1:${name}`, String(memberId)], { revalidate: 3600, tags: [mpTag(memberId), MP_PAGES_TAG, ...extraTags] })();
+  // No timer (F03, A16): kept until a sync that changes the MP expires mpTag(memberId), or an extra tag's table changes.
+  // An hourly timer here made the hour the MP page's own rebuild interval (up to 24 renders a day).
+  return unstable_cache(read, [`mp-cache-v1:${name}`, String(memberId)], { revalidate: false, tags: [mpTag(memberId), MP_PAGES_TAG, ...extraTags] })();
 }
 
 // A head count with the { count, error } shape of the read it replaces; a failed read is not kept.
@@ -32,9 +34,6 @@ export async function mpCachedCount(name: string, memberId: number, read: () => 
   }
 }
 
-export function allMpVotesChanged(): void {
-  try { revalidateTag(MP_VOTES_TAG, { expire: 0 }); revalidateTag(MP_ACTIVITY_TAG, { expire: 0 }); } catch { /* outside a request */ }
-}
 export function allMpDataChanged(): void {
   try { revalidateTag(MP_PAGES_TAG, { expire: 0 }); } catch { /* outside a request */ }
 }

@@ -146,7 +146,7 @@ export const FRESHNESS_TAG = 'data-freshness';
 const newestCached = unstable_cache(async (table: string, column: string, key: string): Promise<string | null> => {
   const d = await newestTimestampLive({ table, column, key } as DataSource);
   return d ? d.toISOString() : null;
-}, ['data-freshness-v1'], { revalidate: 3600, tags: [FRESHNESS_TAG] });
+}, ['data-freshness-v1'], { revalidate: false, tags: [FRESHNESS_TAG] }); // no timer (F03, A16): the syncs call freshnessChanged()
 
 export async function newestTimestamp(src: DataSource): Promise<Date | null> {
   const iso = await newestCached(src.table, src.column, src.key);

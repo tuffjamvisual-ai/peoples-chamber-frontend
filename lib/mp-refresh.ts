@@ -1,12 +1,12 @@
 // MP pages refreshed only when their data changes (cache Stage 2a, part 3, owner, 30 Oct 2026). /mps/[id] and
 // /mps/[id]/reports keep for a week, so each sync that changes an MP's data refreshes that MP's page, and only that
-// MP's: at most REFRESH_BATCH paths at a time. When nearly every MP changed at once (a new Commons division changes
-// every voter's counts) the route pattern is sent once instead (refreshAllMps).
-import { voteCountsChanged } from '@/lib/mp-page-cache';
-import { allMpVotesChanged, mpDataChanged } from '@/lib/mp-cache';
+// MP's: at most REFRESH_BATCH paths at a time. A new division refreshes only its voters' vote reads, and an activity
+// recompute only the changed MPs' figures (refreshMpVotes, refreshMpActivity; F03, ENTRY 134).
+import { mpDataChanged, mpVotesTag, mpActivityTag } from '@/lib/mp-cache';
+import { mpRefreshPlan } from '@/lib/mp-refresh-plan';
 import { freshnessChanged } from '@/lib/data-freshness';
 import { indexNowAfter } from '@/lib/indexnow';
-import { revalidatePath } from '@/lib/refresh-count';
+import { revalidatePath, revalidateTag } from '@/lib/refresh-count';
 
 export const REFRESH_BATCH = 300;
 
@@ -22,22 +22,26 @@ export function refreshMps(memberIds: Iterable<number>, reports = false): MpRefr
     }
   }
   // The shared "last updated" dates and vote counts these pages read (W1) are expired with them.
-  if (ids.length) { freshnessChanged(); voteCountsChanged(); mpDataChanged(ids); }
+  // The member's vote counts with their other reads (mpDataChanged); per member since F03, not the site-wide counts tag.
+  if (ids.length) { freshnessChanged(); mpDataChanged(ids); for (const id of ids) revalidateTag(mpVotesTag(id), { expire: 0 }); }
   indexNowAfter(ids.flatMap((id) => (reports ? [`/mps/${id}`, `/mps/${id}/reports`] : [`/mps/${id}`])), 'mp-refresh');
   return { mps: ids.length };
 }
 
-// Every MP page, after a change that touches nearly every MP at once: a new Commons division (every voter's counts) or
-// a recompute of the activity figures. F03 (ENTRY 134, owner approved 15 Nov 2026): only the reads that change are
-// expired (the votes, vote counts and activity figures, and the "last updated" dates); every page that used them is
-// rebuilt from the data cache with only those re-read. It used to expire the route pattern and every read of every MP
-// page (mp-pages), about 43 reads a page, 650 pages (pg_stat_statements: about 23,100 calls of each MP-page read in 91 hours).
-export function refreshAllMps(): MpRefresh {
-  freshnessChanged();
-  voteCountsChanged();
-  allMpVotesChanged();
-  return { mps: 0, all: true };
+// The pages of the given MPs and only one kind of their reads (F03, ENTRY 134; T2's audit/t2-prep/f03-exact.md): a new
+// division refreshes its voters' vote reads (refreshMpVotes), an activity recompute the changed MPs' activity figures
+// (refreshMpActivity). Every other read on those pages stays cached, no other MP page is touched, and nothing site-wide is
+// expired (not the freshness dates: a non-voter's page keeps the previous "updated" date until it is next rebuilt).
+// mpRefreshPlan is the pure part, tested in scripts/checks/mp-refresh-votes.test.ts.
+function refreshMpsOnly(memberIds: Iterable<number>, tagFor: (id: number) => string, why: string): MpRefresh {
+  const plan = mpRefreshPlan(memberIds, tagFor);
+  for (const p of plan.paths) revalidatePath(p);
+  for (const t of plan.tags) revalidateTag(t, { expire: 0 });
+  if (plan.ids.length) indexNowAfter(plan.paths, why);
+  return { mps: plan.ids.length };
 }
+export const refreshMpVotes = (memberIds: Iterable<number>) => refreshMpsOnly(memberIds, mpVotesTag, 'mp-votes');
+export const refreshMpActivity = (memberIds: Iterable<number>) => refreshMpsOnly(memberIds, mpActivityTag, 'mp-activity');
 
 // Local tests only: ?dry=1 is honoured off Vercel production; the sync then reads and compares but writes nothing.
 export const isDryRun = (req: Request) => process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('dry') === '1';

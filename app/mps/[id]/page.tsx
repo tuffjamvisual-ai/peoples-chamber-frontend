@@ -25,7 +25,7 @@ import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helper
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { newestTimestamps } from '@/lib/data-freshness';
 import { latestSpadRelease, voteCounts as readVoteCounts } from '@/lib/mp-page-cache';
-import { mpCached, mpCachedCount, mpTag, MP_PAGES_TAG, MP_VOTES_TAG, MP_ACTIVITY_TAG } from '@/lib/mp-cache';
+import { mpCached, mpCachedCount, mpTag, MP_PAGES_TAG, mpVotesTag, mpActivityTag } from '@/lib/mp-cache';
 import { DONATIONS_TAG } from '@/lib/page-reads';
 import { createHash } from 'node:crypto';
 import { mpReportItems } from '@/lib/mp-reports';
@@ -134,7 +134,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     mpCachedCount('interests-count', memberId, () => supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true)),
     mpCachedCount('expenses-count', memberId, () => supabase.from('mp_expenses_summary').select('id', { count: 'exact', head: true }).eq('member_id', memberId)),
     // The attendance figure the page's headline shows (mp_activity_metrics), for the description (L4).
-    cachedQuery(['q:app/mps/[id]/page.tsx:5a28a9492f', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG, MP_ACTIVITY_TAG], () => supabase.from('mp_activity_metrics').select('attendance_pct, divisions_total').eq('member_id', memberId).maybeSingle()),
+    cachedQuery(['q:app/mps/[id]/page.tsx:5a28a9492f', JSON.stringify([memberId])], [mpTag(memberId), mpActivityTag(memberId), MP_PAGES_TAG], () => supabase.from('mp_activity_metrics').select('attendance_pct, divisions_total').eq('member_id', memberId).maybeSingle()),
   ]);
 
   if (!mp) {
@@ -259,7 +259,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     // When ?vq= is set the same filter is applied to both the list query
     // and the count query so totalPages reflects the matches, not all
     // votes.
-    cachedQuery(['mp-votes-page-v1', memberId, voteQuery ?? '', voteStart, voteEnd], [mpTag(memberId), MP_PAGES_TAG, MP_VOTES_TAG], () => {
+    cachedQuery(['mp-votes-page-v1', memberId, voteQuery ?? '', voteStart, voteEnd], [mpTag(memberId), mpVotesTag(memberId), MP_PAGES_TAG], () => {
       let q = supabase
         .from('mp_division_votes')
         .select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id, division_date_only, division_number')
@@ -394,7 +394,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       orderBy: [{ column: 'hospitality_date', ascending: false }, { column: 'id', ascending: false }],
       label: `/mps/${memberId} ministers_hospitality`,
     }),
-  ])), 7000));
+  ])), 7000)); // F03: no timer; the meetings and hospitality syncs refresh the changed MPs (refreshMps, mp:<id>), so no table tag
+  // here (the meetings sync expires its table tag on every run, which would mark every MP page stale).
   const pContribs = handled(Promise.resolve(
     cachedQuery(['q:app/mps/[id]/page.tsx:79a6d9f4cd', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
       .from('mp_contributions')
@@ -417,7 +418,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .eq('removed', false)),
   ));
   const pActivity = handled(Promise.resolve(
-    cachedQuery(['q:app/mps/[id]/page.tsx:424dfa4957', JSON.stringify([memberId])], [mpTag(memberId), MP_PAGES_TAG, MP_ACTIVITY_TAG], () => supabase
+    cachedQuery(['q:app/mps/[id]/page.tsx:424dfa4957', JSON.stringify([memberId])], [mpTag(memberId), mpActivityTag(memberId), MP_PAGES_TAG], () => supabase
       .from('mp_activity_metrics')
       .select('divisions_voted, divisions_total, attendance_pct, rebellions_total, rebellion_rate_pct, speeches_year, questions_year')
       .eq('member_id', memberId)
@@ -434,7 +435,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // (member_id, division_date_only, division_number), so Postgres answers from the index without reading the table:
   // about 20 disk pages and 3 to 11 ms instead of one page per vote (up to 1,800 pages, 924 ms, and timeouts when many
   // MP pages render at once). division_date_only is division_date's day; no row has either column null.
-  const pCurrentYears = orNull(tagged(['mp-vote-years-v1', memberId], [mpTag(memberId), MP_PAGES_TAG, MP_VOTES_TAG], () => readAll<{ division_date_only: string }>(() => supabase.from('mp_division_votes'), {
+  const pCurrentYears = orNull(tagged(['mp-vote-years-v1', memberId], [mpTag(memberId), mpVotesTag(memberId), MP_PAGES_TAG], () => readAll<{ division_date_only: string }>(() => supabase.from('mp_division_votes'), {
     columns: 'division_date_only, division_number',
     filter: (q) => q.eq('member_id', memberId).not('division_date_only', 'is', null).not('division_number', 'is', null),
     orderBy: [{ column: 'division_date_only' }, { column: 'division_number' }], label: `/mps/${memberId} vote years`,

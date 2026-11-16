@@ -4,7 +4,8 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import { refreshStore, type StoreRefreshResult } from '@/lib/refresh-stores';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
-import { refreshAllMps, type MpRefresh } from '@/lib/mp-refresh';
+import { refreshMpVotes, type MpRefresh } from '@/lib/mp-refresh';
+import { divisionRows } from '@/lib/division-rows';
 import { noteChanged } from '@/lib/refresh-count';
 import { refreshTables, DIVISION_TABLES, SI_TABLES } from '@/lib/source-tags';
 
@@ -144,6 +145,7 @@ async function GET_impl(req: Request) {
     const partyErrors: { divisionId: number; message: string }[] = [];
 
     let divisionsAdded = 0;
+    const voters = new Set<number>(); // MPs with a vote in a division this run added (F03): only their pages change
     let rowsInserted  = 0;
     let divisionsSkipped = 0;
     let partial = false;
@@ -167,48 +169,11 @@ async function GET_impl(req: Request) {
       const detRes = await politeFetch(`${API}/division/${d.DivisionId}.json`);
       if (!detRes.ok) { apiErrors.push({ divisionId: d.DivisionId, status: detRes.status }); continue; }
       const det = (await detRes.json()) as ApiDetail;
-      const ts = `${dateOnly} 00:00:00`;
-      const rows: Record<string, unknown>[] = [];
-      const add = (members: ApiMember[] | undefined, vote: string, teller: boolean) => {
-        for (const m of members || []) {
-          if (!m.MemberId) continue;
-          rows.push({
-            member_id: m.MemberId, division_id: det.DivisionId, vote_type: vote,
-            division_date: ts, division_title: det.Title || null, division_number: det.Number,
-            division_date_only: dateOnly, source: 'commonsvotes-api', is_teller: teller, is_rebellion: false,
-            party: m.Party ? String(m.Party).trim() : null,
-          });
-        }
-      };
-      add(det.Ayes, 'aye', false); add(det.AyeTellers, 'aye', true);
-      add(det.Noes, 'no', false); add(det.NoTellers, 'no', true);
-
-      // One row per member per division. If a MemberId appears in BOTH the Ayes
-      // and Noes lists, that is a deliberate both-lobby vote (the MP walked
-      // through both lobbies as a form of abstention/protest — a recognised
-      // parliamentary practice). Emit vote_type='both' for those members.
-      // The divisions page already renders a "Voted in both lobbies" section
-      // for vote_type='both' rows. Same-side duplicates (e.g. listed in Ayes
-      // AND AyeTellers) are dropped silently — teller handling is out of scope.
-      const batchSeen = new Map<number, number>(); // memberId → index in finalRows
-      const finalRows: Record<string, unknown>[] = [];
-      for (const r of rows) {
-        const mid = r.member_id as number;
-        if (batchSeen.has(mid)) {
-          const idx = batchSeen.get(mid)!;
-          const existingVote = finalRows[idx].vote_type as string;
-          const newVote = r.vote_type as string;
-          // Opposite sides → upgrade stored row to 'both' and record it.
-          // Same side → CVA noise (Ayes + AyeTellers for same MP): drop silently.
-          if (existingVote !== 'both' && existingVote !== newVote) {
-            finalRows[idx] = { ...finalRows[idx], vote_type: 'both' };
-            bothLobbyVotes.push({ date: dateOnly, division: det.Number, memberId: mid, memberName: null });
-          }
-        } else {
-          batchSeen.set(mid, finalRows.length);
-          finalRows.push(r);
-        }
-      }
+      // The rows and both-lobby votes (lib/division-rows.ts, F03: a pure function, tested in
+      // scripts/checks/mp-refresh-votes.test.ts). Same rules as before.
+      const built = divisionRows(det, dateOnly);
+      const finalRows: Record<string, unknown>[] = built.rows;
+      for (const mid of built.bothLobby) bothLobbyVotes.push({ date: dateOnly, division: det.Number, memberId: mid, memberName: null });
 
       if (!finalRows.length) continue;
 
@@ -242,6 +207,7 @@ async function GET_impl(req: Request) {
       if (!insErr) {
         await applyParties();
         divisionsAdded++;
+        for (const r of built.rows) voters.add(r.member_id); // F03: only the voters' pages change
         rowsInserted += finalRows.length;
       } else if (insErr.code === '23505') {
         // We only reach the insert path for divisions NOT in the seen set — the seen-set
@@ -287,7 +253,9 @@ async function GET_impl(req: Request) {
     // counts, so the MP route is refreshed once as a pattern, after the stored counts above; nothing else here changes
     // an MP page (party on the day is reapplied to divisions already held, which changes nothing).
     noteChanged(dryRun ? 0 : divisionsAdded);
-    const mpRefresh: MpRefresh | null = !dryRun && divisionsAdded > 0 ? refreshAllMps() : null;
+    // A new division changes the voters' records only (F03, ENTRY 134): their pages and their vote reads are refreshed,
+    // about 433 MPs a division, not all 650 pages and every read on them.
+    const mpRefresh: MpRefresh | null = !dryRun && voters.size > 0 ? refreshMpVotes(voters) : null;
     // A16 (owner rule 15 Nov 2026, ENTRY 129): pages that read these tables are rebuilt only now, after a real change.
     if (!dryRun && (divisionsAdded > 0 || partiesApplied > 0)) refreshTables(...DIVISION_TABLES, 'statutory_instrument', 'party_division_splits', 'party_member_vote_stats');
 

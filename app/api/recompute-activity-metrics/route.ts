@@ -16,7 +16,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { refreshMps, refreshAllMps, REFRESH_BATCH, sameValue } from '@/lib/mp-refresh';
+import { refreshMpActivity, sameValue } from '@/lib/mp-refresh';
 import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -64,7 +64,9 @@ async function GET_impl(req: Request) {
     const after = await snapshot();
     const changed = [...after.keys()].filter((id) => !before || !sameValue(before.get(id) ?? null, after.get(id)));
     noteChanged(changed.length);
-    mpRefresh = changed.length >= REFRESH_BATCH ? { ...refreshAllMps(), changed: changed.length } : refreshMps(changed);
+    // F03 (ENTRY 134): only the changed MPs' pages and their activity reads (was every MP page and every read on it once
+    // 300 or more changed).
+    mpRefresh = refreshMpActivity(changed);
   } catch (e) {
     mpRefresh = { error: (e as Error).message };
   }
