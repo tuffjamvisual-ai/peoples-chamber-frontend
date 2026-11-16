@@ -84,7 +84,8 @@ export default function MpDossier({
           .pca-sections { zoom: 1 !important; }
           /* The grid's -80px desktop nudge drags the stacked sidebar up into the
              header text on mobile; neutralise it so sections start cleanly below. */
-          .mp-sections-grid { margin-top: 16px !important; }
+          /* ENTRY 157 PROPOSAL: the same extra space as wider screens (version A +16px: 32px; version B +32px: 48px). */
+          .mp-sections-grid { margin-top: 32px !important; }
           .pca-sections aside { margin-left: 0 !important; margin-top: 0; }
           .pca-mp-header { flex-direction: column !important; align-items: stretch !important; gap: 16px !important; }
           .pca-mp-photo { margin: 0 auto !important; transform: rotate(2deg) !important; }
