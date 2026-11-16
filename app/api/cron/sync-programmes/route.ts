@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { refreshTables } from '@/lib/source-tags';
 // Nightly programme timeline seeder.
 //
 // For each live (or draft) programme in policy_programmes, runs a websearch
@@ -286,6 +287,8 @@ async function GET_impl(req: Request) {
     });
   }
 
+  // A16: new candidate entries show on the draft previews (they read the timeline under its table tag).
+  if (!dryRun && results.some((r) => r.inserted > 0)) refreshTables('programme_timeline');
   return NextResponse.json({
     ok: true,
     dryRun,

@@ -4,7 +4,7 @@
 // app/briefings/[slug]/page.tsx.
 //
 // A16 (owner rule 15 Nov 2026, ENTRY 129): kept until the programme tables' tags are refreshed. After a programme goes
-// live or is withdrawn by hand, run node scripts/revalidate.js --tag table:policy_programmes.
+// live or is withdrawn with node scripts/site-content.js programme live|withdraw <slug>, which refreshes it.
 //
 // Current figure: deriveCurrentFigure() from lib/programmes — shared with the
 // index page, no copy-paste.

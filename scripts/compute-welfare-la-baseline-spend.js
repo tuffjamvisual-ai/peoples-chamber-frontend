@@ -41,7 +41,9 @@ const { createClient } = require('@supabase/supabase-js');
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) { console.error('Supabase env vars not set (.env.local)'); process.exit(1); }
-const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
+// A16 (ENTRY 139 item 4): tables written through this client are refreshed on the site at the end, only if they
+// really changed (scripts/lib/table-refresh.js).
+const supabase = require('./lib/table-refresh').trackTables(createClient(SUPABASE_URL, SUPABASE_SECRET_KEY));
 
 const LIVE = process.argv.includes('--live');
 
@@ -296,7 +298,7 @@ async function main() {
   console.log('\nAll six LA baseline spend computations complete.');
 }
 
-main().catch((err) => {
+main().then(() => supabase.finishRefresh()).catch((err) => {
   console.error('Error:', err.message);
   process.exit(1);
 });

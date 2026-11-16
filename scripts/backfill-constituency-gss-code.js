@@ -44,7 +44,9 @@ const ONS_LOOKUP_CSV_URL =
 const DRY_RUN = !process.argv.includes('--live');
 const UA = 'PeoplesChamber-ConstituencyGssBackfill/1.0 (https://opengovt.uk; contact@opengovt.uk)';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
+// A16 (ENTRY 139 item 4): tables written through this client are refreshed on the site at the end, only if they
+// really changed (scripts/lib/table-refresh.js).
+const supabase = require('./lib/table-refresh').trackTables(createClient(SUPABASE_URL, SUPABASE_SECRET_KEY));
 
 // Identical normalisation to app/api/find-mp/route.ts's norm(), so a
 // constituency that matches there also matches here.
@@ -127,4 +129,4 @@ async function main() {
   }
 }
 
-main().catch((err) => { console.error(err); process.exit(1); });
+main().then(() => supabase.finishRefresh()).catch((err) => { console.error(err); process.exit(1); });

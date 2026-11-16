@@ -47,7 +47,9 @@ const { parse } = require('csv-parse/sync');
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) { console.error('Supabase env vars not set (.env.local)'); process.exit(1); }
-const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
+// A16 (ENTRY 139 item 4): tables written through this client are refreshed on the site at the end, only if they
+// really changed (scripts/lib/table-refresh.js).
+const supabase = require('./lib/table-refresh').trackTables(createClient(SUPABASE_URL, SUPABASE_SECRET_KEY));
 
 const ONS_LOOKUP_CSV_URL =
   'https://open-geography-portalx-ons.hub.arcgis.com/api/download/v1/items/ac27c7721e664440adcc9e862505c8bc/csv?layers=0';
@@ -164,7 +166,7 @@ async function main() {
   console.log(`\nDone. Updated ${written} row(s)${failed > 0 ? `, ${failed} failed (see above)` : ''}. ${unmatched.length} row(s) remain unmatched (expected for Northern Ireland).`);
 }
 
-main().catch((err) => {
+main().then(() => supabase.finishRefresh()).catch((err) => {
   console.error('Error:', err.message);
   process.exit(1);
 });

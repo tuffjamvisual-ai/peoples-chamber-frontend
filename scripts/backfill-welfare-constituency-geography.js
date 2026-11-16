@@ -49,7 +49,9 @@ const DATASET_ID = 'ward-to-westminster-parliamentary-constituency-to-lad-to-cty
 const DRY_RUN = !process.argv.includes('--live');
 const UA = 'PeoplesChamber-WelfareGeographyBackfill/1.0 (https://opengovt.uk; contact@opengovt.uk)';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
+// A16 (ENTRY 139 item 4): tables written through this client are refreshed on the site at the end, only if they
+// really changed (scripts/lib/table-refresh.js).
+const supabase = require('./lib/table-refresh').trackTables(createClient(SUPABASE_URL, SUPABASE_SECRET_KEY));
 
 async function fetchOnsLookup() {
   const res = await fetch(ONS_LOOKUP_CSV_URL, { headers: { 'User-Agent': UA } });
@@ -139,4 +141,4 @@ async function main() {
   console.log(`\nWrote ${written} rows to welfare_constituency_geography (source_release_id=${release.id}).`);
 }
 
-main().catch((err) => { console.error(err); process.exit(1); });
+main().then(() => supabase.finishRefresh()).catch((err) => { console.error(err); process.exit(1); });

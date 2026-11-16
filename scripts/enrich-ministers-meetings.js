@@ -22,7 +22,8 @@ const ws = require('ws');
 
 const SUPABASE_URL = 'https://nwnsvnbudmfkhhwcjwwr.supabase.co';
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, { realtime: { transport: ws } });
+// A16 (ENTRY 139 item 4): tables written through this client are refreshed at the end, only if they really changed.
+const supabase = require('./lib/table-refresh').trackTables(createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, { realtime: { transport: ws } }));
 
 const DELAY_MS = 300;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -137,4 +138,4 @@ async function main() {
   console.log(`[enrich] estimated cost:         $${priceUsd(totalIn, totalOut).toFixed(4)}`);
 }
 
-main().catch((e) => { console.error('[enrich] fatal:', e?.message || e); process.exit(0); });
+main().then(() => supabase.finishRefresh()).catch((e) => { console.error('[enrich] fatal:', e?.message || e); process.exit(0); });

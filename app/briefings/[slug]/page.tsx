@@ -22,7 +22,7 @@ import { tableTags } from '@/lib/source-tags';
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 // A16 (owner rule 15 Nov 2026, ENTRY 129): kept until the briefings table's tag is refreshed. The daily-briefings cron
-// refreshes it; after publishing a draft by hand, run node scripts/revalidate.js --tag table:briefings.
+// refreshes it; a draft is published with node scripts/site-content.js briefing publish <slug>, which refreshes it too.
 
 
 

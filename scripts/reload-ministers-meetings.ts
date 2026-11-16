@@ -119,5 +119,5 @@ type PubReport = { dept: string; title: string; slug: string; published: string 
     `  IF n <> ${rows.filter((r) => (r.organisation || '').includes('�') || r.minister_name.includes('�')).length} THEN RAISE EXCEPTION 'unexpected broken characters: %', n; END IF;`,
     'END $$;', '', 'COMMIT;');
   fs.writeFileSync(arg('sql'), L.join('\n') + '\n');
-  console.log(`\nWrote ${arg('sql')} (${rows.length} rows). Not run.`);
+  console.log(`\nWrote ${arg('sql')} (${rows.length} rows). Not run. To apply it and refresh the site's pages (A16):\n  node scripts/apply-sql.js --sql=${arg('sql')} --tables=ministers_meetings --also=ministers_meetings_quarters`);
 })().catch((e) => fail(e.stack || String(e)));

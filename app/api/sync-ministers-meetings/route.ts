@@ -7,6 +7,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 import { mpsForMinisterNames } from '@/lib/mp-nightly';
 import { noteChanged } from '@/lib/refresh-count';
+import { refreshTables } from '@/lib/source-tags';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -152,6 +153,7 @@ async function GET_impl(req: Request) {
 
     noteChanged(changedMps.length);
     const mpRefresh = changedMps.length ? refreshMps(changedMps) : null;
+    refreshTables('ministers_meetings', 'ministers_meetings_quarters'); // A16: a minister's meetings changed (department pages' latest return)
     return NextResponse.json({ ok: true, partial: false, parsed: allRows.length, inserted, ministers_changed: changedMinisters.length, mps_changed: changedMps.length, mp_refresh: mpRefresh, perDept, syncedAt: new Date().toISOString() });
   } catch (err) {
     if (isPoliteStop(err) || (err as Error).message === 'collect stopped: time budget') {

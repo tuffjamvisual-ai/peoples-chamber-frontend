@@ -130,6 +130,8 @@ def main():
         if code or '---commit' not in out:
             sys.exit(f'load failed: {err[:600]}')
         print('committed')
+        # A16 (ENTRY 139 item 4): the committed load is a change; refresh the pages reading these tables (scripts/lib/refresh-site.js).
+        subprocess.run(['node', '-e', "require('dotenv').config({ path: '.env.local', quiet: true }); require('./scripts/lib/refresh-site.js').refreshTableTags(['constituencies', 'constituency_byelections', 'constituency_election_results', 'constituency_mp_terms'])"], check=False)
 
 
 main()
