@@ -42,17 +42,19 @@ export const questionDepartmentStats = unstable_cache(async (): Promise<Departme
 export type Person = { id: number; name: string; house: 'Commons' | 'Lords'; href: string | null };
 // Everyone who can ask or answer: MPs link to /mps/<id>, peers with a page to /lords/<id>.
 export const questionPeople = unstable_cache(async (): Promise<Person[]> => {
-  const [mps, peers] = await Promise.all([
-    cachedQuery(['q:lib/question-pages.ts:7109e83912'], tableTags('mps'), () => db.from('mps').select('member_id, display_name, name').limit(2000)),
-    cachedQuery(['q:lib/question-pages.ts:d71534f581'], tableTags('peers'), () => db.from('peers').select('member_id, name_display, is_current, end_date').limit(3000)),
+  // F02 (ENTRY 134, owner approved 15 Nov 2026): every row, page by page (lib/read-all.ts, which throws on a short read).
+  // .limit(3000) returned only the API's 1,000 rows: 1,000 of 2,822 peers, so 7,030 Lords questions lost a name (T2,
+  // audit/t2-prep/f02-peers.md). This whole read is cached under the mps and peers tags (below).
+  const [mpRows, peerRows] = await Promise.all([
+    readAll<{ member_id: number; display_name: string | null; name: string }>(() => db.from('mps'), { columns: 'member_id, display_name, name', orderBy: 'member_id', concurrency: 2, label: 'question people, MPs' }),
+    readAll<{ member_id: number; name_display: string; is_current: boolean; end_date: string | null }>(() => db.from('peers'), { columns: 'member_id, name_display, is_current, end_date', orderBy: 'member_id', concurrency: 2, label: 'question people, peers' }),
   ]);
-  if (mps.error) throw new Error(`question people, MPs: ${mps.error.message}`);
-  if (peers.error) throw new Error(`question people, peers: ${peers.error.message}`);
+  const mps = { data: mpRows }, peers = { data: peerRows };
   return [
     ...((mps.data ?? []) as { member_id: number; display_name: string | null; name: string }[]).map((m) => ({ id: m.member_id, name: displayMpName(m.display_name || m.name) as string, house: 'Commons' as const, href: `/mps/${m.member_id}` })),
     ...((peers.data ?? []) as { member_id: number; name_display: string; is_current: boolean; end_date: string | null }[]).map((p) => ({ id: p.member_id, name: p.name_display, house: 'Lords' as const, href: peerHasPage(p) ? `/lords/${p.member_id}` : null })),
   ];
-}, ['question-people'], { revalidate: false, tags: tableTags('mps', 'peers') }); // A16: refreshed when the MP or peer lists change
+}, ['question-people-v2'], { revalidate: false, tags: tableTags('mps', 'peers') }); // v2: F02 reads every row // A16: refreshed when the MP or peer lists change
 
 // One screen of questions, newest first, after `before` (date_id of the last row shown), and the total when it is the first screen.
 async function searchQuestionsRead(f: QuestionFilters, before: string | null, wantTotal: boolean, pageSize = QUESTION_PAGE_SIZE): Promise<{ rows: QuestionRow[]; more: string | null; total: number | null }> {
@@ -95,6 +97,7 @@ async function getQuestionRead(id: number): Promise<Question | null> {
 import { phraseOf, PHRASE_MAX } from '@/lib/question-phrase';
 import { tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import { readAll } from '@/lib/read-all';
 import { cachedQuery } from '@/lib/tagged-read';
 export { PHRASE_MAX };
 export async function phraseQuestions(f: QuestionFilters): Promise<QuestionRow[]> {
