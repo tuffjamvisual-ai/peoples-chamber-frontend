@@ -36,7 +36,8 @@ export type ReadAllOptions = {
 
 export async function readAll<T>(from: () => Builder, opts: ReadAllOptions): Promise<T[]> {
   const pageSize = opts.pageSize ?? 1000;
-  const concurrency = opts.concurrency ?? 8;
+  // 2 pages at once by default (F08, ENTRY 134; was 8): fewer bursts of connections; the large reads use the keyset readers below.
+  const concurrency = opts.concurrency ?? 2;
   const label = opts.label ?? 'readAll';
   const filter = opts.filter ?? ((q: Builder) => q);
   const orders: Order[] = typeof opts.orderBy === 'string' ? [{ column: opts.orderBy }] : Array.isArray(opts.orderBy) ? opts.orderBy : [opts.orderBy];
