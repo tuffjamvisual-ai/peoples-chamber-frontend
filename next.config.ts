@@ -275,7 +275,29 @@ const nextConfig: NextConfig = {
         headers: [
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          // F10 (ENTRY 134, owner approved 15 Nov 2026; Cowork ENTRY 175; T2's audit/t2-prep/f10-exact.md step 1): 0, as current
+          // advice says (was '1; mode=block', which old browsers could misuse); and a Content-Security-Policy in REPORT-ONLY
+          // mode: nothing is blocked, browsers report what the policy would block to /api/csp-report for a week; enforcing
+          // it is step 2, back to Cowork. 'unsafe-inline' for scripts and styles: Next.js page data is inline and differs per
+          // page and build (124 inline scripts, 96 distinct hashes), and nonces would make every page per request (A16).
+          { key: 'X-XSS-Protection', value: '0' },
+          { key: 'Content-Security-Policy-Report-Only', value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: blob: https://nwnsvnbudmfkhhwcjwwr.supabase.co https://images.unsplash.com",
+            "font-src 'self' data:",
+            "connect-src 'self'",
+            "media-src 'self'",
+            "frame-src 'none'",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "object-src 'none'",
+            "worker-src 'self' blob:",
+            "manifest-src 'self'",
+            "report-uri /api/csp-report",
+          ].join('; ') },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
