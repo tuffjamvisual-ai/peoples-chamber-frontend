@@ -110,7 +110,7 @@ export default function LoginClient() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+            className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:border-[#ffffff]"
           />
 
           {mode !== 'forgot' && (
@@ -121,7 +121,7 @@ export default function LoginClient() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+              className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:border-[#ffffff]"
             />
           )}
 
@@ -133,7 +133,7 @@ export default function LoginClient() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+                className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:border-[#ffffff]"
               />
 
               <input
@@ -144,7 +144,7 @@ export default function LoginClient() {
                 required
                 minLength={3}
                 maxLength={20}
-                className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+                className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:border-[#ffffff]"
               />
 
               <input
@@ -152,7 +152,7 @@ export default function LoginClient() {
                 placeholder="Your postcode (optional)"
                 value={postcode}
                 onChange={(e) => setPostcode(e.target.value)}
-                className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+                className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:border-[#ffffff]"
               />
 
               <div className="flex items-start gap-2">

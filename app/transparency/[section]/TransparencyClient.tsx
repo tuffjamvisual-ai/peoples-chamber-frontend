@@ -124,7 +124,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             type="search"
             defaultValue={searchQuery}
             placeholder={PLACEHOLDER[section ?? ''] ?? 'Search…'}
-            className="flex-1 min-w-0 basis-32 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] focus:outline-none focus:border-[#14100d] transition-colors"
+            className="flex-1 min-w-0 basis-32 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] focus:border-[#14100d] transition-colors"
           />
           <button
             type="submit"

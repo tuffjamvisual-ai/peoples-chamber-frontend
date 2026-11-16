@@ -59,6 +59,8 @@ const BANNER_CSS = `
   .og-cookie-banner .og-cb-actions { display: grid !important; grid-template-columns: 1fr 1fr; gap: 12px !important; margin: 0 !important; flex: none; }
   .og-cookie-banner .og-cb-btn { min-height: 44px; text-align: center !important; white-space: nowrap !important; font-size: 15px !important; padding: 6px 14px !important; flex: none; }
   body:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set) body:has(.og-cookie-banner) { padding-bottom: 96px; }
+  /* D3 (owner approved 16 Nov 2026, ENTRY 161): while the bar shows, a control reached with Tab is scrolled clear of it. */
+  html:has(.og-cookie-banner:not([data-state="initial"])), html:not(.og-cookies-set):has(.og-cookie-banner) { scroll-padding-bottom: 104px; }
 }
 @media ${wideFrom(768)} {
   .og-cookie-banner .og-cb-wide, .og-cookie-banner .og-cb-short-full { display: none; }

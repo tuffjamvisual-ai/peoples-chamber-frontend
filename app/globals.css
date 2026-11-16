@@ -417,13 +417,18 @@ html:not(.og-js) .og-mbar-js { display: none !important; }
    width, so never a desktop window). */
 /* Touch sizes (ENTRY 135 H1, 16 Nov 2026): fields, menus and the small controls, on phones and on tablets up to 1,023px
    wide or any touch screen (TOUCH in lib/breakpoints.ts). Phones only until then. */
+/* D3 (owner approved 16 Nov 2026, ENTRY 161): a control reached with Tab is scrolled clear of the floating scroll arrow
+   (36px, 24px from the foot of the screen; FloatingScrollDownButton.tsx), on desktop where the arrow shows. The cookie bar
+   adds its own while it shows (CookieBanner.tsx). */
+html { scroll-padding-bottom: 72px; }
+/* A visible ring on every field and control reached by keyboard (D2, owner approved 16 Nov 2026, ENTRY 161): at every
+   width, not only on touch screens and up to 1,023px as before, so a keyboard user on a desktop sees where they are. */
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible, summary:focus-visible, [role="button"]:focus-visible { outline: 3px solid #7a1612 !important; outline-offset: 2px; }
 @media (max-width: 1023.98px), (pointer: coarse) {
   /* iPhone zooms in on any field under 16px. */
   input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea { font-size: 16px !important; }
   /* Safari ignores height on a native dropdown: its own look off, and an arrow drawn in. An inline background keeps its colour. */
   select { -webkit-appearance: none; appearance: none; min-height: 44px; border: 1px solid #14100d; border-radius: 0; color: #14100d; padding-right: 30px !important; box-sizing: border-box; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2314100d' stroke-width='2'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 10px center !important; background-size: 12px 8px !important; }
-  /* A visible ring on every field and control reached by keyboard or tap. */
-  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible, summary:focus-visible, [role="button"]:focus-visible { outline: 3px solid #7a1612 !important; outline-offset: 2px; }
   /* The arrow inside the homepage searches: 44px wide and tall, the text stops short of it. */
   .og-search-go { right: 0 !important; width: 44px; min-height: 44px; padding: 0 !important; }
   .og-search-input { padding-right: 48px !important; }
