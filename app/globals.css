@@ -518,8 +518,10 @@ summary:has(> .og-fold-mark)::-webkit-details-marker { display: none; }
 details[open] > summary .st-less { display: inline; }
 details[open] > summary .st-more { display: none; }
 @media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
-  /* The step script's "Show fewer" (lib/phone-enhance.ts) on tablets too, where the lists step (ENTRY 135 M7). */
-  html.og-js .og-phone-more.st-fewer { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
+  /* The phone Show more and Show fewer buttons (PhoneMore, lib/phone-enhance.ts) on tablets too, where the lists step
+     (ENTRY 135 M7). The tablet rule above sits inside the phone query, so on tablets from 768px the button was hidden
+     while its list stayed cut: /donors showed 5 of 200 rows with no button (found 16 Nov 2026, Cowork ENTRY 152 item 1). */
+  html.og-js .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
 }
 
 /* The floating scroll arrow (FloatingScrollDownButton) sat over the reading column on tablets and was a 36px tap
