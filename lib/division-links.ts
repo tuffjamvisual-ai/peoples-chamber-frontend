@@ -14,7 +14,8 @@ export type YearDivision = DivisionRef & { ayes: number | null; noes: number | n
 
 // The address of a division page, in the full form the page serves (the short form redirects to it).
 export const divisionHref = (date: string, number: number) => `/divisions/pw-${date.slice(0, 10)}-${number}-commons`;
-export const yearHref = (year: number, page = 1) => (page > 1 ? `/divisions/year/${year}?page=${page}` : `/divisions/year/${year}`);
+// Page 2 onwards in the path (F04 batch 2), so each page is static.
+export const yearHref = (year: number, page = 1) => (page > 1 ? `/divisions/year/${year}/page/${page}` : `/divisions/year/${year}`);
 
 const ref = (r: { division_date_only: string; division_number: number; division_title: string | null }): DivisionRef => ({
   date: String(r.division_date_only).slice(0, 10),
