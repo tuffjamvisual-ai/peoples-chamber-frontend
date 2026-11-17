@@ -44,13 +44,18 @@ async function settle<T>(label: string, p: Promise<T>): Promise<T | null> {
   try { return await p; } catch (e) { console.error(`your-area ${label}:`, e); return null; }
 }
 
+// The council with this GSS code, or null when we hold none (tagged, no timer). The council page answers 404 and the lookup
+// route shows "We could not match a council" for a code with no council, so a made-up code never adds a cached page (T2
+// review of F04 batch 4, 17 Nov 2026).
+export async function councilByCode(councilCode: string): Promise<Council | null> {
+  const { data, error } = await cachedQuery(['q:app/your-area/page.tsx:90e9140f69', JSON.stringify([councilCode])], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase.from('councils').select('slug, name, short_name, type, type_label, political_control, parent_slug, population, gss_code').eq('gss_code', councilCode).maybeSingle());
+  if (error) throw new Error(`your-area council lookup failed: ${error.message}`);
+  return data as Council | null;
+}
+
 export default async function AreaView({ councilCode }: { councilCode: string }) {
   // Council and its county (two tier areas).
-  const { data: councilRow, error: councilErr } = councilCode
-    ? await cachedQuery(['q:app/your-area/page.tsx:90e9140f69', JSON.stringify([councilCode])], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase.from('councils').select('slug, name, short_name, type, type_label, political_control, parent_slug, population, gss_code').eq('gss_code', councilCode).maybeSingle())
-    : { data: null, error: null };
-  if (councilErr) throw new Error(`your-area council lookup failed: ${councilErr.message}`);
-  const council = councilRow as Council | null;
+  const council = await councilByCode(councilCode);
   let county: Council | null = null;
   if (council?.parent_slug) {
     const { data, error } = await cachedQuery(['q:app/your-area/page.tsx:d29272fbf7', JSON.stringify([council.parent_slug])], [...tableTags('councils'), COUNCIL_DATA_TAG], () => supabase.from('councils').select('slug, name, short_name, type, type_label, political_control, parent_slug, population, gss_code').eq('slug', council.parent_slug).maybeSingle());

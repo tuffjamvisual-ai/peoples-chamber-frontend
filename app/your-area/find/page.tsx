@@ -8,6 +8,7 @@ import { codesForPoint, LookupError } from '@/lib/area-lookup';
 import { resolveArea, type Suggestion } from '@/lib/area-resolve';
 import type { AreaCodes, Place } from '@/lib/area-lookup';
 import Shell, { ACCENT, para, link } from '../Shell';
+import { councilByCode } from '../AreaView';
 
 export const metadata: Metadata = {
   title: 'Your area',
@@ -42,7 +43,9 @@ export default async function YourAreaFind({ searchParams }: { searchParams: Pro
   } catch (e) {
     message = e instanceof LookupError ? e.message : 'Lookup is unavailable right now. Please try again.';
   }
-  if (target && target.councilCode) redirect(`/your-area/${target.councilCode}${target.place ? `?place=${encodeURIComponent(target.place)}` : ''}`);
+  // A point or postcode whose council we do not hold gets the message here, not a page of its own (T2 review, 17 Nov 2026).
+  if (target && target.councilCode && !(await councilByCode(target.councilCode))) message = 'We could not match a council for this area.';
+  else if (target && target.councilCode) redirect(`/your-area/${target.councilCode}${target.place ? `?place=${encodeURIComponent(target.place)}` : ''}`);
   return (
     <Shell>
       {message && <p style={{ ...para, color: ACCENT }}>{message}</p>}
