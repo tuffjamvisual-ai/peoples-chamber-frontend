@@ -79,10 +79,8 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
       setError('We could not find a council for that search. Try a postcode.');
       return;
     }
-    const p = new URLSearchParams();
-    p.set('council', a.councilCode);
-    if (a.place) p.set('place', a.place);
-    router.push(`/your-area?${p.toString()}`);
+    // Each council has its own static page (F04 batch 4); the place is a label read in the browser there.
+    router.push(`/your-area/${a.councilCode}${a.place ? `?place=${encodeURIComponent(a.place)}` : ''}`);
     // The space held while the results load is let go once they are in (or after 10 seconds).
     window.setTimeout(() => document.documentElement.classList.remove('ya-wait'), 10000);
   }

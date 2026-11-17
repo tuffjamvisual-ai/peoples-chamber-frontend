@@ -243,6 +243,10 @@ const nextConfig: NextConfig = {
         // /questions: any of its filters (one rule per key, as has is AND; an empty value does not match, so an empty form stays
         // on the static page, which shows the same thing).
         ...['words', 'who', 'member', 'department', 'from', 'to', 'status', 'before', 'at', 'uin'].map((key) => ({ source: '/questions', has: [{ type: 'query' as const, key }], destination: '/questions/search' })),
+        // F04 batch 4: a /your-area search sent without the page script (?q=, or ?lat=&lon=&place= after picking a place) is
+        // looked up on /your-area/find (A16 exception, owner ENTRY 187); the address stays as typed. An empty ?q= shows the prompt.
+        { source: '/your-area', has: [{ type: 'query' as const, key: 'q' }], destination: '/your-area/find' },
+        { source: '/your-area', has: [{ type: 'query' as const, key: 'lat' }], destination: '/your-area/find' },
       ],
       afterFiles: [
         { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },

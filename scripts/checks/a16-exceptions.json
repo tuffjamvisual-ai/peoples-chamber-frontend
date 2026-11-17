@@ -21,6 +21,9 @@
   { "route": "/donate/thank-you", "why": "form (payment session)" },
   { "route": "/preview/briefings/*", "why": "owner's private draft preview, signed in" },
   { "route": "/preview/editorials/*", "why": "owner's private draft preview, signed in" },
-  { "route": "/preview/programmes/*", "why": "owner's private draft preview, signed in" }
+  { "route": "/preview/programmes/*", "why": "owner's private draft preview, signed in" },
+  { "route": "/your-area/find", "why": "postcode or place lookup (outside geocoder), then a redirect to the static /your-area/<code>; owner approved 16 Nov 2026, ENTRY 187" },
+  { "route": "/divisions/[slug]/mp", "why": "search results (an MP typed into the division page form; must work with JavaScript off); reads only tagged data; owner approved 16 Nov 2026, ENTRY 187" },
+  { "route": "/newsletter/unsubscribe", "why": "one-off token form that must work with JavaScript off (one-click unsubscribe); reads no data; owner approved 16 Nov 2026, ENTRY 187" }
  ]
 }

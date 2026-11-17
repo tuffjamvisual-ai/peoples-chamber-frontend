@@ -47,6 +47,21 @@ export async function proxy(request: NextRequest) {
   // A16 list addresses (owner rule 15 Nov 2026; F04 batch 2): an old ?page= or filter address of a static list moves to its
   // path (308). A search (?q= with text) goes on to the rewrite in next.config.ts (batch 3). Returned early, as for debates,
   // so the limiter and the noai header below are not added to these.
+  // F04 batch 4: an old /your-area?council=<GSS code> address moves to that council's static page (308), keeping the place
+  // label and any other key (utm); the search keys go, as the old page ignored them when a council was given. Returned early,
+  // as for the lists below. Without a valid code the request goes on (a search is rewritten to /your-area/find).
+  if (pathname === '/your-area') {
+    const sp = request.nextUrl.searchParams
+    const council = (sp.get('council') ?? '').trim()
+    if (/^[ENSW]\d{8}$/.test(council)) {
+      const u = request.nextUrl.clone()
+      u.pathname = `/your-area/${council}`
+      for (const k of ['council', 'q', 'lat', 'lon', 'constituency']) u.searchParams.delete(k)
+      if (!(u.searchParams.get('place') ?? '').trim()) u.searchParams.delete('place')
+      return NextResponse.redirect(u, 308)
+    }
+    return NextResponse.next()
+  }
   const list = listRedirect(pathname, request.nextUrl.searchParams)
   if (list) return NextResponse.redirect(new URL(list, request.url), 308)
   if (list === null) return NextResponse.next()
@@ -142,5 +157,6 @@ export const config = {
     { source: '/newsletter', has: [{ type: 'query', key: 'status' }] },
     { source: '/transparency/press-releases', has: [{ type: 'query', key: 'date' }] },
     { source: '/transparency/register-of-interests', has: [{ type: 'query', key: 'page' }] },
+    { source: '/your-area', has: [{ type: 'query', key: 'council' }] },
   ],
 }
