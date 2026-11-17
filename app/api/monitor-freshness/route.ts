@@ -272,12 +272,19 @@ async function GET_impl(req: Request) {
       }
     }
   }
-  // Written answers against Parliament's count, last 7 days (owner, 5 Nov 2026); a failed read is noted in the JSON, not alerted.
+  // Written answers against Parliament's count, the 7 days up to yesterday (owner, 5 Nov 2026; ENTRY 205); a failed read is noted in the JSON, not alerted.
   const writtenAnswers = await checkWrittenAnswers(supabaseAdmin);
   for (const d of writtenAnswers.short) {
     emailAlerts.push({
       label: `Written answers ${d.date}`, page: '/api/sync-parliament-archive', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
       reason: `we hold ${d.ours.toLocaleString('en-GB')} questions answered that day, Parliament lists ${d.parliament.toLocaleString('en-GB')}: more than 2 per cent short`,
+    });
+  }
+  // Questions tabled, the same 7 days up to yesterday (ENTRY 211, 17 Nov 2026).
+  for (const d of writtenAnswers.tabledShort) {
+    emailAlerts.push({
+      label: `Written questions tabled ${d.date}`, page: '/api/sync-parliament-archive', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
+      reason: `we hold ${d.ours.toLocaleString('en-GB')} questions tabled that day, Parliament lists ${d.parliament.toLocaleString('en-GB')}: more than 2 per cent short`,
     });
   }
   // Blue Badges (owner, 28 Oct 2026): DfT publishes once a year, the figures for 31 March of year Y in the winter of Y

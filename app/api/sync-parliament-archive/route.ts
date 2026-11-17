@@ -123,6 +123,8 @@ class Run {
   private phaseEnd = Infinity;
   requests = 0;
   rows = 0;
+  fromList = 0;                          // tabled questions stored straight from a list page (ENTRY 211)
+  readSingly = 0;                        // questions read one by one by the tabled pass
   // Duplicate primary keys dropped within an upsert batch, by source, this run (owner's approval, 29 Oct 2026: a
   // debate can list the same contribution twice, and Postgres refuses a batch that updates one row twice). The running
   // total is kept in each source's cursor as dupes_dropped; baseDupes is the total stored before this run.
@@ -636,6 +638,11 @@ type QCursor = { date: string; skip?: number; ids?: number[]; next?: number };
 // run reads about 300, so starting again from the oldest day each time never reached the newest (3 Nov was missed). A top
 // up in progress carries on at the next run, every 10 minutes, and top_up is removed when it finishes.
 const PAGE = 100;
+// Parliament's list pages cut questionText at 255 characters and carry no answer or attachments (checked 17 Nov 2026: 42
+// of the first 100 questions tabled on 16 Nov were cut). A question that is unanswered and listed under this length is
+// whole on the list, so the tabled pass stores it from there; any other is read on its own (ENTRY 211).
+const LIST_TEXT_CUT = 255;
+const wholeOnList = (q: WQ) => !q.dateAnswered && !q.answerText && typeof q.questionText === 'string' && q.questionText.length < LIST_TEXT_CUT;
 // Questions: the copy with the latest date_answered, or else the last one seen.
 const laterAnswer = (a: Record<string, unknown>, b: Record<string, unknown>) => String(a.date_answered ?? '') >= String(b.date_answered ?? '');
 
@@ -657,14 +664,20 @@ async function runQuestions(run: Run, s: State, from: string, until: string, top
   try {
     while (cur.date <= until) {
       if (!cur.ids) {
-        const page = await run.getJson<{ totalResults: number; results: { value: { id: number } }[] }>(`${QUESTIONS}/questions?tabledWhenFrom=${cur.date}&tabledWhenTo=${cur.date}&take=${PAGE}&skip=${cur.skip ?? 0}`);
-        let ids = page.results.map((r) => r.value.id);
-        if (onlyMissing && ids.length) {
-          const { data, error } = await run.db.from('parliament_written_questions').select('id').in('id', ids);
+        const page = await run.getJson<{ totalResults: number; results: { value: WQ }[] }>(`${QUESTIONS}/questions?tabledWhenFrom=${cur.date}&tabledWhenTo=${cur.date}&take=${PAGE}&skip=${cur.skip ?? 0}`);
+        let listed = page.results.map((r) => r.value);
+        if (onlyMissing && listed.length) {
+          const { data, error } = await run.db.from('parliament_written_questions').select('id').in('id', listed.map((q) => q.id));
           if (error) throw new Error(`stored ids read: ${error.message}`);
           const stored = new Set((data ?? []).map((r: { id: number }) => r.id));
-          ids = ids.filter((id) => !stored.has(id));
+          listed = listed.filter((q) => !stored.has(q.id));
         }
+        // Whole on the list (ENTRY 211): stored from the page, no request each. Written with the batch below, before the
+        // cursor moves past this page, as the questions read one by one are.
+        const whole = listed.filter(wholeOnList);
+        for (const q of whole) batch.push(questionRow(q));
+        run.fromList += whole.length;
+        const ids = listed.filter((q) => !wholeOnList(q)).map((q) => q.id);
         cur = { date: cur.date, skip: cur.skip ?? 0, ids, next: 0 };
         (cur as QCursor & { total?: number }).total = page.totalResults;
       }
@@ -672,6 +685,7 @@ async function runQuestions(run: Run, s: State, from: string, until: string, top
         const id = (cur.ids ?? [])[cur.next ?? 0];
         const q = (await run.getJson<{ value: WQ }>(`${QUESTIONS}/questions/${id}`)).value;
         batch.push(questionRow(q));
+        run.readSingly++;
         cur.next = (cur.next ?? 0) + 1;
         if (batch.length >= 20) { await flush(); if (!topUp || keepPlace) await save(); }
       }
@@ -995,6 +1009,13 @@ async function GET_impl(req: Request) {
       // 4. Questions start once the speeches backfill has finished, and only while time is left in this run.
       const sp = await run.state('speeches');
       if (sp.finished_at && run.timeLeft() > RESERVE_MS * 2) {
+        // Newly tabled questions first (ENTRY 211, 17 Nov 2026): the last 3 days' list pages, each question not yet held
+        // stored from its page when it is whole there, else read on its own; held questions are left to the answered and
+        // unanswered passes. The answered step then has what is left of the run.
+        const q = await run.state('questions');
+        const qTopUpDue = !!q.cursor?.top_up || due(q, TOP_UP_EVERY_MS);
+        if (!q.finished_at) results.questions = await runQuestions(run, q, START, today, false);
+        else if (qTopUpDue) results.questions = await runQuestions(run, q, addDays(today, -TOP_UP_DAYS), today, true, true, true);
         const beforeAnswered = await run.state('questions');
         if (beforeAnswered.finished_at && (beforeAnswered.cursor?.answered || due(beforeAnswered, ANSWERED_EVERY_MS, beforeAnswered.cursor?.answered_ok_at ?? '1970-01-01'))) {
           results.answered = await run.phase(ANSWERED_PHASE_MS, () => runAnswered(run, beforeAnswered, null));
@@ -1008,10 +1029,6 @@ async function GET_impl(req: Request) {
         if (beforeUnanswered.finished_at && run.timeLeft() > RESERVE_MS * 2 && (beforeUnanswered.cursor?.unanswered || due(beforeUnanswered, UNANSWERED_EVERY_MS, beforeUnanswered.cursor?.unanswered_ok_at ?? '1970-01-01'))) {
           results.unanswered = await run.phase(UNANSWERED_PHASE_MS, () => runUnanswered(run, beforeUnanswered, today));
         }
-        const q = await run.state('questions');
-        const qTopUpDue = !!q.cursor?.top_up || due(q, TOP_UP_EVERY_MS);
-        if (!q.finished_at) results.questions = await runQuestions(run, q, START, today, false);
-        else if (qTopUpDue) results.questions = await runQuestions(run, q, addDays(today, -TOP_UP_DAYS), today, true, false, true);
       }
       // The debates counters, text changes and checks, on the latest saved debates state.
       await run.saveState(await run.state('debates'), false);
@@ -1027,7 +1044,7 @@ async function GET_impl(req: Request) {
 
   const partial = Object.values(results).some((r) => r === 'partial' || r === 'refused');
   const body = {
-    ok: true, rows_written: run.rows, requests: run.requests, results, partial, dupes_dropped: run.dupes,
+    ok: true, rows_written: run.rows, requests: run.requests, tabled_from_list: run.fromList, tabled_read_singly: run.readSingly, results, partial, dupes_dropped: run.dupes,
     debates: { with_items: run.extra.with_items, parents_filled: run.extra.parents_filled, text_changes: run.extra.changes.length },
     answers_changed: refreshed, ...(run.weekly ? { weekly: run.weekly } : {}),
     elapsed_ms: Date.now() - run.started, syncedAt: new Date().toISOString(),
