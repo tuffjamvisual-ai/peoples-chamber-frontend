@@ -14,9 +14,10 @@
 // /api/revalidate (scripts/revalidate.js, as the route does with revalidatePath and revalidateTag), and records a heartbeat
 // under /scripts/catchup-written-questions.
 //
-// Lock: while it runs it holds parliament_archive_sync_state row 'questions-catchup' (cursor.lock_until, 6 hours ahead,
-// cleared at the end), and the route leaves the questions alone while that is in the future. It will not start within 6
-// minutes of the route's last questions run, nor between 03:00 and 03:20 UTC.
+// Lock: while it runs it holds parliament_archive_sync_state row 'questions-catchup' (cursor.lock_until, the run's
+// --max-minutes plus 60 minutes ahead, so a longer run is never overlapped; cleared at the end), and the route leaves the
+// questions alone while that is in the future. It will not start within 6 minutes of the route's last questions run, nor
+// between 03:00 and 03:20 UTC.
 // --dry-run writes nothing (no rows, no cursors, no lock, no refresh, no heartbeat) and reads the real cursors.
 // Requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in .env.local (never printed).
 
@@ -39,7 +40,8 @@ const dry = args.includes('--dry-run');
 const num = (k: string, d: number) => { const i = args.indexOf(k); const v = i >= 0 ? Number(args[i + 1]) : d; if (!Number.isFinite(v) || v <= 0) throw new Error(`${k} must be a positive number`); return v; };
 const TABLED_DAYS = num('--tabled-days', 14);
 const MAX_MINUTES = num('--max-minutes', 360);
-const LOCK_HOURS = 6;
+// The lock outlasts the run's own cap by an hour (the page refresh and heartbeat come after the passes) (T2 review 17 Nov 2026).
+const LOCK_MS = (MAX_MINUTES + 60) * 60_000;
 const ROUTE = '/scripts/catchup-written-questions';
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -97,7 +99,7 @@ async function heartbeat(status: number, rows: number | null) {
   const held = await catchupLockedUntil(db);
   if (held) throw new Error(`another catch-up holds the lock until ${held}`);
   const started = new Date().toISOString();
-  if (!dry) await setLock({ lock_until: new Date(Date.now() + LOCK_HOURS * 3600_000).toISOString(), started_at: started, by: 'owner Mac' });
+  if (!dry) await setLock({ lock_until: new Date(Date.now() + LOCK_MS).toISOString(), started_at: started, by: 'owner Mac' });
 
   const run = new Run(db, MAX_MINUTES * 60_000, true, dry);
   const results: Record<string, string> = {};
