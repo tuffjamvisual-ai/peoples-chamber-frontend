@@ -69,13 +69,15 @@ export default function DirectoryList({ listId, groups, jumpLabel, words = false
     <>
       <style dangerouslySetInnerHTML={{ __html: phoneCss(listId) + '\n' + letterTapCss + (words ? '\n' + wordsCss : '') + (columns ? '\n' + columnsCss(listId) : '') }} />
       <noscript><style dangerouslySetInnerHTML={{ __html: noscriptCss(listId) }} /></noscript>
-      <style>{`@media ${PHONE} { .dir-top { display: flex; flex-direction: column; } .dir-top > .dir-find { order: -1; } }`}</style>
+      {/* 'Filter this list' above the letters at every width (ENTRY 233 MOB-DIR, owner approved 17 Nov 2026; ENTRY 238: every
+          width, /sections/parliament too): first in the HTML, so a screen reader and the Tab key meet it first, as it is
+          shown; no CSS order anywhere (on phones it was moved up by CSS order only). The letters keep their 44px taps on
+          phones and their wrap. */}
       <div className="dir-top">
+      <div className="dir-find"><DirectoryFilter listId={listId} placeholder={placeholder} noMatch={noMatch} /></div>
       <nav aria-label={jumpLabel} className={words ? 'dir-letters dir-words' : 'dir-letters'} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', margin: '0 0 16px', fontFamily: MONO, fontSize: '16px' }}>
         {groups.map((g) => <a key={g.key} href={`#${g.id}`} data-letter-link={g.key} className="no-hover-scale" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', color: ACCENT, border: `1px solid ${HAIRLINE}`, textDecoration: 'none', fontWeight: 'bold' }}>{g.label}</a>)}
       </nav>
-
-      <div className="dir-find"><DirectoryFilter listId={listId} placeholder={placeholder} noMatch={noMatch} /></div>
       </div>
 
       <div id={listId}>
