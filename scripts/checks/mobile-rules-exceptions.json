@@ -1,4 +1,17 @@
 {
   "about": "Exceptions to scripts/checks/mobile-rules.mjs (ENTRY 239 B). Only with Cowork's agreement, each with its reason and the date agreed. route: the page type as in mobile-audit-pages.csv ('*' for every page); selector: the elements excepted (CSS); rule: taps (the WCAG 2.5.8 inline exception for body-copy links inside paragraphs).",
-  "exceptions": []
+  "exceptions": [
+    {
+      "rule": "lists",
+      "route": "*",
+      "selector": "[data-article-body] ul, [data-article-body] ol",
+      "reason": "Bullet points in an article's running text stay whole; so will the ART-SUMMARY key points list (owner approved 17 Nov 2026: 'Both stay whole', Cowork ENTRY 265)."
+    },
+    {
+      "rule": "lists",
+      "route": "/",
+      "selector": "ul.og-sotn-sl",
+      "reason": "The homepage State of the Nation strip's 4 figures stay whole (owner approved 17 Nov 2026, Cowork ENTRY 265; MOB-HOME)."
+    }
+  ]
 }
