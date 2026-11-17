@@ -235,6 +235,9 @@ const nextConfig: NextConfig = {
         { source: '/organisations', has: [{ type: 'query' as const, key: 'q' }], destination: '/organisations/search' },
         { source: '/petitions', has: [{ type: 'query' as const, key: 'q' }], destination: '/petitions/search' },
         { source: '/pmqs', has: [{ type: 'query' as const, key: 'q' }], destination: '/pmqs/search' },
+        // /questions: any of its filters (one rule per key, as has is AND; an empty value does not match, so an empty form stays
+        // on the static page, which shows the same thing).
+        ...['words', 'who', 'member', 'department', 'from', 'to', 'status', 'before', 'at', 'uin'].map((key) => ({ source: '/questions', has: [{ type: 'query' as const, key }], destination: '/questions/search' })),
       ],
       afterFiles: [
         { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },

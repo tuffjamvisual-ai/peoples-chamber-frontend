@@ -4,6 +4,7 @@
   { "route": "/search", "why": "search results" },
   { "route": "/bills/search", "why": "search results" },
   { "route": "/councils/search", "why": "search results" },
+  { "route": "/questions/search", "why": "search results (full text over about 194,000 written questions, with MP, department, date and status filters; owner approved 17 Nov 2026, ENTRY 187)" },
   { "route": "/pmqs/search", "why": "search results (words in every PMQs contribution, hansard_contributions and the 1945 to 1961 tables; owner approved 17 Nov 2026, ENTRY 187)" },
   { "route": "/petitions/search", "why": "search results (petition title text over the cached list; owner approved 17 Nov 2026, ENTRY 187)" },
   { "route": "/organisations/search", "why": "search results (name, other names or Companies House number over the cached list; owner approved 17 Nov 2026, ENTRY 187)" },
