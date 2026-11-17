@@ -171,7 +171,9 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
       {/* Phones (UX3b, 10 Nov 2026): smaller margins round the party's header (5% of the width was 42px on a sideways phone), so
           the page's content starts on the first screen (A6). */}
       <style>{`@media ${PHONE} { .pt-head { margin-top: 12px !important; margin-bottom: 12px !important; } }`}</style>
-      <div className="pt-head" style={{ marginTop: '5%', marginBottom: '5%' }}>
+      {/* While the policy texts are hidden (PP-HIDE) the party's header is the page's main action for A6 (the policy blocks
+          carry it when shown). */}
+      <div className="pt-head" data-main-action={partyPoliciesShown(party.slug) ? undefined : ''} style={{ marginTop: '5%', marginBottom: '5%' }}>
         <h1
           style={{
             fontSize: 'clamp(28px, 4.6vw, 60px)',
