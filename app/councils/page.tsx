@@ -115,7 +115,7 @@ export default async function CouncilsIndex() {
             United Kingdom · Principal Authorities · {all.length}
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
-            Local Government
+            UK councils
           </h1>
         </header>
 
@@ -155,9 +155,10 @@ export default async function CouncilsIndex() {
             const countryTotal = Object.values(byType).reduce((a, b) => a + b.length, 0);
             return (
               <section key={country} id={`nation-${country.toLowerCase().replace(/[^a-z]+/g, '-')}`} className="cn-nation" style={{ borderTop: `3px solid ${INK}`, paddingTop: '18px' }}>
-                <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 'clamp(22px, 2.6vw, 30px)', lineHeight: 1.15, marginBottom: '4px' }}>
+                {/* Real headings, styled as before (owner approved 17 Nov 2026, COWORK-TO-T1 ENTRY 217 item 3). */}
+                <h2 style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 'clamp(22px, 2.6vw, 30px)', lineHeight: 1.15, margin: '0 0 4px 0' }}>
                   {country}
-                </div>
+                </h2>
                 <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '20px' }}>
                   {countryTotal} principal authorities
                 </div>
@@ -168,9 +169,9 @@ export default async function CouncilsIndex() {
                   const items = byType[type];
                   return (
                     <div key={type} style={{ marginBottom: '24px' }}>
-                      <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '8px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
+                      <h3 style={{ marginTop: 0, fontWeight: 'inherit', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '8px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
                         {items[0].type_label}{items.length > 1 ? 's' : ''} · {items.length}
-                      </div>
+                      </h3>
                       <NoJsPager id={`njp-${country}-${type}`.toLowerCase().replace(/[^a-z0-9-]+/g, "-")} ownMore count={(items).length} rows="> li" size={25}>
                       <ul
                         data-own-more

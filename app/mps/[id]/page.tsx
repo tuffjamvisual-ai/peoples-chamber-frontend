@@ -30,7 +30,7 @@ import { DONATIONS_TAG } from '@/lib/page-reads';
 import { createHash } from 'node:crypto';
 import { mpReportItems } from '@/lib/mp-reports';
 import type { MinisterMeeting, MinisterHospitality } from './MagazineProfileSections';
-import { titleWithin } from '@/lib/seo-title';
+import { fitTitle, titleWithin } from '@/lib/seo-title';
 import { displayMpName } from '@/lib/mp-name';
 import { readAll, inList } from '@/lib/read-all';
 import { recipientIsMp, lastNamePrefilter } from '@/lib/mp-recipient-match';
@@ -163,8 +163,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const isFormer = mp.current_member === false;
 
   // One plain sentence from the data (owner's brief, 3 Nov 2026): who the MP is, then what the page lists, with counts.
-  const who = `${name}, ${[party, mp.constituency && `${isFormer ? 'former ' : ''}MP for ${mp.constituency}`].filter(Boolean).join(' ')}`
-    + (isFormer ? (sinceYear && untilYear ? ` from ${sinceYear} to ${untilYear}` : '') : (sinceYear ? ` since ${sinceYear}` : ''));
+  // The party goes last, in brackets (owner approved 17 Nov 2026, COWORK-TO-T1 ENTRY 217 item 1): "<name>, MP for <seat> since
+  // <year> (<party>)", so the snippet never says one party held the seat for the whole time (up to 41 MPs changed party).
+  const who = `${name}${mp.constituency ? `, ${isFormer ? 'former ' : ''}MP for ${mp.constituency}` : ''}`
+    + (isFormer ? (sinceYear && untilYear ? ` from ${sinceYear} to ${untilYear}` : '') : (sinceYear ? ` since ${sinceYear}` : ''))
+    + (party ? ` (${party})` : '');
   const lists: string[] = [];
   const vc = Number((votesCountRes.data as { aye_no?: number } | null)?.aye_no) || 0;
   if (vc > 0) lists.push(`voting record (${vc.toLocaleString('en-GB')} votes)`);
@@ -183,9 +186,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? `Votes attended since July 2024: ${Math.round(Number(act.attendance_pct))} per cent.` : null;
   const description = wholeSentences([`${who}.`, attendance, `${listed.charAt(0).toUpperCase()}${listed.slice(1)}.`]);
 
-  // Title (owner's brief, 3 Nov 2026): "<Name> MP: expenses, votes and interests", or "<Name>: record and interests"
-  // for a former MP; with the " | opengovt" suffix when it fits in 60 characters, else on its own (lib/seo-title.ts).
-  const title: Metadata['title'] = titleWithin(isFormer ? `${name}: record and interests` : `${name} MP: expenses, votes and interests`);
+  // Title (owner's brief, 3 Nov 2026; ENTRY 217 item 2, 17 Nov 2026): "<Name> MP: expenses, votes and biography", or
+  // "<Name>: record and interests" for a former MP; with the " | opengovt" suffix when it fits in 60 characters, else on its
+  // own; a name too long for 60 drops "biography" ("<Name> MP: expenses and votes") on that page only (lib/seo-title.ts).
+  const title: Metadata['title'] = isFormer ? titleWithin(`${name}: record and interests`) : fitTitle(`${name} MP: expenses, votes and biography`, `${name} MP: expenses and votes`);
 
   return {
     title,

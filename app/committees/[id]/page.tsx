@@ -1,4 +1,6 @@
 import { wholeNameTitle } from '@/lib/seo-title';
+import { asSentence, sentencesOf, wholeSentences } from '@/lib/meta-description';
+import { htmlToText } from '@/lib/written-question-row';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -70,17 +72,34 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const { data, error: dataErr2 } = await cachedQuery(['q:app/committees/[id]/page.tsx:6734be3007', JSON.stringify([id])], tableTags('committees'), () => supabase
-    .from('committees')
-    .select('name')
-    .eq('id', Number(id))
-    .single());
+  const [{ data, error: dataErr2 }, current] = await Promise.all([
+    cachedQuery(['q:app/committees/[id]/page.tsx:meta-v2', JSON.stringify([id])], tableTags('committees'), () => supabase
+      .from('committees')
+      .select('name, purpose')
+      .eq('id', Number(id))
+      .single()),
+    // The same read as the page's member list (one cached copy for both).
+    cachedQuery(['q:app/committees/[id]/page.tsx:2df2c6e6d5', JSON.stringify([Number(id)])], tableTags('mp_committee_memberships'), () => supabase
+      .from('mp_committee_memberships')
+      .select('member_id, role, start_date, end_date')
+      .eq('committee_id', Number(id))
+      .order('start_date', { ascending: false })),
+  ]);
   if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/committees/[id] committees: ${dataErr2.message}`);
   if (!data) return { title: 'Committee' };
+  // The committee's own stated purpose (its first sentence) and how many members it has now (owner approved 17 Nov 2026,
+  // COWORK-TO-T1 ENTRY 217 item 4): "<name>: <purpose sentence>. <N> current members." Whole sentences within 160.
+  const purpose = sentencesOf(htmlToText(data.purpose ?? ''))[0];
+  const n = (current.data ?? []).filter((m) => m.end_date === null).length;
+  const count = n ? `${n.toLocaleString('en-GB')} current member${n === 1 ? '' : 's'}.` : null;
   return {
     // A sub-committee is clear without its parent's long name, and then fits.
     title: wholeNameTitle(data.name.replace(/^.+ (Sub-Committee on )/, '$1'), (n) => [`${n}: UK Parliament`]),
-    description: `Current members of the ${data.name}, sourced from UK Parliament.`,
+    // A purpose sentence that already names the committee ("The X Committee scrutinises ...") stands on its own; any other
+    // is introduced by the name. The member count follows when it still fits in 160.
+    description: purpose
+      ? wholeSentences([purpose.toLowerCase().includes(data.name.toLowerCase()) ? asSentence(purpose) : asSentence(`${data.name}: ${purpose.replace(/[.!?]+$/, '')}`), count])
+      : wholeSentences([`Current members of the ${data.name}, sourced from UK Parliament.`, count]),
     alternates: { canonical: `/committees/${id}` },
   };
 }
