@@ -23,9 +23,11 @@
 //   questions  Written questions, Commons and Lords, tabled from 2024-07-04 in date order: a list page of ids for each
 //              day, then one detail request per question, because list pages cut answers short. Starts only once
 //              speeches has finished_at set.
-//   answered   Every half hour: newly answered and corrected questions, whatever day they were tabled (runAnswered).
-//   weekly     Sundays, 07:00 to 11:00 UTC, clear of the database backup (12:00), phone length (13:15) and archive copy
-//              (14:17): the last 90 days of answers against Parliament's lists, a day at a time (runWeekly).
+//   answered   In the daily 03:08 UTC run (once a day since T1-CRONDAILY, 15 Nov 2026): newly answered and corrected
+//              questions, whatever day they were tabled (runAnswered), with most of the run's time (ANSWERED_PHASE_MS).
+//   weekly     The Sunday 03:08 UTC run (owner, 16 Nov 2026, COWORK-TO-T1 ENTRY 205 option b; was Sunday 07:00 to 11:00, which
+//              no run reaches any more): the last 90 days of answers against Parliament's lists, a day at a time
+//              (runWeekly). A pass the Sunday run leaves part done carries on in the next daily runs until it finishes.
 //   unanswered Daily: the unanswered list, for new holding answers and withdrawals (runUnanswered).
 //   refresh    At the end of every run, the pages of members whose answers changed in it (refreshAnswerPages).
 // The cursor (parliament_archive_sync_state.cursor) is the current date and position in it, saved with every batch of
@@ -76,8 +78,11 @@ const REFETCH_AFTER_MS = 20 * 60 * 60 * 1000;           // "daily", with slack f
 const OUR_IDS_EVERY_MS = 24 * 60 * 60 * 1000;
 const MONTHLY_EVERY_MS = 30 * 24 * 60 * 60 * 1000;
 const MONTHLY_SAMPLE = 20;
-const ANSWERED_EVERY_MS = 30 * 60 * 1000;               // newly answered questions: every half hour, a few list pages
-const ANSWERED_PHASE_MS = 60_000;
+const ANSWERED_EVERY_MS = 30 * 60 * 1000;               // newly answered questions: due on every (now daily) run
+// Owner, 16 Nov 2026 (ENTRY 205 option b): a sitting day has 180 to 520 answers, each read on its own 0.5 s apart; 60 s
+// read about 110, so the once a day run fell behind. The pass may now use the rest of the run (it comes after the speeches
+// top up, the debates re-fetch and the daily checks, which keep their own shares); the run's budget still ends it.
+const ANSWERED_PHASE_MS = 200_000;
 const ANSWERED_FIRST_FROM = '2026-11-02';               // where the pass starts if it has never finished
 const UNANSWERED_EVERY_MS = 20 * 60 * 60 * 1000;         // "daily", with slack for the 10 minute schedule
 const UNANSWERED_PHASE_MS = 60_000;
@@ -886,7 +891,8 @@ async function runUnanswered(run: Run, s: State, today: string) {
   }
 }
 
-const inWeeklyWindow = (now: Date) => now.getUTCDay() === 0 && now.getUTCHours() >= 7 && now.getUTCHours() < 11;
+// The Sunday 03:08 UTC run (ENTRY 205): Sunday 03:00 to 03:59 UTC.
+const inWeeklyWindow = (now: Date) => now.getUTCDay() === 0 && now.getUTCHours() === 3;
 
 // The pages of members whose answers changed in this run, all sent together at its end.
 function refreshAnswerPages(run: Run) {
@@ -994,7 +1000,8 @@ async function GET_impl(req: Request) {
           results.answered = await run.phase(ANSWERED_PHASE_MS, () => runAnswered(run, beforeAnswered, null));
         }
         const beforeWeekly = await run.state('questions');
-        if (beforeWeekly.finished_at && inWeeklyWindow(new Date()) && run.timeLeft() > RESERVE_MS * 2 && (beforeWeekly.cursor?.weekly || due(beforeWeekly, WEEKLY_EVERY_MS, beforeWeekly.cursor?.weekly_ok_at ?? '1970-01-01'))) {
+        // A part done pass carries on in any run; a new one starts only in the Sunday run.
+        if (beforeWeekly.finished_at && run.timeLeft() > RESERVE_MS * 2 && (beforeWeekly.cursor?.weekly || (inWeeklyWindow(new Date()) && due(beforeWeekly, WEEKLY_EVERY_MS, beforeWeekly.cursor?.weekly_ok_at ?? '1970-01-01')))) {
           results.weekly = await run.phase(WEEKLY_PHASE_MS, () => runWeekly(run, beforeWeekly, null, today));
         }
         const beforeUnanswered = await run.state('questions');
