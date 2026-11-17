@@ -582,3 +582,17 @@ export async function runUnanswered(run: Run, s: State, today: string) {
 
 // The Sunday 03:08 UTC run (ENTRY 205): Sunday 03:00 to 03:59 UTC.
 export const inWeeklyWindow = (now: Date) => now.getUTCDay() === 0 && now.getUTCHours() === 3;
+
+// ---------- the weekly catch-up's lock (ENTRY 216) ----------
+
+// scripts/catchup-written-questions.ts holds this row while it runs from the owner's Mac: cursor.lock_until in the future.
+// The daily route then leaves every written question pass alone, so the two never write the same cursors at once; the
+// script in turn will not start within 6 minutes of the route's last questions run. A crashed catch-up stops blocking
+// when lock_until passes.
+export const CATCHUP_SOURCE = 'questions-catchup';
+export async function catchupLockedUntil(db: SupabaseClient): Promise<string | null> {
+  const { data, error } = await db.from('parliament_archive_sync_state').select('cursor').eq('source', CATCHUP_SOURCE).maybeSingle();
+  if (error) throw new Error(`catch-up lock read: ${error.message}`);
+  const until = (data as { cursor: Record<string, unknown> | null } | null)?.cursor?.lock_until;
+  return typeof until === 'string' && new Date(until).getTime() > Date.now() ? until : null;
+}

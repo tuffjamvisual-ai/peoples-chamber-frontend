@@ -66,6 +66,7 @@ export const maxDuration = 270;
 const ROUTE = '/api/sync-parliament-archive';
 import {
   START, BUDGET_MS, RESERVE_MS, DB_TIMEOUT_MS, TOP_UP_DAYS, TOP_UP_EVERY_MS, SETTLE_DAYS, REFETCH_AFTER_MS, OUR_IDS_EVERY_MS, MONTHLY_EVERY_MS, MONTHLY_SAMPLE, ANSWERED_EVERY_MS, ANSWERED_PHASE_MS, UNANSWERED_EVERY_MS, UNANSWERED_PHASE_MS, WEEKLY_EVERY_MS, WEEKLY_PHASE_MS, TOP_UP_PHASE_MS, REFETCH_PHASE_MS, OUR_IDS_PHASE_MS, MONTHLY_PHASE_MS, HANSARD, SKIP_SECTIONS, StopRun, SourceRefused, day, addDays, up, Run, runQuestions, runAnswered, runWeekly, runUnanswered, inWeeklyWindow, type State, type Row, readAll, type Listed, type DayCursor, type TreeNode, type Debate, type Known,
+  catchupLockedUntil,
 } from '@/lib/parliament-archive';
 
 // ---------- debates and speeches ----------
@@ -441,7 +442,10 @@ async function GET_impl(req: Request) {
       }
       // 4. Questions start once the speeches backfill has finished, and only while time is left in this run.
       const sp = await run.state('speeches');
-      if (sp.finished_at && run.timeLeft() > RESERVE_MS * 2) {
+      // The weekly catch-up from the owner's Mac holds the questions while it runs (ENTRY 216): leave them to it.
+      const catchupUntil = await catchupLockedUntil(db);
+      if (catchupUntil) results.questions = `skipped: the catch-up holds the questions until ${catchupUntil}`;
+      else if (sp.finished_at && run.timeLeft() > RESERVE_MS * 2) {
         // Newly tabled questions first (ENTRY 211, 17 Nov 2026): the last 3 days' list pages, each question not yet held
         // stored from its page when it is whole there, else read on its own; held questions are left to the answered and
         // unanswered passes. The answered step then has what is left of the run.

@@ -277,14 +277,14 @@ async function GET_impl(req: Request) {
   for (const d of writtenAnswers.short) {
     emailAlerts.push({
       label: `Written answers ${d.date}`, page: '/api/sync-parliament-archive', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
-      reason: `we hold ${d.ours.toLocaleString('en-GB')} questions answered that day, Parliament lists ${d.parliament.toLocaleString('en-GB')}: more than 2 per cent short`,
+      reason: `we hold ${d.ours.toLocaleString('en-GB')} questions answered that day, Parliament lists ${d.parliament.toLocaleString('en-GB')}: more than 2 per cent short (after a heavy sitting day this can stay short until the weekly catch-up from the Mac, scripts/catchup-written-questions.ts)`,
     });
   }
   // Questions tabled, the same 7 days up to yesterday (ENTRY 211, 17 Nov 2026).
   for (const d of writtenAnswers.tabledShort) {
     emailAlerts.push({
       label: `Written questions tabled ${d.date}`, page: '/api/sync-parliament-archive', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
-      reason: `we hold ${d.ours.toLocaleString('en-GB')} questions tabled that day, Parliament lists ${d.parliament.toLocaleString('en-GB')}: more than 2 per cent short`,
+      reason: `we hold ${d.ours.toLocaleString('en-GB')} questions tabled that day, Parliament lists ${d.parliament.toLocaleString('en-GB')}: more than 2 per cent short (after a heavy sitting day this can stay short until the weekly catch-up from the Mac, scripts/catchup-written-questions.ts)`,
     });
   }
   // Blue Badges (owner, 28 Oct 2026): DfT publishes once a year, the figures for 31 March of year Y in the winter of Y
