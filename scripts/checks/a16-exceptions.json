@@ -5,6 +5,7 @@
   { "route": "/bills/search", "why": "search results" },
   { "route": "/councils/search", "why": "search results" },
   { "route": "/transparency/[section]/search", "why": "search results (ILIKE over the dataset tables, up to 93,782 donations; owner approved 17 Nov 2026, ENTRY 187)" },
+  { "route": "/transparency/mp-activity/search", "why": "search results (MP name or constituency typed by the reader; owner approved 17 Nov 2026, ENTRY 187)" },
   { "route": "/questions/search", "why": "search results (full text over about 194,000 written questions, with MP, department, date and status filters; owner approved 17 Nov 2026, ENTRY 187)" },
   { "route": "/pmqs/search", "why": "search results (words in every PMQs contribution, hansard_contributions and the 1945 to 1961 tables; owner approved 17 Nov 2026, ENTRY 187)" },
   { "route": "/petitions/search", "why": "search results (petition title text over the cached list; owner approved 17 Nov 2026, ENTRY 187)" },

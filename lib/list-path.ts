@@ -4,7 +4,8 @@
 // search (?q=) stays in the query and is answered by /x/search (next.config.ts rewrites; a16-exceptions.json).
 export const slug = (s: string) => s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-type Spec = { keys: readonly string[]; slugged?: readonly string[]; search?: boolean; pageOnly?: boolean };
+// defaults: a key's default value, left out of the address like page 1 (the mp-activity form always sends its view).
+type Spec = { keys: readonly string[]; slugged?: readonly string[]; search?: boolean; pageOnly?: boolean; defaults?: Record<string, string> };
 // Batch 2 (F04, no exceptions): the lists whose page or fixed filters move into the path. The search lists (debates, edms,
 // petitions, organisations, pmqs) join in batch 3 with their /x/search routes; until then their ?query addresses are not
 // redirected.
@@ -20,6 +21,7 @@ export const LISTS: Record<string, Spec> = {
   '/organisations': { keys: ['has', 'page'], search: true },
   '/petitions': { keys: ['state', 'responded', 'debated', 'constituency'], search: true },
   '/pmqs': { keys: ['pm', 'year', 'page', 'dpage'], search: true },
+  '/transparency/mp-activity': { keys: ['view', 'party', 'page'], slugged: ['party'], search: true, defaults: { view: 'most-active' } },
 };
 const DYNAMIC: [RegExp, Spec][] = [
   [/^\/divisions\/year\/\d{4}$/, { keys: ['page'], pageOnly: true }],
@@ -32,7 +34,7 @@ const okNumber = (x: string) => /^[1-9][0-9]{0,3}$/.test(x);
 
 export function listPath(base: string, v: Record<string, string | null | undefined>, spec = LISTS[base]): string {
   if (spec.pageOnly) return Number(v.page) > 1 ? `${base}/page/${Number(v.page)}` : base;
-  const parts = spec.keys.flatMap((k) => { const x = v[k]; return x && !(PAGED.has(k) && x === '1') ? [k, spec.slugged?.includes(k) ? slug(x) : x] : []; });
+  const parts = spec.keys.flatMap((k) => { const x = v[k]; return x && !(PAGED.has(k) && x === '1') && spec.defaults?.[k] !== x ? [k, spec.slugged?.includes(k) ? slug(x) : x] : []; });
   return parts.length ? `${base}/filter/${parts.join('/')}` : base;
 }
 

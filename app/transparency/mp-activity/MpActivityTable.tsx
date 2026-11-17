@@ -3,6 +3,7 @@
 // the MP search and paging now happen in page.tsx; everything here is plain links and a GET form, so the controls work
 // without JavaScript and every view has its own shareable address.
 
+import { listPath } from '@/lib/list-path'
 import NoJsPager from '../../components/NoJsPager';
 import Link from 'next/link'
 
@@ -67,15 +68,16 @@ function shortDept(d: string): string {
   return DEPT_SHORT[d] || d.replace(/^Department (for|of) /, '').replace(/^Ministry of /, '')
 }
 
-// The address of a view: the default view, no party, no search and page 1 are left out.
+// The address of a view: a search stays a ?q= address (the rewrite serves it, F04 batch 3); otherwise the view, party and page
+// are in the path, the default view, no party and page 1 left out (lib/list-path.ts).
 export function activityHref(view: ViewKey, party: string | null, q: string | null, page = 1): string {
+  if (!q) return listPath(BASE, { view, party, page: String(page) })
   const qs = new URLSearchParams()
   if (view !== DEFAULT_VIEW) qs.set('view', view)
   if (party) qs.set('party', party)
-  if (q) qs.set('q', q)
+  qs.set('q', q)
   if (page > 1) qs.set('page', String(page))
-  const s = qs.toString()
-  return s ? `${BASE}?${s}` : BASE
+  return `${BASE}?${qs}`
 }
 
 type Props = {
