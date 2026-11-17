@@ -9,11 +9,15 @@ const INK = '#14100d';
 // /questions). The link goes to plain /search: search has no filter for these historic records yet. The wrapper keeps the
 // homepage's phone order (app/page.tsx .og-record-f). The same rule and gap below the link as above the heading (Cowork,
 // 11 Nov 2026), phone and desktop.
-export default function HomeRecord() {
+// ENTRY 233 MOB-HOME (owner approved 17 Nov 2026): on desktop it opens the main column, above the lead story; on phones and
+// tablets it follows the lead story, the figures strip and "This week in Parliament". The page renders it in both places,
+// each display: none at the other's widths (only = 'desk' or 'mob'), so the reading order is the order shown.
+export default function HomeRecord({ only }: { only: 'desk' | 'mob' }) {
+  const head = `og-record-head-${only}`;
   return (
-    <div className="og-record-f">
-      <section className="og-record" aria-labelledby="og-record-head" style={{ margin: '20px 0', padding: '14px 0', borderTop: '2px solid rgba(20,16,13,0.18)', borderBottom: '2px solid rgba(20,16,13,0.18)' }}>
-        <h2 id="og-record-head" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: INK, margin: '0 0 10px' }}>The record, going back decades</h2>
+    <div className={`og-record-f og-${only}`}>
+      <section className="og-record" aria-labelledby={head} style={{ margin: '20px 0', padding: '14px 0', borderTop: '2px solid rgba(20,16,13,0.18)', borderBottom: '2px solid rgba(20,16,13,0.18)' }}>
+        <h2 id={head} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: INK, margin: '0 0 10px' }}>The record, going back decades</h2>
         <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.6, margin: 0 }}>
           <Link href="/search" prefetch={false} className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Search the archives &rarr;</Link>
         </p>

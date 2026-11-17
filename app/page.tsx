@@ -114,25 +114,16 @@ export default async function HomePage() {
     <>
       <OpenGovShell pageStamp="Front Page" brandAsHeading>
       <HomeFeaturedProvider pool={featuredPool} lead={heldLead} leadSlug={HOMEPAGE_LEAD_SLUG} renderedOn={renderedOn}>
-              {/* Under 640px (owner, 4 Nov 2026; current coverage first, 8 Nov 2026, HP1b): the two searches, the first
-                  investigation, This week in Parliament, then the archive
-                  ("The record, going back decades"), the other reports, Latest from Whitehall and the rest of the rail in
-                  their order (the Bills tracker card where it was). CSS order only, so it is the same with JavaScript off.
-                  From 640px up, as before. */}
+              {/* Phones and tablets, up to 1,023.98px (ENTRY 233 MOB-HOME, owner approved 17 Nov 2026): the two finders, the
+                  lead story, the State of the nation strip, This week in Parliament, the archive ("The record, going back
+                  decades"), the other reports, From Whitehall, then the rest of the rail. This is the order of the HTML
+                  itself: no CSS order, so a screen reader and the Tab key meet everything in the order it is shown, with
+                  JavaScript off too. The parts whose place differs from desktop are rendered in both places, each hidden
+                  (display: none, so out of the reading order) at the other's widths: .og-desk from 1,024px up only, .og-mob
+                  up to 1,023.98px only (app/home-front.css). Desktop is unchanged. Under 768px: */}
               <style>{`@media ${phoneUpTo(767.98)} {
-                .og-lead { display: flex !important; flex-direction: column; }
-                .og-main, .og-rail { display: contents !important; }
-                .og-main > * { order: 5; }
-                .og-main > .og-lead-story { order: 2; }
                 .og-lead-story .og-lede { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
-                .og-rail > a.og-card[href="/this-week"] { order: 3; }
-                .og-main > .og-record-f { order: 4; }
                 .og-finders { margin-bottom: 12px !important; }
-                .og-rail > * { order: 8; }
-                .og-rail > .og-brief { order: 6; }
-                .og-main > .og-whitehall-f { order: 7; }
-                .og-brief > :not(.og-head) { display: none !important; }
-                .og-rail > a.og-card:not([href="/this-week"]) > :not(.og-head) { display: none !important; }
                 .og-rail > #newsletter:not(:target) { display: none !important; }
                 .og-rail > .og-news-line { display: block !important; }
               }`}</style>
@@ -141,8 +132,8 @@ export default async function HomePage() {
                   folds below fold here as well. The phone layout itself (one column, the order above) stays phones only. */}
               {/* Small phones, under 480px (ENTRY 135 M2: the homepage was 2,623px at 320, limit 2,500): the lead story keeps its
                   headline and summary without the opening extract, and the "This week in Parliament" card's text is two lines. */}
-              <style>{`@media ${phoneUpTo(479)} { .og-lead-story .og-lede { display: none !important; } .og-rail > a.og-card[href="/this-week"] > :not(.og-head) { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } }`}</style>
-              <style>{`@media ${phoneUpTo(1023.98)} { .og-brief > :not(.og-head) { display: none !important; } .og-rail > a.og-card:not([href="/this-week"]) > :not(.og-head) { display: none !important; } }`}</style>
+              <style>{`@media ${phoneUpTo(479)} { .og-lead-story .og-lede { display: none !important; } a.og-card[href="/this-week"] > :not(.og-head) { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } }`}</style>
+              <style>{`@media ${phoneUpTo(1023.98)} { .og-brief > :not(.og-head) { display: none !important; } .og-rail > a.og-card > :not(.og-head) { display: none !important; } }`}</style>
               {/* Phones only (owner, 10 Nov 2026, S5-home; the page was 4,689px at 375px): folded, nothing cut. The other
                   reports show their headlines only, which are the links, and so do the four promotion cards (Bills tracker, expenses,
                   manifestos, departments; UX5, T1-6, 11 Nov 2026); the research promotion is in a closed native
@@ -201,14 +192,15 @@ export default async function HomePage() {
 
               <AreaSearch label="Find your local council" placeholder="Postcode, town or council" />
               </div>
-              {/* State of the nation (T1-SOTN, layout change approved by the owner 15 Nov 2026, ENTRY 105): four headline
-                  official figures under the finders, each linking to /state-of-the-nation. */}
-              <SotnBand />
+              {/* State of the nation (T1-SOTN, layout change approved by the owner 15 Nov 2026, ENTRY 105): on desktop four
+                  headline official figures under the finders, linking to /state-of-the-nation; on phones and tablets the
+                  compact strip after the lead story (ENTRY 233). */}
+              <SotnBand variant="band" />
               <div className="og-lead">
             <div className="og-main">
 
 
-              <HomeRecord />
+              <HomeRecord only="desk" />
 
               {/* The lead story (UX1g, 9 Nov 2026): the headline is the link, and the summary and opening are plain text
                   after it, so a screen reader hears the headline as the link's name rather than the whole block. On
@@ -216,7 +208,19 @@ export default async function HomePage() {
               <style>{`.og-lead-head { display: block; text-decoration: none; color: inherit; } .og-lead-head:hover, .og-lead-head:focus-visible { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; } .og-lead-head:focus-visible { outline: 3px solid #7a1612; outline-offset: 3px; }`}</style>
               <FeaturedLead />
 
+              {/* Phones and tablets only (ENTRY 233): the figures strip, This week in Parliament and the archive straight
+                  after the lead story, and the second and third reports before From Whitehall (on desktop they are in the rail). */}
+              <SotnBand variant="strip" />
+              <a className="og-block og-card og-mob" href="/this-week">
+                <div className="og-head">This week in Parliament</div>
+                <p>The bills due in the House of Commons over the next seven days, and the votes MPs have held.</p>
+                <div className="og-cta">See the business in Parliament &rarr;</div>
+              </a>
+              <HomeRecord only="mob" />
+
               <FeaturedBrief n={1} plainLink />
+              <FeaturedBrief n={2} only="mob" />
+              <FeaturedBrief n={3} only="mob" />
 
 
               {/* Phones (owner, 10 Nov 2026, S5-home2): a closed native fold labelled with the heading and item count, opened
@@ -280,9 +284,9 @@ export default async function HomePage() {
                 <p>Follow what Parliament is doing, in plain English, then cast your own vote on every bill. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Browse bills and reader polls &rarr;</span></p>
               </Link>
 
-              <FeaturedBrief n={2} />
+              <FeaturedBrief n={2} only="desk" />
 
-              <FeaturedBrief n={3} />
+              <FeaturedBrief n={3} only="desk" />
 
               <Link className="og-block og-card" href="/expenses">
                 <div className="og-head">The biggest expenses bill</div>
@@ -302,7 +306,7 @@ export default async function HomePage() {
                 <div className="og-cta">See the departments &rarr;</div>
               </Link>
 
-              <a className="og-block og-card" href="/this-week">
+              <a className="og-block og-card og-desk" href="/this-week">
                 <div className="og-head">This week in Parliament</div>
                 <p>The bills due in the House of Commons over the next seven days, and the votes MPs have held.</p>
                 <div className="og-cta">See the business in Parliament &rarr;</div>

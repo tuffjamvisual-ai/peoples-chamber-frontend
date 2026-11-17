@@ -74,3 +74,14 @@
    phone rules. A 44px tap target. The promotion's fold (SubFold) sits first in the rail: the rail's first child rule
    above now matches the fold, so the promotion keeps its full box. */
 .og-page a.og-news-line { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(20,16,13,0.18); min-height: 44px; color: #7a1612; text-decoration: underline; text-underline-offset: 3px; font-size: 16px; }
+
+/* ENTRY 233 MOB-HOME (owner approved 17 Nov 2026): parts the homepage renders twice because their place differs between
+   desktop and phones or tablets; each copy is display: none, and so out of the reading order, at the other's widths.
+   The phone-held-sideways query matches lib/breakpoints.ts phoneUpTo. */
+@media (max-width: 1023.98px), (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+  .og-desk { display: none !important; }
+}
+@media (min-width: 1024px) and (orientation: portrait), (min-width: 1024px) and (min-height: 500.01px), (min-width: 1024px) and (hover: hover), (min-width: 1024px) and (pointer: fine), (min-width: 1024px) and (pointer: none) {
+  .og-mob { display: none !important; }
+}
+.og-main > a.og-card { margin-top: 14px; padding-top: 14px; }

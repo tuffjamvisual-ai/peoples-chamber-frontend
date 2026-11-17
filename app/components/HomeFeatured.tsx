@@ -32,11 +32,12 @@ export function FeaturedLead() {
 }
 
 /** Slots 2 to 4, as the other report blocks. */
-export function FeaturedBrief({ n, plainLink = false }: { n: 1 | 2 | 3; plainLink?: boolean }) {
+export function FeaturedBrief({ n, plainLink = false, only }: { n: 1 | 2 | 3; plainLink?: boolean; only?: 'desk' | 'mob' }) {
   const s = useContext(Picked)[n];
   if (!s) return null;
+  const cls = `og-block og-brief${only ? ` og-${only}` : ''}`;
   const inner = (<><div className="og-head">{s.headline}</div><div style={LABEL}>{s.label}</div><p>{s.summary}</p><ContinueToArticle /></>);
   return plainLink
-    ? <a className="og-block og-brief" href={`/editorials/${s.slug}`}>{inner}</a>
-    : <Link className="og-block og-brief" href={`/editorials/${s.slug}`}>{inner}</Link>;
+    ? <a className={cls} href={`/editorials/${s.slug}`}>{inner}</a>
+    : <Link className={cls} href={`/editorials/${s.slug}`}>{inner}</Link>;
 }
