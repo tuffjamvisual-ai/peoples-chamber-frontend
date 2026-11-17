@@ -64,7 +64,7 @@ export default async function ServiceIndicator({ services, phoneFold = false }: 
         Public services performance
       </h2>
       <p style={{ fontSize: '15px', color: INK, marginBottom: '16px', maxWidth: '60ch' }}>
-        Latest official figures for these public services, with the direction of each measure over the long term.
+        Official figures for these public services, with the direction of each measure over the long term.
         {worsening > 0 && <> <strong style={{ color: '#7a1612' }}>{worsening} worsening over the long term.</strong></>}
       </p>
       <div style={{ border: `1px solid ${HAIRLINE}`, borderTop: `3px solid ${ACCENT}`, background: 'rgba(20,16,13,0.02)' }}>
