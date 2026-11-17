@@ -64,7 +64,8 @@ function SotnStrip({ four }: { four: Fig[] }) {
         .og-page a.og-sotn-sa { display: inline-block; min-height: 44px; line-height: 44px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; font-size: 16px; }
         @media (min-width: 600px) { .og-sotn-sl { grid-template-columns: repeat(4, 1fr); } }`}</style>
       <h2 id="sotn-strip-h" style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', margin: '0 0 8px' }}>State of the nation</h2>
-      <ul className="og-sotn-sl">
+      {/* The strip's four figures stay whole (MOB-HOME: at most 4 figures), not a list the phone script folds. */}
+      <ul className="og-sotn-sl" data-own-more="">
         {four.slice(0, 4).map((f) => (
           <li key={f.id}>
             <span className="og-sotn-sv">{f.value}</span>

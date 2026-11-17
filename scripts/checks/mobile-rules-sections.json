@@ -1,5 +1,5 @@
 {
-  "about": "Where each page type's back arrow may lead, when not the route's first part (scripts/checks/mobile-rules.mjs, ENTRY 239 B). A value is a path or a list of paths; a link to the path or anything under it passes. Proposed by T1 from the first run (audit/mobile-rules-first-run.md), for Cowork to agree: each is the parent the page links back to today and reads as its section. /earnings sits in the MPs group (back to /mps); /people/<slug> are departments' officials; a section page's parent is the home page; /polls/voting-intention redirects to /polls, whose arrow goes home.",
+  "about": "Where each page type's back arrow may lead, when not the route's first part (scripts/checks/mobile-rules.mjs, ENTRY 239 B). A value is a path or a list of paths; a link to the path or anything under it passes. Proposed by T1 from the first run (audit/mobile-rules-first-run.md), for Cowork to agree: each is the parent the page links back to today and reads as its section. /earnings sits in the MPs group (back to /mps); /people/<slug> are departments' officials; a section page's parent is the home page; /polls/voting-intention redirects to /polls, whose arrow goes home. /coverage/<id> (a news item; there is no coverage list page) goes home (Cowork ENTRY 259 item 6).",
   "sections": {
     "/donations/bequest": "/transparency/donations",
     "/donations/constituencies": "/transparency/donations",
@@ -28,6 +28,7 @@
       "/polls"
     ],
     "/explainers/donations": "/transparency/donations",
-    "/tools/welfare": "/sections/accountability"
+    "/tools/welfare": "/sections/accountability",
+    "/coverage/[id]": "/"
   }
 }

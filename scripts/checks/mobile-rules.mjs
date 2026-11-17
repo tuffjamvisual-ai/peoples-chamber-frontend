@@ -13,6 +13,7 @@
 //   primary  the page's primary control (the visible [data-main-action] search, filter or lookup) starts below the first
 //            screen at 390 x 844
 //
+// Build the site with RECOMMENDATIONS_PUBLIC=1, as production, or the /recommendations pages are 404 (lib/feature-flags.ts).
 //   node scripts/checks/mobile-rules.mjs --base <url> [--out <dir>] [--routes /a,/b/[id]] [--limit n] [--report-only]
 // Exit 1 when any page fails, unless --report-only. One page load a second (the build reads the production database).
 // Requests to opengovt.uk, analytics and Next.js prefetches are blocked, as in mobile-audit.mjs.
@@ -80,7 +81,10 @@ function measure(excSelectors) {
     // A list control: a button or fold that shows more of a list, or a link that stays on this page doing the same (a link to
     // another page, such as "See all the figures", is navigation, not a list control).
     const samePage = e.tagName === 'A' && (() => { const u = new URL(e.getAttribute('href'), location.href); return u.pathname === location.pathname; })();
-    if ((/^(button|summary)$/i.test(e.tagName) || samePage) && /\b(show|see|view)\s+(all|every|\d[\d,]*\s+more|more)\b/i.test(t)) {
+    // The section accordion's 'Show all sections' (PhoneFolds .pf-all, owner approved 4 Nov 2026, the GOV.UK accordion) opens
+    // the page's section folds; it is not a list control (Cowork ENTRY 261).
+    const accordion = e.closest('.pf-all') || e.matches('.pf-all');
+    if (!accordion && (/^(button|summary)$/i.test(e.tagName) || samePage) && /\b(show|see|view)\s+(all|every|\d[\d,]*\s+more|more)\b/i.test(t)) {
       // 'Show N more' (N at most 10), a noun after it allowed ('Show 10 more sitting days'); the count is the list's
       // .og-more-count element just before the button ('3 of 241').
       const m = /^Show (\d+) more\b/.exec(t);

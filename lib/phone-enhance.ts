@@ -3,7 +3,7 @@
 //   tables   a table with more than 3 columns, or that does not fit, becomes one card per row: the first column is the
 //            title and the rest are "label: value" lines in the same order, labels read from the table's own header.
 //   links    a link alone in its paragraph is a 44px tap target like any other (lib/globals.css [data-pt-tap]).
-//   lists    a list of more than 25 items opens with 3, then Show 10 more adds 10, Show fewer goes back to 3, and the count
+//   lists    a list of more than 3 items opens with 3 (more than 25 until ENTRY 259), then Show 10 more adds 10, Show fewer goes back to 3, and the count
 //            beside them says what shows ('3 of 241') (ENTRY 239 A4, MOB-LISTS, owner rule 17 Nov 2026; was 25 and 25). If the page is still over 9,800px
 //            once it has loaded (owner, 5 Nov 2026: 10,000px at most as a page first opens), tall lists of any kind are cut
 //            to about 6,000px, then 3,000px, then 1,500px, and then its sections fold under their headings.
@@ -77,7 +77,10 @@ function links(){
 function lists(buttons){
   var found=[].slice.call(document.querySelectorAll('.ng-page ul,.ng-page ol,.ng-page tbody')).concat(extra);
   found.forEach(function(list){
-    if(list.children.length<=LIMIT&&!list.__ptButton&&!list.__ptTag)return;
+    // Every list of more than 3 items opens with 3 (Cowork ENTRY 259 item 5, owner's rule, 17 Nov 2026; was more than 25).
+    // Lists in an article's running text are prose, not records, and stay whole (data-article-body; Cowork to confirm).
+    if(list.children.length<=FIRST&&!list.__ptButton&&!list.__ptTag)return;
+    if(list.closest('[data-article-body]')&&!list.__ptTag)return;
     if(list.closest(OWN)||(opened&&!list.__ptLimit))return;
     var after=list.tagName==='TBODY'?list.parentElement:list;
     var next=after.nextElementSibling;
