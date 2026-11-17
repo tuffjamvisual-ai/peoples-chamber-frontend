@@ -140,5 +140,6 @@ export const config = {
     { source: '/transparency/:section(ministers-meetings|appgs|hospitality|revolving-door|donations|contracts)', has: [{ type: 'query', key: 'page' }] },
     { source: '/questions/department/:slug', has: [{ type: 'query', key: 'before' }] },
     { source: '/newsletter', has: [{ type: 'query', key: 'status' }] },
+    { source: '/transparency/press-releases', has: [{ type: 'query', key: 'date' }] },
   ],
 }

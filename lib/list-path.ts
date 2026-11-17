@@ -54,20 +54,24 @@ export function listRedirect(pathname: string, sp: URLSearchParams): string | nu
 // Two old ?key= addresses moved by the proxy rather than next.config.ts, whose redirects always pass the whole query on
 // (T2 review, ENTRY 219: no ...before/X?before=X): the key that moved into the path is dropped, any other (utm_*) kept.
 // undefined when the address is not one of them; null when it is but its value is not one the path takes (served as is).
-const QUERY_MOVES: { path: RegExp; key: string; value: RegExp; to: (m: RegExpMatchArray, v: string) => string; status: 307 | 308 }[] = [
+// unless: a key whose presence (with a value) leaves the address alone, for the rewrite to serve.
+const QUERY_MOVES: { path: RegExp; key: string; value: RegExp; to: (m: RegExpMatchArray, v: string) => string; status: 307 | 308; unless?: string }[] = [
   // Older pages of a department's written questions (F04 batch 2).
   { path: /^\/questions\/department\/([^/]+)$/, key: 'before', value: /^\d{4}-\d{2}-\d{2}_\d{1,10}$/, to: (m, v) => `/questions/department/${m[1]}/before/${v}`, status: 308 },
   // Newsletter status pages, for links already sent; temporary, so a later change of copy is not stuck in browsers.
+  // A day of press releases (F04 batch 3), unless it is a search (the date is ignored there, as before). A bad date shows the latest day.
+  { path: /^\/transparency\/press-releases$/, key: 'date', value: /^\d{4}-\d{2}-\d{2}$/, to: (_m, v) => `/transparency/press-releases/day/${v}`, status: 308, unless: 'q' },
   { path: /^\/newsletter$/, key: 'status', value: /^(confirmed|unsubscribed|invalid|error)$/, to: (_m, v) => `/newsletter/status/${v}`, status: 307 },
 ];
 export function queryMove(pathname: string, sp: URLSearchParams): { to: string; status: 307 | 308 } | null | undefined {
   for (const q of QUERY_MOVES) {
     const m = pathname.match(q.path);
     if (!m || !sp.has(q.key)) continue;
+    if (q.unless && (sp.get(q.unless) ?? '').trim()) return null;
     const v = sp.get(q.key) ?? '';
     if (!q.value.test(v)) return null;
     const kept = new URLSearchParams();
-    for (const [k, x] of sp) if (k !== q.key) kept.append(k, x);
+    for (const [k, x] of sp) if (k !== q.key && !(k === q.unless && !x.trim())) kept.append(k, x);
     return { to: q.to(m, v) + (kept.size ? `?${kept}` : ''), status: q.status };
   }
   return undefined;
