@@ -1,6 +1,6 @@
 // Shared display helpers for dashboard_indicators (Broken State dashboard and the
 // "Public services performance" box). Periods are stored in a compact form
-// (2026-08, 2025-26, 2026-Q1); readers see them written out, with no hyphens.
+// (2026-08, 2025-26, 2026-Q1, or a day, 2026-11-16, for a weekly figure); readers see them written out, with no hyphens.
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -11,7 +11,9 @@ function yearRange(a: string, b: string): boolean {
 export function fmtPeriod(p: string | null | undefined): string {
   if (!p) return '';
   const s = p.trim();
-  let m = s.match(/^(\d{4})-Q([1-4])$/);
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m && Number(m[2]) >= 1 && Number(m[2]) <= 12) return `${Number(m[3])} ${MONTHS[Number(m[2]) - 1]} ${m[1]}`; // a weekly figure's day
+  m = s.match(/^(\d{4})-Q([1-4])$/);
   if (m) return `Q${m[2]} ${m[1]}`;
   m = s.match(/^(\d{4})-(\d{2})(.*)$/);
   if (m) {

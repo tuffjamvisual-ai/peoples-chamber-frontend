@@ -6,7 +6,7 @@ import { politeFetch, isPoliteStop, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budge
 import { refreshTables } from '@/lib/source-tags';
 import {
   AE_PAGE, aeNewestCsv, aePercent, RTT_PAGE, rttTimeseriesLink, rttNewest, gpEditionUrl, gpTablesLink, gpValue,
-  PRISON_API, PRISON_PAGE, prisonNewestFile, prisonFigures, aeCsvFor, yearEarlierLine,
+  PRISON_API, PRISON_PAGE, prisonNewestFile, prisonFigures, aeCsvFor, yearEarlierLine, publishedOn,
 } from '@/lib/dashboard-sources';
 
 export const dynamic = 'force-dynamic';
@@ -14,9 +14,10 @@ export const maxDuration = 120;
 
 // The four public services figures with a fixed file layout, from their publishers (Cowork ENTRY 230 step 2, owner approved
 // 17 Nov 2026): A&E within 4 hours, the RTT waiting list, fully qualified GPs and prison occupancy (lib/dashboard-sources.ts).
-// Weekdays at 11:23 UTC, after the 9:30 releases. For each, one request for the publisher's page; the data file is fetched
+// Weekdays at 11:41 UTC, after the 9:30 releases. For each, one request for the publisher's page; the data file is fetched
 // only when the page shows a newer period than the one held (prisons: the weekly file is always read, 11 KB). A row is
-// written only when a newer period is published: value, period, the day it was found, the previous value and period,
+// written only when a newer period is published: value, period, the release date (the publisher's own: the A&E and GP
+// pages state it, the prison briefing is dated; else the day found, as for RTT), the previous value and period,
 // the source page, the figure quoted in its note, and the year-earlier line (recent_change, recent_direction) in the
 // wording of the hand-loaded lines (Cowork ENTRY 232): the RTT series, the GP tables and the prison briefing carry the
 // figure a year earlier; for A&E it is that month's CSV a year before (revised when there is one), one more request.
@@ -36,7 +37,7 @@ const monthName = (period: string) => { const [y, m] = period.split('-').map(Num
 const dayName = (iso: string) => { const [y, m, d] = iso.split('-').map(Number); return `${d} ${MONTHS[m - 1]} ${y}`; };
 
 type Row = { id: number; indicator_key: string; value: number; period: string; definition_note: string | null; direction_good: 'up' | 'down' };
-type Newer = { value: number; period: string; sourceUrl: string; note?: (old: string) => string; ago?: { value: number; label: string } };
+type Newer = { value: number; period: string; sourceUrl: string; releasedAt?: string | null; note?: (old: string) => string; ago?: { value: number; label: string } };
 
 async function text(url: string): Promise<string | null> {
   const res = await politeFetch(url, { headers: { 'User-Agent': UA }, cache: 'no-store' });
@@ -67,7 +68,7 @@ const CHECKS: Record<string, (held: Row) => Promise<Newer | null>> = {
     const agoCsv = agoHtml && aeCsvFor(agoHtml, agoPage, agoPeriod);
     let ago: Newer['ago'];
     if (agoCsv) { await sleep(GAP_MS); ago = { value: aePercent(new TextDecoder().decode(await bytes(agoCsv))), label: monthName(agoPeriod) }; }
-    return { value, period: link.period, sourceUrl: page, ago };
+    return { value, period: link.period, sourceUrl: page, ago, releasedAt: publishedOn(html) };
   },
   async rtt_waiting_list(held) {
     const page = RTT_PAGE(fyStartOf(nextMonth(held.period)));
@@ -81,7 +82,7 @@ const CHECKS: Record<string, (held: Row) => Promise<Newer | null>> = {
     const r = rttNewest(await bytes(file));
     if (r.period <= held.period) return null;
     const agoPeriod = `${Number(r.period.slice(0, 4)) - 1}${r.period.slice(4)}`;
-    return { value: r.value, period: r.period, sourceUrl: page, ago: r.yearAgo != null ? { value: r.yearAgo, label: monthName(agoPeriod) } : undefined, note: (old) => old.replace(/at the end of [A-Z][a-z]+ \d{4}/, `at the end of ${monthName(r.period)}`) };
+    return { value: r.value, period: r.period, sourceUrl: page, releasedAt: publishedOn(html), ago: r.yearAgo != null ? { value: r.yearAgo, label: monthName(agoPeriod) } : undefined, note: (old) => old.replace(/at the end of [A-Z][a-z]+ \d{4}/, `at the end of ${monthName(r.period)}`) };
   },
   async gp_fte(held) {
     const period = nextMonth(held.period);
@@ -100,7 +101,7 @@ const CHECKS: Record<string, (held: Row) => Promise<Newer | null>> = {
     try { ago = { value: gpValue(buf, agoPeriod) + (value - raw), label: monthName(agoPeriod) }; } catch { ago = undefined; }
     const [y, m] = period.split('-').map(Number);
     const asAt = `${new Date(Date.UTC(y, m, 0)).getUTCDate()} ${monthName(period)}`;
-    return { value, period, sourceUrl: page, ago, note: (old) => old.replace(/[\d,]+ at \d{1,2} [A-Z][a-z]+ \d{4}/, `${value.toLocaleString('en-GB')} at ${asAt}`) };
+    return { value, period, sourceUrl: page, ago, releasedAt: publishedOn(html), note: (old) => old.replace(/[\d,]+ at \d{1,2} [A-Z][a-z]+ \d{4}/, `${value.toLocaleString('en-GB')} at ${asAt}`) };
   },
   async prison_occupancy_pct(held) {
     const year = Number(today().slice(0, 4));
@@ -113,7 +114,7 @@ const CHECKS: Record<string, (held: Row) => Promise<Newer | null>> = {
     const p = prisonFigures(await bytes(file));
     if (p.period <= held.period) return null;
     return {
-      value: p.value, period: p.period, sourceUrl: PRISON_PAGE(pageYear),
+      value: p.value, period: p.period, sourceUrl: PRISON_PAGE(pageYear), releasedAt: p.period,
       ago: p.yearAgo ? { value: p.yearAgo.value, label: monthName(p.yearAgo.period.slice(0, 7)) } : undefined,
       note: (old) => old.replace(/Population [\d,]+ against (?:usable )?operational capacity of [\d,]+ \([^)]*\)/, `Population ${p.population.toLocaleString('en-GB')} against usable operational capacity of ${p.capacity.toLocaleString('en-GB')} (${dayName(p.period)})`),
     };
@@ -138,7 +139,7 @@ async function GET_impl(req: Request) {
       if (!n) { results[held.indicator_key] = { held: held.period, newer: false }; continue; }
       const note = n.note && held.definition_note ? n.note(held.definition_note) : held.definition_note;
       const row = {
-        value: n.value, period: n.period, released_at: today(), prev_value: held.value, prev_period: held.period,
+        value: n.value, period: n.period, released_at: n.releasedAt ?? today(), prev_value: held.value, prev_period: held.period,
         source_url: n.sourceUrl, definition_note: note,
         // The year-earlier line, or none when the file did not give the figure (the page then hides the line).
         ...(n.ago ? yearEarlierLine(held.indicator_key, n.value, n.ago.value, n.ago.label, held.direction_good) : { recent_change: null, recent_direction: null }),

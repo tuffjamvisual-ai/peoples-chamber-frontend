@@ -143,6 +143,17 @@ export function prisonFigures(buf: ArrayBuffer | Uint8Array): { value: number; p
   return { value: Math.round(1000 * population / capacity) / 10, period: `${d[3]}-${String(mi + 1).padStart(2, '0')}-${d[1].padStart(2, '0')}`, population, capacity, yearAgo };
 }
 
+// ---- The publisher's own release date on its page: "Publication Date: 22 Oct 2026" (NHS England Digital) or
+// "published 12 November 2026" (NHS England's statistics pages). null when the page gives none.
+export function publishedOn(html: string): string | null {
+  const t = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+  const m = /Publication Date:\s*(\d{1,2}) ([A-Za-z]{3,}) (\d{4})|\bpublished (\d{1,2}) ([A-Za-z]{3,}) (\d{4})/i.exec(t);
+  if (!m) return null;
+  const [d, mon, y] = m[1] ? [m[1], m[2], m[3]] : [m[4], m[5], m[6]];
+  const mi = monthIndex(mon);
+  return mi < 0 ? null : `${y}-${String(mi + 1).padStart(2, '0')}-${d.padStart(2, '0')}`;
+}
+
 // ---- When a newer figure is due (for the freshness monitor), from the period held. A grace of a week or more after the
 // usual release, so a normal publication day is never flagged.
 const addDays = (iso: string, n: number) => new Date(Date.parse(`${iso}T00:00:00Z`) + n * 864e5).toISOString().slice(0, 10);
@@ -154,7 +165,7 @@ export const DUE_AFTER: Record<string, (r: { period: string; released_at: string
   gp_fte: (r) => addDays(monthEnd(r.period), 31 + 35),            // next month's edition: about four weeks after its month ends
   prison_occupancy_pct: (r) => addDays(r.period, 7 + 7),          // weekly, Mondays
   crown_court_backlog: (r) => { const e = quarterEnd(r.period); return e ? addDays(e, 92 + 105) : null; },  // quarterly, about 3 months behind
-  ta_households: (r) => { const e = quarterEnd(r.period); return e ? addDays(e, 92 + 150) : null; },        // quarterly, about 5 months behind
+  ta_households: (r) => { const e = quarterEnd(r.period); return e ? addDays(e, 92 + 170) : null; },        // quarterly, about 5 months behind (Apr to Jun 2026 on 26 Nov: 3 weeks' grace)
   schools_persistent_absence: (r) => (r.released_at ? addDays(r.released_at, 365 + 30) : null),
   childrens_homes_good: (r) => (r.released_at ? addDays(r.released_at, 365 + 30) : null),
   police_charge_rate: (r) => (r.released_at ? addDays(r.released_at, 365 + 30) : null),
