@@ -235,6 +235,8 @@ const nextConfig: NextConfig = {
         { source: '/organisations', has: [{ type: 'query' as const, key: 'q' }], destination: '/organisations/search' },
         { source: '/petitions', has: [{ type: 'query' as const, key: 'q' }], destination: '/petitions/search' },
         { source: '/pmqs', has: [{ type: 'query' as const, key: 'q' }], destination: '/pmqs/search' },
+        // The six dataset lists (B 1.3); the slug list keeps the rule off the static siblings (press releases and the rest).
+        { source: '/transparency/:section(ministers-meetings|appgs|hospitality|revolving-door|donations|contracts)', has: [{ type: 'query' as const, key: 'q' }], destination: '/transparency/:section/search' },
         // /questions: any of its filters (one rule per key, as has is AND; an empty value does not match, so an empty form stays
         // on the static page, which shows the same thing).
         ...['words', 'who', 'member', 'department', 'from', 'to', 'status', 'before', 'at', 'uin'].map((key) => ({ source: '/questions', has: [{ type: 'query' as const, key }], destination: '/questions/search' })),
@@ -264,7 +266,8 @@ const nextConfig: NextConfig = {
       // The same for the list variants whose page or filters are now in the path (F04 batch 2; T2's f04-32-routes.md 0.4):
       // they carry no query, so the rule above does not see them.
       ...['/:list(divisions|treaties|laws|lords)/page/:n', '/divisions/year/:year/page/:n', '/second-jobs/:slug/:memberId/page/:n',
-        '/laws/made-without-a-vote/filter/:path*', '/:list(debates|edms|petitions|organisations|pmqs)/filter/:path*']
+        '/laws/made-without-a-vote/filter/:path*', '/:list(debates|edms|petitions|organisations|pmqs)/filter/:path*',
+        '/transparency/:section(ministers-meetings|appgs|hospitality|revolving-door|donations|contracts)/page/:n']
         .map((source) => ({ source, headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }] })),
       // Only www.opengovt.uk is indexed (owner, 28 Oct 2026): the vercel.app address and preview deployments carry
       // noindex, so search engines never list a copy. Pages still open normally there.

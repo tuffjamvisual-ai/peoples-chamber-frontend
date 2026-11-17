@@ -116,7 +116,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
         <label htmlFor="transparency-search" className="block text-[15px] uppercase tracking-[0.25em] text-[#14100d] font-medium mb-2">
           Search
         </label>
-        <form method="GET" className="flex flex-wrap gap-2 max-w-md">
+        <form method="GET" action={section ? `/transparency/${section}` : undefined} className="flex flex-wrap gap-2 max-w-md">
           <input
             data-main-action
             id="transparency-search"

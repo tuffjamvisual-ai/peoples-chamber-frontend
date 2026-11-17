@@ -24,6 +24,8 @@ export const LISTS: Record<string, Spec> = {
 const DYNAMIC: [RegExp, Spec][] = [
   [/^\/divisions\/year\/\d{4}$/, { keys: ['page'], pageOnly: true }],
   [/^\/second-jobs\/[^/]+\/\d+$/, { keys: ['page'], pageOnly: true }],
+  // Batch 3: the six dataset lists; a ?q= search is left to the rewrite (/transparency/<section>/search).
+  [/^\/transparency\/(ministers-meetings|appgs|hospitality|revolving-door|donations|contracts)$/, { keys: ['page'], pageOnly: true, search: true }],
 ];
 const PAGED = new Set(['page', 'dpage', 'show']);
 const okNumber = (x: string) => /^[1-9][0-9]{0,3}$/.test(x);

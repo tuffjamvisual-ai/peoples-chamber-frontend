@@ -134,6 +134,7 @@ export const config = {
     { source: '/pmqs', has: [{ type: 'query', key: 'year' }] },
     { source: '/pmqs', has: [{ type: 'query', key: 'page' }] },
     { source: '/pmqs', has: [{ type: 'query', key: 'dpage' }] },
+    { source: '/transparency/:section(ministers-meetings|appgs|hospitality|revolving-door|donations|contracts)', has: [{ type: 'query', key: 'page' }] },
     { source: '/questions/department/:slug', has: [{ type: 'query', key: 'before' }] },
     { source: '/newsletter', has: [{ type: 'query', key: 'status' }] },
   ],
