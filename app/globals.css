@@ -178,7 +178,8 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   }
 }
 .og-phone-more { display: none; }
-/* The count beside a list's Show 10 more (ENTRY 239 A4, MOB-LISTS): '3 of 241'; shown with the buttons only. */
+/* The count beside a list's Show 10 more (ENTRY 239 A4, MOB-LISTS): '3 of 241'; shown with the buttons only (with JavaScript,
+   at every width: the D5 block below). */
 .og-more-count { display: none; }
 /* The PMQs archive: folds and Show more with no JavaScript (MoreChain.tsx). Every width. */
 .pa-fold > summary, .mc-more > summary { display: flex; align-items: center; min-height: 44px; padding: 8px 0; font-size: 16px; font-weight: bold; cursor: pointer; list-style: none; }
@@ -546,6 +547,10 @@ details[open] > summary .st-more { display: none; }
      (ENTRY 135 M7). The tablet rule above sits inside the phone query, so on tablets from 768px the button was hidden
      while its list stayed cut: /donors showed 5 of 200 rows with no button (found 16 Nov 2026, Cowork ENTRY 152 item 1). */
   html.og-js .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; }
+  /* The count beside them at every width as well (T2, 17 Nov 2026: lists fold at every width since D5, so a desktop list
+     showed Show 10 more with no count). */
+  html.og-js .og-more-count { display: block; margin: 12px 0 0; font-size: 15px; color: #14100d; }
+  html.og-js .og-more-count + .og-phone-more { margin-top: 6px; }
 }
 
 /* The floating scroll arrow (FloatingScrollDownButton) sat over the reading column on tablets and was a 36px tap
