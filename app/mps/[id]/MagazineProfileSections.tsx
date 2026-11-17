@@ -3130,7 +3130,9 @@ function FirstThenAll({ items, wrap }: { items: React.ReactNode[]; wrap: (kids: 
   return (
     <>
       <div id={id}>{wrap(items)}</div>
-      <PhoneMore selector={`#${id}`} total={items.length} />
+      {/* The items are the list's children when wrap draws a <ul> or <ol> (committees, posts, party history, APPGs), else the
+          div's own (T2, 17 Nov 2026, ENTRY 210: '#id' alone hid nothing and its button did nothing). */}
+      <PhoneMore selector={`:is(#${id}, #${id} > ul, #${id} > ol)`} total={items.length} />
     </>
   );
 }
