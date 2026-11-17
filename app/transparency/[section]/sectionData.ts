@@ -15,8 +15,9 @@ export const SECTIONS: Record<string, { title: string; table: string; orderBy?: 
   'ministers-meetings': { title: "Ministers' Meetings", table: 'ministers_meetings', orderBy: 'meeting_date' },
   // APPGs (Cowork ENTRY 227, owner approved 17 Nov 2026, found by T2): appgs, which the nightly APPG sync writes, with its
   // officers and funders. Until 17 Nov this read appg_register, a copy last written on 30 Apr 2026 (553 groups; 648 now).
-  // Z to A by name, as the old copy listed them by id.
-  'appgs':              { title: 'All Party Parliamentary Groups', table: 'appgs', orderBy: 'title', key: 'slug', alsoReads: ['appg_officers', 'appg_funders'] },
+  // Z to A by subject, as the old copy listed them by id: by slug, the subject (titles mix 'All-Party Parliamentary Group on X'
+  // and 'X All-Party Parliamentary Group', so ordering by title split the list in two; T2 review 17 Nov 2026).
+  'appgs':              { title: 'All Party Parliamentary Groups', table: 'appgs', orderBy: 'slug', key: 'slug', alsoReads: ['appg_officers', 'appg_funders'] },
   'hospitality':        { title: "Ministers' Hospitality", table: 'ministers_hospitality', orderBy: 'hospitality_date' },
   'revolving-door':     { title: 'Revolving Door', table: 'revolving_door', orderBy: 'approval_date' },
   'donations':          { title: 'Political Donations', table: 'political_donations', orderBy: 'received_date' },
@@ -82,7 +83,7 @@ export async function sectionRows(section: string, searchTerm: string | null, pa
   const from = (page - 1) * PAGE_LIMIT
   let q = filtered(section, searchTerm, supabase.from(config.table).select(COLUMNS[section] ?? '*').range(from, from + PAGE_LIMIT - 1))
   if (config.orderBy) q = q.order(config.orderBy, { ascending: false, nullsFirst: false })
-  q = q.order(config.key ?? 'id', { ascending: false })
+  if (config.orderBy !== (config.key ?? 'id')) q = q.order(config.key ?? 'id', { ascending: false })
   const { data, error } = await q
   if (error) throw new Error(`/transparency/${section} rows: ${error.message}`)
   const rows = (data ?? []) as Record<string, any>[] // eslint-disable-line @typescript-eslint/no-explicit-any
