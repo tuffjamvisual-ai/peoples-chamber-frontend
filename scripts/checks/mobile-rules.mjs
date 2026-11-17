@@ -61,7 +61,10 @@ function measure(excSelectors) {
   const W = innerWidth;
   const main = document.querySelector('main') || document.body;
   const chrome = (e) => e.closest('.og-cookie-banner, .og-mbar, .og-navwrap, .ng-tab, .og-menu-panel, footer, nav[aria-label="Main"]');
-  const vis = (e) => { const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && cs.opacity !== '0'; };
+  // Shown: has a box, is not hidden, and is not inside a closed <details> (other than as its summary), whose content the
+  // browser keeps laid out but does not show.
+  const inClosed = (e) => { for (let d = e.closest('details:not([open])'); d; d = d.parentElement?.closest('details:not([open])')) { const sum = d.querySelector(':scope > summary'); if (!sum || !sum.contains(e)) return true; } return false; };
+  const vis = (e) => { const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && cs.opacity !== '0' && !inClosed(e); };
   const text = (e) => (e.textContent || e.getAttribute('aria-label') || e.getAttribute('placeholder') || '').trim().replace(/\s+/g, ' ');
   const name = (e) => `${e.tagName.toLowerCase()}${e.id ? '#' + e.id : ''} "${text(e).slice(0, 40)}"`;
   const excepted = (e) => excSelectors.some((s) => { try { return e.matches(s); } catch { return false; } });
