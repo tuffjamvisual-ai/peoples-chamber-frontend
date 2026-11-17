@@ -3,14 +3,15 @@
 // reaches /pmqs, the archive session pages and /mps/<id>/pmqs. The archive is complete and nothing writes to it.
 import 'server-only';
 import { cache } from 'react';
-import { timedClient } from '@/lib/page-reads';
+import { tagDb } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
 import attendance from '@/lib/data/pmqs-attendance-2026-11-04.json';
 import answerers from '@/lib/data/pmqs-archive-answerers.json';
 import { idsFor } from '@/lib/historic-archive';
 
 // Same value as PMQS_TAG in lib/pmqs.ts, which is not imported here so that this file stays free of its reads.
-const db = () => timedClient(30 * 86400, ['pmqs']);
+// F04 batch 3 (A16): reads through tagDb(['pmqs']), with no 30 day timer now that /pmqs is static: kept under 'pmqs' (refreshed
+// by the parliament archive sync when it writes) and each table's own tag. Written out at each read so the A16 check sees it.
 
 export type ArchiveSession = { date: string; prime_minister_as_named: string | null; exchanges: number; source: string; note: string | null };
 export type LibraryTotal = { prime_minister: string; in_office_from: string | null; in_office_to: string | null; library_total: number | null; library_attended: number | null; library_missed: number | null; our_sessions: number | null; difference: number | null; note: string | null };
@@ -21,20 +22,20 @@ export type ArchiveExchange = { lead: ArchiveContribution; answers: ArchiveContr
 export type MemberContribution = { date: string; order: number; text: string };
 
 export const archiveSessions = cache(async (): Promise<ArchiveSession[]> =>
-  readAll<ArchiveSession>(() => db().from('pmqs_archive_sessions'), {
+  readAll<ArchiveSession>(() => tagDb(['pmqs']).from('pmqs_archive_sessions'), {
     columns: 'date, prime_minister_as_named, exchanges, source, note',
     orderBy: { column: 'date', ascending: false },
     label: 'pmqs_archive_sessions',
   }));
 
 export const archiveSessionOn = cache(async (date: string): Promise<ArchiveSession | null> => {
-  const { data, error } = await db().from('pmqs_archive_sessions').select('date, prime_minister_as_named, exchanges, source, note').eq('date', date).maybeSingle();
+  const { data, error } = await tagDb(['pmqs']).from('pmqs_archive_sessions').select('date, prime_minister_as_named, exchanges, source, note').eq('date', date).maybeSingle();
   if (error) throw new Error(`pmqs archive session ${date}: ${error.message}`);
   return (data as ArchiveSession | null) ?? null;
 });
 
 export const libraryTotals = cache(async (): Promise<LibraryTotal[]> => {
-  const { data, error } = await db().from('pmqs_library_totals').select('*').order('in_office_from', { ascending: false });
+  const { data, error } = await tagDb(['pmqs']).from('pmqs_library_totals').select('*').order('in_office_from', { ascending: false });
   if (error) throw new Error(`pmqs_library_totals: ${error.message}`);
   return (data ?? []) as LibraryTotal[];
 });
@@ -103,14 +104,14 @@ export function officialRecord(date: string): { href: string; label: string } {
 
 async function membersKnown(ids: number[]): Promise<Set<number>> {
   if (!ids.length) return new Set();
-  const { data, error } = await db().from('mps').select('member_id').in('member_id', ids);
+  const { data, error } = await tagDb(['pmqs']).from('mps').select('member_id').in('member_id', ids);
   if (error) throw new Error(`pmqs archive mps: ${error.message}`);
   return new Set(((data ?? []) as { member_id: number }[]).map((m) => m.member_id));
 }
 
 async function historicLinks(speakerIds: string[]): Promise<Map<string, string>> {
   if (!speakerIds.length) return new Map();
-  const { data, error } = await db().from('pmqs_archive_people').select('parlparse_speaker_id, historic_hansard_url').in('parlparse_speaker_id', speakerIds);
+  const { data, error } = await tagDb(['pmqs']).from('pmqs_archive_people').select('parlparse_speaker_id, historic_hansard_url').in('parlparse_speaker_id', speakerIds);
   if (error) throw new Error(`pmqs_archive_people: ${error.message}`);
   const out = new Map<string, string>();
   for (const p of (data ?? []) as { parlparse_speaker_id: string; historic_hansard_url: string | null }[]) if (p.historic_hansard_url) out.set(p.parlparse_speaker_id, p.historic_hansard_url);
@@ -133,7 +134,7 @@ function answererOf(rows: Row[]): string | null {
 // Every row of the session in order, with its own rule rather than the current sessions' isExchangeRow: a row with no
 // member id, a Speaker's remark or a note in the record all show. An answer follows the contribution before it.
 export const archiveExchanges = cache(async (date: string): Promise<ArchiveExchange[]> => {
-  const { data, error } = await db().from('pmqs_archive_exchanges')
+  const { data, error } = await tagDb(['pmqs']).from('pmqs_archive_exchanges')
     .select('date, item_order, attributed_to, parlparse_speaker_id, member_id, contribution_text')
     .eq('date', date).order('item_order', { ascending: true });
   if (error) throw new Error(`pmqs_archive_exchanges ${date}: ${error.message}`);
@@ -175,7 +176,7 @@ export type ArchiveCounts = Record<ArchiveRole, number>;
 export const memberArchiveCounts = cache(async (memberId: number): Promise<ArchiveCounts> => {
   const ids = idsFor(memberId);
   const count = async (dates?: string[]) => {
-    let q = db().from('pmqs_archive_exchanges').select('date', { count: 'exact', head: true }).in('member_id', ids).or(NOT_FROM_THE_CHAIR);
+    let q = tagDb(['pmqs']).from('pmqs_archive_exchanges').select('date', { count: 'exact', head: true }).in('member_id', ids).or(NOT_FROM_THE_CHAIR);
     if (dates) q = q.in('date', dates);
     const { count: n, error } = await q;
     if (error) throw new Error(`pmqs_archive_exchanges count: ${error.message}`);
@@ -193,7 +194,7 @@ export const memberArchiveCounts = cache(async (memberId: number): Promise<Archi
 
 // An MP's own questions and answers in the archive, newest first. The Speaker's remarks from the chair are not theirs.
 export const memberArchive = cache(async (memberId: number): Promise<MemberContribution[]> => {
-  const rows = await readAll<Row>(() => db().from('pmqs_archive_exchanges'), {
+  const rows = await readAll<Row>(() => tagDb(['pmqs']).from('pmqs_archive_exchanges'), {
     columns: 'date, item_order, attributed_to, contribution_text',
     filter: (q) => q.in('member_id', idsFor(memberId)).or(NOT_FROM_THE_CHAIR),
     orderBy: [{ column: 'date', ascending: false }, { column: 'item_order' }],

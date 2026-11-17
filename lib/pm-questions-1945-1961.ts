@@ -4,10 +4,11 @@
 import 'server-only';
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
-import { timedClient } from '@/lib/page-reads';
+import { tagDb } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
 
-const db = () => timedClient(30 * 86400, ['pmqs']);
+// F04 batch 3 (A16): reads through tagDb(['pmqs']), with no 30 day timer now that /pmqs is static: kept under 'pmqs' (refreshed
+// by the parliament archive sync when it writes) and each table's own tag. Written out at each read so the A16 check sees it.
 const QUESTIONS = 'pm_questions_1945_1961';
 const ROWS = 'pm_question_exchange_rows_1945_1961';
 
@@ -35,7 +36,7 @@ const preFixedSummaryCached = unstable_cache(async (): Promise<PreFixedSummary> 
 export const preFixedSummary = cache(async (): Promise<PreFixedSummary> => preFixedSummaryCached());
 
 async function buildPreFixedSummary(): Promise<PreFixedSummary> {
-  const rows = await readAll<Listed>(() => db().from(QUESTIONS), {
+  const rows = await readAll<Listed>(() => tagDb(['pmqs']).from(QUESTIONS), {
     columns: 'question_id, date, prime_minister, answered_by, date_status',
     orderBy: { column: 'question_id', ascending: true },
     label: QUESTIONS,
@@ -72,14 +73,14 @@ export type PreFixedExchange = { id: string; section: string; experiment: boolea
 
 // A day's questions, in printed order. Several questions can share one exchange, so the count comes from the questions, never the exchanges.
 export const preFixedDay = cache(async (date: string): Promise<{ questions: number; unconfirmed: boolean; exchanges: PreFixedExchange[] } | null> => {
-  const { data, error } = await db().from(QUESTIONS)
+  const { data, error } = await tagDb(['pmqs']).from(QUESTIONS)
     .select('question_id, date, period_label, by_private_notice, section, exchange_id, date_status, hansard_reference, historic_hansard_url')
     .eq('date', date).order('question_id', { ascending: true });
   if (error) throw new Error(`${QUESTIONS} ${date}: ${error.message}`);
   const questions = (data ?? []) as PreFixedQuestion[];
   if (!questions.length) return null;
   const ids = [...new Set(questions.map((q) => q.exchange_id))];
-  const read = await db().from(ROWS)
+  const read = await tagDb(['pmqs']).from(ROWS)
     .select('exchange_id, row_order, kind, speaker_as_printed, person_url, member_id, question_number, text')
     .in('exchange_id', ids).order('exchange_id', { ascending: true }).order('row_order', { ascending: true });
   if (read.error) throw new Error(`${ROWS} ${date}: ${read.error.message}`);
