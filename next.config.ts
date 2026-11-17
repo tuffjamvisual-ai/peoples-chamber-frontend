@@ -233,6 +233,7 @@ const nextConfig: NextConfig = {
         { source: '/debates', has: [{ type: 'query' as const, key: 'q' }], destination: '/debates/search' },
         { source: '/edms', has: [{ type: 'query' as const, key: 'q' }], destination: '/edms/search' },
         { source: '/organisations', has: [{ type: 'query' as const, key: 'q' }], destination: '/organisations/search' },
+        { source: '/petitions', has: [{ type: 'query' as const, key: 'q' }], destination: '/petitions/search' },
       ],
       afterFiles: [
         { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },

@@ -18,6 +18,7 @@ export const LISTS: Record<string, Spec> = {
   '/debates': { keys: ['section', 'page'], slugged: ['section'], search: true },
   '/edms': { keys: ['state', 'prayer', 'sort', 'member', 'role', 'show'], search: true },
   '/organisations': { keys: ['has', 'page'], search: true },
+  '/petitions': { keys: ['state', 'responded', 'debated', 'constituency'], search: true },
 };
 const DYNAMIC: [RegExp, Spec][] = [
   [/^\/divisions\/year\/\d{4}$/, { keys: ['page'], pageOnly: true }],
