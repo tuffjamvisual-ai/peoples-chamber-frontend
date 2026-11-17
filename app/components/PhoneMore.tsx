@@ -30,10 +30,13 @@ export default function PhoneMore({ selector, total, off = false, first }: Props
   const [shown, setShown] = useState(start);
   if (off || total <= start) return null;
   const css = `@media ${LIST_FOLD} { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
+  // The count beside the buttons (ENTRY 239 A4, MOB-LISTS, owner rule 17 Nov 2026): '3 of 241', what shows of the whole list.
+  // Shown only where the buttons are (phones and tablets with JavaScript); its styles are with them in globals.css.
   const left = total - shown;
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
+      <p className="og-more-count" aria-live="polite">{Math.min(shown, total).toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}</p>
       {left > 0 && (
         <button type="button" className="og-phone-more" onClick={() => setShown(shown + STEP)}>
           {/* What a press shows (T1-GUARD, Cowork 13 Nov 2026: 'Show N more'). */}

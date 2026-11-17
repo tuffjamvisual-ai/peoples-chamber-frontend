@@ -3,7 +3,8 @@
 //   tables   a table with more than 3 columns, or that does not fit, becomes one card per row: the first column is the
 //            title and the rest are "label: value" lines in the same order, labels read from the table's own header.
 //   links    a link alone in its paragraph is a 44px tap target like any other (lib/globals.css [data-pt-tap]).
-//   lists    a list of more than 25 items shows 25, then a Show more button adds 25. If the page is still over 9,800px
+//   lists    a list of more than 25 items opens with 3, then Show 10 more adds 10, Show fewer goes back to 3, and the count
+//            beside them says what shows ('3 of 241') (ENTRY 239 A4, MOB-LISTS, owner rule 17 Nov 2026; was 25 and 25). If the page is still over 9,800px
 //            once it has loaded (owner, 5 Nov 2026: 10,000px at most as a page first opens), tall lists of any kind are cut
 //            to about 6,000px, then 3,000px, then 1,500px, and then its sections fold under their headings.
 // What it leaves alone (owner, 5 Nov 2026): the long page shortening runs once per page, when the page has loaded, and never
@@ -18,7 +19,7 @@
 import { PHONE, LIST_FOLD } from './breakpoints';
 
 export const PHONE_ENHANCE_JS = `(function(){
-var LIMIT=25,MAXH=9800,CAPS=[6000,3000,1500],opened=false,done=null,wait=0,here=location.href,path=location.pathname,extra=[],OWN='nav,.og-menu-panel,.og-mbar,footer,details,.pf-list,[data-own-more]',BACK='og-phone-back:',RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
+var LIMIT=25,FIRST=3,LSTEP=10,MAXH=9800,CAPS=[6000,3000,1500],opened=false,done=null,wait=0,here=location.href,path=location.pathname,extra=[],OWN='nav,.og-menu-panel,.og-mbar,footer,details,.pf-list,[data-own-more]',BACK='og-phone-back:',RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
 function pageHeight(){return document.documentElement.scrollHeight}
 function narrow(){return window.matchMedia(${JSON.stringify(PHONE)}).matches}
 // Tablets (T1-TABFOLD, owner approved 13 Nov 2026): only the long lists job, up to 1,023px.
@@ -83,20 +84,25 @@ function lists(buttons){
     if(next&&next.classList.contains('og-phone-more')&&!list.__ptButton)return;
     var shown=[];
     [].forEach.call(list.children,function(c){if(list.__ptTag&&c.tagName!==list.__ptTag)return;c.removeAttribute('data-pm-hide');if(getComputedStyle(c).display!=='none')shown.push(c)});
-    if(!list.__ptLimit)list.__ptLimit=LIMIT;
+    if(!list.__ptLimit)list.__ptLimit=FIRST;
     var hash=location.hash.length>1?document.getElementById(decodeURIComponent(location.hash.slice(1))):null;
-    if(hash&&list.contains(hash))list.__ptLimit=Math.max(list.__ptLimit,shown.findIndex(function(c){return c.contains(hash)})+LIMIT);
+    if(hash&&list.contains(hash))list.__ptLimit=Math.max(list.__ptLimit,shown.findIndex(function(c){return c.contains(hash)})+1);
     shown.forEach(function(c,i){if(i>=list.__ptLimit)c.setAttribute('data-pm-hide','1')});
     var left=shown.length-list.__ptLimit,b=list.__ptButton;
-    if(left<=0){if(b){b.remove();list.__ptButton=null}return}
     if(!buttons)return;
     if(!b||!b.isConnected){
+      var cnt=document.createElement('p');cnt.className='og-more-count';cnt.setAttribute('aria-live','polite');
       b=document.createElement('button');b.type='button';b.className='og-phone-more';
-      b.addEventListener('click',function(){list.__ptLimit+=LIMIT;lists(true)});
-      if(list.__ptTag&&list.tagName!=='TBODY')shown[list.__ptLimit-1].after(b);else after.parentNode.insertBefore(b,after.nextSibling);
-      list.__ptButton=b;
+      b.addEventListener('click',function(){list.__ptLimit+=LSTEP;lists(true)});
+      var few=document.createElement('button');few.type='button';few.className='og-phone-more st-fewer';few.textContent='Show fewer';
+      few.addEventListener('click',function(){list.__ptLimit=FIRST;lists(true);var r=list.getBoundingClientRect();if(r.top<0)list.scrollIntoView({block:'start'})});
+      if(list.__ptTag&&list.tagName!=='TBODY')shown[Math.min(list.__ptLimit,shown.length)-1].after(cnt,b,few);else after.after(cnt,b,few);
+      list.__ptButton=b;b.__count=cnt;b.__fewer=few;
     }
-    b.textContent='Show '+Math.min(LIMIT,left).toLocaleString('en-GB')+' more';
+    b.__count.textContent=Math.min(list.__ptLimit,shown.length).toLocaleString('en-GB')+' of '+shown.length.toLocaleString('en-GB');
+    b.style.display=left>0?'':'none';
+    b.__fewer.style.display=list.__ptLimit>FIRST?'':'none';
+    b.textContent='Show '+Math.min(LSTEP,Math.max(left,0)).toLocaleString('en-GB')+' more';
   });
 }
 function tall(){CAPS.forEach(function(cap){tallTo(cap)})}

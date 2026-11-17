@@ -78,13 +78,19 @@ function measure(excSelectors) {
     // another page, such as "See all the figures", is navigation, not a list control).
     const samePage = e.tagName === 'A' && (() => { const u = new URL(e.getAttribute('href'), location.href); return u.pathname === location.pathname; })();
     if ((/^(button|summary)$/i.test(e.tagName) || samePage) && /\b(show|see|view)\s+(all|every|\d[\d,]*\s+more|more)\b/i.test(t)) {
-      const m = /^Show (\d+) more$/.exec(t);
+      // 'Show N more' (N at most 10), a noun after it allowed ('Show 10 more sitting days'); the count is the list's
+      // .og-more-count element just before the button ('3 of 241').
+      const m = /^Show (\d+) more\b/.exec(t);
       if (!(m && Number(m[1]) <= 10)) out.lists.push(`list control ${name(e)}`);
       else {
-        const ctx = text(e.parentElement?.parentElement || e.parentElement || e);
-        const c = /(\d[\d,]*) of (\d[\d,]*)/.exec(ctx);
+        let c = null;
+        for (let x = e.previousElementSibling, k = 0; x && k < 3 && !c; x = x.previousElementSibling, k++) if (x.matches('.og-more-count')) c = x;
         if (!c) out.lists.push(`no count beside ${name(e)}`);
-        else if (Number(c[1].replace(/,/g, '')) !== 3) out.lists.push(`opens with ${c[1]} of ${c[2]}, not 3: ${name(e)}`);
+        else {
+          const n = /^([\d,]+) of ([\d,]+)$/.exec(text(c));
+          if (!n) out.lists.push(`count '${text(c)}' is not 'N of M' beside ${name(e)}`);
+          else if (Number(n[1].replace(/,/g, '')) !== 3) out.lists.push(`opens with ${n[1]} of ${n[2]}, not 3: ${name(e)}`);
+        }
       }
     }
   }
