@@ -41,7 +41,7 @@ export default async function ArchiveDivisionPage({ d }: { d: Division }) {
   const printed = <>{before && <p style={{ margin: '0 0 8px', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{before}</p>}{after && <p style={{ margin: 0 }}>{after}</p>}</>;
   return (
     <OpenGovShell pageStamp="Division">
-      <BackLink fallbackHref={yearHref(year)} label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: '15px', minHeight: '44px' }} />
+      <BackLink fallbackHref={yearHref(year)} name="Back to parliamentary votes" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: '15px', minHeight: '44px' }} />
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '32px', marginBottom: '32px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', transform: 'rotate(-0.2deg)' }}>
           Division {d.division_number} · {archiveDate(date)}

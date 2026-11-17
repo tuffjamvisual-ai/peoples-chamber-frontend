@@ -353,7 +353,10 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   return (
     <OpenGovShell pageStamp="Division">
       <BackLink
-        fallbackHref={billId != null ? `/bills/${billId}` : '/mps'}
+        // ENTRY 239 A1 (owner approved 17 Nov 2026): a reader who came from another opengovt page (a bill, an MP's votes,
+        // a list) goes back to it (BackLink: the browser's back); otherwise, and with JavaScript off, the votes list.
+        fallbackHref="/divisions"
+        name="Back to parliamentary votes"
         label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}

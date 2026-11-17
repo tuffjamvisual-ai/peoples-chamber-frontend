@@ -10,16 +10,18 @@ import { cameFromThisSite } from './NavTrail';
 // (NavTrail.tsx); otherwise, and with JavaScript off, it is a plain link one level up (`fallbackHref`).
 //
 // `label`, `className` and `style` are accepted from the older call sites but no longer change anything, so no page can
-// show a different back link.
+// show a different back link. `name` (ENTRY 239 A1, owner approved 17 Nov 2026) only changes the accessible name, where
+// "Back" alone does not say where the arrow goes (a vote: "Back to parliamentary votes"); the arrow looks the same.
 
 type Props = {
   fallbackHref: string;
   label?: string;
   className?: string;
   style?: CSSProperties;
+  name?: string;
 };
 
-export default function BackLink({ fallbackHref }: Props) {
+export default function BackLink({ fallbackHref, name = 'Back' }: Props) {
   const router = useRouter();
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
@@ -35,7 +37,7 @@ export default function BackLink({ fallbackHref }: Props) {
       href={fallbackHref}
       rel={/^\/(login|account)(\?|$)/.test(fallbackHref) ? 'nofollow' : undefined}
       onClick={handleClick}
-      aria-label="Back"
+      aria-label={name}
       className="og-back no-hover-scale"
       data-og-back=""
     >

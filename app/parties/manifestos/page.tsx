@@ -170,7 +170,7 @@ export default async function PartiesIndex() {
   return (
     <OpenGovShell pageStamp="Parties">
       <BackLink
-        fallbackHref="/"
+        fallbackHref="/parties"
         label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', transform: 'rotate(-0.2deg)' }}

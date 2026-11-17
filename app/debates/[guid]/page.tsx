@@ -379,7 +379,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   return (
     <OpenGovShell pageStamp="Debate">
       <BackLink
-        fallbackHref="/mps"
+        fallbackHref="/debates"
         label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}

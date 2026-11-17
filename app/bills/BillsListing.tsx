@@ -58,7 +58,8 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
   return (
     <OpenGovShell>
       <BackLink
-        fallbackHref="/"
+        // ENTRY 239: page 2 onwards goes back to the first page of the list; page 1 to the home page as before.
+        fallbackHref={page > 1 ? '/bills' : '/'}
         label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}

@@ -1,0 +1,4 @@
+{
+  "about": "Exceptions to scripts/checks/mobile-rules.mjs (ENTRY 239 B). Only with Cowork's agreement, each with its reason and the date agreed. route: the page type as in mobile-audit-pages.csv ('*' for every page); selector: the elements excepted (CSS); rule: taps (the WCAG 2.5.8 inline exception for body-copy links inside paragraphs).",
+  "exceptions": []
+}
