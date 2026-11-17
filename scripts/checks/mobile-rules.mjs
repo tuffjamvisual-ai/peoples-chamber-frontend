@@ -84,7 +84,7 @@ function measure(excSelectors) {
       if (!(m && Number(m[1]) <= 10)) out.lists.push(`list control ${name(e)}`);
       else {
         let c = null;
-        for (let x = e.previousElementSibling, k = 0; x && k < 3 && !c; x = x.previousElementSibling, k++) if (x.matches('.og-more-count')) c = x;
+        for (let x = (e.tagName === 'SUMMARY' ? e.parentElement : e).previousElementSibling, k = 0; x && k < 3 && !c; x = x.previousElementSibling, k++) if (x.matches('.og-more-count')) c = x;
         if (!c) out.lists.push(`no count beside ${name(e)}`);
         else {
           const n = /^([\d,]+) of ([\d,]+)$/.exec(text(c));

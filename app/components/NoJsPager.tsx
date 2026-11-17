@@ -39,10 +39,15 @@ export function ShowAllDetails({ id, count, first, noun, stepStyle }: { id: stri
   const n = Math.max(0, count - first);
   // The first press shows 10 with JavaScript (lib/phone-enhance.ts), the rest without it; the label names what it adds.
   const shown = stepStyle ? Math.min(10, n) : n;
+  // The count before the fold (ENTRY 239 A4, MOB-LISTS): '3 of 120', only where the press steps by 10 with JavaScript (a list
+  // with its own Show more has PhoneMore's count); lib/phone-enhance.ts updates it on each press.
   return (
+    <>
+    {stepStyle && <p className="og-more-count" aria-live="polite">{first.toLocaleString('en-GB')} of {count.toLocaleString('en-GB')}</p>}
     <details className={`njp-sa ${showAllClass(id)}`} data-step-style={stepStyle} data-step-from={stepStyle ? first + 1 : undefined} data-step-left={stepStyle ? n : undefined} data-step-one={noun?.one} data-step-many={noun?.many}>
       <summary><span className="njp-sa-more st-more">Show {shown.toLocaleString('en-GB')} more{noun ? ` ${shown === 1 ? noun.one : noun.many}` : ''}</span><span className="njp-sa-less">Show fewer</span></summary>
     </details>
+    </>
   );
 }
 

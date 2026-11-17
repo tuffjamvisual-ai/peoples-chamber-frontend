@@ -144,7 +144,7 @@ export default async function QuestionsView({ s }: { s: Search }) {
       )}
       {rows.length === 0 && phraseShown.length === 0
         ? <p style={{ fontSize: '16px', color: INK, margin: '16px 0' }}>{noPerson ? 'No MP or peer has that name.' : 'No questions match.'}</p>
-        : rows.length > 0 && <QuestionItems rows={rows} people={byId} moreHref={moreHref} moreLabel="Show more" />}
+        : rows.length > 0 && <QuestionItems rows={rows} people={byId} moreHref={moreHref} moreLabel="Older questions" />}
       {before && <p style={{ margin: '12px 0 0', fontSize: '15px' }}><a href={href({})} style={{ display: 'inline-block', padding: '12px 0', color: INK, textDecoration: 'underline' }}>Back to the newest</a></p>}
 
       <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: INK, margin: '28px 0 8px' }}>By department</h2>

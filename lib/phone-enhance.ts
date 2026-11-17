@@ -187,6 +187,8 @@ function shorten(){
 // "Show fewer" too.
 var STEP=10;
 function stepLabel(d,left){var m=d.querySelector('.st-more');if(!m)return;var n=Math.min(STEP,left),one=d.getAttribute('data-step-one'),many=d.getAttribute('data-step-many');m.textContent='Show '+n.toLocaleString('en-GB')+' more'+(one?' '+(n===1?one:many):'')}
+// The count before a stepped fold ('3 of 120', ENTRY 239 A4): what shows of the whole list.
+function stepCount(d,shown){var c=d.previousElementSibling;if(!c||!c.classList.contains('og-more-count'))return;var first=+d.getAttribute('data-step-from')-1,total=first+(+d.getAttribute('data-step-left'));c.textContent=Math.min(shown==null?total:first+shown,total).toLocaleString('en-GB')+' of '+total.toLocaleString('en-GB')}
 function stepTo(d,added){
   var st=document.getElementById(d.getAttribute('data-step-style'));if(!st)return;
   if(st.__orig==null)st.__orig=st.textContent;
@@ -196,6 +198,7 @@ function stepTo(d,added){
   else st.textContent=added?st.__orig.split(':nth-child(n+'+from).join(':nth-child(n+'+(from+added)):st.__orig;
   d.__added=added;
   stepLabel(d,+d.getAttribute('data-step-left')-added);
+  stepCount(d,added);
   var f=d.__fewer;
   if(added>0&&!(f&&f.isConnected)){
     f=document.createElement('button');f.type='button';f.className='og-phone-more st-fewer';f.textContent='Show fewer';
@@ -210,7 +213,7 @@ document.addEventListener('click',function(e){
   var d=s.parentElement;
   if(d.open){setTimeout(function(){stepTo(d,0)},0);return}
   var added=(d.__added||0)+STEP,left=+d.getAttribute('data-step-left');
-  if(added>=left){if(d.__fewer){d.__fewer.remove();d.__fewer=null}return}
+  if(added>=left){if(d.__fewer){d.__fewer.remove();d.__fewer=null}stepCount(d,null);return}
   e.preventDefault();stepTo(d,added);
 });
 // MoreChain on phones and tablets (Cowork ENTRY 152 item 1, owner rule, 16 Nov 2026): /petitions, /edms/[id] and the PMQs
@@ -220,18 +223,20 @@ document.addEventListener('click',function(e){
 function chainOf(d){
   while(d.parentElement&&d.parentElement.matches('details.mc-more'))d=d.parentElement;
   if(d.__chain)return d.__chain;
-  var first=d.previousElementSibling;if(!first||!first.classList.contains('mc-first'))return null;
+  var first=d.previousElementSibling,cnt=null;if(first&&first.classList.contains('og-more-count')){cnt=first;first=first.previousElementSibling}
+  if(!first||!first.classList.contains('mc-first'))return null;
   var pf=3;for(var k=1;k<5;k++)if(first.classList.contains('mc-pf'+k))pf=k;
   var items=[].slice.call(first.children),ds=[],x=d;
   while(x){x.__start=items.length;ds.push(x);var l=x.querySelector(':scope > ul, :scope > ol');if(l)items=items.concat([].slice.call(l.children));x=x.querySelector(':scope > details.mc-more')}
   pf=Math.min(pf,items.length);
-  d.__chain={first:first,top:d,pf:pf,items:items,ds:ds,n:pf};return d.__chain;
+  d.__chain={first:first,top:d,pf:pf,items:items,ds:ds,n:pf,cnt:cnt};return d.__chain;
 }
 function chainShow(c,n){
   n=Math.min(n,c.items.length);c.n=n;var on=n>c.pf;
   c.items.forEach(function(e,i){e.classList.toggle('mc-h',on&&i>=n)});
   c.ds.forEach(function(d,j){d.classList.toggle('mc-js',on);d.open=on&&(j===0||d.__start<n)});
-  if(!on){if(c.more){c.more.remove();c.fewer.remove();c.more=c.fewer=null}return}
+  if(c.cnt)c.cnt.textContent=n.toLocaleString('en-GB')+' of '+c.items.length.toLocaleString('en-GB');
+  if(!on){if(c.more){c.more.remove();c.fewer.remove();c.more=c.fewer=null}if(c.cnt)c.top.before(c.cnt);return}
   if(!c.more){
     c.more=document.createElement('button');c.more.type='button';c.more.className='og-phone-more';
     c.more.addEventListener('click',function(){chainShow(c,c.n+STEP)});
@@ -239,6 +244,7 @@ function chainShow(c,n){
     c.fewer.addEventListener('click',function(){chainShow(c,c.pf);var r=c.first.getBoundingClientRect();if(r.top<0)c.first.scrollIntoView({block:'start'})});
     c.top.after(c.more,c.fewer);
   }
+  if(c.cnt)c.more.before(c.cnt);
   var left=c.items.length-n;
   c.more.style.display=left>0?'':'none';c.more.textContent='Show '+Math.min(STEP,left).toLocaleString('en-GB')+' more';
 }

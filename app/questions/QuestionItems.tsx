@@ -14,7 +14,8 @@ export const questionState = (q: QuestionRow) => {
   return 'Awaiting answer';
 };
 
-// A screen of questions and Show more. Show more moves on 25 and lands on the first of them; it is an ordinary link, so it works with
+// A screen of questions and 'Older questions' (was 'Show more'; ENTRY 239 A4: it loads the next screen, not more of this list).
+// It moves on 25 and lands on the first of them; it is an ordinary link, so it works with
 // JavaScript off and crawlers can reach every question. data-own-more stops lib/phone-enhance.ts folding the list again.
 export default function QuestionItems({ rows, people, showDepartment = true, moreHref, moreLabel, listId = 'questions-list' }: { rows: QuestionRow[]; people: Map<number, Person>; showDepartment?: boolean; moreHref: string | null; moreLabel: string; listId?: string }) {
   return (

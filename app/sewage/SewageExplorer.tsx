@@ -47,7 +47,7 @@ const LEAGUE_CSS = `@media ${wideFrom(768).split(', ').map((q) => `${q} and (max
   // Under 640px (owner, 4 Nov 2026) area cards replace the table, from the same rows, so tables and sort orders still apply.
   + ' .sew-cards { display: none; }'
   // Phones and tablets (T1-GUARD, owner approved 13 Nov 2026: tablets up to 1,023px get the cards too).
-  + ` @media ${phoneUpTo(1023.98)} { .sew-league { display: none; } .sew-cards { display: block; list-style: none; margin: 0; padding: 0; }`
+  + ` @media ${phoneUpTo(1023.98)} { .sew-league, .sew-all { display: none !important; } .sew-cards { display: block; list-style: none; margin: 0; padding: 0; }`
   // The seven table buttons in two columns on phones (step 5, 10 Nov 2026: seven full width buttons were 364px).
   + ' .sew-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .sew-tabs > button { margin: 0 !important; min-height: 44px; text-align: left; line-height: 1.25; }'
   + ' .sew-card { border-top: 1px solid rgba(20,16,13,0.25); } .sew-card:last-child { border-bottom: 1px solid rgba(20,16,13,0.25); }'
@@ -329,9 +329,12 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
         </PhoneTable>
         </div>
         {/* Phones: the first 3, then "Show all" (step 5, 10 Nov 2026: page length). */}
-        <NoJsPager id="sew-league" count={visible.length} rows="> li" size={25} first={3}>
+        {/* Phones and tablets (ENTRY 239 A4, MOB-LISTS, owner rule 17 Nov 2026): every area is in the cards, which open with 3,
+            then Show 10 more and Show fewer (NoJsPager and lib/phone-enhance.ts); the desktop table keeps its first 50 and
+            the button below, which is hidden here (it said 'Show 238 more'). */}
+        <NoJsPager id="sew-league" count={rows.length} rows="> li" size={25} first={3}>
         <ol className="sew-cards" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
-          {visible.map((r, i) => (
+          {rows.map((r, i) => (
             <li key={r.code} className="sew-card">
               <details>
                 <summary>
@@ -351,7 +354,7 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
         </ol>
         </NoJsPager>
         {rows.length > FIRST && (
-          <button type="button" onClick={() => setShowAll((v) => !v)} style={{ ...btn(false), marginTop: '12px' }}>
+          <button type="button" className="sew-all" onClick={() => setShowAll((v) => !v)} style={{ ...btn(false), marginTop: '12px' }}>
             {showAll ? `Show the first ${FIRST}` : `Show ${fmtInt(rows.length - FIRST)} more`}
           </button>
         )}

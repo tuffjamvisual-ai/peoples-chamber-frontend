@@ -67,7 +67,7 @@ export default async function DepartmentQuestionsView({ slug, before }: { slug: 
       {was.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Previously</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{was.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
       {d.page && <p style={{ margin: '4px 0 12px' }}><Link href={`/departments/${d.page}`} prefetch={false} style={link}>The department&rsquo;s page</Link></p>}
       {rows.length === 0 ? <p style={{ fontSize: '16px', color: INK }}>No questions.</p> : (
-        <QuestionItems rows={rows} people={new Map(people.map((p) => [p.id, p]))} showDepartment={false} moreLabel="Show more"
+        <QuestionItems rows={rows} people={new Map(people.map((p) => [p.id, p]))} showDepartment={false} moreLabel="Older questions"
           moreHref={more ? `/questions/department/${d.slug}/before/${more}` : null} />
       )}
       {before && <p style={{ margin: '12px 0 0', fontSize: '15px' }}><a href={`/questions/department/${d.slug}`} style={{ display: 'inline-block', padding: '12px 0', color: INK, textDecoration: 'underline' }}>Back to the newest</a></p>}

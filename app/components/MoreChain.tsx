@@ -30,10 +30,13 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
   const pf = Math.max(1, Math.min(phoneFirst, PHONE_FIRST));
   const opening = Math.max(1, Math.min(first ?? step, step));
   const Tag = ordered ? 'ol' : 'ul';
+  // The count before the chain's first fold (ENTRY 239 A4, MOB-LISTS): '3 of 120' on phones and tablets with JavaScript (it
+  // is hidden elsewhere, globals.css .og-more-count); lib/phone-enhance.ts updates it and keeps it above the buttons.
+  const count = (total: number) => <p className="og-more-count" aria-live="polite">{pf.toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}</p>;
   const list = (some: ReactNode[], firstList = false, mark = false) => <Tag className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
   if (items.length <= opening) {
     if (phoneOnly || items.length <= pf) return list(items, false, mainAction);
-    return <>{list(items, true, mainAction)}<details className="mc-more mc-phone"><summary><span className="st-more">Show {phoneCount(items.length - pf)} more</span><span className="st-less">Show fewer</span></summary></details></>;
+    return <>{list(items, true, mainAction)}{count(items.length)}<details className="mc-more mc-phone"><summary><span className="st-more">Show {phoneCount(items.length - pf)} more</span><span className="st-less">Show fewer</span></summary></details></>;
   }
   // "Show N more" (T1-GUARD, Cowork 13 Nov 2026, as DataList): N is what the press shows, the next `step` items; on phones the
   // first press also shows the rest of the opening list (globals.css .mc-first).
@@ -61,7 +64,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
     }
     return <details className="mc-more">{label(from)}{list(items.slice(from, from + step))}{rest(from + step)}</details>;
   };
-  return <>{list(items.slice(0, opening), !phoneOnly, mainAction)}{rest(opening)}</>;
+  return <>{list(items.slice(0, opening), !phoneOnly, mainAction)}{!phoneOnly && count(items.length)}{rest(opening)}</>;
 }
 
 // How many items fit as a page opens: their heights at 375px, up to `room`. 6,800 is the opening at every width (the old
