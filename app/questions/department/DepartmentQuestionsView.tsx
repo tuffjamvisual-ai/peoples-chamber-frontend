@@ -1,0 +1,78 @@
+import type { Metadata } from 'next';
+import PageSources from '@/app/components/PageSources';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import OpenGovShell from '../../components/OpenGovShell';
+import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
+import { namedTitle } from '@/lib/seo-title';
+import { departmentById, departmentBySlug } from '@/lib/question-departments';
+import { questionDepartmentStats, questionPeople, searchQuestions } from '@/lib/question-pages';
+import QuestionItems from '../QuestionItems';
+import TookOnNote from '../../components/TookOnNote';
+
+import BackLink from '@/app/components/BackLink';
+// One answering department (owner, 6 Nov 2026), one page per Parliament id, with links between reorganised departments. Newest first,
+// 25 at a time. Counts leave out withdrawn questions. Days to answer run from the date tabled to the date answered.
+
+// The body and metadata, shared by /questions/department/<slug> and /questions/department/<slug>/before/<cursor> (F04 batch 2,
+// T2's f04-32-routes.md B1.2): the keyset cursor is in the path, so each page is static and rebuilt only when the written
+// questions' tag is refreshed.
+const INK = '#14100d';
+const link = { display: 'inline-flex', alignItems: 'center', minHeight: '44px', color: INK, textDecoration: 'underline', fontSize: '16px' } as const;
+const n0 = (n: number) => n.toLocaleString('en-GB');
+
+export function departmentQuestionsMetadata(slug: string, before: string | null): Metadata {
+  const d = departmentBySlug(slug);
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!d) notFound();
+  return {
+    // Never the name alone, which the department's own page has (owner, 7 Nov 2026: titles stay unique).
+    title: namedTitle(d.name, (n) => [`Written questions: ${n}`, `${n}: questions`]),
+    description: `Written questions answered by ${d.name} since the July 2024 general election, newest first, with counts and average days to answer.`.slice(0, 160),
+    alternates: { canonical: `/questions/department/${d.slug}` },
+    ...(before ? { robots: { index: false, follow: true } } : {}),
+  };
+}
+
+export default async function DepartmentQuestionsView({ slug, before }: { slug: string; before: string | null }) {
+  const d = departmentBySlug(slug);
+  if (!d) notFound();
+  const [stats, people, { rows, more }] = await Promise.all([questionDepartmentStats(), questionPeople(), searchQuestions({ bodyId: d.id }, before, false)]);
+  const st = stats.find((r) => r.answering_body_id === d.id);
+  const facts: [string, string][] = [
+    ['Asked', n0(st?.asked ?? 0)],
+    ['Answered', n0(st?.answered ?? 0)],
+    ['Average days to answer', st?.average_days != null ? st.average_days.toFixed(1) : 'None yet'],
+  ];
+  const related = (ids: number[] | undefined) => (ids ?? []).map(departmentById).filter((x): x is NonNullable<typeof x> => !!x);
+  const now = related(d.nowPartOf);
+  const was = related(d.previously);
+  const moved = related(d.functionsMovedTo);
+
+  return (
+    <OpenGovShell>
+      <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Written questions', path: '/questions' }, { name: d.name, path: `/questions/department/${d.slug}` }])} />
+      <BackLink fallbackHref="/questions" />
+      <h1 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', lineHeight: 1.2, color: INK, margin: '0 0 12px', overflowWrap: 'anywhere' }}>{d.name}: written questions</h1>
+      {/* The main action (UX3a, A6): the department's figures. */}
+      <dl data-main-action style={{ margin: '0 0 12px', fontSize: '16px', color: INK }}>
+        {facts.map(([k, v]) => (
+          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '6px 0', borderBottom: '1px solid rgba(20,16,13,0.25)' }}><dt style={{ fontWeight: 'bold' }}>{k}</dt><dd style={{ margin: 0 }}>{v}</dd></div>
+        ))}
+      </dl>
+      <p style={{ fontSize: '15px', color: INK, margin: '0 0 10px' }}>Since the July 2024 general election. Withdrawn questions are not counted.</p>
+      <TookOnNote department={d} />
+      {now.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Now part of</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{now.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
+      {moved.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Functions moved to</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{moved.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
+      {was.length > 0 && <div style={{ fontSize: '16px', color: INK }}><strong>Previously</strong><ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{was.map((x) => <li key={x.id}><Link href={`/questions/department/${x.slug}`} prefetch={false} style={link}>{x.name}</Link></li>)}</ul></div>}
+      {d.page && <p style={{ margin: '4px 0 12px' }}><Link href={`/departments/${d.page}`} prefetch={false} style={link}>The department&rsquo;s page</Link></p>}
+      {rows.length === 0 ? <p style={{ fontSize: '16px', color: INK }}>No questions.</p> : (
+        <QuestionItems rows={rows} people={new Map(people.map((p) => [p.id, p]))} showDepartment={false} moreLabel="Show more"
+          moreHref={more ? `/questions/department/${d.slug}/before/${more}` : null} />
+      )}
+      {before && <p style={{ margin: '12px 0 0', fontSize: '15px' }}><a href={`/questions/department/${d.slug}`} style={{ display: 'inline-block', padding: '12px 0', color: INK, textDecoration: 'underline' }}>Back to the newest</a></p>}
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
+      <PageSources sources={[d.source && { label: d.source.label, href: d.source.url }]} />
+    </OpenGovShell>
+  );
+}
