@@ -49,6 +49,11 @@ export default async function SotnBand({ variant = 'band' }: { variant?: 'band' 
 
 type Fig = ReturnType<typeof headlineFour>[number];
 
+// The period follows the label after a comma, so its first word is lower case unless it is a month or an abbreviation
+// ("End of June 2026" -> "end of June 2026"; "September 2026" and "Q2 2026" unchanged). T2's review of e1f9ec14.
+const MONTH = /^(January|February|March|April|May|June|July|August|September|October|November|December)\b/;
+const midSentence = (period: string) => (MONTH.test(period) || !/^[A-Z][a-z]/.test(period) ? period : period[0].toLowerCase() + period.slice(1));
+
 function SotnStrip({ four }: { four: Fig[] }) {
   return (
     <section aria-labelledby="sotn-strip-h" className="og-sotn-strip og-mob" style={{ margin: '18px 0 0', borderTop: `2px solid ${INK}`, paddingTop: '10px', fontFamily: MONO, color: INK }}>
@@ -63,7 +68,7 @@ function SotnStrip({ four }: { four: Fig[] }) {
         {four.slice(0, 4).map((f) => (
           <li key={f.id}>
             <span className="og-sotn-sv">{f.value}</span>
-            <span className="og-sotn-sk">{f.label}{f.period ? `, ${f.period}` : ''}</span>
+            <span className="og-sotn-sk">{f.label}{f.period ? `, ${midSentence(f.period)}` : ''}</span>
           </li>
         ))}
       </ul>
