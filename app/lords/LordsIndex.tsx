@@ -3,7 +3,7 @@
 import DataList from '@/app/components/DataList';
 import Link from 'next/link';
 import { useMemo, useState, type CSSProperties } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { PeerListRow } from '@/lib/lords';
 
 // The /lords list (owner, 3 Nov 2026): every current peer, filtered by party and type of peerage in the browser.
@@ -15,12 +15,15 @@ const select: CSSProperties = { padding: '8px 12px', background: 'rgba(20,16,13,
 const label: CSSProperties = { display: 'block', fontSize: '15px', fontWeight: 'bold', marginBottom: '4px' };
 const fmtYear = (d: string | null) => (d ? d.slice(0, 4) : '');
 
-export default function LordsIndex({ peers, page, initialParty = '', initialType = '' }: { peers: PeerListRow[]; page: number; initialParty?: string; initialType?: string }) {
+// The page (in the path: /lords or /lords/page/<n>, F04 batch 2) comes from the server; party and type stay in the query and
+// are read in the browser (LordsIndex below), so /lords is a static page. Without JavaScript the list shows every peer, as
+// the selects need JavaScript anyway.
+export function LordsIndexView({ peers, page, initialParty = '', initialType = '' }: { peers: PeerListRow[]; page: number; initialParty?: string; initialType?: string }) {
   const [party, setParty] = useState(initialParty);
   const [type, setType] = useState(initialType);
   const router = useRouter();
   // The filters are in the address too (T1-GUARD), so the page links keep them and work without JavaScript.
-  const query = (p: string, t: string, n = 1) => { const q = new URLSearchParams(); if (p) q.set('party', p); if (t) q.set('type', t); if (n > 1) q.set('page', String(n)); const s = q.toString(); return s ? `/lords?${s}` : '/lords'; };
+  const query = (p: string, t: string, n = 1) => { const q = new URLSearchParams(); if (p) q.set('party', p); if (t) q.set('type', t); const s = q.toString(); const base = n > 1 ? `/lords/page/${n}` : '/lords'; return s ? `${base}?${s}` : base; };
   const choose = (p: string, t: string) => { setParty(p); setType(t); router.replace(query(p, t), { scroll: false }); };
   const count = (key: 'party' | 'peerage_type') => {
     const m = new Map<string, number>();
@@ -68,4 +71,11 @@ export default function LordsIndex({ peers, page, initialParty = '', initialType
       </DataList>
     </div>
   );
+}
+
+// The filters in the address (?party=, ?type=) read in the browser, inside a Suspense boundary in the page, so the route
+// stays prerendered; the fallback is the unfiltered list.
+export default function LordsIndex(p: { peers: PeerListRow[]; page: number }) {
+  const sp = useSearchParams();
+  return <LordsIndexView {...p} initialParty={sp.get('party') ?? ''} initialType={sp.get('type') ?? ''} />;
 }
