@@ -186,7 +186,7 @@ export default async function CouncilSchoolInspectionsSection({
           <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>
             Schools whose only inspection in Ofsted&rsquo;s file is an ungraded one ({fmtNum(ungradedOnly.length)}), by outcome
           </caption>
-          <tbody>
+          <tbody data-own-more="">
             {ungradedCounts.map(([outcome, n]) => (
               <tr key={outcome} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px 20px 6px 0' }}>{outcome}</td>
@@ -243,7 +243,7 @@ export default async function CouncilSchoolInspectionsSection({
           <SubFold label="Earlier and ungraded inspections">
           <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '8px' }}>
             <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>Overall effectiveness at the last graded inspection</caption>
-            <tbody>
+            <tbody data-own-more="">
               {oeifCounts.map((x) => (
                 <tr key={x.key} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={{ padding: '6px 20px 6px 0' }}>{OEIF_LABELS[x.key]}</td>

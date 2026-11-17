@@ -109,7 +109,7 @@ export default function CommissionPage() {
           <SubFold label="What you get">
           <p style={{ fontSize: '15px', lineHeight: 1.65, margin: '0 0 10px' }}>{SERVICE.body}</p>
           <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>Every commission includes:</p>
-          <ul style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px', paddingLeft: '1.4em' }}>
+          <ul data-own-more="" style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px', paddingLeft: '1.4em' }}>
             {INCLUDED.map((x) => <li key={x}>{x}</li>)}
           </ul>
           </SubFold>
@@ -121,7 +121,7 @@ export default function CommissionPage() {
       <section aria-labelledby="cm-how" style={{ marginBottom: '5%' }}>
         <SubFold label="How it works">
         <h2 id="cm-how" className="cm-fold-h" style={h2}>How it works</h2>
-        <ol style={{ margin: 0, paddingLeft: '1.6em', fontSize: '16px', lineHeight: 1.7, maxWidth: '720px' }}>
+        <ol data-own-more="" style={{ margin: 0, paddingLeft: '1.6em', fontSize: '16px', lineHeight: 1.7, maxWidth: '720px' }}>
           {STEPS.map((s) => <li key={s} style={{ marginBottom: '6px' }}>{s}</li>)}
         </ol>
         </SubFold>

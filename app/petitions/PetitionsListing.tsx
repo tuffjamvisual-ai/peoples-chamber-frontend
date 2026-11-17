@@ -85,7 +85,7 @@ export default async function PetitionsListing({ s }: { s: Search }) {
         <button type="submit" style={{ minHeight: '44px', padding: '8px 16px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button>
       </form>
 
-      <ul aria-label="Filters" style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', padding: 0 }}>
+      <ul aria-label="Filters" data-own-more="" style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', padding: 0 }}>
         {chips.map((c) => (
           <li key={c.label}>
             <Link href={c.to} prefetch={false} aria-current={c.on ? 'true' : undefined} className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', padding: '6px 12px', fontSize: '15px', boxSizing: 'border-box', textDecoration: 'none', border: `1px solid ${INK}`, color: c.on ? '#fbf4e6' : INK, background: c.on ? ACCENT : 'transparent' }}>{c.label}</Link>

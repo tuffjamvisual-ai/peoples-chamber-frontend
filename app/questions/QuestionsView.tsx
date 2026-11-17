@@ -118,7 +118,7 @@ export default async function QuestionsView({ s }: { s: Search }) {
         </ul>
       )}
 
-      <ul aria-label="Filters" style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', padding: 0 }}>
+      <ul aria-label="Filters" data-own-more="" style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', padding: 0 }}>
         {STATUSES.map((c) => {
           const on = status === c.key;
           return (

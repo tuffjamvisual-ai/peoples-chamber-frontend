@@ -12,6 +12,36 @@
       "route": "/",
       "selector": "ul.og-sotn-sl",
       "reason": "The homepage State of the Nation strip's 4 figures stay whole (owner approved 17 Nov 2026, Cowork ENTRY 265; MOB-HOME)."
+    },
+    {
+      "rule": "lists",
+      "route": "/petitions",
+      "selector": "ul[aria-label=\"Filters\"]",
+      "reason": "Status filter tabs. Controls and fixed summaries, not content lists: they stay whole at every width (owner's list rule; Cowork ENTRY 269, 17 Nov 2026). Marked data-own-more in the page."
+    },
+    {
+      "rule": "lists",
+      "route": "/edms",
+      "selector": "ul[aria-label=\"Filters\"]",
+      "reason": "Status filter tabs. Controls and fixed summaries, not content lists: they stay whole at every width (owner's list rule; Cowork ENTRY 269, 17 Nov 2026). Marked data-own-more in the page."
+    },
+    {
+      "rule": "lists",
+      "route": "/questions",
+      "selector": "ul[aria-label=\"Filters\"]",
+      "reason": "Status filter tabs. Controls and fixed summaries, not content lists: they stay whole at every width (owner's list rule; Cowork ENTRY 269, 17 Nov 2026). Marked data-own-more in the page."
+    },
+    {
+      "rule": "lists",
+      "route": "/commission",
+      "selector": ".pf-sb > ul, .pf-sb > ol",
+      "reason": "The two step lists (what you get; how to commission). Controls and fixed summaries, not content lists: they stay whole at every width (owner's list rule; Cowork ENTRY 269, 17 Nov 2026). Marked data-own-more in the page."
+    },
+    {
+      "rule": "lists",
+      "route": "/councils/[slug]/schools",
+      "selector": "table > tbody[data-own-more]",
+      "reason": "The Ofsted overall effectiveness and ungraded outcome summary tables. Controls and fixed summaries, not content lists: they stay whole at every width (owner's list rule; Cowork ENTRY 269, 17 Nov 2026). Marked data-own-more in the page."
     }
   ]
 }
