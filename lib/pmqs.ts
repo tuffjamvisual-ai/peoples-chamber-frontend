@@ -4,6 +4,7 @@
 // and then it runs from that line on. Who answered is whoever spoke most in the session. The Speaker, shouted asides
 // and points of order are not exchanges: the Hansard link has the full record. One exception (owner, 5 Nov 2026): where a
 // question got no answer because the Speaker stepped in, the Speaker's words stand in that place.
+import { tableTags } from '@/lib/source-tags';
 import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -11,7 +12,6 @@ import { displayMpName } from '@/lib/mp-name';
 import attendance from '@/lib/data/pmqs-attendance-2026-11-04.json';
 
 export const PMQS_TAG = 'pmqs';
-const HOUR = 3600;
 const MARKER = 'The Prime Minister was asked';
 const SNIPPET = 160;
 
@@ -181,7 +181,8 @@ const readSet = unstable_cache(async (): Promise<PmqsSet> => {
   sessions.sort((a, b) => b.date.localeCompare(a.date));
   for (const list of Object.values(byMember)) list.sort((a, b) => b.date.localeCompare(a.date));
   return { sessions, byMember };
-}, ['pmqs-set'], { tags: [PMQS_TAG], revalidate: HOUR });
+}, ['pmqs-set'], { tags: [PMQS_TAG, ...tableTags('mps')], revalidate: false }); // F04 batch 3 (A16): /pmqs is static now; no timer. The
+// parliament archive sync refreshes 'pmqs' whenever it writes Hansard rows; the names come from mps, refreshed by its tag.
 
 export const pmqsSet = cache(() => readSet());
 
