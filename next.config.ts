@@ -231,6 +231,7 @@ const nextConfig: NextConfig = {
         // F04 batch 3 (S pattern, owner's A16 exceptions, ENTRY 187): only an address carrying ?q= renders per request.
         { source: '/constituencies', has: [{ type: 'query' as const, key: 'q' }], destination: '/constituencies/search' },
         { source: '/debates', has: [{ type: 'query' as const, key: 'q' }], destination: '/debates/search' },
+        { source: '/edms', has: [{ type: 'query' as const, key: 'q' }], destination: '/edms/search' },
       ],
       afterFiles: [
         { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },

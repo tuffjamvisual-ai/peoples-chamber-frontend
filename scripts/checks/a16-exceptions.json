@@ -4,6 +4,7 @@
   { "route": "/search", "why": "search results" },
   { "route": "/bills/search", "why": "search results" },
   { "route": "/councils/search", "why": "search results" },
+  { "route": "/edms/search", "why": "search results (title or EDM number; filters the cached list in memory; owner approved 17 Nov 2026, ENTRY 187)" },
   { "route": "/debates/search", "why": "search results (title text over the debates table; owner approved 17 Nov 2026, ENTRY 187)" },
   { "route": "/constituencies/search", "why": "search results (name or postcode; a postcode is looked up on postcodes.io per search; owner approved 17 Nov 2026, ENTRY 187)" },
   { "route": "/admin/users", "why": "account (admin, signed in)" },
