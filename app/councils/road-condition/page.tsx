@@ -72,9 +72,9 @@ export default async function RoadConditionPage() {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }} />
       {/* At every width (UX2d phones; UX4f desktop, owner approved, 10 Nov 2026): "Find a council" (postcode or name) and links
           to each road category, then the road categories with their council tables, then the national figures and the note
-          that the series has ended, "What the figures mean" (a closed fold on phones) and "About these figures". CSS order,
-          the same with JavaScript off; nothing is removed. */}
-      <style>{`.rc-flow { display: flex; flex-direction: column; } .rc-flow > .rc-type { order: 1; } .rc-flow > .rc-nat { order: 2; } .rc-flow > .rc-mean { order: 3; } .rc-flow > .rc-about { order: 4; } .rc-find { max-width: 46em; margin: 0 0 4px; } .rc-jump { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 4px 0 0; font-family: ${MONO}; font-size: 15px; } .rc-jump a { display: inline-flex; align-items: center; min-height: 44px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; } .rc-type { scroll-margin-top: 16px; } @media ${PHONE} { .rc-find { margin-bottom: 8px; } } @media (min-width: 768px) and (max-width: 1023.98px) { .rc-h2 { display: none; } }`}</style>
+          that the series has ended, "What the figures mean" (a closed fold on phones) and "About these figures". In that order in the
+          HTML (ENTRY 239 A2, MOB-ORDER: it was CSS order, so the reading order differed from what is shown); nothing is removed. */}
+      <style>{`.rc-find { max-width: 46em; margin: 0 0 4px; } .rc-jump { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 4px 0 0; font-family: ${MONO}; font-size: 15px; } .rc-jump a { display: inline-flex; align-items: center; min-height: 44px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; } .rc-type { scroll-margin-top: 16px; } @media ${PHONE} { .rc-find { margin-bottom: 8px; } } @media (min-width: 768px) and (max-width: 1023.98px) { .rc-h2 { display: none; } }`}</style>
       {/* Tablets (T1-GUARD, owner approved 13 Nov 2026): the sections fold up to 1,023px, as on phones, and the fold names each one. */}
       <article className="rc-flow" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '16px' }}>
@@ -96,39 +96,6 @@ export default async function RoadConditionPage() {
             {ROAD_TYPES.map((t) => <a key={t.key} href={`#road-${t.key}`}>{t.label}</a>)}
           </nav>
         </div>
-
-        <p className="rc-nat" style={para}>
-          County, unitary, metropolitan and London borough councils are the highway authorities for local roads; district councils are not. These are the shares of each council&rsquo;s roads where maintenance should have been considered, in {fye(latest)}.
-        </p>
-        {eng && (
-          <ul className="rc-nat" style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
-            {ROAD_TYPES.map((t) => {
-              const ch = changeText(eng, engPrev, t.field);
-              return (
-                <li key={t.key} style={{ fontFamily: SERIF, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 6px' }}>
-                  England, {t.label}: <strong>{valueText(eng, t.field)}</strong>{ch ? <span style={{ fontSize: '15px' }}> ({ch})</span> : null}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        {/* Phones (T1-GUARD, owner approved 13 Nov 2026: 2,500px at 320): the two notes on England's figures in a fold, nothing cut. */}
-        <div className="rc-nat">
-        <SubFold label="About these England figures">
-        <p style={para}>{ENGLAND_NOTE}</p>
-        <p style={{ ...para, borderLeft: `3px solid ${ACCENT}`, paddingLeft: '12px' }}>
-          <strong>The last year of this series.</strong> {LAST_YEAR_NOTE} (DfT, Road conditions in England to March 2026, in Sources at the end of the page.)
-        </p>
-        </SubFold>
-        </div>
-
-        <section className="rc-mean" style={section}>
-          <h2 className="rc-h2" style={h2}>What the figures mean</h2>
-          <NoJsFold id="rc-mean" always tablets label="What the figures mean">
-          {EXPLAINER.map((p) => <p key={p.slice(0, 20)} style={para}>{p}</p>)}
-          <p style={para}>This is from the notes to DfT&rsquo;s road condition data tables (in Sources at the end of the page).</p>
-        </NoJsFold>
-        </section>
 
         {ROAD_TYPES.map((t) => {
           const ranked = list.filter((r) => value(r.cur, t.field) != null && !notComparable(r.cur, t.field))
@@ -188,6 +155,39 @@ export default async function RoadConditionPage() {
           );
         })}
 
+
+        <p className="rc-nat" style={para}>
+          County, unitary, metropolitan and London borough councils are the highway authorities for local roads; district councils are not. These are the shares of each council&rsquo;s roads where maintenance should have been considered, in {fye(latest)}.
+        </p>
+        {eng && (
+          <ul className="rc-nat" style={{ listStyle: 'none', padding: 0, margin: '0 0 14px' }}>
+            {ROAD_TYPES.map((t) => {
+              const ch = changeText(eng, engPrev, t.field);
+              return (
+                <li key={t.key} style={{ fontFamily: SERIF, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 6px' }}>
+                  England, {t.label}: <strong>{valueText(eng, t.field)}</strong>{ch ? <span style={{ fontSize: '15px' }}> ({ch})</span> : null}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {/* Phones (T1-GUARD, owner approved 13 Nov 2026: 2,500px at 320): the two notes on England's figures in a fold, nothing cut. */}
+        <div className="rc-nat">
+        <SubFold label="About these England figures">
+        <p style={para}>{ENGLAND_NOTE}</p>
+        <p style={{ ...para, borderLeft: `3px solid ${ACCENT}`, paddingLeft: '12px' }}>
+          <strong>The last year of this series.</strong> {LAST_YEAR_NOTE} (DfT, Road conditions in England to March 2026, in Sources at the end of the page.)
+        </p>
+        </SubFold>
+        </div>
+
+        <section className="rc-mean" style={section}>
+          <h2 className="rc-h2" style={h2}>What the figures mean</h2>
+          <NoJsFold id="rc-mean" always tablets label="What the figures mean">
+          {EXPLAINER.map((p) => <p key={p.slice(0, 20)} style={para}>{p}</p>)}
+          <p style={para}>This is from the notes to DfT&rsquo;s road condition data tables (in Sources at the end of the page).</p>
+        </NoJsFold>
+        </section>
         <section className="rc-about" style={section}>
           <h2 className="rc-h2" style={h2}>About these figures</h2>
           <NoJsFold id="rc-about" always tablets label="About these figures">

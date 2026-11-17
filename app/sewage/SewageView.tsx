@@ -122,8 +122,9 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
       />
       {/* At every width (UX2e phones; UX4e desktop, owner approved, 10 Nov 2026): "Your area" (postcode) straight after the
           title, then the league tables (two selectors on phones, the buttons from 640px up, SewageExplorer), then the national
-          totals in their own section, then the rest. CSS order, the same with JavaScript off. */}
-      <style>{`.sew-flow { display: flex; flex-direction: column; } .sew-flow > * { order: 5; } .sew-flow > header { order: 0; } .sew-flow > .sew-root { display: contents; } .sew-flow > .sew-root > #your-area { order: 1; } .sew-flow > .sew-root > .sew-tables { order: 2; } .sew-flow > .sew-nat { order: 3; border-top: 1px solid ${INK_HAIRLINE}; padding-top: 20px; margin-bottom: 28px; }`}</style>
+          totals in their own section, then the rest. In that order in the HTML (ENTRY 239 A2, MOB-ORDER: it was CSS order, so
+          the reading order differed from what is shown). */}
+      <style>{`.sew-flow > .sew-nat { border-top: 1px solid ${INK_HAIRLINE}; padding-top: 20px; margin-bottom: 28px; }`}</style>
       <article className="sew-flow" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: '#14100d', fontFamily: SERIF }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '16px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
@@ -137,6 +138,9 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
           <style>{`@media ${phoneUpTo(767.98)} { .sew-oneline { display: none; } }`}</style>
           <p className="sew-oneline" style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.5, color: INK, margin: '8px 0 0' }}>How long storm overflows spilled sewage, by area and water company.</p>
         </header>
+
+
+        <SewageExplorer tables={tables} initialTable={initialTable} initialSort={initialSort} />
 
         <section className="sew-nat" aria-label="National totals">
         <h2 style={h2}>National totals</h2>
@@ -163,8 +167,6 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
           </p>
         )}
         </section>
-
-        <SewageExplorer tables={tables} initialTable={initialTable} initialSort={initialSort} />
 
         {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): the fold names the section, so its heading is not repeated above it. */}
         <style>{`@media ${phoneUpTo(1023.98)} { .sew-fold-h { display: none; } }`}</style>

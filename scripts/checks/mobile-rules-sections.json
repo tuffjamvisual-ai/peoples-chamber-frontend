@@ -26,6 +26,8 @@
     "/polls/voting-intention": [
       "/",
       "/polls"
-    ]
+    ],
+    "/explainers/donations": "/transparency/donations",
+    "/tools/welfare": "/sections/accountability"
   }
 }

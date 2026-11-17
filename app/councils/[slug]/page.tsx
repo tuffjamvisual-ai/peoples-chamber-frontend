@@ -389,9 +389,11 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           slots={{
             overview: <div data-main-action className="ov-flow">
               {/* Phones (UX2f, owner approved through Cowork, 10 Nov 2026): political control and the key figures first; the
-                  opening sentence and the Wikipedia background (a closed fold) after them. CSS order; from 640px up as before. */}
-              <style>{`@media ${phoneUpTo(767.98)} { .ov-flow { display: flex; flex-direction: column; } .ov-flow > .ov-about { order: 1; } .ov-flow > style { display: none; } }`}</style>
-              <div className="ov-about">
+                  opening sentence and the Wikipedia background (a closed fold) after them; from 768px up as before. Rendered in both
+                  places, each display: none at the other's widths, so the HTML order is the order shown (ENTRY 239 A2, MOB-ORDER;
+                  it was CSS order). */}
+              <style>{`.ov-narrow { display: none; } @media ${phoneUpTo(767.98)} { .ov-wide { display: none; } .ov-narrow { display: block; } }`}</style>
+              <div className="ov-about ov-wide">
               {/* Opening sentence (owner, 7 Nov 2026, L2): what the council is, from the council's own row; no code (T1-NOCODE). */}
               {c.gss_code && (
                 <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 16px', maxWidth: '46em', color: INK }}>
@@ -537,6 +539,29 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   </NoJsFold>
                 </section>
               )}
+              {/* Phones: the same opening sentence and background after the figures (in this place in the HTML, ENTRY 239 A2). */}
+              <div className="ov-about ov-narrow">
+              {/* Opening sentence (owner, 7 Nov 2026, L2): what the council is, from the council's own row; no code (T1-NOCODE). */}
+              {c.gss_code && (
+                <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 16px', maxWidth: '46em', color: INK }}>
+                  {c.name} is a {typePhrase(c.type_label)} in {c.country}.
+                </p>
+              )}
+              {/* The description and its credit folded on phones (step 5, 10 Nov 2026: page length). */}
+              {c.description && (
+                <SubFold tablets label="About the council">
+                <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
+                  {c.description}
+                </p>
+                {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0), so it is credited. */}
+                {c.wikipedia_url && (
+                  <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, margin: '-20px auto 28px', maxWidth: '46em', color: INK_SOFT }}>
+                    From Wikipedia, under CC BY-SA 4.0 (in Sources at the end of the page).
+                  </p>
+                )}
+                </SubFold>
+              )}
+              </div>
             </div>,
             money: <>
               {hasFinance && (
