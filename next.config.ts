@@ -228,6 +228,8 @@ const nextConfig: NextConfig = {
       // so /bills itself stays cached. Before the pages are matched, as /bills is a page; the address stays /bills?q=.
       beforeFiles: [
         { source: '/bills', has: [{ type: 'query' as const, key: 'q' }], destination: '/bills/search' },
+        // F04 batch 3 (S pattern, owner's A16 exceptions, ENTRY 187): only an address carrying ?q= renders per request.
+        { source: '/constituencies', has: [{ type: 'query' as const, key: 'q' }], destination: '/constituencies/search' },
       ],
       afterFiles: [
         { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },
