@@ -61,7 +61,6 @@ async function setLock(cursor: Record<string, unknown>) {
 function refresh(paths: string[], tags: string[]) {
   if (!paths.length && !tags.length) return 'nothing to refresh';
   const file = join(tmpdir(), `catchup-paths-${process.pid}.json`);
-  writeFileSync(file, JSON.stringify({ paths }));
   try {
     const out: string[] = [];
     // Tags in groups of 200 per call, paths through a file.
@@ -69,9 +68,15 @@ function refresh(paths: string[], tags: string[]) {
       const r = spawnSync('node', ['scripts/revalidate.js', ...tags.slice(i, i + 200).flatMap((t) => ['--tag', t])], { encoding: 'utf8' });
       out.push(`tags ${i + 1}-${Math.min(i + 200, tags.length)}: exit ${r.status}`);
     }
-    if (paths.length) { const r = spawnSync('node', ['scripts/revalidate.js', '--paths-file', file], { encoding: 'utf8' }); out.push(`paths ${paths.length}: exit ${r.status}`); }
+    // The site's /api/revalidate takes at most 300 paths and tags a request: paths in groups of 200 too (the first run, 17
+    // Nov 2026, sent 853 at once and was refused).
+    for (let i = 0; i < paths.length; i += 200) {
+      writeFileSync(file, JSON.stringify({ paths: paths.slice(i, i + 200) }));
+      const r = spawnSync('node', ['scripts/revalidate.js', '--paths-file', file], { encoding: 'utf8' });
+      out.push(`paths ${i + 1}-${Math.min(i + 200, paths.length)}: exit ${r.status}`);
+    }
     return out.join('; ');
-  } finally { unlinkSync(file); }
+  } finally { try { unlinkSync(file); } catch { /* no paths written */ } }
 }
 
 async function heartbeat(status: number, rows: number | null) {
