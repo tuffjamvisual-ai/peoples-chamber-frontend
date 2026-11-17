@@ -83,6 +83,10 @@ export function queryMove(pathname: string, sp: URLSearchParams): { to: string; 
 
 // A read of a page past the end of a list: PostgREST answers 416 "Requested range not satisfiable", which the cached read
 // throws. The page shows 404 for it instead of 500 (live gave 500 for /debates?page=9999 and the register's ?page=9999).
+// A visitor search as its cache key (Cowork ENTRY 226, 17 Nov 2026): trimmed, lower case, spaces collapsed, at most 100
+// characters. The searches are ILIKE (case-insensitive), so the same words in any case share one cached answer.
+export const searchKey = (q: string) => q.trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 100);
+
 export const pastTheEnd = (e: unknown) => /Requested range not satisfiable/i.test(e instanceof Error ? e.message : String(e));
 
 // A /x/filter/[...f] route's segments back to choices; null (the route answers 404) when a key is unknown, repeated or out

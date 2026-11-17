@@ -2,8 +2,8 @@ import { supabase } from '@/lib/supabase'
 
 // The six dataset lists' reads (F04 batch 3, ENTRY 134; T2's f04-32-routes.md B 1.3), shared by /transparency/[section]
 // (page 1) and /transparency/[section]/page/[page] (both static: they call these only inside the tagged data cache) and by
-// /transparency/[section]/search (an A16 exception: a search reads per request, at most one page, as F05 decided: one cache
-// entry per visitor search would grow without bound, Cowork ENTRY 181). The reads are F05's, unchanged.
+// /transparency/[section]/search (an A16 exception that also calls them only inside the tagged cache, one entry per
+// normalised search, Cowork ENTRY 226). The reads are F05's, unchanged.
 
 export const PAGE_LIMIT = 50    // rows per page: the only pager on these lists (23 Oct 2026)
 
