@@ -141,5 +141,6 @@ export const config = {
     { source: '/questions/department/:slug', has: [{ type: 'query', key: 'before' }] },
     { source: '/newsletter', has: [{ type: 'query', key: 'status' }] },
     { source: '/transparency/press-releases', has: [{ type: 'query', key: 'date' }] },
+    { source: '/transparency/register-of-interests', has: [{ type: 'query', key: 'page' }] },
   ],
 }

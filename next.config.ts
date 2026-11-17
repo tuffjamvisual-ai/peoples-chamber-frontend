@@ -239,6 +239,7 @@ const nextConfig: NextConfig = {
         { source: '/transparency/:section(ministers-meetings|appgs|hospitality|revolving-door|donations|contracts)', has: [{ type: 'query' as const, key: 'q' }], destination: '/transparency/:section/search' },
         { source: '/transparency/mp-activity', has: [{ type: 'query' as const, key: 'q' }], destination: '/transparency/mp-activity/search' },
         { source: '/transparency/press-releases', has: [{ type: 'query' as const, key: 'q' }], destination: '/transparency/press-releases/search' },
+        ...['q', 'mp', 'cat', 'from', 'to'].map((key) => ({ source: '/transparency/register-of-interests', has: [{ type: 'query' as const, key }], destination: '/transparency/register-of-interests/search' })),
         // /questions: any of its filters (one rule per key, as has is AND; an empty value does not match, so an empty form stays
         // on the static page, which shows the same thing).
         ...['words', 'who', 'member', 'department', 'from', 'to', 'status', 'before', 'at', 'uin'].map((key) => ({ source: '/questions', has: [{ type: 'query' as const, key }], destination: '/questions/search' })),
@@ -269,7 +270,7 @@ const nextConfig: NextConfig = {
       // they carry no query, so the rule above does not see them.
       ...['/:list(divisions|treaties|laws|lords)/page/:n', '/divisions/year/:year/page/:n', '/second-jobs/:slug/:memberId/page/:n',
         '/laws/made-without-a-vote/filter/:path*', '/:list(debates|edms|petitions|organisations|pmqs)/filter/:path*',
-        '/transparency/mp-activity/filter/:path*', '/transparency/press-releases/day/:date', '/transparency/:section(ministers-meetings|appgs|hospitality|revolving-door|donations|contracts)/page/:n']
+        '/transparency/mp-activity/filter/:path*', '/transparency/press-releases/day/:date', '/transparency/register-of-interests/page/:n', '/transparency/:section(ministers-meetings|appgs|hospitality|revolving-door|donations|contracts)/page/:n']
         .map((source) => ({ source, headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }] })),
       // Only www.opengovt.uk is indexed (owner, 28 Oct 2026): the vercel.app address and preview deployments carry
       // noindex, so search engines never list a copy. Pages still open normally there.

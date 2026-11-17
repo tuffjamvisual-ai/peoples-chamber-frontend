@@ -5,7 +5,8 @@
 export const slug = (s: string) => s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 // defaults: a key's default value, left out of the address like page 1 (the mp-activity form always sends its view).
-type Spec = { keys: readonly string[]; slugged?: readonly string[]; search?: boolean; pageOnly?: boolean; defaults?: Record<string, string> };
+// searchKeys: the keys that make an address a search, served by the rewrite (default q; the register of interests has five).
+type Spec = { keys: readonly string[]; slugged?: readonly string[]; search?: boolean; pageOnly?: boolean; defaults?: Record<string, string>; searchKeys?: readonly string[] };
 // Batch 2 (F04, no exceptions): the lists whose page or fixed filters move into the path. The search lists (debates, edms,
 // petitions, organisations, pmqs) join in batch 3 with their /x/search routes; until then their ?query addresses are not
 // redirected.
@@ -27,6 +28,8 @@ const DYNAMIC: [RegExp, Spec][] = [
   [/^\/divisions\/year\/\d{4}$/, { keys: ['page'], pageOnly: true }],
   [/^\/second-jobs\/[^/]+\/\d+$/, { keys: ['page'], pageOnly: true }],
   // Batch 3: the six dataset lists; a ?q= search is left to the rewrite (/transparency/<section>/search).
+  // The register of interests' unfiltered pages; any of its five filters is a search (the rewrite serves it).
+  [/^\/transparency\/register-of-interests$/, { keys: ['page'], pageOnly: true, search: true, searchKeys: ['q', 'mp', 'cat', 'from', 'to'] }],
   [/^\/transparency\/(ministers-meetings|appgs|hospitality|revolving-door|donations|contracts)$/, { keys: ['page'], pageOnly: true, search: true }],
 ];
 const PAGED = new Set(['page', 'dpage', 'show']);
@@ -43,11 +46,12 @@ export function listPath(base: string, v: Record<string, string | null | undefin
 export function listRedirect(pathname: string, sp: URLSearchParams): string | null | undefined {
   const spec = LISTS[pathname] ?? DYNAMIC.find(([re]) => re.test(pathname))?.[1];
   if (!spec || !spec.keys.some((k) => sp.has(k))) return undefined;
-  if (spec.search && (sp.get('q') ?? '').trim()) return null;
+  const sk = spec.searchKeys ?? ['q'];
+  if (spec.search && sk.some((k) => (sp.get(k) ?? '').trim())) return null;
   const v: Record<string, string> = {};
   for (const k of spec.keys) { const x = (sp.get(k) ?? '').trim(); if (x && (!PAGED.has(k) || okNumber(x))) v[k] = x; }
   const kept = new URLSearchParams();
-  for (const [k, x] of sp) if (!spec.keys.includes(k) && k !== 'q') kept.append(k, x);
+  for (const [k, x] of sp) if (!spec.keys.includes(k) && !sk.includes(k)) kept.append(k, x);
   return listPath(pathname, v, spec) + (kept.size ? `?${kept}` : '');
 }
 
