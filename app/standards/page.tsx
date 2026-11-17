@@ -24,7 +24,6 @@ export const metadata: Metadata = {
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
-const PER_PAGE = 25;
 const SO_150 = 'https://api.parliament.uk/standing-orders/orders/237';
 const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' };
 const tap: React.CSSProperties = { ...link, display: 'inline-flex', alignItems: 'center', minHeight: '44px' };
@@ -56,11 +55,9 @@ function ListedName({ c }: { c: StandardsCase }) {
 
 // Each case once on the page, with an id the member blocks point to (c-<its place in the list>).
 const caseId = (c: StandardsCase) => `c-${STANDARDS.cases.indexOf(c) + 1}`;
-// The address of a case: its page of 25 within its period when that is not the first.
+// The address of a case: its place on this page (every group shows all its cases; F04, ENTRY 134, T2's f04-32-routes.md 13).
 function caseHref(c: StandardsCase): string {
-  const inGroup = STANDARDS.cases.filter((x) => x.outcome === c.outcome && x.period === c.period);
-  const page = Math.floor(inGroup.indexOf(c) / PER_PAGE) + 1;
-  return page > 1 ? `/standards?${OUTCOME_KEY[c.outcome]}-${c.period}=${page}#${caseId(c)}` : `#${caseId(c)}`;
+  return `#${caseId(c)}`;
 }
 function SectionFold({ fold, label, children }: { fold: boolean; label: string; children: React.ReactNode }) {
   return fold ? <SubFold label={label}>{children}</SubFold> : <>{children}</>;
@@ -75,10 +72,11 @@ function CaseItem({ c }: { c: StandardsCase }) {
   );
 }
 
-type SP = Promise<Record<string, string | string[] | undefined>>;
+// Static: no address query is read (F04 batch 2). The data is the bundled lib/data/standards-cases.json, so the page is rebuilt
+// only on a deploy, which is when that file changes.
+export const revalidate = false;
 
-export default async function StandardsPage({ searchParams }: { searchParams: SP }) {
-  const sp = await searchParams;
+export default function StandardsPage() {
   const members = membersWithCases();
   return (
     <OpenGovShell>
@@ -135,25 +133,16 @@ export default async function StandardsPage({ searchParams }: { searchParams: SP
               )}
               {groups.map((g, gi) => {
                 const key = `${OUTCOME_KEY[outcome]}-${g.period}`;
-                const pages = Math.max(1, Math.ceil(g.items.length / PER_PAGE));
-                const raw = Number(sp[key]);
-                const page = Number.isInteger(raw) && raw >= 1 && raw <= pages ? raw : 1;
-                const shown = g.items.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-                const pageHref = (n: number) => `/standards?${key}=${n}#${key}`;
+                // Every case in the group: the largest group has 25 (lib/data/standards-cases.json, 17 Nov 2026), and on phones
+                // ShowAll shortens a long group. Old ?<group>=N addresses show this same page.
+                const shown = g.items;
                 return (
-                  <details key={g.period} id={key} className="pa-fold" open={(si === 0 && gi === 0) || page > 1}>
+                  <details key={g.period} id={key} className="pa-fold" open={si === 0 && gi === 0}>
                     <summary>{g.period}: {g.items.length} {g.items.length === 1 ? 'case' : 'cases'}</summary>
                     {/* UX5 (T1-6, 11 Nov 2026): on phones the first five cases, then "Show all"; from 640px up, as before. */}
                     <ShowAll id={`sc-${key.replace(/[^a-zA-Z0-9-]+/g, '-')}`} count={shown.length} rows="> li">
                     <ul className="sc-list">{shown.map((c) => <CaseItem key={caseId(c)} c={c} />)}</ul>
                     </ShowAll>
-                    {pages > 1 && (
-                      <nav className="sc-pager" aria-label={`${SECTION_TITLE[outcome]}, ${g.period}, pages`}>
-                        {page > 1 && <Link href={pageHref(page - 1)} prefetch={false} style={tap}>Previous</Link>}
-                        <span style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', fontSize: '15px' }}>Page {page} of {pages}</span>
-                        {page < pages && <Link href={pageHref(page + 1)} prefetch={false} style={tap}>Next</Link>}
-                      </nav>
-                    )}
                   </details>
                 );
               })}
