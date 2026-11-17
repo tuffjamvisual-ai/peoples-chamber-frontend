@@ -1,7 +1,7 @@
 import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound, permanentRedirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import Pagination from '../../components/Pagination';
@@ -47,7 +47,8 @@ export default async function YearListing({ rawYear, page }: { rawYear: string; 
   const { rows, total } = await yearDivisions(year, page, PER_PAGE);
   if (total === 0) notFound();
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
-  if (page > totalPages) permanentRedirect(yearHref(year, totalPages));
+  // Past the last page: a temporary redirect (307), so it does not stick once that page exists (T2 review, ENTRY 219).
+  if (page > totalPages) redirect(yearHref(year, totalPages));
   const years = await divisionYears();
   const first = (page - 1) * PER_PAGE + 1;
 

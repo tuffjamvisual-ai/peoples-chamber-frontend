@@ -1,4 +1,4 @@
-import { permanentRedirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import LawsClient from './LawsClient'
 import OpenGovShell from '../components/OpenGovShell'
@@ -26,7 +26,8 @@ export default async function LawsListing({ page }: { page: number }) {
   if (error) console.error('Error fetching laws:', error)
   // Past the last page: the last page, as LawsClient's clamp did in the browser.
   const last = Math.max(1, Math.ceil((laws?.length || 0) / PER_PAGE))
-  if (page > last) permanentRedirect(last === 1 ? '/laws' : `/laws/page/${last}`)
+  // Past the last page: a temporary redirect (307), so it does not stick once that page exists (T2 review, ENTRY 219).
+  if (page > last) redirect(last === 1 ? '/laws' : `/laws/page/${last}`)
 
   return (
     <OpenGovShell pageStamp="Acts of Parliament">

@@ -41,6 +41,28 @@ export function listRedirect(pathname: string, sp: URLSearchParams): string | nu
   return listPath(pathname, v, spec) + (kept.size ? `?${kept}` : '');
 }
 
+// Two old ?key= addresses moved by the proxy rather than next.config.ts, whose redirects always pass the whole query on
+// (T2 review, ENTRY 219: no ...before/X?before=X): the key that moved into the path is dropped, any other (utm_*) kept.
+// undefined when the address is not one of them; null when it is but its value is not one the path takes (served as is).
+const QUERY_MOVES: { path: RegExp; key: string; value: RegExp; to: (m: RegExpMatchArray, v: string) => string; status: 307 | 308 }[] = [
+  // Older pages of a department's written questions (F04 batch 2).
+  { path: /^\/questions\/department\/([^/]+)$/, key: 'before', value: /^\d{4}-\d{2}-\d{2}_\d{1,10}$/, to: (m, v) => `/questions/department/${m[1]}/before/${v}`, status: 308 },
+  // Newsletter status pages, for links already sent; temporary, so a later change of copy is not stuck in browsers.
+  { path: /^\/newsletter$/, key: 'status', value: /^(confirmed|unsubscribed|invalid|error)$/, to: (_m, v) => `/newsletter/status/${v}`, status: 307 },
+];
+export function queryMove(pathname: string, sp: URLSearchParams): { to: string; status: 307 | 308 } | null | undefined {
+  for (const q of QUERY_MOVES) {
+    const m = pathname.match(q.path);
+    if (!m || !sp.has(q.key)) continue;
+    const v = sp.get(q.key) ?? '';
+    if (!q.value.test(v)) return null;
+    const kept = new URLSearchParams();
+    for (const [k, x] of sp) if (k !== q.key) kept.append(k, x);
+    return { to: q.to(m, v) + (kept.size ? `?${kept}` : ''), status: q.status };
+  }
+  return undefined;
+}
+
 // A /x/filter/[...f] route's segments back to choices; null (the route answers 404) when a key is unknown, repeated or out
 // of order, or a page number is not 2 to 9999. Values are still checked by the route against its own lists.
 export function listChoices(base: string, f: string[]): Record<string, string> | null {

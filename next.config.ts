@@ -156,15 +156,8 @@ const nextConfig: NextConfig = {
       { source: '/departments/secretary-of-state-for-health-and-social-care-acting-as-part-of-the-crown-through-uk-health-security-agency', destination: '/agencies/uk-health-security-agency', permanent: true },
     ];
     // /bills?page=N moved to /bills/page/N so every page is cached (owner's approval, 21 Oct 2026).
-    // F04 batch 2 (T2's f04-32-routes.md B1.2): a department's older questions moved from ?before= into the path.
-    const departmentQuestionsRedirects = [
-      { source: '/questions/department/:slug', has: [{ type: 'query' as const, key: 'before', value: '(?<b>\\d{4}-\\d{2}-\\d{2}_\\d{1,10})' }], destination: '/questions/department/:slug/before/:b', permanent: true },
-    ];
-    // Newsletter status pages in the path (F04 batch 2, B1.10), for links already sent; not permanent, so a later change of
-    // copy is not stuck in browsers. An unknown status shows the plain page, as before.
-    const newsletterStatusRedirects = [
-      { source: '/newsletter', has: [{ type: 'query' as const, key: 'status', value: '(?<s>confirmed|unsubscribed|invalid|error)' }], destination: '/newsletter/status/:s', permanent: false },
-    ];
+    // The F04 batch 2 moves of /questions/department/<slug>?before= and /newsletter?status= are in proxy.ts (lib/list-path.ts
+    // queryMove), which drops the moved key; a redirect here would pass the whole query on.
     const billsPageRedirects = [
       // Not a search's pages (/bills?q=...&page=N, BS1): those stay at /bills and are served by /bills/search.
       { source: '/bills', has: [{ type: 'query' as const, key: 'page', value: '(?<p>[0-9]{1,4})' }], missing: [{ type: 'query' as const, key: 'q' }], destination: '/bills/page/:p', permanent: true },
@@ -212,7 +205,7 @@ const nextConfig: NextConfig = {
     ]);
     // The internal address of /recommendations (AB1) is never a page of its own: it redirects to the public address.
     const recommendationsRedirects = [{ source: '/recommendations/list/:view', destination: '/recommendations', permanent: true }];
-    return [...newsletterStatusRedirects, ...departmentQuestionsRedirects, ...recommendationsRedirects, ...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...organisationRedirects, ...mergedReportRedirects, ...billsPageRedirects, ...reportsRedirects, ...sectionRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
+    return [...recommendationsRedirects, ...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...organisationRedirects, ...mergedReportRedirects, ...billsPageRedirects, ...reportsRedirects, ...sectionRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
   },
   images: {
     remotePatterns: [

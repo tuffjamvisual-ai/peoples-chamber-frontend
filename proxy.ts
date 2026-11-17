@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { councilCodeLocation, goneAction, GONE_HTML } from '@/lib/url-gone'
-import { listRedirect } from '@/lib/list-path'
+import { listRedirect, queryMove } from '@/lib/list-path'
 
 const RATE_LIMIT_WINDOW = 60 * 1000
 const MAX_REQUESTS = 60
@@ -50,6 +50,9 @@ export async function proxy(request: NextRequest) {
   const list = listRedirect(pathname, request.nextUrl.searchParams)
   if (list) return NextResponse.redirect(new URL(list, request.url), 308)
   if (list === null) return NextResponse.next()
+  const moved = queryMove(pathname, request.nextUrl.searchParams)
+  if (moved) return NextResponse.redirect(new URL(moved.to, request.url), moved.status)
+  if (moved === null) return NextResponse.next()
   const councilCode = pathname.match(COUNCIL_CODE)?.[1]
   if (councilCode) {
     const location = await councilCodeLocation(councilCode)
@@ -113,5 +116,7 @@ export const config = {
     { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'procedure' }] },
     { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'flag' }] },
     { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'page' }] },
+    { source: '/questions/department/:slug', has: [{ type: 'query', key: 'before' }] },
+    { source: '/newsletter', has: [{ type: 'query', key: 'status' }] },
   ],
 }
