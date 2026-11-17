@@ -249,6 +249,11 @@ const nextConfig: NextConfig = {
         has: [{ type: 'query' as const, key, ...(key === 'page' ? { value: '(?:[2-9]|[1-9][0-9]+)' } : {}) }],
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],
       })),
+      // The same for the list variants whose page or filters are now in the path (F04 batch 2; T2's f04-32-routes.md 0.4):
+      // they carry no query, so the rule above does not see them.
+      ...['/:list(divisions|treaties|laws|lords)/page/:n', '/divisions/year/:year/page/:n', '/second-jobs/:slug/:memberId/page/:n',
+        '/laws/made-without-a-vote/filter/:path*']
+        .map((source) => ({ source, headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }] })),
       // Only www.opengovt.uk is indexed (owner, 28 Oct 2026): the vercel.app address and preview deployments carry
       // noindex, so search engines never list a copy. Pages still open normally there.
       {

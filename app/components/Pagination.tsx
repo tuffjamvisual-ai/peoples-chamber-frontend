@@ -47,6 +47,10 @@ interface Props {
   pageParam?: string;
   /** An element id to land on, for a second list lower on the page (/pmqs, 1945 to 1961). */
   hash?: string;
+  /** Each page's address when the page is in the path (F04: /x for page 1, /x/page/<n> after). Unset: baseUrl?page=n. */
+  hrefFor?: (p: number) => string;
+  /** Page in the browser instead of following the link (only from a client component; /laws while a search is typed). */
+  onPage?: (p: number) => void;
 }
 
 const INK = '#14100d';
@@ -140,9 +144,14 @@ export default function Pagination({
   qsExtra = '',
   pageParam = 'page',
   hash,
+  hrefFor,
+  onPage,
 }: Props) {
   if (totalPages <= 1) return null;
-  const href = (p: number) => `${baseUrl}?${pageParam}=${p}${qsExtra}${hash ? `#${hash}` : ''}`;
+  const href = hrefFor
+    ? (p: number) => hrefFor(p) + (hash ? `#${hash}` : '')
+    : (p: number) => `${baseUrl}?${pageParam}=${p}${qsExtra}${hash ? `#${hash}` : ''}`;
+  const click = (p: number) => (onPage ? { onClick: (e: { preventDefault: () => void }) => { e.preventDefault(); onPage(p); } } : {});
   const tokens = pageTokens(currentPage, totalPages);
   const nums = tokens.filter((t): t is number => t !== null);
   const { wide, narrow } = phoneSets(currentPage, totalPages, nums);
@@ -177,7 +186,7 @@ export default function Pagination({
         }}
       >
         {currentPage > 1 ? (
-          <Link href={href(currentPage - 1)} className="og-pg" style={baseLinkStyle} aria-label="Previous page">
+          <Link href={href(currentPage - 1)} {...click(currentPage - 1)} className="og-pg" style={baseLinkStyle} aria-label="Previous page">
             &larr;<span className="og-pg-word">&nbsp;Prev</span>
           </Link>
         ) : (
@@ -194,7 +203,7 @@ export default function Pagination({
               {t}
             </span>
           ) : (
-            <Link key={t} href={href(t)} className={cls} style={baseLinkStyle}>
+            <Link key={t} href={href(t)} {...click(t)} className={cls} style={baseLinkStyle}>
               {t}
             </Link>
           );
@@ -202,7 +211,7 @@ export default function Pagination({
         })}
 
         {currentPage < totalPages ? (
-          <Link href={href(currentPage + 1)} className="og-pg" style={baseLinkStyle} aria-label="Next page">
+          <Link href={href(currentPage + 1)} {...click(currentPage + 1)} className="og-pg" style={baseLinkStyle} aria-label="Next page">
             <span className="og-pg-word">Next&nbsp;</span>&rarr;
           </Link>
         ) : (

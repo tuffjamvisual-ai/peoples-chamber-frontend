@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { councilCodeLocation, goneAction, GONE_HTML } from '@/lib/url-gone'
+import { listRedirect } from '@/lib/list-path'
 
 const RATE_LIMIT_WINDOW = 60 * 1000
 const MAX_REQUESTS = 60
@@ -43,6 +44,12 @@ export async function proxy(request: NextRequest) {
   if (REACT_MARKER_PATHS.has(pathname)) {
     return new NextResponse(GONE_HTML, { status: 410, headers: { 'Content-Type': 'text/html; charset=utf-8', 'X-Robots-Tag': 'noindex', 'Cache-Control': 'public, max-age=0, s-maxage=86400' } })
   }
+  // A16 list addresses (owner rule 15 Nov 2026; F04 batch 2): an old ?page= or filter address of a static list moves to its
+  // path (308). A search (?q= with text) goes on to the rewrite in next.config.ts (batch 3). Returned early, as for debates,
+  // so the limiter and the noai header below are not added to these.
+  const list = listRedirect(pathname, request.nextUrl.searchParams)
+  if (list) return NextResponse.redirect(new URL(list, request.url), 308)
+  if (list === null) return NextResponse.next()
   const councilCode = pathname.match(COUNCIL_CODE)?.[1]
   if (councilCode) {
     const location = await councilCodeLocation(councilCode)
@@ -93,5 +100,18 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*', '/councils/:code([A-Za-z][0-9]{8})', '/debates/:guid', '/departments/:slug', '/donors/:slug', '/news/:slug', '/&', '/\\$'],
+  matcher: [
+    '/api/:path*', '/councils/:code([A-Za-z][0-9]{8})', '/debates/:guid', '/departments/:slug', '/donors/:slug', '/news/:slug', '/&', '/\\$',
+    // F04 batch 2: only when the key is in the address, so a plain visit to the static list never starts the proxy.
+    { source: '/divisions', has: [{ type: 'query', key: 'page' }] },
+    { source: '/divisions/year/:year', has: [{ type: 'query', key: 'page' }] },
+    { source: '/treaties', has: [{ type: 'query', key: 'page' }] },
+    { source: '/laws', has: [{ type: 'query', key: 'page' }] },
+    { source: '/lords', has: [{ type: 'query', key: 'page' }] },
+    { source: '/second-jobs/:slug/:memberId', has: [{ type: 'query', key: 'page' }] },
+    { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'department' }] },
+    { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'procedure' }] },
+    { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'flag' }] },
+    { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'page' }] },
+  ],
 }
