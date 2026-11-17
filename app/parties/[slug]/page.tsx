@@ -87,7 +87,9 @@ async function getPartyAndPolicies(slug: string): Promise<{
 
   const party = partyRow as Party;
   // PP-HIDE (ENTRY 235): a party's policy texts reach the page only while lib/party-policies.ts lists it.
-  const policies = partyPoliciesShown(slug) ? (policyRows || []) as Policy[] : [];
+  // A theme with neither a position nor a shift is left out; a position may be empty where the party has published none
+  // (party_policies.manifesto_position is NOT NULL, so 'none' is stored as '', ENTRY 249 and 250).
+  const policies = partyPoliciesShown(slug) ? ((policyRows || []) as Policy[]).filter((p) => p.manifesto_position?.trim() || p.current_shift?.trim()) : [];
 
   // MP count uses the EXACT mps.party string the party row points at,
   // plus the Labour (Co-op) merge for Labour. Falls back to 0 if no
@@ -249,7 +251,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             </h2>
             {/* Phones (step 5, 10 Nov 2026; the page was 8,272px): each theme's manifesto position and shift folded under its
                 heading. From 640px up, as before. */}
-            <SubFold label={p.current_shift ? 'Manifesto and shift since 2024' : 'Manifesto position'} tablets>
+            <SubFold label={!p.manifesto_position?.trim() ? 'Since 2024' : p.current_shift ? 'Manifesto and shift since 2024' : 'Manifesto position'} tablets>
             <div
               style={{
                 fontFamily: 'var(--font-special-elite), monospace',
@@ -259,12 +261,14 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
                 color: INK,
               }}
             >
+              {p.manifesto_position?.trim() && (<>
               <div style={{ marginBottom: '8px' }}>
                 <span style={{ fontSize: 'max(15px, 0.85em)', letterSpacing: '0.04em' }}>
                   {p.position_label || '2024 MANIFESTO'}
                 </span>
               </div>
               <p style={{ margin: 0 }}>{p.manifesto_position}</p>
+              </>)}
 
               {p.current_shift && (
                 <div

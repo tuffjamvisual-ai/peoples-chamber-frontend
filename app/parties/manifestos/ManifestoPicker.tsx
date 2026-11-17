@@ -83,7 +83,7 @@ export default function ManifestoPicker({ themes, children }: { themes: ThemeRow
                   {r.position.shifted && <span className="mf-dot" title="Shifted since 2024" aria-label="Shifted since 2024" style={{ background: chosen.colour }} />}
                 </a>
               ) : (
-                <span style={{ fontSize: '15px', fontStyle: 'italic' }}>Coming soon</span>
+                <span style={{ fontSize: '15px', fontStyle: 'italic' }}>No published position</span>
               )}
             </div>
           ))}
@@ -102,7 +102,7 @@ export default function ManifestoPicker({ themes, children }: { themes: ThemeRow
                   {p.shifted && <span className="mf-dot" title="Shifted since 2024" aria-label="Shifted since 2024" style={{ background: p.colour }} />}
                 </a>
               ) : (
-                <span style={{ fontSize: '15px', fontStyle: 'italic' }}>Coming soon</span>
+                <span style={{ fontSize: '15px', fontStyle: 'italic' }}>No published position</span>
               )}
             </div>
           ))}

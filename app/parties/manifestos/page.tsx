@@ -133,6 +133,8 @@ async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Rec
   // the page, the picker included.
   for (const r of (policyRows || []) as Policy[]) {
     if (!partyPoliciesShown(r.party_slug)) continue;
+    // No published position for a theme ('' in the NOT NULL column): no cell, shown as 'No published position'.
+    if (!r.manifesto_position?.trim()) continue;
     (byParty[r.party_slug] ||= {})[r.theme] = r;
   }
   return { parties, byParty, mpCounts };
@@ -301,7 +303,7 @@ export default async function PartiesIndex() {
                               {theme}
                             </dt>
                             <dd style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT }}>
-                              Coming soon
+                              No published position
                             </dd>
                           </div>
                         );
