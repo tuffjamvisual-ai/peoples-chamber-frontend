@@ -81,6 +81,10 @@ export function queryMove(pathname: string, sp: URLSearchParams): { to: string; 
   return undefined;
 }
 
+// A read of a page past the end of a list: PostgREST answers 416 "Requested range not satisfiable", which the cached read
+// throws. The page shows 404 for it instead of 500 (live gave 500 for /debates?page=9999 and the register's ?page=9999).
+export const pastTheEnd = (e: unknown) => /Requested range not satisfiable/i.test(e instanceof Error ? e.message : String(e));
+
 // A /x/filter/[...f] route's segments back to choices; null (the route answers 404) when a key is unknown, repeated or out
 // of order, or a page number is not 2 to 9999. Values are still checked by the route against its own lists.
 export function listChoices(base: string, f: string[]): Record<string, string> | null {

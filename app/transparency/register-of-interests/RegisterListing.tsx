@@ -1,3 +1,4 @@
+import { pastTheEnd } from '@/lib/list-path';
 import { notFound } from 'next/navigation';
 import NoJsPager from '@/app/components/NoJsPager';
 import { SubFold } from '@/app/components/PhoneFolds';
@@ -148,7 +149,8 @@ export default async function RegisterListing({ sp, strict = false }: { sp: SP; 
   // A16 (owner rule 15 Nov 2026, ENTRY 129): the search result in the shared data cache under the interests tag, keyed by
   // every filter, refreshed when the nightly scripts change the register.
   const [{ data: rows, count, error }, mpListRes, donationsTotal] = await Promise.all([
-    cachedQuery(['register-search-v1', q ?? '', mpId ?? '', cat ?? '', from ?? '', to ?? '', offset], tableTags('mp_registered_interests'), buildQuery),
+    cachedQuery(['register-search-v1', q ?? '', mpId ?? '', cat ?? '', from ?? '', to ?? '', offset], tableTags('mp_registered_interests'), buildQuery)
+      .catch((e) => { if (pastTheEnd(e)) notFound(); throw e; }), // past the end: 404, not 500
     cachedQuery(['q:app/transparency/register-of-interests/page.tsx:16f39c2f49'], tableTags('mps'), () => supabase.from('mps').select('member_id, name, display_name').eq('current_member', true).order('name')),
     getDeclaredMpDonationsTotal(),
   ]);

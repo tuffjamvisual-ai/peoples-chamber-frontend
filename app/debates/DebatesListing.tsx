@@ -8,7 +8,7 @@ import { phoneUpTo } from '@/lib/breakpoints';
 import { SubFold } from '@/app/components/PhoneFolds';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
-import { listPath, slug } from '@/lib/list-path';
+import { listPath, pastTheEnd, slug } from '@/lib/list-path';
 
 // Commons debates index. Metadata is held in our `debates` table (synced daily
 // from Hansard); the full transcript is rendered in-house on /debates/[extId].
@@ -49,7 +49,8 @@ export default async function DebatesListing({ section, q, pageNum, found }: { s
     return query;
   };
   // A16: the lists without a search in the shared data cache under the debates tag, keyed by section and page.
-  const { data, count } = found ?? await cachedQuery(['debates-list-v1', section ?? '', '', pageNum], tableTags('debates'), buildQuery);
+  const { data, count } = found ?? await cachedQuery(['debates-list-v1', section ?? '', '', pageNum], tableTags('debates'), buildQuery)
+    .catch((e) => { if (pastTheEnd(e)) notFound(); throw e; });
   const rows = data || [];
   const total = count || 0;
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));

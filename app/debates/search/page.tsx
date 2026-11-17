@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { permanentRedirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import DebatesListing, { DEBATE_COLUMNS, PER_PAGE, SECTIONS, type DebateRow } from '../DebatesListing';
-import { listPath, slug } from '@/lib/list-path';
+import { listPath, pastTheEnd, slug } from '@/lib/list-path';
 import { ilikeWords } from '@/lib/ilike-words';
 import { supabase } from '@/lib/supabase';
 
@@ -32,6 +32,6 @@ export default async function DebatesSearch({ searchParams }: { searchParams: Pr
   const pattern = ilikeWords(q);
   if (pattern) query = query.ilike('title', pattern);
   const { data, count, error } = await query;
-  if (error) throw new Error(`/debates/search: ${error.message}`);
+  if (error) { if (pastTheEnd(error.message)) notFound(); throw new Error(`/debates/search: ${error.message}`); }
   return <DebatesListing section={section} q={q} pageNum={pageNum} found={{ data: data as DebateRow[] | null, count }} />;
 }
