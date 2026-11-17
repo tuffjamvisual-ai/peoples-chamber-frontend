@@ -2,10 +2,9 @@ import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import SectionListing from '../SectionListing'
-import { SECTIONS, cleanSearch, dayKey, sectionCount, sectionRows } from '../sectionData'
+import { SECTIONS, cleanSearch, dayKey, sectionCount, sectionRows, sectionTags } from '../sectionData'
 import { searchKey } from '@/lib/list-path'
 import { tagged } from '@/lib/tagged-read'
-import { tableTags } from '@/lib/source-tags'
 
 // Search results for /transparency/<section>?q= (next.config.ts rewrites that address here; A16 exception: search results,
 // ILIKE over the dataset tables). The page answers each visit, but its data is read only from the tagged cache (owner's rule
@@ -29,7 +28,7 @@ export default async function SectionSearch({ params, searchParams }: { params: 
   const page = Math.max(1, parseInt(one(sp.page) || '1', 10) || 1)
   const term = cleanSearch(section, searchKey(q))
   if (!term || term.length < 2) redirect(page > 1 ? `/transparency/${section}/page/${page}` : `/transparency/${section}`)
-  const searched = await tagged(['transparency-search-v1', section, term, page, dayKey(section)], tableTags(SECTIONS[section].table), async () => {
+  const searched = await tagged(['transparency-search-v2', section, term, page, dayKey(section)], sectionTags(section), async () => {
     const [total, rows] = await Promise.all([sectionCount(section, term), sectionRows(section, term, page)])
     return { total, rows }
   })

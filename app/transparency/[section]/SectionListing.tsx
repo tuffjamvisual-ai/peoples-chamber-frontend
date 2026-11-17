@@ -1,7 +1,7 @@
 import PageSources from '@/app/components/PageSources';
 import { supabase } from '@/lib/supabase'
 import { notFound, redirect } from 'next/navigation'
-import { PAGE_LIMIT, SECTIONS, cleanSearch, dayKey, sectionCount, sectionRows } from './sectionData'
+import { PAGE_LIMIT, SECTIONS, cleanSearch, dayKey, sectionCount, sectionRows, sectionTags } from './sectionData'
 import Link from 'next/link'
 import OpenGovShell from '../../components/OpenGovShell'
 import Pagination from '../../components/Pagination'
@@ -71,14 +71,14 @@ export default async function SectionListing({ section, page, q, searched }: {
   const from = (page - 1) * PAGE_LIMIT
   // F05 (ENTRY 134; Cowork ENTRY 181; T2's f05-exact.md): the list's count and each page in the table's tagged data cache.
   const key = dayKey(section)
-  const total = searched ? searched.total : await tagged(['transparency-count-v1', section, key], tableTags(config.table), () => sectionCount(section, null))
+  const total = searched ? searched.total : await tagged(['transparency-count-v2', section, key], sectionTags(section), () => sectionCount(section, null))
   const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT))
   const baseUrl = `/transparency/${section}`
   // Each page's address: a path without a search (F04 batch 3), the ?q= address with one (the rewrite serves it).
   const pageHref = (n: number) => searchTerm ? `${baseUrl}?${n > 1 ? `page=${n}&` : ''}q=${encodeURIComponent(searchTerm)}` : n > 1 ? `${baseUrl}/page/${n}` : baseUrl
   // Past the last page: a temporary redirect to the last page (it may exist later).
   if (page > totalPages) redirect(pageHref(totalPages))
-  const rows = searched ? searched.rows : await tagged(['transparency-page-v1', section, page, key], tableTags(config.table), () => sectionRows(section, null, page))
+  const rows = searched ? searched.rows : await tagged(['transparency-page-v2', section, page, key], sectionTags(section), () => sectionRows(section, null, page))
 
   const range = section === 'revolving-door' ? await revolvingDoorRange() : null
 
