@@ -10,7 +10,7 @@
 //    syncRoute (Vercel routes "/api/..." and GitHub steps "/github-actions/...") is looked up in
 //    sync_heartbeat. Failed last run, or no run within the source's cadence, fails.
 //    The cadences are read from lib/data-freshness.ts so there is one list to maintain.
-//    A cron in the freshness monitor's go live register (CRON_ADDED in app/api/monitor-freshness/route.ts, rule 6)
+//    A cron in the freshness monitor's go live register (scripts/data/cron-schedules.json "since", rule 6)
 //    with no run yet is reported as waiting for its first scheduled run after going live, not as a failure, until an
 //    hour after that run was due (owner, 28 Oct 2026).
 //
@@ -79,14 +79,15 @@ function readSources() {
   return { sources, maxAge };
 }
 
-// Go live dates from the freshness monitor's register (one list, rule 6) and schedules from vercel.json.
+// Go live dates from the freshness monitor's register (one list, rule 6): scripts/data/cron-schedules.json, each cron's
+// "since" (T1-DF (c), 11 Nov 2026, moved it there from CRON_ADDED in app/api/monitor-freshness/route.ts, which this check
+// still read, so it failed from then on), and schedules from vercel.json.
 function readGoLive() {
   const root = path.join(__dirname, '..');
-  const text = fs.readFileSync(path.join(root, 'app', 'api', 'monitor-freshness', 'route.ts'), 'utf8');
-  const block = text.match(/CRON_ADDED[^{]*\{([^}]*)\}/);
-  if (!block) throw new Error('could not read CRON_ADDED in app/api/monitor-freshness/route.ts');
+  const register = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'data', 'cron-schedules.json'), 'utf8')).crons;
+  if (!register || !Object.keys(register).length) throw new Error('could not read scripts/data/cron-schedules.json');
   const goLive = new Map();
-  for (const m of block[1].matchAll(/'(\/[^']+)':\s*'([^']+)'/g)) goLive.set(m[1], new Date(m[2]));
+  for (const [route, c] of Object.entries(register)) if (c && c.since) goLive.set(route, new Date(c.since));
   const schedules = new Map();
   for (const c of JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8')).crons || []) schedules.set(c.path, c.schedule);
   return { goLive, schedules };
