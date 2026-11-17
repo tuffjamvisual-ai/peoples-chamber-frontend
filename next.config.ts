@@ -230,6 +230,7 @@ const nextConfig: NextConfig = {
         { source: '/bills', has: [{ type: 'query' as const, key: 'q' }], destination: '/bills/search' },
         // F04 batch 3 (S pattern, owner's A16 exceptions, ENTRY 187): only an address carrying ?q= renders per request.
         { source: '/constituencies', has: [{ type: 'query' as const, key: 'q' }], destination: '/constituencies/search' },
+        { source: '/debates', has: [{ type: 'query' as const, key: 'q' }], destination: '/debates/search' },
       ],
       afterFiles: [
         { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },
@@ -256,7 +257,7 @@ const nextConfig: NextConfig = {
       // The same for the list variants whose page or filters are now in the path (F04 batch 2; T2's f04-32-routes.md 0.4):
       // they carry no query, so the rule above does not see them.
       ...['/:list(divisions|treaties|laws|lords)/page/:n', '/divisions/year/:year/page/:n', '/second-jobs/:slug/:memberId/page/:n',
-        '/laws/made-without-a-vote/filter/:path*']
+        '/laws/made-without-a-vote/filter/:path*', '/:list(debates|edms|petitions|organisations|pmqs)/filter/:path*']
         .map((source) => ({ source, headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }] })),
       // Only www.opengovt.uk is indexed (owner, 28 Oct 2026): the vercel.app address and preview deployments carry
       // noindex, so search engines never list a copy. Pages still open normally there.

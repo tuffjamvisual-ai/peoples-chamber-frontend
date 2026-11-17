@@ -116,6 +116,8 @@ export const config = {
     { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'procedure' }] },
     { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'flag' }] },
     { source: '/laws/made-without-a-vote', has: [{ type: 'query', key: 'page' }] },
+    { source: '/debates', has: [{ type: 'query', key: 'section' }] },
+    { source: '/debates', has: [{ type: 'query', key: 'page' }] },
     { source: '/questions/department/:slug', has: [{ type: 'query', key: 'before' }] },
     { source: '/newsletter', has: [{ type: 'query', key: 'status' }] },
   ],
