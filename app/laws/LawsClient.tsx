@@ -4,8 +4,7 @@ import { shortDayMonthYear } from '@/lib/short-date';
 import NoJsPager from '@/app/components/NoJsPager';
 import { billSummary } from '@/lib/bill-summary';
 
-import { useState, useMemo, useEffect } from 'react'
-import { useSearchParams, useRouter, usePathname } from 'next/navigation'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import BillCoverCard from '../components/BillCoverCard'
 import Pagination from '../components/Pagination'
@@ -42,12 +41,11 @@ const ACCENT = '#7a1612'
 
 const LAWS_PER_PAGE = 20
 
-export default function LawsClient({ laws }: { laws: Law[] }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
+// page: the page in the path (/laws or /laws/page/<n>, F04 batch 2); the server sends readers past the last page to it. While a
+// search is typed the list pages in the browser (searchPage), and the address goes back to /laws.
+export default function LawsClient({ laws, page }: { laws: Law[]; page: number }) {
   const [search, setSearch] = useState('')
+  const [searchPage, setSearchPage] = useState(1)
 
   const filteredLaws = useMemo(() => {
     if (!search) return laws
@@ -60,16 +58,8 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
   }, [laws, search])
 
   const totalPages = Math.max(1, Math.ceil(filteredLaws.length / LAWS_PER_PAGE))
-  const rawPage = parseInt(searchParams.get('page') || '1', 10)
-  const currentPage = Math.min(Math.max(1, Number.isFinite(rawPage) ? rawPage : 1), totalPages)
-
-  // Keep URL in sync when the active page falls out of the new filter
-  // range (e.g. user on page 5, types a query that narrows to 2 pages).
-  useEffect(() => {
-    if (rawPage > totalPages) {
-      router.replace(totalPages === 1 ? pathname : `${pathname}?page=${totalPages}`)
-    }
-  }, [rawPage, totalPages, pathname, router])
+  const rawPage = search ? searchPage : page
+  const currentPage = Math.min(Math.max(1, rawPage), totalPages)
 
   const paginated = filteredLaws.slice(
     (currentPage - 1) * LAWS_PER_PAGE,
@@ -79,13 +69,14 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
   const firstShown = filteredLaws.length === 0 ? 0 : (currentPage - 1) * LAWS_PER_PAGE + 1
   const lastShown = Math.min(currentPage * LAWS_PER_PAGE, filteredLaws.length)
 
-  const hrefFor = (p: number) => (p <= 1 ? pathname : `${pathname}?page=${p}`)
+  const hrefFor = (p: number) => (p <= 1 ? '/laws' : `/laws/page/${p}`)
 
   function handleSearchChange(value: string) {
     setSearch(value)
-    // Reset to page 1 whenever search changes — page 5 of a fresh
-    // result set is almost never what the user means to land on.
-    if (currentPage !== 1) router.replace(pathname)
+    // Page 1 of the results whenever the search changes; the address goes back to /laws without leaving the page (the
+    // History API, which the App Router supports), so the typed search stays.
+    setSearchPage(1)
+    if (page !== 1) window.history.replaceState(null, '', '/laws')
   }
 
   return (
@@ -144,7 +135,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
           </NoJsPager>
 
           {totalPages > 1 && (
-            <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl={pathname} />
+            <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl="/laws" hrefFor={hrefFor} onPage={search ? setSearchPage : undefined} />
           )}
         </>
       )}
