@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { CSSProperties } from 'react';
 import { useAuth } from '../context/AuthContext';
 
@@ -26,7 +26,8 @@ const buttonStyle: CSSProperties = {
   fontSize: '16px', letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer',
 };
 
-export default function ResetPasswordClient({ token }: { token: string }) {
+export default function ResetPasswordClient() {
+  const token = useSearchParams().get('token') ?? '';
   const router = useRouter();
   const { setAuthedUser } = useAuth();
   const [newPassword, setNewPassword] = useState('');

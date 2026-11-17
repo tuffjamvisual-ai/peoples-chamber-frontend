@@ -13,8 +13,7 @@
 //
 // Clickable hotspots = 17 (matching the source): ISSUE 23 card, 9 nav items, 5 social icons,
 // SUPPORT US + ACCOUNT/INFO. The big content-space and the 3 lower "ghosts" are intentionally
-// non-clickable visual placeholders in the source — reproduced as such. /new2?debug=1 outlines
-// the hotspots.
+// non-clickable visual placeholders in the source — reproduced as such.
 import { notFound } from 'next/navigation';
 import { SHOW_DEMO_PAGES, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 import type { Metadata } from 'next';
@@ -91,14 +90,12 @@ function IconLinkedin() {
   );
 }
 
-export default async function New2Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ debug?: string }>;
-}) {
+// Static (F04 batch 2, T2's f04-32-routes.md B1.13): the ?debug=1 hotspot outline was a design aid on this hidden page and is
+// removed, so the page reads nothing from its address.
+export const revalidate = false;
+
+export default function New2Page() {
   if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
-  const sp = await searchParams;
-  const debug = sp.debug === '1';
 
   return (
     <>
@@ -256,7 +253,6 @@ export default async function New2Page({
         .new2-root .social { display: inline-grid; place-items: center; width: 22px; height: 22px; color: var(--ink); }
         .new2-root .footer-link { min-width: 132px; text-align: center; }
 
-        ${debug ? `.new2-root .hotspot { outline: 1.5px solid rgba(255,0,0,.85) !important; background: rgba(255,0,0,.12) !important; }` : ''}
 
         @media (max-width: 1024px) {
           .new2-root .paper { transform: scale(calc(100vw / 1024)); transform-origin: top center; }

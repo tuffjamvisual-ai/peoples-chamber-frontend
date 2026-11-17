@@ -9,12 +9,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-type PageProps = {
-  searchParams: Promise<{ token?: string }>;
-};
+// Static (F04 batch 2, T2's f04-32-routes.md B1.12): the token in ?token= is read in the browser, which the form needs anyway
+// (it sends by fetch), so it is no longer in the server-rendered page.
+export const revalidate = false;
 
-export default async function ResetPasswordPage({ searchParams }: PageProps) {
-  const { token } = await searchParams;
+export default function ResetPasswordPage() {
   return (
     <OpenGovShell pageStamp="Account">
       <BackLink
@@ -38,7 +37,7 @@ export default async function ResetPasswordPage({ searchParams }: PageProps) {
         </h1>
       </header>
       <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
-        <ResetPasswordClient token={token ?? ''} />
+        <ResetPasswordClient />
       </Suspense>
     </OpenGovShell>
   );
