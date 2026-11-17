@@ -93,6 +93,10 @@
       "schedule": "3 7 * * *"
     },
     {
+      "path": "/api/sync-dashboard-indicators",
+      "schedule": "41 11 * * 1-5"
+    },
+    {
       "path": "/api/sync-revolving-door",
       "schedule": "25 6 * * 2"
     },

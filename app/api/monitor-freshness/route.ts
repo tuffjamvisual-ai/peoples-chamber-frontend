@@ -17,6 +17,7 @@ import { SPAD_MANUAL_CHECKS_ROUTE } from '@/lib/spad-background-sync';
 import { annualReportStillUnread } from '@/lib/spad-background';
 import { FAILURES_PREFIX, FLAG_AFTER_RUNS, type ItemFailure } from '@/lib/sync-item-failures';
 import { checkWrittenAnswers } from '@/lib/written-answers-check';
+import { dashboardOverdue } from '@/lib/dashboard-sources';
 import { SOURCE_PREFIX, sourceDownMessage, type SourceDown } from '@/lib/source-status';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -287,6 +288,20 @@ async function GET_impl(req: Request) {
       reason: `we hold ${d.ours.toLocaleString('en-GB')} questions tabled that day, Parliament lists ${d.parliament.toLocaleString('en-GB')}: more than 2 per cent short (after a heavy sitting day this can stay short until the weekly catch-up from the Mac, scripts/catchup-written-questions.ts)`,
     });
   }
+  // Public services figures (dashboard_indicators; Cowork ENTRY 230, 17 Nov 2026): an indicator whose next release is past due
+  // with no newer period held. Four are read by /api/sync-dashboard-indicators, six are loaded by hand; either way a missed
+  // release shows here. A failed read is noted in the JSON, not alerted.
+  const dashboard = await (async () => {
+    const { data, error } = await supabaseAdmin.from('dashboard_indicators').select('indicator_key, label, period, released_at');
+    if (error) return { overdue: [], error: error.message };
+    return { overdue: dashboardOverdue((data ?? []) as { indicator_key: string; label: string; period: string; released_at: string | null }[], now.toISOString().slice(0, 10)) };
+  })();
+  for (const o of dashboard.overdue) {
+    emailAlerts.push({
+      label: `Public services figure: ${o.label}`, page: '/transparency/state-dashboard', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
+      reason: `the figure held is for ${o.period}; a newer one was due by ${o.due} (lib/dashboard-sources.ts DUE_AFTER). Check the publisher and load it.`,
+    });
+  }
   // Blue Badges (owner, 28 Oct 2026): DfT publishes once a year, the figures for 31 March of year Y in the winter of Y
   // to Y+1 (2025's on 19 March 2026). From 1 April of Y+2 with only Y held, the next release is late: a warning line
   // daily until /api/sync-blue-badges loads it.
@@ -484,6 +499,7 @@ async function GET_impl(req: Request) {
     cycles,
     failingItems,
     writtenAnswers,
+    dashboard,
     blueBadges,
     childrenInCare,
     roadCondition,
