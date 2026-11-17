@@ -17,6 +17,7 @@ import ManifestoPicker, { type ThemeRow } from './ManifestoPicker';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import { partyPoliciesShown, anyPartyPoliciesShown } from '@/lib/party-policies';
 
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
@@ -128,7 +129,10 @@ async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Rec
   });
 
   const byParty: Record<string, Record<string, Policy>> = {};
+  // PP-HIDE (owner approved 17 Nov 2026, ENTRY 235): only the parties lib/party-policies.ts lists; no other text reaches
+  // the page, the picker included.
   for (const r of (policyRows || []) as Policy[]) {
+    if (!partyPoliciesShown(r.party_slug)) continue;
     (byParty[r.party_slug] ||= {})[r.theme] = r;
   }
   return { parties, byParty, mpCounts };
@@ -147,13 +151,17 @@ function extract(text: string): string {
   return cut.slice(0, cut.lastIndexOf(' ') > 120 ? cut.lastIndexOf(' ') : 178).replace(/[,;:\s]+$/, '') + '…';
 }
 
+function PickerIfAny({ themes, children }: { themes: ThemeRow[]; children: React.ReactNode }) {
+  return anyPartyPoliciesShown() ? <ManifestoPicker themes={themes}>{children}</ManifestoPicker> : <>{children}</>;
+}
+
 export default async function PartiesIndex() {
   const { parties, byParty, mpCounts } = await getAll();
   // Phones: every party's position on each theme, for "Compare by policy" (ManifestoPicker.tsx).
   const themeRows: ThemeRow[] = THEMES.map((theme) => ({
     theme,
     href: `#${encodeURIComponent(theme.toLowerCase().replace(/\s+/g, '-'))}`,
-    positions: parties.map((p) => {
+    positions: parties.filter((p) => partyPoliciesShown(p.slug)).map((p) => {
       const cell = byParty[p.slug]?.[theme];
       return { slug: p.slug, name: p.name, colour: p.party_colour || '#7697a2', text: cell ? extract(cell.manifesto_position) : null, shifted: !!cell?.current_shift };
     }),
@@ -201,6 +209,7 @@ export default async function PartiesIndex() {
           </h1>
         </header>
 
+        {anyPartyPoliciesShown() && (
         <p
           className="mf-intro"
           style={{
@@ -214,8 +223,9 @@ export default async function PartiesIndex() {
         >
           What every UK party promised at the 2024 General Election, theme by theme. A coloured dot
           marks where a party has materially shifted since. Click any column header to read that
-          party's full dossier.
+          {"party's"} full dossier.
         </p>
+        )}
 
         {/* Stacked layout: one section per party, with the 11 themes
             running vertically under each. Replaced the
@@ -225,7 +235,8 @@ export default async function PartiesIndex() {
             in EB Garamond serif, and a two-column theme/position list.
             Parties without research yet render a single 'Coming soon'
             stub instead of a full empty list. */}
-        <ManifestoPicker themes={themeRows}>
+        {/* PP-HIDE: with no party's texts shown there is nothing to compare, so no picker; the parties list stays. */}
+        <PickerIfAny themes={themeRows}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
           {parties.map((p) => {
             const hasData = !!byParty[p.slug] && Object.keys(byParty[p.slug]).length > 0;
@@ -258,7 +269,7 @@ export default async function PartiesIndex() {
                   {p.name}
                 </a>
                 <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '18px' }}>
-                  {seatLabel} · {hasData ? 'Manifesto positions 2024' : 'Research pending'}
+                  {hasData ? `${seatLabel} · Manifesto positions 2024` : seatLabel}
                 </div>
 
                 {hasData ? (
@@ -336,16 +347,12 @@ export default async function PartiesIndex() {
                       );
                     })}
                   </dl>
-                ) : (
-                  <p style={{ fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, margin: 0 }}>
-                    Coming soon. The 2024 manifesto positions for this party are being researched.
-                  </p>
-                )}
+                ) : null}
               </section>
             );
           })}
         </div>
-        </ManifestoPicker>
+        </PickerIfAny>
 
       </article>
     </OpenGovShell>

@@ -21,6 +21,7 @@ import { PHONE } from '@/lib/breakpoints';
 import BackLink from '@/app/components/BackLink';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import { partyPoliciesShown } from '@/lib/party-policies';
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
 export async function generateStaticParams() {
@@ -85,7 +86,8 @@ async function getPartyAndPolicies(slug: string): Promise<{
   if (!partyRow) return { party: null, policies: [], mpCount: 0, donationsTotal: 0 };
 
   const party = partyRow as Party;
-  const policies = (policyRows || []) as Policy[];
+  // PP-HIDE (ENTRY 235): a party's policy texts reach the page only while lib/party-policies.ts lists it.
+  const policies = partyPoliciesShown(slug) ? (policyRows || []) as Policy[] : [];
 
   // MP count uses the EXACT mps.party string the party row points at,
   // plus the Labour (Co-op) merge for Labour. Falls back to 0 if no
@@ -212,6 +214,9 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
       {/* The 11 themed policy blocks. Each block: theme label, 2024
           manifesto position, source, optional post-election shift in a
           coloured callout, shift source. */}
+      {/* PP-HIDE (owner approved 17 Nov 2026, ENTRY 235): while a party's texts are hidden, nothing is shown here (no
+          placeholder). */}
+      {partyPoliciesShown(party.slug) && (
       <div data-main-action>
         {policies.length === 0 && (
           <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px' }}>
@@ -287,6 +292,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
         </div>
         <PhoneMore selector="#party-policies" total={policies.length} />
       </div>
+      )}
 
       </PartySidebar>
 
