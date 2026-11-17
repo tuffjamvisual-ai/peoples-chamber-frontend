@@ -593,6 +593,10 @@ html.ya-wait .og-main-content { min-height: 110vh; }
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
+  /* Its keyboard focus outline hugs the text, not the padded tap area (T2, 17 Nov 2026). */
+  :is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump):not([style*="display"]):focus-visible {
+    outline-offset: calc((1em - 46px) / 2);
+  }
   /* Tick boxes and radio buttons a 44px tall tap on tablets too (they were 18 to 22px at 768: /cookies, /signup,
      /transparency/major-projects), as on phones. */
   .ng-page input[type="checkbox"], .ng-page input[type="radio"] { height: 44px !important; width: 24px !important; min-height: 44px; margin-top: 0 !important; margin-bottom: 0 !important; flex: none; }
