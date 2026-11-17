@@ -17,6 +17,7 @@ export const LISTS: Record<string, Spec> = {
   // Batch 3: a search list; ?q= with text is left to the rewrite (/debates/search).
   '/debates': { keys: ['section', 'page'], slugged: ['section'], search: true },
   '/edms': { keys: ['state', 'prayer', 'sort', 'member', 'role', 'show'], search: true },
+  '/organisations': { keys: ['has', 'page'], search: true },
 };
 const DYNAMIC: [RegExp, Spec][] = [
   [/^\/divisions\/year\/\d{4}$/, { keys: ['page'], pageOnly: true }],

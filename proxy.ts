@@ -124,6 +124,8 @@ export const config = {
     { source: '/edms', has: [{ type: 'query', key: 'member' }] },
     { source: '/edms', has: [{ type: 'query', key: 'role' }] },
     { source: '/edms', has: [{ type: 'query', key: 'show' }] },
+    { source: '/organisations', has: [{ type: 'query', key: 'has' }] },
+    { source: '/organisations', has: [{ type: 'query', key: 'page' }] },
     { source: '/questions/department/:slug', has: [{ type: 'query', key: 'before' }] },
     { source: '/newsletter', has: [{ type: 'query', key: 'status' }] },
   ],
