@@ -79,6 +79,12 @@ function readSources() {
   return { sources, maxAge };
 }
 
+// Refresh jobs whose failure the owner has accepted: listed with the reason and date, reported as a note, never failing the
+// check, so a new failure still shows (COWORK-TO-T1 ENTRY 220, 17 Nov 2026).
+const KNOWN_FAILURES = {
+  '/api/sync-connectivity': 'known, owner accepted 16 Nov 2026: Ofcom blocks Vercel, the broadband sync is left as it is',
+};
+
 // Go live dates from the freshness monitor's register (one list, rule 6): scripts/data/cron-schedules.json, each cron's
 // "since" (T1-DF (c), 11 Nov 2026, moved it there from CRON_ADDED in app/api/monitor-freshness/route.ts, which this check
 // still read, so it failed from then on), and schedules from vercel.json.
@@ -129,6 +135,8 @@ const whenText = (d) => `${d.toLocaleDateString('en-GB', { weekday: 'short', day
         continue;
       }
       const days = Math.floor((now - new Date(h.last_ran_at)) / DAY);
+      const failed = (h.last_status != null && (h.last_status < 200 || h.last_status >= 300)) || days > limit;
+      if (failed && KNOWN_FAILURES[s.route]) { waiting.push(`${s.label} (${s.route}): not succeeding (${KNOWN_FAILURES[s.route]})`); continue; }
       if (h.last_status != null && (h.last_status < 200 || h.last_status >= 300)) problems.push(`${s.label} (${s.route}): last run failed (status ${h.last_status}, ${days} day${days === 1 ? '' : 's'} ago)`);
       else if (days > limit) problems.push(`${s.label} (${s.route}): last ran ${days} days ago (limit ${limit})`);
     }
