@@ -33,6 +33,6 @@ export async function POST(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token') || String(form?.get('token') ?? '');
   const action = unsubscribeAction('POST', { confirm: form ? String(form.get('confirm') ?? '') : null });
   const status = await unsubscribe(token);
-  if (action === 'form-confirmed') return NextResponse.redirect(new URL(`/newsletter?status=${status}`, request.url), 303);
+  if (action === 'form-confirmed') return NextResponse.redirect(new URL(`/newsletter/status/${status}`, request.url), 303);
   return NextResponse.json({ status }, { status: status === 'unsubscribed' ? 200 : 400 });
 }

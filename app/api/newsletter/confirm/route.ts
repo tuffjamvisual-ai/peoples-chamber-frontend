@@ -12,7 +12,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token') || '';
-  const to = (status: string) => NextResponse.redirect(new URL(`/newsletter?status=${status}`, request.url));
+  const to = (status: string) => NextResponse.redirect(new URL(`/newsletter/status/${status}`, request.url));
   if (!UUID_RE.test(token)) return to('invalid');
 
   const confirmedAt = new Date().toISOString();
