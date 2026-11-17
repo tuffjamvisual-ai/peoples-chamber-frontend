@@ -123,7 +123,8 @@ function tallTo(cap){
     if(sum<e.getBoundingClientRect().height*0.6||(tag==='A'&&sum/items.length<150))continue;
     var run=0;for(n=0;n<items.length;n++){run+=items[n].getBoundingClientRect().height;if(run>cap&&n>=4)break}
     if(n>=items.length)continue;
-    e.__ptLimit=n;e.__ptTag=tag;if(extra.indexOf(e)<0)extra.push(e);
+    // Cut lists open with 3 like every other list (Cowork ENTRY 248, MOB-LISTS); the height count above only decides whether to cut.
+    e.__ptLimit=FIRST;e.__ptTag=tag;if(extra.indexOf(e)<0)extra.push(e);
     lists(true);
   }
 }
