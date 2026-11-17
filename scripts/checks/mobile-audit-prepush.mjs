@@ -31,7 +31,10 @@ const DRY = process.env.PUSH_CHECKS_DRY === '1';
 
 const git = (...a) => execFileSync('git', a, { encoding: 'utf8' }).trim();
 const ZERO = /^0+$/;
-const PAGE_CODE = ['app', 'lib', 'public', 'next.config.ts', 'next.config.js', 'next.config.mjs', ':(exclude)app/api'];
+// Owner approved 16 Nov 2026 (COWORK-TO-T1 ENTRY 204): package.json, package-lock.json and the checks themselves
+// (scripts/checks) also run the full check, so a dependency upgrade (Next.js 16.4.2 to 16.4.5 changed only the two package
+// files and was skipped) or a change to a check cannot go live without the build, journeys and visual compare.
+const PAGE_CODE = ['app', 'lib', 'public', 'next.config.ts', 'next.config.js', 'next.config.mjs', 'package.json', 'package-lock.json', 'scripts/checks', ':(exclude)app/api'];
 const passedFile = path.join(git('rev-parse', '--git-dir'), 'mobile-audit-passed');
 
 const refs = fs.readFileSync(0, 'utf8').trim().split('\n').filter(Boolean).map((l) => l.split(' '));
