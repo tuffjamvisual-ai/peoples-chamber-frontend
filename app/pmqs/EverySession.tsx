@@ -8,6 +8,7 @@ import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longDateArchive, primeMinisterLabel, type ListedSession } from '@/lib/pmqs-archive';
 import { cleanWords, datePrefix, pmSlug, preFixedMatching, sessionsMatching, ROW_CAP } from '@/lib/pmqs-search';
 import type { PmqsSet } from '@/lib/pmqs';
+import { listPath } from '@/lib/list-path';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -23,7 +24,8 @@ const PREFIXED_PM: Record<string, string> = { Macmillan: 'Harold Macmillan', Ede
 // now carries one page of 20, newest first, and the address holds the choice (?q=, ?pm=, ?year=, ?page=), so a search can
 // be shared and Back returns to it. Every session keeps its own address, /pmqs/<date>. A plain form: no JavaScript needed.
 // Below it, our count against the Commons Library's.
-export default async function EverySession({ set, filters }: { set: PmqsSet; filters: PmqsFilters }) {
+// Everything the session list shows, from the address's choices (moved out of EverySession for F04 batch 3, unchanged).
+export async function pmqsModel(set: PmqsSet, filters: PmqsFilters) {
   const [archive, totals, preFixed] = await Promise.all([archiveSessions(), libraryTotals(), preFixedSummary()]);
   const sessions: ListedSession[] = [
     ...set.sessions.map((s) => ({ date: s.date, answeredBy: s.answeredBy.name })),
@@ -77,6 +79,16 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
   // Each list pages on its own: the other's page stays in its links.
   const sessionQs = [qs, dpage > 1 && `dpage=${dpage}`].filter(Boolean).join('&');
   const preQs = [qs, page > 1 && `page=${page}`].filter(Boolean).join('&');
+  // Whether each choice in the address is one this list knows (F04 batch 3: the /pmqs/filter route 404s otherwise, so the
+  // cache holds a bounded set of pages; the page itself ignores an unknown one, as before).
+  const requested = (v: string | undefined) => (v ? parseInt(v, 10) || 0 : 1);
+  const valid = (!filters.pm || pmKey !== null) && (!filters.year || year !== null)
+    && requested(filters.page) >= 1 && requested(filters.page) <= pages && requested(filters.dpage) >= 1 && requested(filters.dpage) <= prePages;
+  return { archive, totals, preFixed, sessions, groups, counted, noteFor, words, pmGroup, preDays, prePms, prePm, pmKey, onlyPre, years, year, onDate, byName, text, preText, hit, pmDates, found, pages, page, shown, chosen, qs, preHit, preFound, prePages, dpage, sessionQs, preQs, valid };
+}
+
+export default async function EverySession({ set, filters }: { set: PmqsSet; filters: PmqsFilters }) {
+  const { totals, sessions, groups, counted, noteFor, words, pmGroup, preDays, prePm, pmKey, onlyPre, years, year, text, preText, found, pages, page, shown, chosen, preFound, dpage, sessionQs, preQs } = await pmqsModel(set, filters);
   const label = { display: 'block', fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' } as const;
   const field = { width: '100%', minHeight: '48px', padding: '10px 12px', fontSize: '16px', fontFamily: 'inherit', color: INK, background: 'rgba(20,16,13,0.05)', border: '1px solid rgba(20,16,13,0.3)', borderRadius: '2px' } as const;
 
@@ -134,12 +146,15 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
       ) : (
         <p style={{ fontSize: '15px', lineHeight: 1.6 }}>No session matches. Try fewer words, another spelling, or all years.</p>
       )}
-      <Pagination currentPage={page} totalPages={pages} baseUrl="/pmqs" qsExtra={sessionQs ? `&${sessionQs}` : ''} />
+      {/* Without a search the pages are path addresses (F04 batch 3, static); a search keeps its ?q= address. */}
+      <Pagination currentPage={page} totalPages={pages} baseUrl="/pmqs" qsExtra={sessionQs ? `&${sessionQs}` : ''}
+        hrefFor={words ? undefined : (p) => listPath('/pmqs', { pm: pmKey, year, page: String(p), dpage: String(dpage) })} />
       <div className="pfq-wrap">
         {/* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026): folded up to 1,023px. */}
         <style>{`@media ${phoneUpTo(1023.98)} { .pfq-wrap .pf-sb > #before-fixed-pmqs { display: none; } }`}</style>
         <SubFold label="Questions to the Prime Minister, 1945 to 1961" summary={chosen ? `${preFound.length.toLocaleString('en-GB')} ${preFound.length === 1 ? 'day' : 'days'}` : null} tablets>
-          <PreFixedQuestions found={preFound} totalDays={preDays.length} page={dpage} chosen={chosen} capped={!!preText?.capped} qsExtra={preQs ? `&${preQs}` : ''} />
+          <PreFixedQuestions found={preFound} totalDays={preDays.length} page={dpage} chosen={chosen} capped={!!preText?.capped} qsExtra={preQs ? `&${preQs}` : ''}
+            hrefFor={words ? undefined : (p) => listPath('/pmqs', { pm: pmKey, year, page: String(page), dpage: String(p) })} />
         </SubFold>
       </div>
       <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '28px 0 10px' }}>Our count against the Commons Library</h3>

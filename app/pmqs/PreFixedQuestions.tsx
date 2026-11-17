@@ -15,7 +15,7 @@ export type PreFixedListed = { date: string; questions: number };
 // year; it now carries one page of 20 days, newest first, found with the page's one search box and Prime Minister and year
 // filters (lib/pmqs-search.ts), paged with ?dpage= so it pages apart from the sessions. Every day keeps its address,
 // /pmqs/1945-to-1961/<date>.
-export default function PreFixedQuestions({ found, totalDays, page, chosen, capped, qsExtra }: { found: PreFixedListed[]; totalDays: number; page: number; chosen: boolean; capped: boolean; qsExtra: string }) {
+export default function PreFixedQuestions({ found, totalDays, page, chosen, capped, qsExtra, hrefFor }: { found: PreFixedListed[]; totalDays: number; page: number; chosen: boolean; capped: boolean; qsExtra: string; hrefFor?: (p: number) => string }) {
   const pages = Math.max(1, Math.ceil(found.length / PREFIXED_PER_PAGE));
   const shown = found.slice((page - 1) * PREFIXED_PER_PAGE, page * PREFIXED_PER_PAGE);
   return (
@@ -46,7 +46,7 @@ export default function PreFixedQuestions({ found, totalDays, page, chosen, capp
           </ul>
         </NoJsPager>
       )}
-      <Pagination currentPage={page} totalPages={pages} baseUrl="/pmqs" pageParam="dpage" qsExtra={qsExtra} hash="before-fixed-pmqs" />
+      <Pagination currentPage={page} totalPages={pages} baseUrl="/pmqs" pageParam="dpage" qsExtra={qsExtra} hash="before-fixed-pmqs" hrefFor={hrefFor} />
     </>
   );
 }

@@ -7,7 +7,6 @@ import { notFound, redirect } from 'next/navigation';
 import { listPath } from '@/lib/list-path';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { cachedOrganisationList, searchOrganisations, normaliseCompanyNumber, companiesHouseUrl, type OrgListRow } from '@/lib/organisations';
 import { phoneUpTo } from '@/lib/breakpoints';
 
