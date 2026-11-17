@@ -101,7 +101,7 @@ function lists(buttons){
     }
     b.__count.textContent=Math.min(list.__ptLimit,shown.length).toLocaleString('en-GB')+' of '+shown.length.toLocaleString('en-GB');
     // A list cut by the tall-page code (__ptTag) keeps its count and buttons right after the last item showing (T2, 17 Nov).
-    if(list.__ptTag&&list.tagName!=='TBODY')shown[Math.min(list.__ptLimit,shown.length)-1].after(b.__count,b,b.__fewer);
+    if(list.__ptTag&&list.tagName!=='TBODY'){var fo=document.activeElement;shown[Math.min(list.__ptLimit,shown.length)-1].after(b.__count,b,b.__fewer);if(fo===b||fo===b.__fewer)fo.focus({preventScroll:true})}
     b.style.display=left>0?'':'none';
     b.__fewer.style.display=list.__ptLimit>FIRST?'':'none';
     b.textContent='Show '+Math.min(LSTEP,Math.max(left,0)).toLocaleString('en-GB')+' more';
