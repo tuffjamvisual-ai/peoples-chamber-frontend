@@ -34,6 +34,10 @@ export default function DonationsExplainer() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
+      {/* ART-WIDTH (owner approved 17 Nov 2026, Cowork ENTRY 257/259 option b): from 1,024px the explainer is one column the
+          width of its running text (70 characters at the body's 15px, D4, plus the text's 23px border and padding), centred in the page folder. */}
+      <style>{`@media (min-width: 1024px) { .art-col-x { max-width: calc(70ch + 23px); margin: 0 auto; font-family: var(--font-special-elite), monospace; font-size: 15px; } }`}</style>
+      <div className="art-col-x">
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
         {/* T1-DECLUT item 2 (owner, 12 Nov 2026): no eyebrow line repeating the section under the folder stamp. */}
@@ -73,6 +77,7 @@ export default function DonationsExplainer() {
             </ContinueReading>
       </article>
 
+      </div>
     </OpenGovShell>
   );
 }

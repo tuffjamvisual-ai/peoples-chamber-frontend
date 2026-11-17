@@ -36,6 +36,12 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
     <OpenGovShell pageStamp={stamp}>
       {banner}
       <BackLink fallbackHref={backHref} label="← Reports" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
+      {/* ART-WIDTH (owner approved 17 Nov 2026, Cowork ENTRY 257/259 option b): from 1,024px the whole article (picture,
+          headline, standfirst, text, figures, tables, sources) is one column the width of its running text (70 characters at the
+          body's 16px, D4), centred in the page folder, so there is no empty strip beside the text; the 70ch is measured in the body text's own font. Phones
+          and tablets unchanged. */}
+      <style>{`@media (min-width: 1024px) { .art-col { max-width: 70ch; margin: 0 auto; font-family: var(--font-special-elite), monospace; font-size: 16px; } }`}</style>
+      <div className="art-col">
 
       {piece.heroImage && (
         <figure style={{ position: 'relative', margin: '0 0 28px', maxWidth: '100%' }}>
@@ -149,6 +155,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
 
 
 
+      </div>
     </OpenGovShell>
   );
 }
