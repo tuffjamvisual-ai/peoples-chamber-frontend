@@ -87,19 +87,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]);
   if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/committees/[id] committees: ${dataErr2.message}`);
   if (!data) return { title: 'Committee' };
-  // The committee's own stated purpose (its first sentence) and how many members it has now (owner approved 17 Nov 2026,
-  // COWORK-TO-T1 ENTRY 217 item 4): "<name>: <purpose sentence>. <N> current members." Whole sentences within 160.
+  // How many members it has now, then the committee's own stated purpose (its first sentence) when that fits whole (owner
+  // approved 17 Nov 2026, COWORK-TO-T1 ENTRY 217 item 4; T2's review 03:36: 18 of 29 purpose sentences are 166 to 358
+  // characters, so the lead is the part that always fits and the purpose is never cut).
   const purpose = sentencesOf(htmlToText(data.purpose ?? ''))[0];
   const n = (current.data ?? []).filter((m) => m.end_date === null).length;
   const count = n ? `${n.toLocaleString('en-GB')} current member${n === 1 ? '' : 's'}.` : null;
   return {
     // A sub-committee is clear without its parent's long name, and then fits.
     title: wholeNameTitle(data.name.replace(/^.+ (Sub-Committee on )/, '$1'), (n) => [`${n}: UK Parliament`]),
-    // A purpose sentence that already names the committee ("The X Committee scrutinises ...") stands on its own; any other
-    // is introduced by the name. The member count follows when it still fits in 160.
-    description: purpose
-      ? wholeSentences([purpose.toLowerCase().includes(data.name.toLowerCase()) ? asSentence(purpose) : asSentence(`${data.name}: ${purpose.replace(/[.!?]+$/, '')}`), count])
-      : wholeSentences([`Current members of the ${data.name}, sourced from UK Parliament.`, count]),
+    // "<name>: <N> current members, from UK Parliament's record." then the purpose sentence only if it fits whole in 160.
+    description: wholeSentences([
+      n ? `${data.name}: ${count!.replace(/\.$/, '')}, from UK Parliament's record.` : `Current members of the ${data.name}, sourced from UK Parliament.`,
+      purpose ? asSentence(purpose) : null,
+    ]),
     alternates: { canonical: `/committees/${id}` },
   };
 }
