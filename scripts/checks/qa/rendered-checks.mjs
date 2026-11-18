@@ -80,6 +80,10 @@ async function pace() {
   lastHit = Date.now();
 }
 const LIMIT_PX = 2500;
+// Page types where the owner lifted the phone length limit (18 Nov 2026, Cowork ENTRY 302 item 1: lists open with 3 always,
+// even where that makes the page longer). /debates/[guid] is the same case (2 to 3 speeches, 78px over): added under that
+// rule, told to Cowork.
+const LENGTH_LIFTED = [/^\/laws$/, /^\/transparency\/press-releases$/, /^\/treaties$/, /^\/polls(\/voting-intention)?$/, /^\/pmqs\/\d{4}-\d{2}-\d{2}$/, /^\/debates\/[0-9A-Fa-f-]{36}$/];
 const GROWTH_PX = 200;
 // A6 (QA6): viewport, and the most px from the top of the page at which the main action (and, landscape, the h1) may start.
 // 430 x 932, a large phone (UX3h, owner approved, 10 Nov 2026): the main action above 760px.
@@ -384,7 +388,7 @@ async function main() {
   for (const r of results) {
     if (r.error || (r.status != null && r.status >= 500)) fails.push(`${r.url}: could not check (${r.error ?? `HTTP ${r.status}`})`);
     const b = base[r.url] ?? {};
-    if (r.height != null && r.height > LIMIT_PX) {
+    if (r.height != null && r.height > LIMIT_PX && !LENGTH_LIFTED.some((re) => re.test(new URL(r.url, 'http://x').pathname))) {
       const known = b.height != null && b.height > LIMIT_PX;
       if (!known) fails.push(`A3 ${r.url}: ${r.height}px at 375px, over ${LIMIT_PX}px (new)`);
       else if (r.height > b.height + GROWTH_PX) fails.push(`A3 ${r.url}: ${r.height}px, longer than its baseline ${b.height}px`);

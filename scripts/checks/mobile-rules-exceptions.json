@@ -126,6 +126,12 @@
       "route": "/pmqs/[date]",
       "selector": "html",
       "reason": "Lists open with 3 always; the page length limit is lifted on this page type, where 3 items make it longer (owner approved 18 Nov 2026, Cowork ENTRY 302 item 1)."
+    },
+    {
+      "rule": "height",
+      "route": "/debates/[guid]",
+      "selector": "html",
+      "reason": "Lists open with 3 always; opening with 3 speeches instead of 2 takes some debate pages just past the length limit, which is lifted here under the owner's rule (18 Nov 2026, Cowork ENTRY 302 item 1; told to Cowork)."
     }
   ]
 }
