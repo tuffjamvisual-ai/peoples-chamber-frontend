@@ -28,7 +28,9 @@ MULTI={'Bedfordshire':['Bedford','Central Bedfordshire'],'Blaenau Gwent and Caer
  'Cwm Taf':['Merthyr Tydfil','Rhondda Cynon Taf'],'Dorset Combined YOS':['Bournemouth, Christchurch and Poole','Dorset'],'Gwynedd Mon':['Gwynedd','Isle of Anglesey'],
  'Kingston and Richmond':['Kingston upon Thames','Richmond upon Thames'],'Monmouthshire and Torfaen':['Monmouthshire','Torfaen'],'South Tees':['Middlesbrough','Redcar and Cleveland'],
  'Tower Hamlets and City of London':['Tower Hamlets','City of London Corporation'],'West Mercia':['Herefordshire','Shropshire','Telford and Wrekin','Worcestershire'],
- 'Western Bay':['Bridgend','Neath Port Talbot','Swansea'],'Northamptonshire':['North Northamptonshire','West Northamptonshire'],'Kingston-upon-Hull':['Kingston upon Hull']}
+ 'Western Bay':['Bridgend','Neath Port Talbot','Swansea'],'Northamptonshire':['North Northamptonshire','West Northamptonshire'],'Kingston-upon-Hull':['Kingston upon Hull'],
+ 'Cornwall':['Cornwall','Isles of Scilly'],  # the annex names it 'Cornwall and Isles of Scilly' (T2, 16:21)
+ 'Leicestershire':['Leicestershire','Rutland']}  # Leicestershire Youth and Justice Service (including Rutland): Leicestershire County Council, Youth Justice Plan 2023 to 2026
 yjs={}
 for n in [l.strip() for l in open(SP+'/yj/children_table_yjs.txt') if l.strip()]:
     yjs[n]=['E10000006'] if n=='Cumbria' else ([code(x) for x in MULTI[n]] if n in MULTI else [code(n)])
