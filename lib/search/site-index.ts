@@ -45,7 +45,8 @@ async function build(): Promise<SiteEntry[]> {
   for (const c of councils) out.push({ label: (c.short_name as string) || (c.name as string), kind: 'Council', href: `/councils/${c.slug}`, extra: `${c.name ?? ''} ${c.type_label ?? ''}` });
   for (const p of peers) if (peerHasPage(p as { is_current: boolean; end_date: string | null })) out.push({ label: p.name_display as string, kind: 'Lords', href: `/lords/${p.member_id}`, extra: (p.party as string) ?? '' });
   for (const d of departments) out.push({ label: d.name, kind: 'Department', href: `/departments/${d.slug}`, extra: '' });
-  for (const r of reports) out.push({ label: r.headline, kind: 'Report', href: `/editorials/${r.slug}`, extra: r.kicker ?? '' });
+  // A briefing lives at /briefings/<slug> (its /editorials address redirects there; T2, 18 Nov 2026).
+  for (const r of reports) out.push({ label: r.headline, kind: 'Report', href: r.kind === 'briefing' ? `/briefings/${r.slug}` : `/editorials/${r.slug}`, extra: r.kicker ?? '' });
   for (const b of bills) out.push({ label: b.title, kind: 'Bill', href: `/bills/${b.bill_id}`, extra: '' });
   return out;
 }
