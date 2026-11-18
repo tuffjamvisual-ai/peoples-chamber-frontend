@@ -1,0 +1,685 @@
+{
+ "about": "Youth Justice Statistics 2024 to 2025 names to GSS codes (Cowork ENTRY 303, FSM-YJ), built from our councils table by name (scripts in the job notes); old codes for areas before a boundary change; a shared service lists every council it serves. A name not here stops the import.",
+ "fte": {
+  "Blaenau Gwent": "W06000019",
+  "Bridgend": "W06000013",
+  "Caerphilly": "W06000018",
+  "Cardiff": "W06000015",
+  "Carmarthenshire": "W06000010",
+  "Ceredigion": "W06000008",
+  "Conwy": "W06000003",
+  "Denbighshire": "W06000004",
+  "Flintshire": "W06000005",
+  "Gwynedd": "W06000002",
+  "Isle of Anglesey": "W06000001",
+  "Merthyr Tydfil": "W06000024",
+  "Monmouthshire": "W06000021",
+  "Neath Port Talbot": "W06000012",
+  "Newport": "W06000022",
+  "Pembrokeshire": "W06000009",
+  "Powys": "W06000023",
+  "Rhondda Cynon Taf": "W06000016",
+  "Swansea": "W06000011",
+  "The Vale of Glamorgan": "W06000014",
+  "Torfaen": "W06000020",
+  "Wrexham": "W06000006",
+  "Derby": "E06000015",
+  "Derbyshire": "E10000007",
+  "Leicester": "E06000016",
+  "Leicestershire": "E10000018",
+  "Lincolnshire": "E10000019",
+  "North Northamptonshire [note 12]": "E06000061",
+  "Northamptonshire": "E10000021",
+  "Nottingham": "E06000018",
+  "Nottinghamshire": "E10000024",
+  "Rutland": "E06000017",
+  "West Northamptonshire [note 12]": "E06000062",
+  "Bedford": "E06000055",
+  "Central Bedfordshire": "E06000056",
+  "Cambridgeshire": "E10000003",
+  "Essex": "E10000012",
+  "Hertfordshire": "E10000015",
+  "Luton": "E06000032",
+  "Norfolk": "E10000020",
+  "Peterborough": "E06000031",
+  "Southend-on-Sea": "E06000033",
+  "Suffolk": "E10000029",
+  "Thurrock": "E06000034",
+  "Barking and Dagenham": "E09000002",
+  "Barnet": "E09000003",
+  "Bexley": "E09000004",
+  "Brent": "E09000005",
+  "Bromley": "E09000006",
+  "Camden": "E09000007",
+  "City of London": "E09000001",
+  "Croydon": "E09000008",
+  "Ealing": "E09000009",
+  "Enfield": "E09000010",
+  "Greenwich": "E09000011",
+  "Hackney": "E09000012",
+  "Hammersmith and Fulham": "E09000013",
+  "Haringey": "E09000014",
+  "Harrow": "E09000015",
+  "Havering": "E09000016",
+  "Hillingdon": "E09000017",
+  "Hounslow": "E09000018",
+  "Islington": "E09000019",
+  "Kensington and Chelsea": "E09000020",
+  "Kingston upon Thames": "E09000021",
+  "Lambeth": "E09000022",
+  "Lewisham": "E09000023",
+  "Merton": "E09000024",
+  "Newham": "E09000025",
+  "Redbridge": "E09000026",
+  "Richmond upon Thames": "E09000027",
+  "Southwark": "E09000028",
+  "Sutton": "E09000029",
+  "Tower Hamlets": "E09000030",
+  "Waltham Forest": "E09000031",
+  "Wandsworth": "E09000032",
+  "Westminster": "E09000033",
+  "Darlington": "E06000005",
+  "Durham": "E06000047",
+  "Gateshead": "E08000037",
+  "Hartlepool": "E06000001",
+  "Middlesbrough": "E06000002",
+  "Newcastle-upon Tyne": "E08000021",
+  "North Tyneside": "E08000022",
+  "Northumberland": "E06000057",
+  "Redcar and Cleveland": "E06000003",
+  "South Tyneside": "E08000023",
+  "Stockton-on-Tees": "E06000004",
+  "Sunderland": "E08000024",
+  "Blackburn with Darwen": "E06000008",
+  "Blackpool": "E06000009",
+  "Bolton": "E08000001",
+  "Bury": "E08000002",
+  "Cheshire East": "E06000049",
+  "Cheshire West and Chester": "E06000050",
+  "Cumberland [note 12]": "E06000063",
+  "Cumbria": "E10000006",
+  "Halton": "E06000006",
+  "Knowsley": "E08000011",
+  "Lancashire": "E10000017",
+  "Liverpool": "E08000012",
+  "Manchester": "E08000003",
+  "Oldham": "E08000004",
+  "Rochdale": "E08000005",
+  "Salford": "E08000006",
+  "Sefton": "E08000014",
+  "St Helens": "E08000013",
+  "Stockport": "E08000007",
+  "Tameside": "E08000008",
+  "Trafford": "E08000009",
+  "Warrington": "E06000007",
+  "West Morland and Furness [note 12]": "E06000064",
+  "Wigan": "E08000010",
+  "Wirral": "E08000015",
+  "Bracknell Forest": "E06000036",
+  "Brighton and Hove": "E06000043",
+  "Buckinghamshire": "E06000060",
+  "East Sussex": "E10000011",
+  "Hampshire": "E10000014",
+  "Isle of Wight": "E06000046",
+  "Kent": "E10000016",
+  "Medway": "E06000035",
+  "Milton Keynes": "E06000042",
+  "Oxfordshire": "E10000025",
+  "Portsmouth": "E06000044",
+  "Reading": "E06000038",
+  "Slough": "E06000039",
+  "Southampton": "E06000045",
+  "Surrey": "E10000030",
+  "West Berkshire": "E06000037",
+  "West Sussex": "E10000032",
+  "Windsor and Maidenhead": "E06000040",
+  "Wokingham": "E06000041",
+  "Bath and North East Somerset": "E06000022",
+  "Bournemouth [note 12]": "E06000028",
+  "Bournemouth, Christchurch and Poole [note 12]": "E06000058",
+  "Bristol, City of": "E06000023",
+  "Cornwall": "E06000052",
+  "Devon": "E10000008",
+  "Dorset [note 12]": "E06000059",
+  "Gloucestershire": "E10000013",
+  "Isles of Scilly": "E06000053",
+  "North Somerset": "E06000024",
+  "Plymouth": "E06000026",
+  "Poole [note 12]": "E06000029",
+  "Somerset": "E06000066",
+  "South Gloucestershire": "E06000025",
+  "Swindon": "E06000030",
+  "Torbay": "E06000027",
+  "Wiltshire": "E06000054",
+  "Birmingham": "E08000025",
+  "Coventry": "E08000026",
+  "Dudley": "E08000027",
+  "Herefordshire": "E06000019",
+  "Sandwell": "E08000028",
+  "Shropshire": "E06000051",
+  "Solihull": "E08000029",
+  "Staffordshire": "E10000028",
+  "Stoke-on-Trent": "E06000021",
+  "Telford and Wrekin": "E06000020",
+  "Walsall": "E08000030",
+  "Warwickshire": "E10000031",
+  "Wolverhampton": "E08000031",
+  "Worcestershire": "E10000034",
+  "Barnsley": "E08000016",
+  "Bradford": "E08000032",
+  "Calderdale": "E08000033",
+  "Doncaster": "E08000017",
+  "East Riding of Yorkshire and the Humber": "E06000011",
+  "Kingston upon Hull, City of": "E06000010",
+  "Kirklees": "E08000034",
+  "Leeds": "E08000035",
+  "North East Lincolnshire": "E06000012",
+  "North Lincolnshire": "E06000013",
+  "North Yorkshire and the Humber": "E06000065",
+  "Rotherham": "E08000018",
+  "Sheffield": "E08000019",
+  "Wakefield": "E08000036",
+  "York": "E06000014"
+ },
+ "fteDorsetOld": "E10000009",
+ "yjs": {
+  "Barking and Dagenham": [
+   "E09000002"
+  ],
+  "Barnet": [
+   "E09000003"
+  ],
+  "Barnsley": [
+   "E08000016"
+  ],
+  "Bath and North East Somerset": [
+   "E06000022"
+  ],
+  "Bedfordshire": [
+   "E06000055",
+   "E06000056"
+  ],
+  "Bexley": [
+   "E09000004"
+  ],
+  "Birmingham": [
+   "E08000025"
+  ],
+  "Blackburn with Darwen": [
+   "E06000008"
+  ],
+  "Blackpool": [
+   "E06000009"
+  ],
+  "Blaenau Gwent and Caerphilly": [
+   "W06000019",
+   "W06000018"
+  ],
+  "Bolton": [
+   "E08000001"
+  ],
+  "Bracknell Forest": [
+   "E06000036"
+  ],
+  "Bradford": [
+   "E08000032"
+  ],
+  "Brent": [
+   "E09000005"
+  ],
+  "Bridgend": [
+   "W06000013"
+  ],
+  "Brighton and Hove": [
+   "E06000043"
+  ],
+  "Bristol": [
+   "E06000023"
+  ],
+  "Bromley": [
+   "E09000006"
+  ],
+  "Buckinghamshire": [
+   "E06000060"
+  ],
+  "Bury and Rochdale": [
+   "E08000002",
+   "E08000005"
+  ],
+  "Calderdale": [
+   "E08000033"
+  ],
+  "Cambridgeshire": [
+   "E10000003"
+  ],
+  "Camden": [
+   "E09000007"
+  ],
+  "Cardiff": [
+   "W06000015"
+  ],
+  "Carmarthenshire": [
+   "W06000010"
+  ],
+  "Ceredigion": [
+   "W06000008"
+  ],
+  "Cheshire East, Cheshire West, Halton and Warrington": [
+   "E06000049",
+   "E06000050",
+   "E06000006",
+   "E06000007"
+  ],
+  "Conwy and Denbighshire": [
+   "W06000003",
+   "W06000004"
+  ],
+  "Cornwall": [
+   "E06000052"
+  ],
+  "Coventry": [
+   "E08000026"
+  ],
+  "Croydon": [
+   "E09000008"
+  ],
+  "Cumberland": [
+   "E06000063"
+  ],
+  "Cumbria": [
+   "E10000006"
+  ],
+  "Cwm Taf": [
+   "W06000024",
+   "W06000016"
+  ],
+  "Darlington": [
+   "E06000005"
+  ],
+  "Derby": [
+   "E06000015"
+  ],
+  "Derbyshire": [
+   "E10000007"
+  ],
+  "Devon": [
+   "E10000008"
+  ],
+  "Doncaster": [
+   "E08000017"
+  ],
+  "Dorset Combined YOS": [
+   "E06000058",
+   "E06000059"
+  ],
+  "Dudley": [
+   "E08000027"
+  ],
+  "Durham": [
+   "E06000047"
+  ],
+  "Ealing": [
+   "E09000009"
+  ],
+  "East Riding of Yorkshire": [
+   "E06000011"
+  ],
+  "East Sussex": [
+   "E10000011"
+  ],
+  "Enfield": [
+   "E09000010"
+  ],
+  "Essex": [
+   "E10000012"
+  ],
+  "Flintshire": [
+   "W06000005"
+  ],
+  "Gateshead": [
+   "E08000037"
+  ],
+  "Gloucestershire": [
+   "E10000013"
+  ],
+  "Greenwich": [
+   "E09000011"
+  ],
+  "Gwynedd Mon": [
+   "W06000002",
+   "W06000001"
+  ],
+  "Hackney": [
+   "E09000012"
+  ],
+  "Hammersmith and Fulham": [
+   "E09000013"
+  ],
+  "Hampshire": [
+   "E10000014"
+  ],
+  "Haringey": [
+   "E09000014"
+  ],
+  "Harrow": [
+   "E09000015"
+  ],
+  "Hartlepool": [
+   "E06000001"
+  ],
+  "Havering": [
+   "E09000016"
+  ],
+  "Hertfordshire": [
+   "E10000015"
+  ],
+  "Hillingdon": [
+   "E09000017"
+  ],
+  "Hounslow": [
+   "E09000018"
+  ],
+  "Isle of Wight": [
+   "E06000046"
+  ],
+  "Islington": [
+   "E09000019"
+  ],
+  "Kensington and Chelsea": [
+   "E09000020"
+  ],
+  "Kent": [
+   "E10000016"
+  ],
+  "Kingston and Richmond": [
+   "E09000021",
+   "E09000027"
+  ],
+  "Kingston-upon-Hull": [
+   "E06000010"
+  ],
+  "Kirklees": [
+   "E08000034"
+  ],
+  "Knowsley": [
+   "E08000011"
+  ],
+  "Lambeth": [
+   "E09000022"
+  ],
+  "Lancashire": [
+   "E10000017"
+  ],
+  "Leeds": [
+   "E08000035"
+  ],
+  "Leicester City": [
+   "E06000016"
+  ],
+  "Leicestershire": [
+   "E10000018"
+  ],
+  "Lewisham": [
+   "E09000023"
+  ],
+  "Lincolnshire": [
+   "E10000019"
+  ],
+  "Liverpool": [
+   "E08000012"
+  ],
+  "Luton": [
+   "E06000032"
+  ],
+  "Manchester": [
+   "E08000003"
+  ],
+  "Medway": [
+   "E06000035"
+  ],
+  "Merton": [
+   "E09000024"
+  ],
+  "Milton Keynes": [
+   "E06000042"
+  ],
+  "Monmouthshire and Torfaen": [
+   "W06000021",
+   "W06000020"
+  ],
+  "Neath Port Talbot": [
+   "W06000012"
+  ],
+  "Newcastle upon Tyne": [
+   "E08000021"
+  ],
+  "Newham": [
+   "E09000025"
+  ],
+  "Newport": [
+   "W06000022"
+  ],
+  "Norfolk": [
+   "E10000020"
+  ],
+  "North East Lincolnshire": [
+   "E06000012"
+  ],
+  "North Lincolnshire": [
+   "E06000013"
+  ],
+  "North Somerset": [
+   "E06000024"
+  ],
+  "North Tyneside": [
+   "E08000022"
+  ],
+  "North Yorkshire": [
+   "E06000065"
+  ],
+  "Northamptonshire": [
+   "E06000061",
+   "E06000062"
+  ],
+  "Northumberland": [
+   "E06000057"
+  ],
+  "Nottingham": [
+   "E06000018"
+  ],
+  "Nottinghamshire": [
+   "E10000024"
+  ],
+  "Oldham": [
+   "E08000004"
+  ],
+  "Oxfordshire": [
+   "E10000025"
+  ],
+  "Pembrokeshire": [
+   "W06000009"
+  ],
+  "Peterborough": [
+   "E06000031"
+  ],
+  "Plymouth": [
+   "E06000026"
+  ],
+  "Portsmouth": [
+   "E06000044"
+  ],
+  "Powys": [
+   "W06000023"
+  ],
+  "Reading": [
+   "E06000038"
+  ],
+  "Redbridge": [
+   "E09000026"
+  ],
+  "Rotherham": [
+   "E08000018"
+  ],
+  "Salford": [
+   "E08000006"
+  ],
+  "Sandwell": [
+   "E08000028"
+  ],
+  "Sefton": [
+   "E08000014"
+  ],
+  "Sheffield": [
+   "E08000019"
+  ],
+  "Slough": [
+   "E06000039"
+  ],
+  "Solihull": [
+   "E08000029"
+  ],
+  "Somerset": [
+   "E06000066"
+  ],
+  "South Gloucestershire": [
+   "E06000025"
+  ],
+  "South Tees": [
+   "E06000002",
+   "E06000003"
+  ],
+  "South Tyneside": [
+   "E08000023"
+  ],
+  "Southampton": [
+   "E06000045"
+  ],
+  "Southend-on-Sea": [
+   "E06000033"
+  ],
+  "Southwark": [
+   "E09000028"
+  ],
+  "St. Helens": [
+   "E08000013"
+  ],
+  "Staffordshire": [
+   "E10000028"
+  ],
+  "Stockport": [
+   "E08000007"
+  ],
+  "Stockton-on-Tees": [
+   "E06000004"
+  ],
+  "Stoke-on-Trent": [
+   "E06000021"
+  ],
+  "Suffolk": [
+   "E10000029"
+  ],
+  "Sunderland": [
+   "E08000024"
+  ],
+  "Surrey": [
+   "E10000030"
+  ],
+  "Sutton": [
+   "E09000029"
+  ],
+  "Swansea": [
+   "W06000011"
+  ],
+  "Swindon": [
+   "E06000030"
+  ],
+  "Tameside": [
+   "E08000008"
+  ],
+  "Thurrock": [
+   "E06000034"
+  ],
+  "Torbay": [
+   "E06000027"
+  ],
+  "Tower Hamlets and City of London": [
+   "E09000030",
+   "E09000001"
+  ],
+  "Trafford": [
+   "E08000009"
+  ],
+  "Vale of Glamorgan": [
+   "W06000014"
+  ],
+  "Wakefield": [
+   "E08000036"
+  ],
+  "Walsall": [
+   "E08000030"
+  ],
+  "Waltham Forest": [
+   "E09000031"
+  ],
+  "Wandsworth": [
+   "E09000032"
+  ],
+  "Warwickshire": [
+   "E10000031"
+  ],
+  "West Berkshire": [
+   "E06000037"
+  ],
+  "West Mercia": [
+   "E06000019",
+   "E06000051",
+   "E06000020",
+   "E10000034"
+  ],
+  "West Sussex": [
+   "E10000032"
+  ],
+  "Western Bay": [
+   "W06000013",
+   "W06000012",
+   "W06000011"
+  ],
+  "Westminster": [
+   "E09000033"
+  ],
+  "Westmorland and Furness": [
+   "E06000064"
+  ],
+  "Wigan": [
+   "E08000010"
+  ],
+  "Wiltshire": [
+   "E06000054"
+  ],
+  "Windsor and Maidenhead": [
+   "E06000040"
+  ],
+  "Wirral": [
+   "E08000015"
+  ],
+  "Wokingham": [
+   "E06000041"
+  ],
+  "Wolverhampton": [
+   "E08000031"
+  ],
+  "Wrexham": [
+   "W06000006"
+  ],
+  "York": [
+   "E06000014"
+  ]
+ },
+ "annexAlias": {
+  "Cornwall and Isles of Scilly": "Cornwall",
+  "Derby City": "Derby",
+  "Dorset Combined YJS": "Dorset Combined YOS",
+  "Gwynedd and Ynys Môn": "Gwynedd Mon",
+  "Nottingham City": "Nottingham"
+ }
+}
