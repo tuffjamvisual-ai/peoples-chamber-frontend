@@ -20,6 +20,17 @@ import type { FeaturedItem } from '@/lib/home-rotation';
 import { HomeFeaturedProvider, FeaturedLead, FeaturedBrief } from './components/HomeFeatured';
 import './home-front.css';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
+
+// The council ranking pages linked from the homepage (owner, 18 Nov 2026, Cowork ENTRY 327), each by its plain name.
+const HOME_RANKINGS: [string, string][] = [
+  ['Free school meals', '/councils/free-school-meals'],
+  ['Youth justice', '/councils/youth-justice'],
+  ['Child poverty', '/councils/child-poverty'],
+  ['Children in care', '/councils/children-in-care'],
+  ['Road condition', '/councils/road-condition'],
+  ...(SHOW_LEAGUE_TABLE ? [['How council areas compare', '/councils/league-table'] as [string, string]] : []),
+];
 
 function fmtGovDate(iso: string | null | undefined): string {
   if (!iso) return '';
@@ -240,6 +251,20 @@ export default async function HomePage() {
                   </button>
                 </div>
               </form>
+              {/* Homepage links (owner, 18 Nov 2026, Cowork ENTRY 327): under the searches and the PMQs box, the council
+                  ranking pages and every report, as plain links that wrap (not a data list, so no fold). Each link is a 44px
+                  tap target on phones (og-tap). The league table only while its switch is on. Push check A17 keeps them. */}
+              <nav aria-label="Council rankings and reports" className="og-quicklinks" style={{ margin: '-14px 0 24px', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', lineHeight: 1.6, color: '#14100d' }}>
+                <p style={{ margin: '0 0 4px' }}>
+                  <span className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em', marginRight: '10px' }}>How councils compare</span>
+                  {HOME_RANKINGS.map(([label, href], i) => (
+                    <span key={href}>{i > 0 && ' · '}<Link href={href} prefetch={false} className="og-tap" style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{label}</Link></span>
+                  ))}
+                </p>
+                <p style={{ margin: 0 }}>
+                  <Link href="/reports" prefetch={false} className="og-tap" style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>All reports &rarr;</Link>
+                </p>
+              </nav>
               {/* State of the nation (T1-SOTN, layout change approved by the owner 15 Nov 2026, ENTRY 105): on desktop four
                   headline official figures under the finders, linking to /state-of-the-nation; on phones and tablets the
                   compact strip after the lead story (ENTRY 233). */}

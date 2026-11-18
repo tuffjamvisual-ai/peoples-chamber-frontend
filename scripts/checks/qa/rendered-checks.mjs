@@ -287,10 +287,14 @@ async function main() {
         await page.waitForTimeout(300);
         r.outside = await page.evaluate(outsideLinks, A9_LICENCE.source);
         // A17 (owner, 18 Nov 2026, Cowork ENTRY 320; the PMQs tile approved on 13 Nov never reached the live homepage): the
-        // homepage links to /pmqs and has the PMQs search box (a form sending to /pmqs).
+        // homepage links to /pmqs and has the PMQs search box (a form sending to /pmqs); and (ENTRY 327) links to /reports and
+        // to each council ranking page.
         if (new URL(p.url, 'http://x').pathname === '/') r.a17 = await page.evaluate(() => [
           ...(document.querySelector('a[href="/pmqs"]') ? [] : ['no link to /pmqs']),
           ...(document.querySelector('form[action="/pmqs"] input[name="q"]') ? [] : ['no PMQs search box (form action /pmqs with a q field)']),
+          // ENTRY 327 (owner, 18 Nov 2026): every report and the council ranking pages.
+          ...['/reports', '/councils/free-school-meals', '/councils/youth-justice', '/councils/child-poverty', '/councils/children-in-care', '/councils/road-condition']
+            .filter((h) => !document.querySelector(`a[href="${h}"]`)).map((h) => `no link to ${h}`),
         ]);
         r.a10 = await page.evaluate(a10Scan);
         r.a15 = await page.evaluate(a15Scan);
