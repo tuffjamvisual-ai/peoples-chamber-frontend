@@ -630,4 +630,7 @@ html.ya-wait .og-main-content { min-height: 110vh; }
   .og-main-content :has(> input[type="checkbox"] + label[for]) > label[for]::after {
     content: ''; position: absolute; left: 0; right: 0; top: var(--tap-t, min(0px, calc(50% - 22px))); bottom: var(--tap-b, min(0px, calc(50% - 22px)));
   }
+  /* A link inside such a label (the commission form's 'terms for commissioned research') sits above the layer, so a tap on it
+     opens the link rather than setting the box (T2, 18 Nov 2026 15:50; the label makes no stacking context). */
+  .og-main-content label:has(> input:is([type="checkbox"], [type="radio"])) a { position: relative; z-index: 1; }
 }
