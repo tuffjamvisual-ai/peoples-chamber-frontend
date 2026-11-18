@@ -360,11 +360,13 @@ async function main() {
               const kids = [...el.children].filter((k) => { const b = k.getBoundingClientRect(); return k.getClientRects().length && b.height > 300 && b.width > 200; });
               if (kids.length < 2) continue;
               const rs = kids.map((k) => k.getBoundingClientRect());
-              const side = rs.some((a, i) => rs.some((c, j) => j > i && Math.abs(a.top - c.top) < 200 && (c.left >= a.right - 2 || a.left >= c.right - 2)));
-              if (!side) continue;
+              const beside = (a, c) => Math.abs(a.top - c.top) < 200 && (c.left >= a.right - 2 || a.left >= c.right - 2);
+              // Only the children that sit beside another (T2, 23:11: a full width child after the columns is not a column).
+              const cols = kids.filter((k, i) => rs.some((c, j) => j !== i && beside(rs[i], c)));
+              if (cols.length < 2) continue;
               seen.push(el);
-              const ends = kids.map((k) => { const b = [...k.children].filter((x) => x.getClientRects().length).map((x) => x.getBoundingClientRect().bottom); return b.length ? Math.max(...b) : k.getBoundingClientRect().bottom; });
-              const tallest = Math.max(...kids.flatMap((k) => [...k.children].filter((x) => x.getClientRects().length).map((x) => x.getBoundingClientRect().height)), 0);
+              const ends = cols.map((k) => { const b = [...k.children].filter((x) => x.getClientRects().length).map((x) => x.getBoundingClientRect().bottom); return b.length ? Math.max(...b) : k.getBoundingClientRect().bottom; });
+              const tallest = Math.max(...cols.flatMap((k) => [...k.children].filter((x) => x.getClientRects().length).map((x) => x.getBoundingClientRect().height)), 0);
               const gap = Math.round(Math.max(...ends) - Math.min(...ends));
               if (gap > tallest) out.push(`${el.tagName.toLowerCase()}.${(el.className || '').toString().split(' ')[0]} ends ${gap}px apart, tallest block ${Math.round(tallest)}px`);
             }
