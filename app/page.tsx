@@ -9,6 +9,7 @@ import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
 import AreaSearch from './components/AreaSearch';
 import SuggestInput from './components/SuggestInput';
+import HomeBalance from './components/HomeBalance';
 import HomeRecord from './components/HomeRecord';
 import NewsletterSignup from './components/NewsletterSignup';
 import { SubFold } from './components/PhoneFolds';
@@ -413,6 +414,8 @@ export default async function HomePage() {
             </div>
           </div>
 
+        {/* Columns always balance on desktop (owner standing rule, Cowork ENTRY 332): places the movable blocks after layout. */}
+        <HomeBalance />
       </HomeFeaturedProvider>
       </OpenGovShell>
     </>
