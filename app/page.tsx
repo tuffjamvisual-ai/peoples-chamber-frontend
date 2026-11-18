@@ -192,6 +192,54 @@ export default async function HomePage() {
 
               <AreaSearch label="Find your local council" placeholder="Postcode, town or council" />
               </div>
+              {/* PMQs search (owner, 18 Nov 2026, Cowork ENTRY 320): directly under the two main searches, in the same look as
+                  the main search. A plain form to /pmqs?q= (rewritten to /pmqs/search), so it works with no script. As you type
+                  suggestions come with the shared search piece (SEARCH-ALL, ENTRY 318). */}
+              {/* As wide as one of the two finders above it once they sit side by side (each at least 280px with a 20px gap). */}
+              <style>{`@media (min-width: 640px) { .og-pmqs-search { max-width: calc(50% - 10px); } }`}</style>
+              <form action="/pmqs" method="get" className="og-pmqs-search" style={{ margin: '0 0 28px' }}>
+                <label htmlFor="home-pmqs-q" className="og-kicker og-search-label">Search Prime Minister&rsquo;s Questions</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    id="home-pmqs-q"
+                    type="text"
+                    name="q"
+                    placeholder="Words, an MP or a date"
+                    className="og-search-input"
+                    style={{
+                      width: '100%',
+                      padding: '12px 36px 12px 14px',
+                      fontFamily: "var(--font-special-elite), monospace",
+                      fontSize: '15px',
+                      color: '#14100d',
+                      background: '#f4e8d4',
+                      border: '1px solid rgba(20,16,13,0.18)',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    className="og-search-go"
+                    aria-label="Search Prime Minister's Questions"
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: '#7a1612',
+                      fontSize: '18px',
+                      lineHeight: 1,
+                      padding: '4px',
+                    }}
+                  >
+                    →
+                  </button>
+                </div>
+              </form>
               {/* State of the nation (T1-SOTN, layout change approved by the owner 15 Nov 2026, ENTRY 105): on desktop four
                   headline official figures under the finders, linking to /state-of-the-nation; on phones and tablets the
                   compact strip after the lead story (ENTRY 233). */}
@@ -298,6 +346,14 @@ export default async function HomePage() {
                 <div className="og-head">Every manifesto. Every shift.</div>
                 <p>What each of the fifteen UK parties told voters in 2024, what they have done since, and where the gap is widest.</p>
                 <div className="og-cta">Read the dossiers &rarr;</div>
+              </Link>
+
+              {/* The PMQs tile (owner approved 13 Nov 2026 with the four feature tiles; that design was parked and never reached this
+                  page, so the tile was not on the live homepage; restored here, ENTRY 320). Static text: no database read. */}
+              <Link className="og-block og-card" href="/pmqs">
+                <div className="og-head">Prime Minister&rsquo;s Questions</div>
+                <p>Every PMQs since October 1961, and questions to the Prime Minister from 1945, searchable by word, MP or date.</p>
+                <div className="og-cta">See every PMQs &rarr;</div>
               </Link>
 
               <Link className="og-block og-card" href="/departments">

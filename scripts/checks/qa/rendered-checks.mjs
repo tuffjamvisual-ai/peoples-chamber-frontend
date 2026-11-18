@@ -286,6 +286,12 @@ async function main() {
         if (!loaded) { await pace(); await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 }); }
         await page.waitForTimeout(300);
         r.outside = await page.evaluate(outsideLinks, A9_LICENCE.source);
+        // A17 (owner, 18 Nov 2026, Cowork ENTRY 320; the PMQs tile approved on 13 Nov never reached the live homepage): the
+        // homepage links to /pmqs and has the PMQs search box (a form sending to /pmqs).
+        if (new URL(p.url, 'http://x').pathname === '/') r.a17 = await page.evaluate(() => [
+          ...(document.querySelector('a[href="/pmqs"]') ? [] : ['no link to /pmqs']),
+          ...(document.querySelector('form[action="/pmqs"] input[name="q"]') ? [] : ['no PMQs search box (form action /pmqs with a q field)']),
+        ]);
         r.a10 = await page.evaluate(a10Scan);
         r.a15 = await page.evaluate(a15Scan);
       }
@@ -410,6 +416,7 @@ async function main() {
     for (const d of r.dates) if (d.stale) expected.push(`date ${r.url}: "Updated ${d.date}" is ${d.age} days old, over ${d.limit} for ${d.judgedBy === 'source' ? d.source : "this page's data"} (data, reported only)`);
     for (const o of r.outside ?? []) fails.push(`A9 ${r.url}: links outside the site, not as a source (${o})`);
     for (const f of r.a15 ?? []) fails.push(`A15 ${r.url}: a fold without the site's marker: ${f}`);
+    for (const f of r.a17 ?? []) fails.push(`A17 ${r.url}: ${f}`);
     if (r.a10) {
       const ab = a10Base[r.url] ?? { dups: [], related: 1 };
       for (const d of r.a10.dups) (ab.dups.includes(d.replace(/ x\d+$/, '')) ? expected : fails).push(`A10 ${r.url}: linked more than once in the body: ${d}`);
