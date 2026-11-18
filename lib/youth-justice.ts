@@ -45,7 +45,7 @@ export const FUNDING_SOURCES: [keyof YjsRow, string][] = [
 
 export const EXPLAINER = [
   'A first time entrant is a child aged 10 to 17 who receives their first youth caution or conviction. The figures are by the council area where the child lives, for years ending in December, and are modelled estimates (Ministry of Justice), shown here as whole numbers.',
-  'A youth justice service is the team each council (or several councils together) runs with the police, probation and health services to work with children who offend. Its caseload counts children cautioned or sentenced in years ending in March. Reoffending and the number of children in custody are published only for England and Wales as a whole and for regions, so they are not shown by council.',
+  'A youth justice service is the team each council (or several councils together) runs with the police, probation and health services to work with children who offend. Its caseload counts children cautioned or sentenced in years ending in March. Reoffending and the youth custody population are published only for England and Wales as a whole and for regions, so they are not shown by council.',
 ];
 
 export async function loadFte(code: string): Promise<FteRow[]> {
