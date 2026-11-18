@@ -582,18 +582,14 @@ html.ya-wait .og-main-content { min-height: 110vh; }
   .og-sidenav-item { padding: 12px 16px !important; font-size: 15px !important; }
 }
 
-/* MOB-TAPS (Cowork ENTRY 239 A3 and 259, owner approved 17 Nov 2026): on phones and tablets (and any touch screen) a link in
-   running text (a paragraph, list item, definition, caption, quote or table cell) has a tap area at least 44px tall. Vertical
-   padding on an inline link does not change the line it sits on, so no text moves; the padding is (46px - 1em) / 2 above and
-   below, which with the font's own height gives about 48px. Only plain links: one with its own class or a display set inline
-   (a block or button style link) already has its own size. Desktop unchanged. */
+/* MOB-TAPS (Cowork ENTRY 239 A3, 259 and 274, owner approved 17 Nov 2026): on phones and tablets (up to 1,023px, and any
+   touch screen) a plain link in running text (a paragraph, list item, definition, caption, quote or table cell) gets an
+   invisible tap area 44px tall, centred on it: an absolutely placed ::after, as phones under 480px already have for every
+   link. It cannot move anything (no padding, no size change). Only plain links: no class, an empty class, or the
+   no-hover-scale and dv-jump classes, which draw nothing in ::after. Desktop with a mouse unchanged. */
 @media (max-width: 1023.98px), (pointer: coarse) {
-  :is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump):not([style*="display"]) {
-    padding-block: calc((46px - 1em) / 2);
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
+  :is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump) { position: relative; }
+  :is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump)::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; transform: translateY(-50%);
   }
-  /* Tick boxes and radio buttons a 44px tall tap on tablets too (they were 18 to 22px at 768: /cookies, /signup,
-     /transparency/major-projects), as on phones. */
-  .ng-page input[type="checkbox"], .ng-page input[type="radio"] { height: 44px !important; width: 24px !important; min-height: 44px; margin-top: 0 !important; margin-bottom: 0 !important; flex: none; }
 }

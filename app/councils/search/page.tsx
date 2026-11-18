@@ -103,7 +103,7 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
             search on desktop), with the link to every council. */}
         <CouncilSearch key={q} initialQuery={q} noMatchText="No council has that name. Try your postcode instead." />
         <p style={{ fontFamily: MONO, fontSize: '15px', margin: '14px 0 28px' }}>
-          <Link href="/councils" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '10px 0', minHeight: '44px', boxSizing: 'border-box' }}>Browse all councils</Link>
+          <Link href="/councils" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '10px 0' }}>Browse all councils</Link>
         </p>
 
         {q && results.length === 0 && (
