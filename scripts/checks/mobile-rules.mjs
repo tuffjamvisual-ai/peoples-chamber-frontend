@@ -1,10 +1,15 @@
 // Mobile and journey rules (owner approved 17 Nov 2026, COWORK-TO-T1 ENTRY 239 B). Every page type in
-// scripts/checks/mobile-audit-pages.csv (its first example page), at 320 x 740, 390 x 844, 430 x 932 and 768 x 1024,
-// JavaScript on, as each page first opens (folds closed, cookie banner dismissed by "Reject"). Reads only. A page fails if:
+// scripts/checks/mobile-audit-pages.csv (its first example page), at 320 x 740, 390 x 844, 430 x 932 and 768 x 1024, and
+// at 1280 x 720 for the lists rule only (ENTRY 282, 283), JavaScript on, as each page first opens (folds closed, cookie banner dismissed by "Reject"). Reads only. A page fails if:
 //   taps     a visible link, button, input, select or summary in the page body is under 44px tall (inline text links too;
 //            a body-copy link may be excepted only by an entry in mobile-rules-exceptions.json, with Cowork's agreement)
 //   lists    a list control other than "Show N more" (N at most 10) and "Show fewer" (a show-all, "Show 241 more", ...),
-//            or a "Show N more" without its count beside it ("3 of 241"), or a count whose first number is not 3
+//            or a "Show N more" without its count beside it ("3 of 241"), or a count whose first number is not 3;
+//            the list rule by width (owner, 18 Nov 2026, Cowork ENTRY 282 and 283): under 1,024px a list of 4 or more opens
+//            with 3, so a list showing more than 3 items whole is a finding; from 1,024px only lists of more than 25 fold,
+//            so a list of more than 25 shown whole, or a fold on a list of 25 or fewer ('3 of 12'), is a finding. Lists
+//            that stay whole by the owner's decision are not counted: nav, menus, footer, <details>, section folds
+//            (.pf-list), [data-own-more], an article's running text, and the 'lists' entries of mobile-rules-exceptions.json
 //   width    the document is wider than the screen
 //   height   the page is taller than 2,500px on a phone or 3,000px on the tablet
 //   back     the back arrow's link leaves the page's own section (the route's first part, or mobile-rules-sections.json)
@@ -29,7 +34,7 @@ const LIMIT = opt('limit') ? Number(opt('limit')) : Infinity;
 const ONLY = opt('routes') ? new Set(opt('routes').split(',')) : null;
 const REPORT_ONLY = argv.includes('--report-only');
 const HERE = path.dirname(new URL(import.meta.url).pathname);
-const SIZES = [[320, 740, 'phone'], [390, 844, 'phone'], [430, 932, 'phone'], [768, 1024, 'tablet']];
+const SIZES = [[320, 740, 'phone'], [390, 844, 'phone'], [430, 932, 'phone'], [768, 1024, 'tablet'], [1280, 720, 'desktop']];
 const MAX_HEIGHT = { phone: 2500, tablet: 3000 };
 
 const readJson = (f, d) => { try { return JSON.parse(fs.readFileSync(path.join(HERE, f), 'utf8')); } catch { return d; } };
@@ -58,8 +63,11 @@ async function pace() { const wait = lastHit + 1000 - Date.now(); if (wait > 0) 
 const blocked = (url) => /_rsc=|\/_vercel\/|posthog\.com|(^|\/\/)([a-z0-9-]+\.)?opengovt\.uk/.test(url);
 
 // Runs in the page. Returns the raw findings; exceptions are applied after.
-function measure(excSelectors) {
+function measure({ excSelectors, listSelectors }) {
   const W = innerWidth;
+  const desk = W >= 1024;
+  // Lists fold above this many items (ENTRY 282): 3 under 1,024px, 25 from 1,024px (lib/phone-enhance.ts lists()).
+  const FOLD_ABOVE = desk ? 25 : 3;
   const main = document.querySelector('main') || document.body;
   const chrome = (e) => e.closest('.og-cookie-banner, .og-mbar, .og-navwrap, .ng-tab, .og-menu-panel, footer, nav[aria-label="Main"]');
   // Shown: has a box, is not hidden, and is not inside a closed <details> (other than as its summary), whose content the
@@ -79,9 +87,11 @@ function measure(excSelectors) {
     // A tap area drawn by an absolutely placed ::after (MOB-TAPS, and phones under 480px) counts as the element's tap height.
     const af = getComputedStyle(e, '::after');
     const tapH = af.content && af.content !== 'none' && af.position === 'absolute' ? Math.max(r.height, parseFloat(af.height) || 0) : r.height;
-    if (tapH < 24) out.taps.push(`${name(e)} tap area under the 24px floor: ${Math.round(tapH * 10) / 10}px`);
-    else if (tapH < 44 && !excepted(e)) out.taps.push(`${name(e)} ${Math.round(r.width)}x${Math.round(tapH)}`);
-    const t = text(e);
+    if (tapH < 24 && !desk) out.taps.push(`${name(e)} tap area under the 24px floor: ${Math.round(tapH * 10) / 10}px`);
+    else if (tapH < 44 && !excepted(e) && !desk) out.taps.push(`${name(e)} ${Math.round(r.width)}x${Math.round(tapH)}`);
+    // The text shown (innerText): a fold's summary holds both 'Show 10 more' and a hidden 'Show fewer', whose textContent
+    // ('Show 10 moreShow fewer') matched neither pattern, so such folds went unchecked.
+    const t = (e.innerText || '').trim().replace(/\s+/g, ' ') || text(e);
     // A list control: a button or fold that shows more of a list, or a link that stays on this page doing the same (a link to
     // another page, such as "See all the figures", is navigation, not a list control).
     const samePage = e.tagName === 'A' && (() => { const u = new URL(e.getAttribute('href'), location.href); return u.pathname === location.pathname; })();
@@ -101,9 +111,18 @@ function measure(excSelectors) {
           const n = /^([\d,]+) of ([\d,]+)$/.exec(text(c));
           if (!n) out.lists.push(`count '${text(c)}' is not 'N of M' beside ${name(e)}`);
           else if (Number(n[1].replace(/,/g, '')) !== 3) out.lists.push(`opens with ${n[1]} of ${n[2]}, not 3: ${name(e)}`);
+          else if (desk && Number(n[2].replace(/,/g, '')) <= 25) out.lists.push(`a list of ${n[2]} folds from 1,024px (only lists of more than 25 fold there): ${name(e)}`);
         }
       }
     }
+  }
+  // Whole lists: a list showing more items than FOLD_ABOVE, outside the lists that stay whole.
+  const OWN = 'nav, .og-menu-panel, .og-mbar, footer, details, .pf-list, [data-own-more], [data-article-body]';
+  const listExc = (e) => listSelectors.some((s) => { try { return e.matches(s); } catch { return false; } });
+  for (const l of document.querySelectorAll('.ng-page ul, .ng-page ol, .ng-page tbody')) {
+    if (l.closest(OWN) || chrome(l) || inClosed(l) || !vis(l) || listExc(l)) continue;
+    const shown = [...l.children].filter((c) => vis(c)).length;
+    if (shown > FOLD_ABOVE) out.lists.push(`a list of ${shown} shown whole (${desk ? 'from 1,024px lists of more than 25 fold' : 'under 1,024px lists of 4 or more open with 3'}): ${l.tagName.toLowerCase()}${typeof l.className === 'string' && l.className ? '.' + l.className.trim().split(/\s+/)[0] : ''} "${text(l).slice(0, 40)}"`);
   }
   for (let i = 1; i < items.length; i++) {
     const a = items[i - 1], b = items[i];
@@ -126,7 +145,7 @@ for (const pg of list) {
   const excFor = EXC.filter((x) => x.route === pg.route || x.route === '*');
   const res = { route: pg.route, url: pg.url, fails: [] };
   for (const [w, h, kind] of SIZES) {
-    const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, isMobile: kind === 'phone', hasTouch: true });
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, isMobile: kind === 'phone', hasTouch: kind !== 'desktop' });
     const page = await ctx.newPage();
     await page.route('**/*', (route) => (blocked(route.request().url()) ? route.abort() : route.continue()));
     try {
@@ -136,10 +155,12 @@ for (const pg of list) {
       await page.waitForTimeout(600);
       const rej = page.getByRole('button', { name: /^Reject/ });
       if (await rej.first().isVisible().catch(() => false)) { await rej.first().click().catch(() => {}); await page.waitForTimeout(200); }
-      const m = await page.evaluate(measure, excFor.map((x) => x.selector).filter(Boolean));
+      const m = await page.evaluate(measure, { excSelectors: excFor.filter((x) => x.rule !== 'lists').map((x) => x.selector).filter(Boolean), listSelectors: excFor.filter((x) => x.rule === 'lists').map((x) => x.selector).filter(Boolean) });
       const add = (rule, detail) => res.fails.push({ size: `${w}x${h}`, rule, detail });
-      for (const d of m.taps) add('taps', d);
       for (const d of m.lists) add('lists', d);
+      // 1280 x 720 is for the lists rule only (ENTRY 283): the other rules are the phone and tablet rules.
+      if (kind === 'desktop') { await ctx.close(); continue; }
+      for (const d of m.taps) add('taps', d);
       if (m.width > 0) add('width', `${m.width}px wider than the screen`);
       if (m.height > MAX_HEIGHT[kind]) add('height', `${m.height}px (limit ${MAX_HEIGHT[kind]})`);
       if (m.back && !backOk(m.back, sectionOf(pg.route))) add('back', `back arrow goes to ${m.back}, outside ${sectionOf(pg.route).join(' or ')}`);

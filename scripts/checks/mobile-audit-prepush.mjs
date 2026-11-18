@@ -108,6 +108,28 @@ const errorLines = () => {
   } catch { return []; }
 };
 const repo = process.cwd();
+const SHARED = (f) => /\.css$/.test(f) || f === 'app/layout.tsx' || f.startsWith('app/components/') || f === 'lib/phone-enhance.ts' || !/^(app|lib)\//.test(f);
+async function mobileRulesRoutes(wt, from) {
+  if (!from) return null;
+  const files = git('diff', '--name-only', `${from}..${sha}`, '--', ...PAGE_CODE).split('\n').filter(Boolean);
+  if (!files.length || files.some(SHARED)) return null;
+  const { routesReached } = await import(path.join(HERE, 'qa', 'vr-pages.mjs'));
+  const r = routesReached(wt, files);
+  return r.length ? r : null;
+}
+let rulesRoutes;
+function mobileRules(wt, base, env) {
+  const outDir = fs.existsSync('/Volumes/EDGE_SSD/opengovt-work/Claude outputs/audit')
+    ? path.join('/Volumes/EDGE_SSD/opengovt-work/Claude outputs/audit/mobile-rules-push', sha.slice(0, 8))
+    : path.join(os.tmpdir(), 'opengovt-mobile-rules', sha.slice(0, 8));
+  try {
+    console.log(`mobile rules (warning only): ${rulesRoutes ? `${rulesRoutes.length} page types this push reaches` : 'every page type (a shared file changed, or the changes reach no page type)'}`);
+    run('node', ['scripts/checks/mobile-rules.mjs', '--base', base, '--out', outDir, '--report-only', ...(rulesRoutes ? ['--routes', rulesRoutes.join(',')] : [])], { cwd: wt, env });
+    console.log(`mobile rules: WARNING ONLY, the push goes ahead whatever the result; report ${path.join(outDir, 'report.md')}`);
+  } catch (e) {
+    console.log(`mobile rules: could not run (warning only, push not stopped): ${String(e.message).split('\n')[0]}`);
+  }
+}
 const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { stdio: 'inherit', ...opts });
 let server = null, code = 1, vrStopped = false;
 try {
@@ -144,6 +166,7 @@ try {
     fs.mkdirSync(path.dirname(FETCH_CACHE_KEEP), { recursive: true });
     run('cp', [process.platform === 'darwin' ? '-cR' : '-R', wtFetch, FETCH_CACHE_KEEP]);
   }
+  try { rulesRoutes = await mobileRulesRoutes(wt, fromOf.get(sha)); } catch { rulesRoutes = null; }
   const port = 3198;
   const out = fs.openSync(serverLog, 'a');
   server = spawn('npx', ['next', 'start', '-p', String(port)], { cwd: wt, env, stdio: ['ignore', out, out], detached: true });
@@ -165,6 +188,12 @@ try {
       vrStopped = true;
       throw new Error('visual comparison');
     }
+    // MOB-RULES (owner approved 17 Nov 2026, Cowork ENTRY 260 and 283): the mobile rules check, WARNING ONLY until a full
+    // run passes clean (then it blocks; Cowork is told). The page types the push reaches (the import map the visual
+    // comparison uses, qa/vr-pages.mjs); every page type when a shared file changes (any stylesheet, app/layout.tsx,
+    // app/components/, lib/phone-enhance.ts, or anything outside app/ and lib/ on the full-check list above) or when the
+    // changed files reach no page type. It never stops the push, and a failure to run is only printed.
+    mobileRules(wt, base, env);
     code = 0;
     fs.writeFileSync(passedFile, sha);
   } catch {

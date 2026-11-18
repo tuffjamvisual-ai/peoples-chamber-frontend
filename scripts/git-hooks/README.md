@@ -20,3 +20,23 @@ git config core.hooksPath ~/opengovt-backup/git-hooks
 ```
 
 Repeat the `git show` line when this file changes on main.
+
+## The nightly mobile rules run (MOB-RULES, Cowork ENTRY 260 and 283)
+
+`scripts/checks/mobile-rules-nightly.sh` checks every page type of a local build of origin/main at 02:30 London (report only), skipping Sunday mornings while the weekly sweep runs. It writes `Claude outputs/audit/mobile-rules-nightly/<date>.md` and one STATUS line, holds `PUSH.lock` while it runs (waiting up to 60 minutes for a push to finish, else it skips that night), and builds in its own worktree like the push checks.
+
+Like the hook, it is started from outside the checkout and always runs origin/main's copy:
+
+```sh
+mkdir -p ~/opengovt-backup/mobile-rules-nightly
+cat > ~/opengovt-backup/mobile-rules-nightly/run.sh <<'SH'
+#!/bin/bash
+cd /Users/johnnybot/peoples-chamber-frontend || exit 1
+git fetch -q origin main || exit 1
+git show origin/main:scripts/checks/mobile-rules-nightly.sh > ~/opengovt-backup/mobile-rules-nightly/current.sh || exit 1
+exec bash ~/opengovt-backup/mobile-rules-nightly/current.sh
+SH
+chmod +x ~/opengovt-backup/mobile-rules-nightly/run.sh
+```
+
+and a launchd job, `~/Library/LaunchAgents/uk.opengovt.mobile-rules-nightly.plist`, running `/bin/zsh -lc ~/opengovt-backup/mobile-rules-nightly/run.sh` at Hour 2, Minute 30 (the Mac's clock is London time), with its output in `~/opengovt-backup/mobile-rules-nightly/launchd.log`; load it with `launchctl load ~/Library/LaunchAgents/uk.opengovt.mobile-rules-nightly.plist`.
