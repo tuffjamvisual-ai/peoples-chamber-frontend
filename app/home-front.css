@@ -84,4 +84,7 @@
 @media (min-width: 1024px) and (orientation: portrait), (min-width: 1024px) and (min-height: 500.01px), (min-width: 1024px) and (hover: hover), (min-width: 1024px) and (pointer: fine), (min-width: 1024px) and (pointer: none) {
   .og-mob { display: none !important; }
 }
+/* ENTRY 331 (owner decision 18 Nov 2026): the second and third reports show in the main column at every width (app/page.tsx),
+   so their rail copies, kept in the HTML, are hidden at every width too (they were desktop only). */
+.og-rail > .og-brief.og-desk { display: none !important; }
 .og-main > a.og-card { margin-top: 14px; padding-top: 14px; }

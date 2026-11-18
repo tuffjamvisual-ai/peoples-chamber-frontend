@@ -295,8 +295,11 @@ export default async function HomePage() {
               <HomeRecord only="mob" />
 
               <FeaturedBrief n={1} plainLink />
-              <FeaturedBrief n={2} only="mob" />
-              <FeaturedBrief n={3} only="mob" />
+              {/* Desktop too since ENTRY 331 (owner decision 18 Nov 2026): the left column ended about 1,180px above the rail at
+                  1280, so the second and third reports show here at every width; their copies in the rail stay in the HTML and
+                  are hidden by CSS (app/home-front.css), so no report shows twice. Phones and tablets unchanged. */}
+              <FeaturedBrief n={2} />
+              <FeaturedBrief n={3} />
 
 
               {/* Phones (owner, 10 Nov 2026, S5-home2): a closed native fold labelled with the heading and item count, opened
