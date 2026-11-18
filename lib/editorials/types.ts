@@ -9,6 +9,9 @@ export type EditorialEntry = {
   // One sentence of 22 words or fewer for article lists. Lists fall back to the standfirst when it is missing;
   // the article page always shows the full standfirst.
   summary?: string;
+  // ART-SUMMARY (owner approved 17 Nov 2026, Cowork ENTRY 263): 4 to 6 short key points, shown as the article's Summary tab
+  // (editorials.key_points). Absent: no tabs, the page as before. Not the one sentence list summary above.
+  keyPoints?: string[];
   publishedAt: string;          // ISO date
   authorByline: string;
   // 'briefing' = daily news analysis (lives only in the Briefings section);
