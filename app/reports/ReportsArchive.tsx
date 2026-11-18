@@ -106,20 +106,26 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
     }).catch(() => { asked.current = false; });
   };
   useEffect(() => { if (state.q) loadBody(); }, [state.q]);
+  // The words as typed first; only if they find nothing, a second try allowing one letter's typo (T2, 16:07: with typos on
+  // from the start, 'water' found 77 more pieces by 'later').
   const ranked = useMemo(() => {
     if (!searching) return [] as number[];
-    const scored: [number, number][] = [];
-    items.forEach((e, i) => {
-      let score = 0;
-      for (const w of typed) {
-        if (anyWordMatches(w, fields[i].head)) score += 3;
-        else if (anyWordMatches(w, fields[i].mid)) score += 2;
-        else if (body?.[e.href] && anyWordMatches(w, body[e.href])) score += 1;
-        else return;
-      }
-      scored.push([i, score]);
-    });
-    return scored.sort((a, b) => b[1] - a[1] || a[0] - b[0]).map(([i]) => i);
+    const rank = (typos: boolean) => {
+      const scored: [number, number][] = [];
+      items.forEach((e, i) => {
+        let score = 0;
+        for (const w of typed) {
+          if (anyWordMatches(w, fields[i].head, typos)) score += 3;
+          else if (anyWordMatches(w, fields[i].mid, typos)) score += 2;
+          else if (body?.[e.href] && anyWordMatches(w, body[e.href], typos)) score += 1;
+          else return;
+        }
+        scored.push([i, score]);
+      });
+      return scored.sort((a, b) => b[1] - a[1] || a[0] - b[0]).map(([i]) => i);
+    };
+    const exact = rank(false);
+    return exact.length || !typed.some((w) => w.length >= 5) ? exact : rank(true);
   }, [items, fields, body, typed, searching]);
   const matches = useMemo(() => items.map(() => !searching), [items, searching]);
   const count = searching ? ranked.length : items.length;
