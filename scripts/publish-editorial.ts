@@ -16,7 +16,7 @@
 // Warns (never stops) on a headline over 60 characters, more strongly over 70: 70 is a guide, not a limit (owner, 12 Nov
 // 2026). Stops before writing if any check fails: slug format (new: 6 to 16 lower case letters or digits); summary 22 words or fewer; no hyphens or dashes in our wording outside quotations, link addresses (scripts/style-dash.ts) and --allow names; every
 // relatedMemberIds a current member in mps; every relatedDeptSlugs, relatedBillIds, relatedCouncilSlugs and topic slug real; every
-// evidence URL https; every Open Govt evidence URL pointing at an id that exists.
+// evidence URL https; no link inside the body text, [words](address) or a bare web address (scripts/body-links.ts); every Open Govt evidence URL pointing at an id that exists.
 //
 // Safeguards: reads run in a READ ONLY transaction; the write is one statement in its own transaction with
 // SET LOCAL statement_timeout = '60s' and lock_timeout = '5s'; the row counts before and after are read separately,
@@ -32,6 +32,7 @@ import type { EditorialEntry } from '../lib/editorials/types';
 import { topics } from '../lib/topics';
 import { departments } from '../lib/departments/index';
 import { strayDash } from './style-dash';
+import { bodyLinks } from './body-links';
 import { rowFor, canon, SQL_TYPES, dollarTag, type Placement } from './editorial-row';
 
 config({ path: '.env.local', quiet: true });
@@ -137,6 +138,8 @@ async function main() {
     const hit = strayDash(text, allow);
     if (hit) problems.push(`hyphen or dash in ${where}: "...${hit}..." (rephrase, quote it, or --allow the name)`);
   }
+  // No links inside the text (owner rule, 18 Nov 2026, ENTRY 288/289): sources go in evidence.recordsReviewed only.
+  if (Array.isArray(piece.body)) for (const hit of bodyLinks(piece.body)) problems.push(`a link in the article text, ${hit} (put the source in evidence.recordsReviewed and keep only the words)`);
   const urls = evidenceUrls(piece);
   for (const u of urls) if (!u.startsWith('https://')) problems.push(`evidence URL is not https: ${u}`);
   const topicSlugs = new Set(topics.map((t) => t.slug));
