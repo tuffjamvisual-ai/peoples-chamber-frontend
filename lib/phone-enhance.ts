@@ -19,7 +19,7 @@
 import { PHONE, LIST_FOLD } from './breakpoints';
 
 export const PHONE_ENHANCE_JS = `(function(){
-var LIMIT=25,FIRST=3,LSTEP=10,MAXH=9800,CAPS=[6000,3000,1500],opened=false,done=null,wait=0,here=location.href,path=location.pathname,extra=[],OWN='nav,.og-menu-panel,.og-mbar,footer,details,.pf-list,[data-own-more]',BACK='og-phone-back:',RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
+var FIRST=3,LSTEP=10,MAXH=9800,CAPS=[6000,3000,1500],opened=false,done=null,wait=0,here=location.href,path=location.pathname,extra=[],OWN='nav,.og-menu-panel,.og-mbar,footer,details,.pf-list,[data-own-more]',BACK='og-phone-back:',RANK=/^(#|no\\.?|rank|position|pos\\.?)$/i;
 function pageHeight(){return document.documentElement.scrollHeight}
 function narrow(){return window.matchMedia(${JSON.stringify(PHONE)}).matches}
 // Tablets (T1-TABFOLD, owner approved 13 Nov 2026): only the long lists job, up to 1,023px.
@@ -79,10 +79,12 @@ function lists(buttons){
   var found=[].slice.call(document.querySelectorAll('.ng-page ul,.ng-page ol,.ng-page tbody')).concat(extra);
   found.forEach(function(list){
     // Under 1,024px every list of more than 3 items opens with 3 (Cowork ENTRY 259 item 5, owner's rule, 17 Nov 2026). From
-    // 1,024px up only lists of more than 25 fold (owner, 18 Nov 2026, Cowork ENTRY 282: desktop pages showed less data), so
-    // shorter lists show in full there, as before 5fd7f03a. Decided once at load, as the fold always was.
+    // 1,024px up this script folds no list at all (owner chose (b), 18 Nov 2026, Cowork ENTRY 285): its desktop folds hid
+    // nothing (the hiding rule is in the phone and tablet styles) and left a stray count and 'Show 10 more'. The server's own
+    // folds (D5) and the MPs party view's 20 then 'Show 20 more' (ENTRY 284) are not this script's. Decided once at load.
     // Lists in an article's running text are prose, not records, and stay whole (data-article-body; Cowork to confirm).
-    if(list.children.length<=(listsDesk()?LIMIT:FIRST)&&!list.__ptButton&&!list.__ptTag)return;
+    if(listsDesk())return;
+    if(list.children.length<=FIRST&&!list.__ptButton&&!list.__ptTag)return;
     if(list.closest('[data-article-body]')&&!list.__ptTag)return;
     if(list.closest(OWN)||(opened&&!list.__ptLimit))return;
     var after=list.tagName==='TBODY'?list.parentElement:list;

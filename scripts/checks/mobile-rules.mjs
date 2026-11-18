@@ -6,8 +6,10 @@
 //   lists    a list control other than "Show N more" (N at most 10) and "Show fewer" (a show-all, "Show 241 more", ...),
 //            or a "Show N more" without its count beside it ("3 of 241"), or a count whose first number is not 3;
 //            the list rule by width (owner, 18 Nov 2026, Cowork ENTRY 282 and 283): under 1,024px a list of 4 or more opens
-//            with 3, so a list showing more than 3 items whole is a finding; from 1,024px only lists of more than 25 fold,
-//            so a list of more than 25 shown whole, or a fold on a list of 25 or fewer ('3 of 12'), is a finding. Lists
+//            with 3, so a list showing more than 3 items whole is a finding; from 1,024px the page script folds no list
+//            (owner chose (b), ENTRY 285), so a list shown whole there is not a finding, and a fold on a list of 25 or fewer
+//            ('3 of 12', the server's D5 folds, open with the owner) still is. The MPs party view's own desktop fold
+//            (ENTRY 284: 20, then 'Show 20 more', .mpp-desk) is held to that: N at most 20 and a count beside it. Lists
 //            that stay whole by the owner's decision are not counted: nav, menus, footer, <details>, section folds
 //            (.pf-list), [data-own-more], an article's running text, and the 'lists' entries of mobile-rules-exceptions.json
 //   width    the document is wider than the screen
@@ -66,8 +68,8 @@ const blocked = (url) => /_rsc=|\/_vercel\/|posthog\.com|(^|\/\/)([a-z0-9-]+\.)?
 function measure({ excSelectors, listSelectors }) {
   const W = innerWidth;
   const desk = W >= 1024;
-  // Lists fold above this many items (ENTRY 282): 3 under 1,024px, 25 from 1,024px (lib/phone-enhance.ts lists()).
-  const FOLD_ABOVE = desk ? 25 : 3;
+  // Lists fold above this many items: 3 under 1,024px; from 1,024px the page script folds none (ENTRY 285).
+  const FOLD_ABOVE = desk ? Infinity : 3;
   const main = document.querySelector('main') || document.body;
   const chrome = (e) => e.closest('.og-cookie-banner, .og-mbar, .og-navwrap, .ng-tab, .og-menu-panel, footer, nav[aria-label="Main"]');
   // Shown: has a box, is not hidden, and is not inside a closed <details> (other than as its summary), whose content the
@@ -102,7 +104,11 @@ function measure({ excSelectors, listSelectors }) {
       // 'Show N more' (N at most 10), a noun after it allowed ('Show 10 more sitting days'); the count is the list's
       // .og-more-count element just before the button ('3 of 241').
       const m = /^Show (\d+) more\b/.exec(t);
-      if (!(m && Number(m[1]) <= 10)) out.lists.push(`list control ${name(e)}`);
+      const party = desk && e.closest('.mpp-desk');
+      if (party) {
+        if (!(m && Number(m[1]) <= 20)) out.lists.push(`list control ${name(e)}`);
+        else if (!/^[\d,]+ of [\d,]+$/.test(text(e.parentElement.querySelector('.og-more-count') || e))) out.lists.push(`no count beside ${name(e)}`);
+      } else if (!(m && Number(m[1]) <= 10)) out.lists.push(`list control ${name(e)}`);
       else {
         let c = null;
         for (let x = (e.tagName === 'SUMMARY' ? e.parentElement : e).previousElementSibling, k = 0; x && k < 3 && !c; x = x.previousElementSibling, k++) if (x.matches('.og-more-count')) c = x;
