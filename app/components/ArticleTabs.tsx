@@ -26,8 +26,9 @@ html.og-js .art-tablist { display: flex; gap: 8px; margin: 0 0 20px; border-bott
 .art-read-full { display: none; }
 html.og-js .art-read-full { display: inline-flex; text-decoration: none; align-items: center; min-height: 44px; padding: 0 16px; margin: 0 0 8px; font: inherit; font-size: 16px; font-weight: bold; color: #7a1612; background: none; border: 2px solid #7a1612; cursor: pointer; }
 html.og-js .art-tabs[data-tab="summary"] .art-panel-full, html.og-js .art-tabs[data-tab="full"] .art-panel-summary { display: none; }
-/* If JavaScript stops after html.og-js is set, 'Read the full article' is a plain #full link and this opens the text. */
-html.og-js .art-tabs:has(#full:target) .art-panel-full { display: block; }
+/* If JavaScript stops after html.og-js is set, 'Read the full article' is a plain #full link and this opens the text; once the
+   script runs (data-ready) the tabs decide, so choosing Summary after arriving at #full hides the text (T2, 01:10). */
+html.og-js .art-tabs:not([data-ready]):has(#full:target) .art-panel-full { display: block; }
 html:not(.og-js) .art-panel-summary { margin-bottom: 24px; padding-bottom: 8px; border-bottom: 1px solid rgba(20,16,13,0.25); }
 `;
 
