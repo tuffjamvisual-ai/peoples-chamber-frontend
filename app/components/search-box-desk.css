@@ -1,0 +1,23 @@
+/* The one desktop look for search boxes (owner standing rule 18 Nov 2026, Cowork ENTRY 335 and 336): from 1,024px a box
+   is the /councils box (CouncilSearch, ENTRY 310 and 311): the field 323px wide and 45px tall, 15px text, a faint ink
+   tint rgba(20,16,13,0.05) with a 1px rgba(20,16,13,0.3) border, padding 10px 14px; the button an ink outline, 15px,
+   not bold, padding 10px 14px, 45px tall. Under 1,024px nothing here applies: each box keeps its phone and tablet look.
+   Classes: og-sbox on the field's wrapper (fixes its width), og-sbox-input on the field, og-sbox-btn on the button.
+   The suggestions list under a field may be wider than the field (owner, ENTRY 335). Inline styles are overridden,
+   hence !important. */
+@media (min-width: 1024px) {
+  .og-sbox { flex: 0 0 323px !important; width: 323px !important; max-width: 323px !important; }
+  .og-sbox-input {
+    width: 100% !important; height: 45px !important; box-sizing: border-box !important;
+    background: rgba(20, 16, 13, 0.05) !important; border: 1px solid rgba(20, 16, 13, 0.3) !important;
+    padding: 10px 14px !important; font-size: 15px !important; letter-spacing: normal !important; transform: none !important;
+  }
+  /* A box with a clear button (×) inside its field keeps room for it on the right. */
+  .og-sbox-input.og-sbox-clearable { padding-right: 40px !important; }
+  .og-sbox-btn {
+    height: 45px !important; box-sizing: border-box !important; background: transparent !important; color: #14100d !important;
+    border: 1px solid #14100d !important; font-weight: 400 !important; font-size: 15px !important; letter-spacing: 0.06em !important;
+    padding: 10px 14px !important; opacity: 1 !important;
+  }
+  .og-sbox ul[role='listbox'] { right: auto !important; min-width: 100%; width: max-content; max-width: 560px; }
+}

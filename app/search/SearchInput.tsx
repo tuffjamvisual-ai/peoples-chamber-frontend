@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { departments } from '@/lib/departments';
 import { phoneUpTo, TOUCH } from '@/lib/breakpoints';
 import SuggestInput from '@/app/components/SuggestInput';
+import '@/app/components/search-box-desk.css';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -124,7 +125,9 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
           so it works with JavaScript off and every search can be linked: q, and the type and department below. */}
       <form id={FORM_ID} action="/search" method="get" role="search" onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '14px' }}>
         {defaultSort === 'newest' && <input type="hidden" name="sort" value="newest" />}
-        <div style={{ position: 'relative', flex: '1 1 auto', minWidth: 0 }}>
+        {/* From 1,024px the box takes the /councils box's look (owner decision 18 Nov 2026, Cowork ENTRY 335; one shared style,
+            app/components/search-box-desk.css); phones and tablets keep this one. */}
+        <div className="og-sbox" style={{ position: 'relative', flex: '1 1 auto', minWidth: 0 }}>
         {/* Suggestions as you type (SEARCH-ALL batch 1, Cowork ENTRY 326): names and titles from /api/suggest/site; Enter
             with none picked still runs the full search below. */}
         <SuggestInput
@@ -136,6 +139,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
           onValueChange={setQ}
           placeholder="Search a minister, department, policy, vote or government announcement"
           listLabel="Suggested pages"
+          className="og-sbox-input og-sbox-clearable"
           style={{
             width: '100%',
             padding: '13px 48px 13px 16px',
@@ -181,6 +185,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
         </div>
         <button
           type="submit"
+          className="og-sbox-btn"
           style={{ flex: '0 0 auto', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: 'pointer' }}
         >
           Search
