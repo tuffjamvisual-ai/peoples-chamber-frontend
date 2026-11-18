@@ -76,7 +76,15 @@ async function GET_impl(req: Request) {
     let read = 0;
     for (const p of (due ?? []) as unknown as Array<Record<string, unknown>>) {
       if (budget.stopStarting()) break;
-      const fresh = await fetchPosts(p.member_id as number, budget);
+      // A Members API request that times out stops the run cleanly, keeping what was read (as a 429 does); the next run
+      // carries on from the longest unchecked. A timeout used to throw and fail the whole run (HTTP 500, 17 Nov 2026).
+      let fresh: Awaited<ReturnType<typeof fetchPosts>>;
+      try { fresh = await fetchPosts(p.member_id as number, budget); }
+      catch (e) {
+        const name = (e as Error).name;
+        if (name === 'TimeoutError' || name === 'AbortError' || /aborted due to timeout/i.test((e as Error).message)) { out.stopped_by = `Members API timeout at member ${p.member_id}`; break; }
+        throw e;
+      }
       read++;
       if (POST_COLS.some((c) => !sameValue(p[c], fresh[c]))) changedPages.add(p.member_id as number);
       if (!dry) await savePosts(db, fresh);
