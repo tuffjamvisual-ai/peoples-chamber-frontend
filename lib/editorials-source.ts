@@ -45,7 +45,7 @@ type IndexEntry = EditorialListEntry & { topicPositions?: Record<string, number>
 const INDEX_LIMIT = 1_000_000;
 
 const WEEK = 604800;   // owner, 30 Oct 2026 (was a day): a publish refreshes the tags straight away
-const COLUMNS = 'slug, headline, standfirst, summary, published_at, author_byline, kind, kicker, body_json, related_dept_slugs, related_member_ids, related_bill_ids, opinion, hero_image, hero_alt, evidence, update_note, related_programme_slugs, related_council_slugs, explore, read_next, topic_positions, registry_order, unpublished, key_points';
+const COLUMNS = 'slug, headline, standfirst, summary, published_at, author_byline, kind, kicker, body_json, related_dept_slugs, related_member_ids, related_bill_ids, opinion, hero_image, hero_alt, evidence, update_note, related_programme_slugs, related_council_slugs, explore, read_next, topic_positions, registry_order, unpublished';
 
 function client() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
@@ -62,7 +62,7 @@ function fromRow(r: Row): EditorialEntry {
   };
   const optional: [string, string][] = [
     ['summary', 'summary'], ['kind', 'kind'], ['kicker', 'kicker'], ['opinion', 'opinion'], ['heroImage', 'hero_image'], ['heroAlt', 'hero_alt'],
-    ['evidence', 'evidence'], ['updateNote', 'update_note'], ['relatedProgrammeSlugs', 'related_programme_slugs'], ['explore', 'explore'], ['readNext', 'read_next'], ['keyPoints', 'key_points'],
+    ['evidence', 'evidence'], ['updateNote', 'update_note'], ['relatedProgrammeSlugs', 'related_programme_slugs'], ['explore', 'explore'], ['readNext', 'read_next'],
   ];
   for (const [field, col] of optional) if (r[col] !== null && r[col] !== undefined) e[field] = r[col];
   for (const [field, col] of [['relatedDeptSlugs', 'related_dept_slugs'], ['relatedMemberIds', 'related_member_ids'], ['relatedBillIds', 'related_bill_ids'], ['relatedCouncilSlugs', 'related_council_slugs']]) {

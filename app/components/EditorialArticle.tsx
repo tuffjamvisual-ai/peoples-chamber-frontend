@@ -1,5 +1,3 @@
-import ArticleTabs from './ArticleTabs';
-import { usableKeyPoints } from '@/lib/key-points';
 import { Fragment } from 'react';
 // Shared editorial article renderer. Used by both /editorials/[slug]
 // (Investigations) and /briefings/[slug] (Briefings) — the only differences
@@ -34,16 +32,15 @@ const ACCENT = '#7a1612';
 
 export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [], related, banner }: { banner?: ReactNode; related?: RelatedLink[]; piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
   const sources = piece.evidence?.recordsReviewed ?? [];
-  const keyPoints = usableKeyPoints(piece.keyPoints);
   const showStandfirst = !!piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body);
   // Briefings keep their publish date only (T1-UPDATED, Cowork 13 Nov 2026).
   const updatedIso = basePath === '/briefings' ? null : shownUpdateIso(piece.updateNote, piece.publishedAt);
-  // The article text, once: the 'Full article' tab when there are key points, otherwise as before (T2: was written twice).
+  // The article text (ART-SUMMARY's tabs taken out again, owner approved 18 Nov 2026, Cowork ENTRY 292: the standfirst is the summary).
   const articleText = (
     <>
         {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
         {/* The main action (UX3a, A6): the standfirst when it shows, otherwise the start of the text. */}
-        <article id="article-text" data-own-folds="" data-article-body="" data-main-action={showStandfirst || keyPoints ? undefined : ''} style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
+        <article id="article-text" data-own-folds="" data-article-body="" data-main-action={showStandfirst ? undefined : ''} style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
           <ReportBody body={piece.body} paragraphs={showStandfirst ? 2 : 3} />
           {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
           {piece.updateNote && piece.updateNote.length > 0 && (
@@ -163,9 +160,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
         </header>
 
-        {/* ART-SUMMARY (Cowork ENTRY 263): with 4 to 6 key points, the text below is the 'Full article' tab beside a 'Summary'
-            tab (ArticleTabs); without them, exactly as before. */}
-        {keyPoints ? <ArticleTabs points={keyPoints} mainAction={!showStandfirst}>{articleText}</ArticleTabs> : articleText}
+        {articleText}
 
       </div>
 

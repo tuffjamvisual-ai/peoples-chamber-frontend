@@ -1,12 +1,7 @@
-import ArticleTabs from '@/app/components/ArticleTabs';
-import { usableKeyPoints } from '@/lib/key-points';
 import type { Metadata } from 'next';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { ContinueReading } from '../../components/ReadOn';
-
-// The explainer's key points for its Summary tab (ART-SUMMARY): 4 to 6 short points, or none (no tabs).
-const KEY_POINTS: string[] = [];
 
 export const metadata: Metadata = {
   title: { absolute: 'How UK Political Donations Work and Why the System Fails' },
@@ -31,7 +26,6 @@ const bodyP: React.CSSProperties = {
 };
 
 export default function DonationsExplainer() {
-  const keyPoints = usableKeyPoints(KEY_POINTS);
   const articleText = (
     <>
       <article data-article-body="" style={{ borderLeft: `3px solid ${ACCENT}`, paddingLeft: '20px' }}>
@@ -86,8 +80,7 @@ export default function DonationsExplainer() {
       </header>
 
       {/* T1-MOB batch 2 (Cowork 13 Nov 2026): the explainer is reading text, as a report's is, so the length checks leave it out. */}
-      {/* ART-SUMMARY (Cowork ENTRY 263/268): with 4 to 6 KEY_POINTS, the text is the 'Full article' tab beside 'Summary'. */}
-      {keyPoints ? <ArticleTabs points={keyPoints}>{articleText}</ArticleTabs> : articleText}
+      {articleText}
 
       </div>
     </OpenGovShell>
