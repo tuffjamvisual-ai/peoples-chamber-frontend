@@ -161,7 +161,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
 
   // Arrow keys, Enter and Escape in the MP list (SEARCH-ALL batch 2); matched letters bold; rows at least 44px. With
   // nothing highlighted, Enter submits as before.
-  const nav = useListNav(open && !error && !postcodeResult ? nameSuggestions.length : 0, (i) => { setOpen(false); router.push('/mps/' + nameSuggestions[i].memberId) }, () => setOpen(false))
+  const nav = useListNav(open && !error && !postcodeResult ? nameSuggestions.length : 0, (i) => { setOpen(false); router.push('/mps/' + nameSuggestions[i].memberId) }, () => setOpen(false), q)
   const bold = (label: string) => markMatches(label, q).map(([t, hit], i) => (hit ? <strong key={i}>{t}</strong> : <span key={i}>{t}</span>))
 
   return (

@@ -20,6 +20,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { normaliseParty, isCoop, resolvePartyColour } from '@/lib/party-helpers';
 import Unavailable from '@/app/components/Unavailable';
+import { wordsOf, searchList } from '@/lib/search/words';
 
 interface MP {
   member_id: number;
@@ -82,16 +83,14 @@ function MPsView({ mps, expand, searchParams }: ViewProps & { searchParams: Para
     if (url.href !== window.location.href) window.history.replaceState(window.history.state, '', url.href);
   }, [searchTerm, searchParams]);
 
+  const fielded = useMemo(() => mps.map((mp) => ({ item: mp, fields: [wordsOf(`${mp.name} ${mp.search_name || ''}`), wordsOf(mp.constituency || ''), wordsOf(mp.party || '')] })), [mps]);
   const filteredMPs = useMemo(() => {
     if (!searchTerm.trim()) return mps;
-    // Every word of the search must appear in the MP's name (as shown, or as Parliament writes it with any courtesy
-    // title), constituency or party, so "Mrs Badenoch" and "Kemi Badenoch" both find Kemi Badenoch (24 Oct 2026).
-    const words = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
-    return mps.filter((mp) => {
-      const hay = [mp.name, mp.search_name || '', mp.constituency || '', mp.party || ''].join(' ').toLowerCase();
-      return words.every((w) => hay.includes(w));
-    });
-  }, [mps, searchTerm]);
+    // Every word of the search must start a word of the MP's name (as shown, or as Parliament writes it with any courtesy
+    // title, so "Mrs Badenoch" and "Kemi Badenoch" both find Kemi Badenoch), constituency or party, in any order; a one
+    // letter typo only if nothing matches exactly; the name first in the order (SEARCH-ALL batch 2, lib/search/words.ts).
+    return searchList(fielded, searchTerm).matches;
+  }, [mps, fielded, searchTerm]);
 
   const mpsByParty = useMemo(() => {
     const acc: Record<string, MP[]> = {};
@@ -530,12 +529,13 @@ function AllPartiesView({
   // straight to the profile — searching a name should reach the person,
   // not dump you back on the party.
   const searching = searchTerm.trim().length > 0;
-  const CAP = 60;
-  const shownMatches = searching
-    ? [...matches]
-        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'en-GB', { sensitivity: 'base' }))
-        .slice(0, CAP)
-    : [];
+  // Every match, best first, 60 a page (SEARCH-ALL batch 2: no cap hides a match; was the first 60 only).
+  const PER_PAGE = 60;
+  const [page, setPage] = useState(1);
+  const [pageFor, setPageFor] = useState(searchTerm);
+  if (pageFor !== searchTerm) { setPageFor(searchTerm); setPage(1); }
+  const pages = Math.max(1, Math.ceil(matches.length / PER_PAGE));
+  const shownMatches = searching ? matches.slice((page - 1) * PER_PAGE, page * PER_PAGE) : [];
 
   return (
     <>
@@ -575,10 +575,12 @@ function AllPartiesView({
                 <MPCard key={mp.member_id} mp={mp} fromParty={normaliseParty(mp.party)} idx={idx} />
               ))}
             </div>
-            {matches.length > CAP && (
-              <p style={{ fontSize: '15px', marginTop: '16px' }}>
-                Showing the first {CAP} of {matches.length} matches. Refine your search to narrow it.
-              </p>
+            {pages > 1 && (
+              <nav aria-label="Pages of matching MPs" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', marginTop: '16px', fontSize: '15px' }}>
+                <button type="button" disabled={page <= 1} onClick={() => setPage(page - 1)} style={{ minHeight: '44px', padding: '6px 14px', background: 'transparent', color: '#14100d', border: '1px solid #14100d', borderStyle: page <= 1 ? 'dashed' : 'solid', textDecoration: page <= 1 ? 'line-through' : 'none', fontFamily: 'inherit', fontSize: '15px', cursor: page <= 1 ? 'default' : 'pointer' }}>Previous page</button>
+                <span>Page {page} of {pages}</span>
+                <button type="button" disabled={page >= pages} onClick={() => setPage(page + 1)} style={{ minHeight: '44px', padding: '6px 14px', background: 'transparent', color: '#14100d', border: '1px solid #14100d', borderStyle: page >= pages ? 'dashed' : 'solid', textDecoration: page >= pages ? 'line-through' : 'none', fontFamily: 'inherit', fontSize: '15px', cursor: page >= pages ? 'default' : 'pointer' }}>Next page</button>
+              </nav>
             )}
           </>
         )

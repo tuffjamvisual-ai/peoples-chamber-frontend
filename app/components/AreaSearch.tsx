@@ -128,7 +128,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
   }
 
   // Arrow keys, Enter and Escape in the council list (SEARCH-ALL batch 2); matched letters bold; rows 44px.
-  const nav = useListNav(open ? councils.length : 0, (i) => { setOpen(false); router.push(`/councils/${councils[i].slug}`); }, () => setOpen(false));
+  const nav = useListNav(open ? councils.length : 0, (i) => { setOpen(false); router.push(`/councils/${councils[i].slug}`); }, () => setOpen(false), q);
   const listId = `${inputId}-councils`;
 
   return (

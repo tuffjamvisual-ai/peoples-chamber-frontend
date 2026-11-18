@@ -168,7 +168,7 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
   // Arrow keys, Enter and Escape over the council names then the places (SEARCH-ALL batch 2); matched letters bold;
   // rows at least 44px. With nothing highlighted, Enter submits as before.
   const picks = [...nameSuggestions.map((r) => r.slug), ...placeSuggestions.map((p) => p.slug)]
-  const nav = useListNav(open && !error && !postcodeResult ? picks.length : 0, (i) => { setOpen(false); router.push(`/councils/${picks[i]}`) }, () => setOpen(false))
+  const nav = useListNav(open && !error && !postcodeResult ? picks.length : 0, (i) => { setOpen(false); router.push(`/councils/${picks[i]}`) }, () => setOpen(false), q)
   const row = (k: number) => ({ id: `cs-opt-${k}`, role: 'option' as const, 'aria-selected': k === nav.active, onMouseEnter: () => nav.setActive(k) })
   const bold = (label: string) => markMatches(label, q).map(([t, hit], i) => (hit ? <strong key={i}>{t}</strong> : <span key={i}>{t}</span>))
 
