@@ -11,11 +11,14 @@ import { useEffect, useRef, type ReactNode } from 'react';
 const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 
+// On phones every .ng-page summary::after is the invisible 44px tap layer (globals.css, absolute); the + / minus here
+// is drawn static beside the words instead, as .rf-d and .pg-d do (T2, 18 Nov 2026 12:10); the summary is 44px itself.
 const CSS = `
-.art-sources > summary { list-style: none; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; }
+.art-sources > summary { list-style: none; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; color: ${ACCENT}; }
+.art-sources > summary > span { text-decoration: underline; text-underline-offset: 3px; }
 .art-sources > summary::-webkit-details-marker { display: none; }
-.art-sources > summary::after { content: "+"; font-size: 18px; line-height: 1; text-decoration: none; }
-.art-sources[open] > summary::after { content: "\\2212"; }
+.art-sources > summary::after, .ng-page .art-sources > summary::after { content: "+"; position: static; transform: none; height: auto; min-width: 0; flex: none; font-size: 18px; line-height: 1; text-decoration: none; }
+.art-sources[open] > summary::after, .ng-page .art-sources[open] > summary::after { content: "\\2212"; }
 .art-sources > summary:focus-visible { outline: 3px solid ${ACCENT}; outline-offset: 2px; }
 `;
 
@@ -37,7 +40,7 @@ export default function SourcesFold({ count, plain = false, children }: { count:
   return (
     <details ref={ref} id="sources" className="art-sources" data-og-sources="" style={plain ? { scrollMarginTop: '24px' } : { borderTop: `1px solid ${HAIRLINE}`, paddingTop: '8px', margin: '8px 0 24px', fontSize: '15px', scrollMarginTop: '24px' }}>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
-      <summary>Sources ({count.toLocaleString('en-GB')})</summary>
+      <summary><span>Sources ({count.toLocaleString('en-GB')})</span></summary>
       <div style={{ margin: '8px 0 0', lineHeight: 1.6 }}>{children}</div>
     </details>
   );
