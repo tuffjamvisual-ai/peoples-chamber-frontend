@@ -270,11 +270,19 @@ function taps(){
     var r=a.getBoundingClientRect(),o=a.matches(TAPSEL),e=o?Math.max(0,(44-(r.bottom-r.top))/2):0;
     return{a:a,o:o,t:r.top,b:r.bottom,l:r.left,r:r.right,up:e,dn:e,e:e};
   });
-  for(var i=0;i<g.length;i++)for(var j=0;j<g.length;j++){
-    var A=g[i],B=g[j];if(i===j||!(A.o||B.o))continue;
+  // Sorted by top: for each link only those starting less than 44px below it can overlap it (T2: was every pair).
+  g.sort(function(x,y){return x.t-y.t});
+  for(var i=0;i<g.length;i++)for(var j=i+1;j<g.length;j++){
+    var A=g[i],B=g[j];if(B.t-A.b>44)break;if(!(A.o||B.o))continue;
     if(Math.min(A.r,B.r)-Math.max(A.l,B.l)<=0.5||A.b>B.t)continue; // not side by side, or A not above B
     var gap=B.t-A.b;if(A.dn+B.up<=gap)continue;
-    if(A.o&&B.o){A.dn=Math.min(A.dn,gap/2);B.up=Math.min(B.up,gap/2)}else if(A.o)A.dn=Math.min(A.dn,gap);else B.up=Math.min(B.up,gap);
+    if(A.o&&B.o){
+      A.dn=Math.min(A.dn,gap/2);B.up=Math.min(B.up,gap/2);
+      // Cowork ENTRY 279: neither area under 24px; the meeting point moves so the short side keeps 24px.
+      var ha=A.b-A.t+A.up+A.dn,hb=B.b-B.t+B.up+B.dn;
+      if(ha<24){var need=24-ha;A.dn+=need;B.up=Math.max(0,B.up-need)}
+      else if(hb<24){var nb=24-hb;B.up+=nb;A.dn=Math.max(0,A.dn-nb)}
+    }else if(A.o)A.dn=Math.min(A.dn,gap);else B.up=Math.min(B.up,gap);
   }
   g.forEach(function(x){
     if(!x.o||(x.up===x.e&&x.dn===x.e))return;
