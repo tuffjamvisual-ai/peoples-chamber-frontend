@@ -54,7 +54,7 @@ const BUCKETS: Bucket[] = [
     pence: 12, sharePct: 12.2,
     category: 'Social security, pensioners',
     prose:
-      "The Basic State Pension, the New State Pension and Pension Credit. Paid to anyone above State Pension age who has the required National Insurance record. Protected by the Triple Lock since 2011, payments rise each year by the highest of CPI inflation, average earnings growth or 2.5%. The Triple Lock cost the Treasury well above forecast during the 2022 inflation shock and is the largest contingent fiscal commitment in the welfare system.",
+      "The Basic State Pension, the New State Pension and Pension Credit. Paid to anyone above State Pension age who has the required National Insurance record. Protected by the Triple Lock since 2011, payments rise each year by the highest of CPI inflation, average earnings growth or 2.5 per cent. The Triple Lock cost the Treasury well above forecast during the 2022 inflation shock and is the largest contingent fiscal commitment in the welfare system.",
     deptHref: '/departments/work-pensions',
     deptLabel: 'Department for Work and Pensions',
   },
