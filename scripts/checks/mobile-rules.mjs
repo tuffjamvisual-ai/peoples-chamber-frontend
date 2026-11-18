@@ -88,7 +88,13 @@ function measure({ excSelectors, listSelectors }) {
     if (/^H\d$/.test(e.tagName)) continue;
     // A tap area drawn by an absolutely placed ::after (MOB-TAPS, and phones under 480px) counts as the element's tap height.
     const af = getComputedStyle(e, '::after');
-    const tapH = af.content && af.content !== 'none' && af.position === 'absolute' ? Math.max(r.height, parseFloat(af.height) || 0) : r.height;
+    let tapH = af.content && af.content !== 'none' && af.position === 'absolute' ? Math.max(r.height, parseFloat(af.height) || 0) : r.height;
+    // A tick box or radio is set by a tap anywhere on its label, so it counts the label's tap area: the label, or the layer
+    // drawn on it (ENTRY 286, audit/t1-ticks/PROPOSAL.md).
+    if (e.matches('input[type=checkbox], input[type=radio]')) {
+      const lab = e.closest('label') || (e.id ? document.querySelector(`label[for="${CSS.escape(e.id)}"]`) : null);
+      if (lab) { const la = getComputedStyle(lab, '::after'); tapH = Math.max(tapH, lab.getBoundingClientRect().height, la.content && la.content !== 'none' && la.position === 'absolute' ? parseFloat(la.height) || 0 : 0); }
+    }
     if (tapH < 24 && !desk) out.taps.push(`${name(e)} tap area under the 24px floor: ${Math.round(tapH * 10) / 10}px`);
     else if (tapH < 44 && !excepted(e) && !desk) out.taps.push(`${name(e)} ${Math.round(r.width)}x${Math.round(tapH)}`);
     // The text shown (innerText): a fold's summary holds both 'Show 10 more' and a hidden 'Show fewer', whose textContent

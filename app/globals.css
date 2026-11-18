@@ -620,4 +620,14 @@ html.ya-wait .og-main-content { min-height: 110vh; }
        so the two areas meet halfway and never overlap (Cowork ENTRY 276; floor 24px). */
     content: ''; position: absolute; left: 0; right: 0; top: var(--tap-t, calc(50% - 22px)); bottom: var(--tap-b, calc(50% - 22px));
   }
+  /* Tick boxes and radios (Cowork ENTRY 283 item 2 and 286, owner approved 18 Nov 2026; audit/t1-ticks/PROPOSAL.md): a tap
+     anywhere on a box's label sets it, so the label is the tap area: the same invisible layer, across the label's width and
+     at least 44px tall, centred on it (a label already 44px or taller keeps its own size); for a box with its label beside
+     it in the same row (/signup), across that row. Nothing moves. Overlaps meet halfway, as for links (taps). */
+  .og-main-content label:has(> input:is([type="checkbox"], [type="radio"])),
+  .og-main-content :has(> input[type="checkbox"] + label[for]) { position: relative; }
+  .og-main-content label:has(> input:is([type="checkbox"], [type="radio"]))::after,
+  .og-main-content :has(> input[type="checkbox"] + label[for]) > label[for]::after {
+    content: ''; position: absolute; left: 0; right: 0; top: var(--tap-t, min(0px, calc(50% - 22px))); bottom: var(--tap-b, min(0px, calc(50% - 22px)));
+  }
 }

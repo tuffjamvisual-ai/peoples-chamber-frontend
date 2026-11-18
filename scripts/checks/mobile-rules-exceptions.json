@@ -144,6 +144,12 @@
       "route": "/reports",
       "selector": "html",
       "reason": "20 reports a page with no month folds on phones (owner decision 18 Nov 2026, Cowork ENTRY 306), longer than the phone length limit."
+    },
+    {
+      "rule": "taps",
+      "route": "/cookies",
+      "selector": "input[type=\"radio\"]",
+      "reason": "The analytics Yes and No radios: their labels' tap areas (44px each) would overlap in the 10px gap between them, so they meet halfway and each is 39px, over the 24px floor (owner approved 18 Nov 2026, Cowork ENTRY 286, audit/t1-ticks/PROPOSAL.md item 3), as the cut-back link areas."
     }
   ]
 }

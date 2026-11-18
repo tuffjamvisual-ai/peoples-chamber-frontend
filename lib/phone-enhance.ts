@@ -268,13 +268,17 @@ document.addEventListener('click',function(e){
 // Where two links' areas would overlap although the links do not, both are cut back to meet halfway between the links, so a
 // tap always lands on the nearer one; never below 24px (a smaller one is logged to the console for the rules check).
 var TAPSEL=':is(.og-main-content, .dossier-content) :is(p, figcaption, blockquote) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump)';
+// Tick box and radio labels (ENTRY 286, PROPOSAL.md): their layer is drawn on the label, centred on the label or, for a label
+// beside its box, on the row; they take part in the overlap pass like links.
+var TICKSEL='.og-main-content label:has(> input:is([type=checkbox],[type=radio])), .og-main-content :has(> input[type=checkbox] + label[for]) > label[for]';
+function tickBox(a){return a.matches('label[for]')&&!a.querySelector('input')?a.parentElement:a}
 function tapWide(){return window.matchMedia('(max-width: 1023.98px), (pointer: coarse)').matches}
 function taps(){
-  var ours=[].slice.call(document.querySelectorAll(TAPSEL));
+  var ours=[].slice.call(document.querySelectorAll(TAPSEL+', '+TICKSEL));
   ours.forEach(function(a){a.style.removeProperty('--tap-t');a.style.removeProperty('--tap-b')});
   if(!tapWide()||!ours.length)return;
-  var g=[].slice.call(document.querySelectorAll('main a')).filter(function(a){return a.getClientRects().length}).map(function(a){
-    var r=a.getBoundingClientRect(),o=a.matches(TAPSEL),e=o?Math.max(0,(44-(r.bottom-r.top))/2):0;
+  var g=[].slice.call(document.querySelectorAll('main a, '+TICKSEL)).filter(function(a){return a.getClientRects().length}).map(function(a){
+    var tk=a.matches(TICKSEL),r=(tk?tickBox(a):a).getBoundingClientRect(),o=tk||a.matches(TAPSEL),e=o?Math.max(0,(44-(r.bottom-r.top))/2):0;
     return{a:a,o:o,t:r.top,b:r.bottom,l:r.left,r:r.right,up:e,dn:e,e:e};
   });
   // Sorted by top: for each link only those starting less than 44px below it can overlap it (T2: was every pair).
