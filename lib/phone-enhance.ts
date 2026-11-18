@@ -3,7 +3,7 @@
 //   tables   a table with more than 3 columns, or that does not fit, becomes one card per row: the first column is the
 //            title and the rest are "label: value" lines in the same order, labels read from the table's own header.
 //   links    a link alone in its paragraph is a 44px tap target like any other (lib/globals.css [data-pt-tap]).
-//   lists    a list of more than 3 items opens with 3 (more than 25 until ENTRY 259), then Show 10 more adds 10, Show fewer goes back to 3, and the count
+//   lists    a list of more than 3 items opens with 3 (more than 25 until ENTRY 259; from 1,024px up still more than 25, ENTRY 282), then Show 10 more adds 10, Show fewer goes back to 3, and the count
 //            beside them says what shows ('3 of 241') (ENTRY 239 A4, MOB-LISTS, owner rule 17 Nov 2026; was 25 and 25). If the page is still over 9,800px
 //            once it has loaded (owner, 5 Nov 2026: 10,000px at most as a page first opens), tall lists of any kind are cut
 //            to about 6,000px, then 3,000px, then 1,500px, and then its sections fold under their headings.
@@ -24,6 +24,7 @@ function pageHeight(){return document.documentElement.scrollHeight}
 function narrow(){return window.matchMedia(${JSON.stringify(PHONE)}).matches}
 // Tablets (T1-TABFOLD, owner approved 13 Nov 2026): only the long lists job, up to 1,023px.
 function listsWide(){return window.matchMedia(${JSON.stringify(LIST_FOLD)}).matches}
+function listsDesk(){return !window.matchMedia('(max-width: 1023.98px)').matches}
 function text(e){return (e.textContent||'').replace(/[\\u25B2\\u25BC\\u25B4\\u25BE]/g,'').replace(/\\s+/g,' ').trim()}
 function labels(t){
   var head=t.tHead&&t.tHead.rows.length?t.tHead.rows[t.tHead.rows.length-1]:null,body=false;
@@ -77,9 +78,11 @@ function links(){
 function lists(buttons){
   var found=[].slice.call(document.querySelectorAll('.ng-page ul,.ng-page ol,.ng-page tbody')).concat(extra);
   found.forEach(function(list){
-    // Every list of more than 3 items opens with 3 (Cowork ENTRY 259 item 5, owner's rule, 17 Nov 2026; was more than 25).
+    // Under 1,024px every list of more than 3 items opens with 3 (Cowork ENTRY 259 item 5, owner's rule, 17 Nov 2026). From
+    // 1,024px up only lists of more than 25 fold (owner, 18 Nov 2026, Cowork ENTRY 282: desktop pages showed less data), so
+    // shorter lists show in full there, as before 5fd7f03a. Decided once at load, as the fold always was.
     // Lists in an article's running text are prose, not records, and stay whole (data-article-body; Cowork to confirm).
-    if(list.children.length<=FIRST&&!list.__ptButton&&!list.__ptTag)return;
+    if(list.children.length<=(listsDesk()?LIMIT:FIRST)&&!list.__ptButton&&!list.__ptTag)return;
     if(list.closest('[data-article-body]')&&!list.__ptTag)return;
     if(list.closest(OWN)||(opened&&!list.__ptLimit))return;
     var after=list.tagName==='TBODY'?list.parentElement:list;
