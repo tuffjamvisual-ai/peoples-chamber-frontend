@@ -207,7 +207,8 @@ export default async function HomePage() {
                   the main search. A plain form to /pmqs?q= (rewritten to /pmqs/search), so it works with no script. As you type
                   suggestions come with the shared search piece (SEARCH-ALL, ENTRY 318). */}
               {/* As wide as one of the two finders above it once they sit side by side (each at least 280px with a 20px gap). */}
-              <style>{`@media (min-width: 640px) { .og-pmqs-search { max-width: calc(50% - 10px); } }`}</style>
+              {/* Phones (homepage length, 2,611px at 375 with this block, limit 2,500): smaller gaps under the PMQs box and the links. */}
+              <style>{`@media (min-width: 640px) { .og-pmqs-search { max-width: calc(50% - 10px); } } @media ${phoneUpTo(639.98)} { .og-pmqs-search { margin-bottom: 12px !important; } .og-quicklinks { margin: 0 0 12px !important; } }`}</style>
               <form action="/pmqs" method="get" className="og-pmqs-search" style={{ margin: '0 0 28px' }}>
                 <label htmlFor="home-pmqs-q" className="og-kicker og-search-label">Search Prime Minister&rsquo;s Questions</label>
                 <div style={{ position: 'relative' }}>
@@ -260,9 +261,7 @@ export default async function HomePage() {
                   {HOME_RANKINGS.map(([label, href], i) => (
                     <span key={href}>{i > 0 && ' · '}<Link href={href} prefetch={false} className="og-tap" style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{label}</Link></span>
                   ))}
-                </p>
-                <p style={{ margin: 0 }}>
-                  <Link href="/reports" prefetch={false} className="og-tap" style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>All reports &rarr;</Link>
+                  {' · '}<Link href="/reports" prefetch={false} className="og-tap" style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>All reports &rarr;</Link>
                 </p>
               </nav>
               {/* State of the nation (T1-SOTN, layout change approved by the owner 15 Nov 2026, ENTRY 105): on desktop four
