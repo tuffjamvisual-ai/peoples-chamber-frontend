@@ -208,7 +208,7 @@ export default async function HomePage() {
                   suggestions come with the shared search piece (SEARCH-ALL, ENTRY 318). */}
               {/* As wide as one of the two finders above it once they sit side by side (each at least 280px with a 20px gap). */}
               {/* Phones (homepage length, 2,611px at 375 with this block, limit 2,500): smaller gaps under the PMQs box and the links. */}
-              <style>{`@media (min-width: 640px) { .og-pmqs-search { max-width: calc(50% - 10px); } } @media ${phoneUpTo(639.98)} { .og-pmqs-search { margin-bottom: 12px !important; } .og-quicklinks { margin: 0 0 12px !important; } }`}</style>
+              <style>{`@media (min-width: 640px) { .og-pmqs-search { max-width: calc(50% - 10px); } } @media ${phoneUpTo(639.98)} { .og-pmqs-search { margin-bottom: 12px !important; } .og-quicklinks { margin: 0 0 12px !important; } } @media ${phoneUpTo(767.98)} { .og-rail > a.og-pmqs-card { display: none !important; } }`}</style>
               <form action="/pmqs" method="get" className="og-pmqs-search" style={{ margin: '0 0 28px' }}>
                 <label htmlFor="home-pmqs-q" className="og-kicker og-search-label">Search Prime Minister&rsquo;s Questions</label>
                 <div style={{ position: 'relative' }}>
@@ -372,9 +372,11 @@ export default async function HomePage() {
                 <div className="og-cta">Read the dossiers &rarr;</div>
               </Link>
 
-              {/* The PMQs tile (owner approved 13 Nov 2026 with the four feature tiles; that design was parked and never reached this
+              {/* Phones (under 768px) hide this tile with CSS, keeping it in the HTML (owner decision 18 Nov 2026, Cowork
+                  ENTRY 328: the homepage was over the phone length limit; the PMQs search box near the top stays at every width).
+                  The PMQs tile (owner approved 13 Nov 2026 with the four feature tiles; that design was parked and never reached this
                   page, so the tile was not on the live homepage; restored here, ENTRY 320). Static text: no database read. */}
-              <Link className="og-block og-card" href="/pmqs">
+              <Link className="og-block og-card og-pmqs-card" href="/pmqs">
                 <div className="og-head">Prime Minister&rsquo;s Questions</div>
                 <p>Every PMQs since October 1961, and questions to the Prime Minister from 1945, searchable by word, MP or date.</p>
                 <div className="og-cta">See every PMQs &rarr;</div>
