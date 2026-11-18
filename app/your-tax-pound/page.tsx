@@ -84,7 +84,7 @@ const BUCKETS: Bucket[] = [
     pence: 5, sharePct: 4.8,
     category: 'Defence',
     prose:
-      "Armed forces personnel and equipment, MOD operations, intelligence services contribution, the AUKUS submarine programme, the Trident nuclear deterrent and military, financial and diplomatic support to Ukraine. Labour brought the 2.5% of GDP defence spending commitment forward to 2027 in February 2025, funded by cutting overseas aid from 0.5% to 0.3% of GNI. This line is set to rise sharply through the rest of the parliament.",
+      "Armed forces personnel and equipment, MOD operations, intelligence services contribution, the AUKUS submarine programme, the Trident nuclear deterrent and military, financial and diplomatic support to Ukraine. Labour brought the 2.5 per cent of GDP defence spending commitment forward to 2027 in February 2025, funded by cutting overseas aid from 0.5 per cent to 0.3 per cent of GNI. This line is set to rise sharply through the rest of the parliament.",
     deptHref: '/departments/defence',
     deptLabel: 'Ministry of Defence',
   },
@@ -124,7 +124,7 @@ const BUCKETS: Bucket[] = [
     pence: 1, sharePct: 1.1,
     category: 'Overseas aid',
     prose:
-      "Foreign, Commonwealth and Development Office aid budget, humanitarian response, contributions to multilateral organisations including the United Nations. Cut from 0.7% of GNI to 0.5% in 2021 by Sunak. Cut again to 0.3% of GNI by Starmer in February 2025 to help fund the defence spending uplift. The smallest of the named categories on this view and the most often cut first.",
+      "Foreign, Commonwealth and Development Office aid budget, humanitarian response, contributions to multilateral organisations including the United Nations. Cut from 0.7 per cent of GNI to 0.5 per cent in 2021 by Sunak. Cut again to 0.3 per cent of GNI by Starmer in February 2025 to help fund the defence spending uplift. The smallest of the named categories on this view and the most often cut first.",
     deptHref: '/departments/foreign-office',
     deptLabel: 'Foreign, Commonwealth and Development Office',
   },
