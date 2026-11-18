@@ -583,13 +583,15 @@ html.ya-wait .og-main-content { min-height: 110vh; }
 }
 
 /* MOB-TAPS (Cowork ENTRY 239 A3, 259 and 274, owner approved 17 Nov 2026): on phones and tablets (up to 1,023px, and any
-   touch screen) a plain link in running text (a paragraph, list item, definition, caption, quote or table cell) gets an
+   touch screen) a plain link in running text (a paragraph, caption or quote) gets an
    invisible tap area 44px tall, centred on it: an absolutely placed ::after, as phones under 480px already have for every
    link. It cannot move anything (no padding, no size change). Only plain links: no class, an empty class, or the
-   no-hover-scale and dv-jump classes, which draw nothing in ::after. Desktop with a mouse unchanged. */
+   no-hover-scale and dv-jump classes, which draw nothing in ::after. Links in list items, definitions and table cells are
+   already 44px inline blocks under the touch rules above (and a positioned ::after in a multi-column list changed its
+   height: /expenses, 18 Nov). Desktop with a mouse unchanged. */
 @media (max-width: 1023.98px), (pointer: coarse) {
-  :is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump) { position: relative; }
-  :is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump)::after {
+  :is(.og-main-content, .dossier-content) :is(p, figcaption, blockquote) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump) { position: relative; }
+  :is(.og-main-content, .dossier-content) :is(p, figcaption, blockquote) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump)::after {
     /* 44px centred by default; where a neighbour's area would overlap, lib/phone-enhance.ts (taps) sets --tap-t and --tap-b
        so the two areas meet halfway and never overlap (Cowork ENTRY 276; floor 24px). */
     content: ''; position: absolute; left: 0; right: 0; top: var(--tap-t, calc(50% - 22px)); bottom: var(--tap-b, calc(50% - 22px));

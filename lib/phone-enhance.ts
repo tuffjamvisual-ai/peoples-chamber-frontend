@@ -260,7 +260,7 @@ document.addEventListener('click',function(e){
 // Tap areas of links in running text (MOB-TAPS, Cowork ENTRY 274 and 276): 44px, centred, drawn by ::after (globals.css).
 // Where two links' areas would overlap although the links do not, both are cut back to meet halfway between the links, so a
 // tap always lands on the nearer one; never below 24px (a smaller one is logged to the console for the rules check).
-var TAPSEL=':is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump)';
+var TAPSEL=':is(.og-main-content, .dossier-content) :is(p, figcaption, blockquote) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump)';
 function tapWide(){return window.matchMedia('(max-width: 1023.98px), (pointer: coarse)').matches}
 function taps(){
   var ours=[].slice.call(document.querySelectorAll(TAPSEL));

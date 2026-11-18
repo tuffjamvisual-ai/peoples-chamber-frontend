@@ -69,7 +69,7 @@
     },
     {
       "rule": "taps",
-      "route": "/transparency/[section]",
+      "route": "/transparency/ministerial-directions",
       "selector": "a[href=\"/departments/cabinet-office\"]",
       "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 39px at 390/768 on /transparency/ministerial-directions ('Cabinet Office'). Floor 24px."
     },
