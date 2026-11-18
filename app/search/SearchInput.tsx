@@ -6,6 +6,7 @@ import { SUBMITTED_SEARCH_KEY } from '@/lib/search-analytics';
 import { useRouter } from 'next/navigation';
 import { departments } from '@/lib/departments';
 import { phoneUpTo, TOUCH } from '@/lib/breakpoints';
+import SuggestInput from '@/app/components/SuggestInput';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -124,14 +125,17 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
       <form id={FORM_ID} action="/search" method="get" role="search" onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '14px' }}>
         {defaultSort === 'newest' && <input type="hidden" name="sort" value="newest" />}
         <div style={{ position: 'relative', flex: '1 1 auto', minWidth: 0 }}>
-        <input
-          data-main-action
-          aria-label="Search the site"
+        {/* Suggestions as you type (SEARCH-ALL batch 1, Cowork ENTRY 326): names and titles from /api/suggest/site; Enter
+            with none picked still runs the full search below. */}
+        <SuggestInput
+          suggestPath="/api/suggest/site"
+          inputProps={{ 'data-main-action': true }}
+          ariaLabel="Search the site"
           name="q"
-          type="text"
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onValueChange={setQ}
           placeholder="Search a minister, department, policy, vote or government announcement"
+          listLabel="Suggested pages"
           style={{
             width: '100%',
             padding: '13px 48px 13px 16px',

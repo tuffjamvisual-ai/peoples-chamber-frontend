@@ -34,3 +34,44 @@ export function anyWordMatches(typed: string, words: readonly string[], typos = 
   for (const w of words) if (wordMatches(typed, w, typos)) return true;
   return false;
 }
+
+// One search over a list, the same everywhere (SEARCH-ALL, Cowork ENTRY 318 and 326): every typed word must match a word of
+// the item (any order, word starts), the item's fields weighted (a match in the first field counts most); exact words first,
+// and only if they find nothing a second try allowing one letter's typo. Returns the matching items, best first (equal
+// scores keep the list's own order), and whether the typo try was used.
+export type Fielded<T> = { item: T; fields: readonly (readonly string[])[] };
+export function searchList<T>(list: readonly Fielded<T>[], query: string): { matches: T[]; typos: boolean } {
+  const typed = wordsOf(query);
+  if (!typed.length) return { matches: list.map((x) => x.item), typos: false };
+  const run = (typos: boolean) => {
+    const scored: [number, number][] = [];
+    list.forEach((x, i) => {
+      let score = 0;
+      for (const t of typed) {
+        const f = x.fields.findIndex((words) => anyWordMatches(t, words, typos));
+        if (f < 0) return;
+        score += x.fields.length - f;
+      }
+      scored.push([i, score]);
+    });
+    return scored.sort((a, b) => b[1] - a[1] || a[0] - b[0]).map(([i]) => list[i].item);
+  };
+  const exact = run(false);
+  if (exact.length) return { matches: exact, typos: false };
+  return { matches: run(true), typos: true };
+}
+
+// The matched letters of a label, for bold in a suggestion: [text, matched] pieces.
+export function markMatches(label: string, query: string): [string, boolean][] {
+  const typed = wordsOf(query);
+  if (!typed.length) return [[label, false]];
+  const out: [string, boolean][] = [];
+  const re = /[A-Za-z0-9À-ɏ]+|[^A-Za-z0-9À-ɏ]+/g;
+  for (const m of label.match(re) ?? []) {
+    const w = wordsOf(m)[0];
+    const t = w ? typed.filter((x) => w.startsWith(x)).sort((a, b) => b.length - a.length)[0] : undefined;
+    if (t) out.push([m.slice(0, t.length), true], [m.slice(t.length), false]);
+    else out.push([m, false]);
+  }
+  return out.filter(([s]) => s);
+}

@@ -8,6 +8,7 @@ import { listReadingLabel } from '@/lib/reading-time';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
 import AreaSearch from './components/AreaSearch';
+import SuggestInput from './components/SuggestInput';
 import HomeRecord from './components/HomeRecord';
 import NewsletterSignup from './components/NewsletterSignup';
 import { SubFold } from './components/PhoneFolds';
@@ -159,13 +160,14 @@ export default async function HomePage() {
               <div className="og-finders">
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
                 <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt</label>
+                {/* Suggestions as you type (SEARCH-ALL batch 1, Cowork ENTRY 326); Enter with none picked opens /search as before. */}
                 <div style={{ position: 'relative' }}>
-                  <input data-main-action aria-label="Search opengovt"
+                  <SuggestInput suggestPath="/api/suggest/site" inputProps={{ 'data-main-action': true }} ariaLabel="Search opengovt"
                     id="home-search-q"
-                    type="text"
                     name="q"
                     placeholder="MPs, bills, votes, debates"
                     className="og-search-input"
+                    listLabel="Suggested pages"
                     style={{
                       width: '100%',
                       padding: '12px 36px 12px 14px',
