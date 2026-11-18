@@ -214,12 +214,14 @@ export default async function HomePage() {
               <form action="/pmqs" method="get" className="og-pmqs-search" style={{ margin: '0 0 28px' }}>
                 <label htmlFor="home-pmqs-q" className="og-kicker og-search-label">Search Prime Minister&rsquo;s Questions</label>
                 <div style={{ position: 'relative' }}>
-                  <input
+                  {/* Suggestions as you type (SEARCH-ALL batch 1): Prime Ministers and sessions by date (lib/search/pmqs-index.ts);
+                      Enter with none picked runs the full search of the questions, /pmqs?q=. */}
+                  <SuggestInput suggestPath="/api/suggest/pmqs"
                     id="home-pmqs-q"
-                    type="text"
                     name="q"
                     placeholder="Words, an MP or a date"
                     className="og-search-input"
+                    listLabel="Suggested sessions"
                     style={{
                       width: '100%',
                       padding: '12px 36px 12px 14px',
