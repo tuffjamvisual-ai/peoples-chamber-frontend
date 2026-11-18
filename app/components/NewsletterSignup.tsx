@@ -88,7 +88,7 @@ export default function NewsletterSignup({ source = 'homepage', minFontPx = 15 }
       </div>
       {/* Honeypot: off-screen, skipped by keyboard and screen readers. */}
       <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', width: 1, height: 1, overflow: 'hidden' }}>
-        <label>Leave this empty<input type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
+        <label>Leave this empty<input data-og-not-search type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
       </div>
       {state === 'error' && <p role="alert" style={{ fontFamily: FONT, fontSize: px(14), color: ACCENT, margin: '8px 0 0' }}>{message}</p>}
       <p style={{ fontFamily: FONT, fontSize: px(13), color: INK, margin: '8px 0 0', lineHeight: 1.5 }}>

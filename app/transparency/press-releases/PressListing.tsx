@@ -13,6 +13,7 @@ import { ShowAll } from '@/app/components/NoJsPager';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 
+import '@/app/components/search-box-desk.css';
 // Static /transparency/press-releases route. Lives outside the dynamic
 // [section] route because press releases aren't a tabular dataset — each
 // one is an individual document with its own /news/[slug] detail page.
@@ -427,7 +428,7 @@ export default async function PressListing({ sp, strict = false }: { sp: { q?: s
 
       {/* Search box — GET form, crawlable, no client JS. Switches to search mode. */}
       <form data-main-action method="GET" action="/transparency/press-releases" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px', maxWidth: '640px' }}>
-        <input
+        <input className="og-sbox-input"
           type="text"
           name="q"
           defaultValue={rawQ}
@@ -435,7 +436,7 @@ export default async function PressListing({ sp, strict = false }: { sp: { q?: s
           aria-label="Search press releases"
           style={{ ...inputStyle, flex: '1 1 240px' }}
         />
-        <button type="submit" style={btnStyle}>Search</button>
+        <button className="og-sbox-btn" type="submit" style={btnStyle}>Search</button>
       </form>
       {pressCheckedAt && (
         <p className="press-checked-below" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, margin: '-20px 0 24px' }}>

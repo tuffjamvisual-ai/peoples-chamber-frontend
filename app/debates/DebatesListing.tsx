@@ -10,6 +10,7 @@ import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { listPath, pastTheEnd, slug } from '@/lib/list-path';
 
+import '@/app/components/search-box-desk.css';
 // Commons debates index. Metadata is held in our `debates` table (synced daily
 // from Hansard); the full transcript is rendered in-house on /debates/[extId].
 // No outbound links anywhere.
@@ -149,7 +150,7 @@ export default async function DebatesListing({ section, q, pageNum, found }: { s
 
       <form action="/debates" method="get" style={{ marginBottom: '20px' }}>
         {section && <input type="hidden" name="section" value={section} />}
-        <input aria-label="Search debates by title"
+        <input className="og-sbox-input" aria-label="Search debates by title"
           type="text"
           name="q"
           defaultValue={q}

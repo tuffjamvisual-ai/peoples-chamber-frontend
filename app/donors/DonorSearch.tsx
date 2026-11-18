@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
 import type { DonorNameResult } from '@/lib/donor-search';
 
+import '@/app/components/search-box-desk.css';
 // Search box for /donors (24 Oct 2026). Searches every donor record held through /api/donors/search, not only the 200
 // biggest donors listed below. The term lives in the address bar as ?q= (history.replaceState, as on /reports), so it
 // survives Back and can be shared.
@@ -71,7 +72,7 @@ export default function DonorSearch() {
 
   return (
     <section aria-label="Search donors" style={{ marginBottom: '28px', fontFamily: MONO, color: INK }}>
-      <input
+      <input className="og-sbox-input"
         data-main-action
         aria-label="Search all donor names"
         type="search"

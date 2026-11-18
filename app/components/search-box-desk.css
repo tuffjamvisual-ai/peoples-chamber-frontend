@@ -4,18 +4,29 @@
    not bold, padding 10px 14px, 45px tall. Under 1,024px nothing here applies: each box keeps its phone and tablet look.
    Classes: og-sbox on the field's wrapper (fixes its width), og-sbox-input on the field, og-sbox-btn on the button.
    The suggestions list under a field may be wider than the field (owner, ENTRY 335). Inline styles are overridden,
-   hence !important. */
+   hence !important.
+   og-sbox-row: a field with its button drawn inside it (the homepage boxes' arrow) becomes the field with an ink outline
+   button beside it (owner, ENTRY 344); og-sbox-arrow shows under 1,024px, og-sbox-word ('Search') from 1,024px. */
+.og-sbox-word { display: none; }
 @media (min-width: 1024px) {
+  .og-sbox-row { display: flex !important; gap: 8px; align-items: stretch; }
+  .og-sbox-row > .og-sbox-btn { position: static !important; transform: none !important; width: auto !important; flex: 0 0 auto; }
+  .og-sbox-word { display: inline; }
+  .og-sbox-arrow { display: none; }
   .og-sbox { flex: 0 0 323px !important; width: 323px !important; max-width: 323px !important; }
+  /* A field on its own takes 323px; inside an og-sbox wrapper it fills the wrapper (which is 323px). */
+  /* Width only: flex-basis would set the height in a column container (a 323px tall field on /divisions). */
+  .og-sbox-input { flex: 0 0 auto !important; width: 323px !important; max-width: 100% !important; }
+  .og-sbox .og-sbox-input { flex: 1 1 auto !important; width: 100% !important; }
   .og-sbox-input {
-    width: 100% !important; height: 45px !important; box-sizing: border-box !important;
+    height: 45px !important; min-height: 45px !important; max-height: 45px !important; box-sizing: border-box !important;
     background: rgba(20, 16, 13, 0.05) !important; border: 1px solid rgba(20, 16, 13, 0.3) !important;
     padding: 10px 14px !important; font-size: 15px !important; letter-spacing: normal !important; transform: none !important;
   }
   /* A box with a clear button (×) inside its field keeps room for it on the right. */
   .og-sbox-input.og-sbox-clearable { padding-right: 40px !important; }
   .og-sbox-btn {
-    height: 45px !important; box-sizing: border-box !important; background: transparent !important; color: #14100d !important;
+    height: 45px !important; min-height: 45px !important; box-sizing: border-box !important; background: transparent !important; color: #14100d !important;
     border: 1px solid #14100d !important; font-weight: 400 !important; font-size: 15px !important; letter-spacing: 0.06em !important;
     padding: 10px 14px !important; opacity: 1 !important;
   }

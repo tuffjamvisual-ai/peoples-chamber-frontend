@@ -34,6 +34,7 @@ import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags, DIVISION_TABLES } from '@/lib/source-tags';
 import { SubFold } from '@/app/components/PhoneFolds';
 
+import '@/app/components/search-box-desk.css';
 export const revalidate = false; // A16: rebuilt only when its data changes (source tags on every read), or on a deploy  // divisions don't change after the vote happens
 
 const INK = '#14100d';
@@ -462,9 +463,9 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         <form method="get" action={`/divisions/${slug}/mp`} className="dv-find" role="search">
           <label>
             Find an MP in this vote
-            <input type="text" name="name" autoComplete="off" placeholder="Name or constituency" required />
+            <input className="og-sbox-input" type="text" name="name" autoComplete="off" placeholder="Name or constituency" required />
           </label>
-          <button type="submit">Find</button>
+          <button className="og-sbox-btn" type="submit">Find</button>
         </form>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', marginTop: '14px' }}>

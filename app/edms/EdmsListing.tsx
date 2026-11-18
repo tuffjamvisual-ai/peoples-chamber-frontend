@@ -12,6 +12,7 @@ import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { listPath } from '@/lib/list-path';
 
+import '@/app/components/search-box-desk.css';
 // Early day motions this Parliament (owner, backlog item 15b, 6 Nov 2026), newest first, 25 at a time. With over 4,000 motions the
 // whole list cannot sit in the page, so Show more is a link that asks for 25 more and lands on the first new one, and it works with
 // JavaScript off. Filters, sort and search filter a cached list, so they cost no database read. Filter links are nofollow, so crawlers
@@ -90,13 +91,13 @@ export default async function EdmsListing({ s }: { s: Search }) {
 
       <form action="/edms" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', maxWidth: '720px' }}>
         <label htmlFor="edm-search" style={{ flex: '1 0 100%', fontSize: '15px', fontWeight: 'bold', color: INK }}>Search by title or number</label>
-        <input data-main-action id="edm-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
+        <input className="og-sbox-input" data-main-action id="edm-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
         {state && <input type="hidden" name="state" value={state} />}
         {prayer && <input type="hidden" name="prayer" value="1" />}
         {sort && <input type="hidden" name="sort" value={sort} />}
         {memberId && <input type="hidden" name="member" value={memberId} />}
         {role && <input type="hidden" name="role" value={role} />}
-        <button type="submit" style={{ minHeight: '44px', padding: '8px 16px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button>
+        <button className="og-sbox-btn" type="submit" style={{ minHeight: '44px', padding: '8px 16px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button>
       </form>
 
       <ul aria-label="Filters" data-own-more="" style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', padding: 0 }}>

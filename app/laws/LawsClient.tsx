@@ -4,6 +4,7 @@ import { shortDayMonthYear } from '@/lib/short-date';
 import NoJsPager from '@/app/components/NoJsPager';
 import { billSummary } from '@/lib/bill-summary';
 
+import '@/app/components/search-box-desk.css';
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import BillCoverCard from '../components/BillCoverCard'
@@ -82,7 +83,7 @@ export default function LawsClient({ laws, page }: { laws: Law[]; page: number }
   return (
     <>
       <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap' }}>
-        <input data-main-action aria-label="Search Acts by title or summary"
+        <input className="og-sbox-input" data-main-action aria-label="Search Acts by title or summary"
           type="text"
           placeholder="Search Acts by title or summary…"
           value={search}

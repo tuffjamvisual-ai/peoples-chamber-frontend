@@ -3,6 +3,7 @@
 // link has a way on (audit S1: the old 404 page was bare, with no frame, search or way back).
 
 import SuggestInput from './components/SuggestInput';
+import './components/search-box-desk.css';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from './components/OpenGovShell';
@@ -38,11 +39,11 @@ export default function NotFound() {
         <form action="/search" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 24px', maxWidth: '36em' }}>
           <label htmlFor="nf-q" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}>Search the site</label>
           {/* Suggestions as you type (SEARCH-ALL batch 1, Cowork ENTRY 326). */}
-          <div style={{ flex: '1 1 14em', minWidth: 0 }}>
-            <SuggestInput suggestPath="/api/suggest/site" inputProps={{ 'data-main-action': true }} id="nf-q" name="q" placeholder="An MP, a bill, a council, a donor…" listLabel="Suggested pages"
+          <div className="og-sbox" style={{ flex: '1 1 14em', minWidth: 0 }}>
+            <SuggestInput suggestPath="/api/suggest/site" inputProps={{ 'data-main-action': true }} id="nf-q" name="q" className="og-sbox-input" placeholder="An MP, a bill, a council, a donor…" listLabel="Suggested pages"
               style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, fontFamily: MONO, fontSize: '16px', padding: '8px 10px', border: `1px solid ${INK}`, background: 'transparent', color: INK }} />
           </div>
-          <button type="submit" style={{ fontFamily: MONO, fontSize: '16px', padding: '8px 14px', border: `1px solid ${INK}`, background: INK, color: '#f4efe6', cursor: 'pointer' }}>
+          <button className="og-sbox-btn" type="submit" style={{ fontFamily: MONO, fontSize: '16px', padding: '8px 14px', border: `1px solid ${INK}`, background: INK, color: '#f4efe6', cursor: 'pointer' }}>
             Search
           </button>
         </form>

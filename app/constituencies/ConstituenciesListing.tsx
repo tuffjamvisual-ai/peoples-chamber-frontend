@@ -7,6 +7,7 @@ import { LookupError, POSTCODE_RE, cleanPostcode, codesForPostcode } from '@/lib
 import { allConstituencies, type SeatListRow } from '@/lib/constituency-pages';
 import { PetitionCredit } from '../petitions/PetitionCredit';
 
+import '@/app/components/search-box-desk.css';
 // The constituencies list (moved from page.tsx for F04 batch 3, COWORK-TO-T1 ENTRY 134; T2's f04-32-routes.md section 1):
 // /constituencies renders it with no search (static), /constituencies/search with the reader's ?q=.
 // All 650 constituencies by nation and region (owner, backlog item 15d, 6 Nov 2026). Search is a plain form, so it works with
@@ -59,8 +60,8 @@ export default async function ConstituenciesListing({ q = '' }: { q?: string }) 
       </p>
       <form action="/constituencies" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 16px', maxWidth: '720px' }}>
         <label htmlFor="constituency-search" style={{ flex: '1 0 100%', fontSize: '15px', fontWeight: 'bold', color: INK }}>Search by name or postcode</label>
-        <input data-main-action id="constituency-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
-        <button type="submit" style={{ minHeight: '44px', padding: '8px 16px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button>
+        <input className="og-sbox-input" data-main-action id="constituency-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
+        <button className="og-sbox-btn" type="submit" style={{ minHeight: '44px', padding: '8px 16px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button>
       </form>
       {message && <p role="status" style={{ fontSize: '16px', color: INK, margin: '0 0 16px' }}>{message}</p>}
       {matches ? (

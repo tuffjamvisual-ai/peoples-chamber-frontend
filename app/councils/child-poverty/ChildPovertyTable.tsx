@@ -9,6 +9,7 @@ import Link from 'next/link';
 import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { wordsOf, anyWordMatches } from '@/lib/search/words';
 
+import '@/app/components/search-box-desk.css';
 export type PovertyTableRow = {
   code: string; name: string; slug: string; county: boolean; countyName?: string | null;
   ahcPct: number | null; bhcPct: number | null; ahcCount: number | null; change: number | null;
@@ -38,7 +39,7 @@ export default function ChildPovertyTables({ lists, changeLabel }: { lists: Pove
   return (
     <>
       <label style={{ display: 'block', fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }} htmlFor="cpov-q">Find a council</label>
-      <input id="cpov-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" placeholder="Council name"
+      <input className="og-sbox-input" id="cpov-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" placeholder="Council name"
         style={{ fontFamily: MONO, fontSize: '16px', color: INK, background: 'transparent', border: `1px solid ${INK}`, padding: '10px 12px', minHeight: '44px', width: '100%', maxWidth: '26em', boxSizing: 'border-box', margin: '0 0 12px' }} />
       {lists.map((l) => <OneList key={l.id} list={l} changeLabel={changeLabel} typed={typed} />)}
     </>

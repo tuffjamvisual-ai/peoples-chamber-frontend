@@ -21,6 +21,7 @@ import { londonDay } from '@/lib/london-date';
 import type { FeaturedItem } from '@/lib/home-rotation';
 import { HomeFeaturedProvider, FeaturedLead, FeaturedBrief } from './components/HomeFeatured';
 import './home-front.css';
+import './components/search-box-desk.css';
 import { phoneUpTo } from '@/lib/breakpoints';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 
@@ -167,12 +168,12 @@ export default async function HomePage() {
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
                 <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt</label>
                 {/* Suggestions as you type (SEARCH-ALL batch 1, Cowork ENTRY 326); Enter with none picked opens /search as before. */}
-                <div style={{ position: 'relative' }}>
+                <div className="og-sbox-row" style={{ position: 'relative' }}>
                   <SuggestInput suggestPath="/api/suggest/site" inputProps={{ 'data-main-action': true }} ariaLabel="Search opengovt"
                     id="home-search-q"
                     name="q"
                     placeholder="MPs, bills, votes, debates"
-                    className="og-search-input"
+                    className="og-search-input og-sbox-input"
                     listLabel="Suggested pages"
                     style={{
                       width: '100%',
@@ -188,7 +189,7 @@ export default async function HomePage() {
                   />
                   <button
                     type="submit"
-                    className="og-search-go"
+                    className="og-search-go og-sbox-btn"
                     aria-label="Search"
                     style={{
                       position: 'absolute',
@@ -204,7 +205,7 @@ export default async function HomePage() {
                       padding: '4px',
                     }}
                   >
-                    →
+                    <span className="og-sbox-arrow">→</span><span className="og-sbox-word">Search</span>
                   </button>
                 </div>
               </form>
@@ -219,14 +220,14 @@ export default async function HomePage() {
               <style>{`@media (min-width: 640px) { .og-pmqs-search { max-width: calc(50% - 10px); } } @media ${phoneUpTo(639.98)} { .og-pmqs-search { margin-bottom: 12px !important; } .og-quicklinks { margin: 0 0 12px !important; } } @media ${phoneUpTo(767.98)} { .og-rail > a.og-pmqs-card { display: none !important; } }`}</style>
               <form action="/pmqs" method="get" className="og-pmqs-search" style={{ margin: '0 0 28px' }}>
                 <label htmlFor="home-pmqs-q" className="og-kicker og-search-label">Search Prime Minister&rsquo;s Questions</label>
-                <div style={{ position: 'relative' }}>
+                <div className="og-sbox-row" style={{ position: 'relative' }}>
                   {/* Suggestions as you type (SEARCH-ALL batch 1): Prime Ministers and sessions by date (lib/search/pmqs-index.ts);
                       Enter with none picked runs the full search of the questions, /pmqs?q=. */}
                   <SuggestInput suggestPath="/api/suggest/pmqs"
                     id="home-pmqs-q"
                     name="q"
                     placeholder="Words, an MP or a date"
-                    className="og-search-input"
+                    className="og-search-input og-sbox-input"
                     listLabel="Suggested sessions"
                     style={{
                       width: '100%',
@@ -242,7 +243,7 @@ export default async function HomePage() {
                   />
                   <button
                     type="submit"
-                    className="og-search-go"
+                    className="og-search-go og-sbox-btn"
                     aria-label="Search Prime Minister's Questions"
                     style={{
                       position: 'absolute',
@@ -258,7 +259,7 @@ export default async function HomePage() {
                       padding: '4px',
                     }}
                   >
-                    →
+                    <span className="og-sbox-arrow">→</span><span className="og-sbox-word">Search</span>
                   </button>
                 </div>
               </form>

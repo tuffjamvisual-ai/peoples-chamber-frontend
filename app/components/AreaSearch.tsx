@@ -9,6 +9,7 @@
 // picking one goes straight to that council's page. The results address carries
 // area codes only, never the postcode.
 
+import '@/app/components/search-box-desk.css';
 import { useListNav } from '@/lib/search/use-list-nav';
 import { markMatches } from '@/lib/search/words';
 import { useEffect, useId, useRef, useState } from 'react';
@@ -137,7 +138,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
           /your-area?q=..., which does the same lookup on the server. */}
       <form action="/your-area" method="get" onSubmit={onSubmit}>
         {label && <label htmlFor={inputId} className="og-kicker og-search-label">{label}</label>}
-        <div style={{ position: 'relative' }}>
+        <div className="og-sbox-row" style={{ position: 'relative' }}>
           <input
             id={inputId}
             aria-label={label ?? 'Your postcode, town or council'}
@@ -155,7 +156,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
             aria-activedescendant={open && nav.active >= 0 ? `${listId}-${nav.active}` : undefined}
             autoComplete="postal-code"
             placeholder={placeholder ?? 'Your area: enter a postcode, town or council to see your council and local figures'}
-            className={label ? 'og-search-input' : undefined}
+            className={label ? 'og-search-input og-sbox-input' : 'og-sbox-input'}
             style={{
               width: '100%', padding: label ? '12px 36px 12px 14px' : '12px 48px 12px 14px', fontFamily: MONO, fontSize: '15px', color: INK,
               background: '#f4e8d4', border: '1px solid rgba(20,16,13,0.18)', outline: 'none', boxSizing: 'border-box',
@@ -163,7 +164,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
           />
           <button
             type="submit"
-            className="og-search-go"
+            className="og-search-go og-sbox-btn"
             aria-label="Find your area"
             disabled={busy}
             style={{
@@ -171,7 +172,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
               cursor: busy ? 'default' : 'pointer', color: ACCENT, fontSize: '18px', lineHeight: 1, padding: '4px',
             }}
           >
-            {busy ? '…' : '→'}
+            <span className="og-sbox-arrow">{busy ? '…' : '→'}</span><span className="og-sbox-word">{busy ? 'Searching…' : 'Search'}</span>
           </button>
         </div>
         {open && councils.length > 0 && (

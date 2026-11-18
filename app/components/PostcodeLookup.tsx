@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useListNav } from '@/lib/search/use-list-nav'
 import { markMatches } from '@/lib/search/words'
+import '@/app/components/search-box-desk.css'
 import { normaliseParty } from '@/lib/party-helpers'
 
 // "Find Your MP" search box: a single input that auto-detects whether
@@ -175,6 +176,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'stretch' }}>
         <input
+          className="og-sbox-input"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => { if (postcodeResult || nameSuggestions.length > 0 || error) setOpen(true) }}
@@ -190,7 +192,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
           aria-activedescendant={open && nav.active >= 0 ? `pl-opt-${nav.active}` : undefined}
           style={{ flex: '1 1 200px', minWidth: 0, fontFamily: SERIF, fontSize: '18px', color: INK, background: '#fbf4e3', border: `1px solid ${INK}`, borderRadius: 0, padding: '11px 14px', outline: 'none', letterSpacing: '0.02em' }}
         />
-        <button
+        <button className="og-sbox-btn"
           type="submit"
           disabled={loading}
           style={{ flex: '0 0 auto', fontFamily: SERIF, fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1 }}

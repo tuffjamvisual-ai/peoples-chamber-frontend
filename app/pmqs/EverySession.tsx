@@ -10,6 +10,7 @@ import { cleanWords, datePrefix, pmSlug, preFixedMatching, sessionsMatching, ROW
 import type { PmqsSet } from '@/lib/pmqs';
 import { listPath } from '@/lib/list-path';
 
+import '@/app/components/search-box-desk.css';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const PER_PAGE = 20;   // sessions on a page; on phones and tablets the newest 3, then "Show 17 more sessions"
@@ -104,8 +105,8 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
         <div className="pmq-q">
           <label htmlFor="pmq-q" style={label}>Search the sessions</label>
           <div className="pmq-row">
-            <input id="pmq-q" name="q" type="search" defaultValue={words} placeholder="Words, an MP or a date" style={field} />
-            <button type="submit" style={{ flex: 'none', minHeight: '48px', padding: '0 16px', fontSize: '15px', fontFamily: 'inherit', fontWeight: 'bold', color: INK, background: 'transparent', border: `1px solid ${INK}`, cursor: 'pointer' }}>Find</button>
+            <input className="og-sbox-input" id="pmq-q" name="q" type="search" defaultValue={words} placeholder="Words, an MP or a date" style={field} />
+            <button className="og-sbox-btn" type="submit" style={{ flex: 'none', minHeight: '48px', padding: '0 16px', fontSize: '15px', fontFamily: 'inherit', fontWeight: 'bold', color: INK, background: 'transparent', border: `1px solid ${INK}`, cursor: 'pointer' }}>Find</button>
           </div>
         </div>
         <div>

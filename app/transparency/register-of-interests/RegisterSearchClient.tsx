@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState } from 'react';
 import { SubFold } from '@/app/components/PhoneFolds';
 
+import '@/app/components/search-box-desk.css';
 // Filter controls for the Register of Interests search page. State is held here,
 // pushed into the URL on submit so the server re-renders the results (shareable,
 // no-JS-friendly URLs). MP filter is a type-ahead autocomplete over the 650
@@ -124,7 +125,7 @@ export default function RegisterSearchClient({ mps, buckets, initial }: Props) {
           <label htmlFor="roi-q" style={labelStyle}>
             Search donor, organisation or keyword
           </label>
-          <input
+          <input className="og-sbox-input"
             data-main-action
             id="roi-q"
             type="search"
@@ -139,7 +140,7 @@ export default function RegisterSearchClient({ mps, buckets, initial }: Props) {
           <label htmlFor="roi-mp" style={labelStyle}>
             Filter by MP
           </label>
-          <input
+          <input className="og-sbox-input"
             id="roi-mp"
             type="text"
             autoComplete="off"
@@ -239,7 +240,7 @@ export default function RegisterSearchClient({ mps, buckets, initial }: Props) {
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-        <button
+        <button className="og-sbox-btn"
           type="submit"
           style={{ fontFamily: MONO, fontSize: '15px', padding: '9px 22px', cursor: 'pointer', color: CREAM, background: INK, border: `1px solid ${INK}`, letterSpacing: '0.04em' }}
         >

@@ -22,6 +22,7 @@ import { normaliseParty, isCoop, resolvePartyColour } from '@/lib/party-helpers'
 import Unavailable from '@/app/components/Unavailable';
 import { wordsOf, searchList } from '@/lib/search/words';
 
+import '@/app/components/search-box-desk.css';
 interface MP {
   member_id: number;
   name: string;
@@ -202,7 +203,7 @@ function SearchInput({
 
   return (
     <div style={{ marginBottom: '24px' }}>
-      <input data-main-action aria-label="Search MPs by name, party, constituency or postcode"
+      <input className="og-sbox-input" data-main-action aria-label="Search MPs by name, party, constituency or postcode"
         type="text"
         placeholder="Search MPs by name, party, constituency or postcode…"
         value={searchTerm}

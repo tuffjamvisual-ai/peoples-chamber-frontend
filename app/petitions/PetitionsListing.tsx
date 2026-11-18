@@ -7,6 +7,7 @@ import { allPetitions, petitionDate, petitionsInConstituency } from '@/lib/petit
 import { PetitionCredit } from './PetitionCredit';
 import { listPath } from '@/lib/list-path';
 
+import '@/app/components/search-box-desk.css';
 // F04 batch 3 (ENTRY 134; T2's f04-32-routes.md section 10): the list, rendered by /petitions (static), /petitions/filter/[...f]
 // (state, responded, debated and constituency in the path) and /petitions/search (?q=, rewritten there by next.config.ts).
 
@@ -77,12 +78,12 @@ export default async function PetitionsListing({ s }: { s: Search }) {
 
       <form action="/petitions" method="get" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', maxWidth: '720px' }}>
         <label htmlFor="petition-search" style={{ flex: '1 0 100%', fontSize: '15px', fontWeight: 'bold', color: INK }}>Search by title</label>
-        <input data-main-action id="petition-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
+        <input className="og-sbox-input" data-main-action id="petition-search" type="search" name="q" defaultValue={q} style={{ flex: '1 1 200px', minWidth: 0, minHeight: '44px', padding: '8px 10px', fontSize: '16px', color: INK, background: '#fbf4e6', border: `1px solid ${INK}`, borderRadius: 0, boxSizing: 'border-box' }} />
         {state && <input type="hidden" name="state" value={state} />}
         {responded && <input type="hidden" name="responded" value="1" />}
         {debated && <input type="hidden" name="debated" value="1" />}
         {gss && <input type="hidden" name="constituency" value={gss} />}
-        <button type="submit" style={{ minHeight: '44px', padding: '8px 16px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button>
+        <button className="og-sbox-btn" type="submit" style={{ minHeight: '44px', padding: '8px 16px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button>
       </form>
 
       <ul aria-label="Filters" data-own-more="" style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 12px', padding: 0 }}>

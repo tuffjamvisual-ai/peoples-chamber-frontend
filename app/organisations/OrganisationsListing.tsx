@@ -10,6 +10,7 @@ import BackLink from '../components/BackLink';
 import { cachedOrganisationList, searchOrganisations, normaliseCompanyNumber, companiesHouseUrl, type OrgListRow } from '@/lib/organisations';
 import { phoneUpTo } from '@/lib/breakpoints';
 
+import '@/app/components/search-box-desk.css';
 // F04 batch 3 (ENTRY 134; T2's f04-32-routes.md section 9): the list, rendered by /organisations (static),
 // /organisations/filter/[...f] (has and page in the path) and /organisations/search (?q=, rewritten there by next.config.ts).
 
@@ -87,9 +88,9 @@ export default async function OrganisationsListing({ q = '', has, page = 1 }: { 
       <form method="get" action="/organisations" role="search" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', margin: '0 0 18px', padding: '14px 0', borderTop: `1px solid ${HAIRLINE}`, borderBottom: `1px solid ${HAIRLINE}` }}>
         <label htmlFor="org-q" style={{ fontFamily: FONT, fontSize: '15px', width: '100%' }}>Name or Companies House number</label>
         {filter && <input type="hidden" name="has" value={filter.key} />}
-        <input data-main-action id="org-q" name="q" type="search" defaultValue={q} autoComplete="off"
+        <input className="og-sbox-input" data-main-action id="org-q" name="q" type="search" defaultValue={q} autoComplete="off"
           style={{ flex: '1 1 200px', minWidth: 0, fontFamily: FONT, fontSize: '16px', color: INK, background: '#f4e8d4', border: `1px solid ${INK}`, padding: '8px 10px', boxSizing: 'border-box' }} />
-        <button type="submit" style={{ fontFamily: FONT, fontSize: '16px', padding: '8px 16px', border: `1px solid ${ACCENT}`, background: ACCENT, color: '#f4efe6', cursor: 'pointer' }}>Search</button>
+        <button className="og-sbox-btn" type="submit" style={{ fontFamily: FONT, fontSize: '16px', padding: '8px 16px', border: `1px solid ${ACCENT}`, background: ACCENT, color: '#f4efe6', cursor: 'pointer' }}>Search</button>
       </form>
 
       {/* Under 640px only: from 640px up the page is as it was. */}

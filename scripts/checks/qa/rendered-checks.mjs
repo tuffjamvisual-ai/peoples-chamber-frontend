@@ -337,6 +337,16 @@ async function main() {
         });
         r.a6 ??= []; r.a6Tops ??= {};
         r.a6Tops[v.name] = t;
+        // A19 (owner standing rule 18 Nov 2026, Cowork ENTRY 335, 336, 344): at the desktop size every shown typing box
+        // (a text or search field outside the header, menu and footer; email fields and fields marked data-og-not-search
+        // left out) is the shared search box (app/components/search-box-desk.css): class og-sbox-input, 323 x 45px (2px
+        // either way), 15px text. The one exception: /transparency/mp-activity's name box (owner, ENTRY 344).
+        if (v.desktop && !/^\/transparency\/mp-activity$/.test(new URL(r.url, 'http://x').pathname)) {
+          r.a19 = await pg.evaluate(() => [...document.querySelectorAll('input[type=text], input[type=search], input:not([type])')]
+            .filter((i) => i.getClientRects().length && !i.closest('header, nav, footer, [data-og-not-search]') && i.type !== 'email' && i.name !== 'email' && !i.hasAttribute('data-og-not-search'))
+            .map((i) => { const b = i.getBoundingClientRect(), fs = getComputedStyle(i).fontSize; const ok = i.classList.contains('og-sbox-input') && Math.abs(b.width - 323) <= 2 && Math.abs(b.height - 45) <= 2 && fs === '15px'; return ok ? null : `${i.name || i.id || i.placeholder || 'a field'}: ${Math.round(b.width)} x ${Math.round(b.height)}, ${fs}${i.classList.contains('og-sbox-input') ? '' : ', not og-sbox-input'}`; })
+            .filter(Boolean));
+        }
         if (t.main === undefined) { if (!r.a6.includes('no-main-action')) r.a6.push('no-main-action'); }
         else if (t.main === null) { if (!r.a6.includes('main-hidden')) r.a6.push('main-hidden'); }
         else if (t.main >= v.main) r.a6.push(`main-${v.name}`);
@@ -455,6 +465,7 @@ async function main() {
     for (const f of r.a15 ?? []) fails.push(`A15 ${r.url}: a fold without the site's marker: ${f}`);
     for (const f of r.a17 ?? []) fails.push(`A17 ${r.url}: ${f}`);
     for (const f of r.a18 ?? []) fails.push(`A18 ${r.url}: side by side columns not balanced at 1280x720: ${f}`);
+    for (const f of r.a19 ?? []) fails.push(`A19 ${r.url}: a search box differs from the shared desktop box (323 x 45, 15px): ${f}`);
     if (r.a10) {
       const ab = a10Base[r.url] ?? { dups: [], related: 1 };
       for (const d of r.a10.dups) (ab.dups.includes(d.replace(/ x\d+$/, '')) ? expected : fails).push(`A10 ${r.url}: linked more than once in the body: ${d}`);

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { phoneUpTo } from '@/lib/breakpoints';
 
+import '@/app/components/search-box-desk.css';
 // The welfare explorer's search box: a postcode lookup (resolves to
 // BOTH a constituency and a local authority, since a postcode sits in
 // one of each) plus a free-text search by constituency/council/county
@@ -142,7 +143,7 @@ export default function WelfareSearch() {
           Enter your postcode
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'stretch' }}>
-          <input
+          <input className="og-sbox-input"
             value={pc}
             onChange={(e) => setPc(e.target.value)}
             placeholder="e.g. SW1A 0AA"
@@ -150,7 +151,7 @@ export default function WelfareSearch() {
             autoComplete="postal-code"
             style={{ flex: '1 1 200px', minWidth: 0, fontFamily: SERIF, fontSize: '18px', color: INK, background: '#fbf4e3', border: `1px solid ${INK}`, borderRadius: 0, padding: '11px 14px', outline: 'none', letterSpacing: '0.05em' }}
           />
-          <button
+          <button className="og-sbox-btn"
             type="submit"
             disabled={pcLoading}
             style={{ flex: '0 0 auto', fontFamily: SERIF, fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: pcLoading ? 'default' : 'pointer', opacity: pcLoading ? 0.7 : 1 }}
@@ -191,7 +192,7 @@ export default function WelfareSearch() {
           Or search by name
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'stretch' }}>
-          <input
+          <input className="og-sbox-input"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onFocus={() => { if (suggestions.length > 0) setOpen(true) }}
@@ -199,7 +200,7 @@ export default function WelfareSearch() {
             aria-label="Search by constituency, council or county name"
             style={{ flex: '1 1 200px', minWidth: 0, fontFamily: SERIF, fontSize: '18px', color: INK, background: '#fbf4e3', border: `1px solid ${INK}`, borderRadius: 0, padding: '11px 14px', outline: 'none', letterSpacing: '0.02em' }}
           />
-          <button
+          <button className="og-sbox-btn"
             type="submit"
             style={{ flex: '0 0 auto', fontFamily: SERIF, fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: 'pointer' }}
           >

@@ -6,6 +6,7 @@ import { phoneUpTo } from '@/lib/breakpoints';
 import { ShowAllDetails } from '@/app/components/NoJsPager';
 import { SubFold } from '@/app/components/PhoneFolds';
 
+import '@/app/components/search-box-desk.css';
 // The /transparency/major-projects list with a name search and filters (24 Oct 2026): department, latest delivery
 // confidence rating, the report a project was last in, and "no evaluation plan in March 2025" (the earlier
 // ?evaluation=no view, owner's decision 20 Oct 2026). Every project is rendered into the page's HTML by the server; the
@@ -215,7 +216,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
           13 Nov 2026). The fold is inside the same row, and from 768px up it has no box, so the row is as before. */}
       <style>{`@media ${phoneUpTo(767.98)} { .mpb-filters > .pf-sd, .mpb-filters > .pf-sb { flex: 1 1 100%; } .mpb-filters { align-items: stretch !important; } }`}</style>
       <div className="mpb-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px', alignItems: 'baseline' }}>
-        <input aria-label="Search project names" type="search" placeholder="Search project names…" value={state.q}
+        <input className="og-sbox-input" aria-label="Search project names" type="search" placeholder="Search project names…" value={state.q}
           onChange={(e) => set({ q: e.target.value })} style={{ ...field, flex: '1 1 260px', maxWidth: '380px' }} />
         <SubFold label="Filter projects">
         <select aria-label="Department" value={state.dept} onChange={(e) => set({ dept: e.target.value })} style={{ ...field, cursor: 'pointer' }}>

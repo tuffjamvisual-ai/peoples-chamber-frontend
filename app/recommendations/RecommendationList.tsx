@@ -11,6 +11,7 @@ import { phoneUpTo } from '@/lib/breakpoints';
 import { monthPassed } from '@/lib/london-date';
 import { useToday } from '../components/useToday';
 
+import '@/app/components/search-box-desk.css';
 export type ListReport = { title: string; meta: string; bodies: string[]; pages: string[]; other: boolean };
 // [report key "session/number", rec number, status key, status in words] and, for a target still to come, [target month,
 // status key and words once that month is over]: the browser shows the form for today (ENTRY 140, useToday).
@@ -135,7 +136,7 @@ export default function RecommendationList({ reports, rows: given, departmentOpt
       <style>{CARD_CSS}</style>
       <label className="rec-search" data-main-action style={{ fontSize: '15px', color: INK, margin: '0 0 12px' }}>
         Search recommendations
-        <input type="search" value={search} onChange={(e) => { setSearch(e.target.value); setLimit(PAGE); }}
+        <input className="og-sbox-input" type="search" value={search} onChange={(e) => { setSearch(e.target.value); setLimit(PAGE); }}
           style={{ display: 'block', width: '100%', boxSizing: 'border-box', minHeight: '44px', marginTop: '4px', fontSize: '16px', color: INK, background: 'transparent', border: '1px solid rgba(20,16,13,0.4)', padding: '6px 8px' }} />
       </label>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 20px', margin: '0 0 16px' }}>

@@ -10,6 +10,7 @@ import { phraseQuestions, PHRASE_MAX } from '@/lib/question-pages';
 import NoJsPager from '@/app/components/NoJsPager';
 import { wideFrom } from '@/lib/breakpoints';
 
+import '@/app/components/search-box-desk.css';
 // Written questions this Parliament (owner, backlog item 15c, 6 Nov 2026): search by words, MP or peer, department and date, newest first,
 // 25 at a time. A plain form and links, so it all works with JavaScript off. Filter links are nofollow, so crawlers do not read every
 // combination; Show more stays followable.
@@ -91,8 +92,8 @@ export default async function QuestionsView({ s }: { s: Search }) {
           chips above the results, each a link that removes it. Works with JavaScript off. */}
       <style>{`.qf { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0 0 12px; max-width: 900px; } .qf > .qf-full { grid-column: 1 / -1; } .qf-more > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 15px; font-weight: bold; color: ${INK}; } .qf-more-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding: 4px 0 8px; } .qf-more-grid > .qf-full { grid-column: 1 / -1; } .q-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; padding: 0; } .q-chips a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 12px; box-sizing: border-box; font-size: 15px; color: ${INK}; background: rgba(122,22,18,0.08); border: 1px solid ${ACCENT}; text-decoration: none; } @media ${wideFrom(1024)} { .qf { grid-template-columns: 1fr 1fr auto; align-items: end; } .qf > .qf-go { grid-column: auto; order: 3; } .qf > .qf-more { order: 4; } }`}</style>
       <form action="/questions" method="get" role="search" className="qf">
-        <div><label htmlFor="q-words" style={labelStyle}>Words</label><input data-main-action id="q-words" type="search" name="words" defaultValue={words} aria-describedby="q-words-hint" style={field} /><span id="q-words-hint" style={{ display: 'block', fontSize: '15px', color: INK, marginTop: '4px' }}>Put words in &ldquo;quotes&rdquo; to find that exact phrase only.</span></div>
-        <div><label htmlFor="q-who" style={labelStyle}>MP or peer</label><input id="q-who" type="search" name="who" defaultValue={who} style={field} /></div>
+        <div><label htmlFor="q-words" style={labelStyle}>Words</label><input className="og-sbox-input" data-main-action id="q-words" type="search" name="words" defaultValue={words} aria-describedby="q-words-hint" style={field} /><span id="q-words-hint" style={{ display: 'block', fontSize: '15px', color: INK, marginTop: '4px' }}>Put words in &ldquo;quotes&rdquo; to find that exact phrase only.</span></div>
+        <div><label htmlFor="q-who" style={labelStyle}>MP or peer</label><input className="og-sbox-input" id="q-who" type="search" name="who" defaultValue={who} style={field} /></div>
         <details className="qf-more qf-full" open={!!(dept || from || to)}>
           <summary>More filters{dept || from || to ? ` (${[dept, from, to].filter(Boolean).length} set)` : ''}<span className="og-fold-mark" aria-hidden="true" /></summary>
           <div className="qf-more-grid">
@@ -109,7 +110,7 @@ export default async function QuestionsView({ s }: { s: Search }) {
         </details>
         {status && <input type="hidden" name="status" value={status} />}
         {memberParam && <input type="hidden" name="member" value={memberParam} />}
-        <div className="qf-full qf-go"><button type="submit" style={{ minHeight: '44px', padding: '8px 20px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button></div>
+        <div className="qf-full qf-go"><button className="og-sbox-btn" type="submit" style={{ minHeight: '44px', padding: '8px 20px', fontSize: '15px', fontWeight: 'bold', color: '#fbf4e6', background: INK, border: `1px solid ${INK}`, borderRadius: 0, cursor: 'pointer' }}>Search</button></div>
       </form>
 
       {chips.length > 0 && (

@@ -8,6 +8,7 @@ import { ShowAll } from '../components/NoJsPager'
 import { SubFold } from '../components/PhoneFolds'
 import { phoneUpTo } from '@/lib/breakpoints';
 
+import '@/app/components/search-box-desk.css';
 export type Poll = {
   id: number
   question: string
@@ -190,7 +191,7 @@ export default function PollsClient({ initialPolls = null }: { initialPolls?: Po
           flexWrap: 'wrap',
         }}
       >
-        <input
+        <input className="og-sbox-input"
           type="text"
           placeholder="Search polls…"
           value={search}
@@ -579,7 +580,7 @@ function VIBallotCard({ tilt }: { tilt: number }) {
           ))}
           {otherOpen && (
             <div style={{ display: 'flex', gap: '8px', margin: '6px 0 0' }}>
-              <input type="text" value={otherText} onChange={(e) => setOtherText(e.target.value)} maxLength={60} placeholder="Which party?"
+              <input data-og-not-search type="text" value={otherText} onChange={(e) => setOtherText(e.target.value)} maxLength={60} placeholder="Which party?"
                 style={{ flex: 1, fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, padding: '6px 9px', border: `1px solid ${INK_HAIRLINE}`, background: '#fff' }} />
               <button onClick={() => cast('another', otherText)} disabled={busy}
                 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: '#f4e8d4', background: INK, border: `1px solid ${INK}`, padding: '6px 12px', cursor: 'pointer' }}>Vote</button>

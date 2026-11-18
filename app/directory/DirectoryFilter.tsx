@@ -5,6 +5,7 @@
 // The Parliament section page uses it too (T1-SECT, 12 Nov 2026), with its own list id; its groups take the letters' place.
 import { useEffect, useId, useState } from 'react';
 
+import '@/app/components/search-box-desk.css';
 const INK = '#14100d';
 const MONO = 'var(--font-special-elite), monospace';
 
@@ -80,7 +81,7 @@ export default function DirectoryFilter({ listId = 'directory-list', placeholder
   return (
     <div style={{ margin: '0 0 20px', maxWidth: '520px' }}>
       <label htmlFor={id} style={{ display: 'block', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '4px' }}>Filter this list</label>
-      <input data-main-action id={id} type="search" value={q} onChange={(e) => apply(e.target.value)} autoComplete="off"
+      <input className="og-sbox-input" data-main-action id={id} type="search" value={q} onChange={(e) => apply(e.target.value)} autoComplete="off"
         placeholder={placeholder}
         style={{ width: '100%', boxSizing: 'border-box', fontFamily: MONO, fontSize: '16px', color: INK, background: '#f4e8d4', border: `1px solid ${INK}`, padding: '9px 10px' }} />
       <p role="status" aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: none ? '10px 0 0' : 0, minHeight: 0 }}>
