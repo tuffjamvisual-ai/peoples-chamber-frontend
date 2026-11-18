@@ -10,6 +10,7 @@ import { getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle,
 import { BILL_QUERY_MAX, findSessionBills } from '@/lib/bill-search';
 import { wideFrom } from '@/lib/breakpoints';
 import { ShowAll } from '@/app/components/NoJsPager';
+import '@/app/components/search-box-desk.css';
 
 export const BILLS_PER_PAGE = 60;
 
@@ -82,8 +83,8 @@ export default async function BillsListing({ page, q = '' }: { page: number; q?:
         <form method="get" action="/bills" role="search" className="bills-find">
           <label htmlFor="bills-q">Find a bill</label>
           <div className="bills-find-row">
-            <input data-main-action id="bills-q" name="q" type="search" maxLength={BILL_QUERY_MAX} defaultValue={q} autoComplete="off" />
-            <button type="submit">Search</button>
+            <input className="og-sbox-input" data-main-action id="bills-q" name="q" type="search" maxLength={BILL_QUERY_MAX} defaultValue={q} autoComplete="off" />
+            <button className="og-sbox-btn" type="submit">Search</button>
           </div>
         </form>
         {q && (

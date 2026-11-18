@@ -163,7 +163,7 @@ export default function ReaderVIPoll({ pollster, initialTally, initialTotal, ini
             ))}
           </div>
           {selected === 'another' && (
-            <input
+            <input data-og-not-search
               type="text" value={otherText} onChange={(e) => setOtherText(e.target.value)} maxLength={60}
               placeholder="Which party?"
               style={{ ...p15, padding: '7px 10px', border: '1px solid rgba(20,16,13,0.4)', marginBottom: '12px', display: 'block', width: 'min(280px, 100%)', background: '#fff' }}

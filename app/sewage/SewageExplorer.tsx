@@ -33,6 +33,7 @@ export type ExplorerTable = { id: string; label: string; nation: string; year: n
 
 // No per-overflow average (owner's rule, 19 Oct 2026: no "per X" figures).
 import type { SortKey } from './table-ids';
+import '@/app/components/search-box-desk.css';
 export type { SortKey };
 
 const INK = '#14100d';
@@ -227,7 +228,7 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
         </h2>
         <form onSubmit={onSearch} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
           <label htmlFor="sewage-postcode" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>Postcode</label>
-          <input
+          <input className="og-sbox-input"
             data-main-action
             id="sewage-postcode"
             value={postcode}
@@ -236,7 +237,7 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
             placeholder="e.g. TR27 6LA"
             style={{ fontFamily: MONO, fontSize: '15px', padding: '6px 8px', border: `1px solid ${INK}`, background: 'transparent', color: INK, width: '11em' }}
           />
-          <button type="submit" disabled={busy || !postcode.trim()} style={btn(true)}>{busy ? 'Looking up…' : 'Find'}</button>
+          <button className="og-sbox-btn" type="submit" disabled={busy || !postcode.trim()} style={btn(true)}>{busy ? 'Looking up…' : 'Find'}</button>
         </form>
         </div>
         {lookupError && <p style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, margin: '0 0 8px' }}>{lookupError}</p>}

@@ -136,7 +136,7 @@ export default function LoginClient() {
                 className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:border-[#ffffff]"
               />
 
-              <input
+              <input data-og-not-search
                 type="text"
                 placeholder="Username"
                 value={username}
@@ -147,7 +147,7 @@ export default function LoginClient() {
                 className="w-full bg-[#404040]/50 border border-[#5a5a5a] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:border-[#ffffff]"
               />
 
-              <input
+              <input data-og-not-search
                 type="text"
                 placeholder="Your postcode (optional)"
                 value={postcode}
@@ -188,7 +188,7 @@ export default function LoginClient() {
           )}
 
           {/* Honeypot — invisible field to trap bots */}
-          <input
+          <input data-og-not-search
             type="text"
             value={honeypot}
             onChange={(e) => setHoneypot(e.target.value)}

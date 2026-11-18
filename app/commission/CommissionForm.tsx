@@ -190,7 +190,7 @@ export default function CommissionForm() {
       <legend style={legend}>Your details</legend>
       <div data-cm-step="4" style={row}>
         <label htmlFor="commission-name" style={label}>Name</label>
-        <input id="commission-name" name="name" type="text" autoComplete="name" value={v.name} onChange={(e) => set('name', e.target.value)} style={border('name')} {...aria('name')} />
+        <input data-og-not-search id="commission-name" name="name" type="text" autoComplete="name" value={v.name} onChange={(e) => set('name', e.target.value)} style={border('name')} {...aria('name')} />
         {err('name')}
       </div>
 
@@ -202,7 +202,7 @@ export default function CommissionForm() {
 
       <div data-cm-step="4" style={row}>
         <label htmlFor="commission-organisation" style={label}>Organisation <span style={{ fontWeight: 'normal' }}>(optional)</span></label>
-        <input id="commission-organisation" name="organisation" type="text" autoComplete="organization" value={v.organisation} onChange={(e) => set('organisation', e.target.value)} style={border('organisation')} {...aria('organisation')} />
+        <input data-og-not-search id="commission-organisation" name="organisation" type="text" autoComplete="organization" value={v.organisation} onChange={(e) => set('organisation', e.target.value)} style={border('organisation')} {...aria('organisation')} />
         {err('organisation')}
       </div>
       </fieldset>
@@ -211,7 +211,7 @@ export default function CommissionForm() {
       <legend style={legend}>Your enquiry</legend>
       <div data-cm-step="1" style={row}>
         <label htmlFor="commission-title" style={label}>Title</label>
-        <input id="commission-title" name="title" type="text" maxLength={TITLE_MAX} value={v.title} onChange={(e) => set('title', e.target.value)} style={border('title')} {...aria('title')} />
+        <input data-og-not-search id="commission-title" name="title" type="text" maxLength={TITLE_MAX} value={v.title} onChange={(e) => set('title', e.target.value)} style={border('title')} {...aria('title')} />
         <p style={hint}>Up to {TITLE_MAX} characters.</p>
         {err('title')}
       </div>
@@ -247,7 +247,7 @@ export default function CommissionForm() {
 
       <div data-cm-step="2" style={row}>
         <label htmlFor="commission-knownArea" style={label}>Area{phoneOptional}</label>
-        <input id="commission-knownArea" name="knownArea" type="text" value={v.knownArea} onChange={(e) => set('knownArea', e.target.value)} style={border('knownArea')} {...aria('knownArea')} />
+        <input data-og-not-search id="commission-knownArea" name="knownArea" type="text" value={v.knownArea} onChange={(e) => set('knownArea', e.target.value)} style={border('knownArea')} {...aria('knownArea')} />
         <p style={hint}>A place, such as a council or constituency, or a policy area.</p>
         {err('knownArea')}
       </div>
@@ -281,7 +281,7 @@ export default function CommissionForm() {
       {/* Honeypot: hidden from people and from screen readers, so only bots fill it. */}
       <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}>
         <label htmlFor="commission-website">Website</label>
-        <input id="commission-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={v.website} onChange={(e) => set('website', e.target.value)} />
+        <input data-og-not-search id="commission-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={v.website} onChange={(e) => set('website', e.target.value)} />
       </div>
 
       <div data-cm-step="4" style={row}>

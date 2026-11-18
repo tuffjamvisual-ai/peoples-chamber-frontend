@@ -319,7 +319,7 @@ export default function MagazineLoginClient() {
         {mode === 'signup' && (
           <form onSubmit={handleSignup}>
             <label style={label} htmlFor="su-name">Full name</label>
-            <input id="su-name" type="text" autoComplete="name" required value={signupName} onChange={(e) => setSignupName(e.target.value)} style={input} />
+            <input data-og-not-search id="su-name" type="text" autoComplete="name" required value={signupName} onChange={(e) => setSignupName(e.target.value)} style={input} />
 
             <label style={label} htmlFor="su-email">Email</label>
             <input id="su-email" type="email" autoComplete="email" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} style={input} />
@@ -329,7 +329,7 @@ export default function MagazineLoginClient() {
             <p style={{ margin: '0 0 18px', fontSize: '15px' }}>8 or more characters, with a letter and a number.</p>
 
             <label style={label} htmlFor="su-postcode">Postcode <span >(optional)</span></label>
-            <input id="su-postcode" type="text" autoComplete="postal-code" value={signupPostcode} onChange={(e) => setSignupPostcode(e.target.value)} style={input} />
+            <input data-og-not-search id="su-postcode" type="text" autoComplete="postal-code" value={signupPostcode} onChange={(e) => setSignupPostcode(e.target.value)} style={input} />
 
             <div style={{ border: '1px solid rgba(20,16,13,0.18)', padding: '14px', margin: '4px 0 20px' }}>
               <p style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>opengovt Weekly</p>

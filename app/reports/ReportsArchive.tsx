@@ -7,6 +7,7 @@ import { wordsOf, anyWordMatches } from '@/lib/search/words';
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ContinueToArticle from '../components/ContinueToArticle';
 import { phoneUpTo } from '@/lib/breakpoints';
+import '@/app/components/search-box-desk.css';
 
 // The /reports archive (23 Oct 2026): search and 20 a page, all on the client. Every report is rendered into the page's
 // HTML by the server; the client only hides the ones that do not match or are on another page, so search engines see the
@@ -229,7 +230,7 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
       <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(767.98)} { .reports-filters > input { font-size: 16px !important; } .reports-filters { margin-bottom: 6px !important; } .reports-count { margin-bottom: 8px !important; } .reports-mh { padding-bottom: 4px !important; } .reports-card { padding-top: 12px !important; } .reports-type { margin-bottom: 4px !important; } }` }} />
       <div className="reports-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', alignItems: 'baseline' }}>
         <div style={{ position: 'relative', flex: '1 1 280px', maxWidth: '420px' }}>
-          <input aria-label="Search reports" type="search" placeholder="Search reports…" value={state.q}
+          <input className="og-sbox-input" aria-label="Search reports" type="search" placeholder="Search reports…" value={state.q}
             role="combobox" aria-autocomplete="list" aria-expanded={showList} aria-controls="reports-suggest"
             aria-activedescendant={showList && active >= 0 ? `reports-suggest-${active}` : undefined}
             onFocus={() => { loadBody(); setOpen(true); }} onBlur={() => setOpen(false)} onKeyDown={onKey}

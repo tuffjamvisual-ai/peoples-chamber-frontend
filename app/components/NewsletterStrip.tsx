@@ -195,7 +195,7 @@ export default function NewsletterStrip() {
             </button>
             {/* Honeypot: off-screen, skipped by keyboard and screen readers. */}
             <div aria-hidden="true" className="og-strip-sr">
-              <label>Leave this empty<input type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
+              <label>Leave this empty<input data-og-not-search type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
             </div>
           </div>
         )}

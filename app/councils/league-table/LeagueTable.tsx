@@ -7,6 +7,7 @@
 import { Fragment, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { phoneUpTo } from '@/lib/breakpoints';
+import '@/app/components/search-box-desk.css';
 
 export type ClientFlag = { label: string; county: boolean; kind: string };
 // Formal action taken against or by a council, kept apart from signs of financial pressure (audit L9).
@@ -145,7 +146,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
       </div>
       <div style={{ marginBottom: '12px' }}>
         <label htmlFor="lt-search" style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginRight: '8px' }}>Find an area</label>
-        <input id="lt-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. Leeds"
+        <input className="og-sbox-input" id="lt-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. Leeds"
           style={{ fontFamily: MONO, fontSize: '15px', padding: '6px 8px', border: `1px solid ${INK}`, background: 'transparent', color: INK, width: '12em' }} />
       </div>
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 8px' }}>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useListNav } from '@/lib/search/use-list-nav'
 import { markMatches } from '@/lib/search/words'
+import '@/app/components/search-box-desk.css'
 
 // Homepage local-authority search: a single input that auto-detects
 // whether the visitor typed a UK postcode or a council/area name, and
@@ -230,7 +231,7 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'stretch' }}>
         <input
-          className="cs-input"
+          className="cs-input og-sbox-input"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => { if (postcodeResult || nameSuggestions.length > 0 || placeSuggestions.length > 0 || error) setOpen(true) }}
@@ -247,7 +248,7 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
         />
         <button
           type="submit"
-          className="cs-submit"
+          className="cs-submit og-sbox-btn"
           disabled={loading}
           style={{ flex: '0 0 auto', fontFamily: SERIF, fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1 }}
         >

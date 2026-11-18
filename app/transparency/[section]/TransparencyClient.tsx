@@ -7,6 +7,7 @@ import PhoneMore from '../../components/PhoneMore'
 import { donorPageSlug } from '@/lib/donor-slug'
 import { ecDonationSearchUrl } from '@/lib/ec-links'
 import { PHONE, LIST_FOLD } from '@/lib/breakpoints'
+import '@/app/components/search-box-desk.css';
 
 type Row = Record<string, unknown>
 
@@ -124,11 +125,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             type="search"
             defaultValue={searchQuery}
             placeholder={PLACEHOLDER[section ?? ''] ?? 'Search…'}
-            className="flex-1 min-w-0 basis-32 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] focus:border-[#14100d] transition-colors"
+            className="flex-1 min-w-0 basis-32 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] focus:border-[#14100d] transition-colors og-sbox-input"
           />
           <button
             type="submit"
-            className="px-4 py-3 text-[15px] uppercase tracking-[0.2em] font-mono border border-[#14100d]/20 text-[#14100d] hover:border-[#14100d] hover:text-[#14100d] transition-colors whitespace-nowrap"
+            className="px-4 py-3 text-[15px] uppercase tracking-[0.2em] font-mono border border-[#14100d]/20 text-[#14100d] hover:border-[#14100d] hover:text-[#14100d] transition-colors whitespace-nowrap og-sbox-btn"
           >
             Search
           </button>

@@ -39,6 +39,7 @@ import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
 import type { MpPetitionsTop } from '@/lib/petition-pages';
 import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 import { isLaw } from '@/lib/bill-status';
+import '@/app/components/search-box-desk.css';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -1220,7 +1221,7 @@ export default function MagazineProfileSections({
                 fontSize: '15px',
               }}
             >
-              <input
+              <input className="og-sbox-input"
                 type="search"
                 value={vSearchInput}
                 onChange={(e) => setVSearchInput(e.target.value)}
@@ -1237,7 +1238,7 @@ export default function MagazineProfileSections({
                   background: 'transparent',
                 }}
               />
-              <button
+              <button className="og-sbox-btn"
                 type="submit"
                 disabled={vLoading}
                 style={{

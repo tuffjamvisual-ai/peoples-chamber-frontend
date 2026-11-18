@@ -121,7 +121,7 @@ export default function FeedbackForm({ from }: { from: string }) {
       {/* Honeypot: hidden from people and from screen readers, so only bots fill it. */}
       <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}>
         <label htmlFor="feedback-website">Website</label>
-        <input id="feedback-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={v.website} onChange={(e) => set('website', e.target.value)} />
+        <input data-og-not-search id="feedback-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={v.website} onChange={(e) => set('website', e.target.value)} />
       </div>
 
       {formError && <p role="alert" style={{ ...errorText, fontSize: '15px', margin: '0 0 14px' }}>{formError}</p>}

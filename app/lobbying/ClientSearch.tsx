@@ -4,6 +4,7 @@
 // and in which quarters.
 
 import { useState, type FormEvent } from 'react';
+import '@/app/components/search-box-desk.css';
 
 type Result = { client: string; firms: { firm: string; quarters: string[] }[] };
 
@@ -37,14 +38,14 @@ export default function ClientSearch() {
       </h3>
       <form onSubmit={onSubmit} role="search" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
         <label htmlFor="lb-client-q" style={{ position: 'absolute', left: '-9999px' }}>Client name</label>
-        <input
+        <input className="og-sbox-input"
           id="lb-client-q"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Company or organisation, e.g. Heathrow"
           style={{ flex: '1 1 220px', minWidth: 0, fontFamily: FONT, fontSize: '16px', padding: '8px 10px', border: `1px solid ${INK}`, background: 'transparent', color: INK }}
         />
-        <button type="submit" disabled={state.loading} style={{ fontFamily: FONT, fontSize: '15px', padding: '8px 14px', border: `1px solid ${INK}`, background: INK, color: '#f4ecd8', cursor: 'pointer' }}>
+        <button className="og-sbox-btn" type="submit" disabled={state.loading} style={{ fontFamily: FONT, fontSize: '15px', padding: '8px 14px', border: `1px solid ${INK}`, background: INK, color: '#f4ecd8', cursor: 'pointer' }}>
           {state.loading ? 'Searching…' : 'Search'}
         </button>
       </form>

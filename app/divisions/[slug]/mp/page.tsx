@@ -11,6 +11,7 @@ import { displayMpName } from '@/lib/mp-name';
 import { ARCHIVE_LAST_DATE } from '@/lib/historic-archive';
 
 import BackLink from '@/app/components/BackLink';
+import '@/app/components/search-box-desk.css';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
@@ -48,9 +49,9 @@ export default async function FindMpInDivision({ params, searchParams }: { param
       <form method="get" action={`/divisions/${slug}/mp`} role="search" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '8px', margin: '0 0 20px' }}>
         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: '1 1 16em', fontFamily: MONO, fontSize: '15px', color: INK }}>
           Name or constituency
-          <input type="text" name="name" defaultValue={name} autoComplete="off" required style={{ minHeight: '44px', fontSize: '16px', padding: '8px 10px', border: `1px solid ${INK}`, background: 'transparent', color: INK, borderRadius: 0 }} />
+          <input className="og-sbox-input" type="text" name="name" defaultValue={name} autoComplete="off" required style={{ minHeight: '44px', fontSize: '16px', padding: '8px 10px', border: `1px solid ${INK}`, background: 'transparent', color: INK, borderRadius: 0 }} />
         </label>
-        <button type="submit" style={{ minHeight: '44px', fontSize: '16px', padding: '0 18px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 0, fontFamily: MONO, cursor: 'pointer' }}>Find</button>
+        <button className="og-sbox-btn" type="submit" style={{ minHeight: '44px', fontSize: '16px', padding: '0 18px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 0, fontFamily: MONO, cursor: 'pointer' }}>Find</button>
       </form>
       {q.length < 2 ? (
         <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>Type at least two letters of a name or constituency.</p>
