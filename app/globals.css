@@ -224,8 +224,14 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
    and Show more / Show fewer are hidden there (.og-fold-short), MoreChain's later folds are opened (lib/phone-enhance.ts; in
    browsers with ::details-content, with no script) and their summaries hidden. */
 @media (min-width: 1024px) {
-  .og-fold-short, .mc-more > summary, .mc-phone, .njp-sa { display: none !important; }
+  .og-fold-short, .mc-phone, .njp-sa { display: none !important; }
   .mc-more::details-content { content-visibility: visible; display: contents; }
+  /* A later fold's summary goes only where its items are shown anyway: with JavaScript (the script opens the folds) or where
+     ::details-content shows them; elsewhere it keeps its 'Show N more', so no item is stranded (T2, 18 Nov 2026 15:42). */
+  html.og-js .mc-more > summary { display: none !important; }
+}
+@supports selector(::details-content) {
+  @media (min-width: 1024px) { .mc-more > summary { display: none !important; } }
 }
 /* Long lists and sections on phones with JavaScript off (app/components/NoJsPager.tsx). Nothing here changes any other view. */
 .njp-a, .njp-nav, .njf { display: none; }
