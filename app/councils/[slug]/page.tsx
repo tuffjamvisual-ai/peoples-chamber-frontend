@@ -795,7 +795,7 @@ function councilTaxValue(t: CouncilTax, councilName: string, type: string): Reac
             {name}: {i === 0 ? <strong>{gbp(v)}</strong> : gbp(v)}
             {i === 0 && change != null && pct != null && (Math.round(change * 100) === 0
               ? ' (no change on last year)'
-              : ` (${change >= 0 ? 'up' : 'down'} ${gbp(Math.abs(change))}, ${Math.abs(pct).toFixed(1)}% on the year before)`)}
+              : ` (${change >= 0 ? 'up' : 'down'} ${gbp(Math.abs(change))}, ${Math.abs(pct).toFixed(1)} per cent on the year before)`)}
             {i === 0 && t.asc_band_d ? `, including ${gbp(t.asc_band_d)} for adult social care` : ''}
           </span>
         ))}
@@ -846,7 +846,7 @@ function lastElectionValue(year: number | null | undefined, comp: CouncilComposi
         <span style={{ display: 'block', marginTop: '4px' }}>
           {sum.parties.filter((p) => p.share >= 0.5 || p.seats > 0).map((p, i) => (
             <span key={p.party} style={{ display: 'block' }}>
-              {ORD(i + 1)} {p.party}: {p.share.toFixed(1)}% of {sum.stv ? 'first preference votes' : 'the vote'}, {p.seats}{part ? ` of ${sum.seatsUp}` : ''} seat{(part ? sum.seatsUp : p.seats) === 1 ? '' : 's'}
+              {ORD(i + 1)} {p.party}: {p.share.toFixed(1)} per cent of {sum.stv ? 'first preference votes' : 'the vote'}, {p.seats}{part ? ` of ${sum.seatsUp}` : ''} seat{(part ? sum.seatsUp : p.seats) === 1 ? '' : 's'}
             </span>
           ))}
         </span>

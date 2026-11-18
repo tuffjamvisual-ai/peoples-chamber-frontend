@@ -41,7 +41,7 @@ function change(cur: number | null, prev: number | null): string | null {
   if (cur == null || prev == null) return null;
   const d = cur - prev;
   if (d === 0) return 'the same';
-  const pct = prev >= MIN_BASE_FOR_PCT ? ` (${d > 0 ? 'up' : 'down'} ${(Math.abs(d) / prev * 100).toFixed(1)}%)` : '';
+  const pct = prev >= MIN_BASE_FOR_PCT ? ` (${d > 0 ? 'up' : 'down'} ${(Math.abs(d) / prev * 100).toFixed(1)} per cent)` : '';
   return `${fmt(Math.abs(d))} ${d > 0 ? 'more' : 'fewer'}${pct}`;
 }
 
@@ -106,7 +106,7 @@ export default async function CouncilEhcpSection({
         EHC plans issued in {shown.year} (excluding exceptions): <strong>{fmt(shown.plans_issued_ex as number)}</strong>.
         {shown.within_20_weeks_ex != null && (
           <> Issued within 20 weeks: <strong>{fmt(shown.within_20_weeks_ex)}</strong>
-            {shown.pc_within_20_weeks_ex != null ? ` (${shown.pc_within_20_weeks_ex}%)` : " (DfE gives no percentage)"}.</>
+            {shown.pc_within_20_weeks_ex != null ? ` (${shown.pc_within_20_weeks_ex} per cent)` : " (DfE gives no percentage)"}.</>
         )}
         {shown.over_1_year_ex != null && <> Took over a year: <strong>{fmt(shown.over_1_year_ex)}</strong>.</>}
       </p>

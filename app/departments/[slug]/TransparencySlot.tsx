@@ -15,7 +15,7 @@ function change(cur: number | null, prev: number | null): string | null {
   if (cur == null || prev == null) return null;
   const d = cur - prev;
   if (d === 0) return 'the same';
-  const pct = prev >= MIN_BASE_FOR_PCT ? ` (${d > 0 ? 'up' : 'down'} ${(Math.abs(d) / prev * 100).toFixed(1)}%)` : '';
+  const pct = prev >= MIN_BASE_FOR_PCT ? ` (${d > 0 ? 'up' : 'down'} ${(Math.abs(d) / prev * 100).toFixed(1)} per cent)` : '';
   return `${fmt(Math.abs(d))} ${d > 0 ? 'more' : 'fewer'}${pct}`;
 }
 const of = (n: number | null, base: number | null) => (n == null || base == null ? null : `${fmt(n)} of ${fmt(base)}`);
@@ -44,7 +44,7 @@ function FoiBody({ f, showLabel }: { f: DeptFoi; showLabel: boolean }) {
         Requests received in {q}: <strong>{l.received != null ? fmt(l.received) : 'not published'}</strong>.
         {l.met_20_days != null && l.received_ex != null && (
           <> Answered within 20 working days: <strong>{of(l.met_20_days, l.received_ex)}</strong>
-            {l.pct_met_20_days != null ? ` (${Math.round(l.pct_met_20_days)}%)` : ''}.</>
+            {l.pct_met_20_days != null ? ` (${Math.round(l.pct_met_20_days)} per cent)` : ''}.</>
         )}
         {l.permitted_extension != null && <> With a permitted extension: {fmt(l.permitted_extension)}.</>}
         {l.late != null && <> Late: {fmt(l.late)}.</>}

@@ -54,7 +54,7 @@ export function flyTippingView(rows: FlyTippingRow[]): FlyTippingView | null {
       // "About the same": a change of less than 2% either way (owner's decision, 19 Oct 2026); otherwise the
       // change is shown rounded to the nearest whole per cent.
       sub = Math.abs(pct) < 2 ? `About the same as ${yearLabel(prev.year)} (${num(prev.incidents as number)})`
-        : `${pct > 0 ? 'Up' : 'Down'} ${Math.round(Math.abs(pct))}% on ${yearLabel(prev.year)} (${num(prev.incidents as number)})`;
+        : `${pct > 0 ? 'Up' : 'Down'} ${Math.round(Math.abs(pct))} per cent on ${yearLabel(prev.year)} (${num(prev.incidents as number)})`;
     } else if (prev) {
       sub = `No comparison with ${yearLabel(prev.year)}: the two years were not counted the same way`;
     }

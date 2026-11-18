@@ -108,7 +108,7 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 14px' }}>
         {[
           noDecent != null ? `${fmtNum(noDecent)} premises can't get decent broadband` : null,
-          takeup != null ? `${takeup.toFixed(0)}% of premises use full fibre` : null,
+          takeup != null ? `${takeup.toFixed(0)} per cent of premises use full fibre` : null,
         ].filter(Boolean).join(' · ')}
       </p>
 

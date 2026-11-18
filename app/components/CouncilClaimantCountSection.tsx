@@ -97,7 +97,7 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 16px' }}>
         {[
-          latest.rate != null ? `${latest.rate.toFixed(1)}% of residents aged 16 to 64` : null,
+          latest.rate != null ? `${latest.rate.toFixed(1)} per cent of residents aged 16 to 64` : null,
           change != null && yearAgo ? `${fmtSigned(change)} on ${fmtMonth(yearAgo.month)}` : null,
         ].filter(Boolean).join(' · ')}
       </p>

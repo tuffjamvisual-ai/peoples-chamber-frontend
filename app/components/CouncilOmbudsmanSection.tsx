@@ -83,7 +83,7 @@ const MIN_BASE_FOR_PCT = 20;
 function change(cur: number, prev: number): string {
   const d = cur - prev;
   if (d === 0) return 'the same';
-  const pct = prev >= MIN_BASE_FOR_PCT ? ` (${d > 0 ? 'up' : 'down'} ${(Math.abs(d) / prev * 100).toFixed(1)}%)` : '';
+  const pct = prev >= MIN_BASE_FOR_PCT ? ` (${d > 0 ? 'up' : 'down'} ${(Math.abs(d) / prev * 100).toFixed(1)} per cent)` : '';
   return `${fmt(Math.abs(d))} ${d > 0 ? 'more' : 'fewer'}${pct}`;
 }
 

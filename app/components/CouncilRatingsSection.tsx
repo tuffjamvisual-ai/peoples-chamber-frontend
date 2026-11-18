@@ -81,8 +81,8 @@ function FinanceHealth({ events, reserves, name }: { events: FinanceEvent[]; res
       {reserves ? (
         <p style={para}>
           Usable reserves (money the council holds that is not tied to schools or public health): <strong>{gbpM(reserves.usable_end)}</strong> at 31 March {`20${reserves.financial_year.slice(5, 7)}`}, from {gbpM(reserves.usable_start)} a year earlier
-          {pctChange != null && ` (${pctChange > 0 ? 'up' : 'down'} ${Math.abs(pctChange)}%)`}.
-          {reserves.usable_end_pct_of_spending != null && ` That is ${fmt1(reserves.usable_end_pct_of_spending)}% of a year’s spending on services.`}
+          {pctChange != null && ` (${pctChange > 0 ? 'up' : 'down'} ${Math.abs(pctChange)} per cent)`}.
+          {reserves.usable_end_pct_of_spending != null && ` That is ${fmt1(reserves.usable_end_pct_of_spending)} per cent of a year’s spending on services.`}
           {reserves.usable_end != null && reserves.usable_end < 0 && <span style={{ color: ACCENT }}> Usable reserves are below zero.</span>}
         </p>
       ) : (

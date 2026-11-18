@@ -40,7 +40,7 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
   defence: {
     resourceDel: 47.4, capitalDel: 23.1, year: '2025/26',
     prose:
-      "Armed forces personnel and equipment, MOD operations, the AUKUS submarine programme, the Trident nuclear deterrent and military, financial and intelligence support to Ukraine. The unusually high Capital DEL share, about a third of the total, reflects the equipment programme, particularly Dreadnought, F-35, the Type 26 frigate programme and the British Army's Ajax. Set to rise sharply through the parliament as the 2.5% of GDP commitment comes forward to 2027.",
+      "Armed forces personnel and equipment, MOD operations, the AUKUS submarine programme, the Trident nuclear deterrent and military, financial and intelligence support to Ukraine. The unusually high Capital DEL share, about a third of the total, reflects the equipment programme, particularly Dreadnought, F-35, the Type 26 frigate programme and the British Army's Ajax. Set to rise sharply through the parliament as the 2.5 per cent of GDP commitment comes forward to 2027.",
   },
   transport: {
     resourceDel: 20.4, capitalDel: 10.0, year: '2025/26',
@@ -60,12 +60,12 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
   justice: {
     resourceDel: 13.0, capitalDel: 2.0, year: '2025/26',
     prose:
-      "HM Prison and Probation Service (£7.8 billion of Resource DEL), HM Courts and Tribunal Service (£3 billion), the Legal Aid Agency (£2.2 billion) and the Crown Prosecution Service contribution. Capital DEL rose 21% on 2024/25 to fund new prison capacity following the late 2024 capacity crisis. The asylum and court backlogs sit inside this brief.",
+      "HM Prison and Probation Service (£7.8 billion of Resource DEL), HM Courts and Tribunal Service (£3 billion), the Legal Aid Agency (£2.2 billion) and the Crown Prosecution Service contribution. Capital DEL rose 21 per cent on 2024/25 to fund new prison capacity following the late 2024 capacity crisis. The asylum and court backlogs sit inside this brief.",
   },
   'foreign-office': {
     resourceDel: 8.0, capitalDel: 3.2, year: '2025/26',
     prose:
-      "Diplomatic posts and embassies, foreign policy, multilateral organisations including the United Nations, plus the official development assistance (ODA) aid budget. ODA was cut from 0.7% of GNI to 0.5% in 2021 by Sunak, and cut again to 0.3% of GNI by Starmer in February 2025 to fund the defence spending uplift. The £438 million ODA reduction in 2025/26 is roughly 4% of the FCDO DEL budget.",
+      "Diplomatic posts and embassies, foreign policy, multilateral organisations including the United Nations, plus the official development assistance (ODA) aid budget. ODA was cut from 0.7 per cent of GNI to 0.5 per cent in 2021 by Sunak, and cut again to 0.3 per cent of GNI by Starmer in February 2025 to fund the defence spending uplift. The £438 million ODA reduction in 2025/26 is roughly 4 per cent of the FCDO DEL budget.",
   },
   housing: {
     resourceDel: 4.7, capitalDel: 2.0, year: '2025/26',

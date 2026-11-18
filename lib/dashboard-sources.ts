@@ -190,9 +190,9 @@ export function yearEarlierLine(key: string, now: number, ago: number, agoLabel:
   const recent_direction = !moved ? 'flat' : better ? 'improving' : 'worsening';
   const word = diff > 0 ? 'Up' : diff < 0 ? 'Down' : 'No change';
   let recent_change: string;
-  if (key === 'ae_4hr_pct') recent_change = diff === 0 ? `No change on ${agoLabel} (${ago.toFixed(1)}%)` : `${word} ${Math.abs(diff).toFixed(1)} points on ${agoLabel} (${ago.toFixed(1)}%)`;
-  else if (key === 'prison_occupancy_pct') recent_change = diff === 0 ? `No change on ${agoLabel} (${ago.toFixed(1)}%)` : `${word} from ${ago.toFixed(1)}% in ${agoLabel}`;
-  else if (key === 'rtt_waiting_list') recent_change = `${word} ${fmt0(Math.abs(diff))} (${(Math.abs(diff) / ago * 100).toFixed(1)}%) on ${agoLabel} (${(ago / 1e6).toFixed(2)}m)`;
-  else recent_change = `${word} ${fmt0(Math.abs(diff))} (${(Math.abs(diff) / ago * 100).toFixed(1)}%) on ${agoLabel}`;
+  if (key === 'ae_4hr_pct') recent_change = diff === 0 ? `No change on ${agoLabel} (${ago.toFixed(1)} per cent)` : `${word} ${Math.abs(diff).toFixed(1)} points on ${agoLabel} (${ago.toFixed(1)} per cent)`;
+  else if (key === 'prison_occupancy_pct') recent_change = diff === 0 ? `No change on ${agoLabel} (${ago.toFixed(1)} per cent)` : `${word} from ${ago.toFixed(1)} per cent in ${agoLabel}`;
+  else if (key === 'rtt_waiting_list') recent_change = `${word} ${fmt0(Math.abs(diff))} (${(Math.abs(diff) / ago * 100).toFixed(1)} per cent) on ${agoLabel} (${(ago / 1e6).toFixed(2)}m)`;
+  else recent_change = `${word} ${fmt0(Math.abs(diff))} (${(Math.abs(diff) / ago * 100).toFixed(1)} per cent) on ${agoLabel}`;
   return { recent_change, recent_direction };
 }

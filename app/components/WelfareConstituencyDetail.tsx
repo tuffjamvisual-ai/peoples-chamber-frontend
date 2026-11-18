@@ -106,7 +106,7 @@ type PipConditionBreakdown = {
 
 function conditionBreakdownText(c: PipConditionBreakdown | null | undefined): string | null {
   if (!c) return null
-  return `${c.percentOfClaimants.toFixed(1)}% of PIP awards are for ${c.mainConditionLabel}`
+  return `${c.percentOfClaimants.toFixed(1)} per cent of PIP awards are for ${c.mainConditionLabel}`
 }
 
 // Median annual pay (workplace-based, full-time employees): GB-wide
@@ -152,7 +152,7 @@ type UcLcwra = {
 function lcwraText(w: UcLcwra | null | undefined): string | null {
   if (!w) return null
   if (w.status === 'suppressed' || w.lcwraValue == null || w.lcwraRatioPercent == null) return null
-  return `${w.lcwraRatioPercent.toFixed(1)}% of the assessed UC health caseload are LCWRA (${formatCount(w.lcwraValue)} of ${formatCount(w.combinedTotal ?? 0)})`
+  return `${w.lcwraRatioPercent.toFixed(1)} per cent of the assessed UC health caseload are LCWRA (${formatCount(w.lcwraValue)} of ${formatCount(w.combinedTotal ?? 0)})`
 }
 
 type MpInfo = {

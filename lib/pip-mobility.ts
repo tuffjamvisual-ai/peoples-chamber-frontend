@@ -26,7 +26,7 @@ export function changeLine(cur: PipMobilityRow, prev: PipMobilityRow | undefined
   if (d === 0) return `The same as ${when}`;
   const dir = d > 0 ? 'Up' : 'Down';
   if (prev.enhanced < 20) return `${dir} ${num(Math.abs(d))} on ${when}`;
-  return `${dir} ${num(Math.abs(d))} (${Math.round(Math.abs(d) / prev.enhanced * 100)}%) on ${when}`;
+  return `${dir} ${num(Math.abs(d))} (${Math.round(Math.abs(d) / prev.enhanced * 100)} per cent) on ${when}`;
 }
 
 export function derivedNote(districts: number): string {

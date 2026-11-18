@@ -192,7 +192,7 @@ function councilFlags(code: string, county: boolean, events: EventRow[], reserve
   if (r && r.usable_end != null) {
     if (r.usable_end < 0) flags.push({ kind: 'reserves', label: `Usable reserves below zero (31 March ${r.financial_year.slice(0, 2)}${r.financial_year.slice(5, 7)})`, county });
     else if (r.usable_start != null && r.usable_start > 0 && r.usable_change != null && r.usable_change / r.usable_start <= -0.5) {
-      flags.push({ kind: 'reserves', label: `Usable reserves fell ${Math.round((-r.usable_change / r.usable_start) * 100)}% in ${r.financial_year}`, county });
+      flags.push({ kind: 'reserves', label: `Usable reserves fell ${Math.round((-r.usable_change / r.usable_start) * 100)} per cent in ${r.financial_year}`, county });
     }
   }
   return flags;
