@@ -8,7 +8,9 @@
 // rather than averaged.
 
 import { SubFold } from './PhoneFolds';
+import Link from 'next/link';
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
+import { combine, fmtNum, fmtPct, fyLabel, EXPLAINER, sourceLine, RANKING_PATH, type PovertyRow, type Figure } from '@/lib/child-poverty';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -16,36 +18,7 @@ const ACCENT = '#7a1612';
 const SERIF = 'var(--font-special-elite), monospace';
 const MONO = 'var(--font-special-elite), monospace';
 
-type Row = {
-  council_gss_code: string;
-  measure: string;
-  fye: number;
-  children_count: number;
-  percentage: number | null;
-  release_label: string;
-};
-
-type Figure = { count: number; pct: number | null };
-
-// Sum one measure/year across the given councils. Returns null if any
-// council is missing that figure (so a county total is never silently
-// partial).
-function combine(rows: Row[], codes: string[], measure: string, fye: number): Figure | null {
-  let count = 0, pop = 0, popKnown = true;
-  for (const code of codes) {
-    const r = rows.find((x) => x.council_gss_code === code && x.measure === measure && x.fye === fye);
-    if (!r) return null;
-    count += r.children_count;
-    if (r.percentage && r.percentage > 0) pop += r.children_count / (r.percentage / 100);
-    else popKnown = false;
-  }
-  return { count, pct: popKnown && pop > 0 ? (count / pop) * 100 : null };
-}
-
-const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
-const fmtPct = (p: number | null) => (p == null ? 'n/a' : `${p.toFixed(1)}%`);
-// "2024 to 2025" (house style, T1-5x).
-const fyLabel = (fye: number) => `${fye - 1} to ${fye}`;
+type Row = PovertyRow;
 
 // Shared by this section and the area summary (/your-area), so both show the same figure.
 export async function loadChildPoverty(gssCodes: string[]) {
@@ -127,15 +100,20 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
         </table>
       )}
 
+      {/* CHILD-POVERTY-RANK (owner approved 18 Nov 2026, Cowork ENTRY 317). */}
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 14px' }}>
+        <Link href={RANKING_PATH} style={{ color: INK, textDecoration: 'underline' }}>See every council</Link>, ranked by the share after housing costs.
+      </p>
+
       {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones what the figure counts and its source fold (the council figures
           ran to 3,600px at 320); from 768px as before. */}
       <SubFold label="About these figures">
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
-        A child is counted if their family&rsquo;s income is below 60 per cent of the UK median for that year and the family claimed Child Benefit plus at least one other benefit (Universal Credit, tax credits or Housing Benefit). The two measures can differ a lot: housing costs push the figure after housing costs far higher in expensive areas such as London. Figures are provisional and years before 2021/22 are not comparable, so the trend starts there.
+        {EXPLAINER}
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        Source: Department for Work and Pensions, Children in Low Income Families: local area statistics ({release}).
+        {sourceLine(release)}
       </p>
       </SubFold>
     </section>

@@ -72,6 +72,7 @@ export const NAV: NavItem[] = [
     { label: 'Councils', href: '/councils', desc: 'Every UK principal local authority, 382 in total, including Northern Irish councils.' },
     ...(SHOW_LEAGUE_TABLE ? [{ label: 'How Council Areas Compare', href: '/councils/league-table' }] : []),
     { label: 'Blue Badges', href: '/councils/blue-badges', desc: PAGE_DESCRIPTIONS['/councils/blue-badges'] },
+    { label: 'Child Poverty', href: '/councils/child-poverty', desc: PAGE_DESCRIPTIONS['/councils/child-poverty'] },
     { label: 'Children in Care', href: '/councils/children-in-care', desc: PAGE_DESCRIPTIONS['/councils/children-in-care'] },
     { label: 'Road Condition', href: '/councils/road-condition', desc: PAGE_DESCRIPTIONS['/councils/road-condition'] },
     { label: 'Sewage Spills', href: '/sewage', desc: 'How long storm overflows spilled sewage in every council area and constituency in England, Scotland and Northern Ireland, from monitoring data. Wales is not included yet.' },

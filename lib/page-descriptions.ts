@@ -30,6 +30,8 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
     'Free school meals in every English council area: the share of pupils eligible against England, the change on the year and how many took a meal.',
   '/councils/youth-justice':
     'Youth justice in every council area of England and Wales: children given their first caution or conviction, the rate per 100,000 and the change on the year.',
+  '/councils/child-poverty':
+    'Child poverty in every UK council area: the share of children under 16 in low income families after and before housing costs, the number of children and the change since 2021 to 2022.',
   '/councils/children-in-care':
     'Children in care in every English council area: the number looked after, the rate per 10,000 children against England and the change on the year.',
   '/councils/road-condition':
