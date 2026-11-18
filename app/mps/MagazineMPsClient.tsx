@@ -16,7 +16,6 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import PhoneMore from '../components/PhoneMore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { normaliseParty, isCoop, resolvePartyColour } from '@/lib/party-helpers';
@@ -38,6 +37,15 @@ const ACCENT = '#7a1612';
 const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/;
 
 const MPS_PER_PAGE = 21;
+// MPS-PARTY (owner approved 18 Nov 2026, Cowork ENTRY 284: "Show 20, then more"): from 1,024px the party view lists every MP
+// in the party with no page numbers, opening with 20, then "Show 20 more" with the count, and "Show fewer" once more show.
+const DESK_FIRST = 20;
+const DESK_STEP = 20;
+// Phones and tablets keep the party's pages of 21 and, inside a page, 3 then "Show 10 more" (PhoneMore's rule, L7).
+const PHONE_FIRST = 3;
+const PHONE_STEP = 10;
+const DESK = '(min-width: 1024px)';
+const PHONE = '(max-width: 1023.98px)';
 
 // The address-aware list (useSearchParams), rendered in the browser under the page's Suspense boundary. The page's
 // fallback is the same list with an empty address (MagazineMPsStatic), so /mps is prerendered with the full default list in
@@ -290,6 +298,78 @@ function MPCard({ mp, fromParty, idx }: { mp: MP; fromParty: string; idx: number
   );
 }
 
+// The two folds of the party grid (MPS-PARTY, ENTRY 284). Phones and tablets: this page's 21 cards, 3 then 10 more a press
+// (as PhoneMore did). From 1,024px: every card, 20 then 20 more a press; an old ?page= link opens far enough down to show that
+// page's MPs and scrolls to the first of them, so old links still land on the same names. Without JavaScript nothing folds.
+function PartyFold({ total, startIdx, pageCount, requestedPage }: { total: number; startIdx: number; pageCount: number; requestedPage: number }) {
+  const deskStart = total <= DESK_FIRST
+    ? total
+    : requestedPage > 1
+      ? Math.min(total, Math.ceil((startIdx + pageCount) / DESK_STEP) * DESK_STEP)
+      : DESK_FIRST;
+  const [desk, setDesk] = useState(deskStart);
+  const [phone, setPhone] = useState(PHONE_FIRST);
+
+  useEffect(() => {
+    if (requestedPage <= 1 || !window.matchMedia(DESK).matches) return;
+    const raf = requestAnimationFrame(() => {
+      (document.querySelector(`#mps-party-grid > :nth-child(${startIdx + 1})`) as HTMLElement | null)?.scrollIntoView({ block: 'start' });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [requestedPage, startIdx]);
+
+  const g = '#mps-party-grid';
+  const phoneFolds = pageCount > PHONE_FIRST;
+  const deskFolds = total > DESK_FIRST;
+  const css = [
+    '.mpp-desk { display: none; }',
+    `@media ${DESK} { .mpp-phone { display: none !important; } .mpp-desk { display: block; } }`,
+    `@media ${PHONE} {`,
+    `  ${g} > :nth-child(-n+${startIdx}), ${g} > :nth-child(n+${startIdx + pageCount + 1}) { display: none !important; }`,
+    phoneFolds ? `  html.og-js ${g} > :nth-child(n+${startIdx + Math.min(phone, pageCount) + 1}) { display: none !important; }` : '',
+    '}',
+    deskFolds ? `@media ${DESK} { html.og-js ${g} > :nth-child(n+${desk + 1}) { display: none !important; } }` : '',
+  ].join('\n');
+
+  const phoneLeft = pageCount - phone;
+  const deskLeft = total - desk;
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: css }} />
+      {phoneFolds && (
+        <div className="mpp-phone">
+          <p className="og-more-count" aria-live="polite">{Math.min(phone, pageCount).toLocaleString('en-GB')} of {pageCount.toLocaleString('en-GB')}</p>
+          {phoneLeft > 0 && (
+            <button type="button" className="og-phone-more" onClick={() => setPhone(phone + PHONE_STEP)}>
+              Show {Math.min(PHONE_STEP, phoneLeft).toLocaleString('en-GB')} more
+            </button>
+          )}
+          {phone > PHONE_FIRST && (
+            <button type="button" className="og-phone-more" onClick={() => setPhone(PHONE_FIRST)}>
+              Show fewer
+            </button>
+          )}
+        </div>
+      )}
+      {deskFolds && (
+        <div className="mpp-desk">
+          <p className="og-more-count" aria-live="polite">{Math.min(desk, total).toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}</p>
+          {deskLeft > 0 && (
+            <button type="button" className="og-phone-more" onClick={() => setDesk(desk + DESK_STEP)}>
+              Show {Math.min(DESK_STEP, deskLeft).toLocaleString('en-GB')} more
+            </button>
+          )}
+          {desk > DESK_FIRST && (
+            <button type="button" className="og-phone-more" onClick={() => setDesk(DESK_FIRST)}>
+              Show fewer
+            </button>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
 function SinglePartyView({
   partyName,
   partyColour,
@@ -311,7 +391,7 @@ function SinglePartyView({
   const currentPage = Math.min(Math.max(1, requestedPage), totalPages);
   const startIdx = (currentPage - 1) * MPS_PER_PAGE;
   const endIdx = Math.min(startIdx + MPS_PER_PAGE, partyMPs.length);
-  const pageMPs = partyMPs.slice(startIdx, endIdx);
+  const pageCount = endIdx - startIdx;
 
   // Build hrefs for Prev/Next that keep ?expand= and omit ?page= when 1.
   const partyParam = `expand=${encodeURIComponent(partyName)}`;
@@ -357,13 +437,14 @@ function SinglePartyView({
       />
 
       {partyMPs.length > MPS_PER_PAGE && (
-        <p style={{ fontSize: '15px', marginBottom: '16px' }}>
+        <p className="mpp-phone" style={{ fontSize: '15px', marginBottom: '16px' }}>
           Showing {startIdx + 1}-{endIdx} of {partyMPs.length.toLocaleString()} · page {currentPage} of {totalPages}
         </p>
       )}
 
-      {/* L7 (owner, 16 Nov 2026, ENTRY 155): on phones and tablets up to 1,023px the page's cards open with 3, then "Show N
-          more" adds 10, with "Show fewer" (PhoneMore; with JavaScript off every card shows). Desktop unchanged. */}
+      {/* Every MP of the party is in the grid (MPS-PARTY, ENTRY 284). Up to 1,023px a rule shows only this page's 21, and
+          inside them 3, then "Show 10 more" (L7, ENTRY 155), as before. From 1,024px there are no pages: 20, then "Show 20
+          more". The folds need html.og-js; the page's own 21 do not (that slice was always there). PartyFold below. */}
       <div
         id="mps-party-grid"
         style={{
@@ -373,11 +454,18 @@ function SinglePartyView({
           width: '100%',
         }}
       >
-        {pageMPs.map((mp, idx) => (
-          <MPCard key={mp.member_id} mp={mp} fromParty={partyName} idx={idx} />
+        {/* The tilt follows the card's place in its page of 21, as when only the page was in the grid. */}
+        {partyMPs.map((mp, idx) => (
+          <MPCard key={mp.member_id} mp={mp} fromParty={partyName} idx={idx % MPS_PER_PAGE} />
         ))}
       </div>
-      <PhoneMore key={`${partyName}-${currentPage}`} selector="#mps-party-grid" total={pageMPs.length} />
+      <PartyFold
+        key={`${partyName}-${currentPage}-${partyMPs.length}`}
+        total={partyMPs.length}
+        startIdx={startIdx}
+        pageCount={pageCount}
+        requestedPage={requestedPage > 1 ? currentPage : 1}
+      />
 
       {partyMPs.length === 0 && searchTerm.trim() && (
         <p style={{ fontSize: '15px', marginTop: '24px' }}>
@@ -388,6 +476,7 @@ function SinglePartyView({
       {totalPages > 1 && (
         <nav
           aria-label="Pagination"
+          className="mpp-phone"
           style={{
             display: 'flex',
             justifyContent: 'center',
