@@ -6,12 +6,12 @@
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/check-press-release-liveness": {
-      "schedule": "51 */2 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "51 */2 * * 1-5",
+      "since": "2026-11-15T17:19:45Z"
     },
     "/api/cron/sync-programmes": {
-      "schedule": "27 10 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "27 5 * * 5",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/monitor-freshness": {
       "schedule": "3 17 * * *",
@@ -22,8 +22,8 @@
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/refresh-contractor-matches": {
-      "schedule": "27 3 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "27 3 * * 4",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/refresh-nightly-pages": {
       "schedule": "15 5 * * *",
@@ -58,12 +58,12 @@
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/sync-bill-sponsors": {
-      "schedule": "46 0,1,4,5,7,10,11,12,13,14,16,18,19,20,22,23 * * 0",
-      "since": "2026-11-04T21:00:40Z"
+      "schedule": "46 5 * * 0",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-bill-stages": {
-      "schedule": "35 1,7,13,19 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "35 1 * * *",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-blue-badges": {
       "schedule": "57 11 * * 3",
@@ -78,20 +78,20 @@
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/sync-claimant-count": {
-      "schedule": "43 8 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "43 5 * * 6",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-committee-memberships": {
       "schedule": "3 13 * * *",
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/sync-committees": {
-      "schedule": "13 11 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "13 11 * * 3",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-commons-press-releases": {
-      "schedule": "33 */2 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "33 */2 * * 1-5",
+      "since": "2026-11-15T17:19:45Z"
     },
     "/api/sync-commons-votes-api": {
       "schedule": "23 9 * * *",
@@ -138,28 +138,28 @@
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/sync-hansard-contributions": {
-      "schedule": "52 13 * * *",
-      "since": "2026-11-04T22:20:46Z"
+      "schedule": "3 1 * * *",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-homelessness": {
       "schedule": "25 10 * * 2",
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/sync-house-prices": {
-      "schedule": "27 8 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "27 1 * * 2",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-lords-votes": {
       "schedule": "27 7 * * *",
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/sync-member-biography": {
-      "schedule": "3 11,23 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "3 4 * * *",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-members-contributions": {
-      "schedule": "23 */6 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "23 6 * * *",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-ministers-bars": {
       "schedule": "29 6 * * 2",
@@ -174,8 +174,8 @@
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/sync-mp-contributions": {
-      "schedule": "43 3,9,15,21 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "43 0 * * 0",
+      "since": "2026-11-15T15:47:11Z"
     },
     "/api/sync-mp-parties": {
       "schedule": "27 4 * * *",
@@ -190,8 +190,8 @@
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/sync-parliament-archive": {
-      "schedule": "8,18,28,38,48,58 * * * *",
-      "since": "2026-10-29T22:00:00Z"
+      "schedule": "8 3 * * *",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-peers": {
       "schedule": "53 17 * * *",
@@ -206,12 +206,12 @@
       "since": "2026-10-27T04:00:00Z"
     },
     "/api/sync-press-releases": {
-      "schedule": "17 */2 * * *",
-      "since": "2026-10-27T04:00:00Z"
+      "schedule": "17 */2 * * 1-5",
+      "since": "2026-11-15T17:19:45Z"
     },
     "/api/sync-reshuffle-tick": {
-      "schedule": "9 */2 * * *",
-      "since": "2026-11-09T20:04:38Z"
+      "schedule": "9 2 * * *",
+      "since": "2026-11-15T14:50:29Z"
     },
     "/api/sync-dashboard-indicators": {
       "schedule": "41 11 * * 1-5",
@@ -252,6 +252,10 @@
     "/api/sync-voting-intention": {
       "schedule": "47 10 * * *",
       "since": "2026-10-27T04:00:00Z"
+    },
+    "/api/refresh-state-of-the-nation": {
+      "schedule": "35 7 * * *",
+      "since": "2026-11-15T02:05:47Z"
     }
   }
 }
