@@ -91,7 +91,8 @@ export default async function ReportsPage() {
       />
 
       <header style={{ marginBottom: '4%' }}>
-        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(15px, 1.6vw, 19px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '14px' }}>
+        {/* The same title style as the other index pages (/councils, /lobbying), at every width (owner, 18 Nov 2026, Cowork ENTRY 314): it was 19px at 1280, smaller than its own headlines. */}
+        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, marginBottom: '14px' }}>
           Reports
         </h1>
       </header>
