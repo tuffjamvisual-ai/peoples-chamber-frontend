@@ -6,8 +6,9 @@
 // itself stays static (A16). Tabs follow the WAI-ARIA tab pattern (tablist, aria-selected, aria-controls, Left/Right/Home/End;
 // only the selected tab is in the Tab order). The full text is always in the page HTML, hidden with its tab by CSS, never left
 // out, so search engines and the reading time are unchanged.
-// Without JavaScript there are no tabs: the summary list shows, then the full article, nothing hidden (the hiding rules
-// need html.og-js, which the page head sets before the first paint, and the tab roles are only added once this has run).
+// Without JavaScript there are no tabs: the summary list shows, then the full article, nothing hidden. With it, the tabs and
+// the hiding apply from the first paint (html.og-js, set in the page head), so nothing flashes; the tab roles are added once
+// this has run. If it never runs, 'Read the full article' is a #full link that opens the text (:target).
 // The key points list stays whole (owner, 17 Nov 2026, ENTRY 265): data-own-more.
 import { useCallback, useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
 
@@ -15,7 +16,7 @@ type Tab = 'summary' | 'full';
 
 const CSS = `
 .art-tablist { display: none; }
-html.og-js .art-tabs[data-ready] .art-tablist { display: flex; gap: 8px; margin: 0 0 20px; border-bottom: 1px solid rgba(20,16,13,0.25); }
+html.og-js .art-tablist { display: flex; gap: 8px; margin: 0 0 20px; border-bottom: 1px solid rgba(20,16,13,0.25); }
 .art-tab { min-height: 44px; padding: 0 16px; font: inherit; font-size: 16px; color: #14100d; background: none; border: 1px solid rgba(20,16,13,0.25); border-bottom: none; cursor: pointer; }
 .art-tab[aria-selected="true"] { font-weight: bold; background: rgba(20,16,13,0.06); border-color: #14100d; }
 .art-tab:focus-visible, .art-read-full:focus-visible { outline: 3px solid #7a1612; outline-offset: 2px; }
@@ -23,12 +24,14 @@ html.og-js .art-tabs[data-ready] .art-tablist { display: flex; gap: 8px; margin:
 .art-tabs .art-points li { display: list-item; }
 .art-points li { margin: 0 0 10px; }
 .art-read-full { display: none; }
-html.og-js .art-tabs[data-ready] .art-read-full { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; margin: 0 0 8px; font: inherit; font-size: 16px; font-weight: bold; color: #7a1612; background: none; border: 2px solid #7a1612; cursor: pointer; }
-html.og-js .art-tabs[data-ready][data-tab="summary"] .art-panel-full, html.og-js .art-tabs[data-ready][data-tab="full"] .art-panel-summary { display: none; }
-html:not(.og-js) .art-panel-summary, .art-tabs:not([data-ready]) .art-panel-summary { margin-bottom: 24px; padding-bottom: 8px; border-bottom: 1px solid rgba(20,16,13,0.25); }
+html.og-js .art-read-full { display: inline-flex; text-decoration: none; align-items: center; min-height: 44px; padding: 0 16px; margin: 0 0 8px; font: inherit; font-size: 16px; font-weight: bold; color: #7a1612; background: none; border: 2px solid #7a1612; cursor: pointer; }
+html.og-js .art-tabs[data-tab="summary"] .art-panel-full, html.og-js .art-tabs[data-tab="full"] .art-panel-summary { display: none; }
+/* If JavaScript stops after html.og-js is set, 'Read the full article' is a plain #full link and this opens the text. */
+html.og-js .art-tabs:has(#full:target) .art-panel-full { display: block; }
+html:not(.og-js) .art-panel-summary { margin-bottom: 24px; padding-bottom: 8px; border-bottom: 1px solid rgba(20,16,13,0.25); }
 `;
 
-export default function ArticleTabs({ points, children }: { points: string[]; children: ReactNode }) {
+export default function ArticleTabs({ points, mainAction = false, children }: { points: string[]; mainAction?: boolean; children: ReactNode }) {
   const [tab, setTab] = useState<Tab>('summary');
   const [ready, setReady] = useState(false);
 
@@ -48,7 +51,7 @@ export default function ArticleTabs({ points, children }: { points: string[]; ch
   const readFull = () => {
     setTab('full');
     requestAnimationFrame(() => {
-      const root = document.getElementById('art-panel-full');
+      const root = document.getElementById('full');
       if (!root) return;
       const target = (root.querySelector('h2, h3') as HTMLElement | null) ?? (root.querySelector('#article-text') as HTMLElement | null) ?? root;
       if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
@@ -73,7 +76,7 @@ export default function ArticleTabs({ points, children }: { points: string[]; ch
     role: 'tab',
     id: `art-tab-${t}`,
     'aria-selected': tab === t,
-    'aria-controls': `art-panel-${t}`,
+    'aria-controls': t === 'full' ? 'full' : 'art-panel-summary',
     tabIndex: tab === t ? 0 : -1,
     className: 'art-tab',
     onClick: () => select(t),
@@ -88,12 +91,12 @@ export default function ArticleTabs({ points, children }: { points: string[]; ch
         <button {...tabProps('full', 'Full article')} />
       </div>
       <div className="art-panel art-panel-summary" id="art-panel-summary" {...(ready ? { role: 'tabpanel', 'aria-labelledby': 'art-tab-summary' } : {})}>
-        <ul className="art-points" data-own-more="">
+        <ul className="art-points" data-own-more="" {...(mainAction ? { 'data-main-action': '' } : {})}>
           {points.map((p) => <li key={p}>{p}</li>)}
         </ul>
-        <button type="button" className="art-read-full" onClick={readFull}>Read the full article</button>
+        <a href="#full" className="art-read-full" onClick={(e) => { e.preventDefault(); readFull(); }}>Read the full article</a>
       </div>
-      <div className="art-panel art-panel-full" id="art-panel-full" {...(ready ? { role: 'tabpanel', 'aria-labelledby': 'art-tab-full' } : {})}>
+      <div className="art-panel art-panel-full" id="full" {...(ready ? { role: 'tabpanel', 'aria-labelledby': 'art-tab-full' } : {})}>
         {children}
       </div>
     </div>

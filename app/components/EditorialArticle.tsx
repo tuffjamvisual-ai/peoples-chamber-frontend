@@ -35,6 +35,49 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
   const showStandfirst = !!piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body);
   // Briefings keep their publish date only (T1-UPDATED, Cowork 13 Nov 2026).
   const updatedIso = basePath === '/briefings' ? null : shownUpdateIso(piece.updateNote, piece.publishedAt);
+  // The article text, once: the 'Full article' tab when there are key points, otherwise as before (T2: was written twice).
+  const articleText = (
+    <>
+        {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
+        {/* The main action (UX3a, A6): the standfirst when it shows, otherwise the start of the text. */}
+        <article id="article-text" data-own-folds="" data-article-body="" data-main-action={showStandfirst || keyPoints ? undefined : ''} style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
+          <ReportBody body={piece.body} paragraphs={showStandfirst ? 2 : 3} />
+          {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
+          {piece.updateNote && piece.updateNote.length > 0 && (
+            <section aria-labelledby="article-updates" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
+              {/* On phones and tablets a closed fold labelled with the number of updates (ENTRY 135 H2, 16 Nov 2026), so the
+                  report keeps within the length limit; the label says updates exist. From 1,024px up as before. */}
+              <SectionFold
+                title="Updates"
+                label={`Updates (${piece.updateNote.length})`}
+                headingId="article-updates"
+                headingStyle={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}
+              >
+              {piece.updateNote.map((u) => (
+                <p key={u.date + u.text.slice(0, 20)} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 10px', overflowWrap: 'break-word' }}>
+                  Updated {new Date(u.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}: {u.text}
+                </p>
+              ))}
+              </SectionFold>
+            </section>
+          )}
+          {/* One "Sources (N)" link to the article's sources page, never the full list (owner's standing instruction,
+              2 Nov 2026, as eda0b417 did on 23 Oct). The "How this piece was checked" panel is on that page only. */}
+          {sources.length > 0 && (
+            <p id="article-sources" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
+              <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
+            </p>
+          )}
+          {basePath === '/editorials' && (
+            <div className="art-actions" style={{ margin: '0 0 16px' }}>
+              <ShareButton title={piece.headline} />
+            </div>
+          )}
+          {/* The one Related list (T1-5x S6): the piece's related links or Read next, then the data and more reports, at most 3. */}
+          <ExploreNext piece={piece} lead={related ?? readNext} />
+        </article>
+    </>
+  );
   return (
     <OpenGovShell pageStamp={stamp}>
       {banner}
@@ -117,85 +160,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
 
         {/* ART-SUMMARY (Cowork ENTRY 263): with 4 to 6 key points, the text below is the 'Full article' tab beside a 'Summary'
             tab (ArticleTabs); without them, exactly as before. */}
-        {keyPoints ? <ArticleTabs points={keyPoints}>
-        {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
-        {/* The main action (UX3a, A6): the standfirst when it shows, otherwise the start of the text. */}
-        <article id="article-text" data-own-folds="" data-article-body="" data-main-action={showStandfirst ? undefined : ''} style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
-          <ReportBody body={piece.body} paragraphs={showStandfirst ? 2 : 3} />
-          {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
-          {piece.updateNote && piece.updateNote.length > 0 && (
-            <section aria-labelledby="article-updates" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
-              {/* On phones and tablets a closed fold labelled with the number of updates (ENTRY 135 H2, 16 Nov 2026), so the
-                  report keeps within the length limit; the label says updates exist. From 1,024px up as before. */}
-              <SectionFold
-                title="Updates"
-                label={`Updates (${piece.updateNote.length})`}
-                headingId="article-updates"
-                headingStyle={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}
-              >
-              {piece.updateNote.map((u) => (
-                <p key={u.date + u.text.slice(0, 20)} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 10px', overflowWrap: 'break-word' }}>
-                  Updated {new Date(u.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}: {u.text}
-                </p>
-              ))}
-              </SectionFold>
-            </section>
-          )}
-          {/* One "Sources (N)" link to the article's sources page, never the full list (owner's standing instruction,
-              2 Nov 2026, as eda0b417 did on 23 Oct). The "How this piece was checked" panel is on that page only. */}
-          {sources.length > 0 && (
-            <p id="article-sources" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
-              <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
-            </p>
-          )}
-          {basePath === '/editorials' && (
-            <div className="art-actions" style={{ margin: '0 0 16px' }}>
-              <ShareButton title={piece.headline} />
-            </div>
-          )}
-          {/* The one Related list (T1-5x S6): the piece's related links or Read next, then the data and more reports, at most 3. */}
-          <ExploreNext piece={piece} lead={related ?? readNext} />
-        </article>
-        </ArticleTabs> : <>
-        {/* data-article-body: the article text, never folded; the phone length check leaves it out (QA2d, owner, 9 Nov 2026). */}
-        {/* The main action (UX3a, A6): the standfirst when it shows, otherwise the start of the text. */}
-        <article id="article-text" data-own-folds="" data-article-body="" data-main-action={showStandfirst ? undefined : ''} style={{ scrollMarginTop: '24px',  fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
-          <ReportBody body={piece.body} paragraphs={showStandfirst ? 2 : 3} />
-          {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
-          {piece.updateNote && piece.updateNote.length > 0 && (
-            <section aria-labelledby="article-updates" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
-              {/* On phones and tablets a closed fold labelled with the number of updates (ENTRY 135 H2, 16 Nov 2026), so the
-                  report keeps within the length limit; the label says updates exist. From 1,024px up as before. */}
-              <SectionFold
-                title="Updates"
-                label={`Updates (${piece.updateNote.length})`}
-                headingId="article-updates"
-                headingStyle={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}
-              >
-              {piece.updateNote.map((u) => (
-                <p key={u.date + u.text.slice(0, 20)} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 10px', overflowWrap: 'break-word' }}>
-                  Updated {new Date(u.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}: {u.text}
-                </p>
-              ))}
-              </SectionFold>
-            </section>
-          )}
-          {/* One "Sources (N)" link to the article's sources page, never the full list (owner's standing instruction,
-              2 Nov 2026, as eda0b417 did on 23 Oct). The "How this piece was checked" panel is on that page only. */}
-          {sources.length > 0 && (
-            <p id="article-sources" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
-              <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
-            </p>
-          )}
-          {basePath === '/editorials' && (
-            <div className="art-actions" style={{ margin: '0 0 16px' }}>
-              <ShareButton title={piece.headline} />
-            </div>
-          )}
-          {/* The one Related list (T1-5x S6): the piece's related links or Read next, then the data and more reports, at most 3. */}
-          <ExploreNext piece={piece} lead={related ?? readNext} />
-        </article>
-        </>}
+        {keyPoints ? <ArticleTabs points={keyPoints} mainAction={!showStandfirst}>{articleText}</ArticleTabs> : articleText}
 
       </div>
 
