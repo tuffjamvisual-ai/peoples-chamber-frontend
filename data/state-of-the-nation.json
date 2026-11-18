@@ -25,14 +25,14 @@
     },
     "house-price": {
       "value": "£273,000",
-      "period": "August 2026 (provisional)",
-      "previous": "up 0.9% on a year earlier (1.2% in July 2026)",
-      "sourceUrl": "https://www.gov.uk/government/statistics/uk-house-price-index-for-august-2026/uk-house-price-index-summary-august-2026",
+      "period": "September 2026 (provisional)",
+      "previous": "up 1.2% on a year earlier (also 1.2% in August 2026, revised)",
+      "sourceUrl": "https://www.gov.uk/government/statistics/uk-house-price-index-for-september-2026/uk-house-price-index-summary-september-2026",
       "sourceName": "HM Land Registry and ONS",
-      "publishedOn": "2026-10-21",
-      "checkedOn": "2026-11-15",
+      "publishedOn": "2026-11-18",
+      "checkedOn": "2026-11-18",
       "checkedBy": "Cowork",
-      "note": "Next: 18 November 2026"
+      "note": "Next: 16 December 2026"
     },
     "rent": {
       "value": null,
