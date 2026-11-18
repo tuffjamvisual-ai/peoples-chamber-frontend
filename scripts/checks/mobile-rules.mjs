@@ -79,7 +79,8 @@ function measure(excSelectors) {
     // A tap area drawn by an absolutely placed ::after (MOB-TAPS, and phones under 480px) counts as the element's tap height.
     const af = getComputedStyle(e, '::after');
     const tapH = af.content && af.content !== 'none' && af.position === 'absolute' ? Math.max(r.height, parseFloat(af.height) || 0) : r.height;
-    if (tapH < 44 && !excepted(e)) out.taps.push(`${name(e)} ${Math.round(r.width)}x${Math.round(tapH)}`);
+    if (tapH < 24) out.taps.push(`${name(e)} tap area under the 24px floor: ${Math.round(tapH * 10) / 10}px`);
+    else if (tapH < 44 && !excepted(e)) out.taps.push(`${name(e)} ${Math.round(r.width)}x${Math.round(tapH)}`);
     const t = text(e);
     // A list control: a button or fold that shows more of a list, or a link that stays on this page doing the same (a link to
     // another page, such as "See all the figures", is navigation, not a list control).

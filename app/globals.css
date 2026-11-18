@@ -590,6 +590,8 @@ html.ya-wait .og-main-content { min-height: 110vh; }
 @media (max-width: 1023.98px), (pointer: coarse) {
   :is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump) { position: relative; }
   :is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump)::after {
-    content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; transform: translateY(-50%);
+    /* 44px centred by default; where a neighbour's area would overlap, lib/phone-enhance.ts (taps) sets --tap-t and --tap-b
+       so the two areas meet halfway and never overlap (Cowork ENTRY 276; floor 24px). */
+    content: ''; position: absolute; left: 0; right: 0; top: var(--tap-t, calc(50% - 22px)); bottom: var(--tap-b, calc(50% - 22px));
   }
 }

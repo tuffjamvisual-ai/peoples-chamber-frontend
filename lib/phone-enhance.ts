@@ -257,7 +257,35 @@ document.addEventListener('click',function(e){
   var c=chainOf(s.parentElement);if(!c)return;
   e.preventDefault();chainShow(c,c.n+STEP);
 });
+// Tap areas of links in running text (MOB-TAPS, Cowork ENTRY 274 and 276): 44px, centred, drawn by ::after (globals.css).
+// Where two links' areas would overlap although the links do not, both are cut back to meet halfway between the links, so a
+// tap always lands on the nearer one; never below 24px (a smaller one is logged to the console for the rules check).
+var TAPSEL=':is(.og-main-content, .dossier-content) :is(p, li, dd, figcaption, blockquote, td) :is(a:not([class]), a[class=""], a.no-hover-scale, a.dv-jump)';
+function tapWide(){return window.matchMedia('(max-width: 1023.98px), (pointer: coarse)').matches}
+function taps(){
+  var ours=[].slice.call(document.querySelectorAll(TAPSEL));
+  ours.forEach(function(a){a.style.removeProperty('--tap-t');a.style.removeProperty('--tap-b')});
+  if(!tapWide()||!ours.length)return;
+  var g=[].slice.call(document.querySelectorAll('main a')).filter(function(a){return a.getClientRects().length}).map(function(a){
+    var r=a.getBoundingClientRect(),o=a.matches(TAPSEL),e=o?Math.max(0,(44-(r.bottom-r.top))/2):0;
+    return{a:a,o:o,t:r.top,b:r.bottom,l:r.left,r:r.right,up:e,dn:e,e:e};
+  });
+  for(var i=0;i<g.length;i++)for(var j=0;j<g.length;j++){
+    var A=g[i],B=g[j];if(i===j||!(A.o||B.o))continue;
+    if(Math.min(A.r,B.r)-Math.max(A.l,B.l)<=0.5||A.b>B.t)continue; // not side by side, or A not above B
+    var gap=B.t-A.b;if(A.dn+B.up<=gap)continue;
+    if(A.o&&B.o){A.dn=Math.min(A.dn,gap/2);B.up=Math.min(B.up,gap/2)}else if(A.o)A.dn=Math.min(A.dn,gap);else B.up=Math.min(B.up,gap);
+  }
+  g.forEach(function(x){
+    if(!x.o||(x.up===x.e&&x.dn===x.e))return;
+    x.a.style.setProperty('--tap-t',(-x.up)+'px');x.a.style.setProperty('--tap-b',(-x.dn)+'px');
+    var h=x.b-x.t+x.up+x.dn;if(h<24)console.warn('[tap] under 24px: '+Math.round(h)+'px '+(x.a.textContent||'').trim().slice(0,40));
+  });
+}
+var tapTimer=0;window.addEventListener('resize',function(){clearTimeout(tapTimer);tapTimer=setTimeout(taps,200)});
+document.addEventListener('toggle',function(){setTimeout(taps,0)},true);
 window.__ogPhone=function(buttons){
+  taps();
   if(location.href!==here){
     here=location.href;
     if(location.pathname!==path){path=location.pathname;opened=false;clearTimeout(wait);wait=setTimeout(function(){wait=0;if(narrow())shorten()},1000)}

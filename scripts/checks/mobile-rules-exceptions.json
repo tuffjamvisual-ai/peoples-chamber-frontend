@@ -42,6 +42,54 @@
       "route": "/councils/[slug]/schools",
       "selector": "table > tbody[data-own-more]",
       "reason": "The Ofsted overall effectiveness and ungraded outcome summary tables. Controls and fixed summaries, not content lists: they stay whole at every width (owner's list rule; Cowork ENTRY 269, 17 Nov 2026). Marked data-own-more in the page."
+    },
+    {
+      "rule": "taps",
+      "route": "/polls",
+      "selector": "a[href=\"https://www.gov.uk/government/news/cost-of-tv-licence-fee-set-for-202627\"]",
+      "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 34px at 390/768 on /polls ('GOV.UK, Cost of TV licence fee'). Floor 24px."
+    },
+    {
+      "rule": "taps",
+      "route": "/polls/voting-intention",
+      "selector": "a[href=\"https://www.gov.uk/government/news/cost-of-tv-licence-fee-set-for-202627\"]",
+      "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 34px at 390/768 on /polls/voting-intention ('GOV.UK, Cost of TV licence fee'). Floor 24px."
+    },
+    {
+      "rule": "taps",
+      "route": "/secretariats",
+      "selector": "a[href=\"https://pages.mysociety.org/appg-membership/datasets/appg_groups_and_memberships/latest\"]",
+      "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 33px, 34px at 390/768 on /secretariats ('mySociety APPG dataset'). Floor 24px."
+    },
+    {
+      "rule": "taps",
+      "route": "/secretariats",
+      "selector": "a[href=\"https://creativecommons.org/licenses/by/4.0/\"]",
+      "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 34px at 390/768 on /secretariats ('CC BY 4.0'). Floor 24px."
+    },
+    {
+      "rule": "taps",
+      "route": "/transparency/[section]",
+      "selector": "a[href=\"/departments/cabinet-office\"]",
+      "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 39px at 390/768 on /transparency/ministerial-directions ('Cabinet Office'). Floor 24px."
+    },
+    {
+      "rule": "taps",
+      "route": "/bills/sessions/[id]",
+      "selector": "a[href=\"/bills/sessions\"]",
+      "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 35px at 390/768 on /bills/sessions/27 ('Bills by session'). Floor 24px."
+    },
+    {
+      "rule": "taps",
+      "route": "/pmqs/[date]",
+      "selector": "a[href=\"/mps/4597\"]",
+      "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 36px at 390/768 on /pmqs/2026-10-28 ('Kemi Badenoch'). Floor 24px."
+    },
+    {
+      "rule": "taps",
+      "route": "/register-history",
+      "selector": "a[href=\"https://www.mysociety.org/\"]",
+      "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 24px at 390/768 on /register-history ('mySociety'). Floor 24px."
     }
   ]
 }
