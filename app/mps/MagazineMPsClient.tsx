@@ -536,6 +536,8 @@ function AllPartiesView({
   if (pageFor !== searchTerm) { setPageFor(searchTerm); setPage(1); }
   const pages = Math.max(1, Math.ceil(matches.length / PER_PAGE));
   const shownMatches = searching ? matches.slice((page - 1) * PER_PAGE, page * PER_PAGE) : [];
+  // Next and Previous take the reader back to the top of the matches (T2, 18 Nov 2026).
+  const goPage = (n: number) => { setPage(n); requestAnimationFrame(() => document.getElementById('mps-matches')?.scrollIntoView({ block: 'start' })); };
 
   return (
     <>
@@ -564,6 +566,7 @@ function AllPartiesView({
         ) : (
           <>
             <div
+              id="mps-matches"
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
@@ -577,9 +580,9 @@ function AllPartiesView({
             </div>
             {pages > 1 && (
               <nav aria-label="Pages of matching MPs" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', marginTop: '16px', fontSize: '15px' }}>
-                <button type="button" disabled={page <= 1} onClick={() => setPage(page - 1)} style={{ minHeight: '44px', padding: '6px 14px', background: 'transparent', color: '#14100d', border: '1px solid #14100d', borderStyle: page <= 1 ? 'dashed' : 'solid', textDecoration: page <= 1 ? 'line-through' : 'none', fontFamily: 'inherit', fontSize: '15px', cursor: page <= 1 ? 'default' : 'pointer' }}>Previous page</button>
+                <button type="button" disabled={page <= 1} onClick={() => goPage(page - 1)} style={{ minHeight: '44px', padding: '6px 14px', background: 'transparent', color: '#14100d', border: '1px solid #14100d', borderStyle: page <= 1 ? 'dashed' : 'solid', textDecoration: page <= 1 ? 'line-through' : 'none', fontFamily: 'inherit', fontSize: '15px', cursor: page <= 1 ? 'default' : 'pointer' }}>Previous page</button>
                 <span>Page {page} of {pages}</span>
-                <button type="button" disabled={page >= pages} onClick={() => setPage(page + 1)} style={{ minHeight: '44px', padding: '6px 14px', background: 'transparent', color: '#14100d', border: '1px solid #14100d', borderStyle: page >= pages ? 'dashed' : 'solid', textDecoration: page >= pages ? 'line-through' : 'none', fontFamily: 'inherit', fontSize: '15px', cursor: page >= pages ? 'default' : 'pointer' }}>Next page</button>
+                <button type="button" disabled={page >= pages} onClick={() => goPage(page + 1)} style={{ minHeight: '44px', padding: '6px 14px', background: 'transparent', color: '#14100d', border: '1px solid #14100d', borderStyle: page >= pages ? 'dashed' : 'solid', textDecoration: page >= pages ? 'line-through' : 'none', fontFamily: 'inherit', fontSize: '15px', cursor: page >= pages ? 'default' : 'pointer' }}>Next page</button>
               </nav>
             )}
           </>
