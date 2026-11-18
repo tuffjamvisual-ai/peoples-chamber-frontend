@@ -48,6 +48,10 @@ SHA=$(git rev-parse --short=8 origin/main)
 rmdir "$WT"; git worktree add -q --detach "$WT" origin/main || fail "worktree"
 cp -cR "$REPO/node_modules" "$WT/node_modules" 2>/dev/null || cp -R "$REPO/node_modules" "$WT/node_modules"
 cp "$REPO/.env.local" "$WT/.env.local"
+# The checkout's node_modules are its own branch's (the owner's branch has Next.js 16.4.2; main has 16.4.5 since 69455626),
+# and next build refuses a Next.js with a known advisory (SecurityFatalError). Bring the copy to main's lockfile first.
+(cd "$WT" && npm install --no-audit --no-fund --ignore-scripts > /dev/null 2>&1) || fail "npm install"
+[ -z "$(cd "$WT" && git status --porcelain -- package.json package-lock.json)" ] || fail "npm install changed the lockfile"
 if [ -d "$REPO/.next/cache/turbopack" ]; then mkdir -p "$WT/.next/cache"; cp -cR "$REPO/.next/cache/turbopack" "$WT/.next/cache/turbopack" 2>/dev/null || true; fi
 KEEP=${FETCH_CACHE_KEEP:-$HOME/opengovt-backup/fetch-cache-last}
 if [ -d "$KEEP" ]; then
