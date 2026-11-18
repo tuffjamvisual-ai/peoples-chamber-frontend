@@ -31,6 +31,13 @@ export const PHONE = phoneUpTo(767.98);
 // D5 (owner approved 16 Nov 2026, COWORK-TO-T1 ENTRY 161, DECISIONS 15 Nov: lists open with 3, Show N more adds 10, Show
 // fewer at the end, at EVERY width): the list folds now apply on desktop too; was phoneUpTo(1023.98).
 export const LIST_FOLD = 'all';
+// Short lists whole on desktop (owner approved 18 Nov 2026, Cowork ENTRY 286 item 1): from 1,024px a list of 25 or fewer shows
+// whole, with no count or button; over 25 it keeps the D5 fold at every width. Under 1,024px every list folds as before. The
+// fold components take their media from listFoldFor(rows), and mark the controls of a short list .og-fold-short, which
+// globals.css hides from 1,024px.
+export const DESK_WHOLE = 25;
+export const listFoldFor = (rows: number) => (rows > DESK_WHOLE ? LIST_FOLD : '(max-width: 1023.98px)');
+export const foldShort = (rows: number) => (rows > DESK_WHOLE ? undefined : 'og-fold-short');
 // Touch sizes (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 135 H1, "Layout change approved T1-MOBILEFIX"): every tap
 // target at least 44 x 44px and every text box and menu at 16px, on phones and tablets up to 1,023px wide and on any
 // screen with a coarse pointer (a touch screen of any size). The plain CSS files repeat these exact words.

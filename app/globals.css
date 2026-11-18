@@ -209,10 +209,19 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .mc-n-wide { display: none; }
   html.og-js .mc-n-js { display: inline; }
   html.og-js .mc-n-nojs { display: none; }
-  .mc-first:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4) { display: none !important; }
+  .mc-first:not(.mc-short):has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4) { display: none !important; }
   /* MoreChain phoneFirst (UX5, T1-6, 11 Nov 2026): fewer than five of the opening list, for long items. */
-  .mc-first.mc-pf1:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+2), .mc-first.mc-pf2:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+3), .mc-first.mc-pf3:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4), .mc-first.mc-pf4:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+5) { display: none !important; }
+  .mc-first.mc-pf1:not(.mc-short):has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+2), .mc-first.mc-pf2:not(.mc-short):has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+3), .mc-first.mc-pf3:not(.mc-short):has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4), .mc-first.mc-pf4:not(.mc-short):has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+5) { display: none !important; }
 }
+/* A MoreChain list of 25 or fewer (.mc-short) folds only under 1,024px and shows whole from there (owner approved 18 Nov 2026,
+   ENTRY 286); its count and button are .og-fold-short. */
+@media (max-width: 1023.98px) {
+  .mc-first.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4) { display: none !important; }
+  .mc-first.mc-pf1.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+2), .mc-first.mc-pf2.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+3), .mc-first.mc-pf3.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4), .mc-first.mc-pf4.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+5) { display: none !important; }
+}
+/* From 1,024px a list of 25 or fewer shows whole (owner approved 18 Nov 2026, ENTRY 286; lib/breakpoints.ts foldShort): its
+   count and Show more / Show fewer are hidden there. */
+@media (min-width: 1024px) { .og-fold-short { display: none !important; } }
 /* Long lists and sections on phones with JavaScript off (app/components/NoJsPager.tsx). Nothing here changes any other view. */
 .njp-a, .njp-nav, .njf { display: none; }
 .njf > summary::-webkit-details-marker { display: none; }

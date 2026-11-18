@@ -8,7 +8,7 @@
 // JavaScript the whole list shows and there is nothing to press. The list itself carries data-own-more, so
 // lib/phone-enhance.ts gives it no second button. The button's styles are in globals.css (.og-phone-more).
 import { useState } from 'react';
-import { LIST_FOLD } from '@/lib/breakpoints';
+import { listFoldFor, foldShort } from '@/lib/breakpoints';
 
 const FIRST = 3;
 const STEP = 10;
@@ -29,22 +29,23 @@ export default function PhoneMore({ selector, total, off = false, first }: Props
   const start = Math.max(1, Math.min(first ?? FIRST, FIRST));
   const [shown, setShown] = useState(start);
   if (off || total <= start) return null;
-  const css = `@media ${LIST_FOLD} { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
+  // A list of 25 or fewer folds only under 1,024px and its controls are hidden from there (ENTRY 286, lib/breakpoints.ts).
+  const css = `@media ${listFoldFor(total)} { html.og-js ${selector} > :nth-child(n+${shown + 1}) { display: none !important; } }`;
   // The count beside the buttons (ENTRY 239 A4, MOB-LISTS, owner rule 17 Nov 2026): '3 of 241', what shows of the whole list.
   // Shown only where the buttons are (phones and tablets with JavaScript); its styles are with them in globals.css.
   const left = total - shown;
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
-      <p className="og-more-count" aria-live="polite">{Math.min(shown, total).toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}</p>
+      <p className={['og-more-count', foldShort(total)].filter(Boolean).join(' ')} aria-live="polite">{Math.min(shown, total).toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}</p>
       {left > 0 && (
-        <button type="button" className="og-phone-more" onClick={() => setShown(shown + STEP)}>
+        <button type="button" className={['og-phone-more', foldShort(total)].filter(Boolean).join(' ')} onClick={() => setShown(shown + STEP)}>
           {/* What a press shows (T1-GUARD, Cowork 13 Nov 2026: 'Show N more'). */}
           Show {Math.min(STEP, left).toLocaleString('en-GB')} more
         </button>
       )}
       {shown > start && (
-        <button type="button" className="og-phone-more" onClick={() => setShown(start)}>
+        <button type="button" className={['og-phone-more', foldShort(total)].filter(Boolean).join(' ')} onClick={() => setShown(start)}>
           Show fewer
         </button>
       )}

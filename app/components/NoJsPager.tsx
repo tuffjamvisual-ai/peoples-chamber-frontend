@@ -1,5 +1,5 @@
 import { cloneElement, type ReactElement, type ReactNode } from 'react';
-import { phoneUpTo, wideFrom, LIST_FOLD } from '@/lib/breakpoints';
+import { phoneUpTo, wideFrom, listFoldFor, foldShort } from '@/lib/breakpoints';
 
 // Long lists on phones with JavaScript off (owner, 6 Nov 2026; the 10,000px rule). With JavaScript on the phone script (lib/phone-enhance.ts) already
 // shortens lists, and from 640px up lists show whole, so nothing here applies to either: the styles match only `html:not(.og-js)` under 640px.
@@ -43,8 +43,9 @@ export function ShowAllDetails({ id, count, first, noun, stepStyle }: { id: stri
   // with its own Show more has PhoneMore's count); lib/phone-enhance.ts updates it on each press.
   return (
     <>
-    {stepStyle && <p className="og-more-count" aria-live="polite">{first.toLocaleString('en-GB')} of {count.toLocaleString('en-GB')}</p>}
-    <details className={`njp-sa ${showAllClass(id)}`} data-step-style={stepStyle} data-step-from={stepStyle ? first + 1 : undefined} data-step-left={stepStyle ? n : undefined} data-step-one={noun?.one} data-step-many={noun?.many}>
+    {/* A list of 25 or fewer shows whole from 1,024px, so its count and button are hidden there (ENTRY 286, .og-fold-short). */}
+    {stepStyle && <p className={['og-more-count', foldShort(count)].filter(Boolean).join(' ')} aria-live="polite">{first.toLocaleString('en-GB')} of {count.toLocaleString('en-GB')}</p>}
+    <details className={['njp-sa', showAllClass(id), foldShort(count)].filter(Boolean).join(' ')} data-step-style={stepStyle} data-step-from={stepStyle ? first + 1 : undefined} data-step-left={stepStyle ? n : undefined} data-step-one={noun?.one} data-step-many={noun?.many}>
       <summary><span className="njp-sa-more st-more">Show {shown.toLocaleString('en-GB')} more{noun ? ` ${shown === 1 ? noun.one : noun.many}` : ''}</span><span className="njp-sa-less">Show fewer</span></summary>
     </details>
     </>
@@ -77,7 +78,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
   // for JavaScript off only (html:not(.og-js)); without it they hold either way, as before.
   const jsOff = ownMore ? 'html:not(.og-js) ' : '';
   const phoneCss = showAll
-    ? `@media ${LIST_FOLD} {${rows ? `${jsOff}${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${jsOff}${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}}`
+    ? `@media ${listFoldFor(count)} {${rows ? `${jsOff}${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${jsOff}${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}}`
     : '';
   // Its own id, so the step script can move the rule on by 10 rows a press (ShowAllDetails' data-step-style).
   const stepStyle = `njp-css-${id}`;

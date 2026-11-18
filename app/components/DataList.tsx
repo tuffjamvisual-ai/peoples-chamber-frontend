@@ -1,5 +1,5 @@
 import { cloneElement, type ReactElement } from 'react';
-import { LIST_FOLD } from '@/lib/breakpoints';
+import { listFoldFor } from '@/lib/breakpoints';
 
 // DataList (T1-GUARD, owner approved 13 Nov 2026): the shared list for data that grows. New data lists use it; existing
 // lists move onto it when their page is changed.
@@ -24,7 +24,6 @@ import { LIST_FOLD } from '@/lib/breakpoints';
 //   children  the list element itself (ul, ol, table or div); DataList adds a class to it and wraps it
 
 export const DATALIST_PER_PAGE = 20;
-const FOLD = LIST_FOLD; // every width since D5 (ENTRY 161); was phoneUpTo(1023.98)
 
 export function dataListPage(raw: string | string[] | undefined): number {
   const v = Array.isArray(raw) ? raw[0] : raw;
@@ -42,6 +41,9 @@ export default function DataList({ id, count, page, href, rows = '> li', perPage
   const end = Math.min(count, start + perPage);  // last row on this page
   const onPage = end - start;
   const more = Math.max(0, onPage - first);
+  // Every width since D5 (ENTRY 161); a list of 25 or fewer only under 1,024px, whole from there (ENTRY 286). Its page
+  // links and button are drawn inside this media, so they go with it.
+  const FOLD = listFoldFor(count);
   const box = `dl-${id}`, list = `dl-l-${id}`;
   const row = `.${box} > .${list} ${rows}`;
   const css = [

@@ -4,7 +4,7 @@
 // a rule hides those past the screens shown, so from 640px up and with JavaScript off (Next and Previous, NoJsPager) it does nothing. A link to something in a
 // hidden row opens the screens up to it.
 import { useEffect, useState } from 'react';
-import { LIST_FOLD } from '@/lib/breakpoints';
+import { listFoldFor, foldShort } from '@/lib/breakpoints';
 
 export default function ScreenMore({ id, sizes }: { id: string; sizes: number[] }) {
   const [screens, setScreens] = useState(1);
@@ -26,12 +26,12 @@ export default function ScreenMore({ id, sizes }: { id: string; sizes: number[] 
   const shown = sizes.slice(0, screens).reduce((a, b) => a + b, 0);
   const total = sizes.reduce((a, b) => a + b, 0);
   // Phones and tablets, up to 1,023px (T1-TABFOLD, owner approved 13 Nov 2026).
-  const css = `@media ${LIST_FOLD} {html.og-js .njp-i-${id}:nth-child(n+${shown + 1} of .njp-i-${id}){display:none!important}}`;
+  const css = `@media ${listFoldFor(total)} {html.og-js .njp-i-${id}:nth-child(n+${shown + 1} of .njp-i-${id}){display:none!important}}`;
   return (
     <>
       {screens < sizes.length && <style dangerouslySetInnerHTML={{ __html: css }} />}
       {screens < sizes.length && (
-        <button type="button" className="og-phone-more" onClick={() => setScreens(screens + 1)}>
+        <button type="button" className={['og-phone-more', foldShort(total)].filter(Boolean).join(' ')} onClick={() => setScreens(screens + 1)}>
           {/* What a press shows: the next screen (T1-GUARD, Cowork 13 Nov 2026: 'Show N more', as DataList). */}
           Show {(sizes[screens] ?? total - shown).toLocaleString('en-GB')} more
         </button>

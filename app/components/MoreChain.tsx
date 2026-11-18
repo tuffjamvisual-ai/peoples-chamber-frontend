@@ -6,6 +6,7 @@
 // phoneOnly: folds under 640px only. From 640px up the buttons are not there and every item shows, as one list would. The
 // items sit beside the details rather than in it, because a closed details hides its contents at every width.
 import type { ReactNode } from 'react';
+import { DESK_WHOLE } from '@/lib/breakpoints';
 
 // Phones (MP2f, 9 Nov 2026): the first PHONE_FIRST items of the opening list; the rest of it shows when the first
 // "Show more" opens (globals.css .mc-first, a rule on the list, no JavaScript), and that control counts what is left from
@@ -33,10 +34,12 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
   // The count before the chain's first fold (ENTRY 239 A4, MOB-LISTS): '3 of 120' on phones and tablets with JavaScript (it
   // is hidden elsewhere, globals.css .og-more-count); lib/phone-enhance.ts updates it and keeps it above the buttons.
   const count = (total: number) => <p className="og-more-count" aria-live="polite">{pf.toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}</p>;
-  const list = (some: ReactNode[], firstList = false, mark = false) => <Tag className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
+  const list = (some: ReactNode[], firstList = false, mark = false, short = false) => <Tag className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : '', short ? 'mc-short' : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
   if (items.length <= opening) {
     if (phoneOnly || items.length <= pf) return list(items, false, mainAction);
-    return <>{list(items, true, mainAction)}{count(items.length)}<details className="mc-more mc-phone"><summary><span className="st-more">Show {phoneCount(items.length - pf)} more</span><span className="st-less">Show fewer</span></summary></details></>;
+    // A list of 25 or fewer shows whole from 1,024px (ENTRY 286): .mc-short keeps the globals.css fold under 1,024px only.
+    const short = items.length <= DESK_WHOLE;
+    return <>{list(items, true, mainAction, short)}{short ? <p className="og-more-count og-fold-short" aria-live="polite">{pf.toLocaleString('en-GB')} of {items.length.toLocaleString('en-GB')}</p> : count(items.length)}<details className={short ? 'mc-more mc-phone og-fold-short' : 'mc-more mc-phone'}><summary><span className="st-more">Show {phoneCount(items.length - pf)} more</span><span className="st-less">Show fewer</span></summary></details></>;
   }
   // "Show N more" (T1-GUARD, Cowork 13 Nov 2026, as DataList): N is what the press shows, the next `step` items; on phones the
   // first press also shows the rest of the opening list (globals.css .mc-first).
