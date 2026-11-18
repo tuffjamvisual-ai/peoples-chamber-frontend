@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { validate } from '../../lib/delivery-record';
+import { textLink } from '../body-links';
 
 type Fixture = { member_id: number; checked: string; political_bio: string; bio_sources: unknown; delivery_record: unknown };
 type Before = {
@@ -71,6 +72,8 @@ function checkFixture(f: Fixture, at: string): string[] {
   if (!Number.isInteger(f.member_id) || f.member_id <= 0) p.push(`${at}: member_id must be a positive whole number`);
   if (typeof f.checked !== 'string' || !DAY.test(f.checked)) p.push(`${at}: checked must be YYYY-MM-DD`);
   if (typeof f.political_bio !== 'string' || !f.political_bio.trim()) p.push(`${at}: political_bio is empty`);
+  // No link inside the biography text (owner approved 18 Nov 2026, Cowork ENTRY 295): sources go in bio_sources only.
+  else { const hit = textLink(f.political_bio); if (hit) p.push(`${at}: a link in political_bio, "${hit}" (keep the words, put the source in bio_sources)`); }
   if (!Array.isArray(f.bio_sources) || f.bio_sources.length === 0) p.push(`${at}: bio_sources must be a non empty array`);
   else f.bio_sources.forEach((s, i) => {
     const o = s as Record<string, unknown>;
