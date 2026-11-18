@@ -281,10 +281,6 @@
       "schedule": "23 11 * * 1"
     },
     {
-      "path": "/api/sync-connectivity",
-      "schedule": "41 10 * * 1"
-    },
-    {
       "path": "/api/sync-parliament-archive",
       "schedule": "8 3 * * *"
     },

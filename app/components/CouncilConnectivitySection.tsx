@@ -144,7 +144,8 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
         These figures show what is available, not what people buy. &ldquo;Decent&rdquo; broadband means 10 Mbit/s download and 1 Mbit/s upload, the standard set by the broadband Universal Service Obligation. Full fibre use is the share of all premises with a full fibre connection in use. Mobile figures count the four networks Ofcom reports (EE, O2, Three and Vodafone) and are modelled predictions of signal strength; 5G figures use Ofcom&rsquo;s high confidence measure.
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        Source: Ofcom, Connected Nations ({fmtMonth(month)} data). Contains public sector information licensed under the Open Government Licence v3.0.
+        {/* Held at this edition (owner decision 18 Nov 2026, Cowork ENTRY 324): Ofcom no longer lets automated readers fetch newer ones. */}
+        Source: Ofcom, Connected Nations ({fmtMonth(month)} data), the latest edition we hold. Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>
   );

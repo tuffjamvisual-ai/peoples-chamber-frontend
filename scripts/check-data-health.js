@@ -82,7 +82,7 @@ function readSources() {
 // Refresh jobs whose failure the owner has accepted: listed with the reason and date, reported as a note, never failing the
 // check, so a new failure still shows (COWORK-TO-T1 ENTRY 220, 17 Nov 2026).
 const KNOWN_FAILURES = {
-  '/api/sync-connectivity': 'known, owner accepted 16 Nov 2026: Ofcom blocks Vercel, the broadband sync is left as it is',
+  '/api/sync-connectivity': 'known, owner decision 18 Nov 2026 (Cowork ENTRY 324): Ofcom blocks automated readers; the weekly sync is off and council pages stay on Connected Nations 2025',
 };
 
 // Go live dates from the freshness monitor's register (one list, rule 6): scripts/data/cron-schedules.json, each cron's

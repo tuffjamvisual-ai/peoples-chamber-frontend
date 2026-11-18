@@ -94,7 +94,9 @@ export const DATA_SOURCES: DataSource[] = [
   { key: 'council_road_casualties', table: 'council_road_casualties', column: 'synced_at', cadence: 'quarterly', label: 'Road casualties by council', source: 'DfT reported road casualties (RAS0403)', page: '/councils/[slug]', syncRoute: '/api/sync-road-casualties', zeroRunTolerance: 60 },
   // Ofcom publishes Connected Nations data a few times a year; the weekly check returns 0 rows on
   // most runs, so the zero-run tolerance covers the gap between releases plus slippage.
-  { key: 'council_connectivity',    table: 'council_broadband', column: 'synced_at', cadence: 'quarterly', label: 'Broadband and mobile coverage by council', source: 'Ofcom Connected Nations', page: '/councils/[slug]', syncRoute: '/api/sync-connectivity', zeroRunTolerance: 40 },
+  // Held at Connected Nations 2025 (owner decision 18 Nov 2026, Cowork ENTRY 324): Ofcom's pages answer 403 to automated
+  // readers, so the weekly sync is off (vercel.json) and no age alert is raised for this source (maxAgeDays).
+  { key: 'council_connectivity',    table: 'council_broadband', column: 'synced_at', cadence: 'quarterly', maxAgeDays: 36500, label: 'Broadband and mobile coverage by council', source: 'Ofcom Connected Nations (held at the 2025 edition)', page: '/councils/[slug]' },
   // Storm overflows: the Environment Agency publishes its annual return once a year; Scottish Water
   // and NI Water update their workbooks about once a year. All are loaded by hand
   // (scripts/import-sewage.js, scripts/import-sewage-scotland.js — Scottish Water refuses automated
