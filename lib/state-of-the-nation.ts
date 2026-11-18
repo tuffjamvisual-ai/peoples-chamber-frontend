@@ -24,7 +24,7 @@ export const NEW_DAYS = 7; // a figure is marked new on its publication day and 
 export type Group = 'Cost of living' | 'Economy' | 'Public money' | 'Public services' | 'Housing and homelessness' | 'Immigration';
 export const GROUPS: Group[] = ['Cost of living', 'Economy', 'Public money', 'Public services', 'Housing and homelessness', 'Immigration'];
 
-// How the figure is written. 'pct' 3.5 -> "3.5%"; 'ppt' change in percentage points; 'thousands' 691 -> "691,000";
+// How the figure is written. 'pct' 3.5 -> "3.5 per cent"; 'ppt' change in percentage points; 'thousands' 691 -> "691,000";
 // 'gbp-m' millions of pounds -> "£24.5bn"; 'gbp-bn' -> "£3,005bn".
 type Format = 'pct' | 'thousands' | 'gbp-m' | 'gbp-bn';
 // 'month' a single month ("September 2026"); 'lfs' a rolling three months labelled by its middle month ("JUL" is June to
@@ -76,9 +76,9 @@ export const REVIEWED_ITEMS: { id: string; group: Group; label: string }[] = [
 
 export type Figure = {
   id: string; group: Group; label: string;
-  value: string | null;      // as written ("3.5%"), or null: "Not yet published here"
+  value: string | null;      // as written ("3.5 per cent"), or null: "Not yet published here"
   period: string | null;     // what the figure covers ("September 2026")
-  change: string | null;     // on the previous figure, with its period ("up from 3.1% in August 2026")
+  change: string | null;     // on the previous figure, with its period ("up from 3.1 per cent in August 2026")
   sourceUrl: string | null; sourceName: string | null;
   publishedOn: string | null; // YYYY-MM-DD
   isNew: boolean;            // published in the last 7 days
@@ -106,14 +106,15 @@ export function periodLabel(date: string, kind: Period): string {
 }
 
 export function formatValue(v: number, f: Format): string {
-  if (f === 'pct') return `${v.toFixed(1)}%`;
+  // 'per cent', never '%', in our own text (owner rule, Cowork ENTRY 325 and 338).
+  if (f === 'pct') return `${v.toFixed(1)} per cent`;
   if (f === 'thousands') return `${Math.round(v * 1000).toLocaleString('en-GB')}`;
   if (f === 'gbp-m') return `£${(v / 1000).toFixed(1)}bn`;
   return `£${Math.round(v).toLocaleString('en-GB')}bn`;
 }
 
 // The change on the previous figure, in plain words, with the previous period. For a rate, the previous figure itself
-// ("up from 3.1% in August 2026"); no judgement of whether that is good or bad.
+// ("up from 3.1 per cent in August 2026"); no judgement of whether that is good or bad.
 // ONS works out changes from unrounded figures and publishes rounded ones, so two equal published figures can still be
 // a rise or a fall in the bulletin (inactivity: 20.9% and 20.9%, 'down by 0.1 percentage points'); equal figures are
 // therefore not called 'the same' (ENTRY 107).

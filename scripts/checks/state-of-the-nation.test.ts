@@ -15,12 +15,12 @@ test('periods: months, rolling three months (named by the middle month), quarter
 });
 
 test('values and changes are written plainly, with no judgement', () => {
-  assert.equal(formatValue(3.5, 'pct'), '3.5%');
+  assert.equal(formatValue(3.5, 'pct'), '3.5 per cent');
   assert.equal(formatValue(691, 'thousands'), '691,000');
   assert.equal(formatValue(97832, 'gbp-m'), '£97.8bn');
   assert.equal(formatValue(3005, 'gbp-bn'), '£3,005bn');
-  assert.equal(changeText(3.5, 3.1, 'August 2026', 'pct'), 'up from 3.1% in August 2026');
-  assert.equal(changeText(20.9, 20.9, 'March to May 2026', 'pct'), 'also 20.9% in March to May 2026 when rounded');
+  assert.equal(changeText(3.5, 3.1, 'August 2026', 'pct'), 'up from 3.1 per cent in August 2026');
+  assert.equal(changeText(20.9, 20.9, 'March to May 2026', 'pct'), 'also 20.9 per cent in March to May 2026 when rounded');
 });
 
 test('financial year to date sums April to the latest month, and compares the same months a year earlier', () => {
@@ -46,7 +46,7 @@ test('ONS figure: borrowing shown as a positive amount; LFS change compares the 
   const months = ['APR', 'MAY', 'JUN', 'JUL'].map((m, i) => ({ date: `2026 ${m}`, value: String(4.4 + i * 0.1) }));
   const g = onsFigure(u, { description: { title: 't', cdid: 'MGSX', datasetId: 'LMS', releaseDate: '2026-11-11T00:00:00.000Z' }, months }, now);
   assert.equal(g.period, 'June to August 2026');
-  assert.equal(g.change, 'up from 4.4% in March to May 2026');
+  assert.equal(g.change, 'up from 4.4 per cent in March to May 2026');
   assert.equal(g.isNew, true);
 });
 

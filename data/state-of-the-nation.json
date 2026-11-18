@@ -2,9 +2,9 @@
   "_about": "State of the nation (T1-SOTN, COWORK-TO-T1 ENTRY 105): the figures not read from the ONS automatically. Cowork fills and checks each entry from the official source. An entry shows on the site only when checkedBy is \"Cowork\" and value is set; otherwise the card says 'Not yet published here'. Fields: value (as shown, e.g. \"4.00%\"), label (optional, replaces the default label), period (what the figure covers), previous (the change on the previous figure with its period, e.g. \"down from 4.25% in August 2026\"), sourceUrl, sourceName, publishedOn (YYYY-MM-DD, the source's publication date), checkedOn (YYYY-MM-DD), checkedBy (\"Cowork\"), note (optional, e.g. the next Bank Rate decision date). Never filled by T1.",
   "figures": {
     "bank-rate": {
-      "value": "4%",
+      "value": "4 per cent",
       "period": "Set on 5 November 2026",
-      "previous": "up from 3.75%",
+      "previous": "up from 3.75 per cent",
       "sourceUrl": "https://www.bankofengland.co.uk/monetary-policy/the-interest-rate-bank-rate",
       "sourceName": "Bank of England",
       "publishedOn": "2026-11-05",
@@ -15,7 +15,7 @@
     "energy-cap": {
       "value": "£1,723",
       "period": "1 October to 31 December 2026",
-      "previous": "up 4% from £1,663 (July to September 2026)",
+      "previous": "up 4 per cent from £1,663 (July to September 2026)",
       "sourceUrl": "https://www.ofgem.gov.uk/sites/default/files/2026-08/Summary-of-changes-to-energy-price-cap-1-October-to-31-December-2026.pdf",
       "sourceName": "Ofgem",
       "publishedOn": "2026-08-26",
@@ -92,7 +92,7 @@
     "crown-court": {
       "value": "80,829",
       "period": "End of June 2026",
-      "previous": "up 392 on the quarter and 2,603 (3%) on a year earlier; the highest since the series began",
+      "previous": "up 392 on the quarter and 2,603 (3 per cent) on a year earlier; the highest since the series began",
       "sourceUrl": "https://www.gov.uk/government/statistics/criminal-court-statistics-quarterly-april-to-june-2026/criminal-court-statistics-quarterly-april-to-june-2026",
       "sourceName": "Ministry of Justice",
       "publishedOn": "2026-09-24",
@@ -114,7 +114,7 @@
     "temp-accommodation": {
       "value": "135,580",
       "period": "England, 31 March 2026",
-      "previous": "up 1.1% on the quarter and 3.6% on a year earlier",
+      "previous": "up 1.1 per cent on the quarter and 3.6 per cent on a year earlier",
       "sourceUrl": "https://www.gov.uk/government/statistics/statutory-homelessness-in-england-january-to-march-2026/statutory-homelessness-in-england-january-to-march-2026",
       "sourceName": "MHCLG",
       "publishedOn": "2026-08-13",
@@ -125,7 +125,7 @@
     "temp-accommodation-children": {
       "value": "177,530",
       "period": "England, 31 March 2026",
-      "previous": "up 0.8% on the quarter and 5.2% on a year earlier",
+      "previous": "up 0.8 per cent on the quarter and 5.2 per cent on a year earlier",
       "sourceUrl": "https://www.gov.uk/government/statistics/statutory-homelessness-in-england-january-to-march-2026/statutory-homelessness-in-england-january-to-march-2026",
       "sourceName": "MHCLG",
       "publishedOn": "2026-08-13",
