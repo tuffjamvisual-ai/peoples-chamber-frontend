@@ -9,6 +9,8 @@
 // picking one goes straight to that council's page. The results address carries
 // area codes only, never the postcode.
 
+import { useListNav } from '@/lib/search/use-list-nav';
+import { markMatches } from '@/lib/search/words';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
@@ -125,6 +127,10 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
     lookup(`/api/area/lookup?q=${encodeURIComponent(text)}`);
   }
 
+  // Arrow keys, Enter and Escape in the council list (SEARCH-ALL batch 2); matched letters bold; rows 44px.
+  const nav = useListNav(open ? councils.length : 0, (i) => { setOpen(false); router.push(`/councils/${councils[i].slug}`); }, () => setOpen(false));
+  const listId = `${inputId}-councils`;
+
   return (
     <section ref={boxRef} aria-label="Your area" style={{ marginTop: tight ? '-16px' : 0, marginBottom: '28px' }}>
       {/* Without the script (or before it has loaded) the form still works: it goes to
@@ -141,6 +147,12 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
             defaultValue=""
             onChange={(e) => { setQ(e.target.value); setError(null); }}
             onFocus={() => councils.length > 0 && setOpen(true)}
+            onKeyDown={nav.onKeyDown}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={open && councils.length > 0}
+            aria-controls={listId}
+            aria-activedescendant={open && nav.active >= 0 ? `${listId}-${nav.active}` : undefined}
             autoComplete="postal-code"
             placeholder={placeholder ?? 'Your area: enter a postcode, town or council to see your council and local figures'}
             className={label ? 'og-search-input' : undefined}
@@ -163,12 +175,12 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
           </button>
         </div>
         {open && councils.length > 0 && (
-          <ul role="listbox" aria-label="Councils" style={{ listStyle: 'none', margin: 0, padding: '6px 0', border: '1px solid rgba(20,16,13,0.18)', borderTop: 'none', background: '#f4e8d4' }}>
+          <ul id={listId} role="listbox" aria-label="Councils" style={{ listStyle: 'none', margin: 0, padding: '6px 0', border: '1px solid rgba(20,16,13,0.18)', borderTop: 'none', background: '#f4e8d4' }}>
             <li style={{ fontFamily: MONO, fontSize: '15px', color: INK, padding: '2px 14px 4px', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Councils</li>
-            {councils.map((c) => (
-              <li key={c.slug}>
-                <a href={`/councils/${c.slug}`} style={{ display: 'block', padding: '6px 14px', fontFamily: MONO, fontSize: '15px', color: INK, textDecoration: 'none' }}>
-                  {c.name}{c.typeLabel ? <span > · {c.typeLabel}</span> : null}
+            {councils.map((c, k) => (
+              <li key={c.slug} id={`${listId}-${k}`} role="option" aria-selected={k === nav.active} onMouseEnter={() => nav.setActive(k)}>
+                <a href={`/councils/${c.slug}`} style={{ display: 'flex', alignItems: 'center', minHeight: '44px', boxSizing: 'border-box', padding: '6px 14px', fontFamily: MONO, fontSize: '15px', color: INK, textDecoration: 'none', background: k === nav.active ? 'rgba(20,16,13,0.08)' : 'transparent' }}>
+                  <span>{markMatches(c.name, q).map(([t, hit], i) => (hit ? <strong key={i}>{t}</strong> : <span key={i}>{t}</span>))}{c.typeLabel ? <span> · {c.typeLabel}</span> : null}</span>
                 </a>
               </li>
             ))}

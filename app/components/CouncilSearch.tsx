@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useListNav } from '@/lib/search/use-list-nav'
+import { markMatches } from '@/lib/search/words'
 
 // Homepage local-authority search: a single input that auto-detects
 // whether the visitor typed a UK postcode or a council/area name, and
@@ -163,6 +165,13 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
     router.push('/councils/search?q=' + encodeURIComponent(trimmed))
   }
 
+  // Arrow keys, Enter and Escape over the council names then the places (SEARCH-ALL batch 2); matched letters bold;
+  // rows at least 44px. With nothing highlighted, Enter submits as before.
+  const picks = [...nameSuggestions.map((r) => r.slug), ...placeSuggestions.map((p) => p.slug)]
+  const nav = useListNav(open && !error && !postcodeResult ? picks.length : 0, (i) => { setOpen(false); router.push(`/councils/${picks[i]}`) }, () => setOpen(false))
+  const row = (k: number) => ({ id: `cs-opt-${k}`, role: 'option' as const, 'aria-selected': k === nav.active, onMouseEnter: () => nav.setActive(k) })
+  const bold = (label: string) => markMatches(label, q).map(([t, hit], i) => (hit ? <strong key={i}>{t}</strong> : <span key={i}>{t}</span>))
+
   return (
     <>
     {/* ENTRY 310 and 311 (owner, 18 Nov 2026): from 1,024px the box takes the reports search look (no panel, parchment
@@ -228,6 +237,12 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
           placeholder={placeholder}
           aria-label={`Search by ${placeholder.toLowerCase()}`}
           autoComplete="off"
+          onKeyDown={nav.onKeyDown}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={open}
+          aria-controls="cs-list"
+          aria-activedescendant={open && nav.active >= 0 ? `cs-opt-${nav.active}` : undefined}
           style={{ flex: '1 1 200px', minWidth: 0, fontFamily: SERIF, fontSize: '18px', color: INK, background: '#fbf4e3', border: `1px solid ${INK}`, borderRadius: 0, padding: '11px 14px', outline: 'none', letterSpacing: '0.02em' }}
         />
         <button
@@ -270,33 +285,33 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
           )}
 
           {!error && !postcodeResult && (
-            <ul role="listbox" style={{ margin: 0, padding: '4px 0', listStyle: 'none' }}>
+            <ul id="cs-list" role="listbox" style={{ margin: 0, padding: '4px 0', listStyle: 'none' }}>
               {loading && nameSuggestions.length === 0 && placeSuggestions.length === 0 && (
                 <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>Searching…</li>
               )}
               {!loading && nameSuggestions.length === 0 && placeSuggestions.length === 0 && (
                 <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>{noMatchText}</li>
               )}
-              {nameSuggestions.map((r) => (
-                <li key={r.slug}>
+              {nameSuggestions.map((r, k) => (
+                <li key={r.slug} {...row(k)}>
                   <a
                     href={`/councils/${r.slug}`}
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '10px', padding: '9px 14px', textDecoration: 'none', color: INK, fontFamily: SERIF, fontSize: '16px', borderBottom: '1px solid rgba(20,16,13,0.12)' }}
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', minHeight: '44px', boxSizing: 'border-box', background: k === nav.active ? 'rgba(20,16,13,0.08)' : 'transparent', padding: '9px 14px', textDecoration: 'none', color: INK, fontFamily: SERIF, fontSize: '16px', borderBottom: '1px solid rgba(20,16,13,0.12)' }}
                   >
-                    <span>{r.shortName || r.name}</span>
+                    <span>{bold(r.shortName || r.name)}</span>
                     <span style={{ fontSize: '15px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                       {r.typeLabel}
                     </span>
                   </a>
                 </li>
               ))}
-              {placeSuggestions.map((p) => (
-                <li key={`${p.label}|${p.slug}`}>
+              {placeSuggestions.map((p, j) => (
+                <li key={`${p.label}|${p.slug}`} {...row(nameSuggestions.length + j)}>
                   <a
                     href={`/councils/${p.slug}`}
-                    style={{ display: 'block', padding: '9px 14px', textDecoration: 'none', color: INK, fontFamily: SERIF, fontSize: '16px', borderBottom: '1px solid rgba(20,16,13,0.12)' }}
+                    style={{ display: 'flex', alignItems: 'center', minHeight: '44px', boxSizing: 'border-box', background: nameSuggestions.length + j === nav.active ? 'rgba(20,16,13,0.08)' : 'transparent', padding: '9px 14px', textDecoration: 'none', color: INK, fontFamily: SERIF, fontSize: '16px', borderBottom: '1px solid rgba(20,16,13,0.12)' }}
                   >
-                    {p.label}: {p.councilName}
+                    <span>{bold(p.label)}: {p.councilName}</span>
                   </a>
                 </li>
               ))}

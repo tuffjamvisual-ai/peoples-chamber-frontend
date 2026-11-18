@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useListNav } from '@/lib/search/use-list-nav'
+import { markMatches } from '@/lib/search/words'
 import { normaliseParty } from '@/lib/party-helpers'
 
 // "Find Your MP" search box: a single input that auto-detects whether
@@ -157,6 +159,11 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
   const cleanNow = cleanPostcode(q.trim())
   const incomplete = PARTIAL_POSTCODE_RE.test(cleanNow) && !POSTCODE_RE.test(cleanNow)
 
+  // Arrow keys, Enter and Escape in the MP list (SEARCH-ALL batch 2); matched letters bold; rows at least 44px. With
+  // nothing highlighted, Enter submits as before.
+  const nav = useListNav(open && !error && !postcodeResult ? nameSuggestions.length : 0, (i) => { setOpen(false); router.push('/mps/' + nameSuggestions[i].memberId) }, () => setOpen(false))
+  const bold = (label: string) => markMatches(label, q).map(([t, hit], i) => (hit ? <strong key={i}>{t}</strong> : <span key={i}>{t}</span>))
+
   return (
     <form
       onSubmit={submit}
@@ -175,6 +182,12 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
           aria-label="Search by postcode, MP name, or constituency"
           aria-describedby="postcode-lookup-hint"
           autoComplete="off"
+          onKeyDown={nav.onKeyDown}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={open}
+          aria-controls="pl-list"
+          aria-activedescendant={open && nav.active >= 0 ? `pl-opt-${nav.active}` : undefined}
           style={{ flex: '1 1 200px', minWidth: 0, fontFamily: SERIF, fontSize: '18px', color: INK, background: '#fbf4e3', border: `1px solid ${INK}`, borderRadius: 0, padding: '11px 14px', outline: 'none', letterSpacing: '0.02em' }}
         />
         <button
@@ -221,22 +234,22 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
           )}
 
           {!error && !postcodeResult && (
-            <ul role="listbox" style={{ margin: 0, padding: '4px 0', listStyle: 'none' }}>
+            <ul id="pl-list" role="listbox" style={{ margin: 0, padding: '4px 0', listStyle: 'none' }}>
               {loading && nameSuggestions.length === 0 && (
                 <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>Searching…</li>
               )}
               {!loading && nameSuggestions.length === 0 && (
                 <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}><span role="alert">{incomplete ? `That postcode looks incomplete. Enter the full postcode, for example ${EXAMPLE_POSTCODE}.` : `No matches. Try a full postcode, for example ${EXAMPLE_POSTCODE}, or check the spelling.`}</span></li>
               )}
-              {nameSuggestions.map((r) => (
-                <li key={r.memberId}>
+              {nameSuggestions.map((r, k) => (
+                <li key={r.memberId} id={`pl-opt-${k}`} role="option" aria-selected={k === nav.active} onMouseEnter={() => nav.setActive(k)}>
                   <a
                     href={`/mps/${r.memberId}`}
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '10px', padding: '9px 14px', textDecoration: 'none', color: INK, fontFamily: SERIF, fontSize: '16px', borderBottom: '1px solid rgba(20,16,13,0.12)' }}
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', minHeight: '44px', boxSizing: 'border-box', background: k === nav.active ? 'rgba(20,16,13,0.08)' : 'transparent', padding: '9px 14px', textDecoration: 'none', color: INK, fontFamily: SERIF, fontSize: '16px', borderBottom: '1px solid rgba(20,16,13,0.12)' }}
                   >
                     <span>
-                      {r.name}
-                      {r.constituency && <span style={{ color: INK_SOFT }}>, {r.constituency}</span>}
+                      {bold(r.name ?? '')}
+                      {r.constituency && <span style={{ color: INK_SOFT }}>, {bold(r.constituency)}</span>}
                     </span>
                     <span style={{ fontSize: '15px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                       {normaliseParty(r.party)}
