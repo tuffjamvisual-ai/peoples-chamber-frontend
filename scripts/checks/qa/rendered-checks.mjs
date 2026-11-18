@@ -98,6 +98,8 @@ const A6_ALL = [
 // 390 x 844 rule keeps below the limit).
 const A6_PUSH = [{ name: '375x812', width: 375, height: 812, main: 668 }, A6_ALL.find((v) => v.name === '1280x720')];
 const A6_VIEWS = PUSH ? A6_PUSH : A6_ALL;
+// A18's exceptions (owner, Cowork ENTRY 340 and 341).
+const A18_EXCEPT = [/^\/divisions\/[^/]+$/, /^\/mps\/[^/]+$/, /^\/people\/[^/]+$/, /^\/departments\/[^/]+$/];
 const BASELINE_FILE = path.join(HERE, 'rendered-baseline.json');
 const A10_BASELINE_FILE = path.join(HERE, 'a10-baseline.json');
 const MP2_CSV = '/Volumes/EDGE_SSD/opengovt-work/Claude outputs/audit/mp2/page-lengths.csv';
@@ -341,6 +343,35 @@ async function main() {
         if (v.h1 != null) { if (t.h1 == null) r.a6.push('no-h1'); else if (t.h1 >= v.h1) r.a6.push(`h1-${v.name}`); }
         // The first result is checked only where a page marks one (not every page has results).
         if (v.first != null && t.first !== undefined && (t.first === null || t.first >= v.first)) r.a6.push(`first-${v.name}`);
+        // A18 (owner standing rule 18 Nov 2026, Cowork ENTRY 332, 340, 341): at the desktop size, side by side layout
+        // columns end within one block of each other: the difference between their ends may be no more than the tallest
+        // block shown in either column (T1 and T2's measure). A container counts when two or more of its shown children,
+        // each over 300px tall and 200px wide, sit side by side; the outermost such container on the page is checked.
+        // Exceptions (owner): /divisions/[slug] (the Ayes and Noes lists are the vote), /mps/[id], /people/[slug] and
+        // /departments/[slug] (the sticky tab menu's lane); card grids that fill row by row (NoJsPager lists, the
+        // /reports month grid) are rows, not columns.
+        if (v.desktop && !A18_EXCEPT.some((re) => re.test(new URL(r.url, 'http://x').pathname))) {
+          const bad = await pg.evaluate(() => {
+            const out = [];
+            const seen = [];
+            for (const el of document.querySelectorAll('body *')) {
+              if (seen.some((x) => x.contains(el))) continue;
+              if (/(^|\s)(njp-l-|reports-month-grid)/.test((el.className || '').toString())) continue;
+              const kids = [...el.children].filter((k) => { const b = k.getBoundingClientRect(); return k.getClientRects().length && b.height > 300 && b.width > 200; });
+              if (kids.length < 2) continue;
+              const rs = kids.map((k) => k.getBoundingClientRect());
+              const side = rs.some((a, i) => rs.some((c, j) => j > i && Math.abs(a.top - c.top) < 200 && (c.left >= a.right - 2 || a.left >= c.right - 2)));
+              if (!side) continue;
+              seen.push(el);
+              const ends = kids.map((k) => { const b = [...k.children].filter((x) => x.getClientRects().length).map((x) => x.getBoundingClientRect().bottom); return b.length ? Math.max(...b) : k.getBoundingClientRect().bottom; });
+              const tallest = Math.max(...kids.flatMap((k) => [...k.children].filter((x) => x.getClientRects().length).map((x) => x.getBoundingClientRect().height)), 0);
+              const gap = Math.round(Math.max(...ends) - Math.min(...ends));
+              if (gap > tallest) out.push(`${el.tagName.toLowerCase()}.${(el.className || '').toString().split(' ')[0]} ends ${gap}px apart, tallest block ${Math.round(tallest)}px`);
+            }
+            return out;
+          });
+          r.a18 = bad;
+        }
       } catch (e) { r.a6 ??= []; r.a6.push(`error-${v.name}`); }
     }
     await c.close();
@@ -421,6 +452,7 @@ async function main() {
     for (const o of r.outside ?? []) fails.push(`A9 ${r.url}: links outside the site, not as a source (${o})`);
     for (const f of r.a15 ?? []) fails.push(`A15 ${r.url}: a fold without the site's marker: ${f}`);
     for (const f of r.a17 ?? []) fails.push(`A17 ${r.url}: ${f}`);
+    for (const f of r.a18 ?? []) fails.push(`A18 ${r.url}: side by side columns not balanced at 1280x720: ${f}`);
     if (r.a10) {
       const ab = a10Base[r.url] ?? { dups: [], related: 1 };
       for (const d of r.a10.dups) (ab.dups.includes(d.replace(/ x\d+$/, '')) ? expected : fails).push(`A10 ${r.url}: linked more than once in the body: ${d}`);
