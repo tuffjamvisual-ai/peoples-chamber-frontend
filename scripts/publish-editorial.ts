@@ -85,6 +85,8 @@ const problems: string[] = [];
 const warnings: string[] = [];
 
 // Our wording: every text a reader sees as ours. Evidence record titles and quoted responses are other people's words.
+const PLACEHOLDER = /\[[A-Z]{2,}[A-Z,.:]*\s+[A-Z]{2,}|\bTO BE ADDED\b|\bTBC\b|\bTK\b/;
+
 function ourWording(p: EditorialEntry): [string, string][] {
   const out: [string, string][] = [];
   const add = (where: string, v: unknown) => { if (typeof v === 'string' && v) out.push([where, v]); };
@@ -137,6 +139,12 @@ async function main() {
   for (const [where, text] of ourWording(piece)) {
     const hit = strayDash(text, allow);
     if (hit) problems.push(`hyphen or dash in ${where}: "...${hit}..." (rephrase, quote it, or --allow the name)`);
+  }
+  // No placeholder left in (T2, 18 Nov 2026: the DSIT draft held '[RESPONSE TO BE ADDED AFTER 12:00 ...]' and passed): a
+  // bracket opening on two or more capitalised words, or 'TO BE ADDED', 'TBC' or 'TK' in capitals, anywhere in our wording.
+  for (const [where, text] of ourWording(piece)) {
+    const m = PLACEHOLDER.exec(text);
+    if (m) problems.push(`a placeholder in ${where}: "${m[0].slice(0, 60)}" (replace it with the final text)`);
   }
   // No links inside the text (owner rule, 18 Nov 2026, ENTRY 288/289): sources go in evidence.recordsReviewed only.
   if (Array.isArray(piece.body)) for (const hit of bodyLinks(piece.body)) problems.push(`a link in the article text, ${hit} (put the source in evidence.recordsReviewed and keep only the words)`);
