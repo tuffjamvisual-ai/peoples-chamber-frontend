@@ -6,14 +6,16 @@
 // JavaScript. While a search is typed every match shows (no "Show more").
 import { useState } from 'react';
 import Link from 'next/link';
-import NoJsPager from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { wordsOf, anyWordMatches } from '@/lib/search/words';
 
 export type PovertyTableRow = {
   code: string; name: string; slug: string; county: boolean; countyName?: string | null;
   ahcPct: number | null; bhcPct: number | null; ahcCount: number | null; change: number | null;
 };
-export type PovertyList = { id: string; heading: string; note: string; rows: PovertyTableRow[] };
+// fold: on phones and tablets the list starts closed (its heading and note stay), as /councils/children-in-care folds its
+// second table: the page was 4,018px at 320 with both lists open (rules check, 18 Nov 2026). Never folded while searching.
+export type PovertyList = { id: string; heading: string; note: string; rows: PovertyTableRow[]; fold?: boolean };
 type SortKey = 'ahc' | 'bhc' | 'count' | 'change' | 'name';
 
 const INK = '#14100d';
@@ -37,14 +39,14 @@ export default function ChildPovertyTables({ lists, changeLabel }: { lists: Pove
     <>
       <label style={{ display: 'block', fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }} htmlFor="cpov-q">Find a council</label>
       <input id="cpov-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" placeholder="Council name"
-        style={{ fontFamily: MONO, fontSize: '16px', color: INK, background: 'transparent', border: `1px solid ${INK}`, padding: '10px 12px', minHeight: '44px', width: '100%', maxWidth: '26em', boxSizing: 'border-box', margin: '0 0 20px' }} />
+        style={{ fontFamily: MONO, fontSize: '16px', color: INK, background: 'transparent', border: `1px solid ${INK}`, padding: '10px 12px', minHeight: '44px', width: '100%', maxWidth: '26em', boxSizing: 'border-box', margin: '0 0 12px' }} />
       {lists.map((l) => <OneList key={l.id} list={l} changeLabel={changeLabel} typed={typed} />)}
     </>
   );
 }
 
 function OneList({ list, changeLabel, typed }: { list: PovertyList; changeLabel: string; typed: string[] }) {
-  const { id, heading, note, rows } = list;
+  const { id, heading, note, rows, fold } = list;
   const [sort, setSort] = useState<SortKey>('ahc');
   const [desc, setDesc] = useState(true);
   const val = (r: PovertyTableRow): number | null => (sort === 'ahc' ? r.ahcPct : sort === 'bhc' ? r.bhcPct : sort === 'count' ? r.ahcCount : sort === 'change' ? r.change : null);
@@ -102,8 +104,10 @@ function OneList({ list, changeLabel, typed }: { list: PovertyList; changeLabel:
         </p>
       )}
       {/* Every match shows while a search is typed; otherwise 3 then Show 10 more on phones and tablets, whole from 1,024px. */}
-      {typed.length ? table : <NoJsPager id={id} count={shown.length} rows="> tbody > tr" size={15}>{table}</NoJsPager>}
-      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK, margin: '10px 0 0', maxWidth: '46em' }}>{note}</p>
+      {typed.length ? table : fold
+        ? <NoJsFold id={`${id}-f`} always tablets label={`The list (${rows.length})`}><NoJsPager id={id} count={shown.length} rows="> tbody > tr" size={15}>{table}</NoJsPager></NoJsFold>
+        : <NoJsPager id={id} count={shown.length} rows="> tbody > tr" size={15}>{table}</NoJsPager>}
+      {note && <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK, margin: '10px 0 0', maxWidth: '46em' }}>{note}</p>}
     </section>
   );
 }

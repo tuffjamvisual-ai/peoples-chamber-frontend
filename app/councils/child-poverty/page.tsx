@@ -99,18 +99,18 @@ export default async function ChildPovertyPage() {
           <p style={big}>England, {fyLabel(latest)}: <strong>{fmtPct(eng.ahc.pct)} of children under 16</strong> lived in low income families after housing costs ({fmtNum(eng.ahc.count)} children); {fmtPct(eng.bhc?.pct ?? null)} before housing costs.</p>
         )}
         <p style={{ ...para, margin: '0 0 24px' }}>
-          {countries.filter((c) => c.name !== 'England').map((c) => `${c.name}: ${fmtPct(c.ahc?.pct ?? null)} after housing costs, ${fmtPct(c.bhc?.pct ?? null)} before.`).join(' ')}
-          {' '}Each country&rsquo;s figure is its councils added up.
+          {/* Shorter on phones (length, 18 Nov 2026): after housing costs only; each country is its councils added up. */}
+          After housing costs: {countries.filter((c) => c.name !== 'England').map((c) => `${c.name} ${fmtPct(c.ahc?.pct ?? null)}`).join(', ')}. Each country is its councils added up.
         </p>
 
         <ChildPovertyTables changeLabel={changeLabel} lists={[
           {
             id: 'cpov-a', heading: `Councils, ${fyLabel(latest)}`, rows: table.filter((r) => !r.district),
-            note: `County councils (the total of their district councils), unitary councils, metropolitan and London boroughs (in England these run children's services), and every council in Wales, Scotland and Northern Ireland. Ranked by the share of children after housing costs, highest first.${eng?.bhc?.pct != null && eng.first?.pct != null ? ` England before housing costs: ${fmtPct(eng.first.pct)} in ${fyLabel(FIRST_COMPARABLE_FYE)}, ${fmtPct(eng.bhc.pct)} in ${fyLabel(latest)}.` : ''} The change is shown before housing costs because the figure after housing costs is held only from ${fyLabel(latest - 1)}.`,
+            note: 'Counties are the total of their district councils. Ranked by the share after housing costs, highest first.',
           },
           {
-            id: 'cpov-b', heading: 'District councils', rows: table.filter((r) => r.district),
-            note: 'District councils in England, ranked among districts only; each is part of the county council named beside it, whose figure in the list above is the total of its districts.',
+            id: 'cpov-b', heading: 'District councils', rows: table.filter((r) => r.district), fold: true,
+            note: '',
           },
         ]} />
 
@@ -118,6 +118,11 @@ export default async function ChildPovertyPage() {
           <h2 style={h2}>About these figures</h2>
           <SubFold label="Read about the figures">
           <p style={para}>{EXPLAINER}</p>
+          {/* Moved here from under the first list (phone length, 18 Nov 2026). */}
+          <p style={para}>
+            The first list holds county councils (the total of their district councils), unitary councils, metropolitan and London boroughs (in England these run children&rsquo;s services), and every council in Wales, Scotland and Northern Ireland; the second, district councils, ranked among districts only. The change is shown before housing costs because the figure after housing costs is held only from {fyLabel(latest - 1)}.
+            {eng?.bhc?.pct != null && eng.first?.pct != null && ` England before housing costs: ${fmtPct(eng.first.pct)} in ${fyLabel(FIRST_COMPARABLE_FYE)}, ${fmtPct(eng.bhc.pct)} in ${fyLabel(latest)}.`}
+          </p>
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>{sourceLine(release)}</p>
           </SubFold>
         </section>
