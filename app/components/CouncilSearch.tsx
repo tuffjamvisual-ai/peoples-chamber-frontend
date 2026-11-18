@@ -29,6 +29,8 @@ const ACCENT = '#7a1612'
 const SERIF = 'var(--font-special-elite), monospace'
 const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/
 
+type PlaceResult = { label: string; slug: string; councilName: string }
+
 type CouncilResult = {
   slug: string
   name: string
@@ -51,6 +53,8 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
   const [error, setError] = useState('')
   const [postcodeResult, setPostcodeResult] = useState<CouncilResult | null>(null)
   const [nameSuggestions, setNameSuggestions] = useState<CouncilResult[]>([])
+  // Towns and villages with their council, after the names (ENTRY 308: "grimsby" found nothing).
+  const [placeSuggestions, setPlaceSuggestions] = useState<PlaceResult[]>([])
   const [open, setOpen] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -67,6 +71,7 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPostcodeResult(null)
       setNameSuggestions([])
+      setPlaceSuggestions([])
       setError('')
       setOpen(false)
       return
@@ -82,6 +87,7 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
           if (res.ok) {
             setPostcodeResult(data)
             setNameSuggestions([])
+            setPlaceSuggestions([])
           } else {
             setPostcodeResult(null)
             setError(data.message || 'Lookup failed. Please try again.')
@@ -91,11 +97,13 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
           const data = await res.json()
           setPostcodeResult(null)
           setNameSuggestions(res.ok ? (data.results || []) : [])
+          setPlaceSuggestions(res.ok ? (data.places || []) : [])
         }
         setOpen(true)
       } catch {
         setPostcodeResult(null)
         setNameSuggestions([])
+        setPlaceSuggestions([])
         setError('Search is unavailable right now. Please try again.')
         setOpen(true)
       } finally {
@@ -156,9 +164,22 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
   }
 
   return (
+    <>
+    {/* ENTRY 310 and 311 (owner, 18 Nov 2026): from 1,024px the box takes the reports search look (no panel, parchment
+        field, ink outline button, at most 420px); under 1,024px nothing changes (the inline styles stand). Inline styles
+        cannot hold a media query, so these override them with !important. */}
+    <style>{`
+      @media (min-width: 1024px) {
+        .cs-box { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; max-width: 420px; }
+        .cs-input { background: rgba(20,16,13,0.05) !important; border: 1px solid rgba(20,16,13,0.3) !important; padding: 10px 14px !important; font-size: 15px !important; letter-spacing: normal !important; }
+        .cs-submit { background: transparent !important; color: ${INK} !important; border: 1px solid ${INK} !important; font-weight: normal !important; font-size: 15px !important; letter-spacing: 0.06em !important; padding: 10px 14px !important; }
+        .cs-list { left: 0 !important; right: 0 !important; top: 100% !important; margin-top: 2px; background: #f4ecd8 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important; border-top: 1px solid ${INK} !important; }
+      }
+    `}</style>
     <form
       onSubmit={submit}
       ref={boxRef}
+      className="cs-box"
       style={{ position: 'relative', background: PAPER, border: `2px solid ${INK}`, padding: '18px 20px', fontFamily: SERIF, color: INK, boxShadow: '3px 3px 0 rgba(20,16,13,0.18)' }}
     >
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
@@ -200,9 +221,10 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'stretch' }}>
         <input
+          className="cs-input"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          onFocus={() => { if (postcodeResult || nameSuggestions.length > 0 || error) setOpen(true) }}
+          onFocus={() => { if (postcodeResult || nameSuggestions.length > 0 || placeSuggestions.length > 0 || error) setOpen(true) }}
           placeholder={placeholder}
           aria-label={`Search by ${placeholder.toLowerCase()}`}
           autoComplete="off"
@@ -210,6 +232,7 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
         />
         <button
           type="submit"
+          className="cs-submit"
           disabled={loading}
           style={{ flex: '0 0 auto', fontFamily: SERIF, fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1 }}
         >
@@ -219,6 +242,7 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
 
       {open && (
         <div
+          className="cs-list"
           style={{
             position: 'absolute', left: '20px', right: '20px', top: 'calc(100% - 4px)', zIndex: 20,
             background: '#fbf4e3', border: `1px solid ${INK}`, borderTop: 'none',
@@ -247,10 +271,10 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
 
           {!error && !postcodeResult && (
             <ul role="listbox" style={{ margin: 0, padding: '4px 0', listStyle: 'none' }}>
-              {loading && nameSuggestions.length === 0 && (
+              {loading && nameSuggestions.length === 0 && placeSuggestions.length === 0 && (
                 <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>Searching…</li>
               )}
-              {!loading && nameSuggestions.length === 0 && (
+              {!loading && nameSuggestions.length === 0 && placeSuggestions.length === 0 && (
                 <li style={{ padding: '10px 14px', fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>{noMatchText}</li>
               )}
               {nameSuggestions.map((r) => (
@@ -266,10 +290,21 @@ export default function CouncilSearch({ initialQuery = '', placeholder = 'Postco
                   </a>
                 </li>
               ))}
+              {placeSuggestions.map((p) => (
+                <li key={`${p.label}|${p.slug}`}>
+                  <a
+                    href={`/councils/${p.slug}`}
+                    style={{ display: 'block', padding: '9px 14px', textDecoration: 'none', color: INK, fontFamily: SERIF, fontSize: '16px', borderBottom: '1px solid rgba(20,16,13,0.12)' }}
+                  >
+                    {p.label}: {p.councilName}
+                  </a>
+                </li>
+              ))}
             </ul>
           )}
         </div>
       )}
     </form>
+    </>
   )
 }

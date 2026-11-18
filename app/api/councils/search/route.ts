@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { ilikeWords } from '@/lib/ilike-words';
+import { councilsForPlaces } from '@/lib/council-places';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,12 +33,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
-  const { data, error } = await supabase
-    .from('councils')
-    .select('slug, name, short_name, type_label, country')
-    .or(`name.ilike.${pattern},short_name.ilike.${pattern}`)
-    .order('name', { ascending: true })
-    .limit(8);
+  // Council names, and towns and villages with their council (ENTRY 308), side by side; names are listed first.
+  const [{ data, error }, places] = await Promise.all([
+    supabase
+      .from('councils')
+      .select('slug, name, short_name, type_label, country')
+      .or(`name.ilike.${pattern},short_name.ilike.${pattern}`)
+      .order('name', { ascending: true })
+      .limit(8),
+    councilsForPlaces(q),
+  ]);
 
   if (error) {
     console.error('councils search error:', error.message);
@@ -52,5 +57,5 @@ export async function GET(req: NextRequest) {
     country: r.country,
   }));
 
-  return NextResponse.json({ results });
+  return NextResponse.json({ results, places });
 }

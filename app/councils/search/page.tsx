@@ -12,6 +12,7 @@ import { ilikeWords } from '@/lib/ilike-words';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import CouncilSearch from '../../components/CouncilSearch';
+import { councilsForPlaces, type PlaceCouncil } from '@/lib/council-places';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,7 +61,7 @@ async function search(q: string): Promise<Council[]> {
 
 export default async function CouncilSearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q = '' } = await searchParams;
-  const results = await search(q);
+  const [results, places] = await Promise.all([search(q), councilsForPlaces(q)]);
 
   return (
     <OpenGovShell pageStamp="Councils">
@@ -106,7 +107,7 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
           <Link href="/councils" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '10px 0' }}>Browse all councils</Link>
         </p>
 
-        {q && results.length === 0 && (
+        {q && results.length === 0 && places.length === 0 && (
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK_SOFT, margin: 0 }}>
             No councils matched &ldquo;{q}&rdquo;. Try a different spelling, or your postcode.
           </p>
@@ -132,6 +133,24 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
                     <span style={{ fontSize: '15px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                       {c.type_label} · {c.country}
                     </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {/* Towns and villages with their council (ENTRY 308), after the council names. */}
+        {places.length > 0 && (
+          <>
+            <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, margin: results.length ? '28px 0 16px' : '0 0 16px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
+              {places.length === 1 ? 'Place' : 'Places'}
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              {places.map((p: PlaceCouncil) => (
+                <li key={`${p.label}|${p.slug}`}>
+                  <a href={`/councils/${p.slug}`} style={{ display: 'block', padding: '10px 4px', textDecoration: 'none', color: INK, fontFamily: SERIF, fontSize: '17px', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+                    {p.label}: {p.councilName}
                   </a>
                 </li>
               ))}
