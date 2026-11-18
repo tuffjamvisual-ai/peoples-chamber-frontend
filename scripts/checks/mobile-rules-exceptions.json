@@ -132,6 +132,18 @@
       "route": "/debates/[guid]",
       "selector": "html",
       "reason": "Lists open with 3 always; opening with 3 speeches instead of 2 takes some debate pages just past the length limit, which is lifted here under the owner's rule (18 Nov 2026, Cowork ENTRY 302 item 1; told to Cowork)."
+    },
+    {
+      "rule": "lists",
+      "route": "/reports",
+      "selector": ".reports-month-grid, .reports-month-grid > *",
+      "reason": "/reports shows up to 20 reports a page under their month headings with Next page and Previous page, and no Show 10 more month folds at any width (owner decision 18 Nov 2026, Cowork ENTRY 306, /reports only)."
+    },
+    {
+      "rule": "height",
+      "route": "/reports",
+      "selector": "html",
+      "reason": "20 reports a page with no month folds on phones (owner decision 18 Nov 2026, Cowork ENTRY 306), longer than the phone length limit."
     }
   ]
 }

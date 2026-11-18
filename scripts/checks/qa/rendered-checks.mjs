@@ -82,8 +82,8 @@ async function pace() {
 const LIMIT_PX = 2500;
 // Page types where the owner lifted the phone length limit (18 Nov 2026, Cowork ENTRY 302 item 1: lists open with 3 always,
 // even where that makes the page longer). /debates/[guid] is the same case (2 to 3 speeches, 78px over): added under that
-// rule, told to Cowork.
-const LENGTH_LIFTED = [/^\/laws$/, /^\/transparency\/press-releases$/, /^\/treaties$/, /^\/polls(\/voting-intention)?$/, /^\/pmqs\/\d{4}-\d{2}-\d{2}$/, /^\/debates\/[0-9A-Fa-f-]{36}$/];
+// rule, told to Cowork. /reports: 20 reports a page with no month folds (owner decision, ENTRY 306).
+const LENGTH_LIFTED = [/^\/laws$/, /^\/transparency\/press-releases$/, /^\/treaties$/, /^\/polls(\/voting-intention)?$/, /^\/pmqs\/\d{4}-\d{2}-\d{2}$/, /^\/debates\/[0-9A-Fa-f-]{36}$/, /^\/reports$/];
 const GROWTH_PX = 200;
 // A6 (QA6): viewport, and the most px from the top of the page at which the main action (and, landscape, the h1) may start.
 // 430 x 932, a large phone (UX3h, owner approved, 10 Nov 2026): the main action above 760px.

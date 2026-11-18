@@ -15,6 +15,7 @@ import { createClient } from '@supabase/supabase-js';
 import { topics } from '@/lib/topics';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { entryWords } from '@/lib/reading-time';
+import { wordsOf } from '@/lib/search/words';
 import { releaseKeysOf } from '@/lib/editorial-release-keys';
 import { councilSlugsOf } from '@/lib/editorials/council-slugs';
 
@@ -145,6 +146,23 @@ const oneFromDatabase = cache((slug: string) =>
 // Every published piece (index entries, no body), its lookup by slug, and the topics' lists.
 export async function editorialSet(): Promise<EditorialSet> {
   return fromDatabase();
+}
+
+// The /reports search index (Cowork ENTRY 304): each published piece's article text as its distinct words (lib/search/words.ts),
+// so a search can find words in the body without the body in the page. One cached read for every piece, refreshed with
+// the editorials tag; distinct words keep it small (about 4 KB a piece), well under the 2 MB Vercel caches.
+async function readSearchWords(): Promise<Record<string, string>> {
+  const { data, error } = await client().from('editorials').select('slug, kind, body_text').eq('unpublished', false).range(0, 4999);
+  if (error) throw new Error(`editorials source (search words): ${error.message}`);
+  const out: Record<string, string> = {};
+  for (const r of (data ?? []) as { slug: string; kind: string | null; body_text: string | null }[]) {
+    out[`/${r.kind === 'briefing' ? 'briefings' : 'editorials'}/${r.slug}`] = [...new Set(wordsOf(r.body_text ?? ''))].join(' ');
+  }
+  return out;
+}
+const searchWordsFromDatabase = unstable_cache(readSearchWords, ['editorials-source-search-words'], { tags: ['editorials'], revalidate: WEEK });
+export async function editorialSearchWords(): Promise<Record<string, string>> {
+  return searchWordsFromDatabase();
 }
 
 export async function allEditorials(): Promise<EditorialListEntry[]> {

@@ -1,8 +1,9 @@
 'use client';
 
-import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useRouter } from 'next/navigation';
+import { wordsOf, anyWordMatches } from '@/lib/search/words';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ContinueToArticle from '../components/ContinueToArticle';
 import { phoneUpTo } from '@/lib/breakpoints';
 
@@ -19,6 +20,7 @@ export type ArchiveItem = {
   type: 'Investigation' | 'Briefing' | 'Commentary';
   kicker: string | null;
   headline: string;
+  standfirst: string; // searched, not shown (ENTRY 304)
   summary: string;
   dateLabel: string;
   monthKey: string;   // "2026-10"
@@ -86,10 +88,41 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
   }, []);
 
 
-  const term = state.q.trim().toLowerCase();
-  const matches = useMemo(() => items.map((e) =>
-    !term || e.headline.toLowerCase().includes(term) || e.summary.toLowerCase().includes(term)), [items, term]);
-  const count = matches.filter(Boolean).length;
+  // The search (owner request 18 Nov 2026, Cowork ENTRY 304): each word typed is matched on its own, in any order, against
+  // the starts of the words of a report (one letter's typo allowed in words of 5 letters or more; lib/search/words.ts); every
+  // word must match somewhere. Headline matches rank first, then the standfirst, summary, kicker or type, then the article
+  // text, which comes from /reports/search-index, fetched once when the box is first used (the rest works before it arrives).
+  const router = useRouter();
+  const typed = useMemo(() => wordsOf(state.q), [state.q]);
+  const searching = typed.length > 0;
+  const fields = useMemo(() => items.map((e) => ({ head: wordsOf(e.headline), mid: wordsOf(`${e.standfirst} ${e.summary} ${e.kicker ?? ''} ${e.type}`) })), [items]);
+  const [body, setBody] = useState<Record<string, string[]> | null>(null);
+  const asked = useRef(false);
+  const loadBody = () => {
+    if (asked.current) return;
+    asked.current = true;
+    fetch('/reports/search-index').then((r) => (r.ok ? r.json() : null)).then((j: Record<string, string> | null) => {
+      if (j) setBody(Object.fromEntries(Object.entries(j).map(([k, v]) => [k, v.split(' ')])));
+    }).catch(() => { asked.current = false; });
+  };
+  useEffect(() => { if (state.q) loadBody(); }, [state.q]);
+  const ranked = useMemo(() => {
+    if (!searching) return [] as number[];
+    const scored: [number, number][] = [];
+    items.forEach((e, i) => {
+      let score = 0;
+      for (const w of typed) {
+        if (anyWordMatches(w, fields[i].head)) score += 3;
+        else if (anyWordMatches(w, fields[i].mid)) score += 2;
+        else if (body?.[e.href] && anyWordMatches(w, body[e.href])) score += 1;
+        else return;
+      }
+      scored.push([i, score]);
+    });
+    return scored.sort((a, b) => b[1] - a[1] || a[0] - b[0]).map(([i]) => i);
+  }, [items, fields, body, typed, searching]);
+  const matches = useMemo(() => items.map(() => !searching), [items, searching]);
+  const count = searching ? ranked.length : items.length;
   const totalPages = Math.max(1, Math.ceil(count / PER_PAGE));
   const page = Math.min(state.page, totalPages);
 
@@ -106,13 +139,42 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
   const update = (patch: Partial<State>) => setState((s) => ({ ...s, ...patch, page: patch.page ?? 1 }));
   const goTo = (p: number) => { update({ page: p }); window.scrollTo({ top: 0 }); };
 
-  // Show only the matching items on the current page.
+  // Without a search: every report, 20 a page, by month. With one: the ranked matches, 20 a page, as one list.
   const visible = useMemo(() => {
     const out: boolean[] = [];
     let rank = 0;
     for (const m of matches) { out.push(m ? Math.floor(rank / PER_PAGE) + 1 === page : false); if (m) rank++; }
     return out;
   }, [matches, page]);
+  const pageOfResults = useMemo(() => (searching ? ranked.slice((page - 1) * PER_PAGE, page * PER_PAGE) : []), [searching, ranked, page]);
+  // What this page shows: without a search, its 20 by date; with one, the 20 best matches for this page, shown under their
+  // month headings (owner decision, ENTRY 306).
+  const onPage = useMemo(() => {
+    if (!searching) return visible;
+    const set = new Set(pageOfResults);
+    return items.map((_, i) => set.has(i));
+  }, [searching, visible, pageOfResults, items]);
+
+  // Suggestions under the box (ENTRY 304): from the 2nd letter, up to 6 matching headlines, best first.
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const suggestions = state.q.trim().length >= 2 ? ranked.slice(0, 6) : [];
+  const showList = open && suggestions.length > 0;
+  const openReport = (href: string) => { setOpen(false); router.push(href); };
+  const onKey = (ev: KeyboardEvent<HTMLInputElement>) => {
+    if (ev.key === 'ArrowDown' && suggestions.length) { ev.preventDefault(); setOpen(true); setActive((a) => (a + 1) % suggestions.length); }
+    else if (ev.key === 'ArrowUp' && suggestions.length) { ev.preventDefault(); setOpen(true); setActive((a) => (a <= 0 ? suggestions.length - 1 : a - 1)); }
+    else if (ev.key === 'Enter' && showList && active >= 0) { ev.preventDefault(); openReport(items[suggestions[active]].href); }
+    else if (ev.key === 'Escape') { setOpen(false); setActive(-1); }
+  };
+  // The headline with the letters each typed word matched in bold (the start of a word).
+  const marked = (headline: string) => headline.split(/(\s+)/).map((part, k) => {
+    const w = wordsOf(part)[0];
+    const hit = w ? typed.filter((t) => w.startsWith(t)).sort((a, b) => b.length - a.length)[0] : undefined;
+    if (!hit) return <span key={k}>{part}</span>;
+    const lead = Math.max(0, part.search(/[A-Za-z0-9\u00C0-\u024F]/));
+    return <span key={k}>{part.slice(0, lead)}<strong>{part.slice(lead, lead + hit.length)}</strong>{part.slice(lead + hit.length)}</span>;
+  });
 
   // Items grouped by month, in their existing order (newest first), each with its index into items.
   const months = useMemo(() => {
@@ -124,7 +186,34 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
     });
     return out;
   }, [items]);
-  const firstShownMonth = months.findIndex((m) => m.idx.some((i) => visible[i]));
+  const firstShownMonth = months.findIndex((m) => m.idx.some((i) => onPage[i]));
+
+  // One report's card (the month view and the search results).
+  const card = (i: number, mainAction: boolean, shown = true) => {
+    const e = items[i];
+    return (
+      <Link
+        key={e.href}
+        href={e.href}
+        className="no-hover-scale reports-card"
+        data-main-action={mainAction ? '' : undefined}
+        style={{ display: shown ? 'flex' : 'none', flexDirection: 'column', height: '100%', padding: '22px 0', borderBottom: `1px solid ${HAIRLINE}`, textDecoration: 'none', color: INK }}
+      >
+        {/* The type, then the piece's own kicker when it says something the type does not. */}
+        <div className="reports-type" style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, fontWeight: 'bold', marginBottom: '8px' }}>
+          {e.type}
+          {e.kicker && e.kicker.toLowerCase() !== e.type.toLowerCase() ? ` · ${e.kicker}` : ''}
+        </div>
+        <h3 style={{ fontFamily: MONO, fontSize: 'clamp(19px, 1.9vw, 25px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.15, marginBottom: '8px' }}>
+          {e.headline}
+        </h3>
+        <div style={{ fontSize: '15px', color: INK, marginBottom: '6px' }}>{e.dateLabel} · {e.readingLabel}</div>
+        {e.summary && <p style={{ fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{e.summary}</p>}
+        {/* Pushed to the foot of the card so cards in the same row line up. */}
+        <ContinueToArticle style={{ marginTop: 'auto', paddingTop: '6px' }} />
+      </Link>
+    );
+  };
 
   return (
     <>
@@ -132,8 +221,24 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
           report. From 768px up, as before. */}
       <style dangerouslySetInnerHTML={{ __html: `@media ${phoneUpTo(767.98)} { .reports-filters > input { font-size: 16px !important; } .reports-filters { margin-bottom: 6px !important; } .reports-count { margin-bottom: 8px !important; } .reports-mh { padding-bottom: 4px !important; } .reports-card { padding-top: 12px !important; } .reports-type { margin-bottom: 4px !important; } }` }} />
       <div className="reports-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', alignItems: 'baseline' }}>
-        <input aria-label="Search reports" type="search" placeholder="Search reports…" value={state.q}
-          onChange={(e) => update({ q: e.target.value })} style={{ ...field, flex: '1 1 280px', maxWidth: '420px' }} />
+        <div style={{ position: 'relative', flex: '1 1 280px', maxWidth: '420px' }}>
+          <input aria-label="Search reports" type="search" placeholder="Search reports…" value={state.q}
+            role="combobox" aria-autocomplete="list" aria-expanded={showList} aria-controls="reports-suggest"
+            aria-activedescendant={showList && active >= 0 ? `reports-suggest-${active}` : undefined}
+            onFocus={() => { loadBody(); setOpen(true); }} onBlur={() => setOpen(false)} onKeyDown={onKey}
+            onChange={(e) => { update({ q: e.target.value }); setOpen(true); setActive(-1); }} style={{ ...field, width: '100%', boxSizing: 'border-box' }} />
+          {/* Up to 6 matching headlines (ENTRY 304): arrow keys and Enter, a tap or a click open the report; Escape closes. */}
+          <ul id="reports-suggest" role="listbox" aria-label="Matching reports" hidden={!showList}
+            style={{ position: 'absolute', zIndex: 20, left: 0, right: 0, top: '100%', margin: '2px 0 0', padding: 0, listStyle: 'none', background: '#f4ecd8', border: `1px solid ${INK}`, boxShadow: '0 4px 10px rgba(0,0,0,0.15)' }}>
+            {suggestions.map((i, k) => (
+              <li key={items[i].href} id={`reports-suggest-${k}`} role="option" aria-selected={k === active}
+                onMouseDown={(ev) => { ev.preventDefault(); openReport(items[i].href); }} onMouseEnter={() => setActive(k)}
+                style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '6px 12px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.3, color: INK, cursor: 'pointer', borderTop: k ? `1px solid ${HAIRLINE}` : 'none', background: k === active ? 'rgba(122,22,18,0.1)' : 'transparent' }}>
+                <span>{marked(items[i].headline)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <p aria-live="polite" className="reports-count" style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK, margin: '0 0 16px' }}>
@@ -149,47 +254,19 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
         @media (max-width: 719.98px) { .reports-month-grid { grid-template-columns: minmax(0, 1fr); } }
       `}</style>
       <div style={{ fontFamily: MONO }}>
+        {/* No month folds (owner decision 18 Nov 2026, ENTRY 306, /reports only): up to 20 reports a page under their month
+            headings, at every width, with or without a search; Next page and Previous page move on. The phone month folds
+            hid every card after a month's third, so a search's matches past it were counted but not shown (ENTRY 304). */}
         {months.map((m, mi) => {
-          const shown = m.idx.some((i) => visible[i]);
+          const shown = m.idx.some((i) => onPage[i]);
           return (
             <section key={m.key} className="reports-month" style={{ display: shown ? 'block' : 'none' }}>
               <h2 className="reports-mh" style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 'bold', color: INK, borderBottom: `1px solid ${INK_HAIRLINE}`, padding: mi === firstShownMonth ? '0 0 8px' : '28px 0 8px', margin: 0 }}>
                 {m.label}
               </h2>
-              <NoJsFold id={`rf-${m.key}`} always label={`${m.idx.length} ${m.idx.length === 1 ? 'report' : 'reports'}`} open={mi === 0}>
-              {/* Phones (under 768px): a month's first 3 reports, then "Show all N" (owner approved 12 Nov 2026, T1-VERD: the
-                  AR7 report took the page to 2,511px at 375, over the 2,500px limit; folded, nothing removed). From 768px up
-                  nothing changes. */}
-              <NoJsPager id={`rm-${m.key}`} count={m.idx.length} rows="> a" size={12} first={3}>
               <div className="reports-month-grid">
-                {m.idx.map((i) => {
-                  const e = items[i];
-                  return (
-                    <Link
-                      key={e.href}
-                      href={e.href}
-                      className="no-hover-scale reports-card"
-                      data-main-action={mi === firstShownMonth && i === m.idx.find((k) => visible[k]) ? '' : undefined}
-                      style={{ display: visible[i] ? 'flex' : 'none', flexDirection: 'column', height: '100%', padding: '22px 0', borderBottom: `1px solid ${HAIRLINE}`, textDecoration: 'none', color: INK }}
-                    >
-                      {/* The type, then the piece's own kicker when it says something the type does not. */}
-                      <div className="reports-type" style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, fontWeight: 'bold', marginBottom: '8px' }}>
-                        {e.type}
-                        {e.kicker && e.kicker.toLowerCase() !== e.type.toLowerCase() ? ` · ${e.kicker}` : ''}
-                      </div>
-                      <h3 style={{ fontFamily: MONO, fontSize: 'clamp(19px, 1.9vw, 25px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.15, marginBottom: '8px' }}>
-                        {e.headline}
-                      </h3>
-                      <div style={{ fontSize: '15px', color: INK, marginBottom: '6px' }}>{e.dateLabel} · {e.readingLabel}</div>
-                      {e.summary && <p style={{ fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{e.summary}</p>}
-                      {/* Pushed to the foot of the card so cards in the same row line up. */}
-                      <ContinueToArticle style={{ marginTop: 'auto', paddingTop: '6px' }} />
-                    </Link>
-                  );
-                })}
+                {m.idx.map((i) => card(i, mi === firstShownMonth && i === m.idx.find((k) => onPage[k]), onPage[i]))}
               </div>
-              </NoJsPager>
-              </NoJsFold>
             </section>
           );
         })}
@@ -198,9 +275,9 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
 
       {totalPages > 1 && (
         <nav className="reports-pager" aria-label="Reports pages" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '16px', marginTop: '24px', fontFamily: MONO, fontSize: '15px', color: INK }}>
-          <button type="button" onClick={() => goTo(page - 1)} disabled={page <= 1} style={pageBtn(page <= 1)}>Previous</button>
-          <span>page {page} of {totalPages}</span>
-          <button type="button" onClick={() => goTo(page + 1)} disabled={page >= totalPages} style={pageBtn(page >= totalPages)}>Next</button>
+          {page > 1 && <button type="button" onClick={() => goTo(page - 1)} style={{ ...pageBtn(false), minHeight: '44px' }}>Previous page</button>}
+          <span>Page {page} of {totalPages}</span>
+          {page < totalPages && <button type="button" onClick={() => goTo(page + 1)} style={{ ...pageBtn(false), minHeight: '44px' }}>Next page</button>}
         </nav>
       )}
     </>

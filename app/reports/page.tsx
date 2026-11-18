@@ -32,6 +32,7 @@ interface Item {
   type: ReportType;
   kicker: string | null;
   headline: string;
+  standfirst: string; // searched by the search box (ENTRY 304)
   summary: string;
   date: string; // ISO date or timestamp
   readingLabel: string; // "6 min read" (lib/reading-time.ts)
@@ -50,6 +51,7 @@ export default async function ReportsPage() {
     type: typeOf(e),
     kicker: e.kicker ?? null,
     headline: e.headline,
+    standfirst: e.standfirst ?? '',
     summary: listSummary(e),
     date: e.publishedAt,
     readingLabel: listReadingLabel(e),
@@ -69,6 +71,7 @@ export default async function ReportsPage() {
     type: 'Briefing',
     kicker: 'Daily Briefing',
     headline: r.headline as string,
+    standfirst: '',
     // The approved summary (migration 2026-10-23c), or the opening of the body when there is none.
     summary: (r.summary as string | null) || String(r.body || '').replace(/\s+/g, ' ').slice(0, 180).trim() + '…',
     date: (r.published_at as string) || (r.created_at as string),
@@ -97,7 +100,7 @@ export default async function ReportsPage() {
         items={items.map((e): ArchiveItem => {
           const d = new Date(e.date);
           return {
-            href: e.href, type: e.type, kicker: e.kicker, headline: e.headline, summary: e.summary, readingLabel: e.readingLabel,
+            href: e.href, type: e.type, kicker: e.kicker, headline: e.headline, standfirst: e.standfirst, summary: e.summary, readingLabel: e.readingLabel,
             dateLabel: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
             // Month grouping (two-column archive): "2026-10" and "October 2026", in UTC like the date.
             monthKey: d.toISOString().slice(0, 7),
