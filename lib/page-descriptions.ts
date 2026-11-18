@@ -26,6 +26,10 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
     'Every treaty laid before Parliament under the 2010 Act: laid date, department, objection deadline, committee work and whether scrutiny ended.',
   '/directory':
     'Everything on opengovt, A to Z: every section, list and tool on the site with a one line description, so you can find exactly what you need.',
+  '/councils/free-school-meals':
+    'Free school meals in every English council area: the share of pupils eligible against England, the change on the year and how many took a meal.',
+  '/councils/youth-justice':
+    'Youth justice in every council area of England and Wales: children given their first caution or conviction, the rate per 100,000 and the change on the year.',
   '/councils/children-in-care':
     'Children in care in every English council area: the number looked after, the rate per 10,000 children against England and the change on the year.',
   '/councils/road-condition':

@@ -37,6 +37,8 @@ import { recipientIsMp, lastNamePrefilter } from '@/lib/mp-recipient-match';
 import { storedSpellings } from '@/lib/donor-registry';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 import { topPetitionsInConstituency, type MpPetitionsTop } from '@/lib/petition-pages';
+import { loadArea as loadFsmArea, summarise as summariseFsm, censusLabel, count as fsmCount, pctText as fsmPctText, tookShare as fsmTook } from '@/lib/free-school-meals';
+import type { ConstituencyFsm } from './MagazineProfileSections';
 import { councilForConstituency } from '@/lib/related-links';
 import { handled, orNull } from '@/lib/settle';
 import { cachedQuery, tagged } from '@/lib/tagged-read';
@@ -597,6 +599,16 @@ export default async function MPMagazineProfile({ params }: PageProps) {
 
   const petitionsAvailable = await pPetitions;
   const petitionsTop = await pPetitionsTop;
+  // Free school meals in the constituency (owner approved 18 Nov 2026, Cowork ENTRY 303): the latest January census, with
+  // England beside it; constituencies have figures for 2024/25 and 2025/26 only. A failed read leaves the block out.
+  const fsm: ConstituencyFsm | null = constituencyGss && mp.current_member !== false
+    ? await withTimeout(loadFsmArea(constituencyGss), 5000).then((rows) => {
+        const s = summariseFsm(rows, constituencyGss);
+        if (!s || s.cur.fsm_eligible == null) return null;
+        return { constituency: mp.constituency ?? null, when: censusLabel(s.cur.academic_year), eligible: fsmCount(s.cur.fsm_eligible), pupils: fsmCount(s.cur.pupils),
+          share: fsmPctText(s.cur), england: s.eng ? fsmPctText(s.eng) : null, took: fsmTook(s.cur), prev: s.prev ? { when: censusLabel(s.prev.academic_year), share: fsmPctText(s.prev) } : null };
+      }).catch(() => null)
+    : null;
   const seatSlug = await pSeatSlug;
   const council = await pCouncil;
 
@@ -846,6 +858,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           };
         })()),
         constituencyPetitions: petitionsTop && petitionsTop.petitions.length > 0 && constituencyGss ? { top: petitionsTop, gss: constituencyGss, constituency: mp.constituency ?? null } : null,
+        constituencyFsm: fsm,
         activity: activityRes.data || null,
         // Votes against most of their party (is_rebellion, set from the MP's party on the day of the vote; see the
         // 2026-10-15c migration): since the July 2024 election with the votes cast in that time, and across all the

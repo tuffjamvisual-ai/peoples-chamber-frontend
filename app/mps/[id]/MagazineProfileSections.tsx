@@ -42,6 +42,7 @@ import { isLaw } from '@/lib/bill-status';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
+export type ConstituencyFsm = { constituency: string | null; when: string; eligible: string; pupils: string; share: string; england: string | null; took: number | null; prev: { when: string; share: string } | null };
 type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'edms' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
 // TEMPORARY: hide the Political Biography tab + section on every MP profile.
@@ -336,6 +337,8 @@ interface Props {
   earlierRegisters?: React.ReactNode; // the register history (HistoricRecord.tsx)
   earlierRegistersCount?: number;
   constituencyPetitions?: { top: MpPetitionsTop; gss: string; constituency: string | null } | null;
+  /** Free school meals in the constituency (ENTRY 303), shown in Contact under the local council. */
+  constituencyFsm?: ConstituencyFsm | null;
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
   contributions?: Contribution[];
@@ -609,6 +612,7 @@ export default function MagazineProfileSections({
   earlierRegisters = null,
   earlierRegistersCount = 0,
   constituencyPetitions = null,
+  constituencyFsm = null,
   activity = null,
   contributions = [],
   writtenQuestions = null,
@@ -1138,6 +1142,18 @@ export default function MagazineProfileSections({
               )}
               {contact.council && <li><strong>Local council:</strong> <Link href={contact.council.href} className="og-tap" style={inkLink}>{contact.council.label}</Link></li>}
             </ul>
+            {/* Free school meals in the constituency (owner approved 18 Nov 2026, Cowork ENTRY 303): the January school census. */}
+            {constituencyFsm && (
+              <div style={{ marginTop: '18px', fontSize: '15px', lineHeight: 1.6 }}>
+                <h3 style={{ ...sectionH3, marginTop: 0 }}>Free school meals in {constituencyFsm.constituency ?? 'this constituency'}</h3>
+                <p style={{ margin: '0 0 6px' }}>
+                  Pupils eligible, {constituencyFsm.when}: <strong>{constituencyFsm.eligible}</strong>, <strong>{constituencyFsm.share}</strong> of {constituencyFsm.pupils} pupils{constituencyFsm.england ? ` (England ${constituencyFsm.england})` : ''}
+                  {constituencyFsm.prev ? `; ${constituencyFsm.prev.share} in ${constituencyFsm.prev.when}` : ''}.
+                </p>
+                {constituencyFsm.took != null && <p style={{ margin: '0 0 6px' }}>{constituencyFsm.took.toFixed(1)} per cent of eligible pupils took a free meal on census day.</p>}
+                <p style={{ margin: 0 }}>Source: Department for Education, Schools, pupils and their characteristics. <Link href="/councils/free-school-meals" prefetch={false} style={inkLink}>Every council area</Link>.</p>
+              </div>
+            )}
           </>
         )}
 

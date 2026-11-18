@@ -18,6 +18,8 @@ import CouncilEhcpSection from '../../components/CouncilEhcpSection';
 import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
 import CouncilRoadConditionSection from '../../components/CouncilRoadConditionSection';
 import CouncilChildrenInCareSection from '../../components/CouncilChildrenInCareSection';
+import CouncilFreeSchoolMealsSection from '../../components/CouncilFreeSchoolMealsSection';
+import CouncilYouthJusticeSection from '../../components/CouncilYouthJusticeSection';
 import CouncilFlyTippingSection from '../../components/CouncilFlyTippingSection';
 import CouncilPipMobilitySection from '../../components/CouncilPipMobilitySection';
 import CouncilBlueBadgesSection from '../../components/CouncilBlueBadgesSection';
@@ -87,6 +89,7 @@ export function panelParts(tab: CouncilLazyTab, { c, parent, children }: PanelCo
     case 'crime':
       return [
         part(CouncilCrimeSection, { gssCodes: ownOrDistricts, population: c.population, isCounty }, updated('council_crime_stats', 'updated_at')),
+        part(CouncilYouthJusticeSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_youth_first_entrants', 'updated_at'))),
         part(CouncilRoadCasualtiesSection, { gssCode: c.gss_code, ...pointer }, own(updated('council_road_casualties', 'synced_at'))),
         part(CouncilRoadConditionSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_road_condition', 'updated_at'))),
         part(CouncilFlyTippingSection, { gssCode: c.gss_code, country: c.country }, c.country === 'England' || c.country === 'Wales' ? { period: ['council_fly_tipping', 'year'] } : null),
@@ -94,6 +97,7 @@ export function panelParts(tab: CouncilLazyTab, { c, parent, children }: PanelCo
     case 'schools':
       return [
         part(CouncilSchoolInspectionsSection, { gssCode: c.gss_code, ...pointer, fullListHref: `/councils/${c.slug}/schools` }, own(updated('school_inspections', 'synced_at'))),
+        part(CouncilFreeSchoolMealsSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('area_free_school_meals', 'updated_at'))),
         part(CouncilChildrenInCareSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_children_in_care', 'updated_at'))),
         part(CouncilEhcpSection, { gssCode: c.gss_code, ...pointer }, own(updated('council_ehcp', 'imported_at'))),
       ];
