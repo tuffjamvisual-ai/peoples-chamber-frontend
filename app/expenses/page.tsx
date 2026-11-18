@@ -206,7 +206,9 @@ export default async function ExpensesPage() {
            to a single column so columns don't render microscopically.
            !important overrides the inline columnCount:2. */
         @media ${phoneUpTo(767)} {
-          .pca-cols { column-count: 1 !important; column-rule: none !important; }
+          /* column-count: auto, not 1 (MOB-LISTS follow up, Cowork ENTRY 281, 18 Nov 2026): a one-column multi-column box
+             kept 25px of empty space under the folded leaderboard (3 of 10 rows shown); a plain block has none. */
+          .pca-cols { column-count: auto !important; column-rule: none !important; }
         }
       `}</style>
       {/* UX5 (T1-6, 11 Nov 2026): on phones the first five, then "Show all" (a native fold); from 640px up, as before. */}
