@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { ilikeWords } from '@/lib/ilike-words';
+import { searchMpNames } from '@/lib/search/lists';
 import { displayMpName } from '@/lib/mp-name';
 
 export const dynamic = 'force-dynamic';
@@ -20,38 +19,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
-  // Strip characters with special meaning in PostgREST's ilike/or filter
-  // syntax (% and _ are ilike wildcards, commas and parentheses
-  // separate/group .or() conditions) — same sanitisation already used by
-  // app/api/councils/search/route.ts and app/mps/[id]/page.tsx.
-  // Words in order, any punctuation between (lib/ilike-words.ts, T1-QA9 A11).
-  const pattern = ilikeWords(q);
-  const safe = pattern.replace(/%/g, '');
-  if (safe.length < 2) {
-    return NextResponse.json({ results: [] });
-  }
-
-  const { data, error } = await supabase
-    .from('mps')
-    .select('member_id, name, constituency, party')
-    .or(`name.ilike.${pattern},constituency.ilike.${pattern}`)
-    // current_member is null for older/legacy rows that predate the
-    // column, so "not false" (rather than "is true") is what actually
-    // means "current", same convention as app/topics/[slug]/page.tsx.
-    // A plain .not() filter here (rather than a second .or()) keeps this
-    // unambiguously ANDed with the name/constituency match above —
-    // chaining two .or() calls isn't used anywhere else in this
-    // codebase, so it wasn't worth relying on for this.
-    .not('current_member', 'eq', false)
-    .order('name', { ascending: true })
-    .limit(8);
-
-  if (error) {
-    console.error('mps search error:', error.message);
+  // Name, seat and party, every word in any order at word starts, a one letter typo only if nothing matches (SEARCH-ALL
+  // batch 2, lib/search/lists.ts: the 650 sitting MPs held in one cache, searched in memory).
+  let data: Awaited<ReturnType<typeof searchMpNames>>['matches'];
+  try {
+    data = (await searchMpNames(q, 8)).matches;
+  } catch (e) {
+    console.error('mps search error:', (e as Error).message);
     return NextResponse.json({ error: 'db', message: 'Database error' }, { status: 500 });
   }
 
-  const results = (data || []).map((r) => ({
+  const results = data.map((r) => ({
     memberId: r.member_id,
     name: displayMpName(r.name),
     constituency: r.constituency,

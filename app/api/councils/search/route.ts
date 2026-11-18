@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { ilikeWords } from '@/lib/ilike-words';
+import { searchCouncilNames } from '@/lib/search/lists';
 import { councilsForPlaces } from '@/lib/council-places';
 
 export const dynamic = 'force-dynamic';
@@ -20,36 +19,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
-  // Strip characters that have special meaning in PostgREST's ilike/or
-  // filter syntax (% and _ are ilike wildcards, commas and parentheses
-  // separate/group .or() conditions) so a search term containing them
-  // can't break the filter string or search with an unintended wildcard.
-  // Same sanitisation app/mps/[id]/page.tsx already applies for the same
-  // reason.
-  // Words in order, any punctuation between (lib/ilike-words.ts, T1-QA9 A11).
-  const pattern = ilikeWords(q);
-  const safe = pattern.replace(/%/g, '');
-  if (safe.length < 2) {
-    return NextResponse.json({ results: [] });
-  }
-
-  // Council names, and towns and villages with their council (ENTRY 308), side by side; names are listed first.
-  const [{ data, error }, places] = await Promise.all([
-    supabase
-      .from('councils')
-      .select('slug, name, short_name, type_label, country')
-      .or(`name.ilike.${pattern},short_name.ilike.${pattern}`)
-      .order('name', { ascending: true })
-      .limit(8),
-    councilsForPlaces(q),
-  ]);
-
-  if (error) {
-    console.error('councils search error:', error.message);
+  // Council names (SEARCH-ALL batch 2: every word in any order at word starts, a one letter typo only if nothing matches,
+  // lib/search/lists.ts), and towns and villages with their council (ENTRY 308), side by side; names are listed first.
+  let names: Awaited<ReturnType<typeof searchCouncilNames>>;
+  let places: Awaited<ReturnType<typeof councilsForPlaces>>;
+  try {
+    [names, places] = await Promise.all([searchCouncilNames(q, 8), councilsForPlaces(q)]);
+  } catch (e) {
+    console.error('councils search error:', (e as Error).message);
     return NextResponse.json({ error: 'db', message: 'Database error' }, { status: 500 });
   }
+  const data = names.matches;
 
-  const results = (data || []).map((r) => ({
+  const results = data.map((r) => ({
     slug: r.slug,
     name: r.name,
     shortName: r.short_name,

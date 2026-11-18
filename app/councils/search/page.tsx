@@ -7,8 +7,7 @@
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
-import { ilikeWords } from '@/lib/ilike-words';
+import { searchCouncilNames } from '@/lib/search/lists';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import CouncilSearch from '../../components/CouncilSearch';
@@ -38,25 +37,15 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
+// Every word in any order at word starts, a one letter typo only if nothing matches (SEARCH-ALL batch 2,
+// lib/search/lists.ts, the same as the box's suggestions); every match shown (at most 382 councils).
 async function search(q: string): Promise<Council[]> {
-  if (q.trim().length < 2) return [];
-  // Same sanitisation as /api/councils/search, for the same reason:
-  // strip characters with special meaning in PostgREST's ilike/or syntax.
-  // Words in order, any punctuation between (lib/ilike-words.ts, T1-QA9 A11).
-  const pattern = ilikeWords(q);
-  const safe = pattern.replace(/%/g, '');
-  if (safe.length < 2) return [];
-  const { data, error } = await supabase
-    .from('councils')
-    .select('slug, name, short_name, type_label, country')
-    .or(`name.ilike.${pattern},short_name.ilike.${pattern}`)
-    .order('name', { ascending: true })
-    .limit(50);
-  if (error) {
-    console.error('councils search page error:', error.message);
+  try {
+    return (await searchCouncilNames(q, 1000)).matches as Council[];
+  } catch (e) {
+    console.error('councils search page error:', (e as Error).message);
     return [];
   }
-  return (data || []) as Council[];
 }
 
 export default async function CouncilSearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
