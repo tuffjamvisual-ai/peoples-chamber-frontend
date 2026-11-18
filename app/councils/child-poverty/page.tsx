@@ -1,8 +1,10 @@
 // /councils/child-poverty: every council ranked by the share of children under 16 in low income families after housing
 // costs (owner approved 18 Nov 2026, Cowork ENTRY 317), modelled on /councils/children-in-care. No new data: the
 // council_child_poverty table the council pages read (DWP Children in Low Income Families, local area statistics).
-// County councils are summed from their districts, weighted (count / percentage), as on the council pages; districts are
-// listed under their own names too, as each has its own council page. Country figures are their councils added up the
+// County councils are summed from their districts, weighted (count / percentage), as on the council pages. Two ranked
+// lists (Cowork ENTRY 325): councils that run children's services (counties, unitaries, metropolitan and London boroughs,
+// and the Welsh, Scottish and Northern Irish councils), the headline ranking as on /councils/children-in-care; and district
+// councils, ranked among districts only, each naming its county. Country figures are their councils added up the
 // same way (the table holds no country rows). Wording in lib/child-poverty.ts, shared with the council section.
 
 import PageSources from '@/app/components/PageSources';
@@ -20,7 +22,7 @@ import {
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
-import ChildPovertyTable, { type PovertyTableRow } from './ChildPovertyTable';
+import ChildPovertyTables, { type PovertyTableRow } from './ChildPovertyTable';
 
 export const revalidate = false; // A16: rebuilt only when council data changes (council-data and table tags), or on a deploy
 
@@ -58,7 +60,8 @@ export default async function ChildPovertyPage() {
   const codesOf = (c: (typeof councils)[number]): string[] =>
     c.type === 'county' ? councils.filter((d) => d.parent_slug === c.slug && d.gss_code && held.has(d.gss_code)).map((d) => d.gss_code!) : c.gss_code && held.has(c.gss_code) ? [c.gss_code] : [];
 
-  const table: PovertyTableRow[] = councils.flatMap((c) => {
+  const countyBySlug = new Map(councils.filter((c) => c.type === 'county').map((c) => [c.slug, c.short_name || c.name]));
+  const table: (PovertyTableRow & { district: boolean })[] = councils.flatMap((c) => {
     const codes = codesOf(c);
     if (!codes.length) return [];
     const ahc = combine(rows, codes, 'relative_ahc', latest);
@@ -66,7 +69,8 @@ export default async function ChildPovertyPage() {
     const bhcFirst = combine(rows, codes, 'relative_bhc', FIRST_COMPARABLE_FYE);
     if (!ahc && !bhc) return [];
     const change = bhc?.pct != null && bhcFirst?.pct != null ? Math.round((bhc.pct - bhcFirst.pct) * 10) / 10 : null;
-    return [{ code: c.gss_code ?? c.slug, name: c.short_name || c.name, slug: c.slug, county: c.type === 'county', ahcPct: ahc?.pct ?? null, bhcPct: bhc?.pct ?? null, ahcCount: ahc?.count ?? null, change }];
+    const district = c.type === 'district';
+    return [{ code: c.gss_code ?? c.slug, name: c.short_name || c.name, slug: c.slug, county: c.type === 'county', district, countyName: district && c.parent_slug ? countyBySlug.get(c.parent_slug) ?? null : null, ahcPct: ahc?.pct ?? null, bhcPct: bhc?.pct ?? null, ahcCount: ahc?.count ?? null, change }];
   }).sort((a, b) => (b.ahcPct ?? -1) - (a.ahcPct ?? -1) || a.name.localeCompare(b.name));
 
   // Each country: every council of its own added up (districts, never their counties, so nobody is counted twice).
@@ -99,15 +103,16 @@ export default async function ChildPovertyPage() {
           {' '}Each country&rsquo;s figure is its councils added up.
         </p>
 
-        <section style={section}>
-          <h2 style={h2}>Every council, {fyLabel(latest)}</h2>
-          <ChildPovertyTable rows={table} changeLabel={changeLabel} />
-          <p style={{ ...para, marginTop: '10px' }}>
-            Ranked by the share of children after housing costs, highest first. County councils are the total of their district councils, which are also listed under their own names.
-            {eng?.bhc?.pct != null && eng.first?.pct != null && ` England before housing costs: ${fmtPct(eng.first.pct)} in ${fyLabel(FIRST_COMPARABLE_FYE)}, ${fmtPct(eng.bhc.pct)} in ${fyLabel(latest)}.`}
-            {' '}The change is shown before housing costs because the figure after housing costs is held only from {fyLabel(latest - 1)}.
-          </p>
-        </section>
+        <ChildPovertyTables changeLabel={changeLabel} lists={[
+          {
+            id: 'cpov-a', heading: `Councils, ${fyLabel(latest)}`, rows: table.filter((r) => !r.district),
+            note: `County councils (the total of their district councils), unitary councils, metropolitan and London boroughs (in England these run children's services), and every council in Wales, Scotland and Northern Ireland. Ranked by the share of children after housing costs, highest first.${eng?.bhc?.pct != null && eng.first?.pct != null ? ` England before housing costs: ${fmtPct(eng.first.pct)} in ${fyLabel(FIRST_COMPARABLE_FYE)}, ${fmtPct(eng.bhc.pct)} in ${fyLabel(latest)}.` : ''} The change is shown before housing costs because the figure after housing costs is held only from ${fyLabel(latest - 1)}.`,
+          },
+          {
+            id: 'cpov-b', heading: 'District councils', rows: table.filter((r) => r.district),
+            note: 'District councils in England, ranked among districts only; each is part of the county council named beside it, whose figure in the list above is the total of its districts.',
+          },
+        ]} />
 
         <section style={section}>
           <h2 style={h2}>About these figures</h2>

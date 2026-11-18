@@ -15,7 +15,8 @@ export const FIRST_COMPARABLE_FYE = 2022;
 // "2024 to 2025" (house style, T1-5x).
 export const fyLabel = (fye: number) => `${fye - 1} to ${fye}`;
 export const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
-export const fmtPct = (p: number | null) => (p == null ? 'n/a' : `${p.toFixed(1)}%`);
+// 'per cent', never '%', in our own text (house style; Cowork ENTRY 325).
+export const fmtPct = (p: number | null) => (p == null ? 'not published' : `${p.toFixed(1)} per cent`);
 
 // What the figure counts, as on the council section's "About these figures" fold.
 export const EXPLAINER =
