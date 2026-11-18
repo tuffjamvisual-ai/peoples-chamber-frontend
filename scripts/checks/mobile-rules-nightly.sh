@@ -24,6 +24,12 @@ for i in $(seq 1 60); do if mkdir "$LOCK" 2>/dev/null; then got=1; break; fi; sl
 [ $got = 1 ] || { echo "$(uk) GMT T1 NIGHTLY MOB-RULES $DAY: skipped (a push held PUSH.lock for 60 minutes)" >> "$ST"; exit 0; }
 echo "mobile-rules-nightly $DAY" > "$LOCK/owner.txt"
 
+# A run killed outright (SIGKILL) skips its cleanup: clear what an earlier run left (its .env.local and worktree; T2, 03:28).
+for old in /Volumes/EDGE_SSD/opengovt-work/claude-tmp/rules-nightly-*; do
+  [ -d "$old" ] || continue
+  rm -f "$old/.env.local"; (cd "$REPO" && git worktree remove --force "$old" >/dev/null 2>&1); rm -rf "$old"
+done
+(cd "$REPO" && git worktree prune >/dev/null 2>&1)
 WT=$(mktemp -d /Volumes/EDGE_SSD/opengovt-work/claude-tmp/rules-nightly-XXXX)
 SERVER=""
 cleanup() {
