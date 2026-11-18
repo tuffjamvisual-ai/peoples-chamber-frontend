@@ -305,7 +305,9 @@ window.__ogPhone=function(buttons){
     here=location.href;
     if(location.pathname!==path){path=location.pathname;opened=false;clearTimeout(wait);wait=setTimeout(function(){wait=0;if(narrow())shorten()},1000)}
   }
-  if(!narrow()){if(listsWide())lists(!!buttons);return}
+  // From 1,024px every list shows whole (owner approved 18 Nov 2026, ENTRY 302): MoreChain's later folds are opened (their
+  // summaries are hidden there, globals.css); browsers with ::details-content show them without this.
+  if(!narrow()){if(listsWide())lists(!!buttons);else [].forEach.call(document.querySelectorAll('details.mc-more:not([open])'),function(d){d.open=true});return}
   tables();links();lists(!!buttons);
   if(buttons&&!wait)shorten();
 };

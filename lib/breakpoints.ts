@@ -28,16 +28,17 @@ export const PHONE = phoneUpTo(767.98);
 // 1,023px wide (and phones held sideways). The shared list folds use it: NoJsPager's 'Show all', PhoneMore, ScreenMore,
 // MoreChain (globals.css) and the phone script's long lists. Section folds, tables as cards and the rest stay at PHONE.
 // From 1,024px up nothing changes.
-// D5 (owner approved 16 Nov 2026, COWORK-TO-T1 ENTRY 161, DECISIONS 15 Nov: lists open with 3, Show N more adds 10, Show
-// fewer at the end, at EVERY width): the list folds now apply on desktop too; was phoneUpTo(1023.98).
-export const LIST_FOLD = 'all';
-// Short lists whole on desktop (owner approved 18 Nov 2026, Cowork ENTRY 286 item 1): from 1,024px a list of 25 or fewer shows
-// whole, with no count or button; over 25 it keeps the D5 fold at every width. Under 1,024px every list folds as before. The
-// fold components take their media from listFoldFor(rows), and mark the controls of a short list .og-fold-short, which
-// globals.css hides from 1,024px.
+// Desktop shows every list whole (owner approved 18 Nov 2026, Cowork ENTRY 302 item 2, DECISIONS 18 Nov): the list folds
+// apply under 1,024px only, whatever the list's length. D5 (16 Nov, ENTRY 161) had made them every width, and ENTRY 286
+// (18 Nov) had kept that for lists of more than 25. Under 1,024px a list opens with 3 always (ENTRY 302 item 1).
+export const LIST_FOLD = '(max-width: 1023.98px)';
+// Kept for the callers of ENTRY 286: every list now folds only under 1,024px, and every fold's count and buttons carry
+// .og-fold-short, which globals.css hides from 1,024px.
 export const DESK_WHOLE = 25;
-export const listFoldFor = (rows: number) => (rows > DESK_WHOLE ? LIST_FOLD : '(max-width: 1023.98px)');
-export const foldShort = (rows: number) => (rows > DESK_WHOLE ? undefined : 'og-fold-short');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const listFoldFor = (rows: number) => LIST_FOLD;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const foldShort = (rows: number) => 'og-fold-short';
 // Touch sizes (owner approved 15 Nov 2026, COWORK-TO-T1 ENTRY 135 H1, "Layout change approved T1-MOBILEFIX"): every tap
 // target at least 44 x 44px and every text box and menu at 16px, on phones and tablets up to 1,023px wide and on any
 // screen with a coarse pointer (a touch screen of any size). The plain CSS files repeat these exact words.

@@ -202,8 +202,9 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .mc-phone, .mc-n-phone, .mc-n-js { display: none; }
 /* The chain stepped 10 a press with JavaScript (lib/phone-enhance.ts, Cowork ENTRY 152): rows past the step and the opened folds' own summaries. */
 .mc-h, .mc-more.mc-js > summary { display: none !important; }
-/* D5 (owner approved 16 Nov 2026, ENTRY 161: lists open with 3 at every width): was up to 1,023px only. */
-@media all {
+/* Phones and tablets only: desktop shows every list whole (owner approved 18 Nov 2026, ENTRY 302); D5 (16 Nov, ENTRY 161) had
+   made this every width. */
+@media (max-width: 1023.98px) {
   .mc-phone { display: block; }
   .mc-n-phone { display: inline; }
   .mc-n-wide { display: none; }
@@ -219,9 +220,13 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
   .mc-first.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4) { display: none !important; }
   .mc-first.mc-pf1.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+2), .mc-first.mc-pf2.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+3), .mc-first.mc-pf3.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+4), .mc-first.mc-pf4.mc-short:has(+ .mc-more:not([open]), + .og-more-count + .mc-more:not([open])):not(:has(:target)) > :nth-child(n+5) { display: none !important; }
 }
-/* From 1,024px a list of 25 or fewer shows whole (owner approved 18 Nov 2026, ENTRY 286; lib/breakpoints.ts foldShort): its
-   count and Show more / Show fewer are hidden there. */
-@media (min-width: 1024px) { .og-fold-short { display: none !important; } }
+/* From 1,024px every list shows whole (owner approved 18 Nov 2026, ENTRY 286 and 302; lib/breakpoints.ts): every fold's count
+   and Show more / Show fewer are hidden there (.og-fold-short), MoreChain's later folds are opened (lib/phone-enhance.ts; in
+   browsers with ::details-content, with no script) and their summaries hidden. */
+@media (min-width: 1024px) {
+  .og-fold-short, .mc-more > summary, .mc-phone, .njp-sa { display: none !important; }
+  .mc-more::details-content { content-visibility: visible; display: contents; }
+}
 /* Long lists and sections on phones with JavaScript off (app/components/NoJsPager.tsx). Nothing here changes any other view. */
 .njp-a, .njp-nav, .njf { display: none; }
 .njf > summary::-webkit-details-marker { display: none; }
@@ -277,8 +282,9 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 /* NoJsPager "Show all" (MP2f, 9 Nov 2026): on phones and tablets (up to 1,023px, T1-TABFOLD, owner approved 13 Nov 2026), a
    native <details> after a long list's first rows; nothing from 1,024px up. */
 .njp-sa { display: none; }
-/* D5 (owner approved 16 Nov 2026, ENTRY 161: lists open with 3 at every width): was up to 1,023px only. */
-@media all {
+/* Phones and tablets only: desktop shows every list whole (owner approved 18 Nov 2026, ENTRY 302); D5 (16 Nov, ENTRY 161) had
+   made this every width. */
+@media (max-width: 1023.98px) {
   .njp-sa { display: block; margin: 10px 0 14px; }
   .njp-sa > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; color: #14100d; cursor: pointer; list-style: none; }
   .njp-sa > summary::-webkit-details-marker { display: none; }
@@ -312,8 +318,9 @@ html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
 .pc-d { display: none; }
 .pc-b { display: contents; }
 /* Phones and tablets (T1-GUARD, owner approved 13 Nov 2026: tablets follow the growing lists rule, as T1-TABFOLD): up to 1,023px. */
-/* D5 (owner approved 16 Nov 2026, ENTRY 161: lists open with 3 at every width): was up to 1,023px only. */
-@media all {
+/* Phones and tablets only: desktop shows every list whole (owner approved 18 Nov 2026, ENTRY 302); D5 (16 Nov, ENTRY 161) had
+   made this every width. */
+@media (max-width: 1023.98px) {
   .pc-d { display: block; }
   .pc-b { display: block; }
   .pc-d:not([open]) + .pc-b { display: none; }
@@ -551,8 +558,9 @@ summary:has(> .og-fold-mark)::-webkit-details-marker { display: none; }
 .st-less { display: none; }
 details[open] > summary .st-less { display: inline; }
 details[open] > summary .st-more { display: none; }
-/* D5 (owner approved 16 Nov 2026, ENTRY 161: lists open with 3 at every width): was up to 1,023px only. */
-@media all {
+/* Phones and tablets only: desktop shows every list whole (owner approved 18 Nov 2026, ENTRY 302); D5 (16 Nov, ENTRY 161) had
+   made this every width. */
+@media (max-width: 1023.98px) {
   /* The phone Show more and Show fewer buttons (PhoneMore, lib/phone-enhance.ts) on tablets too, where the lists step
      (ENTRY 135 M7). The tablet rule above sits inside the phone query, so on tablets from 768px the button was hidden
      while its list stayed cut: /donors showed 5 of 200 rows with no button (found 16 Nov 2026, Cowork ENTRY 152 item 1). */

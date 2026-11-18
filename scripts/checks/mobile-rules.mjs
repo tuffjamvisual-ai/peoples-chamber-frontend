@@ -6,14 +6,14 @@
 //   lists    a list control other than "Show N more" (N at most 10) and "Show fewer" (a show-all, "Show 241 more", ...),
 //            or a "Show N more" without its count beside it ("3 of 241"), or a count whose first number is not 3;
 //            the list rule by width (owner, 18 Nov 2026, Cowork ENTRY 282 and 283): under 1,024px a list of 4 or more opens
-//            with 3, so a list showing more than 3 items whole is a finding; from 1,024px the page script folds no list
-//            (owner chose (b), ENTRY 285), so a list shown whole there is not a finding, and a fold on a list of 25 or fewer
-//            ('3 of 12', the server's D5 folds, open with the owner) still is. The MPs party view's own desktop fold
+//            with 3, so a list showing more than 3 items whole is a finding; from 1,024px every list shows whole (owner
+//            approved 18 Nov 2026, ENTRY 302), so a list shown whole there is not a finding and any fold there is. The MPs party view's own desktop fold
 //            (ENTRY 284: 20, then 'Show 20 more', .mpp-desk) is held to that: N at most 20 and a count beside it. Lists
 //            that stay whole by the owner's decision are not counted: nav, menus, footer, <details>, section folds
 //            (.pf-list), [data-own-more], an article's running text, and the 'lists' entries of mobile-rules-exceptions.json
 //   width    the document is wider than the screen
-//   height   the page is taller than 2,500px on a phone or 3,000px on the tablet
+//   height   the page is taller than 2,500px on a phone or 3,000px on the tablet (not on page types with a 'height'
+//            exception: their lists open with 3 however long that makes the page, ENTRY 302)
 //   back     the back arrow's link leaves the page's own section (the route's first part, or mobile-rules-sections.json)
 //   order    the reading order (the order of the body's links, controls and headings in the HTML) differs from the order
 //            shown: an item shown above the one before it, and not beside it or in a column to its right
@@ -117,7 +117,7 @@ function measure({ excSelectors, listSelectors }) {
           const n = /^([\d,]+) of ([\d,]+)$/.exec(text(c));
           if (!n) out.lists.push(`count '${text(c)}' is not 'N of M' beside ${name(e)}`);
           else if (Number(n[1].replace(/,/g, '')) !== 3) out.lists.push(`opens with ${n[1]} of ${n[2]}, not 3: ${name(e)}`);
-          else if (desk && Number(n[2].replace(/,/g, '')) <= 25) out.lists.push(`a list of ${n[2]} folds from 1,024px (only lists of more than 25 fold there): ${name(e)}`);
+          else if (desk) out.lists.push(`a list of ${n[2]} folds from 1,024px (every list shows whole there, ENTRY 302): ${name(e)}`);
         }
       }
     }
@@ -128,7 +128,7 @@ function measure({ excSelectors, listSelectors }) {
   for (const l of document.querySelectorAll('.ng-page ul, .ng-page ol, .ng-page tbody')) {
     if (l.closest(OWN) || chrome(l) || inClosed(l) || !vis(l) || listExc(l)) continue;
     const shown = [...l.children].filter((c) => vis(c)).length;
-    if (shown > FOLD_ABOVE) out.lists.push(`a list of ${shown} shown whole (${desk ? 'from 1,024px lists of more than 25 fold' : 'under 1,024px lists of 4 or more open with 3'}): ${l.tagName.toLowerCase()}${typeof l.className === 'string' && l.className ? '.' + l.className.trim().split(/\s+/)[0] : ''} "${text(l).slice(0, 40)}"`);
+    if (shown > FOLD_ABOVE) out.lists.push(`a list of ${shown} shown whole (under 1,024px lists of 4 or more open with 3): ${l.tagName.toLowerCase()}${typeof l.className === 'string' && l.className ? '.' + l.className.trim().split(/\s+/)[0] : ''} "${text(l).slice(0, 40)}"`);
   }
   for (let i = 1; i < items.length; i++) {
     const a = items[i - 1], b = items[i];
@@ -168,7 +168,9 @@ for (const pg of list) {
       if (kind === 'desktop') { await ctx.close(); continue; }
       for (const d of m.taps) add('taps', d);
       if (m.width > 0) add('width', `${m.width}px wider than the screen`);
-      if (m.height > MAX_HEIGHT[kind]) add('height', `${m.height}px (limit ${MAX_HEIGHT[kind]})`);
+      // A 'height' exception lifts the length limit for its page type (owner approved 18 Nov 2026, ENTRY 302: lists open with 3
+      // even where that makes the page longer).
+      if (m.height > MAX_HEIGHT[kind] && !excFor.some((x) => x.rule === 'height')) add('height', `${m.height}px (limit ${MAX_HEIGHT[kind]})`);
       if (m.back && !backOk(m.back, sectionOf(pg.route))) add('back', `back arrow goes to ${m.back}, outside ${sectionOf(pg.route).join(' or ')}`);
       for (const d of m.order) add('order', d);
       if (w === 390 && m.primary != null && m.primary >= h) add('primary', `primary control starts at ${m.primary}px, below the first screen (${h}px)`);

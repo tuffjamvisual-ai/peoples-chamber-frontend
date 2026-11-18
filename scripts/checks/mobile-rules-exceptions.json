@@ -90,6 +90,42 @@
       "route": "/register-history",
       "selector": "a[href=\"https://www.mysociety.org/\"]",
       "reason": "MOB-TAPS (Cowork ENTRY 276): its tap area is cut back to meet a neighbouring link's halfway, so a tap lands on the nearer link: measured 24px at 390/768 on /register-history ('mySociety'). Floor 24px."
+    },
+    {
+      "rule": "height",
+      "route": "/laws",
+      "selector": "html",
+      "reason": "Lists open with 3 always; the page length limit is lifted on this page type, where 3 items make it longer (owner approved 18 Nov 2026, Cowork ENTRY 302 item 1)."
+    },
+    {
+      "rule": "height",
+      "route": "/transparency/press-releases",
+      "selector": "html",
+      "reason": "Lists open with 3 always; the page length limit is lifted on this page type, where 3 items make it longer (owner approved 18 Nov 2026, Cowork ENTRY 302 item 1)."
+    },
+    {
+      "rule": "height",
+      "route": "/treaties",
+      "selector": "html",
+      "reason": "Lists open with 3 always; the page length limit is lifted on this page type, where 3 items make it longer (owner approved 18 Nov 2026, Cowork ENTRY 302 item 1)."
+    },
+    {
+      "rule": "height",
+      "route": "/polls",
+      "selector": "html",
+      "reason": "Lists open with 3 always; the page length limit is lifted on this page type, where 3 items make it longer (owner approved 18 Nov 2026, Cowork ENTRY 302 item 1)."
+    },
+    {
+      "rule": "height",
+      "route": "/polls/voting-intention",
+      "selector": "html",
+      "reason": "Lists open with 3 always; the page length limit is lifted on this page type, where 3 items make it longer (owner approved 18 Nov 2026, Cowork ENTRY 302 item 1)."
+    },
+    {
+      "rule": "height",
+      "route": "/pmqs/[date]",
+      "selector": "html",
+      "reason": "Lists open with 3 always; the page length limit is lifted on this page type, where 3 items make it longer (owner approved 18 Nov 2026, Cowork ENTRY 302 item 1)."
     }
   ]
 }

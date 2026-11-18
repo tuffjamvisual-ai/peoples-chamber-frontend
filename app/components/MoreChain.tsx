@@ -33,7 +33,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
   const Tag = ordered ? 'ol' : 'ul';
   // The count before the chain's first fold (ENTRY 239 A4, MOB-LISTS): '3 of 120' on phones and tablets with JavaScript (it
   // is hidden elsewhere, globals.css .og-more-count); lib/phone-enhance.ts updates it and keeps it above the buttons.
-  const count = (total: number) => <p className="og-more-count" aria-live="polite">{pf.toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}</p>;
+  const count = (total: number) => <p className="og-more-count og-fold-short" aria-live="polite">{pf.toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}</p>;
   const list = (some: ReactNode[], firstList = false, mark = false, short = false) => <Tag className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : '', short ? 'mc-short' : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
   if (items.length <= opening) {
     if (phoneOnly || items.length <= pf) return list(items, false, mainAction);

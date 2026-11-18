@@ -329,6 +329,9 @@ function PartyFold({ total, startIdx, pageCount, requestedPage }: { total: numbe
     phoneFolds ? `  html.og-js ${g} > :nth-child(n+${startIdx + Math.min(phone, pageCount) + 1}) { display: none !important; }` : '',
     '}',
     deskFolds ? `@media ${DESK} { html.og-js ${g} > :nth-child(n+${desk + 1}) { display: none !important; } }` : '',
+    // Its own desktop button styles: the shared ones (globals.css) are phones and tablets only since every other list shows
+    // whole on desktop (ENTRY 302); this view is the owner's one desktop fold (ENTRY 284).
+    deskFolds ? `@media ${DESK} { html.og-js .mpp-desk .og-phone-more { display: block; width: 100%; min-height: 44px; margin: 12px 0 8px; padding: 8px 12px; font-family: inherit; font-size: 15px; font-weight: bold; color: #14100d; background: transparent; border: 1px solid #14100d; cursor: pointer; } html.og-js .mpp-desk .og-more-count { display: block; margin: 12px 0 0; font-size: 15px; color: #14100d; } html.og-js .mpp-desk .og-more-count + .og-phone-more { margin-top: 6px; } }` : '',
   ].join('\n');
 
   const phoneLeft = pageCount - phone;
