@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { NoJsFold } from '@/app/components/NoJsPager';
 import { useRouter } from 'next/navigation';
 import { wordsOf, anyWordMatches } from '@/lib/search/words';
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
@@ -270,9 +271,13 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
               <h2 className="reports-mh" style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 'bold', color: INK, borderBottom: `1px solid ${INK_HAIRLINE}`, padding: mi === firstShownMonth ? '0 0 8px' : '28px 0 8px', margin: 0 }}>
                 {m.label}
               </h2>
+              {/* Phones with JavaScript off only (NoJsFold without 'always'): each month folded under 'N reports', the first
+                  open, so the page is not 40,000px long; with JavaScript there are no month folds (ENTRY 306). */}
+              <NoJsFold id={`rf-${m.key}`} label={`${m.idx.length} ${m.idx.length === 1 ? 'report' : 'reports'}`} open={mi === 0}>
               <div className="reports-month-grid">
                 {m.idx.map((i) => card(i, mi === firstShownMonth && i === m.idx.find((k) => onPage[k]), onPage[i]))}
               </div>
+              </NoJsFold>
             </section>
           );
         })}
