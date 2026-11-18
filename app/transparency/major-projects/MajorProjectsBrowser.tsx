@@ -70,7 +70,6 @@ const PHONE_PAGE = 3;
 // Phones and tablets (T1-GUARD, owner approved 13 Nov 2026: tablets up to 1,023px get the same cards and 'Show all').
 const CARD_CSS = `.mpb-card, .mpb-phone-name { display: none; }
 @media ${phoneUpTo(1023.98)} {
-  body:has(.njp-sa-mpb:not([open])) .mpb-over { display: none !important; }
   .mpb-phone-name { display: inline; }
   .mpb-wide { display: none; }
   .mpb-card { display: block; }
@@ -207,6 +206,11 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
   return (
     <>
       <style>{CARD_CSS}</style>
+      {/* Phones and tablets (owner approved 18 Nov 2026, ENTRY 286: lists open with 3, Show 10 more with the count, Show fewer):
+          projects past phoneLimit carry .mpb-over and are hidden while the no-JavaScript 'Show N more' fold is closed; with
+          JavaScript that fold stays closed (hidden) and the buttons below move phoneLimit on by 10. Was 'Show 258 more', all
+          at once. From 1,024px every project shows, as before, and the controls are hidden there (.og-fold-short). */}
+      <style>{`@media ${phoneUpTo(1023.98)} { body:has(.njp-sa-mpb:not([open])) .mpb-over { display: none !important; } } html.og-js .njp-sa-mpb { display: none !important; } @media (min-width: 1024px) { .njp-sa-mpb { display: none !important; } }`}</style>
       {/* The search box stays in view; on phones the dropdowns and the checkbox fold under 'Filter projects' (T1-GUARD, Cowork
           13 Nov 2026). The fold is inside the same row, and from 768px up it has no box, so the row is as before. */}
       <style>{`@media ${phoneUpTo(767.98)} { .mpb-filters > .pf-sd, .mpb-filters > .pf-sb { flex: 1 1 100%; } .mpb-filters { align-items: stretch !important; } }`}</style>
@@ -290,6 +294,21 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
           </section>
         );
       })}
+      {count > PHONE_PAGE && (
+        <>
+          <p className={'og-more-count og-fold-short'} aria-live="polite">{Math.min(phoneLimit, count).toLocaleString('en-GB')} of {count.toLocaleString('en-GB')}</p>
+          {phoneLimit < count && (
+            <button type="button" className={'og-phone-more og-fold-short'} onClick={() => setPhoneLimit((l) => l + 10)}>
+              Show {Math.min(10, count - phoneLimit).toLocaleString('en-GB')} more
+            </button>
+          )}
+          {phoneLimit > PHONE_PAGE && (
+            <button type="button" className={'og-phone-more og-fold-short'} onClick={() => setPhoneLimit(PHONE_PAGE)}>
+              Show fewer
+            </button>
+          )}
+        </>
+      )}
       {count > phoneLimit && <ShowAllDetails id="mpb" count={count} first={phoneLimit} />}
       {count === 0 && <p style={{ fontSize: '15px', margin: '0 0 28px' }}>No projects match.</p>}
     </>

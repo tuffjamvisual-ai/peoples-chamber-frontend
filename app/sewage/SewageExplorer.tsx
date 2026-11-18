@@ -11,6 +11,7 @@
 // area codes go in the link, never the postcode itself.
 
 import NoJsPager from '@/app/components/NoJsPager';
+import PhoneMore from '@/app/components/PhoneMore';
 import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
 import PhoneTable from '../components/PhoneTable';
@@ -39,7 +40,6 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 const MIN_FOR_AVERAGES = 10;
-const FIRST = 50;
 // From 768px up the league table was wider than the screen below about 1100px, with its last column cut off, as long
 // lists of water companies stayed on one line. Up to 1439px they now wrap, and anything still too wide scrolls inside the
 // table's own box (owner, 4 Nov 2026). Phones keep PhoneTable's scrolling table; 1440px and wider are unchanged.
@@ -99,7 +99,6 @@ type Lookup = { postcode: string; councilCode: string | null; councilName: strin
 export default function SewageExplorer({ tables, initialTable, initialSort = 'hours' }: { tables: ExplorerTable[]; initialTable?: string; initialSort?: SortKey }) {
   const [tableId, setTableId] = useState(initialTable && tables.some((t) => t.id === initialTable) ? initialTable : (tables[0]?.id ?? ''));
   const [sort, setSort] = useState<SortKey>(initialSort);
-  const [showAll, setShowAll] = useState(false);
   const [postcode, setPostcode] = useState('');
   const [busy, setBusy] = useState(false);
   const [lookup, setLookup] = useState<Lookup | null>(null);
@@ -162,7 +161,6 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
     return [...eligible].sort((a, b) => value(b) - value(a) || a.name.localeCompare(b.name));
   }, [table, sort]);
   const excluded = table ? table.rows.length - rows.length : 0;
-  const visible = showAll ? rows : rows.slice(0, FIRST);
 
   async function onSearch(e: FormEvent) {
     e.preventDefault();
@@ -263,13 +261,13 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
         <form method="get" action="/sewage/go" className="sew-pick" style={{ fontFamily: MONO, color: INK }} onSubmit={(e) => e.preventDefault()}>
           <label>
             Geography
-            <select name="table" value={table?.id ?? ''} onChange={(e) => { setTableId(e.target.value); setShowAll(false); }}>
+            <select name="table" value={table?.id ?? ''} onChange={(e) => { setTableId(e.target.value); }}>
               {tables.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
             </select>
           </label>
           <label>
             Measure
-            <select name="sort" value={sort} onChange={(e) => { setSort(e.target.value as SortKey); setShowAll(false); }}>
+            <select name="sort" value={sort} onChange={(e) => { setSort(e.target.value as SortKey); }}>
               {SORTS.map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}
             </select>
           </label>
@@ -277,7 +275,7 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
         </form>
         <div role="tablist" aria-label="Choose a table" className="sew-tabs" style={{ marginBottom: '10px' }}>
           {tables.map((t) => (
-            <button key={t.id} type="button" role="tab" aria-selected={t.id === table?.id} onClick={() => { setTableId(t.id); setShowAll(false); }} style={btn(t.id === table?.id)}>
+            <button key={t.id} type="button" role="tab" aria-selected={t.id === table?.id} onClick={() => { setTableId(t.id); }} style={btn(t.id === table?.id)}>
               {t.label}
             </button>
           ))}
@@ -285,7 +283,7 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
         <div aria-label="Sort by" className="sew-sorts" style={{ marginBottom: '10px' }}>
           <span style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginRight: '8px' }}>Sort by:</span>
           {SORTS.map((s) => (
-            <button key={s.key} type="button" aria-pressed={sort === s.key} onClick={() => { setSort(s.key); setShowAll(false); }} style={btn(sort === s.key)}>
+            <button key={s.key} type="button" aria-pressed={sort === s.key} onClick={() => { setSort(s.key); }} style={btn(sort === s.key)}>
               {s.label}
             </button>
           ))}
@@ -312,8 +310,8 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
                 <th style={th}>Water company</th>
               </tr>
             </thead>
-            <tbody>
-              {visible.map((r, i) => (
+            <tbody id="sew-tbody">
+              {rows.map((r, i) => (
                 <tr key={r.code}>
                   <td style={tdNum}>{i + 1}</td>
                   <td style={td}>{r.href ? <a href={r.href} style={{ color: INK }}>{r.name}</a> : r.name}</td>
@@ -330,8 +328,8 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
         </div>
         {/* Phones: the first 3, then "Show all" (step 5, 10 Nov 2026: page length). */}
         {/* Phones and tablets (ENTRY 239 A4, MOB-LISTS, owner rule 17 Nov 2026): every area is in the cards, which open with 3,
-            then Show 10 more and Show fewer (NoJsPager and lib/phone-enhance.ts); the desktop table keeps its first 50 and
-            the button below, which is hidden here (it said 'Show 238 more'). */}
+            then Show 10 more and Show fewer (NoJsPager and lib/phone-enhance.ts). The desktop table's own fold is below and
+            hidden here. */}
         <NoJsPager id="sew-league" count={rows.length} rows="> li" size={25} first={3}>
         <ol className="sew-cards" style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
           {rows.map((r, i) => (
@@ -353,11 +351,11 @@ export default function SewageExplorer({ tables, initialTable, initialSort = 'ho
           ))}
         </ol>
         </NoJsPager>
-        {rows.length > FIRST && (
-          <button type="button" className="sew-all" onClick={() => setShowAll((v) => !v)} style={{ ...btn(false), marginTop: '12px' }}>
-            {showAll ? `Show the first ${FIRST}` : `Show ${fmtInt(rows.length - FIRST)} more`}
-          </button>
-        )}
+        {/* The desktop table holds every area and folds as every list does (owner approved 18 Nov 2026, ENTRY 286: no
+            show-all buttons): 3, then Show 10 more with the count and Show fewer, for more than 25; 25 or fewer show whole
+            from 1,024px (PhoneMore). It was the first 50 and 'Show 238 more'. A new table or sort starts again (key).
+            Hidden under 1,024px with the table (.sew-all), where the cards have their own. */}
+        <div className="sew-all"><PhoneMore key={`${table?.id ?? ''}-${sort}`} selector="#sew-tbody" total={rows.length} /></div>
       </section>
     </div>
   );

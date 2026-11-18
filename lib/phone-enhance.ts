@@ -196,7 +196,9 @@ function shorten(){
 var STEP=10;
 function stepLabel(d,left){var m=d.querySelector('.st-more');if(!m)return;var n=Math.min(STEP,left),one=d.getAttribute('data-step-one'),many=d.getAttribute('data-step-many');m.textContent='Show '+n.toLocaleString('en-GB')+' more'+(one?' '+(n===1?one:many):'')}
 // The count before a stepped fold ('3 of 120', ENTRY 239 A4): what shows of the whole list.
-function stepCount(d,shown){var c=d.previousElementSibling;if(!c||!c.classList.contains('og-more-count'))return;var first=+d.getAttribute('data-step-from')-1,total=first+(+d.getAttribute('data-step-left'));c.textContent=Math.min(shown==null?total:first+shown,total).toLocaleString('en-GB')+' of '+total.toLocaleString('en-GB')}
+// data-step-total (DataList, ENTRY 286): the whole list's size where the fold holds only this page's rows; the count then
+// says what shows of the whole list ('13 of 812').
+function stepCount(d,shown){var c=d.previousElementSibling;if(!c||!c.classList.contains('og-more-count'))return;var first=+d.getAttribute('data-step-from')-1,end=first+(+d.getAttribute('data-step-left')),total=d.hasAttribute('data-step-total')?+d.getAttribute('data-step-total'):end;c.textContent=Math.min(shown==null?end:first+shown,end).toLocaleString('en-GB')+' of '+total.toLocaleString('en-GB')}
 function stepTo(d,added){
   var st=document.getElementById(d.getAttribute('data-step-style'));if(!st)return;
   if(st.__orig==null)st.__orig=st.textContent;

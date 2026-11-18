@@ -142,7 +142,10 @@ export function NoJsPagerLinks({ id, count, size = 25, sizes, first = PHONE_FIRS
   return (
     <>
       {pages > 1 && Array.from({ length: pages }, (_, i) => <PagerNav key={i} id={id} k={i + 1} pages={pages} />)}
-      {count > first && <ShowAllDetails id={id} count={count} first={first} />}
+      {/* With JavaScript each press shows 10 more, with the count and Show fewer, as every list does (owner approved 18 Nov
+          2026, ENTRY 286: no show-all buttons): the paired NoJsPager (same id, no children) holds the rule the step script
+          moves on, in <style id="njp-css-<id>">. Without JavaScript one press still shows the rest. */}
+      {count > first && <ShowAllDetails id={id} count={count} first={first} stepStyle={`njp-css-${id}`} />}
     </>
   );
 }

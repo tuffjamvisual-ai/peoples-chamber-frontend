@@ -245,7 +245,7 @@ export default function PollsClient({ initialPolls = null }: { initialPolls?: Po
           {/* Phones (step 5, 10 Nov 2026; the page was 8,622px with 7 polls of about 1,100px each): the 2 newest polls, then
               "Show all <N>" (a native details, ShowAll), each poll's background and sources folded (SubFold). A search
               shows every match. From 640px up, as before. */}
-          <ShowAll id="polls" count={search ? 0 : filtered.length} rows="> *" first={2}>
+          <ShowAll id="polls" count={search ? 0 : filtered.length} rows="> *">
           <div
             id="polls-list"
             data-own-more

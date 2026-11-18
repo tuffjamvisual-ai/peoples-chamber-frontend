@@ -90,10 +90,10 @@ export default async function BillSessionPage({ params }: Props) {
             {g.heading} <span style={{ fontWeight: 'normal', color: INK }}>({groups.get(g.key)!.length.toLocaleString()})</span>
           </h2>
           <p style={{ fontSize: '15px', marginBottom: '8px' }}>{g.note}</p>
-          {/* Phones: the first 2 of each group (step 5, 10 Nov 2026: page length). */}
+          {/* Phones: the first 3 of each group (owner approved 18 Nov 2026, ENTRY 286: every list opens with 3; was 2 for page length, 10 Nov). */}
 {/* On phones every group after the first folds under its heading (ENTRY 141 N5: 2,569px at 320); from 768px up as before. */}
           <MaybeFold fold={gi > 0} label={`The ${groups.get(g.key)!.length.toLocaleString('en-GB')} bills`}>
-                    <NoJsPager id={`bs-${g.key}`} first={2} count={(groups.get(g.key)!).length} rows="> li" size={25}>
+                    <NoJsPager id={`bs-${g.key}`} count={(groups.get(g.key)!).length} rows="> li" size={25}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {groups.get(g.key)!.map((b) => {
               const meta = [

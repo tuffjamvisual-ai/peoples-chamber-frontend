@@ -6,7 +6,6 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
 import { ShowAll, NoJsFold } from '@/app/components/NoJsPager';
-import { phoneUpTo } from '@/lib/breakpoints';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 
@@ -212,7 +211,7 @@ export default async function RefusedExpensesPage() {
         <h2 style={sectionH2}>Refused, by MP</h2>
         {/* Both by-MP tables folded on phones (step 5, 10 Nov 2026: the page was 4,451px). */}
         <NoJsFold id="rr-ref-f" always tablets label={`The ${refusedAgg.length.toLocaleString('en-GB')} MPs`}>
-        <MpTable rows={refusedAgg} mpById={mpById} totalLabel="Total refused" />
+        <MpTable id="rr-ref" rows={refusedAgg} mpById={mpById} totalLabel="Total refused" />
         </NoJsFold>
       </section>
 
@@ -222,7 +221,7 @@ export default async function RefusedExpensesPage() {
           Repaid &ne; refused: a repayment is money the MP did receive but then returned, either voluntarily or after IPSA review.
         </p>
         <NoJsFold id="rr-rep-f" always tablets label={`The ${repaidAgg.length.toLocaleString('en-GB')} MPs`}>
-        <MpTable rows={repaidAgg} mpById={mpById} totalLabel="Total repaid" />
+        <MpTable id="rr-rep" rows={repaidAgg} mpById={mpById} totalLabel="Total repaid" />
         </NoJsFold>
       </section>
 
@@ -279,9 +278,10 @@ function Tile({ label, value, sub, accent }: { label: string; value: string; sub
   );
 }
 
-// One ranked table of MPs. The first 25 rows show; every other MP is one tap away under
-// "Show all", in the same table layout and numbering.
-const SHOWN = 25;
+// One ranked table of MPs, every MP in it, folded as every list is (owner approved 18 Nov 2026, Cowork ENTRY 286: no show-all
+// buttons): the first 3, then Show 10 more with the count and Show fewer (ShowAll, NoJsPager; with JavaScript off one press
+// shows the rest); more than 25 rows fold at every width, 25 or fewer only under 1,024px. Was the first 25 and 'Show 149
+// more MPs' in a second table (and 5 and a phone 'Show all').
 function MpRows({ rows, mpById, start }: { rows: Agg[]; mpById: Map<number, MpLookup>; start: number }) {
   return (
     <>
@@ -324,44 +324,14 @@ function MpHead({ totalLabel }: { totalLabel: string }) {
   );
 }
 
-// Phones (MP2f, 9 Nov 2026): the first PHONE_SHOWN rows until "Show all" is opened (a rule on the block, :has, so it holds
-// with JavaScript off); from 640px up the first SHOWN rows as before. A table of more than PHONE_SHOWN rows and no more
-// than SHOWN gets a phone only "Show all".
-const PHONE_SHOWN = 5;
-const MP_TABLE_CSS = `.rr-more-phone { display: none; }
-@media ${phoneUpTo(767.98)} {
-  .rr-mp:has(> details:not([open])):not(:has(:target)) > .rr-scroll tbody > tr:nth-child(n+${PHONE_SHOWN + 1}) { display: none; }
-  .rr-more-phone { display: block; }
-}`;
-
-function MpTable({ rows, mpById, totalLabel }: { rows: Agg[]; mpById: Map<number, MpLookup>; totalLabel: string }) {
-  const rest = rows.slice(SHOWN);
+function MpTable({ id, rows, mpById, totalLabel }: { id: string; rows: Agg[]; mpById: Map<number, MpLookup>; totalLabel: string }) {
   return (
     <div className="rr-mp">
-      <style dangerouslySetInnerHTML={{ __html: MP_TABLE_CSS }} />
       <p style={{ fontSize: '15px', margin: '0 0 8px' }}>{rows.length.toLocaleString('en-GB')} serving MP{rows.length === 1 ? '' : 's'}, highest first.</p>
-      <div className="rr-scroll"><table style={tableStyle}>
+      <div className="rr-scroll"><ShowAll id={id} count={rows.length} noun={{ one: 'MP', many: 'MPs' }}><table style={tableStyle}>
         <MpHead totalLabel={totalLabel} />
-        <tbody><MpRows rows={rows.slice(0, SHOWN)} mpById={mpById} start={0} /></tbody>
-      </table></div>
-      {rest.length > 0 && (
-        <details style={{ marginTop: '10px' }}>
-          <summary style={{ cursor: 'pointer', fontSize: '15px', fontWeight: 'bold', color: ACCENT, padding: '8px 0', minHeight: '44px', display: 'flex', alignItems: 'center' }}>
-            Show {rest.length.toLocaleString('en-GB')} more MPs
-          </summary>
-          <div className="rr-scroll"><table style={tableStyle}>
-            <MpHead totalLabel={totalLabel} />
-            <tbody><MpRows rows={rest} mpById={mpById} start={SHOWN} /></tbody>
-          </table></div>
-        </details>
-      )}
-      {rest.length === 0 && rows.length > PHONE_SHOWN && (
-        <details className="rr-more-phone" style={{ marginTop: '10px' }}>
-          <summary style={{ cursor: 'pointer', fontSize: '15px', fontWeight: 'bold', color: ACCENT, padding: '8px 0', minHeight: '44px', display: 'flex', alignItems: 'center' }}>
-            Show {(rows.length - PHONE_SHOWN).toLocaleString('en-GB')} more MPs
-          </summary>
-        </details>
-      )}
+        <tbody><MpRows rows={rows} mpById={mpById} start={0} /></tbody>
+      </table></ShowAll></div>
     </div>
   );
 }

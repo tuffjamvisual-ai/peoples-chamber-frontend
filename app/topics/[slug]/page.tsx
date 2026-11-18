@@ -269,7 +269,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
           {/* 10 a screen on phones with JavaScript off (owner, 7 Nov 2026, PF1): each card is tall: its 26 cards made
               /topics/constitutional-reform 9,813px, and still 9,638px at 25 a screen. The cards are siblings, so each carries the pager's item class and the
               Previous and Next links follow the last one. */}
-          <NoJsPager id="topic-reports" count={relatedEditorials.length} size={10} first={2} />
+          <NoJsPager id="topic-reports" count={relatedEditorials.length} size={10} />
           {relatedEditorials.map((e) => (
             <Link key={e.href} href={e.href} className={`no-hover-scale ${njpItem('topic-reports')}`} style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.headline}</div>
@@ -279,7 +279,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
               <ContinueToArticle style={{ marginTop: '4px' }} />
             </Link>
           ))}
-          <NoJsPagerLinks id="topic-reports" count={relatedEditorials.length} size={10} first={2} />
+          <NoJsPagerLinks id="topic-reports" count={relatedEditorials.length} size={10} />
         </section>
       )}
 

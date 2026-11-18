@@ -207,7 +207,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       <section data-main-action style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By donor type</h2>
-        <NoJsPager id="pm-type" first={2} count={typeRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>
+        <NoJsPager id="pm-type" count={typeRows.length} rows="> tbody > tr" size={25} cards={[null, 'Donations', 'Total', 'Share of total']} title={1}>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>

@@ -455,7 +455,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         ) : (
           <>
           {/* On phones the first screen at most, never more than before (MP2f-9). */}
-          <NoJsPager id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(2, debateScreens[0] ?? 2)} />
+          <NoJsPager id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(3, debateScreens[0] ?? 3)} />
           {groups.map((g, i) => (
             <Fragment key={i}>
             <div
@@ -482,7 +482,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
             </div>
             </Fragment>
           ))}
-          <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(2, debateScreens[0] ?? 2)} />
+          <NoJsPagerLinks id="debate-rows" count={groups.length} sizes={debateScreens} first={Math.min(3, debateScreens[0] ?? 3)} />
           </>
         )}
         {/* The same closed fold as At a glance, its + on the right (T1-5x, Cowork 11 Nov 2026). */}

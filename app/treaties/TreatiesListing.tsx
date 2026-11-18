@@ -41,8 +41,8 @@ export default async function TreatiesListing({ page }: { page: number }) {
       <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 12px' }}>{total.toLocaleString('en-GB')} treaties{pages > 1 ? `, page ${page} of ${pages}` : ''}</p>
       {rows.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px' }}>No treaties found.</p>}
 
-      {/* Phones: the first 2 (step 5, 10 Nov 2026: page length). */}
-      <NoJsPager id="treaties-rows" first={2} count={(rows).length} rows="> li" size={20}>
+      {/* Phones: the first 3 (owner approved 18 Nov 2026, ENTRY 286: every list opens with 3; was 2 for page length, 10 Nov). */}
+      <NoJsPager id="treaties-rows" count={(rows).length} rows="> li" size={20}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {rows.map((t) => (
           <li key={t.api_id} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' }}>

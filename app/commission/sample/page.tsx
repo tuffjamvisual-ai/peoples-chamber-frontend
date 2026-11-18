@@ -103,8 +103,8 @@ export default function CommissionSamplePage() {
       <p style={{ ...p, fontWeight: 'bold' }}>{CHECKED}</p>
 
       <h2 style={h2}>Findings</h2>
-      {/* The first 2 findings (each long), then Show more (ENTRY 141 N4: 2,703px at 320 with 3). */}
-      <ShowAll id="sample-findings" count={(FINDINGS).length} rows="> li" first={2}>
+      {/* The first 3 findings, then Show more (owner approved 18 Nov 2026, ENTRY 286: every list opens with 3; was 2, ENTRY 141 N4: 2,703px at 320 with 3). */}
+      <ShowAll id="sample-findings" count={(FINDINGS).length} rows="> li">
       <ol style={{ margin: 0, paddingLeft: '1.6em', maxWidth: '720px' }}>
         {FINDINGS.map((f) => (
           <li key={f.heading} style={{ fontSize: '16px', lineHeight: 1.8, marginBottom: '14px' }}>

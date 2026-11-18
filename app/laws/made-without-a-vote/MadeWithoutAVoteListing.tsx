@@ -95,8 +95,8 @@ export default async function MadeWithoutAVoteListing({ department, procedure, f
       </p>
       {rows.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px' }}>No instruments match these filters.</p>}
 
-      {/* Phones: the first 2 (step 5, 10 Nov 2026: page length). */}
-      <NoJsPager id="mwv-rows" first={2} count={(rows).length} rows="> li" size={25}>
+      {/* Phones: the first 3 (owner approved 18 Nov 2026, ENTRY 286: every list opens with 3; was 2 for page length, 10 Nov). */}
+      <NoJsPager id="mwv-rows" count={(rows).length} rows="> li" size={25}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {rows.map((r) => (
           <li key={r.api_id} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' }}>

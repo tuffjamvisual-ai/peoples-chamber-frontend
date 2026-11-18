@@ -196,6 +196,9 @@ export default async function DebatesListing({ section, q, pageNum, found }: { s
           ))}
         </section>
       ))}
+      {/* The count beside the fold (owner approved 18 Nov 2026, ENTRY 286), kept up to date by the step script; phones and
+          tablets only, as the fold is (.og-fold-short hides it from 1,024px). */}
+      {rows.length > 3 && <p className="og-more-count og-fold-short" aria-live="polite">3 of {rows.length.toLocaleString('en-GB')}</p>}
       {rows.length > 3 && <details className="deb-show" style={{ display: 'none' }} data-step-style="deb-step" data-step-rank=".deb-later" data-step-from={4} data-step-left={rows.length - 3}><summary><span className="st-more">Show {Math.min(10, rows.length - 3).toLocaleString('en-GB')} more</span><span className="st-less">Show fewer</span></summary></details>}
       </div>
 

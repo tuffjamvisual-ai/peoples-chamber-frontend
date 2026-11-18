@@ -124,7 +124,7 @@ export default async function BlueBadgesPage() {
         <section data-main-action className="bb-main" style={section}>
           <h2 style={h2}>Share of residents holding a badge</h2>
           {/* Phones (under 768px): one card per council (phone-table.css .pt-cards); four columns did not fit 320px. */}
-            <NoJsPager id="bb-a" first={2} count={(byShare).length} rows="> tbody > tr" size={15}>
+            <NoJsPager id="bb-a" count={(byShare).length} rows="> tbody > tr" size={15}>
             <table className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
               <thead>
                 <tr>

@@ -115,7 +115,7 @@ export default function LawsClient({ laws, page }: { laws: Law[]; page: number }
         </div>
       ) : (
         <>
-          <NoJsPager id="laws-rows" count={paginated.length} rows="> *" size={10} first={2}>
+          <NoJsPager id="laws-rows" count={paginated.length} rows="> *" size={10}>
           <div
             style={{
               display: 'grid',
