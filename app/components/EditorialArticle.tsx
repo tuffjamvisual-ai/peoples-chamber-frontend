@@ -16,6 +16,9 @@ import KeyStat from './KeyStat';
 import DataBlock from './DataBlock';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
 import ContentBadge from './ContentBadge';
+import SourcesFold from './SourcesFold';
+import { SourcesList } from './SourcesList';
+import EvidencePanel from './EvidencePanel';
 import ShareButton from './ShareButton';
 import { readingLabel } from '@/lib/reading-time';
 import { shownUpdateIso } from '@/lib/JsonLd';
@@ -29,7 +32,7 @@ const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
-export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [], related, banner, sourcesHref }: { banner?: ReactNode; sourcesHref?: string; related?: RelatedLink[]; piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
+export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [], related, banner }: { banner?: ReactNode; related?: RelatedLink[]; piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
   const sources = piece.evidence?.recordsReviewed ?? [];
   const keyPoints = usableKeyPoints(piece.keyPoints);
   const showStandfirst = !!piece.standfirst?.trim() && !standfirstRepeatsOpening(piece.standfirst, piece.body);
@@ -61,12 +64,14 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               </SectionFold>
             </section>
           )}
-          {/* One "Sources (N)" link to the article's sources page, never the full list (owner's standing instruction,
-              2 Nov 2026, as eda0b417 did on 23 Oct). The "How this piece was checked" panel is on that page only. */}
+          {/* ART-SOURCES (owner approved 18 Nov 2026, ENTRY 290): the sources folded at the end of the article, closed, opening
+              in place, with the "How this piece was checked" panel under the list as the sources page had it; was one
+              "Sources (N)" link to that page (2 Nov 2026), which now redirects here (#sources). */}
           {sources.length > 0 && (
-            <p id="article-sources" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px' }}>
-              <Link href={sourcesHref ?? `${basePath}/${piece.slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sources.length})</Link>
-            </p>
+            <SourcesFold count={sources.length}>
+              <SourcesList records={sources} />
+              {piece.evidence && <EvidencePanel {...piece.evidence} sourcesShownAbove />}
+            </SourcesFold>
           )}
           {basePath === '/editorials' && (
             <div className="art-actions" style={{ margin: '0 0 16px' }}>

@@ -1,7 +1,7 @@
 // The page of a daily briefing from the briefings table, used by /briefings/[slug] and by the owner's private preview, so
-// a draft is seen exactly as it will look. banner and sourcesHref are for the preview.
+// a draft is seen exactly as it will look. banner is for the preview.
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import SourcesFold from '@/app/components/SourcesFold';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { textReadingLabel } from '@/lib/reading-time';
@@ -23,7 +23,7 @@ export interface BriefingRow {
   created_at: string;
 }
 
-export default function BriefingArticle({ b, slug, banner, sourcesHref }: { b: BriefingRow; slug: string; banner?: ReactNode; sourcesHref?: string }) {
+export default function BriefingArticle({ b, banner }: { b: BriefingRow; slug: string; banner?: ReactNode }) {
   const paragraphs = b.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
   const sourceCount = Array.isArray(b.sources) ? (b.sources as unknown[]).filter((s) => typeof s === 'string').length : 0;
 
@@ -69,8 +69,8 @@ export default function BriefingArticle({ b, slug, banner, sourcesHref }: { b: B
 
       
 
-      {/* Sources checked by the automated fact-check pipeline: one link to /briefings/<slug>/sources, which lists
-          them (23 Oct 2026). */}
+      {/* Sources checked by the automated fact-check pipeline, folded here (ART-SOURCES, owner approved 18 Nov 2026, ENTRY
+          290); was one link to /briefings/<slug>/sources (23 Oct 2026), which now redirects here (#sources). */}
       {sourceCount > 0 && (
         <aside
           aria-label="Sources checked"
@@ -79,9 +79,13 @@ export default function BriefingArticle({ b, slug, banner, sourcesHref }: { b: B
           <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, margin: '0 0 10px' }}>
             Sources checked
           </p>
-          <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 6px', lineHeight: 1.5 }}>
-            <Link href={sourcesHref ?? `/briefings/${slug}/sources`} className="og-tap" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sourceCount})</Link>
-          </p>
+          <div style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 6px', lineHeight: 1.5 }}>
+            <SourcesFold count={sourceCount} plain>
+              {(b.sources as unknown[]).filter((s): s is string => typeof s === 'string').map((src, i) => (
+                <p key={i} style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px', wordBreak: 'break-all', lineHeight: 1.5 }}>{src}</p>
+              ))}
+            </SourcesFold>
+          </div>
         </aside>
       )}
     </OpenGovShell>

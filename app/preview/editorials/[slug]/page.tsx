@@ -23,5 +23,5 @@ export default async function PreviewEditorialPage({ params }: { params: Promise
   if (!piece || piece.kind === 'briefing') notFound();
   const mps = await namedMps(piece.relatedMemberIds).catch(() => []);
   const related = await editorialRelated(piece, mps);
-  return <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/editorials" related={related} banner={<DraftBanner published={!piece.unpublished} />} sourcesHref={`/preview/editorials/${slug}/sources`} />;
+  return <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/editorials" related={related} banner={<DraftBanner published={!piece.unpublished} />} />;
 }

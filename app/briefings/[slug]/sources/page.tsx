@@ -1,73 +1,15 @@
-// /briefings/<slug>/sources: the sources of a briefing (added 23 Oct 2026). A file briefing lists its records as on
-// /editorials/<slug>/sources; a database briefing lists its string sources as plain text, as its article page used
-// to. Dynamic like the article; published only (a draft's sources are at /preview/briefings). Never indexed; not in the sitemap.
-import { titleWithin } from '@/lib/seo-title';
+// /briefings/<slug>/sources: was the page listing a briefing's sources (23 Oct 2026). Since ART-SOURCES (owner approved
+// 18 Nov 2026, Cowork ENTRY 290) the sources are folded at the end of the briefing itself, so this address, kept for links
+// already shared, redirects permanently there with the fold open (#sources). Not indexed; not in the sitemap.
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import OpenGovShell from '../../../components/OpenGovShell';
-import BackLink from '../../../components/BackLink';
-import SourcesPage, { backStyle, kickerStyle, h1Style } from '../../../components/SourcesPage';
-import { getEditorial } from '@/lib/editorials-source';
-import type { EditorialEntry } from '@/lib/editorials/types';
-import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
-import { cachedQuery } from '@/lib/tagged-read';
-import { tableTags } from '@/lib/source-tags';
+import { permanentRedirect } from 'next/navigation';
 
-export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
+export const revalidate = false; // A16: static; the redirect does not depend on data
+export function generateStaticParams() { return []; }
 
-
-const INK = '#14100d';
-const MONO = 'var(--font-special-elite), monospace';
-
-async function getDbBriefing(slug: string): Promise<{ headline: string; sources: string[] } | null> {
-  const { data, error } = await cachedQuery(['q:app/briefings/[slug]/sources/page.tsx:fa60bd89cd', JSON.stringify([slug])], tableTags('briefings'), () => supabaseAdmin.from('briefings').select('headline, sources').eq('slug', slug).eq('is_published', true).not('published_at', 'is', null).maybeSingle());
-  if (error && error.code !== 'PGRST116') throw new Error(`/briefings/[slug]/sources briefings: ${error.message}`);
-  if (!data) return null;
-  const sources = Array.isArray(data.sources) ? (data.sources as unknown[]).filter((s): s is string => typeof s === 'string') : [];
-  return { headline: data.headline as string, sources };
-}
-
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const piece = await getEditorial(slug);
-  const headline = piece && piece.kind === 'briefing' ? piece.headline : (await getDbBriefing(slug))?.headline;
-  return {
-    title: titleWithin(headline ? `Sources: ${headline}` : 'Sources'),
-    alternates: { canonical: `/briefings/${slug}/sources` },
-    robots: { index: false, follow: true },
-  };
-}
+export const metadata: Metadata = { title: 'Sources', robots: { index: false, follow: true } };
 
 export default async function BriefingSourcesPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const articleHref = `/briefings/${slug}`;
-
-  const piece = (await getEditorial(slug)) as EditorialEntry | undefined;
-  if (piece && piece.kind === 'briefing') {
-    const records = piece.evidence?.recordsReviewed ?? [];
-    if (!records.length) notFound();
-    return <SourcesPage stamp="Reports" articleHref={articleHref} headline={piece.headline} records={records} evidence={piece.evidence} />;
-  }
-
-  const b = await getDbBriefing(slug);
-  if (!b || !b.sources.length) notFound();
-  return (
-    <OpenGovShell pageStamp="Reports">
-      <BackLink fallbackHref={articleHref} label="← Back to article" className="no-hover-scale" style={backStyle} />
-      <header>
-        <div style={kickerStyle}>Sources</div>
-        <h1 style={h1Style}>
-          <Link href={articleHref} style={{ color: INK, textDecoration: 'none' }}>{b.headline}</Link>
-        </h1>
-      </header>
-      <div style={{ maxWidth: '760px' }}>
-        {b.sources.map((src, i) => (
-          <p key={i} style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px', wordBreak: 'break-all', lineHeight: 1.5 }}>
-            {src}
-          </p>
-        ))}
-      </div>
-    </OpenGovShell>
-  );
+  permanentRedirect(`/briefings/${slug}#sources`);
 }

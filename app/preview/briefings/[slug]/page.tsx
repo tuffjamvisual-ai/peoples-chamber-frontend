@@ -22,9 +22,9 @@ export default async function PreviewBriefingPage({ params }: { params: Promise<
   const { slug } = await params;
   const piece = await readEditorialAnyState(slug);
   if (piece?.kind === 'briefing') {
-    return <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/briefings" banner={<DraftBanner published={!piece.unpublished} />} sourcesHref={`/preview/briefings/${slug}/sources`} />;
+    return <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/briefings" banner={<DraftBanner published={!piece.unpublished} />} />;
   }
   const b = await readBriefingAnyState(slug);
   if (!b) notFound();
-  return <BriefingArticle b={b} slug={slug} banner={<DraftBanner published={b.is_published && !!b.published_at} />} sourcesHref={`/preview/briefings/${slug}/sources`} />;
+  return <BriefingArticle b={b} slug={slug} banner={<DraftBanner published={b.is_published && !!b.published_at} />} />;
 }
