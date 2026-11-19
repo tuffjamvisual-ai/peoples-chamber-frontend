@@ -58,6 +58,9 @@ const siteIndex = unstable_cache(build, ['site-suggest-index-v2'], {
   tags: [...tableTags('mps', 'constituencies', 'councils', 'peers', 'bill'), 'editorials'],
 });
 
+// The same entries for /search's names inside a query (lib/search/name-index.ts, Cowork ENTRY 384 stage B2).
+export const siteIndexEntries = (): Promise<SiteEntry[]> => siteIndex();
+
 // Kinds in the order a tie is broken: a person or a place before a title.
 const ORDER = ['MP', 'Constituency', 'Council', 'Department', 'Lords', 'Former MP', 'Bill', 'Report'];
 

@@ -7,6 +7,7 @@ import { displayMpName } from '@/lib/mp-name';
 import { searchFormerMps } from '@/lib/former-mps';
 import { billStatus } from '@/lib/bill-status';
 import { getParliamentSessions, sessionTitle } from '@/lib/parliament-sessions';
+import { looseStages, keptWords, looseScore, nameWords, wordStartRe, startsWords } from '@/lib/search/query-understanding';
 
 export type SearchResultType =
   | 'editorial'
@@ -82,8 +83,9 @@ async function queryEditorials(
   dept: string | null,
   from: string | null,
   to: string | null,
+  limitOverride?: number,
 ): Promise<SearchResult[]> {
-  const limit = tsType === 'phrase' ? PHRASE_PER_TABLE : PER_TABLE;
+  const limit = limitOverride ?? (tsType === 'phrase' ? PHRASE_PER_TABLE : PER_TABLE);
   let query = supabase
     .from('editorials')
     .select('slug, headline, standfirst, summary, published_at, kicker')
@@ -158,8 +160,9 @@ async function queryBriefings(
   tsType: TsType,
   from: string | null,
   to: string | null,
+  limitOverride?: number,
 ): Promise<SearchResult[]> {
-  const limit = tsType === 'phrase' ? PHRASE_PER_TABLE : PER_TABLE;
+  const limit = limitOverride ?? (tsType === 'phrase' ? PHRASE_PER_TABLE : PER_TABLE);
   let query = supabase
     .from('briefings')
     .select('slug, headline, published_at')
@@ -282,7 +285,10 @@ async function queryMPs(q: string, tsType: TsType): Promise<SearchResult[]> {
 }
 
 async function queryFormerMPs(q: string): Promise<SearchResult[]> {
-  const found = await searchFormerMps(q, PER_TABLE);
+  // Parliament's search matches inside names ('hmo' gave Khalid Mahmood): only names with each word at a word start are
+  // kept (Cowork ENTRY 384 stage B2).
+  const typed = nameWords(q, 2);
+  const found = (await searchFormerMps(q, PER_TABLE)).filter((m) => startsWords(m.name, typed));
   return found.map((m) => ({
     type: 'mp' as const,
     title: m.name,
@@ -302,11 +308,15 @@ export async function searchCouncils(q: string, limit = COUNCIL_LIMIT): Promise<
   // % and _ are ilike wildcards; commas and parentheses would break the .or() filter.
   const safe = term.replace(/[%_,()\\"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
   if (safe.length < 2) return [];
-  const pattern = `%${safe}%`;
+  // Each word at the start of a word of the name or short name (Cowork ENTRY 384 stage B2: 'hmo' found Richmond and
+  // Rushmoor inside their names). nameWords keeps letters and digits only, so nothing typed reaches the filter syntax.
+  const ws = nameWords(safe);
+  if (!ws.length) return [];
+  const all = (col: string) => (ws.length === 1 ? `${col}.imatch.${wordStartRe(ws[0])}` : `and(${ws.map((w) => `${col}.imatch.${wordStartRe(w)}`).join(',')})`);
   const { data, error } = await supabase
     .from('councils')
     .select('slug, name, short_name, type_label, country')
-    .or(`name.ilike.${pattern},short_name.ilike.${pattern}`)
+    .or(`${all('name')},${all('short_name')}`)
     .order('name', { ascending: true })
     .limit(limit);
   if (error) {
@@ -314,13 +324,17 @@ export async function searchCouncils(q: string, limit = COUNCIL_LIMIT): Promise<
     return [];
   }
   const lower = safe.toLowerCase();
+  // The exact name first, then names that start with what was typed, then A to Z.
   const exact = (r: { name: string; short_name: string | null }) =>
-    r.name.toLowerCase() === lower || (r.short_name ?? '').toLowerCase() === lower ? 0 : 1;
+    r.name.toLowerCase() === lower || (r.short_name ?? '').toLowerCase() === lower ? 0 : r.name.toLowerCase().startsWith(lower) || (r.short_name ?? '').toLowerCase().startsWith(lower) ? 1 : 2;
   return (data ?? [])
     .slice()
     .sort((x, y) => exact(x) - exact(y))
     .map((r) => ({ slug: r.slug, name: r.name, typeLabel: r.type_label ?? null, country: r.country ?? null }));
 }
+
+// 0 for the exact name, 1 for a name that starts with what was typed, 2 for any other.
+const closeness = (name: string, lower: string) => (name.toLowerCase() === lower ? 0 : name.toLowerCase().startsWith(lower) ? 1 : 2);
 
 // Constituencies (UX1b, 9 Nov 2026; the audit searched "Yeovil" and found no way to the seat or its MP): matched on the
 // seat's name, an exact match first, each with its current MP. Shown first among the records, so the seat and its MP
@@ -331,10 +345,11 @@ export async function searchConstituencies(q: string, limit = 10): Promise<Const
   const term = (isPhrase(q) ? unwrapPhrase(q) : q).trim();
   const safe = term.replace(/[%_,()\\"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
   if (safe.length < 2) return [];
-  const { data, error } = await supabase
-    .from('constituencies')
-    .select('ons_code, slug, name, nation')
-    .ilike('name', `%${safe}%`)
+  // Each word at the start of a word of the seat's name (Cowork ENTRY 384 stage B2).
+  const ws = nameWords(safe);
+  if (!ws.length) return [];
+  const { data, error } = await ws
+    .reduce((qb, w) => qb.filter('name', 'imatch', wordStartRe(w)), supabase.from('constituencies').select('ons_code, slug, name, nation'))
     .order('name', { ascending: true })
     .limit(limit);
   if (error) {
@@ -353,7 +368,7 @@ export async function searchConstituencies(q: string, limit = 10): Promise<Const
   const lower = safe.toLowerCase();
   return rows
     .slice()
-    .sort((x, y) => (x.name.toLowerCase() === lower ? 0 : 1) - (y.name.toLowerCase() === lower ? 0 : 1))
+    .sort((x, y) => closeness(x.name, lower) - closeness(y.name, lower))
     .map((r) => {
       const m = mpBySeat.get(r.ons_code);
       return {
@@ -371,11 +386,14 @@ export async function searchPeers(q: string, limit = 10): Promise<PeerSearchResu
   const term = (isPhrase(q) ? unwrapPhrase(q) : q).trim();
   const safe = term.replace(/[%_,()\\"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
   if (safe.length < 2) return [];
-  const pattern = `%${safe.replace(/ /g, '%')}%`;
+  // Each word at the start of a word of any form of the name (Cowork ENTRY 384 stage B2: 'hmo' listed ten 'of Richmond').
+  const ws = nameWords(safe);
+  if (!ws.length) return [];
+  const all = (col: string) => (ws.length === 1 ? `${col}.imatch.${wordStartRe(ws[0])}` : `and(${ws.map((w) => `${col}.imatch.${wordStartRe(w)}`).join(',')})`);
   const { data, error } = await supabase
     .from('peers')
     .select('member_id, name_display, name_list_as, name_full_title, party, peerage_type, is_current, end_date')
-    .or(`name_display.ilike.${pattern},name_list_as.ilike.${pattern},name_full_title.ilike.${pattern}`)
+    .or(`${all('name_display')},${all('name_list_as')},${all('name_full_title')}`)
     .order('is_current', { ascending: false })
     .order('name_list_as', { ascending: true })
     .limit(limit);
@@ -383,7 +401,8 @@ export async function searchPeers(q: string, limit = 10): Promise<PeerSearchResu
     console.warn('[search] peers error:', error.message);
     return [];
   }
-  return (data ?? []).map((r) => ({
+  const lower = safe.toLowerCase();
+  return (data ?? []).slice().sort((x, y) => (x.name_display.toLowerCase() === lower ? 0 : 1) - (y.name_display.toLowerCase() === lower ? 0 : 1)).map((r) => ({
     memberId: r.member_id,
     name: r.name_display,
     party: r.party ?? null,
@@ -471,4 +490,48 @@ export async function searchContent(
   });
 
   return results.slice(0, totalLimit);
+}
+
+// Some of the words (Cowork ENTRY 384 stage B2, ENTRY 390; PLAN.md layer b4): when the every-word search above finds
+// fewer than LOOSE_BELOW reports, releases, bills and votes, /search tries again (never for a "quoted phrase"): the
+// words without filler ('uk', 'list', 'how many', years), then all but one word, then any word, stopping once enough are
+// found. Each try uses the same full-text indexes and limits as the every-word search (websearch 'or'); editorials and
+// briefings, small tables, read up to 50 so the best can be picked from more than the newest. The rows found are
+// ranked here by how many of the words each title (counted twice) and summary holds, then by type and date: PostgREST
+// cannot order by Postgres's ts_rank without a new database function, and this needs none. The page labels them
+// 'with some of your words'. Saved search alerts (lib/member-digest.ts) keep the every-word search only.
+export const LOOSE_BELOW = 3;
+export type LooseSearch = { results: SearchResult[]; words: string[] };
+
+export async function searchContentLoose(
+  q: string,
+  type: string,
+  dept: string | null,
+  from: string | null,
+  to: string | null,
+  exclude: ReadonlySet<string> = new Set(),
+): Promise<LooseSearch> {
+  const none: LooseSearch = { results: [], words: [] };
+  if (!q || isPhrase(q) || !VALID_SEARCH_TYPES.includes(type as SearchType) || type === 'mp') return none;
+  const stages = looseStages(q);
+  const words = keptWords(q);
+  if (!stages.length) return none;
+  const want = (t: SearchResultType) => type === 'all' || type === t;
+  const found = new Map<string, SearchResult>();
+  for (const stage of stages) {
+    const tasks: Promise<SearchResult[]>[] = [];
+    if (want('editorial'))    tasks.push(queryEditorials(stage, 'websearch', dept, from, to, 50));
+    if (want('pressRelease')) tasks.push(queryPressReleases(stage, 'websearch', dept, from, to));
+    if (want('briefing') || type === 'editorial') tasks.push(queryBriefings(stage, 'websearch', from, to, 50));
+    if (want('bill'))         tasks.push(queryBills(stage, 'websearch', from, to));
+    if (want('division'))     tasks.push(queryDivisions(stage, 'websearch', from, to));
+    for (const outcome of await Promise.allSettled(tasks)) {
+      if (outcome.status === 'rejected') { console.warn('[search] some words:', outcome.reason); continue; }
+      for (const r of outcome.value) if (!exclude.has(r.url) && !found.has(r.url)) found.set(r.url, r);
+    }
+    if (found.size >= LOOSE_BELOW) break;
+  }
+  const scored = [...found.values()].map((r) => ({ r, s: looseScore(words, r.title, r.standfirst ?? '') }));
+  scored.sort((a, b) => b.s - a.s || (TYPE_WEIGHT[b.r.type] ?? 0) - (TYPE_WEIGHT[a.r.type] ?? 0) || (b.r.date ?? '').localeCompare(a.r.date ?? ''));
+  return { results: scored.map((x) => x.r).slice(0, TOTAL_LIMIT), words };
 }

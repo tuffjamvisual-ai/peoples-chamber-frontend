@@ -3,6 +3,7 @@
 // the function; current MPs only; up to 5 rows, best first). Server key only (lib/supabase). A failed call gives no
 // suggestion rather than an error: the search page still shows "No results".
 import { supabase } from '@/lib/supabase';
+import { orderCloseNames } from '@/lib/search/query-understanding';
 
 export type NameSuggestion = { kind: 'mp' | 'constituency' | 'council' | 'donor'; name: string; href: string };
 
@@ -16,7 +17,9 @@ export async function didYouMean(q: string): Promise<NameSuggestion[]> {
     const { data, error } = await supabase.rpc('did_you_mean', { q: term });
     if (error || !Array.isArray(data)) return [];
     const seen = new Set<string>();
-    return (data as { kind: string; name: string; slug: string | number }[])
+    // Equal scores put an MP before a donor of the same name (Cowork ENTRY 384 stage B2: 'badnoch' gave Kemi Badenoch the
+    // donor first, as the function breaks ties by kind A to Z).
+    return orderCloseNames(data as { kind: string; name: string; slug: string | number; score?: number | null }[])
       .filter((r) => r && r.kind in BASE && r.name && r.slug != null)
       .map((r) => ({ kind: r.kind as NameSuggestion['kind'], name: String(r.name).trim(), href: `${BASE[r.kind as NameSuggestion['kind']]}${encodeURIComponent(String(r.slug))}` }))
       .filter((r) => (seen.has(r.href) ? false : (seen.add(r.href), true)));

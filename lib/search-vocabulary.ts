@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { readAll } from '@/lib/read-all';
 import { allEditorials } from '@/lib/editorials-source';
 import { buildVocabulary, type Vocabulary } from '@/lib/search-suggest';
+import { DIRECTORY } from '@/lib/directory';
 
 const titles = unstable_cache(async (): Promise<string[]> => {
   const [bills, mps, reports] = await Promise.all([
@@ -21,9 +22,13 @@ const titles = unstable_cache(async (): Promise<string[]> => {
   ].filter(Boolean);
 }, ['search-vocabulary'], { revalidate: 86400 });
 
+// The site's own page names and the words readers type for them (lib/directory.ts KEYWORDS), so a misspelt topic word is
+// corrected to one of ours ('sewige' -> sewage; Cowork ENTRY 384 stage B2). In memory, no database read.
+const PAGE_WORDS = DIRECTORY.flatMap((e) => [e.name, ...(e.keywords ?? [])]);
+
 export async function searchVocabulary(): Promise<Vocabulary> {
   try {
-    return buildVocabulary(await titles());
+    return buildVocabulary([...(await titles()), ...PAGE_WORDS]);
   } catch (e) {
     console.error('search vocabulary:', e instanceof Error ? e.message : String(e));
     return new Map();

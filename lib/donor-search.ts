@@ -6,6 +6,7 @@
 import { supabase } from '@/lib/supabase';
 import { donorNameToSlug, donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
+import { nameWords, wordStartRe } from '@/lib/search/query-understanding';
 
 export type DonorNameResult = {
   name: string;          // the most used registered spelling for this donor page
@@ -26,14 +27,17 @@ function words(q: string): string[] {
 }
 
 // totalNames is the number of donor pages that match; more is true when the returned first page is shorter than that.
-export async function searchDonorNames(q: string): Promise<{ results: DonorNameResult[]; more: boolean; totalNames: number }> {
-  const ws = words(q);
+// wordStart (/search, Cowork ENTRY 384 stage B2): each word must start a word of the name ('hmo' no longer finds 25
+// Richmond donors); the trigram index serves the regex as it does ilike. /donors and /api/donors/search keep the
+// match anywhere in the name.
+export async function searchDonorNames(q: string, opts: { wordStart?: boolean } = {}): Promise<{ results: DonorNameResult[]; more: boolean; totalNames: number }> {
+  const ws = opts.wordStart ? nameWords(q, 2) : words(q);
   if (ws.length === 0) return { results: [], more: false, totalNames: 0 };
   // Every matching row (24 Oct 2026, report 36): a single read stopped at 1,000 rows in no order, so common words
   // ("Ltd", 6,787 rows) gave an arbitrary part of the names and understated record counts. lib/read-all.ts.
   const rows = await readAll<{ donor_name: string | null }>(() => supabase.from('political_donations'), {
     columns: 'id, donor_name',
-    filter: (query) => ws.reduce((acc, w) => acc.ilike('donor_name', `%${w}%`), query.not('donor_name', 'is', null)),
+    filter: (query) => ws.reduce((acc, w) => (opts.wordStart ? acc.filter('donor_name', 'imatch', wordStartRe(w)) : acc.ilike('donor_name', `%${w}%`)), query.not('donor_name', 'is', null)),
     orderBy: 'id',
     label: 'donor search',
   });

@@ -5,6 +5,7 @@
 // found by name.
 
 import { cache } from 'react';
+import { atWordStart } from '@/lib/search/query-understanding';
 import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { readAll } from '@/lib/read-all';
@@ -138,17 +139,20 @@ export function normaliseCompanyNumber(raw: string): string | null {
 
 // Search on the name, the other spellings and the Companies House number. Returns the best matches first: an exact
 // number, then names that start with the words, then the rest by size of record.
-export function searchOrganisations(all: OrgListRow[], q: string): OrgListRow[] {
+// wordStart (/search, Cowork ENTRY 384 stage B2): what was typed must start a word of the name ('hmo' no longer finds
+// names with 'Richmond' in them); /organisations keeps the match anywhere in the name.
+export function searchOrganisations(all: OrgListRow[], q: string, opts: { wordStart?: boolean } = {}): OrgListRow[] {
   const query = q.trim().toLowerCase();
   if (query.length < 2) return [];
   const number = normaliseCompanyNumber(query);
+  const holds = (text: string) => (opts.wordStart ? atWordStart(text, query) : text.toLowerCase().includes(query));
   const scored: { r: OrgListRow; score: number }[] = [];
   for (const r of all) {
     if (number && r.company_number === number) { scored.push({ r, score: 0 }); continue; }
     const name = r.name.toLowerCase();
     if (name.startsWith(query)) scored.push({ r, score: 1 });
-    else if (name.includes(query)) scored.push({ r, score: 2 });
-    else if ((r.name_variants || []).some((v) => v.toLowerCase().includes(query))) scored.push({ r, score: 3 });
+    else if (holds(r.name)) scored.push({ r, score: 2 });
+    else if ((r.name_variants || []).some((v) => holds(v))) scored.push({ r, score: 3 });
   }
   const size = (r: OrgListRow) => r.donations + r.contracts + r.framework_places + r.grants + r.meetings + r.lobbying_quarters;
   return scored.sort((a, b) => a.score - b.score || size(b.r) - size(a.r) || a.r.name.localeCompare(b.r.name)).map((s) => s.r);
