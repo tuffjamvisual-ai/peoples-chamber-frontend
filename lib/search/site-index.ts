@@ -14,7 +14,8 @@ import { peerHasPage } from '@/lib/peers';
 import { tableTags } from '@/lib/source-tags';
 import { wordsOf, searchList, type Fielded } from '@/lib/search/words';
 
-export type SiteEntry = { label: string; kind: string; href: string; extra: string };
+// mp: for a constituency, its sitting MP's page (the homepage's Find your MP box opens it; ENTRY 374).
+export type SiteEntry = { label: string; kind: string; href: string; extra: string; mp?: string };
 
 async function readAll<T>(read: (from: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>, what: string): Promise<T[]> {
   const out: T[] = [];
@@ -37,11 +38,11 @@ async function build(): Promise<SiteEntry[]> {
   ]);
   const current = sessions.find((s) => s.is_current);
   const bills = current ? await getSessionBills(current.id) : [];
-  const mpBySeat = new Map(mps.filter((m) => m.current_member).map((m) => [m.constituency_gss_code as string, displayMpName(m.display_name as string) ?? '']));
+  const mpBySeat = new Map(mps.filter((m) => m.current_member).map((m) => [m.constituency_gss_code as string, { name: displayMpName(m.display_name as string) ?? '', id: m.member_id as number }]));
   const out: SiteEntry[] = [];
   // Sitting MPs, and the few in the table who have left (their pages stay up), as 'Former MP'.
   for (const m of mps) out.push({ label: displayMpName(m.display_name as string) ?? String(m.member_id), kind: m.current_member ? 'MP' : 'Former MP', href: `/mps/${m.member_id}`, extra: `${m.constituency ?? ''} ${m.party ?? ''}` });
-  for (const s of seats) out.push({ label: s.name as string, kind: 'Constituency', href: `/constituencies/${s.slug}`, extra: mpBySeat.get(s.ons_code as string) ?? '' });
+  for (const s of seats) { const mp = mpBySeat.get(s.ons_code as string); out.push({ label: s.name as string, kind: 'Constituency', href: `/constituencies/${s.slug}`, extra: mp?.name ?? '', ...(mp ? { mp: `/mps/${mp.id}` } : {}) }); }
   for (const c of councils) out.push({ label: (c.short_name as string) || (c.name as string), kind: 'Council', href: `/councils/${c.slug}`, extra: `${c.name ?? ''} ${c.type_label ?? ''}` });
   for (const p of peers) if (peerHasPage(p as { is_current: boolean; end_date: string | null })) out.push({ label: p.name_display as string, kind: 'Lords', href: `/lords/${p.member_id}`, extra: (p.party as string) ?? '' });
   for (const d of departments) out.push({ label: d.name, kind: 'Department', href: `/departments/${d.slug}`, extra: '' });
@@ -52,7 +53,7 @@ async function build(): Promise<SiteEntry[]> {
 }
 
 // Shared by every server instance; a day, and refreshed when any of these tables is written.
-const siteIndex = unstable_cache(build, ['site-suggest-index-v1'], {
+const siteIndex = unstable_cache(build, ['site-suggest-index-v2'], {
   revalidate: 86400,
   tags: [...tableTags('mps', 'constituencies', 'councils', 'peers', 'bill'), 'editorials'],
 });
@@ -78,4 +79,23 @@ export async function siteSuggestions(q: string, most = 6): Promise<{ suggestion
   const close = (e: SiteEntry) => { const l = wordsOf(e.label).join(' '); return l === want ? 0 : l.startsWith(want) ? 1 : 2; };
   const ordered = matches.map((e, i) => [e, i] as const).sort((a, b) => close(a[0]) - close(b[0]) || a[1] - b[1]).map(([e]) => e);
   return { suggestions: ordered.slice(0, most), typos };
+}
+
+// The homepage's Find your MP box (owner, 19 Nov 2026, Cowork ENTRY 374): the same index and matching, MPs (sitting and
+// former) and constituencies only; a constituency opens its sitting MP's page, with the MP's name beside the seat.
+const MP_KINDS = new Set(['MP', 'Former MP', 'Constituency']);
+let madeMps: { from: SiteEntry[]; list: Fielded<SiteEntry>[] } | null = null;
+export async function mpSuggestions(q: string, most = 6): Promise<{ suggestions: SiteEntry[]; typos: boolean }> {
+  if (wordsOf(q).join('').length < 2) return { suggestions: [], typos: false };
+  const entries = await siteIndex();
+  if (madeMps?.from !== entries) madeMps = { from: entries, list: fielded(entries).filter((f) => MP_KINDS.has(f.item.kind)) };
+  const { matches, typos } = searchList(madeMps.list, q);
+  const want = wordsOf(q).join(' ');
+  const close = (e: SiteEntry) => { const l = wordsOf(e.label).join(' '); return l === want ? 0 : l.startsWith(want) ? 1 : 2; };
+  const ordered = matches.map((e, i) => [e, i] as const).sort((a, b) => close(a[0]) - close(b[0]) || a[1] - b[1]).map(([e]) => e);
+  // One row per page: a constituency and its MP open the same profile, so the first of them is kept.
+  const seen = new Set<string>();
+  const rows = ordered.map((e) => (e.kind === 'Constituency' && e.mp ? { ...e, href: e.mp, label: e.extra ? `${e.extra} (${e.label})` : e.label, kind: 'MP' } : e))
+    .filter((e) => (seen.has(e.href) ? false : (seen.add(e.href), true)));
+  return { suggestions: rows.slice(0, most), typos };
 }
