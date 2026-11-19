@@ -9,6 +9,7 @@ import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { handled } from './settle';
+import { Stamp, bebasFont } from './og/stamp';
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -16,13 +17,11 @@ const INK = '#14100d';
 const FOLDER = '#d8b97c';
 const PAD_X = 80;
 const TEXT_WIDTH = OG_SIZE.width - PAD_X * 2;
-// The OPENGOVT.UK stamp (public/og/stamp-uk.png, 1400 x 317; owner, ENTRY 400).
-const STAMP_RATIO = 317 / 1400;
+// The OPENGOVT.UK stamp, drawn as vector (lib/og/stamp.tsx; owner, ENTRY 400, 401).
 const STAMP_WIDTH = 340;
 
 // Read once when the module loads and awaited per image, so handled at once (lib/settle.ts).
 const specialElite = handled(readFile(join(process.cwd(), 'public/fonts/special-elite.ttf')));
-const stamp = handled(readFile(join(process.cwd(), 'public/og/stamp-uk.png')));
 
 // Special Elite's letters are about 0.6 of the font size wide (a typewriter face, near monospaced).
 const CHAR_WIDTH = 0.6;
@@ -53,21 +52,20 @@ export function fitTitle(raw: string, room = 360): { text: string; size: number 
 }
 
 export async function ogCard({ title, line }: { kicker?: string; title: string; line?: string | null }) {
-  const [font, stampBuf] = await Promise.all([specialElite, stamp]);
+  const [font, bebas] = await Promise.all([specialElite, bebasFont()]);
   const room = line ? 300 : 360;
   const t = fitTitle(title, room);
   const l = line ? (line.length > 90 ? `${line.slice(0, 87).replace(/\s+\S*$/, '')}...` : line) : null;
   return new ImageResponse(
     (
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: FOLDER, color: INK, fontFamily: 'Special Elite', padding: `56px ${PAD_X}px 56px ${PAD_X}px` }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`data:image/png;base64,${stampBuf.toString('base64')}`} width={STAMP_WIDTH} height={Math.round(STAMP_WIDTH * STAMP_RATIO)} alt="" style={{ transform: 'rotate(-2.5deg)' }} />
+        <div style={{ display: 'flex' }}><Stamp width={STAMP_WIDTH} /></div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flexGrow: 1 }}>
           <div style={{ display: 'flex', fontSize: t.size, lineHeight: 1.15, maxWidth: TEXT_WIDTH }}>{t.text}</div>
           {l ? <div style={{ display: 'flex', marginTop: 20, fontSize: 32, lineHeight: 1.3, maxWidth: TEXT_WIDTH }}>{l}</div> : null}
         </div>
       </div>
     ),
-    { ...OG_SIZE, fonts: [{ name: 'Special Elite', data: font, style: 'normal', weight: 400 }] },
+    { ...OG_SIZE, fonts: [{ name: 'Special Elite', data: font, style: 'normal', weight: 400 }, bebas] },
   );
 }
