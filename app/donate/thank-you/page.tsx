@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   title: 'Thank you',
   description: 'Thank you for supporting opengovt.',
   alternates: { canonical: '/donate/thank-you' },
+  // Shown after a donation only, not a page to find in search (hub coverage check, Cowork ENTRY 363).
+  robots: { index: false, follow: true },
 };
 
 const INK = '#14100d';

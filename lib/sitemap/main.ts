@@ -16,6 +16,7 @@ import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
 import { SECTION_PAGES } from '@/lib/site-nav';
+import { DIRECTORY } from '@/lib/directory';
 import { projectHref } from '@/lib/major-projects';
 import { RECOMMENDATIONS_PUBLIC, allStatus, recPath, isBuildPhase, retrySoon } from '@/lib/pac';
 import { divisionHref, yearHref } from '@/lib/division-links';
@@ -546,8 +547,18 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     recommendationEntries.unshift({ url: `${SITE}/recommendations`, changeFrequency: 'weekly', priority: 0.7, ...(newest ? { lastModified: new Date(newest) } : {}) });
   }
 
+  // Every page in the A to Z directory is in the sitemap too (Cowork ENTRY 363: report pages added to the directory were
+  // missed here, as this list is kept by hand): any directory page not already listed above joins it. The directory is
+  // the one list a new hub page needs adding to; the hub coverage push check (scripts/checks/hub-coverage.mjs) lists any
+  // hub page missing from either.
+  const listed = new Set(staticEntries.map((e) => e.url));
+  const directoryEntries: MetadataRoute.Sitemap = [...new Set(DIRECTORY.map((d) => d.href))]
+    .filter((h) => h.startsWith('/') && !h.includes('#') && !h.includes('?') && !listed.has(`${SITE}${h === '/' ? '' : h}`))
+    .map((h) => ({ url: `${SITE}${h}`, changeFrequency: 'monthly' as const, priority: 0.6 }));
+
   return validDates([
     ...staticEntries,
+    ...directoryEntries,
     ...topicEntries,
     ...lobbyEntries,
     ...orgEntries,

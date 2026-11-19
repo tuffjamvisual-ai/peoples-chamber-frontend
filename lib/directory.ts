@@ -22,6 +22,10 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Cookies', href: '/cookies', desc: 'Choose which cookies opengovt may use, and change your choice at any time.' },
   { name: 'Constituency Donations', href: '/donations/constituencies', desc: 'Every constituency association ranked by the donations it declared.' },
   { name: 'Council Search', href: '/councils/search', desc: 'Find a council by name, town or postcode.' },
+  // Found by the hub coverage check (Cowork ENTRY 363, 19 Nov 2026).
+  { name: 'Commission Research: Sample Report', href: '/commission/sample' },
+  { name: 'Commission Research: Terms', href: '/commission/terms' },
+  { name: 'Government Programmes', href: '/programmes', desc: 'Major government policy commitments, tracked over time.' },
   { name: 'A - Z Directory', href: '/directory', desc: 'Everything on opengovt, A to Z.' },
   { name: 'Donate', href: '/donate', desc: 'Make a single donation to help keep opengovt free and independent.' },
   { name: 'Donations by Trusts', href: '/donations/trust-funded', desc: 'Political donations made through a trust rather than a named person, with who set up the trust.' },
@@ -105,6 +109,10 @@ const ALSO_KNOWN_AS: [string, string][] = [
   ['Children in Care', '/councils/children-in-care'],
   ['Road Condition', '/councils/road-condition'],
   ['HMOs (Houses in Multiple Occupation)', '/councils/hmos'],
+  // Missing until 19 Nov 2026 (Cowork ENTRY 363).
+  ['State of the Nation', '/state-of-the-nation'],
+  ['Free School Meals', '/councils/free-school-meals'],
+  ['Youth Justice', '/councils/youth-justice'],
   ['Local Councils', '/councils'],
   ['Benefits Spending', '/tools/welfare'],
   ['Manifestos', '/parties/manifestos'],

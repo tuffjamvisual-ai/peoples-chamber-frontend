@@ -181,6 +181,9 @@ try {
     run('node', ['scripts/checks/mobile-audit.mjs', '--fast', '--base', base, '--out', path.join(os.tmpdir(), 'opengovt-audit-fast')], { cwd: wt, env });
     run('node', ['scripts/checks/mobile-audit-deep.mjs', '--base', base, '--section', 'journeys', '--engines', 'chromium', '--journeys', 'e,g', '--out', path.join(os.tmpdir(), 'opengovt-audit-journeys')], { cwd: wt, env });
     run('node', ['scripts/checks/sitemap-dates-check.mjs', '--base', base], { cwd: wt, env });
+    // Hub coverage (owner approved 19 Nov 2026, Cowork ENTRY 363): every hub page in /directory and /sitemap.xml. WARNING ONLY
+    // until the list is clean, then failing (drop --warn).
+    try { run('node', ['scripts/checks/hub-coverage.mjs', '--base', base, '--warn', '--out', path.join(os.tmpdir(), 'opengovt-hub-coverage.md')], { cwd: wt, env }); } catch (e) { console.log(`hub coverage: could not run (warning only): ${String(e.message).split('\n')[0]}`); }
     // QA1 (owner approved, 9 Nov 2026): A2 time words, A3 phone length 2,500px, A6 first screen, A9 only sources link outside (T1-5c); only new problems fail (A9 always).
     run('node', ['scripts/checks/qa/rendered-checks.mjs', '--base', base, '--push'], { cwd: wt, env });
     // T1-VR: the pages the job names, from 'VR-pages:' lines in the pushed commits' messages.
