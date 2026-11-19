@@ -10,6 +10,8 @@ export type ExploreItem = { href: string; label: string; note?: string };
 export async function exploreNextSelection(piece: EditorialEntry): Promise<{
   isBriefing: boolean; base: string; data: ExploreItem[]; next: EditorialListEntry[]; latest: EditorialListEntry[];
   moreRelated: EditorialListEntry[]; hrefs: string[];
+  /** The piece's hand picked readNext pieces that exist (in its order); the Related list shows them first (ENTRY 348). */
+  picked: EditorialListEntry[];
 }> {
   type Item = ExploreItem;
   const set = await editorialSet();
@@ -73,5 +75,5 @@ export async function exploreNextSelection(piece: EditorialEntry): Promise<{
   // Pieces on the same subject that ExploreNext has no room for (Read next offers the first of these).
   const moreRelated = related.filter((e) => !used.has(e.slug));
   const hrefs = [...data.map((d) => d.href), ...next.map((e) => `${base}/${e.slug}`), ...latest.map((e) => `${base}/${e.slug}`), '/reports'];
-  return { isBriefing, base, data, next, latest, moreRelated, hrefs };
+  return { isBriefing, base, data, next, latest, moreRelated, hrefs, picked };
 }
