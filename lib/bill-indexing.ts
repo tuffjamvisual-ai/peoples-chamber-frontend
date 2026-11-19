@@ -5,8 +5,8 @@
 //   - it is in the current, unfinished session (introduced in it or carried into it), whatever its stage;
 //   - its current stage is a working stage (committee, report, 3rd reading, consideration of amendments);
 //   - it became an Act, had a Commons division, or has at least one recorded MP vote.
-// A bill from a finished session that never got past 1st or 2nd reading, with no vote, division or Act, keeps
-// noindex, follow: a thin page (first set as a soft 404 fix; follow keeps its links crawlable).
+// A bill from a finished session that never got past 1st or 2nd reading, with no vote, division or Act, was noindex,
+// follow until 19 Nov 2026; it is indexable now and its page says 'This bill did not progress' (ENTRY 367 item 7).
 // The stage is bill.current_stage. bill.status holds the NEXT stage (bill 4078: status "2nd reading" while
 // current_stage is "1st reading"), so it is not used here.
 import 'server-only';
@@ -24,12 +24,20 @@ export type BillIndexFacts = {
   inCurrentSession: boolean;
 };
 
-export function billIndexable(b: BillIndexFacts): boolean {
+// Whether the bill went anywhere: the old indexing rule. A bill that did not (a finished session, stopped at 1st or 2nd
+// reading, no vote, division or Act) now stays indexable (owner approved 19 Nov 2026, Cowork ENTRY 367 item 7: people
+// search for these bills) and its page says plainly that it did not progress.
+export function billProgressed(b: BillIndexFacts): boolean {
   return b.inCurrentSession
     || WORKING_STAGE.test((b.currentStage || '').toLowerCase())
     || b.isLaw
     || b.commonsDivisionId != null
     || b.hasVotes;
+}
+
+// Every bill page is indexable since ENTRY 367 item 7 (the page and the sitemap both ask here, so they cannot drift apart).
+export function billIndexable(_b: BillIndexFacts): boolean {
+  return true;
 }
 
 // The current session's id (parliament_session_bill_counts_stored.is_current), or null when none is marked current.

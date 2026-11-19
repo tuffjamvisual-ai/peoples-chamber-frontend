@@ -28,7 +28,7 @@ import AboutThisData from '@/app/components/AboutThisData';
 import Link from 'next/link';
 import { editorialsForBill } from '@/lib/editorials-source';
 import { billDivisions, divisionHref } from '@/lib/division-links';
-import { billIndexable, billInCurrentSession } from '@/lib/bill-indexing';
+import { billProgressed, billInCurrentSession } from '@/lib/bill-indexing';
 import { billStatus, isLaw, sittingCancelled } from '@/lib/bill-status';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
@@ -57,16 +57,8 @@ export async function generateStaticParams() {
 }
 
 // Whether search engines may index this bill: the rule shared with the sitemap, in lib/bill-indexing.ts (owner, 7 Nov 2026).
-// An indexable bill sends no robots tag (index, follow); any other sends noindex, follow, so its links stay crawlable.
-// If a later sync adds a vote, a working stage or the Act, the page flips back to indexable on revalidation.
-export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> }
-): Promise<Metadata> {
-  const { id } = await params
-  const billId = parseInt(id, 10)
-  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
-  if (!Number.isFinite(billId)) notFound()
-
+// The facts the indexing rule reads, shared by the metadata and the page (ENTRY 367 item 7): whether the bill progressed.
+async function progressFacts(billId: number) {
   // Only whether one MP vote exists matters, so one indexed row is read instead of counting them all (owner's
   // approval, 21 Oct 2026; the count averaged 1.2 s during builds).
   const [{ data: bill, error: billErr1 }, { data: oneVote, error: oneVoteErr }, inCurrentSession] = await Promise.all([
@@ -76,20 +68,33 @@ export async function generateMetadata(
   ])
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [billErr1, oneVoteErr]) if (e && e.code !== 'PGRST116') throw new Error(`/bills/[id] (bill, mp_division_votes): ${e.message}`);
+  return {
+    bill,
+    progressed: billProgressed({
+      currentStage: bill?.current_stage,
+      isLaw: bill ? isLaw(bill) : false,
+      commonsDivisionId: bill?.commons_division_id,
+      hasVotes: (oneVote?.length ?? 0) > 0,
+      inCurrentSession,
+    }),
+  }
+}
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+  const { id } = await params
+  const billId = parseInt(id, 10)
+  // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
+  if (!Number.isFinite(billId)) notFound()
+
+  const { bill } = await progressFacts(billId)
   // As the page: no bill, or a hidden one (duplicates, bad records), is a 404.
   if (!bill || bill.hidden_reason) notFound()
 
   // The page names itself canonical (owner, 31 Oct 2026, Search Console "duplicate without a main version"); the layout
-  // sets the same, this makes it explicit on the page.
-  const canonical = { alternates: { canonical: `/bills/${billId}` } }
-  const indexable = billIndexable({
-    currentStage: bill?.current_stage,
-    isLaw: bill ? isLaw(bill) : false,
-    commonsDivisionId: bill?.commons_division_id,
-    hasVotes: (oneVote?.length ?? 0) > 0,
-    inCurrentSession,
-  })
-  return indexable ? canonical : { ...canonical, robots: { index: false, follow: true } }
+  // sets the same, this makes it explicit on the page. Every bill is indexable (ENTRY 367 item 7).
+  return { alternates: { canonical: `/bills/${billId}` } }
 }
 
 const INK = '#14100d'
@@ -123,7 +128,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const { id } = await params
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) notFound()
-  const billPieces = await editorialsForBill(billId)
+  const [billPieces, { progressed }] = await Promise.all([editorialsForBill(billId), progressFacts(billId)])
 
   const [{ data: bill, error: billErr }, { data: lordsDivisionRows, error: lordsDivisionRowsErr }] = await Promise.all([
     cachedQuery(['q:app/bills/[id]/page.tsx:26fde5213f', JSON.stringify([billId])], [billTag(billId)], () => supabase.from('bill').select('*').eq('id', billId).single()),
@@ -298,6 +303,12 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         </div>
 
         {/* [Stage, date], as on the bill cards; nothing if both are empty */}
+        {/* A bill that went nowhere says so (ENTRY 367 item 7), so the page is not mistaken for a live one. */}
+        {!progressed && (
+          <p style={{ textAlign: 'center', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '-14px 0 18px' }}>
+            This bill did not progress: it stopped at {bill.current_stage ? bill.current_stage.toLowerCase() : 'an early stage'}, and the session it was in has ended.
+          </p>
+        )}
         {billStageLine(bill) && (
           <div data-main-action style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.1em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '24px' }}>
             [{billStageLine(bill)}]
