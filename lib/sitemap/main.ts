@@ -553,7 +553,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
   // hub page missing from either.
   const listed = new Set(staticEntries.map((e) => e.url));
   // Directory pages that are noindex stay out of the sitemap ('Submitted URL marked noindex'; T2, ENTRY 363).
-  const NOINDEX_DIRECTORY = new Set(['/feedback']);
+  const NOINDEX_DIRECTORY = new Set(['/feedback', '/search', '/unite-kingdom', '/councils/league-table']);
   const directoryEntries: MetadataRoute.Sitemap = [...new Set(DIRECTORY.map((d) => d.href))]
     .filter((h) => h.startsWith('/') && !h.includes('#') && !h.includes('?') && !listed.has(`${SITE}${h === '/' ? '' : h}`) && !NOINDEX_DIRECTORY.has(h))
     .map((h) => ({ url: `${SITE}${h}`, changeFrequency: 'monthly' as const, priority: 0.6 }));
