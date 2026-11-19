@@ -5,7 +5,9 @@ import { notFound, redirect } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import Pagination from '../../components/Pagination';
-import { divisionHref, divisionYears, yearCount, yearDivisions, yearHref } from '@/lib/division-links';
+import { divisionHref, divisionYears, yearCount, yearDivisions, yearHref, yearMonths, type YearDivision } from '@/lib/division-links';
+import { divisionMonthHref, monthName, neighbours } from '@/lib/year-pages';
+import PrevNext from '../../components/PrevNext';
 import DivisionYearLinks from '../DivisionYearLinks';
 import { ARCHIVE_LAST_YEAR, ARCHIVE_NOTE } from '@/lib/historic-archive';
 
@@ -41,6 +43,26 @@ function fmtDate(d: string) {
   return new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', timeZone: 'UTC' });
 }
 
+// The rows of a year or month page (shared with /divisions/year/<yyyy>/<mm>, Cowork ENTRY 367 item 3): date, number,
+// title as a link, and the Aye and No totals; folded on phones by NoJsPager.
+export function DivisionRowList({ id, rows }: { id: string; rows: YearDivision[] }) {
+  return (
+    <NoJsPager id={id} count={rows.length} rows="> li" size={25}>
+    <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+      {rows.map((d) => (
+        <li key={`${d.date}-${d.number}`} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '10px 0' }}>
+          <span style={{ display: 'block', fontFamily: MONO, fontSize: '15px', color: INK }}>{fmtDate(d.date)} · Division {d.number}</span>
+          <Link href={divisionHref(d.date, d.number)} style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.35, color: ACCENT, textDecoration: 'none' }}>{d.title}</Link>
+          {d.ayes != null && d.noes != null && (
+            <span style={{ display: 'block', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '2px' }}>Ayes {d.ayes.toLocaleString()}, Noes {d.noes.toLocaleString()}</span>
+          )}
+        </li>
+      ))}
+    </ol>
+    </NoJsPager>
+  );
+}
+
 export default async function YearListing({ rawYear, page }: { rawYear: string; page: number }) {
   const year = yearOf(rawYear);
   if (year == null) notFound();
@@ -49,8 +71,10 @@ export default async function YearListing({ rawYear, page }: { rawYear: string; 
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
   // Past the last page: a temporary redirect (307), so it does not stick once that page exists (T2 review, ENTRY 219).
   if (page > totalPages) redirect(yearHref(year, totalPages));
-  const years = await divisionYears();
+  const [years, months] = await Promise.all([divisionYears(), yearMonths(year)]);
   const first = (page - 1) * PER_PAGE + 1;
+  // Cowork ENTRY 367 item 3: the year's months, each one page with all its divisions (indexable), and the years either side.
+  const around = neighbours(years, year, (a, b) => a - b);
 
   return (
     <OpenGovShell pageStamp="Divisions">
@@ -71,23 +95,24 @@ export default async function YearListing({ rawYear, page }: { rawYear: string; 
         {year <= ARCHIVE_LAST_YEAR && <p style={{ fontSize: '15px', lineHeight: 1.6, maxWidth: '720px', color: INK, marginTop: '10px' }}>{ARCHIVE_NOTE}</p>}
       </header>
 
+      <nav aria-label={`Divisions in ${year} by month`} style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px', lineHeight: 1.9 }}>
+        By month:{' '}
+        {months.map((m, i) => (
+          <span key={m.month}>
+            {i > 0 && ' · '}
+            <Link href={divisionMonthHref(year, m.month)} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{monthName(m.month)}</Link> ({m.count.toLocaleString()})
+          </span>
+        ))}
+      </nav>
+      <PrevNext label="Years either side"
+        previous={around.previous == null ? null : { href: yearHref(around.previous), text: String(around.previous) }}
+        next={around.next == null ? null : { href: yearHref(around.next), text: String(around.next) }} />
+
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px' }}>
         Showing {first.toLocaleString()} to {(first + rows.length - 1).toLocaleString()} of {total.toLocaleString()} votes in {year}
       </p>
 
-      <NoJsPager id="dy-rows" count={(rows).length} rows="> li" size={25}>
-      <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-        {rows.map((d) => (
-          <li key={`${d.date}-${d.number}`} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '10px 0' }}>
-            <span style={{ display: 'block', fontFamily: MONO, fontSize: '15px', color: INK }}>{fmtDate(d.date)} · Division {d.number}</span>
-            <Link href={divisionHref(d.date, d.number)} style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.35, color: ACCENT, textDecoration: 'none' }}>{d.title}</Link>
-            {d.ayes != null && d.noes != null && (
-              <span style={{ display: 'block', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '2px' }}>Ayes {d.ayes.toLocaleString()}, Noes {d.noes.toLocaleString()}</span>
-            )}
-          </li>
-        ))}
-      </ol>
-      </NoJsPager>
+      <DivisionRowList id="dy-rows" rows={rows} />
 
       <Pagination currentPage={page} totalPages={totalPages} baseUrl={`/divisions/year/${year}`} hrefFor={(p) => yearHref(year, p)} />
 

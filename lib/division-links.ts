@@ -5,7 +5,8 @@
 // Every read uses an index: commons_divisions_fts and commons_division_totals on (date, number), mp_division_votes on
 // bill_id. No full-table reads.
 import { supabase } from '@/lib/supabase';
-import { ARCHIVE_FIRST_YEAR, ARCHIVE_LAST_YEAR, archiveYearCount, archiveYearRows } from './historic-archive';
+import { ARCHIVE_FIRST_YEAR, ARCHIVE_LAST_YEAR, archiveTitle, archiveYearCount, archiveYearRows } from './historic-archive';
+import { monthCounts, monthRange } from './year-pages';
 import { tagged } from '@/lib/tagged-read';
 import { tableTags, DIVISION_TABLES } from '@/lib/source-tags';
 
@@ -84,17 +85,73 @@ async function currentYearDivisions(year: number, page: number, perPage: number)
   const rows = ((data ?? []) as { division_date_only: string; division_number: number; division_title: string | null }[]).map(ref);
   // Past the last page there are no rows and no count: count the year on its own, so the page can show the last page.
   if (!rows.length) return { rows: [], total: count ?? (await currentYearCount(year)) };
+  return { rows: await withTotals(rows, String(year)), total: count ?? 0 };
+}
+
+// The Aye and No totals for rows listed newest first (commons_division_totals, one read over their dates).
+async function withTotals(rows: DivisionRef[], label: string): Promise<YearDivision[]> {
+  if (!rows.length) return [];
   const newest = rows[0].date, oldest = rows[rows.length - 1].date;
   const { data: totals, error: tErr } = await supabase.from('commons_division_totals')
     .select('division_date, division_number, aye_count, no_count')
     .gte('division_date', oldest).lte('division_date', newest);
-  if (tErr) throw new Error(`division totals ${year}: ${tErr.message}`);
+  if (tErr) throw new Error(`division totals ${label}: ${tErr.message}`);
   const byKey = new Map(((totals ?? []) as { division_date: string; division_number: number; aye_count: number | null; no_count: number | null }[])
     .map((t) => [`${String(t.division_date).slice(0, 10)}-${t.division_number}`, t]));
-  return {
-    rows: rows.map((r) => { const t = byKey.get(`${r.date}-${r.number}`); return { ...r, ayes: t?.aye_count ?? null, noes: t?.no_count ?? null }; }),
-    total: count ?? 0,
-  };
+  return rows.map((r) => { const t = byKey.get(`${r.date}-${r.number}`); return { ...r, ayes: t?.aye_count ?? null, noes: t?.no_count ?? null }; });
+}
+
+// Month pages (Cowork ENTRY 367 item 3): /divisions/year/<yyyy>/<mm> lists every division of one month on one page, so
+// every division is reachable from an indexable page (page 2 onward of a year is noindex, follow).
+// The date of every division between two dates, sitting and archive votes together (a few hundred a year; pages of 1,000).
+async function divisionDatesIn(from: string, to: string): Promise<string[]> {
+  const out: string[] = [];
+  for (let at = 0; ; at += 1000) {
+    const { data, error } = await supabase.from('commons_divisions_fts').select('division_date_only')
+      .gte('division_date_only', from).lte('division_date_only', to)
+      .order('division_date_only', { ascending: true }).order('division_number', { ascending: true }).range(at, at + 999);
+    if (error && error.code !== 'PGRST103') throw new Error(`division dates ${from}: ${error.message}`);
+    const rows = (data ?? []) as { division_date_only: string }[];
+    out.push(...rows.map((r) => String(r.division_date_only).slice(0, 10)));
+    if (rows.length < 1000) break;
+  }
+  if (Number(from.slice(0, 4)) <= ARCHIVE_LAST_YEAR) {
+    for (let at = 0; ; at += 1000) {
+      const { data, error } = await supabase.from('historic_commons_divisions').select('division_date')
+        .gte('division_date', from).lte('division_date', to)
+        .order('division_date', { ascending: true }).order('division_number', { ascending: true }).range(at, at + 999);
+      if (error && error.code !== 'PGRST103') throw new Error(`archive division dates ${from}: ${error.message}`);
+      const rows = (data ?? []) as { division_date: string }[];
+      out.push(...rows.map((r) => String(r.division_date).slice(0, 10)));
+      if (rows.length < 1000) break;
+    }
+  }
+  return out;
+}
+
+// The months of a year that have divisions, January first, each with its count.
+async function yearMonthsRead(year: number): Promise<{ month: number; count: number }[]> {
+  return monthCounts(await divisionDatesIn(`${year}-01-01`, `${year}-12-31`));
+}
+
+// Every division in one month, newest first: sitting votes with their totals, then the archive's (2016 has both).
+async function monthDivisionsRead(year: number, month: number): Promise<YearDivision[]> {
+  const { from, to } = monthRange(year, month);
+  const { data, error } = await supabase.from('commons_divisions_fts')
+    .select('division_date_only, division_number, division_title')
+    .gte('division_date_only', from).lte('division_date_only', to)
+    .order('division_date_only', { ascending: false }).order('division_number', { ascending: false })
+    .range(0, 999);
+  if (error && error.code !== 'PGRST103') throw new Error(`divisions in ${year}-${month}: ${error.message}`);
+  const newer = await withTotals(((data ?? []) as { division_date_only: string; division_number: number; division_title: string | null }[]).map(ref), `${year}-${month}`);
+  if (year > ARCHIVE_LAST_YEAR) return newer;
+  const { data: old, error: oErr } = await supabase.from('historic_commons_divisions').select('division_date, division_number, title, ayes_shown, noes_shown')
+    .gte('division_date', from).lte('division_date', to)
+    .order('division_date', { ascending: false }).order('division_number', { ascending: false }).range(0, 999);
+  if (oErr && oErr.code !== 'PGRST103') throw new Error(`archive divisions in ${year}-${month}: ${oErr.message}`);
+  const older = ((old ?? []) as { division_date: string; division_number: number; title: string | null; ayes_shown: number; noes_shown: number }[])
+    .map((r) => ({ date: String(r.division_date).slice(0, 10), number: r.division_number, title: archiveTitle(r), ayes: r.ayes_shown, noes: r.noes_shown }));
+  return [...newer, ...older];
 }
 
 // The divisions around one: the one before and after (by date, then number), and up to 10 others on the same day.
@@ -143,3 +200,5 @@ export const yearCount = (...a: Parameters<typeof yearCountRead>) => tagged(['di
 export const yearDivisions = (...a: Parameters<typeof yearDivisionsRead>) => tagged(['division-year-rows-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES, 'historic_commons_divisions'), () => yearDivisionsRead(...a));
 export const divisionNeighbours = (...a: Parameters<typeof divisionNeighboursRead>) => tagged(['division-neighbours-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES), () => divisionNeighboursRead(...a));
 export const billDivisions = (...a: Parameters<typeof billDivisionsRead>) => tagged(['bill-divisions-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES), () => billDivisionsRead(...a));
+export const yearMonths = (...a: Parameters<typeof yearMonthsRead>) => tagged(['division-year-months-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES, 'historic_commons_divisions'), () => yearMonthsRead(...a));
+export const monthDivisions = (...a: Parameters<typeof monthDivisionsRead>) => tagged(['division-month-rows-v1', ...a.map((x) => JSON.stringify(x ?? null))], tableTags(...DIVISION_TABLES, 'historic_commons_divisions'), () => monthDivisionsRead(...a));

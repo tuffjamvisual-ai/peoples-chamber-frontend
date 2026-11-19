@@ -11,6 +11,7 @@ import { preFixedDay, preFixedSummary, type PreFixedExchange, type PreFixedRow }
 import PreFixedNotes, { ExperimentNote, UNCONFIRMED_NOTE } from '../PreFixedNotes';
 
 import BackLink from '@/app/components/BackLink';
+import { pmqsYearHref } from '@/lib/year-pages';
 // One day's questions to the Prime Minister before the fixed time (owner, 6 Nov 2026): a day, never a session. Rendered on first request; the record does not change.
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
@@ -90,6 +91,10 @@ export default async function PreFixedDayPage({ params }: { params: Promise<{ da
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: "Prime Minister's Questions", path: '/pmqs' }, { name: '1945 to 1961', path: '/pmqs/1945-to-1961' }, { name: longDateArchive(date), path: `/pmqs/1945-to-1961/${date}` }])} />
       <BackLink fallbackHref="/pmqs#before-fixed-pmqs" />
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 12px', color: INK }}>{title}</h1>
+      {/* Cowork ENTRY 367 item 3: up to the year's page, which lists every day of questions that year. */}
+      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px', color: INK }}>
+        <Link href={pmqsYearHref(Number(date.slice(0, 4)))} prefetch={false} style={{ color: ACCENT, textDecoration: 'underline' }}>Every day of questions in {date.slice(0, 4)}</Link>
+      </p>
       <div style={{ color: INK }}>
         <div>
           {/* On phones the first screen at most, never more than before (MP2f-9). */}

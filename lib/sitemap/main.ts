@@ -20,6 +20,7 @@ import { DIRECTORY } from '@/lib/directory';
 import { projectHref } from '@/lib/major-projects';
 import { RECOMMENDATIONS_PUBLIC, allStatus, recPath, isBuildPhase, retrySoon } from '@/lib/pac';
 import { divisionHref, yearHref } from '@/lib/division-links';
+import { divisionMonthHref, pmqsYearHref } from '@/lib/year-pages';
 import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import { FORMER_MP_PROFILE_IDS } from '@/lib/former-mp-profile-ids';
 import { billIndexable, currentSessionBillIds } from '@/lib/bill-indexing';
@@ -234,6 +235,12 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
   const pmqsNewest = newest(...pmqsArchiveDays, ...pmqsEntries.map((e) => (e.lastModified ? new Date(e.lastModified).toISOString() : null)));
   if (pmqsPage && pmqsNewest) pmqsPage.lastModified = pmqsNewest;
 
+  // The PMQs year pages, /pmqs/year/<yyyy> (Cowork ENTRY 367 item 3): one per year with sessions (1961 on) or days of
+  // questions to the Prime Minister (1945 to 1961, added below), each dated by the newest date of the pages it lists.
+  const pmqsYearDays = new Map<number, string[]>();
+  const addPmqsYear = (date: string, day: string | null) => { const y = Number(date.slice(0, 4)); pmqsYearDays.set(y, [...(pmqsYearDays.get(y) ?? []), ...(day ? [day] : [])]); };
+  for (const e of [...pmqsEntries, ...pmqsArchiveEntries]) addPmqsYear(String(e.url).slice(`${SITE}/pmqs/`.length), e.lastModified ? new Date(e.lastModified).toISOString() : null);
+
   // /questions and each department's page, dated by the latest answer. Individual questions are not listed (owner, 6 Nov 2026).
   const questionStats = await questionDepartmentStats().catch(() => []);
   // Questions to the Prime Minister, 1945 to 1961: the notes page, dated by when these questions were added, and each day, dated by
@@ -243,6 +250,13 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/pmqs/1945-to-1961`, lastModified: new Date('2026-11-07'), changeFrequency: 'yearly', priority: 0.5 },
     ...preFixed.groups.flatMap((g) => g.years.flatMap((y) => y.days.map((d) => ({ url: `${SITE}/pmqs/1945-to-1961/${d.date}`, lastModified: new Date(PM_QUESTIONS_1945_1961_LOADED), changeFrequency: 'yearly' as const, priority: 0.4 })))),
   ] : [];
+  if (preFixed) for (const g of preFixed.groups) for (const y of g.years) for (const d of y.days) addPmqsYear(d.date, PM_QUESTIONS_1945_1961_LOADED);
+  const pmqsYearEntries: MetadataRoute.Sitemap = [...pmqsYearDays.entries()].sort((a, b) => a[0] - b[0]).map(([y, days]) => ({
+    url: `${SITE}${pmqsYearHref(y)}`,
+    ...dated(newest(...days)),
+    changeFrequency: y === new Date().getUTCFullYear() ? ('weekly' as const) : ('yearly' as const),
+    priority: 0.5,
+  }));
 
   const questionEntries: MetadataRoute.Sitemap = questionStats.length ? [
     { url: `${SITE}/questions`, ...dated(newest(...questionStats.map((r) => r.latest_answer))), changeFrequency: 'daily' as const, priority: 0.6 },
@@ -488,6 +502,17 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     }];
   });
 
+  // The month pages, /divisions/year/<yyyy>/<mm> (Cowork ENTRY 367 item 3): every month with divisions, each page listing
+  // all of that month's divisions (indexable, unlike page 2 onward of a year), dated by the newest row it lists.
+  const monthRows = new Map<string, YearRow[]>();
+  for (const rows of yearRows.values()) for (const r of rows) { const k = r.date.slice(0, 7); monthRows.set(k, [...(monthRows.get(k) ?? []), r]); }
+  const divisionMonthEntries: MetadataRoute.Sitemap = [...monthRows.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([k, rows]) => ({
+    url: `${SITE}${divisionMonthHref(Number(k.slice(0, 4)), Number(k.slice(5, 7)))}`,
+    ...dated(newest(...rows.map((r) => r.day))),
+    changeFrequency: Number(k.slice(0, 4)) === thisYear ? ('weekly' as const) : ('yearly' as const),
+    priority: 0.5,
+  }));
+
   // Committee profile pages — 29 select committee IDs from lib/committees.ts.
   // Membership changes nightly; weekly changeFrequency matches the sync cadence.
   const committeeEntries: MetadataRoute.Sitemap = COMMITTEE_IDS.map((id) => ({
@@ -617,6 +642,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     ...pmqsEntries,
     ...pmqsArchiveEntries,
     ...preFixedEntries,
+    ...pmqsYearEntries,
     ...petitionEntries,
     ...constituencyEntries,
     ...motionEntries,
@@ -631,6 +657,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     ...divisionEntries,
     ...archiveDivisionEntries,
     ...divisionYearEntries,
+    ...divisionMonthEntries,
     ...committeeEntries,
     ...majorProjectEntries,
     ...recommendationEntries,

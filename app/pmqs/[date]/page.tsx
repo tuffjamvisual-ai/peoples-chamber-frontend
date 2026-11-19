@@ -10,6 +10,7 @@ import MoreChain from '../../components/MoreChain';
 import ArchiveSessionView from './ArchiveSessionView';
 
 import BackLink from '@/app/components/BackLink';
+import { pmqsYearHref } from '@/lib/year-pages';
 // One session of Prime Minister's Questions (owner, 5 Nov 2026): rendered on first request and refreshed every six hours,
 // because Hansard can correct a session for about two weeks.
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
@@ -79,7 +80,9 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 24px', color: INK }}>
         {exchanges.length}{speakerStandsIn
           ? ' questions. Where the Speaker stepped in and no answer was given, the Speaker\u2019s words are shown. The Speaker\u2019s other interventions, shouted asides and points of order are left out'
-          : ' questions. The Speaker\u2019s interventions, shouted asides and points of order are left out'}{session.hansardUrl ? '; the full record in Hansard is in Sources at the end of the page' : ''}.
+          : ' questions. The Speaker\u2019s interventions, shouted asides and points of order are left out'}{session.hansardUrl ? '; the full record in Hansard is in Sources at the end of the page' : ''}.{' '}
+        {/* Cowork ENTRY 367 item 3: up to the year's page, which lists every session that year. */}
+        <Link href={pmqsYearHref(Number(date.slice(0, 4)))} prefetch={false} style={link}>Every session in {date.slice(0, 4)}</Link>
       </p>
       {/* The questions as every list (owner approved 18 Nov 2026, ENTRY 286 and 302): under 1,024px the first 3, then Show 10
           more with the count and Show fewer (the page length limit lifted here, ENTRY 302); from 1,024px every question. Was

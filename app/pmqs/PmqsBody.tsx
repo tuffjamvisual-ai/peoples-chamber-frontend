@@ -5,6 +5,7 @@ import BackLink from '../components/BackLink';
 import PmqsAttendance, { PMQS_ATTENDANCE_SOURCE } from './PmqsAttendance';
 import EverySession, { type PmqsFilters } from './EverySession';
 import { pmqsSet } from '@/lib/pmqs';
+import PmqsYearLinks from './PmqsYearLinks';
 
 // The metadata of /pmqs, shared with its filter and search routes (F04 batch 3).
 export const PMQS_META: Metadata = {
@@ -23,6 +24,7 @@ export default async function PmqsBody({ filters }: { filters: PmqsFilters }) {
         Prime Minister&rsquo;s Questions
       </h1>
       <EverySession set={set} filters={filters} />
+      <PmqsYearLinks />
       <PmqsAttendance />
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
       <PageSources sources={[PMQS_ATTENDANCE_SOURCE]} />

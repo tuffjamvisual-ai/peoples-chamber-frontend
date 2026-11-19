@@ -6,6 +6,7 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { answeredBy, archiveExchanges, longDateArchive, officialRecord, type ArchiveContribution, type ArchiveExchange, type ArchiveSession } from '@/lib/pmqs-archive';
 
 import BackLink from '@/app/components/BackLink';
+import { pmqsYearHref } from '@/lib/year-pages';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const link = { color: ACCENT, textDecoration: 'underline' };
@@ -45,7 +46,9 @@ export default async function ArchiveSessionView({ session }: { session: Archive
       {answeredBy(session.date) && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 4px', color: INK }}>Answered by {answeredBy(session.date)}.</p>}
       {session.note && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 4px', color: INK }}>{session.note}</p>}
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 24px', color: INK }}>
-        {session.exchanges} {session.exchanges === 1 ? 'contribution' : 'contributions'} in the record (in Sources at the end of the page).
+        {session.exchanges} {session.exchanges === 1 ? 'contribution' : 'contributions'} in the record (in Sources at the end of the page).{' '}
+        {/* Cowork ENTRY 367 item 3: up to the year's page, which lists every session that year. */}
+        <Link href={pmqsYearHref(Number(session.date.slice(0, 4)))} prefetch={false} style={link}>Every session in {session.date.slice(0, 4)}</Link>
       </p>
       <div style={{ color: INK }}>
         {/* Phones: as many exchanges as fit the 2,500px length (UX5, T1-6, 11 Nov 2026); wider, as before. */}
