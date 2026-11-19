@@ -32,6 +32,8 @@ export default function HomeMpSearch() {
   return (
     <form action="/mps" method="get" onSubmit={onSubmit} style={{ margin: 0 }}>
       <label htmlFor="home-mp-q" className="og-kicker og-search-label">Find your MP</label>
+      {/* For the search term log (Cowork ENTRY 375 item 2): /mps logs a search opened from here as 'home-mp'. */}
+      <input type="hidden" name="via" value="home" />
       <div className="og-sbox-row" style={{ position: 'relative' }}>
         <SuggestInput suggestPath="/api/suggest/mps"
           id="home-mp-q"

@@ -21,6 +21,8 @@ import Link from 'next/link';
 import { normaliseParty, isCoop, resolvePartyColour } from '@/lib/party-helpers';
 import Unavailable from '@/app/components/Unavailable';
 import { wordsOf, searchList } from '@/lib/search/words';
+import SearchLog from '@/app/components/SearchLog';
+import { homeBox } from '@/lib/search-terms';
 
 import '@/app/components/search-box-desk.css';
 interface MP {
@@ -93,6 +95,15 @@ function MPsView({ mps, expand, searchParams }: ViewProps & { searchParams: Para
     return searchList(fielded, searchTerm).matches;
   }, [mps, fielded, searchTerm]);
 
+  // The search term log (Cowork ENTRY 375 item 2): the ?q= the list opened with (not each letter typed after), with the
+  // MPs it matched; a full postcode opens that MP's page instead, so its count is not known (null).
+  const [opened] = useState(() => ({ q: (searchParams.get('q') ?? '').trim(), via: searchParams.get('via') }));
+  const openedCount = useMemo(() => {
+    if (!opened.q) return 0;
+    if (POSTCODE_RE.test(opened.q.toUpperCase().replace(/\s+/g, ''))) return null;
+    return searchList(fielded, opened.q).matches.length;
+  }, [fielded, opened]);
+
   const mpsByParty = useMemo(() => {
     const acc: Record<string, MP[]> = {};
     for (const mp of filteredMPs) {
@@ -151,6 +162,7 @@ function MPsView({ mps, expand, searchParams }: ViewProps & { searchParams: Para
           setSearchTerm={setSearchTerm}
         />
       )}
+      {opened.q && <SearchLog term={opened.q} box={homeBox('mps', opened.via)} results={openedCount} />}
 
     </div>
   );

@@ -9,6 +9,8 @@ import { answeredBy, archiveSessions, groupByPrimeMinister, libraryTotals, longD
 import { cleanWords, datePrefix, pmSlug, preFixedMatching, sessionsMatching, ROW_CAP } from '@/lib/pmqs-search';
 import type { PmqsSet } from '@/lib/pmqs';
 import { listPath } from '@/lib/list-path';
+import SearchLog from '../components/SearchLog';
+import type { SearchBox } from '@/lib/search-terms';
 
 import '@/app/components/search-box-desk.css';
 const INK = '#14100d';
@@ -88,7 +90,7 @@ export async function pmqsModel(set: PmqsSet, filters: PmqsFilters) {
   return { archive, totals, preFixed, sessions, groups, counted, noteFor, words, pmGroup, preDays, prePms, prePm, pmKey, onlyPre, years, year, onDate, byName, text, preText, hit, pmDates, found, pages, page, shown, chosen, qs, preHit, preFound, prePages, dpage, sessionQs, preQs, valid };
 }
 
-export default async function EverySession({ set, filters }: { set: PmqsSet; filters: PmqsFilters }) {
+export default async function EverySession({ set, filters, logBox }: { set: PmqsSet; filters: PmqsFilters; logBox?: SearchBox }) {
   const { totals, sessions, groups, counted, noteFor, words, pmGroup, preDays, prePm, pmKey, onlyPre, years, year, text, preText, found, pages, page, shown, chosen, preFound, dpage, sessionQs, preQs } = await pmqsModel(set, filters);
   const label = { display: 'block', fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' } as const;
   const field = { width: '100%', minHeight: '48px', padding: '10px 12px', fontSize: '16px', fontFamily: 'inherit', color: INK, background: 'rgba(20,16,13,0.05)', border: '1px solid rgba(20,16,13,0.3)', borderRadius: '2px' } as const;
@@ -133,6 +135,9 @@ export default async function EverySession({ set, filters }: { set: PmqsSet; fil
         {chosen && <>{' '}<Link href="/pmqs" className="og-tap" style={{ minWidth: '44px', color: ACCENT, textDecoration: 'underline' }}>Clear</Link></>}
         {text?.capped && <> This search matched more than {ROW_CAP.toLocaleString('en-GB')} contributions, so some older sessions may be missing: add a word, a Prime Minister or a year to narrow it.</>}
       </p>
+      {/* The search term log (Cowork ENTRY 375 item 2), from /pmqs/search only and only for the first pages of a search
+          (a later page is the same search): the words and every session found, 1961 on and 1945 to 1961. */}
+      {logBox && words && page === 1 && dpage === 1 && <SearchLog term={words} box={logBox} results={found.length + preFound.length} />}
       {shown.length > 0 ? (
         <NoJsPager id="pmqs-found" count={shown.length} rows="> li" size={PER_PAGE} first={3} noun={{ one: 'session', many: 'sessions' }}>
           <ul className="pa-list" style={{ listStyle: 'none', margin: 0, padding: 0 }}>

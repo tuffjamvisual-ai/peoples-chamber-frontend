@@ -49,6 +49,9 @@ export default function PrivacyPage() {
           When you vote on polls or bills, your vote is recorded against your account, with the time, to prevent duplicate voting, but only aggregated results are ever published or shared. No individual voting record is made public.
         </p>
         <p style={p}>
+          We keep the words typed into our search boxes, without anything that identifies you, to improve the site.
+        </p>
+        <p style={p}>
           We do not collect your home address, phone number or card details. Card payments are taken by Stripe on its own page (see below). We do not share your email or postcode with anyone except the services listed below, which process it only to run this site for us, and we will never send you marketing from other organisations.
         </p>
         </SectionFold>

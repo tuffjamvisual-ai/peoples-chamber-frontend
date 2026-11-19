@@ -291,6 +291,10 @@
     {
       "path": "/api/refresh-state-of-the-nation",
       "schedule": "35 7 * * *"
+    },
+    {
+      "path": "/api/cron/search-terms-retention",
+      "schedule": "37 3 * * *"
     }
   ]
 }

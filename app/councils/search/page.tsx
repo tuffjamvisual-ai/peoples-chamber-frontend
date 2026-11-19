@@ -12,6 +12,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import CouncilSearch from '../../components/CouncilSearch';
 import { councilsForPlaces, type PlaceCouncil } from '@/lib/council-places';
+import SearchLog from '../../components/SearchLog';
 
 export const dynamic = 'force-dynamic';
 
@@ -92,6 +93,8 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
         {/* The search box at every width (T1-AUD3, owner 11 Nov 2026: the directory's Council Search entry showed no
             search on desktop), with the link to every council. */}
         <CouncilSearch key={q} initialQuery={q} noMatchText="No council has that name. Try your postcode instead." />
+        {/* The search term log (Cowork ENTRY 375 item 2): the term and every match shown (councils and places). */}
+        {q.trim() && <SearchLog term={q} box="councils" results={results.length + places.length} />}
         <p style={{ fontFamily: MONO, fontSize: '15px', margin: '14px 0 28px' }}>
           <Link href="/councils" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '10px 0' }}>Browse all councils</Link>
         </p>

@@ -256,6 +256,10 @@
     "/api/refresh-state-of-the-nation": {
       "schedule": "35 7 * * *",
       "since": "2026-11-15T02:05:47Z"
+    },
+    "/api/cron/search-terms-retention": {
+      "schedule": "37 3 * * *",
+      "since": "2026-11-21T04:00:00Z"
     }
   }
 }

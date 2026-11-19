@@ -6,6 +6,8 @@ import SearchInput from './SearchInput';
 import SignupNote from './SignupNote';
 import SaveSearchButton from './SaveSearchButton';
 import SearchTracker from './SearchTracker';
+import SearchLog from '../components/SearchLog';
+import { homeBox } from '@/lib/search-terms';
 import PhoneMore from '../components/PhoneMore';
 import { SubFold } from '../components/PhoneFolds';
 import { searchNoteInline } from '@/lib/search-note';
@@ -340,6 +342,7 @@ type PageProps = {
     from?: string;
     to?: string;
     sort?: string;
+    via?: string;
   }>;
 };
 
@@ -424,6 +427,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
   // "Did you mean" (SR1): only for a search that found nothing with every word, one corrected query from our own titles
   // and page names, as a link with the same filters, never run by itself (lib/search-suggest.ts).
   const suggestion = q.length >= 2 && noneWithEveryWord ? suggestQuery(q, await searchVocabulary()) : null;
+  // The one count both the PostHog tracker and the search term log send (Cowork ENTRY 375 item 2).
+  const resultsCount = pages.length + strict.length + loose.results.length + mps.length + seats.length + councils.length + peers.length + spads.length + orgMatches.length + (donorSearch.more ? donorSearch.totalNames : linkedDonors.length);
   const suggestionHref = suggestion
     ? `/search?${new URLSearchParams({ q: suggestion, ...(type !== 'all' ? { type } : {}), ...(dept ? { dept } : {}), ...(sort === 'newest' ? { sort } : {}) }).toString()}`
     : null;
@@ -502,7 +507,9 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {!RECORD_FILTERS.includes(type) && <SaveSearchButton q={q} type={type} dept={dept} from={from} to={to} sort={sort} />}
       {/* The "search" analytics event for a submitted search, with consent only; the count is every result shown or
           counted on this page (content, councils, organisations, donor names). */}
-      <SearchTracker q={q} resultsCount={pages.length + strict.length + loose.results.length + mps.length + seats.length + councils.length + peers.length + spads.length + orgMatches.length + (donorSearch.more ? donorSearch.totalNames : linkedDonors.length)} />
+      <SearchTracker q={q} resultsCount={resultsCount} />
+      {/* The search term log (Cowork ENTRY 375 item 2): the term, this box (or the homepage's, via=home), the same count. */}
+      {q && <SearchLog term={q} box={homeBox('site', sp.via)} results={resultsCount} />}
 
       {q.length >= 2 && isEmpty && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>

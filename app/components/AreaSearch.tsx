@@ -15,6 +15,8 @@ import { markMatches } from '@/lib/search/words';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { logSearch } from '@/app/components/SearchLog';
+import type { SearchBox } from '@/lib/search-terms';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -28,7 +30,8 @@ const POSTCODE_LIKE = /^[A-Za-z]{1,2}\d/;
 
 // tight: pull the box up under the site search on the homepage.
 // label, placeholder: the homepage shows a visible label and a shorter placeholder; /your-area keeps the old wording.
-export default function AreaSearch({ tight = false, label, placeholder }: { tight?: boolean; label?: string; placeholder?: string }) {
+// logBox: the homepage only (Cowork ENTRY 375 item 2): each search's term and result count go to the search term log.
+export default function AreaSearch({ tight = false, label, placeholder, logBox }: { tight?: boolean; label?: string; placeholder?: string; logBox?: SearchBox }) {
   const router = useRouter();
   const inputId = useId();
   const [q, setQ] = useState('');
@@ -88,11 +91,17 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
     window.setTimeout(() => document.documentElement.classList.remove('ya-wait'), 10000);
   }
 
-  async function lookup(url: string) {
+  async function lookup(url: string, text?: string) {
     setBusy(true); setError(null);
     try {
       const r = await fetch(url);
       const j = await r.json();
+      // The search term log: one council or place found counts 1, several towns of that name their number, and no
+      // exact match (suggestions only, not found, or not a valid postcode) 0. A lookup that failed is not logged, nor is
+      // picking one of several towns (that is not a new search).
+      if (logBox && text && (r.ok || r.status === 400 || r.status === 404)) {
+        logSearch(text, logBox, !r.ok || j.kind === 'suggest' ? 0 : j.kind === 'choices' ? (j.choices?.length ?? 0) : 1);
+      }
       if (!r.ok) {
         document.documentElement.classList.remove('ya-wait');
         const msg = j?.message || 'Lookup failed. Please try again.';
@@ -125,7 +134,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
     // Layout shift (ENTRY 135 L6: 0.399 at 375): as the search is sent, the page holds a full screen of space, so the
     // footer moves out of view at the tap (a move the reader caused) and nothing visible jumps when the results arrive.
     document.documentElement.classList.add('ya-wait');
-    lookup(`/api/area/lookup?q=${encodeURIComponent(text)}`);
+    lookup(`/api/area/lookup?q=${encodeURIComponent(text)}`, text);
   }
 
   // Arrow keys, Enter and Escape in the council list (SEARCH-ALL batch 2); matched letters bold; rows 44px.

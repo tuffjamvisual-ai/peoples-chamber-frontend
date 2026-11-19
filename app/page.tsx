@@ -159,6 +159,9 @@ export default async function HomePage() {
               <div className="og-finders">
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
                 <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt archives</label>
+                {/* Tells the search term log this search came from the homepage (Cowork ENTRY 375 item 2); /search takes it
+                    out of the address once logged. Not a filter: the page, its canonical and its noindex are unchanged. */}
+                <input type="hidden" name="via" value="home" />
                 {/* Suggestions as you type (SEARCH-ALL batch 1, Cowork ENTRY 326); Enter with none picked opens /search as before. */}
                 <div className="og-sbox-row" style={{ position: 'relative' }}>
                   <SuggestInput suggestPath="/api/suggest/site" inputProps={{ 'data-main-action': true }} ariaLabel="Search opengovt archives"
@@ -202,7 +205,7 @@ export default async function HomePage() {
                 </div>
               </form>
 
-              <AreaSearch label="Find your local council" placeholder="Postcode, town or council" />
+              <AreaSearch label="Find your local council" placeholder="Postcode, town or council" logBox="home-council" />
               {/* A 2 by 2 grid on desktop (owner, 19 Nov 2026, Cowork ENTRY 374): Search opengovt archives | Find your local council /
                   Search Prime Minister's Questions | Find your MP; stacked on phones, as before. */}
               {/* PMQs search (owner, 18 Nov 2026, Cowork ENTRY 320): directly under the two main searches, in the same look as
@@ -213,6 +216,8 @@ export default async function HomePage() {
               <style>{`@media ${phoneUpTo(767.98)} { .og-rail > a.og-pmqs-card { display: none !important; } }`}</style>
               <form action="/pmqs" method="get" className="og-pmqs-search" style={{ margin: 0 }}>
                 <label htmlFor="home-pmqs-q" className="og-kicker og-search-label">Search Prime Minister&rsquo;s Questions</label>
+                {/* For the search term log, as the main search above. */}
+                <input type="hidden" name="via" value="home" />
                 <div className="og-sbox-row" style={{ position: 'relative' }}>
                   {/* Suggestions as you type (SEARCH-ALL batch 1): Prime Ministers and sessions by date (lib/search/pmqs-index.ts);
                       Enter with none picked runs the full search of the questions, /pmqs?q=. */}
