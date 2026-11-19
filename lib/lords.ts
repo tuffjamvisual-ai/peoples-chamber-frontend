@@ -102,7 +102,9 @@ export async function peerVoting(db: SupabaseClient, memberId: number, recentCou
   const byDivision = new Map(votes.map((v) => [v.division_id, v.vote]));
   let recent: LordsVote[] = [];
   if (votes.length) {
-    const { data, error } = await cachedQuery(['q:lib/lords.ts:c764fb30b8', JSON.stringify([recentCount])], tableTags('lords_divisions'), () => db.from('lords_divisions').select('division_id, division_date, title, bill_id, is_government_win')
+    // The key holds the member and the divisions they voted in (19 Nov 2026): with only recentCount, every peer shared one
+    // cached list of recent divisions (found by T1's helper, ENTRY 367); the ids also make a new vote a new key.
+    const { data, error } = await cachedQuery(['q:lib/lords.ts:c764fb30b8', JSON.stringify([memberId, recentCount, [...byDivision.keys()].sort((a, b) => a - b)])], tableTags('lords_divisions'), () => db.from('lords_divisions').select('division_id, division_date, title, bill_id, is_government_win')
       .in('division_id', [...byDivision.keys()]).order('division_date', { ascending: false }).order('division_id', { ascending: false }).limit(recentCount));
     if (error) throw new Error(`peer recent divisions: ${error.message}`);
     recent = ((data ?? []) as Array<Omit<LordsVote, 'vote'>>).map((d) => ({ ...d, vote: byDivision.get(d.division_id) ?? '' }));
