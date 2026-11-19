@@ -2,11 +2,13 @@
 // before the page renders, because only the proxy can answer 410 Gone. Each check is one small read; a failed read
 // lets the request through to the page, so an outage never turns a real page into a 410.
 //   /departments/<slug>  not one of our departments: the organisation page when one has that name (an old donor page
-//                        link treated every contract buyer as a department), otherwise 410. Councils and agencies
-//                        are redirected earlier, in next.config.ts.
-//   /donors/<slug>       no donor name in the register gives this slug: 410 (the Electoral Commission corrected or
-//                        removed the name).
-//   /news/<slug>         not in our press releases: GOV.UK's page when it still has the release, otherwise 410.
+//                        link treated every contract buyer as a department), otherwise the page's own 404. Councils
+//                        and agencies are redirected earlier, in next.config.ts.
+//   /donors/<slug>       no donor name in the register gives this slug: the page's own 404.
+//   /news/<slug>         not in our press releases: GOV.UK's page when it still has the release, otherwise the page's 404.
+// 404, not 410 (owner approved 19 Nov 2026, Cowork ENTRY 367 item 8): 410 is only for pages we removed, and nothing here
+// records whether an address ever had a page (a made-up /donors/zzz answered 410), so these go on to the page, which
+// answers 404. The 'gone' kind stays for any future list of removed pages.
 
 // Every department page (lib/departments/index.ts). next.config.ts checks at build time that the two lists agree.
 export const DEPARTMENT_SLUGS = new Set([
@@ -50,7 +52,7 @@ async function departmentAction(ctx: Ctx, slug: string): Promise<GoneAction> {
   const names = [...new Set([slug, slug.replace(/(^|-)ltd(-|$)/g, '$1limited$2'), slug.replace(/(^|-)limited(-|$)/g, '$1ltd$2')])];
   const rows = await rest<{ slug: string }[]>(ctx, `organisation_index?select=slug&slug=in.(${names.map(encodeURIComponent).join(',')})&limit=1`);
   if (rows == null) return PASS;
-  return rows[0] ? { kind: 'redirect', location: `/organisations/${rows[0].slug}` } : { kind: 'gone' };
+  return rows[0] ? { kind: 'redirect', location: `/organisations/${rows[0].slug}` } : PASS;
 }
 
 async function donorAction(ctx: Ctx, slug: string): Promise<GoneAction> {
@@ -61,7 +63,7 @@ async function donorAction(ctx: Ctx, slug: string): Promise<GoneAction> {
   // 1 ms; the regex match it replaces walked every donor name (up to 4.2 s, past this check's 3 s limit).
   const rows = await rest<{ slug: string }[]>(ctx, `donor_slugs?select=slug&slug=eq.${encodeURIComponent(slug)}&limit=1`);
   if (rows == null) return PASS;
-  return rows.length ? PASS : { kind: 'gone' };
+  return PASS; // the donor page answers 404 for a slug no donor name gives (ENTRY 367 item 8)
 }
 
 async function newsAction(ctx: Ctx, slug: string): Promise<GoneAction> {
@@ -72,7 +74,7 @@ async function newsAction(ctx: Ctx, slug: string): Promise<GoneAction> {
   try {
     const res = await fetch(`https://www.gov.uk/api/content/government/news/${safe}`, { method: 'HEAD', signal: AbortSignal.timeout(TIMEOUT_MS) });
     if (res.ok) return { kind: 'redirect', location: `https://www.gov.uk/government/news/${safe}` };
-    return res.status === 404 || res.status === 410 ? { kind: 'gone' } : PASS;
+    return PASS; // the news page answers 404 (ENTRY 367 item 8)
   } catch {
     ctx.failed = true;
     return PASS;
