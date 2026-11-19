@@ -155,7 +155,7 @@ export default function RecommendationList({ reports, rows: given, departmentOpt
       {note && <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 12px', maxWidth: '46em' }}>{note}</p>}
       {/* Every matching row is in the page's HTML (Search Console, owner approved 19 Nov 2026, Cowork ENTRY 367 item 1: the
           JavaScript-only 'Show more' left about 917 of 977 recommendation pages with no link a crawler could see). MoreChain
-          folds them with native details, as /petitions: 3 then 'Show 10 more' on phones and tablets, 25 a press on desktop. */}
+          folds them with native details, as /petitions: 3 then 'Show 10 more' on phones and tablets; from 1,024px every row shows (ENTRY 302). */}
       <MoreChain ordered step={25} style={{ listStyle: 'none', padding: 0, margin: 0 }} items={matching.map(([key, rec, , words]) => {
           const r = reports[key];
           return (
