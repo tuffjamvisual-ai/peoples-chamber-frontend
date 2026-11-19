@@ -136,6 +136,11 @@ export default async function HomePage() {
                   up to 1,023.98px only (app/home-front.css). Desktop is unchanged. Under 768px: */}
               <style>{`@media ${phoneUpTo(767.98)} {
                 .og-lead-story .og-lede { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+                /* Homepage length on phones (19 Nov 2026: the daily reports took / to 2,509px at 375, limit 2,500): the lead
+                   story's summary to 3 lines, and 'This week in Parliament' shows its heading and link only, as the rail's
+                   other cards already do on phones. */
+                .og-lead-story .og-standfirst { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+                a.og-card[href="/this-week"] > :not(.og-head):not(.og-cta) { display: none !important; }
                 .og-finders { margin-bottom: 12px !important; }
                 .og-rail > #newsletter:not(:target) { display: none !important; }
                 .og-rail > .og-news-line { display: block !important; }
