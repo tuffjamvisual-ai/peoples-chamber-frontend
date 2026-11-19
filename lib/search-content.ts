@@ -35,9 +35,10 @@ export const VALID_SEARCH_TYPES = [
 
 export type SearchType = typeof VALID_SEARCH_TYPES[number];
 
-const PER_TABLE      = 20;
+// Rows read from each table, and kept in all. A table that gives its full PER_TABLE has more: /search then says '20+'.
+export const PER_TABLE    = 20;
 export const TOTAL_LIMIT  = 50;
-const PHRASE_PER_TABLE    = 100;
+export const PHRASE_PER_TABLE = 100;
 export const PHRASE_LIMIT = 100;
 
 const TYPE_WEIGHT: Record<SearchResultType, number> = {

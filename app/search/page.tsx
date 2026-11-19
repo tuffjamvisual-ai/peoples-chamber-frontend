@@ -9,13 +9,14 @@ import SearchTracker from './SearchTracker';
 import PhoneMore from '../components/PhoneMore';
 import { SubFold } from '../components/PhoneFolds';
 import { searchNoteInline } from '@/lib/search-note';
-import { searchContent, searchCouncils, searchConstituencies, searchPeers, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult, type ConstituencySearchResult, type PeerSearchResult } from '@/lib/search-content';
+import { searchContent, searchCouncils, searchConstituencies, searchPeers, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, PER_TABLE, PHRASE_PER_TABLE, type SearchResult, type CouncilSearchResult, type ConstituencySearchResult, type PeerSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
 import { suggestQuery } from '@/lib/search-suggest';
 import { didYouMean, KIND_LABEL } from '@/lib/did-you-mean';
 import { searchVocabulary } from '@/lib/search-vocabulary';
 import { cachedOrganisationList, searchOrganisations, type OrgListRow } from '@/lib/organisations';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { searchDirectory, type DirectoryPage } from '@/lib/directory';
 
 export const dynamic = 'force-dynamic';
 
@@ -277,7 +278,30 @@ function PeerRow({ p }: { p: PeerSearchResult }) {
   );
 }
 
-// The two groups of results (owner, 4 Nov 2026): the record itself, and what mentions the term.
+// A page of the site (Cowork ENTRY 383 addendum, 19 Nov 2026): a section, list or data page from the directory whose
+// name, keywords or description match (lib/directory.ts searchDirectory), in the same row style.
+const PAGE_META = { label: 'Page', color: ACCENT };
+function PageRow({ p }: { p: DirectoryPage }) {
+  return (
+    <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
+      <div className="srch-r" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+        <span style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.1em', color: INK, border: `1px solid ${PAGE_META.color}`, padding: '2px 6px', whiteSpace: 'nowrap', flexShrink: 0, marginTop: '3px', textTransform: 'uppercase' }}>
+          {PAGE_META.label}
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <Link href={p.href} style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: INK, textDecoration: 'none', lineHeight: 1.4, marginBottom: p.desc ? '4px' : 0 }}>
+            {p.title}
+          </Link>
+          {p.desc && <p style={{ fontSize: '15px', color: '#14100d', margin: 0, lineHeight: 1.55 }}>{p.desc.length > 200 ? p.desc.slice(0, 200) + '…' : p.desc}</p>}
+        </div>
+      </div>
+    </li>
+  );
+}
+
+// The two groups of results (owner, 4 Nov 2026): the record itself, and what mentions the term. Above them since ENTRY 383
+// (19 Nov 2026), the site's own pages for the words ('Pages on opengovt').
+const PAGES_SHOWN = 8;
 const groupHeading: React.CSSProperties = { fontSize: '19px', fontWeight: 'bold', color: INK, margin: '0 0 2px' };
 const groupNote: React.CSSProperties = { fontSize: '15px', color: INK, margin: '0 0 16px', lineHeight: 1.5 };
 const RECORD_FILTERS = ['constituency', 'peer', 'council', 'organisation', 'donor'];
@@ -320,6 +344,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
     wants('donor') ? searchDonorNames(q) : Promise.resolve(noDonors),
     wants('organisation') ? cachedOrganisationList() : Promise.resolve([]),
   ]);
+  // The site's own pages for the words (Cowork ENTRY 383 addendum): from the directory, in memory, with All only.
+  const pages = inAll ? searchDirectory(q, PAGES_SHOWN) : [];
   const orgMatches = orgList.length ? searchOrganisations(orgList, q) : [];
   const orgs = orgMatches.slice(0, shown);
   const linkedDonors = donorSearch.results.filter((d) => d.slug);
@@ -333,8 +359,17 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const results = allResults.filter((r) => r.type !== 'mp');
   const hasRecords = seats.length + mps.length + peers.length + councils.length + orgs.length + donors.length > 0;
   // The first group of results shown, which stays open on phones (UX2q); every later one is folded there.
-  const firstGroup = ([['seats', seats.length], ['mps', mps.length], ['peers', peers.length], ['councils', councils.length], ['orgs', orgs.length], ['donors', donors.length], ['content', results.length]] as const).find(([, n]) => n > 0)?.[0] ?? null;
-  const isEmpty = !hasRecords && results.length === 0;
+  const firstGroup = ([['pages', pages.length], ['seats', seats.length], ['mps', mps.length], ['peers', peers.length], ['councils', councils.length], ['orgs', orgs.length], ['donors', donors.length], ['content', results.length]] as const).find(([, n]) => n > 0)?.[0] ?? null;
+  const isEmpty = pages.length === 0 && !hasRecords && results.length === 0;
+  // The count of reports, releases, bills and votes (Cowork ENTRY 383 addendum item 2). Each table gives at most
+  // PER_TABLE rows (100 for a quoted phrase) and TOTAL_LIMIT in all, so a table that gave its full share, or a full total,
+  // has more than are listed: the count is what is listed, with '+'. It said '20 results' for youth crime when the press
+  // releases had stopped at their 20, and 'N+' from the total including MPs, who are listed in their own group above.
+  const perTable = isPhrase(q) ? PHRASE_PER_TABLE : PER_TABLE;
+  const perType = new Map<string, number>();
+  for (const r of results) perType.set(r.type, (perType.get(r.type) ?? 0) + 1);
+  const contentMore = allResults.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) || [...perType.values()].some((n) => n >= perTable);
+  const contentCount = `${results.length.toLocaleString('en-GB')}${contentMore ? '+' : ''}`;
   // "Did you mean" (SR1): only for a search that found nothing, one corrected query from our own titles, as a link with
   // the same filters, never run by itself (lib/search-suggest.ts).
   const suggestion = q.length >= 2 && isEmpty ? suggestQuery(q, await searchVocabulary()) : null;
@@ -392,7 +427,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {!RECORD_FILTERS.includes(type) && <SaveSearchButton q={q} type={type} dept={dept} from={from} to={to} sort={sort} />}
       {/* The "search" analytics event for a submitted search, with consent only; the count is every result shown or
           counted on this page (content, councils, organisations, donor names). */}
-      <SearchTracker q={q} resultsCount={allResults.length + seats.length + councils.length + peers.length + orgMatches.length + (donorSearch.more ? donorSearch.totalNames : linkedDonors.length)} />
+      <SearchTracker q={q} resultsCount={pages.length + allResults.length + seats.length + councils.length + peers.length + orgMatches.length + (donorSearch.more ? donorSearch.totalNames : linkedDonors.length)} />
 
       {q.length >= 2 && isEmpty && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
@@ -420,6 +455,18 @@ export default async function SearchPage({ searchParams }: PageProps) {
             <Link href="/departments" style={{ color: ACCENT }}>browse departments</Link>
           </p>
         </div>
+      )}
+
+      {pages.length > 0 && (
+        <ResultGroup open={firstGroup === 'pages'} label={`Pages on opengovt (${pages.length})`}>
+        <section aria-labelledby="search-pages" style={{ marginBottom: '28px' }}>
+          <h2 id="search-pages" style={groupHeading}>Pages on opengovt</h2>
+          <p style={groupNote}>Sections, lists and data pages on this site for these words.</p>
+          <ul id="results-pages" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {pages.map((p) => <PageRow key={p.href} p={p} />)}
+          </ul>
+        </section>
+        </ResultGroup>
       )}
 
       {hasRecords && (
@@ -529,11 +576,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {hasRecords && <p className="srch-rnote-p" style={groupNote}>Records above: the page for the constituency, MP, peer, council, organisation or donor itself.</p>}
 
       {results.length > 0 && (
-        <ResultGroup open={firstGroup === 'content'} label={`Reports, releases, bills and votes (${allResults.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+` : results.length})`}>
+        <ResultGroup open={firstGroup === 'content'} label={`Reports, releases, bills and votes (${contentCount})`}>
         <section>
           <h2 style={groupHeading}>Reports, releases, bills and votes that mention &ldquo;{q}&rdquo;</h2>
           <p style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '12px' }}>
-            {allResults.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+ results` : `${results.length} result${results.length === 1 ? '' : 's'}`}
+            {contentCount} result{results.length === 1 && !contentMore ? '' : 's'}
             {type !== 'all' && ` · ${type === 'editorial' || type === 'briefing' ? 'Reports' : TYPE_META[type]?.label ?? type} only`}
           </p>
           <NoJsPager id="results-rows" ownMore count={(results).length} rows="> li" size={25}>

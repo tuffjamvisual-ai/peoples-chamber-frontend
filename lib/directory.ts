@@ -7,10 +7,11 @@ import { NAV } from '@/lib/site-nav';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { topics } from '@/lib/topics';
 import { RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
+import { rankMatches, type Matchable } from '@/lib/directory-match';
 
 // `see`: another name for a page already listed (T1-5x, owner 10 Nov 2026: one name is the link, the others are plain
 // text pointing to it); the entry it names is the one that links.
-export type DirectoryEntry = { name: string; href: string; desc: string; see?: string };
+export type DirectoryEntry = { name: string; href: string; desc: string; see?: string; keywords?: readonly string[] };
 
 // Pages the menu does not list, with a plain one line description.
 const EXTRA: DirectoryEntry[] = [
@@ -119,6 +120,145 @@ const ALSO_KNOWN_AS: [string, string][] = [
   ['Political Parties', '/parties'],
 ];
 
+// Plain words a reader would type for each page (owner, Cowork ENTRY 383, 19 Nov 2026), matched as well as the name and
+// description, in 'Filter this list' and in the 'Pages on opengovt' group on /search (lib/directory-match.ts). Keyed by
+// the page, so every entry for it, and the section pages' lists, use the same words; 3 to 8 each, each naming something
+// the page itself shows. Reviewed by Cowork before push (audit/directory-383/KEYWORDS.md).
+export const KEYWORDS: Record<string, readonly string[]> = {
+  '/': ['front page', 'homepage', 'latest news', 'latest reports'],
+  '/about': ['who we are', 'who runs opengovt', 'editorial principles', 'methodology'],
+  '/appg-funders': ['APPG funders', 'who funds APPGs', 'all party groups', 'sponsors'],
+  '/bills': ['new laws', 'legislation', 'bill stages', 'proposed laws', 'bills in parliament'],
+  '/bills/sessions': ['old bills', 'bill history', 'parliamentary session', 'past bills'],
+  '/civil-service': ['civil servants', 'headcount', 'staff numbers', 'FTE', 'civil service jobs'],
+  '/commission': ['commission research', 'research report', 'hire opengovt', 'paid research'],
+  '/commission/sample': ['sample report', 'example report', 'research example'],
+  '/commission/terms': ['research terms', 'commission terms', 'terms and conditions'],
+  '/committees': ['select committee members', 'committee membership', 'MPs on committees', 'Commons committees'],
+  '/constituencies': ['seats', 'my constituency', 'election results', 'by-elections', 'byelections', 'constituency map'],
+  '/contact': ['contact us', 'email opengovt', 'corrections', 'press enquiries', 'report an error'],
+  '/cookies': ['cookie settings', 'cookie choices', 'analytics cookies', 'opt out'],
+  '/cookies/details': ['cookie list', 'cookies used', 'cookie policy'],
+  '/councils': ['local councils', 'local authorities', 'council tax', 'councillors', 'council leaders', 'council finance'],
+  '/councils/blue-badges': ['disabled parking', 'blue badge', 'disability parking permit', 'parking badges'],
+  '/councils/child-poverty': ['children in poverty', 'poor children', 'low income families', 'child poverty rate'],
+  '/councils/children-in-care': ['looked after children', 'care system', 'kids in care', 'children looked after'],
+  '/councils/free-school-meals': ['FSM', 'school dinners', 'free meals', 'pupils eligible', 'school lunches'],
+  '/councils/hmos': ['HMO', 'bedsits', 'shared houses', 'house shares', 'houses in multiple occupation', 'HMO licences', 'HMO licensing'],
+  '/councils/road-condition': ['potholes', 'road repairs', 'road maintenance', 'state of roads', 'bad roads'],
+  '/councils/search': ['find my council', 'which council', 'council by postcode', 'local authority search'],
+  '/councils/youth-justice': ['youth crime', 'young offenders', 'knife crime', 'child offenders', 'first time entrants', 'youth cautions', 'juvenile crime'],
+  '/departments': ['government departments', 'ministries', 'secretaries of state', 'ministers', 'cabinet'],
+  '/directory': ['site map', 'sitemap', 'a to z', 'all pages', 'index'],
+  '/divisions': ['how MPs voted', 'votes', 'voting records', 'Commons votes', 'division list'],
+  '/donate': ['support opengovt', 'give money', 'make a donation', 'fund opengovt'],
+  '/donations/bequest': ['wills', 'bequests', 'legacies', 'left in a will'],
+  '/donations/constituencies': ['local party donations', 'constituency associations', 'local associations'],
+  '/donations/double-dip': ['MPs paid twice', 'paid twice', 'donor employers'],
+  '/donations/foreign': ['foreign donations', 'overseas donors', 'donations from abroad', 'foreign money'],
+  '/donations/government-contractors': ['contractors who donate', 'donors with contracts', 'contract donors'],
+  '/donations/impermissible': ['returned donations', 'impermissible donors', 'permissibility'],
+  '/donations/late-disclosed': ['late donations', 'late reporting', 'reported late'],
+  '/donations/leadership-contests': ['leadership race donations', 'leadership election', 'leadership campaign funding'],
+  '/donations/sponsored-visits': ['paid trips', 'free trips', 'overseas visits', 'foreign trips'],
+  '/donations/trust-funded': ['trust donations', 'donations through trusts', 'trusts'],
+  '/donors': ['party donors', 'biggest donors', 'who funds parties', 'top donors', 'donor list'],
+  '/earnings': ['MPs pay', 'MP pay', 'MP salary', 'salary', 'ministerial pay', 'how much MPs earn', 'MP wages'],
+  '/edms': ['EDM', 'early day motion', 'motions', 'MP motions'],
+  '/expenses': ['MP expenses', 'expenses claims', 'IPSA', 'office costs', 'travel expenses', 'staff costs'],
+  '/expenses/refused': ['rejected expenses', 'refused claims', 'repaid expenses', 'IPSA refused'],
+  '/explainers/donations': ['donation rules', 'donation law', 'how donations work', 'permissible donors'],
+  '/feedback': ['give feedback', 'suggestions', 'report a problem', 'tell us'],
+  '/find-your-mp': ['who is my MP', 'my MP', 'MP by postcode', 'postcode lookup', 'local MP'],
+  '/how-this-site-is-made': ['how opengovt works', 'methods', 'fact checking', 'sources'],
+  '/laws': ['acts of parliament', 'acts', 'royal assent', 'new laws', 'legislation passed'],
+  '/laws/made-without-a-vote': ['statutory instruments', 'secondary legislation', 'SI', 'regulations', 'delegated legislation'],
+  '/lobbying': ['lobbyists', 'lobby firms', 'meetings with ministers', 'lobbying register', 'consultant lobbyists'],
+  '/lords': ['peers', 'Lords members', 'House of Lords members', 'Lords votes', 'baroness', 'lord'],
+  '/money': ['follow the money', 'money and power', 'paid twice', 'contractors who donate', 'lobby firms'],
+  '/mps': ['MP list', 'all MPs', 'members of parliament', 'MP profiles', 'voting records'],
+  '/newsletter': ['email newsletter', 'weekly email', 'subscribe', 'sign up', 'opengovt weekly'],
+  '/organisations': ['companies', 'firms', 'suppliers', 'contractors', 'charities', 'businesses'],
+  '/parties': ['political parties', 'party list', 'parties in parliament', 'party records'],
+  '/parties/manifestos': ['manifesto', 'party manifestos', 'election promises', 'general election 2024', 'party policies'],
+  '/petitions': ['petition', 'e-petitions', 'signatures', 'petition debates', 'government response'],
+  '/pmqs': ['PMQs', 'PMQ', 'Prime Ministers Questions', 'PM questions', 'Wednesday questions'],
+  '/pmqs/1945-to-1961': ['old PMQs', 'Attlee', 'Churchill', 'Eden', 'Macmillan', 'PM questions history'],
+  '/polls': ['opinion polls', 'vote', 'have your say', 'reader polls', 'poll results'],
+  '/polls/archive': ['old polls', 'past results', 'poll archive', 'closed polls'],
+  '/privacy': ['privacy policy', 'data protection', 'GDPR', 'personal data', 'your data'],
+  '/programmes': ['government pledges', 'policy commitments', 'government promises', 'manifesto tracker'],
+  '/questions': ['written questions', 'parliamentary questions', 'PQs', 'ministers answers', 'WQs'],
+  '/register-history': ['old register of interests', 'past interests', 'register archive', 'interests 2000 to 2024', 'MP interests history'],
+  '/reports': ['investigations', 'articles', 'news', 'briefings', 'analysis', 'stories'],
+  '/search': ['search', 'find', 'search the site'],
+  '/second-jobs': ['outside earnings', 'MP second jobs', 'outside interests', 'MPs other jobs'],
+  '/secretariats': ['APPG secretariat', 'who runs APPGs', 'APPG administrators'],
+  '/sections/accountability': ['accountability', 'interests', 'expenses', 'lobbying', 'donations', 'contracts'],
+  '/sections/local': ['local', 'my area', 'councils', 'sewage', 'local data'],
+  '/sections/parliament': ['parliament', 'MPs', 'bills', 'votes', 'parties', 'departments'],
+  '/sections/vote': ['polls', 'vote', 'reader polls', 'have your say'],
+  '/sewage': ['sewage', 'sewage dumping', 'storm overflows', 'water companies', 'sewage discharges', 'raw sewage'],
+  '/spending': ['government spending', 'department spending', 'DEL', 'public spending', 'budgets'],
+  '/standards': ['standards commissioner', 'MP investigations', 'complaints about MPs', 'code of conduct', 'standards breaches'],
+  '/state-of-the-nation': ['inflation', 'unemployment', 'GDP', 'national debt', 'NHS waiting lists', 'net migration', 'official statistics', 'economy figures'],
+  '/support': ['help', 'report a data problem', 'suggest a feature', 'support'],
+  '/terms': ['terms of use', 'terms and conditions', 'legal'],
+  '/this-week': ['this week', 'upcoming bills', 'parliament this week', 'Commons business', 'latest votes'],
+  '/topics': ['policy areas', 'issues', 'subjects', 'topics list'],
+  '/transparency': ['transparency data', 'public registers', 'government transparency', 'transparency releases'],
+  '/transparency/appgs': ['APPG', 'APPGs', 'all party groups', 'all party parliamentary groups', 'APPG register'],
+  '/transparency/contracts': ['contracts', 'public contracts', 'government contracts', 'tenders', 'procurement', 'Find a Tender'],
+  '/transparency/donations': ['political donations', 'party funding', 'donations to parties', 'Electoral Commission', 'party donations'],
+  '/transparency/freedom-of-information': ['FOI', 'freedom of information requests', 'FOI statistics', 'FOI refusals'],
+  '/transparency/hospitality': ['ministers gifts', 'gifts', 'hospitality', 'freebies'],
+  '/transparency/major-projects': ['big projects', 'HS2', 'infrastructure projects', 'project ratings', 'GMPP'],
+  '/transparency/ministerial-directions': ['ministerial direction', 'overruled officials', 'value for money direction'],
+  '/transparency/ministers-meetings': ['ministers meetings', 'meetings with ministers', 'who ministers meet', 'diary'],
+  '/transparency/mp-activity': ['most active MPs', 'MP speeches', 'how often MPs speak', 'Hansard'],
+  '/transparency/press-releases': ['press releases', 'government announcements', 'GOV.UK news', 'committee reports'],
+  '/transparency/register-of-interests': ['MP interests', 'registered interests', 'declared interests', 'gifts to MPs', 'MP shares'],
+  '/transparency/revolving-door': ['revolving door', 'ACOBA', 'former ministers jobs', 'jobs after government', 'lobbying jobs'],
+  '/transparency/special-advisers': ['SpAds', 'spads', 'special adviser', 'advisers', 'political advisers'],
+  '/transparency/state-dashboard': ['public services', 'NHS waiting lists', 'A&E', 'prison places', 'prison capacity', 'court backlog', 'homelessness'],
+  '/treaties': ['international treaties', 'treaty scrutiny', 'CRaG', 'agreements'],
+  '/unite-kingdom': ['Unite the Kingdom march', 'march', 'protest', 'rally'],
+  '/your-area': ['my area', 'local area', 'postcode', 'local figures', 'where I live'],
+  '/debates': ['Hansard', 'Commons debates', 'debates', 'speeches', 'what MPs said'],
+  '/tools/welfare': ['benefits', 'Universal Credit', 'PIP', 'housing benefit', 'carers allowance', 'welfare by area'],
+  '/recommendations': ['PAC', 'Public Accounts Committee', 'committee recommendations', 'government response'],
+  // Topics.
+  '/topics/climate-and-energy': ['energy bills', 'net zero', 'climate change', 'renewables', 'oil and gas'],
+  '/topics/constitutional-reform': ['electoral reform', 'voting system', 'Lords reform', 'devolution', 'recall'],
+  '/topics/culture-media-and-sport': ['BBC', 'licence fee', 'arts', 'football regulator', 'gambling', 'museums'],
+  '/topics/defence': ['armed forces', 'military', 'army', 'NATO', 'nuclear deterrent', 'veterans'],
+  '/topics/economy-and-tax': ['tax', 'taxes', 'cost of living', 'borrowing', 'economy', 'growth'],
+  '/topics/education': ['schools', 'universities', 'student loans', 'tuition fees', 'teachers', 'SEND', 'childcare'],
+  '/topics/foreign-affairs': ['foreign policy', 'sanctions', 'foreign aid', 'diplomacy', 'alliances'],
+  '/topics/housing': ['housing', 'renting', 'renters rights', 'leasehold', 'planning', 'social housing', 'council tax'],
+  '/topics/immigration': ['asylum hotels', 'asylum', 'small boats', 'migrants', 'refugees', 'visas', 'net migration'],
+  '/topics/justice-and-policing': ['crime', 'police', 'prisons', 'prison places', 'courts', 'sentencing'],
+  '/topics/nhs-and-health': ['NHS', 'waiting lists', 'GP', 'hospitals', 'social care', 'mental health'],
+  '/topics/transport': ['trains', 'rail fares', 'buses', 'roads', 'HS2', 'electric cars'],
+  '/topics/welfare-and-benefits': ['benefits', 'Universal Credit', 'pensions', 'disability benefits', 'PIP', 'welfare'],
+  // Parties.
+  '/parties/alliance': ['Alliance Party', 'Northern Ireland', 'Alliance manifesto', 'Alliance donations'],
+  '/parties/conservative': ['Conservatives', 'Tories', 'Tory', 'Conservative Party', 'Conservative manifesto', 'Conservative donations'],
+  '/parties/dup': ['Democratic Unionist Party', 'DUP manifesto', 'DUP donations', 'unionists'],
+  '/parties/green': ['Greens', 'Green Party', 'Green manifesto', 'Green donations'],
+  '/parties/labour': ['Labour Party', 'Labour manifesto', 'Labour donations', 'Labour rebels'],
+  '/parties/liberal-democrats': ['Lib Dems', 'Lib Dem', 'Liberal Democrat manifesto', 'Lib Dem donations'],
+  '/parties/plaid-cymru': ['Plaid', 'Welsh nationalists', 'Plaid Cymru manifesto', 'Plaid donations'],
+  '/parties/reform-uk': ['Reform', 'Reform party', 'Reform manifesto', 'Reform donations'],
+  '/parties/restore-britain': ['Restore Britain party', 'Restore Britain donations', 'Restore Britain manifesto'],
+  '/parties/sdlp': ['Social Democratic and Labour Party', 'SDLP manifesto', 'SDLP donations'],
+  '/parties/sinn-fein': ['Sinn Fein', 'Sinn Fein manifesto', 'Sinn Fein donations', 'republicans'],
+  '/parties/snp': ['Scottish National Party', 'Scottish nationalists', 'SNP manifesto', 'SNP donations'],
+  '/parties/tuv': ['Traditional Unionist Voice', 'TUV manifesto', 'TUV donations'],
+  '/parties/uup': ['Ulster Unionists', 'Ulster Unionist Party', 'UUP manifesto', 'UUP donations'],
+  '/parties/your-party': ['Your Party manifesto', 'Your Party donations', 'new party'],
+};
+
 // The menu's own name for a section where the menu has no description.
 const TOP_DESC: Record<string, string> = {
   '/search': 'Search bills, MPs, departments, contracts, donations and the rest of the public record.',
@@ -156,7 +296,7 @@ function build(): DirectoryEntry[] {
   return out
     .map((e) => ({ ...e, desc: e.desc || descFor.get(e.href) || '' }))
     .filter((e) => { const k = `${sortKey(e.name)}|${e.href}`; if (seen.has(k)) return false; seen.add(k); return true; })
-    .map((e) => { const p = primary.get(e.href); if (!p) { primary.set(e.href, e.name); return e; } return { ...e, see: p }; })
+    .map((e) => { const p = primary.get(e.href); if (!p) { primary.set(e.href, e.name); return KEYWORDS[e.href] ? { ...e, keywords: KEYWORDS[e.href] } : e; } return { ...e, see: p }; })
     .sort((a, b) => sortKey(a.name).localeCompare(sortKey(b.name), 'en-GB'));
 }
 
@@ -169,3 +309,16 @@ export function directoryLetter(name: string): string {
 }
 
 export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+// The 'Pages on opengovt' group on /search (Cowork ENTRY 383 addendum, 19 Nov 2026): the directory's pages that match the
+// words, best first, one row per page (its other names count as its name), with the same matcher as 'Filter this list'.
+export type DirectoryPage = Matchable & { href: string };
+const PAGES: DirectoryPage[] = (() => {
+  const alt = new Map<string, string[]>();
+  for (const e of DIRECTORY) if (e.see) alt.set(e.href, [...(alt.get(e.href) ?? []), e.name]);
+  return DIRECTORY.filter((e) => !e.see).map((e) => ({ href: e.href, title: e.name, desc: e.desc, keywords: e.keywords ?? [], alt: alt.get(e.href) ?? [] }));
+})();
+
+export function searchDirectory(q: string, limit = 8): DirectoryPage[] {
+  return rankMatches(PAGES, q, limit);
+}

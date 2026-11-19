@@ -9,6 +9,7 @@ import BackLink from '../../components/BackLink';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { SECTION_PAGES, SECTION_GROUP_ORDER, type NavLink } from '@/lib/site-nav';
 import DirectoryList, { DirectoryHeader, type DirectoryGroup } from '@/app/components/DirectoryList';
+import { KEYWORDS } from '@/lib/directory';
 import { TWO_COLUMN_GRID_CSS } from '@/lib/balance-columns';
 import { ShowAll } from '@/app/components/NoJsPager';
 import { SubFold } from '@/app/components/PhoneFolds';
@@ -101,7 +102,7 @@ function ParliamentPage({ slug, label, links }: { slug: string; label: string; l
     .sort((a, b) => rank(a.g.title) - rank(b.g.title) || a.i - b.i)
     .map(({ g }, gi) => {
       const id = anchor(g.title ?? 'pages');
-      return { key: id, id, fold: `sf-${id}`, label: g.title ?? 'Pages', open: gi === 0, entries: g.links.map((l) => ({ name: l.label, href: l.href, desc: l.desc ?? null })) };
+      return { key: id, id, fold: `sf-${id}`, label: g.title ?? 'Pages', open: gi === 0, entries: g.links.map((l) => ({ name: l.label, href: l.href, desc: l.desc ?? null, keywords: KEYWORDS[l.href] ?? null })) };
     });
   return (
     <OpenGovShell>

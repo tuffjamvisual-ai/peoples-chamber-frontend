@@ -2,7 +2,8 @@
 // to the A - Z Directory but with 2 columns"): a jump bar of the groups in letter boxes, 'Filter this list', and each
 // group as a heading with a rule under it and its entries as bold underlined links with a one line description. The
 // whole list is in the page's HTML, so it works without JavaScript and search engines read it; DirectoryFilter only
-// narrows what is already there, in the browser.
+// narrows what is already there, in the browser. Each entry carries its page's keywords (data-kw, lib/directory.ts
+// KEYWORDS, Cowork ENTRY 383), which the filter matches as well as the name and description; they are not shown.
 //
 // Phones (under 768px): each entry's name is a 44px row, and each group is folded closed until its heading or its box in
 // the jump bar is tapped (owner, 4 Nov 2026), with every entry still in the page; without JavaScript all of them show.
@@ -22,7 +23,7 @@ const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONO = 'var(--font-special-elite), monospace';
 
-export type DirectoryEntry = { name: string; href: string; desc?: string | null; see?: string | null };
+export type DirectoryEntry = { name: string; href: string; desc?: string | null; see?: string | null; keywords?: readonly string[] | null };
 // key: the group's value for data-letter (what the jump bar and the filter use); id: its address on the page; fold: the
 // id of its no JavaScript fold on phones; label: shown in its heading and its box.
 export type DirectoryGroup = { key: string; id: string; fold: string; label: string; entries: DirectoryEntry[]; open?: boolean };
@@ -95,7 +96,7 @@ export default function DirectoryList({ listId, groups, jumpLabel, words = false
             <NoJsFold id={g.fold} open={g.open} label={`${g.entries.length} ${g.entries.length === 1 ? 'page' : 'pages'}`}>
             <ul data-own-more style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {g.entries.map((e) => (
-                <li key={`${e.name}|${e.href}`} className="dir-entry" data-entry={`${e.name} ${e.desc ?? ''}`.toLowerCase()} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '9px 0' }}>
+                <li key={`${e.name}|${e.href}`} className="dir-entry" data-entry={`${e.name} ${e.desc ?? ''}`.toLowerCase()} data-kw={e.keywords?.length ? e.keywords.join('|') : undefined} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '9px 0' }}>
                   {e.see ? (
                     <>
                       <span style={{ fontSize: '17px', fontWeight: 'bold', color: INK, overflowWrap: 'anywhere' }}>{e.name}</span>
