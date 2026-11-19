@@ -15,7 +15,8 @@ test('periods: months, rolling three months (named by the middle month), quarter
 });
 
 test('values and changes are written plainly, with no judgement', () => {
-  assert.equal(formatValue(3.5, 'pct'), '3.5 per cent');
+  assert.equal(formatValue(3.5, 'pct'), '3.5%');
+  assert.equal(formatValue(3.5, 'pct', true), '3.5 per cent');
   assert.equal(formatValue(691, 'thousands'), '691,000');
   assert.equal(formatValue(97832, 'gbp-m'), '£97.8bn');
   assert.equal(formatValue(3005, 'gbp-bn'), '£3,005bn');

@@ -2,7 +2,7 @@
   "_about": "State of the nation (T1-SOTN, COWORK-TO-T1 ENTRY 105): the figures not read from the ONS automatically. Cowork fills and checks each entry from the official source. An entry shows on the site only when checkedBy is \"Cowork\" and value is set; otherwise the card says 'Not yet published here'. Fields: value (as shown, e.g. \"4.00%\"), label (optional, replaces the default label), period (what the figure covers), previous (the change on the previous figure with its period, e.g. \"down from 4.25% in August 2026\"), sourceUrl, sourceName, publishedOn (YYYY-MM-DD, the source's publication date), checkedOn (YYYY-MM-DD), checkedBy (\"Cowork\"), note (optional, e.g. the next Bank Rate decision date). Never filled by T1.",
   "figures": {
     "bank-rate": {
-      "value": "4 per cent",
+      "value": "4%",
       "period": "Set on 5 November 2026",
       "previous": "up from 3.75 per cent",
       "sourceUrl": "https://www.bankofengland.co.uk/monetary-policy/the-interest-rate-bank-rate",

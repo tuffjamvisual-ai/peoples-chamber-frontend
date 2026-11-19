@@ -24,7 +24,7 @@ export const NEW_DAYS = 7; // a figure is marked new on its publication day and 
 export type Group = 'Cost of living' | 'Economy' | 'Public money' | 'Public services' | 'Housing and homelessness' | 'Immigration';
 export const GROUPS: Group[] = ['Cost of living', 'Economy', 'Public money', 'Public services', 'Housing and homelessness', 'Immigration'];
 
-// How the figure is written. 'pct' 3.5 -> "3.5 per cent"; 'ppt' change in percentage points; 'thousands' 691 -> "691,000";
+// How the figure is written. 'pct' 3.5 -> "3.5%" ("3.5 per cent" in a sentence); 'ppt' change in percentage points; 'thousands' 691 -> "691,000";
 // 'gbp-m' millions of pounds -> "£24.5bn"; 'gbp-bn' -> "£3,005bn".
 type Format = 'pct' | 'thousands' | 'gbp-m' | 'gbp-bn';
 // 'month' a single month ("September 2026"); 'lfs' a rolling three months labelled by its middle month ("JUL" is June to
@@ -76,7 +76,7 @@ export const REVIEWED_ITEMS: { id: string; group: Group; label: string }[] = [
 
 export type Figure = {
   id: string; group: Group; label: string;
-  value: string | null;      // as written ("3.5 per cent"), or null: "Not yet published here"
+  value: string | null;      // as written ("3.5%"), or null: "Not yet published here"
   period: string | null;     // what the figure covers ("September 2026")
   change: string | null;     // on the previous figure, with its period ("up from 3.1 per cent in August 2026")
   sourceUrl: string | null; sourceName: string | null;
@@ -105,9 +105,11 @@ export function periodLabel(date: string, kind: Period): string {
   return `${MONTH_NAMES[i]} ${y}`;
 }
 
-export function formatValue(v: number, f: Format): string {
-  // 'per cent', never '%', in our own text (owner rule, Cowork ENTRY 325 and 338).
-  if (f === 'pct') return `${v.toFixed(1)} per cent`;
+// The big figure on a card is a figure and keeps '%' (owner, Cowork ENTRY 343: figures compact; the homepage band at 375
+// went over the phone length limit with '3.6 per cent'); in a sentence ('up from 3.1 per cent in August 2026') it is
+// 'per cent' (ENTRY 325 and 338): words = true.
+export function formatValue(v: number, f: Format, words = false): string {
+  if (f === 'pct') return words ? `${v.toFixed(1)} per cent` : `${v.toFixed(1)}%`;
   if (f === 'thousands') return `${Math.round(v * 1000).toLocaleString('en-GB')}`;
   if (f === 'gbp-m') return `£${(v / 1000).toFixed(1)}bn`;
   return `£${Math.round(v).toLocaleString('en-GB')}bn`;
@@ -119,8 +121,8 @@ export function formatValue(v: number, f: Format): string {
 // a rise or a fall in the bulletin (inactivity: 20.9% and 20.9%, 'down by 0.1 percentage points'); equal figures are
 // therefore not called 'the same' (ENTRY 107).
 export function changeText(cur: number, prev: number, prevPeriod: string, f: Format): string {
-  if (formatValue(cur, f) === formatValue(prev, f)) return `also ${formatValue(prev, f)} in ${prevPeriod} when rounded`;
-  return `${cur > prev ? 'up' : 'down'} from ${formatValue(prev, f)} in ${prevPeriod}`;
+  if (formatValue(cur, f) === formatValue(prev, f)) return `also ${formatValue(prev, f, true)} in ${prevPeriod} when rounded`;
+  return `${cur > prev ? 'up' : 'down'} from ${formatValue(prev, f, true)} in ${prevPeriod}`;
 }
 
 type OnsData = { description: { title: string; releaseDate?: string; cdid: string; datasetId: string }; months?: { date: string; value: string }[]; quarters?: { date: string; value: string }[] };
