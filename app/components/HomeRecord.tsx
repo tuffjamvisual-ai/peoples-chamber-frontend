@@ -22,6 +22,15 @@ export default function HomeRecord({ only }: { only: 'desk' | 'mob' }) {
           <Link href="/search" prefetch={false} className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Search the archives &rarr;</Link>
         </p>
       </section>
+      {/* HMOs (owner, 19 Nov 2026, Cowork ENTRY 372 addendum: "separate notification on the landing page under search the
+          archives"): its own short notice in the same style, under the record block, to the HMO page's lookup box. */}
+      <section className="og-hmo-note" aria-labelledby={`og-hmo-head-${only}`} style={{ margin: '-20px 0 20px', padding: '14px 0', borderBottom: '2px solid rgba(20,16,13,0.18)' }}>
+        <h2 id={`og-hmo-head-${only}`} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: INK, margin: '0 0 6px' }}>Houses in multiple occupation</h2>
+        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.6, margin: '0 0 6px', color: INK }}>How many HMOs your council reports, and how many are licensed.</p>
+        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.6, margin: 0 }}>
+          <Link href="/councils/hmos#find" prefetch={false} className="og-tap" style={{ color: INK, textDecoration: 'underline' }}>Search HMOs in your area &rarr;</Link>
+        </p>
+      </section>
     </div>
   );
 }
