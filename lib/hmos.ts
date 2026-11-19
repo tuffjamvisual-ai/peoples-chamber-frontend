@@ -19,8 +19,8 @@ export async function loadAreas(codes: string[]): Promise<HmoRow[]> {
 
 /** The latest year of each nation, every council and the nation's own row. */
 export async function loadLatest(): Promise<{ rows: HmoRow[]; years: Record<string, string> }> {
-  const db = tagDb([COUNCIL_DATA_TAG]);
-  const all = await readAll<HmoRow>(() => db.from('council_hmos'), {
+  // The tagged client is made inside the callback, as the A16 check reads it (a variable holding tagDb() is not seen).
+  const all = await readAll<HmoRow>(() => tagDb([COUNCIL_DATA_TAG]).from('council_hmos'), {
     columns: COLS,
     filter: (q) => q.gte('year', '2024-03-31'),
     orderBy: [{ column: 'ons_code' }, { column: 'year' }],
