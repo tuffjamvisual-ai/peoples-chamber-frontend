@@ -104,8 +104,8 @@ export default async function CouncilHmoSection({ gssCodes, isCounty, country, o
         ]} />
         {cur.estimated != null && (
           <p style={line}>
-            The council estimates {count(cur.estimated)} HMOs{rate != null ? `, about ${perThousandText(rate)} for every 1,000 homes` : ''}.
-            {cur.licensable != null && cur.licensed != null ? ` It estimates ${count(cur.licensable)} need a mandatory licence and ${count(cur.licensed)} have one${pct != null ? `: ${pct} per cent` : ''}.` : ''}
+            {isCounty ? 'Its district councils estimate' : 'The council estimates'} {count(cur.estimated)} HMOs{rate != null ? `, about ${perThousandText(rate)} for every 1,000 homes` : ''}.
+            {cur.licensable != null && cur.licensed != null ? ` ${isCounty ? 'They estimate' : 'It estimates'} ${count(cur.licensable)} need a mandatory licence and ${count(cur.licensed)} have one${pct != null ? `: ${pct} per cent` : ''}.` : ''}
           </p>
         )}
         <p style={small}>{ENGLAND_ESTIMATE_NOTE} {DEFINITION_2018}</p>
