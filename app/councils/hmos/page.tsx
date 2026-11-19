@@ -135,7 +135,7 @@ export default async function HmosPage() {
           <h2 style={h2}>The nations</h2>
           <div className="hmo-cards">
             {eng && card(count(eng.estimated), 'England: estimated HMOs', `Council estimates, ${marchDate(eng.year)}`)}
-            {eng && card(count(eng.licensed), 'England: with a mandatory licence', `${share(eng.licensed, eng.licensable)}% of ${count(eng.licensable)} needing one, ${marchDate(eng.year)}`)}
+            {eng && card(count(eng.licensed), 'England: with a mandatory licence', `${share(eng.licensed, eng.licensable)} per cent of ${count(eng.licensable)} needing one, ${marchDate(eng.year)}`)}
             {wal && card(count(wal.estimated), 'Wales: estimated HMOs', `${count(wal.licensed)} licences, ${marchDate(wal.year)}`)}
             {sco && card(count(sco.licensed), 'Scotland: licences in force', `All HMOs, ${marchDate(sco.year)}`)}
           </div>
