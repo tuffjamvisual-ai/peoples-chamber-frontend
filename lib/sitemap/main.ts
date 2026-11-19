@@ -552,8 +552,10 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
   // the one list a new hub page needs adding to; the hub coverage push check (scripts/checks/hub-coverage.mjs) lists any
   // hub page missing from either.
   const listed = new Set(staticEntries.map((e) => e.url));
+  // Directory pages that are noindex stay out of the sitemap ('Submitted URL marked noindex'; T2, ENTRY 363).
+  const NOINDEX_DIRECTORY = new Set(['/feedback']);
   const directoryEntries: MetadataRoute.Sitemap = [...new Set(DIRECTORY.map((d) => d.href))]
-    .filter((h) => h.startsWith('/') && !h.includes('#') && !h.includes('?') && !listed.has(`${SITE}${h === '/' ? '' : h}`))
+    .filter((h) => h.startsWith('/') && !h.includes('#') && !h.includes('?') && !listed.has(`${SITE}${h === '/' ? '' : h}`) && !NOINDEX_DIRECTORY.has(h))
     .map((h) => ({ url: `${SITE}${h}`, changeFrequency: 'monthly' as const, priority: 0.6 }));
 
   return validDates([

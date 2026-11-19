@@ -1,7 +1,7 @@
 // Every hub page is in the A to Z directory and the sitemap (owner approved 19 Nov 2026, Cowork ENTRY 363 item 3).
 // A hub page: an app route with no dynamic segment ([id], [slug] ...) and no API path, that answers 200 and is not
 // noindex. Each is requested from a running build (--base), and must appear in /directory (a link) and in /sitemap.xml
-// (a <loc>). Gaps are listed; with --warn the check never fails (the first stage: warning, then failing once clean).
+// (a <loc>); a noindex page must not be in the sitemap. Gaps are listed; with --warn the check never fails (the first stage: warning, then failing once clean).
 //   node scripts/checks/hub-coverage.mjs --base http://localhost:3197 [--warn] [--out <report.md>]
 // Pages requested one after another (a local build reads the production database; at most about 1 a second here).
 import fs from 'node:fs';
@@ -51,7 +51,7 @@ async function main() {
     try { res = await get(`${base}${r}`); } catch (e) { skipped.push(`${r} (${String(e.message).slice(0, 60)})`); continue; }
     await sleep(1000);
     if (res.status !== 200) { skipped.push(`${r} (${res.status})`); continue; }
-    if (noindex(res.text)) { skipped.push(`${r} (noindex)`); continue; }
+    if (noindex(res.text)) { if (smLocs.has(r)) gaps.push(`${r}: noindex but in /sitemap.xml`); else skipped.push(`${r} (noindex)`); continue; }
     const inDir = dirLinks.has(r), inSm = smLocs.has(r);
     if (!inDir || !inSm) gaps.push(`${r}: ${[!inDir && 'not in /directory', !inSm && 'not in /sitemap.xml'].filter(Boolean).join(', ')}`);
   }
