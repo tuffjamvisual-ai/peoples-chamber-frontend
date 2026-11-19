@@ -13,6 +13,7 @@ import { optionalSection } from '@/lib/optional-section';
 import { displayMpName } from '@/lib/mp-name';
 import { tagged, keyHash } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import { nameMatchKey, pickMp } from '@/lib/name-titles';
 
 export type ReadNextLink = { href: string; label: string; note?: string };
 
@@ -73,10 +74,13 @@ async function loadCurrentMinisters(): Promise<Minister[]> {
   ]);
   if (error) throw new Error(`read next: dept_ministers: ${error.message}`);
   if (mpErr) throw new Error(`read next: mps: ${mpErr.message}`);
-  const idByName = new Map<string, number>();
-  for (const m of (mps || []) as { member_id: number; name: string | null }[]) if (m.name) idByName.set(plainName(m.name).toLowerCase(), m.member_id);
+  // Matched by the shared rule (lib/name-titles.js, ENTRY 361): every title and the letters after the name left out; a
+  // peer (Lord, Baroness ...) is never given an MP's id; two current MPs of one name give none.
+  const byKey = new Map<string, { member_id: number; current_member: boolean }[]>();
+  for (const m of (mps || []) as { member_id: number; name: string | null }[]) if (m.name) { const k = nameMatchKey(m.name); byKey.set(k, [...(byKey.get(k) ?? []), { member_id: m.member_id, current_member: true }]); }
+  const idFor = (raw: string) => (pickMp(raw, byKey.get(nameMatchKey(raw)) ?? []) as { member_id: number } | null)?.member_id ?? null;
   return ((data || []) as Minister[])
-    .map((m) => { const name = plainName(m.name || ''); return { ...m, name, member_id: m.member_id ?? idByName.get(name.toLowerCase()) ?? null }; })
+    .map((m) => { const name = plainName(m.name || ''); return { ...m, name, member_id: m.member_id ?? idFor(m.name || '') }; })
     .filter((m) => m.member_id != null && m.name.split(/\s+/).length >= 2);
 }
 

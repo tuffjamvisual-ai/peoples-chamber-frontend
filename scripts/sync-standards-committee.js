@@ -28,6 +28,7 @@
 require('dotenv').config({ path: '.env.local' });
 const { spawn } = require('child_process');
 const { withTimeouts } = require('./lib/db-timeouts');
+const { nameMatchKey, isPeerName, pickMp } = require('../lib/name-titles');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL not set'); process.exit(1); }
@@ -94,8 +95,23 @@ function reportUrl(r) {
   return /^https:\/\/publications\.parliament\.uk\//.test(html) ? html : `https://committees.parliament.uk/publications/${r.id}/`;
 }
 
+// Current MPs, read once, for matching by the shared rule (lib/name-titles.js, ENTRY 361).
+let currentMps = null;
+async function currentMpList() {
+  if (!currentMps) {
+    const out = await psqlQ(`SELECT member_id, coalesce(name, ''), coalesce(display_name, '') FROM mps WHERE current_member = true`);
+    currentMps = out.split('\n').filter(Boolean).map((l) => { const [id, n, d] = l.split('\t'); return { member_id: parseInt(id, 10), name: n, display_name: d, current_member: true }; });
+  }
+  return currentMps;
+}
+
 async function resolveCurrent(name) {
-  // Current MPs only: display_name or name exact, then ILIKE when exactly one current MP matches.
+  // First by the shared rule: titles and letters after the name left out; a peer never; two of one name, none.
+  if (isPeerName(name)) return null;
+  const k = nameMatchKey(name);
+  const hit = k ? pickMp(name, (await currentMpList()).filter((m) => nameMatchKey(m.name) === k || nameMatchKey(m.display_name) === k)) : null;
+  if (hit) return hit.member_id;
+  // Then current MPs only: display_name or name exact, then ILIKE when exactly one current MP matches.
   const safe = name.replace(/'/g, "''");
   const sql = `
     SELECT member_id FROM mps
@@ -123,9 +139,11 @@ async function resolveCurrent(name) {
 const MEMBERS_SEARCH = 'https://members-api.parliament.uk/api/Members/Search';
 const MEMBERS_HISTORY = 'https://members-api.parliament.uk/api/Members/History';
 const MEMBERS_TAKE = 20;
-const HONORIFIC = /^(?:(?:Rt Hon|The Rt Hon|Sir|Dame|Dr|Ms|Mrs|Miss|Mr|Lord|Baroness)\s+)+/i;
-const POSTNOMINAL = /(?:\s+(?:MP|QC|KC|CBE|OBE|MBE|PC))+\s*$/i;
-const plainName = (n) => n.replace(HONORIFIC, '').replace(POSTNOMINAL, '').replace(/\s+/g, ' ').trim().toLowerCase();
+// Titles and letters after the name left out by the shared rule (lib/name-titles.js, ENTRY 361). Lord and Baroness are
+// also left out here, on purpose: a report is about someone who sat in the Commons, and a peer is looked up by name
+// history with a Commons service check (below), never matched to a sitting MP by title alone.
+const PEERAGE = /^(?:the\s+)?(?:rt\.?\s+hon\.?\s+)?(?:lord|baroness)\s+/i;
+const plainName = (n) => nameMatchKey(n.replace(PEERAGE, ''));
 const API_HEADERS = { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' };
 
 async function getJson(u) {

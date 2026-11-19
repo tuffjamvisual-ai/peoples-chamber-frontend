@@ -6,6 +6,7 @@
 // (for example 50 per cent at two departments) has a row for each. Footnote markers are glued to some names
 // ("Sophie Nazemi4[footnote 4]"); the footnotes become notes in our own words. The totals come from the cost table
 // and the "As at 31 March 2026, there were 159 (155 full-time equivalent)" sentence.
+import { nameMatchKey, isPeerName, pickMp } from '@/lib/name-titles';
 import { parse, type HTMLElement } from 'node-html-parser';
 
 export const SPAD_UA = 'OpenGovt/1.0 (contact@opengovt.uk)';
@@ -62,16 +63,9 @@ export function splitMinister(cell: string): { title: string; name: string | nul
   return { title: m[1].replace(/[,;]\s*$/, '').trim(), name: m[2].trim() || null };
 }
 
-// For matching against our MPs table: the person's name without honorifics, letters after the name or "MP".
-export function bareName(name: string): string {
-  return clean(name)
-    .replace(/^(the\s+)?(rt\.?\s+(hon\.?\s+)?|right\s+honourable\s+)/i, '') // "The Rt Ed Miliband MP": Hon missing in the source
-    .replace(/^(sir|dame|dr|mr|mrs|ms|miss)\s+/i, '')
-    .replace(/(\s+(kcb|kc|qc|mp|obe|cbe|mbe|dbe|kbe|pc|frs|cb|ksg))+\s*$/i, '')
-    .replace(/[^\p{L}\s'’-]/gu, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+// For matching against our MPs table: the shared rule (lib/name-titles.js, ENTRY 361) leaves out every title and the
+// letters after the name ("The Rt Ed Miliband MP": a source can drop the Hon; "Tom Tugendhat MBE VR MP").
+const matchKey = (name: string) => nameMatchKey(clean(name));
 
 function pounds(s: string): number | null {
   const m = clean(s).match(/£\s*([\d.,]+)\s*(m|bn|k)?/i);
@@ -173,7 +167,7 @@ export function dedupe(rows: SpadAppointment[]): { rows: SpadAppointment[]; drop
 export type MpName = { member_id: number; name: string | null; display_name: string | null; current_member: boolean | null };
 export function matchMinisters(rows: SpadAppointment[], mps: MpName[]): { ids: Map<string, number>; unmatched: string[] } {
   const byName = new Map<string, MpName[]>();
-  for (const m of mps) for (const n of new Set([m.name, m.display_name].filter((x): x is string => !!x).map((x) => bareName(x).toLowerCase()))) {
+  for (const m of mps) for (const n of new Set([m.name, m.display_name].filter((x): x is string => !!x).map(matchKey))) {
     byName.set(n, [...(byName.get(n) ?? []), m]);
   }
   const ids = new Map<string, number>();
@@ -181,9 +175,9 @@ export function matchMinisters(rows: SpadAppointment[], mps: MpName[]): { ids: M
   for (const name of new Set(rows.map((r) => r.minister_name ?? ''))) {
     const title = rows.find((r) => (r.minister_name ?? '') === name)!.minister_title;
     if (!name) { unmatched.push(`${title} (no name given)`); continue; }
-    const hits = byName.get(bareName(name).toLowerCase()) ?? [];
-    const current = hits.filter((h) => h.current_member);
-    const pick = current.length === 1 ? current[0] : hits.length === 1 ? hits[0] : null;
+    // A peer is never matched to an MP; several of that name: the single current MP, else none (lib/name-titles.js).
+    const hits = isPeerName(clean(name)) ? [] : byName.get(matchKey(name)) ?? [];
+    const pick = pickMp(clean(name), hits) as MpName | null;
     if (pick) ids.set(name, pick.member_id);
     else unmatched.push(`${name} (${title})${hits.length > 1 ? `: ${hits.length} MPs of that name` : ''}`);
   }

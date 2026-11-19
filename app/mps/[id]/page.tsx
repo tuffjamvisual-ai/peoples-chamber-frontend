@@ -44,6 +44,7 @@ import { handled, orNull } from '@/lib/settle';
 import { cachedQuery, tagged } from '@/lib/tagged-read';
 import { londonDay } from '@/lib/london-date';
 import { tableTags } from '@/lib/source-tags';
+import { bareName as matchBareName } from '@/lib/name-titles';
 
 
 // Shared MP-row fetch. generateMetadata and the page component run as
@@ -344,10 +345,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // Compute mpNameKey/firstWord/lastWord up front — donations,
   // meetings, and hospitality all do the same name-based fuzzy match.
   const mpNameTop = (mp.display_name as string | null) || (mp.name as string | null) || '';
-  const mpNameKey = mpNameTop
-    .replace(/^(?:Rt Hon|Sir|Dame|Dr|Ms|Mrs|Mr|The )\s+/i, '')
-    .replace(/\s+(?:MP|QC|KC|CBE|OBE|MBE)\s*$/i, '')
-    .trim();
+  // Titles and letters after the name left out by the shared rule (lib/name-titles.js, ENTRY 361).
+  const mpNameKey = matchBareName(mpNameTop);
   const firstWord = mpNameKey.split(/\s+/)[0]?.toLowerCase() ?? '';
   const lastWord = mpNameKey.split(/\s+/).slice(-1)[0]?.toLowerCase() ?? '';
 

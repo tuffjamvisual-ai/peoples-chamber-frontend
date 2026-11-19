@@ -7,13 +7,16 @@ import { hyphenatePersonName } from '@/lib/no-em-dash';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 
+import { bareName as matchBareName, nameMatchKey, isPeerName, notPresentedAsMp, pickMp } from '@/lib/name-titles';
+
 const HONORIFIC = /^(the\s+)?(rt\.?\s+hon\.?\s+|right honourable\s+)?(sir\s+|dame\s+|dr\.?\s+|mr\.?\s+|mrs\.?\s+|ms\.?\s+)*/i;
 const POST_NOMINALS = /(\s+(kc|mp|cbe|obe|mbe))+$/i;
 
-// The name without titles and post-nominals, as printed.
+// The name without titles and post-nominals, as printed (shown on the page: unchanged by ENTRY 361).
 export const bareName = (name: string) => name.trim().replace(HONORIFIC, '').replace(POST_NOMINALS, '').trim();
-// Letters and spaces only, so "Thomas-Symonds", "Thomas–Symonds" and "Thomassymonds" are the same person.
-export const personNameKey = (name: string) => bareName(name).toLowerCase().replace(/[^a-z ]/g, '').trim();
+// For matching only (ENTRY 361): the shared rule (lib/name-titles.js) leaves out every title and letters after the name,
+// and keeps letters and spaces only, so "Thomas-Symonds", "Thomas–Symonds" and "Thomassymonds" are the same person.
+export const personNameKey = (name: string): string => nameMatchKey(name);
 // The same letters whatever the spaces: "Thomas-Symonds" and the address's "Thomas Symonds".
 export const sameLetters = (a: string, b: string) => personNameKey(a).replace(/ /g, '') === personNameKey(b).replace(/ /g, '');
 
@@ -24,12 +27,16 @@ export const sameLetters = (a: string, b: string) => personNameKey(a).replace(/ 
 export const resolvePersonName = cache(async (raw: string): Promise<{ name: string; isMp: boolean; memberId?: number }> => {
   const name = hyphenatePersonName(raw);
   const target = personNameKey(name);
-  const last = bareName(name).toLowerCase().split(/[^a-z]+/).filter(Boolean).pop();
-  if (!target || !last) return { name, isMp: false };
+  // The last piece of the surname, split at hyphens and apostrophes ("Thomas-Symonds" -> "symonds").
+  const last = matchBareName(name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().split(/[^a-z]+/).filter(Boolean).pop();
+  // A peer, or a name whose letters after it are not MP ("Gareth Davies CB", head of the National Audit Office), is not
+  // matched to an MP (ENTRY 361).
+  if (!target || !last || isPeerName(name) || notPresentedAsMp(name)) return { name, isMp: false };
   const { data, error } = await cachedQuery(['q:lib/person-name.ts:febf74d4cb', JSON.stringify([last])], tableTags('mps'), () => supabase.from('mps').select('member_id, name, display_name').eq('current_member', true).ilike('name', `%${last}%`).limit(50));
   if (error && error.code !== 'PGRST116') throw new Error(`person name ${last}: ${error.message}`);
-  const mp = ((data ?? []) as { member_id: number; name: string | null; display_name: string | null }[])
-    .find((m) => personNameKey(m.name || '') === target || personNameKey(m.display_name || '') === target);
+  // Two current MPs of the same name: neither is linked (never a guess).
+  const mp = pickMp(name, ((data ?? []) as { member_id: number; name: string | null; display_name: string | null }[])
+    .filter((m) => personNameKey(m.name || '') === target || personNameKey(m.display_name || '') === target)) as { member_id: number; name: string | null; display_name: string | null } | null;
   if (!mp) return { name, isMp: false };
   const parliament = bareName(mp.display_name || mp.name || '');
   const own = bareName(name);

@@ -136,11 +136,12 @@ export default async function SecretariatPage({ params }: PageProps) {
     if (o.member_id != null) allOfficerIds.add(o.member_id);
   }
 
-  // Look up the unique MP names for linking back.
+  // Look up the unique MP names for linking back. The cache key is the sorted list of ids (ENTRY 361): a Set gives '{}'
+  // to JSON.stringify, so every secretariat page shared one cached list and officers missing from it lost their link.
   type MpRow = { member_id: number; display_name: string | null };
   let mpById = new Map<number, MpRow>();
   if (allOfficerIds.size > 0) {
-    const { data: mps, error: mpsErr } = await cachedQuery(['q:app/secretariats/[slug]/page.tsx:61bbdaa4da', JSON.stringify([allOfficerIds])], tableTags('mps'), () => supabase.from('mps').select('member_id, display_name').in('member_id', Array.from(allOfficerIds)));
+    const { data: mps, error: mpsErr } = await cachedQuery(['q:app/secretariats/[slug]/page.tsx:61bbdaa4da', JSON.stringify([[...allOfficerIds].sort((a, b) => a - b)])], tableTags('mps'), () => supabase.from('mps').select('member_id, display_name').in('member_id', Array.from(allOfficerIds)));
     if (mpsErr && mpsErr.code !== 'PGRST116') throw new Error(`/secretariats/[slug] mps: ${mpsErr.message}`);
     for (const m of (mps || []) as MpRow[]) mpById.set(m.member_id, m);
   }

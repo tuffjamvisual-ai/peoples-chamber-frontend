@@ -19,6 +19,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 import { noteChanged } from '@/lib/refresh-count';
+import { nameMatchKey, isPeerName, pickMp } from '@/lib/name-titles';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -74,9 +75,11 @@ function reportUrl(r: Pub): string {
 const MEMBERS_SEARCH = 'https://members-api.parliament.uk/api/Members/Search';
 const MEMBERS_HISTORY = 'https://members-api.parliament.uk/api/Members/History';
 const MEMBERS_TAKE = 20;
-const HONORIFIC = /^(?:(?:Rt Hon|The Rt Hon|Sir|Dame|Dr|Ms|Mrs|Miss|Mr|Lord|Baroness)\s+)+/i;
-const POSTNOMINAL = /(?:\s+(?:MP|QC|KC|CBE|OBE|MBE|PC))+\s*$/i;
-const plainName = (n: string) => n.replace(HONORIFIC, '').replace(POSTNOMINAL, '').replace(/\s+/g, ' ').trim().toLowerCase();
+// Titles and letters after the name left out by the shared rule (lib/name-titles.js, ENTRY 361). Lord and Baroness are
+// also left out here, on purpose: a report is about someone who sat in the Commons, and a peer is looked up by name
+// history with a Commons service check (below), never matched to a sitting MP by title alone.
+const PEERAGE = /^(?:the\s+)?(?:rt\.?\s+hon\.?\s+)?(?:lord|baroness)\s+/i;
+const plainName = (n: string) => nameMatchKey(n.replace(PEERAGE, ''));
 type SearchItem = { value?: { id?: number; nameDisplayAs?: string; latestHouseMembership?: { house?: number; membershipStartDate?: string | null } | null } };
 type HistoryItem = { value?: { id?: number; houseMembershipHistory?: { house?: number; membershipStartDate?: string | null }[] | null; nameHistory?: { nameDisplayAs?: string | null }[] | null } };
 const commonsStarts = (h: HistoryItem | undefined) => (h?.value?.houseMembershipHistory ?? [])
@@ -127,6 +130,12 @@ async function GET_impl(req: Request) {
   const candidates: MpRow[] = ((mps ?? []) as MpRow[]).filter((m) => m.current_member === true);
 
   function resolveCurrent(name: string): number | null {
+    // First by the shared rule (lib/name-titles.js, ENTRY 361): titles and letters after the name left out; a peer
+    // never; two current MPs of one name, none.
+    if (isPeerName(name)) return null;
+    const k = nameMatchKey(name);
+    const hit = k ? (pickMp(name, candidates.filter((m) => nameMatchKey(m.name || '') === k || nameMatchKey(m.display_name || '') === k)) as MpRow | null) : null;
+    if (hit) return hit.member_id;
     const lower = name.toLowerCase();
     let exact = candidates.find((m) => (m.display_name?.toLowerCase() === lower) || (m.name?.toLowerCase() === lower));
     if (exact) return exact.member_id;
