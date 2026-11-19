@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { addPanelSource } from '@/lib/panel-sources';
 import {
   loadAreas, sumDistricts, count, fy, marchDate, share, perThousand, perThousandText, noteText, NO_FIGURE, NATIONAL_PATH, SOURCE, OGL, OGL_URL,
-  DEFINITION_2018, ENGLAND_ESTIMATE_NOTE, WALES_NOTE, SCOTLAND_NOTE, NI_NOTE, type HmoRow,
+  DEFINITION_2018, ENGLAND_ESTIMATE_NOTE, WALES_NOTE, SCOTLAND_NOTE, NI_NOTE, OVER_100_NOTE, type HmoRow,
 } from '@/lib/hmos';
 
 const INK = '#14100d';
@@ -119,7 +119,7 @@ export default async function CouncilHmoSection({ gssCodes, isCounty, country, o
                 return (
                   <tr key={r.year}>
                     <th scope="row" style={{ ...cell, textAlign: 'left', fontWeight: 'normal' }}>{fy(r.year)}{r.notes.length || r.predecessors.length ? ' *' : ''}</th>
-                    <td style={cell}>{count(r.estimated)}</td><td style={cell}>{count(r.licensable)}</td><td style={cell}>{count(r.licensed)}</td><td style={cell}>{p == null ? '–' : `${p}%`}</td>
+                    <td style={cell}>{count(r.estimated)}</td><td style={cell}>{count(r.licensable)}</td><td style={cell}>{count(r.licensed)}</td><td style={cell}>{p == null ? NO_FIGURE : `${p}%`}</td>
                   </tr>
                 );
               })}
@@ -127,6 +127,7 @@ export default async function CouncilHmoSection({ gssCodes, isCounty, country, o
           </table>
         </div>
         <YearNotes rows={rows} nation={nation} />
+        {rows.some((r) => (share(r.licensed, r.licensable) ?? 0) > 100) && <p style={small}>{OVER_100_NOTE}</p>}
         <p style={small}><Link href={NATIONAL_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council</Link>.</p>
         <Source nation="England" />
       </section>

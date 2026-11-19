@@ -20,6 +20,7 @@ route,example_url,why_chosen
 "/councils/free-school-meals","/councils/free-school-meals","the only page of this route"
 "/councils/youth-justice","/councils/youth-justice","the only page of this route"
 "/councils/road-condition","/councils/road-condition","the only page of this route"
+"/councils/hmos","/councils/hmos","the only page of this route"
 "/councils/search","/councils/search","the only page of this route"
 "/debates","/debates","the only page of this route"
 "/departments","/departments","the only page of this route"

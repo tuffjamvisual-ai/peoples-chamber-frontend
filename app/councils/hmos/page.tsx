@@ -20,7 +20,7 @@ import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import {
   loadLatest, count, fy, marchDate, share, perThousand, perThousandText, NATIONAL_PATH, SOURCE, OGL, OGL_URL, DIFFERENT_MEASURES,
-  DEFINITION_2018, ENGLAND_ESTIMATE_NOTE, WALES_NOTE, SCOTLAND_NOTE, NI_NOTE, type HmoRow,
+  DEFINITION_2018, ENGLAND_ESTIMATE_NOTE, WALES_NOTE, SCOTLAND_NOTE, NI_NOTE, OVER_100_NOTE, NO_FIGURE, type HmoRow,
 } from '@/lib/hmos';
 import SortTables from './SortTables';
 
@@ -54,7 +54,7 @@ function Table({ id, items, nation }: { id: string; items: Item[]; nation: HmoRo
       { label: 'Estimated HMOs', value: (r) => r.estimated, text: (r) => count(r.estimated) },
       { label: 'Needing a mandatory licence', value: (r) => r.licensable, text: (r) => count(r.licensable) },
       { label: 'Licensed', value: (r) => r.licensed, text: (r) => count(r.licensed) },
-      { label: 'Licensed %', value: (r) => share(r.licensed, r.licensable), text: (r) => { const p = share(r.licensed, r.licensable); return p == null ? '–' : `${p}%`; } },
+      { label: 'Licensed %', value: (r) => share(r.licensed, r.licensable), text: (r) => { const p = share(r.licensed, r.licensable); return p == null ? NO_FIGURE : `${p}%`; } },
       { label: 'Per 1,000 homes', value: (r) => perThousand(r.estimated, r.homes), text: (r) => perThousandText(perThousand(r.estimated, r.homes)) },
     ] : nation === 'Wales' ? [
       { label: 'Estimated HMOs', value: (r) => r.estimated, text: (r) => count(r.estimated) },
@@ -120,7 +120,7 @@ export default async function HmosPage() {
     <OpenGovShell>
       <BackLink fallbackHref="/councils" label="← Back" className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }} />
-      <style>{`.hmo-sort { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-align: inherit; cursor: pointer; text-decoration: underline; } .hmo-fold > summary { cursor: pointer; text-decoration: underline; } .hmo-fold { margin: 0 0 6px; } .hmo-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 0 0 12px; }`}</style>
+      <style>{`.hmo-sort { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-align: inherit; cursor: pointer; text-decoration: underline; } .hmo-fold > summary { cursor: pointer; text-decoration: underline; } .hmo-fold { margin: 0 0 6px; } .hmo-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; margin: 0 0 12px; }`}</style>
       <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: MONO }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '16px' }}>
           <div style={{ fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', marginBottom: '4px' }}>Councils · Housing</div>
@@ -128,25 +128,24 @@ export default async function HmosPage() {
         </header>
 
         <div id="find" data-main-action style={{ maxWidth: '46em', marginBottom: '18px' }}>
-          <div style={{ fontSize: '15px', marginBottom: '8px' }}>Find your council by town, postcode or name</div>
           <CouncilSearch hash="#housing" placeholder="Postcode, town or council" />
         </div>
 
         <section style={section}>
           <h2 style={h2}>The nations</h2>
           <div className="hmo-cards">
-            {eng && card(count(eng.estimated), 'England: estimated HMOs', `Councils’ own estimates, ${marchDate(eng.year)}`)}
-            {eng && card(count(eng.licensed), 'England: HMOs with a mandatory licence', `Of ${count(eng.licensable)} estimated to need one (${share(eng.licensed, eng.licensable)}%), ${marchDate(eng.year)}`)}
-            {wal && card(count(wal.estimated), 'Wales: estimated HMOs', `${count(wal.licensed)} HMO licences, ${marchDate(wal.year)}`)}
-            {sco && card(count(sco.licensed), 'Scotland: HMO licences in force', `Every HMO of three or more people, ${marchDate(sco.year)}`)}
+            {eng && card(count(eng.estimated), 'England: estimated HMOs', `Council estimates, ${marchDate(eng.year)}`)}
+            {eng && card(count(eng.licensed), 'England: with a mandatory licence', `${share(eng.licensed, eng.licensable)}% of ${count(eng.licensable)} needing one, ${marchDate(eng.year)}`)}
+            {wal && card(count(wal.estimated), 'Wales: estimated HMOs', `${count(wal.licensed)} licences, ${marchDate(wal.year)}`)}
+            {sco && card(count(sco.licensed), 'Scotland: licences in force', `All HMOs, ${marchDate(sco.year)}`)}
           </div>
-          <p style={para}>{DIFFERENT_MEASURES}</p>
-          <p style={para}>The true number of HMOs is not known: {ENGLAND_ESTIMATE_NOTE.charAt(0).toLowerCase() + ENGLAND_ESTIMATE_NOTE.slice(1)} {NI_NOTE}</p>
+          <p style={para}>The nations count different things, so their figures must not be added into one UK total.</p>
+
         </section>
 
         <section style={section} id="england">
           <h2 style={h2}>England, {fy(years.England ?? '2025-03-31')}</h2>
-          <p style={para}>{DEFINITION_2018}</p>
+
           {regions.map((reg) => {
             const inReg = england.filter((i) => (i.row.region ?? 'England') === reg);
             const own = inReg.filter((i) => !i.parent);
@@ -167,30 +166,32 @@ export default async function HmosPage() {
               </details>
             );
           })}
-          <p style={{ ...para, fontSize: '13px', marginTop: '12px' }}>Source: {SOURCE.England.label}, {marchDate(years.England ?? '2025-03-31')}. <a href={OGL_URL} style={{ color: INK }}>{OGL}</a></p>
         </section>
 
         <section style={section} id="wales">
-          <h2 style={h2}>Wales, {fy(years.Wales ?? '2025-03-31')}</h2>
-          <p style={para}>{WALES_NOTE}</p>
-          <details className="hmo-fold"><summary style={h3}>Wales ({items('Wales').length} councils)</summary><Table id="hmo-wales" items={items('Wales')} nation="Wales" /></details>
-          <p style={{ ...para, fontSize: '13px', marginTop: '12px' }}>Source: {SOURCE.Wales.label}, {marchDate(years.Wales ?? '2025-03-31')}. <a href={OGL_URL} style={{ color: INK }}>{OGL}</a></p>
+          <h2 style={h2}>Wales, Scotland and Northern Ireland</h2>
+          <details className="hmo-fold"><summary style={h3}>Wales, {fy(years.Wales ?? '2025-03-31')} ({items('Wales').length} councils)</summary><Table id="hmo-wales" items={items('Wales')} nation="Wales" /></details>
+          <details className="hmo-fold" id="scotland"><summary style={h3}>Scotland, {marchDate(years.Scotland ?? '2026-03-31')} ({items('Scotland').length} councils)</summary><Table id="hmo-scotland" items={items('Scotland')} nation="Scotland" /></details>
+          <p style={{ ...para, marginTop: '10px' }} id="northern-ireland">Northern Ireland: figures by council are not published as data.</p>
         </section>
-
-        <section style={section} id="scotland">
-          <h2 style={h2}>Scotland, {marchDate(years.Scotland ?? '2026-03-31')}</h2>
-          <p style={para}>{SCOTLAND_NOTE} Homes are the latest published year ({sco?.homes_year ? sco.homes_year.slice(0, 4) : 'not published'}).</p>
-          <details className="hmo-fold"><summary style={h3}>Scotland ({items('Scotland').length} councils)</summary><Table id="hmo-scotland" items={items('Scotland')} nation="Scotland" /></details>
-          <p style={{ ...para, fontSize: '13px', marginTop: '12px' }}>Source: {SOURCE.Scotland.label}, {marchDate(years.Scotland ?? '2026-03-31')}. <a href={OGL_URL} style={{ color: INK }}>{OGL}</a></p>
-        </section>
-
-        <section style={section} id="northern-ireland">
-          <h2 style={h2}>Northern Ireland</h2>
-          <p style={para}>{NI_NOTE}</p>
-        </section>
+        <details className="hmo-fold" style={{ marginTop: '8px' }}>
+          <summary style={h2}>How the nations’ figures differ</summary>
+          <p style={para}>{DIFFERENT_MEASURES}</p>
+          <p style={para}>The true number of HMOs is not known: {ENGLAND_ESTIMATE_NOTE.charAt(0).toLowerCase() + ENGLAND_ESTIMATE_NOTE.slice(1)}</p>
+          <p style={para}>England: {DEFINITION_2018} {OVER_100_NOTE}</p>
+          <p style={para}>Wales: {WALES_NOTE}</p>
+          <p style={para}>Scotland: {SCOTLAND_NOTE} {sco?.homes_year ? `Homes figures are for ${sco.homes_year.slice(0, 4)}.` : ''}</p>
+          <p style={para}>Northern Ireland: {NI_NOTE}</p>
+        </details>
       </article>
       <SortTables selector=".hmo-table" />
-      <PageSources sources={[{ label: SOURCE.England.label, href: SOURCE.England.href }, { label: SOURCE.Wales.label, href: SOURCE.Wales.href }, { label: SOURCE.Scotland.label, href: SOURCE.Scotland.href }]} />
+      <PageSources sources={[
+        { label: `${SOURCE.England.label}, ${marchDate(years.England ?? '2025-03-31')}`, href: SOURCE.England.href },
+        { label: `${SOURCE.Wales.label}, ${marchDate(years.Wales ?? '2025-03-31')}`, href: SOURCE.Wales.href },
+        { label: `${SOURCE.Scotland.label}, licences ${marchDate(years.Scotland ?? '2026-03-31')}${sco?.homes_year ? `, homes ${sco.homes_year.slice(0, 4)}` : ''}`, href: SOURCE.Scotland.href },
+      ]}>
+        <a href={OGL_URL} style={{ color: INK }}>{OGL}</a>
+      </PageSources>
     </OpenGovShell>
   );
 }

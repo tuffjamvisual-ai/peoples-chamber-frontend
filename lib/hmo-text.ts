@@ -37,6 +37,8 @@ export const SHARP_NOTE = 'The council’s estimate changed sharply this year; n
 export const BRENT_NOTE = 'MHCLG’s note: the change in 2024-25 is in large part due to a change of methodology by Brent on how its estimate is calculated, a decrease of over 12,000 HMOs.';
 export const GOV_ESTIMATED_NOTE = 'Estimated by the Scottish Government from the council’s earlier returns.';
 export const DEFINITION_2018 = 'From 1 October 2018 mandatory licensing covers HMOs with five or more people in two or more households, whatever the number of storeys, so figures from 2018-19 count more licensable HMOs than earlier years.';
+// T2's note (19 Nov 2026): in 96 council years the licensed count is above the council's own estimate of HMOs needing a licence.
+export const OVER_100_NOTE = 'Where licences are above the council’s estimate of HMOs needing one, the share is over 100 per cent: the estimate is the council’s own and can be lower than the licences it has issued.';
 export const ENGLAND_ESTIMATE_NOTE = 'Estimates are the council’s own and many are rounded; HMOs nobody has reported are missing.';
 export const WALES_NOTE = 'Wales counts mandatory and additional licences (councils may license smaller HMOs under additional schemes) and has no figure for HMOs needing a mandatory licence, so no licensed share is shown. No figures were collected for 2019-20.';
 export const SCOTLAND_NOTE = 'In Scotland every HMO with three or more unrelated people sharing a kitchen or bathroom needs a licence, so these are licences for all HMOs: not the same measure as England’s mandatory licences.';
