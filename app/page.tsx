@@ -56,7 +56,8 @@ export const metadata: Metadata = {
   // The home page's own openGraph and twitter (owner's approval, 24 Oct 2026), so its share text matches its search
   // description. They repeat the root layout's values with this description: a page's openGraph or twitter replaces the
   // layout's whole block. SITE_DESCRIPTION in app/layout.tsx is left as it is: other pages use it as their description.
-  // The share title is the page's own title (report 63), as on every other page.
+  // The share title is the page's own title (report 63), as on every other page. No images here (Cowork ENTRY 393): the
+  // site's default image, app/opengraph-image.tsx, fills og:image and twitter:image.
   openGraph: {
     type: 'website',
     siteName: 'opengovt',
@@ -64,13 +65,11 @@ export const metadata: Metadata = {
     description: HOME_DESCRIPTION,
     url: 'https://www.opengovt.uk',
     locale: 'en_GB',
-    images: [{ url: 'https://www.opengovt.uk/og-image.png', width: 1200, height: 630, type: 'image/png' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
-    images: ['https://www.opengovt.uk/og-image.png'],
   },
 };
 

@@ -71,23 +71,18 @@ export const metadata: Metadata = {
   // og:description, twitter:title and twitter:description from each page's own title and description (its
   // generateMetadata or metadata, lib/seo-title.ts, lib/page-descriptions.ts), and links to a page are not all
   // previewed as the homepage. A page without a description of its own still gets SITE_DESCRIPTION through the
-  // description above. The image is the site's default; investigations set their own.
+  // description above.
+  // Images (Cowork ENTRY 393, 19 Nov 2026): none named here. The site's default is app/opengraph-image.tsx (the stamp on
+  // the folder); a page with its own opengraph-image.tsx (investigations, the hubs) gets that one instead. Next.js uses
+  // a file image only where the metadata names no openGraph.images, and fills twitter:image from og:image only where
+  // twitter.images is not set, so neither is set here. public/og-image.png (the old card) stays for links already shared.
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
     locale: "en_GB",
-    images: [
-      {
-        url: `${SITE_URL}/og-image.png`,
-        width: 1200,
-        height: 630,
-        type: "image/png",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
-    images: [`${SITE_URL}/og-image.png`],
   },
   // App icons (owner, 30 Oct 2026): apple-icon.png is the header wordmark (OpenGovShell.tsx brandStyle), one line in
   // its stamp, rendered from HTML with the site's Bebas Neue; at 32px and below "OG" in the same stamp, where the full
