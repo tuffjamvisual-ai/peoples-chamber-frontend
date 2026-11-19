@@ -55,15 +55,10 @@ async function departmentAction(ctx: Ctx, slug: string): Promise<GoneAction> {
   return rows[0] ? { kind: 'redirect', location: `/organisations/${rows[0].slug}` } : PASS;
 }
 
-async function donorAction(ctx: Ctx, slug: string): Promise<GoneAction> {
-  // Long slugs are cut at 100 characters and "-2" marks a second name with the same slug: left to the page.
-  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || slug.length >= 95 || /-\d+$/.test(slug)) return PASS;
-  // PERF step 5 (10 Nov 2026): an exact lookup in the donor_slugs view, served by the expression index
-  // political_donations_donor_slug_idx (donorNameToSlug in SQL; equal for all 24,223 donor names when checked). Under
-  // 1 ms; the regex match it replaces walked every donor name (up to 4.2 s, past this check's 3 s limit).
-  const rows = await rest<{ slug: string }[]>(ctx, `donor_slugs?select=slug&slug=eq.${encodeURIComponent(slug)}&limit=1`);
-  if (rows == null) return PASS;
-  return PASS; // the donor page answers 404 for a slug no donor name gives (ENTRY 367 item 8)
+// A donor address with no donor name now goes on to the donor page, which answers 404 (ENTRY 367 item 8), so the proxy
+// makes no read for donor pages at all (T2, 19 Nov 2026).
+async function donorAction(_ctx: Ctx, _slug: string): Promise<GoneAction> {
+  return PASS;
 }
 
 async function newsAction(ctx: Ctx, slug: string): Promise<GoneAction> {
