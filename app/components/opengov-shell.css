@@ -213,3 +213,20 @@
   .og-footer-links a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
   .og-masthead-wrap a { display: inline-flex; align-items: center; min-height: 44px; }
 }
+
+/* ---- The back folder stays still behind the page (owner decision 19 Nov 2026, Cowork ENTRY 356, replacing 352 and 355):
+   from 768px the header (the back folder: both tabs, the logo, Log in / Support us and the menu) keeps the place it has at
+   the top of the page, like the desk, and the page (the front folder) slides up over it, so the folder and menu are seen
+   again only at the top. It is fixed to the screen at exactly that place: the shell's width, centred on the page as the
+   shell is (left 50% of the screen less the scroll bar, as the page's own centring), at the page's top padding (3vh; 0 on
+   tablets). The spacer after it (OpenGovShell.tsx) takes its place in the page, the same size, so nothing else moves.
+   Fixed rather than sticky: a sticky header taller than the screen let go of the screen near the end of shorter pages.
+   Phones and print unchanged. ---- */
+.og-header-spacer { display: none; }
+@media screen and (min-width: 768px) {
+  :root { --og-w: min(96vw, 1240px); }
+  .og-header { position: fixed !important; top: 3vh; left: 50%; width: var(--og-w) !important; margin-left: calc(var(--og-w) / -2); z-index: 1; }
+  .og-header-spacer { display: block; width: 100%; aspect-ratio: 1086 / 1448; }
+  .og-page { z-index: 2; }
+}
+@media screen and (min-width: 768px) and (max-width: 1023.98px) { :root { --og-w: 100vw; } .og-header { top: 0; } }
