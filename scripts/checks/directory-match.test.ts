@@ -33,8 +33,8 @@ test('joining words are not required, unless they are all there is', () => {
   assert.deepEqual(searchDirectory('the'), []);
 });
 
-test("owner's examples: youth crime, young offenders, knife crime -> Youth Justice", () => {
-  for (const q of ['youth crime', 'young offenders', 'knife crime', 'Youth Crime', 'crime, youth', 'YOUTH-CRIME']) {
+test("owner's examples: youth crime, young offenders -> Youth Justice (knife crime removed, Cowork ENTRY 387)", () => {
+  for (const q of ['youth crime', 'young offenders', 'Youth Crime', 'crime, youth', 'YOUTH-CRIME']) {
     assert.equal(top(q)[0], '/councils/youth-justice', q);
   }
 });
@@ -51,10 +51,13 @@ test("owner's examples: MPs pay, salary -> MP Earnings", () => {
   }
 });
 
-test('the ten test searches each find a page', () => {
+test('knife crime is not put on Youth Justice (Cowork ENTRY 387: the page does not count knife offences)', () => {
+  assert.deepEqual(top('knife crime'), []);
+});
+
+test('the other nine test searches each find a page', () => {
   const want: Record<string, string> = {
     'youth crime': '/councils/youth-justice',
-    'knife crime': '/councils/youth-justice',
     'hmo': '/councils/hmos',
     'bedsits': '/councils/hmos',
     'mp pay': '/earnings',

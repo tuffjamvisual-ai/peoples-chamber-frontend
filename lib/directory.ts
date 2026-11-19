@@ -147,7 +147,7 @@ export const KEYWORDS: Record<string, readonly string[]> = {
   '/councils/hmos': ['HMO', 'bedsits', 'shared houses', 'house shares', 'houses in multiple occupation', 'HMO licences', 'HMO licensing'],
   '/councils/road-condition': ['potholes', 'road repairs', 'road maintenance', 'state of roads', 'bad roads'],
   '/councils/search': ['find my council', 'which council', 'council by postcode', 'local authority search'],
-  '/councils/youth-justice': ['youth crime', 'young offenders', 'knife crime', 'child offenders', 'first time entrants', 'youth cautions', 'juvenile crime'],
+  '/councils/youth-justice': ['youth crime', 'young offenders', 'child offenders', 'first time entrants', 'youth cautions', 'juvenile crime'],
   '/departments': ['government departments', 'ministries', 'secretaries of state', 'ministers', 'cabinet'],
   '/directory': ['site map', 'sitemap', 'a to z', 'all pages', 'index'],
   '/divisions': ['how MPs voted', 'votes', 'voting records', 'Commons votes', 'division list'],
