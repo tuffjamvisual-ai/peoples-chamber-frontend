@@ -76,16 +76,17 @@ export async function formerPeersWithPages(db: SupabaseClient): Promise<FormerPe
 // head counts (no rows read) in the order most members have one, stopping at the first found. With the posts and
 // committees on the peer's own row, this is lib/index-rules.ts peerNoActivity for the page's metadata.
 export async function peerActivityCounts(db: SupabaseClient, memberId: number): Promise<{ votes: number; questions: number; interests: number }> {
-  const head = async (key: string, table: string, q: () => PromiseLike<{ data: unknown; count?: number | null; error: { message: string; code?: string } | null }>) => {
-    const { count, error } = await cachedQuery([key, JSON.stringify([memberId])], tableTags(table), q);
-    if (error) throw new Error(`peer ${memberId} ${table} count: ${error.message}`);
-    return count ?? 0;
+  // Each read sits inside its own cachedQuery call, so the A16 check can see it is cached under its table's tag.
+  const count = (table: string, r: { count?: number | null; error: { message: string } | null }) => {
+    if (r.error) throw new Error(`peer ${memberId} ${table} count: ${r.error.message}`);
+    return r.count ?? 0;
   };
-  const votes = await head('q:lib/lords.ts:activity-votes', 'lords_division_votes', () => db.from('lords_division_votes').select('division_id', { count: 'exact', head: true }).eq('member_id', memberId));
+  const key = JSON.stringify([memberId]);
+  const votes = count('lords_division_votes', await cachedQuery(['q:lib/lords.ts:activity-votes', key], tableTags('lords_division_votes'), () => db.from('lords_division_votes').select('division_id', { count: 'exact', head: true }).eq('member_id', memberId)));
   if (votes) return { votes, questions: 0, interests: 0 };
-  const interests = await head('q:lib/lords.ts:activity-interests', 'peer_registered_interests', () => db.from('peer_registered_interests').select('interest_id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true));
+  const interests = count('peer_registered_interests', await cachedQuery(['q:lib/lords.ts:activity-interests', key], tableTags('peer_registered_interests'), () => db.from('peer_registered_interests').select('interest_id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true)));
   if (interests) return { votes, questions: 0, interests };
-  const questions = await head('q:lib/lords.ts:activity-questions', 'parliament_written_questions', () => db.from('parliament_written_questions').select('id', { count: 'exact', head: true }).eq('asking_member_id', memberId).eq('house', 'Lords'));
+  const questions = count('parliament_written_questions', await cachedQuery(['q:lib/lords.ts:activity-questions', key], tableTags('parliament_written_questions'), () => db.from('parliament_written_questions').select('id', { count: 'exact', head: true }).eq('asking_member_id', memberId).eq('house', 'Lords')));
   return { votes, questions, interests };
 }
 
