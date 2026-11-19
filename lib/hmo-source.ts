@@ -192,7 +192,9 @@ export function buildRows(dir: string): HmoRow[] {
       if (src) {
         est = num(src.f8a); lic = num(src.f9a); licd = num(src.f10a);
         for (const [k, v] of [['estimated', src.f8a], ['licensable', src.f9a], ['licensed', src.f10a]] as const) { const s = sym(v); if (s) symbols[k] = s; }
-        homesCodes = [src.code];
+        // Homes under the code that year's table uses, which can differ from LAHS's: the row's code, today's, or the old one.
+        const tries = [src.code, code, ...Object.entries(RECODED).filter(([, to]) => to === code).map(([from]) => from)];
+        homesCodes = [tries.find((t) => homes?.has(t)) ?? code];
       } else if (MERGED[code]) {
         parts = MERGED[code].filter((c) => byCode.has(c));
         if (code === 'E06000066') parts = parts.filter((c) => !(SWT_PARTS.includes(c) && byCode.has('E07000246')));
@@ -204,10 +206,11 @@ export function buildRows(dir: string): HmoRow[] {
         homesCodes = parts;
       } else continue;
       if (est == null && lic == null && licd == null && !Object.keys(symbols).length && !predecessors.length) continue;
+      const h = homesFor(homesCodes);
       rows.push({
         ons_code: code, area_name: now.name, nation: 'England', area_level: 'council', region: regionOf.get(code) ?? null, year,
         estimated: est, known: null, licensable: lic, licensed: licd, mandatory_licences: null, additional_licences: null,
-        homes: homesFor(homesCodes), homes_year: homes ? year : null, symbols, predecessors, notes: [], source_url: SOURCES.lahs,
+        homes: h, homes_year: h != null ? year : null, symbols, predecessors, notes: [], source_url: SOURCES.lahs,
       });
     }
     // England: the sum of the councils that gave a figure (MHCLG's own England total for 2024-25 is the same sum).
