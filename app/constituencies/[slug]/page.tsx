@@ -16,6 +16,7 @@ import { getSeat, seatDetail, type Candidate } from '@/lib/constituency-pages';
 import { petitionDate, topPetitionsInConstituency } from '@/lib/petition-pages';
 
 import BackLink from '@/app/components/BackLink';
+import { resolveAssociation } from '@/lib/association-units';
 // One constituency (owner, backlog item 15d, 6 Nov 2026), this Parliament only: its MP and every MP since 2024 with official dates
 // and Parliament's own end reason, the 2024 result and any byelection, its most signed petitions, and the councils overlapping it.
 // No commentary on why anyone left, and no local party donations in this version. Kept for a day.
@@ -81,7 +82,13 @@ function Result({ heading, date, summary, figures, candidates, fold = false }: {
 export default async function ConstituencyPage({ params }: { params: Promise<{ slug: string }> }) {
   const seat = await load((await params).slug);
   if (!seat) notFound();
-  const [{ candidates, byelections, terms, current }, petitions] = await Promise.all([seatDetail(seat.ons_code), topPetitionsInConstituency(seat.ons_code)]);
+  const [{ candidates, byelections, terms, current }, petitions, money] = await Promise.all([seatDetail(seat.ons_code), topPetitionsInConstituency(seat.ons_code), resolveAssociation(seat.slug)]);
+  // Donations to local party accounting units of this name (Cowork ENTRY 367 item 4): the figures of
+  // /donations/constituencies/<slug>, shown here only where the Electoral Commission register has such units (no figure
+  // invented; a national unit of the same name is left out).
+  const parties = !money ? [] : money.kind === 'single'
+    ? [{ name: money.party.name, count: money.rows.length, total: money.rows.reduce((t, r) => t + Number(r.amount || 0), 0), href: `/donations/constituencies/${seat.slug}` }]
+    : money.national ? [] : money.parties.map((p) => ({ name: p.party.name, count: p.count, total: p.total, href: p.href }));
   const general = candidates.filter((c) => c.election_kind === 'general');
   const resigned = terms.some((t) => t.end_reason && /chiltern|northstead/i.test(t.end_reason));
   const allCouncils = [...seat.councils, ...(seat.county ? [seat.county] : [])];
@@ -130,6 +137,25 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
       {/* UX5 (T1-6): on phones the petitions are a closed fold; from 640px up, as before. */}
       {petitions.petitions.length > 0 && <div style={{ marginTop: '28px' }}><SubFold tablets label="Petitions in this constituency"><ConstituencyPetitions top={petitions} gss={seat.ons_code} /></SubFold></div>}
 
+      {parties.length > 0 && (
+        <div style={{ marginTop: '28px' }}>
+          <SubFold tablets label="Donations to local parties" summary={`£${Math.round(parties.reduce((t, p) => t + p.total, 0)).toLocaleString('en-GB')}`}>
+            <h2 style={h2}>Donations to local parties</h2>
+            <p style={{ ...para, fontSize: '15px' }}>Donations declared to the Electoral Commission by local party accounting units named {money!.unitName}. A unit&rsquo;s area can differ from the constituency&rsquo;s 2024 boundaries.</p>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {parties.map((p) => (
+                <li key={p.name} style={{ padding: '8px 0', borderBottom: LINE, fontSize: '16px', color: INK }}>
+                  <Link href={p.href} prefetch={false} style={link}>{p.name}</Link>
+                  <span style={{ display: 'block', fontSize: '15px' }}>£{Math.round(p.total).toLocaleString('en-GB')} in {p.count.toLocaleString('en-GB')} {p.count === 1 ? 'donation' : 'donations'}</span>
+                </li>
+              ))}
+            </ul>
+            {/* One party: its link above is the full page already, so no second link to the same address (A10). */}
+            {parties.length > 1 && <p style={{ ...para, fontSize: '15px', marginTop: '8px' }}><Link href={`/donations/constituencies/${seat.slug}`} prefetch={false} style={link}>Every party&rsquo;s accounts named {money!.unitName}</Link></p>}
+          </SubFold>
+        </div>
+      )}
+
       <h2 style={h2}>{allCouncils.length === 1 ? 'Council' : 'Councils'}</h2>
       <p style={{ ...para, fontSize: '15px' }}>Councils with wards in this seat, from the ONS lookup of May 2025. Some may cover only a small part of it.</p>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -140,6 +166,7 @@ export default async function ConstituencyPage({ params }: { params: Promise<{ s
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside; each result on the Commons Library’s site is in the page's one Sources fold. */}
       <PageSources sources={[
         seat.result_url && { label: '2024 general election result, House of Commons Library', href: seat.result_url },
+        parties.length > 0 && { label: 'Electoral Commission, register of donations to political parties', href: 'https://search.electoralcommission.org.uk/' },
         ...byelections.map((b) => b.url && { label: `${petitionDate(b.election_date)!.replace(/^\d+ /, '')} byelection result, House of Commons Library`, href: b.url }),
       ]} />
     </OpenGovShell>
