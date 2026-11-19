@@ -2,6 +2,8 @@
 // from a local build; it writes nothing but its report. Run by the pre-push check
 // (scripts/checks/mobile-audit-prepush.mjs) against the commit being pushed, or by hand against a running build:
 //   node scripts/checks/qa/rendered-checks.mjs --base http://localhost:3000 [--all] [--push] [--write-baseline] [--json <file>]
+// --pages /a,/b (the push fast lane, Cowork ENTRY 404): only these pages, without the extra pages; --only A2,A3: only
+// those checks' failures count (and A6 is measured only when named).
 // --push (owner approved, 11 Nov 2026): the pre-push run. A6 at 375 x 812 and 1280 x 720 only, no first-visit banner
 // pass, and A9 on the sample pages without opening every council tab; A2 and A3 as always. The full run (A6 at the five
 // sizes, the banner pass, every council tab) is the daily one against the live site (rendered-checks-daily.mjs, 05:17).
@@ -68,6 +70,8 @@ const WRITE = argv.includes('--write-baseline');
 const WRITE_A10 = argv.includes('--write-a10-baseline');
 const JSON_OUT = arg('--json', null);
 const PUSH = argv.includes('--push');
+const PAGES = arg('--pages', null);
+const ONLY = arg('--only', null)?.split(',').map((s) => s.trim().toUpperCase()).filter(Boolean) ?? null;
 const LIVE = /^https:\/\/(www\.)?opengovt\.uk$/.test(BASE);
 // Requests the checks never let through: analytics always; the live site too when checking a local build.
 const BLOCK = LIVE ? /posthog|vercel-insights|_vercel\/(insights|speed)/ : /opengovt\.uk|posthog|vercel-insights|_vercel\/(insights|speed)/;
@@ -256,8 +260,9 @@ async function openCouncilTabs(page) {
 async function main() {
   // One page at a time, in every pass (owner, 10 Nov 2026): a local build reads the production database, so our own
   // checks must never add to a burst of page loads. Keep it so: no Promise.all over pages here.
-  const list = pages();
-  const extra = ALL ? [] : [{ route: '/bills/[id]', url: '/bills/3942' }, { route: '/bills/[id]', url: '/bills/4080' }, { route: '/divisions/[slug]', url: '/divisions/pw-2019-01-15-293-commons' }, { route: '/councils/[slug]', url: '/councils/kent' }];
+  const routeOf = PAGES ? new Map(parseCsv(fs.readFileSync(path.join(ROOT, 'scripts/checks/mobile-audit-pages.csv'), 'utf8')).map((r) => [r.example_url, r.route])) : null;
+  const list = PAGES ? PAGES.split(',').map((u) => u.trim()).filter(Boolean).map((u) => ({ route: routeOf.get(u) ?? u, url: u })) : pages();
+  const extra = ALL || PAGES ? [] : [{ route: '/bills/[id]', url: '/bills/3942' }, { route: '/bills/[id]', url: '/bills/4080' }, { route: '/divisions/[slug]', url: '/divisions/pw-2019-01-15-293-commons' }, { route: '/councils/[slug]', url: '/councils/kent' }];
   // The extra pages (once A4's bill and division samples) are loaded for A9 like the others; Kent, an English county,
   // has every council detail tab (the fast list's council is in Northern Ireland).
   const results = [];
@@ -317,7 +322,7 @@ async function main() {
     results.push(r);
   }
   // A6: the same pages at four phone sizes and one desktop size, one context each.
-  for (const v of A6_VIEWS) {
+  for (const v of ONLY && !ONLY.includes('A6') ? [] : A6_VIEWS) {
     const c = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: !v.desktop, hasTouch: !v.desktop });
     // A returning reader: the cookie choice is made, so no banner (T1-7ab).
     await c.addCookies([{ name: 'og_cookies_policy', value: encodeURIComponent(JSON.stringify({ analytics: false })), url: BASE }]);
@@ -472,6 +477,8 @@ async function main() {
       if (r.a10.related > 1) (r.a10.related <= (ab.related ?? 1) ? expected : fails).push(`A10 ${r.url}: ${r.a10.related} Related lists (at most one)`);
     }
   }
+  // --only: the other checks' failures are listed as not counted.
+  if (ONLY) for (let i = fails.length - 1; i >= 0; i--) if (!/could not check/.test(fails[i]) && !ONLY.includes(fails[i].split(' ')[0])) expected.push(`not counted (--only ${ONLY.join(',')}): ${fails.splice(i, 1)[0]}`);
   const summary = {
     pages: results.length,
     a2_pages_with_time_words: results.filter((r) => r.timeWords.length).length,

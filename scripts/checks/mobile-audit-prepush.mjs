@@ -17,6 +17,14 @@
 // build, whole pages at 375 x 812 and 1280 x 720 (scripts/checks/qa/visual-compare.mjs; the full sample runs nightly).
 // A page that differs and is not named by the job (a 'VR-pages:' line in a commit message of the push) stops the push for
 // Cowork, with a report and side by side pictures; after Cowork's review, VR_ACCEPT=<first 8 of the hash> lets it through.
+// FAST LANE (owner approved, Cowork ENTRY 404; rule in scripts/checks/fast-lane.mjs and Claude outputs/audit/fastlane-404/
+// RULE.md): after the layout lock and A16, which always run, a push whose every changed file is a share image route,
+// helper or asset, an image named nowhere in the code, a newsletter issue, the by-election list or robots.txt is built
+// and then checked only for its sample share images (200 image/png, 1200 x 630), its sample pages (200, og:image and
+// twitter:image) and A2 and A3 on those pages; no journeys, audit or visual comparison (scripts/checks/fast-lane-after.mjs
+// runs them against the live site once the push is live). Every other push prints 'FULL: <reason>' and runs the checks
+// above unchanged. PUSH_FULL=1 forces the full check. The lane and its result are written to push-lane-<hash>.txt (one
+// line) and push-lane-<hash>.json (the samples, for the after-check) in the server log folder; the path is printed.
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -92,6 +100,19 @@ const todo = [...shas].filter((s) => s !== passed);
 if (!todo.length) process.exit(0);
 
 const sha = todo[0];
+// The fast lane decision (ENTRY 404), against the commit the push starts from (origin/main for a branch pushed to main).
+let lane;
+if (process.env.PUSH_FULL === '1') lane = { fast: false, reasons: ['PUSH_FULL=1 (full check asked for)'], kinds: [], files: [], samples: {} };
+else {
+  try {
+    const { eligibility } = await import(path.join(HERE, 'fast-lane.mjs'));
+    lane = eligibility({ base: fromOf.get(sha) ?? 'origin/main', head: sha });
+  } catch (e) { lane = { fast: false, reasons: [`the fast lane rule could not run (${String(e.message).split('\n')[0]})`], kinds: [], files: [], samples: {} }; }
+}
+const laneLine = lane.fast ? `FAST LANE: ${new Set(lane.files.map((f) => f.path)).size} files (${lane.kinds.join(', ')})` : `FULL: ${lane.reasons.join('; ')}`;
+console.log(laneLine);
+for (const n of lane.notes ?? []) console.log(`  fast lane note: ${n}`);
+const t0 = Date.now();
 const wt = fs.mkdtempSync(path.join(os.tmpdir(), 'opengovt-audit-'));
 // ENTRY 167: where the last check build's .next/cache/fetch-cache is kept between pushes.
 const FETCH_CACHE_KEEP = process.env.FETCH_CACHE_KEEP || path.join(os.homedir(), 'opengovt-backup', 'fetch-cache-last');
@@ -137,6 +158,22 @@ function mobileRules(wt, base, env) {
 }
 const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { stdio: 'inherit', ...opts });
 let server = null, code = 1, vrStopped = false;
+// The fast lane's checks (ENTRY 404) on the running build: the sample share images, pages and changed static files
+// (fast-lane.mjs checkSamples, one request a second), then A2 and A3 on the sample pages only.
+async function fastLaneChecks(wt, base, env) {
+  const s = lane.samples;
+  console.log(`fast lane checks: ${s.imageRoutes.length} share images, ${s.pages.length} pages, ${s.staticFiles.length} other files${s.everyKind ? ' (one page of every share image kind: a helper, asset or font changed)' : ''}`);
+  const { checkSamples } = await import(path.join(HERE, 'fast-lane.mjs'));
+  const fails = await checkSamples(base, s);
+  if (s.pages.length) {
+    try { run('node', ['scripts/checks/qa/rendered-checks.mjs', '--base', base, '--push', '--pages', s.pages.join(','), '--only', 'A2,A3'], { cwd: wt, env }); }
+    catch { fails.push('A2 or A3 (rendered checks) failed on the sample pages, above'); }
+  }
+  if (!fails.length) { code = 0; return; }
+  console.error(`Push refused: the fast lane checks failed:\n  ${fails.join('\n  ')}`);
+  const lines = errorLines();
+  console.error(`Server log: ${serverLog}${lines.length ? `; its error lines:\n  ${lines.join('\n  ')}` : ' (no error lines)'}`);
+}
 try {
   console.log(`mobile audit: building ${sha.slice(0, 8)} (several minutes)`);
   run('git', ['worktree', 'add', '-q', '--detach', wt, sha]);
@@ -177,7 +214,8 @@ try {
   server = spawn('npx', ['next', 'start', '-p', String(port)], { cwd: wt, env, stdio: ['ignore', out, out], detached: true });
   const base = `http://localhost:${port}`;
   for (let i = 0; i < 60; i++) { try { await fetch(`${base}/support`); break; } catch { await new Promise((r) => setTimeout(r, 1000)); } }
-  try {
+  if (lane.fast) await fastLaneChecks(wt, base, env);
+  else try {
     run('node', ['scripts/checks/mobile-audit.mjs', '--fast', '--base', base, '--out', path.join(os.tmpdir(), 'opengovt-audit-fast')], { cwd: wt, env });
     run('node', ['scripts/checks/mobile-audit-deep.mjs', '--base', base, '--section', 'journeys', '--engines', 'chromium', '--journeys', 'e,g', '--out', path.join(os.tmpdir(), 'opengovt-audit-journeys')], { cwd: wt, env });
     run('node', ['scripts/checks/sitemap-dates-check.mjs', '--base', base], { cwd: wt, env });
@@ -218,5 +256,17 @@ try {
   if (server) { try { process.kill(-server.pid); } catch { /* already gone */ } }
   fs.rmSync(path.join(wt, '.env.local'), { force: true });
   try { execFileSync('git', ['worktree', 'remove', '--force', wt], { cwd: repo, stdio: 'ignore' }); execFileSync('git', ['worktree', 'prune'], { cwd: repo, stdio: 'ignore' }); } catch { /* left for git worktree prune */ }
+}
+// One line for STATUS (RULE.md section 5) and the lane with its samples for the after-check.
+{
+  const mins = ((Date.now() - t0) / 60000).toFixed(1);
+  const result = DRY ? 'dry run, stopped before the build' : `${lane.fast ? 'fast' : 'full'} checks ${code === 0 ? 'passed' : vrStopped ? 'stopped for Cowork (visual comparison)' : 'failed'} in ${mins} min`;
+  const line = `${laneLine.replace(/^(FAST LANE|FULL):/, `$1 ${sha.slice(0, 8)}:`)}; ${result}${lane.fast && code === 0 && !DRY ? '; full check to run against live (scripts/checks/fast-lane-after.mjs)' : ''}`;
+  const summaryFile = path.join(logDir, `push-lane-${sha.slice(0, 8)}.txt`);
+  try {
+    fs.writeFileSync(summaryFile, `${line}\n`);
+    fs.writeFileSync(summaryFile.replace(/\.txt$/, '.json'), JSON.stringify({ sha, base: fromOf.get(sha) ?? null, at: new Date().toISOString(), code, dry: DRY, ...lane }, null, 1));
+    console.log(`push lane summary: ${summaryFile}\n  ${line}`);
+  } catch (e) { console.log(`push lane summary: could not write ${summaryFile} (${e.message}); ${line}`); }
 }
 process.exit(code);

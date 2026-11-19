@@ -22,7 +22,10 @@ const SECTIONS = (opt('section') ?? 'webkit,journeys,edge,nojs,lighthouse,axe,fo
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 const SHOTS = path.join(OUT, 'shots');
 fs.mkdirSync(SHOTS, { recursive: true });
-const blocked = (url) => /_rsc=|\/_vercel\/|posthog\.com|(^|\/\/)([a-z0-9-]+\.)?opengovt\.uk/.test(url);
+// Run against the live site itself (--base https://www.opengovt.uk: the fast lane's after-check, Cowork ENTRY 404), its
+// own requests are let through; against a local build, as before, every request to opengovt.uk is blocked.
+const AGAINST_LIVE = /^https:\/\/(www\.)?opengovt\.uk\/?$/.test(BASE ?? '');
+const blocked = (url) => /_rsc=|\/_vercel\/|posthog\.com/.test(url) || (!AGAINST_LIVE && /(^|\/\/)([a-z0-9-]+\.)?opengovt\.uk/.test(url));
 const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 const writeCsv = (name, rows) => {
   if (!rows.length) return fs.writeFileSync(path.join(OUT, name), '');

@@ -8,6 +8,25 @@
 
 `PUSH_CHECKS_DRY=1` stops before the build (once the pushed commit has this branch's mobile-audit-prepush.mjs).
 
+## The fast lane (owner approved, Cowork ENTRY 404)
+
+After the layout lock and A16 (which always run), `mobile-audit-prepush.mjs` asks `scripts/checks/fast-lane.mjs` whether every file the push changes against origin/main is on the fast lane list (share image routes, the share image helpers when only share image routes import them at any depth, share image assets, images named nowhere in `app/`, `lib/` or a `.css` file, newsletter issues, `lib/council-byelections.ts`, `public/robots.txt`, and no "Layout change approved" in any commit message of the push). The rule is in `Claude outputs/audit/fastlane-404/RULE.md`.
+
+- `FAST LANE: <n> files (<kinds>)`: the build, then only the sample share images (200, image/png, 1200 x 630), the sample pages (200, og:image and twitter:image) and A2 and A3 on those pages. When a helper, asset or font changes, one page of every share image kind is sampled.
+- `FULL: <reason>`: exactly the checks above, unchanged. `PUSH_FULL=1` forces it.
+
+Either way it writes `push-lane-<hash>.txt` (one line for STATUS) and `push-lane-<hash>.json` (the samples) in the push check log folder and prints the path. To see the decision without pushing: `node scripts/checks/fast-lane.mjs --base origin/main --head <hash>`; the rule's tests: `node --test scripts/checks/fast-lane.test.mjs`.
+
+After a fast lane push, run the skipped checks against the live site from a worktree of the pushed commit, straight after the push (it keeps before pictures while the deploy builds, waits for Vercel's Ready, then checks at one page a second):
+
+```sh
+node scripts/checks/fast-lane-after.mjs --sha <pushed hash>
+```
+
+Exit 0 clean; 2 a hard failure (a page or image not 200, a reader journey, A2/A3 on the sample pages): revert the push at once; 3 visual differences or checks not on the hard list: read the report first; 4 could not check. It never reverts by itself. Keep PUSH.lock until it has finished (RULE.md section 7 point 6).
+
+The installed hook (`~/opengovt-backup/git-hooks/pre-push`) needs no change for the fast lane: it already runs the pushed commit's own `mobile-audit-prepush.mjs`.
+
 ## Installing it (a repository setting, not a file in any branch)
 
 So that switching the checkout's branch can never change the hook, keep it outside the checkout:

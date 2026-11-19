@@ -36,6 +36,11 @@
 //   at push:  node scripts/checks/qa/visual-compare.mjs --base http://localhost:3198 --sha <hash> --from <hash>
 //             [--job-pages '/mps/[id], /'] [--out <dir>] [--only /mps/4858,/] [--accept <hash8>] [--live <url>]
 //   nightly:  node scripts/checks/qa/visual-compare.mjs --nightly
+// After a fast lane push (Cowork ENTRY 404, scripts/checks/fast-lane-after.mjs), pictures kept in a folder:
+//   before:   node scripts/checks/qa/visual-compare.mjs --save-dir <dir> --only /,/bills/657 [--live <url>]
+//             (the pages from --live, before the push is live; nothing is compared)
+//   after:    node scripts/checks/qa/visual-compare.mjs --against-dir <dir> --only /,/bills/657 --base <url> [--sha <hash>]
+//             (the same pages from --base against the pictures in the folder: an earlier --save-dir or a night's folder)
 // Exit 0: nothing unexpected changed (or accepted); 1: unexpected pages changed (at push), or the check could not run.
 import fs from 'fs';
 import os from 'os';
@@ -58,6 +63,8 @@ const ONLY = arg('--only', '');
 let JOB_PAGES = arg('--job-pages', '').split(',').map((s) => s.trim()).filter(Boolean);
 const FROM = arg('--from', null);
 const NIGHTLY = argv.includes('--nightly');
+const SAVE_DIR = arg('--save-dir', null);
+const AGAINST_DIR = arg('--against-dir', null);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const NIGHT_DIR = path.join(os.homedir(), 'opengovt-backup/vr-nightly');
 const STATUS = '/Volumes/EDGE_SSD/opengovt-work/Claude outputs/STATUS.md';
@@ -466,6 +473,49 @@ async function nightlyRun() {
   return 0;
 }
 
-const main = () => (NIGHTLY ? nightlyRun() : pushRun());
+// Pictures kept in a folder (fast lane after-check): --save-dir takes the --only pages from --live and keeps them;
+// --against-dir takes them from --base and compares each with the kept picture (a page with no kept picture is listed,
+// not compared). Exit 1 when a page not named by --job-pages differs, as at push.
+async function folderRun() {
+  const t0 = Date.now();
+  const list = ONLY.split(',').map((s) => s.trim()).filter(Boolean).map((u) => ({ route: u, url: u }));
+  if (!list.length) { console.error('visual compare: --save-dir and --against-dir need --only <pages>'); return 1; }
+  const dir = SAVE_DIR ?? AGAINST_DIR;
+  const site = SAVE_DIR ? LIVE : BASE;
+  fs.mkdirSync(SAVE_DIR ? dir : OUT, { recursive: true });
+  const browser = await chromium.launch();
+  const page = await openPage(browser, site);
+  const rows = [];
+  for (const p of list) {
+    const row = { route: p.route, url: p.url, named: jobNames(p), views: [], error: null };
+    try {
+      row.statusCode = await load(page, site, p.url);
+      let shots = []; for (const v of VIEWS) shots.push(await shoot(page, p.url, v));
+      if (shots.some((x) => x.fontsFailed.length)) { console.log(`  ${p.url}: a web font did not load; loading once more`); await load(page, site, p.url); shots = []; for (const v of VIEWS) shots.push(await shoot(page, p.url, v)); }
+      for (let k = 0; k < VIEWS.length; k++) {
+        const a = shots[k];
+        const file = path.join(dir, fileName(p.url, VIEWS[k].name, 'png'));
+        if (SAVE_DIR) { fs.writeFileSync(file, a.png); fs.writeFileSync(file.replace(/\.png$/, '.json'), JSON.stringify({ styles: a.styles, text: a.text, fontsFailed: a.fontsFailed })); continue; }
+        if (!fs.existsSync(file)) { row.views.push({ view: VIEWS[k].name, changed: false, first: true }); continue; }
+        const prev = { png: fs.readFileSync(file), ...JSON.parse(fs.readFileSync(file.replace(/\.png$/, '.json'), 'utf8')) };
+        row.views.push(await judge(p, k, prev, a));
+      }
+      const failed = [...new Set(shots.flatMap((x) => x.fontsFailed))];
+      if (failed.length && row.views.every(fontShaped)) row.fontFailure = { after: failed };
+    } catch (e) { row.error = e.message.split('\n')[0]; }
+    row.changed = !SAVE_DIR && (!!row.error || row.views.some((v) => v.changed));
+    if (!row.changed) delete row.fontFailure;
+    rows.push(row);
+    console.log(`  ${p.url}: ${row.error ? `could not load: ${row.error}` : SAVE_DIR ? `kept (HTTP ${row.statusCode})` : row.changed ? row.views.filter((v) => v.changed).map((v) => `${v.view} ${v.kind} (${v.pixels} px)`).join(', ') : row.views.some((v) => v.first) ? 'no kept picture' : 'same'}`);
+  }
+  await browser.close();
+  const secs = Math.round((Date.now() - t0) / 1000);
+  if (SAVE_DIR) { const bad = rows.filter((r) => r.error); console.log(`visual compare: ${rows.length - bad.length} of ${rows.length} pages kept in ${dir}`); return bad.length ? 1 : 0; }
+  const unexpected = writeReport(rows, secs, `Visual comparison after push ${SHA.slice(0, 8)}`, `kept pictures ${dir}`, site, [`Pages without a kept picture: ${rows.filter((r) => r.views.some((v) => v.first)).map((r) => r.url).join(', ') || 'none'}.`]);
+  console.log(`visual compare: ${rows.length} pages in ${Math.floor(secs / 60)} min ${secs % 60} s; ${rows.filter((r) => r.changed).length} changed, ${unexpected.length} not named. Report: ${path.join(OUT, 'report.md')}`);
+  return unexpected.length ? 1 : 0;
+}
+
+const main = () => (NIGHTLY ? nightlyRun() : SAVE_DIR || AGAINST_DIR ? folderRun() : pushRun());
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().then((c) => process.exit(c), (e) => { console.error(`visual compare could not run: ${e.message}`); process.exit(1); });

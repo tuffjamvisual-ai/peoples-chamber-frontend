@@ -221,7 +221,10 @@ function measure() {
   };
 }
 
-const blocked = (url) => /_rsc=|\/_vercel\/|posthog\.com|(^|\/\/)([a-z0-9-]+\.)?opengovt\.uk/.test(url);
+// Run against the live site itself (--base https://www.opengovt.uk: the fast lane's after-check, Cowork ENTRY 404), its
+// own requests are let through; against a local build, as before, every request to opengovt.uk is blocked.
+const AGAINST_LIVE = /^https:\/\/(www\.)?opengovt\.uk\/?$/.test(opt('base') ?? '');
+const blocked = (url) => /_rsc=|\/_vercel\/|posthog\.com/.test(url) || (!AGAINST_LIVE && /(^|\/\/)([a-z0-9-]+\.)?opengovt\.uk/.test(url));
 
 async function auditPage(browser, base, page0, width, shotDir) {
   const ctx = await browser.newContext({ viewport: { width, height: HEIGHT }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
