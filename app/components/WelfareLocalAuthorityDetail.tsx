@@ -63,12 +63,13 @@ type ClaimantCount = {
 }
 
 // "10,371 households claiming" for UC (household-assessed), "6,374
-// claimants (+21.7% in 2yrs)" for the other five (individually assessed)
+// claimants (up 21.7 per cent in 2 years)" for the other five (individually assessed)
 // — matches TPA's own wording distinction for the same reason.
 function claimantText(c: ClaimantCount | undefined): string | null {
   if (!c || c.value == null) return null
   const noun = c.unit === 'households' ? 'households claiming' : 'claimants'
-  const change = c.percentChange != null ? ` (${formatSignedPercent(c.percentChange)} in 2yrs)` : ''
+  // In words, as on the constituency page (owner rule, Cowork ENTRY 343; T2 19 Nov 2026).
+  const change = c.percentChange != null ? ` (${c.percentChange === 0 ? 'no change' : `${c.percentChange > 0 ? 'up' : 'down'} ${Math.abs(c.percentChange).toFixed(1)} per cent`} in 2 years)` : ''
   return `${formatCount(c.value)} ${noun}${change}`
 }
 
