@@ -109,7 +109,7 @@ export default async function HmosPage() {
   const regions = [...new Set(england.map((i) => i.row.region ?? 'England'))].sort();
 
   const card = (value: string, label: string, sub: string) => (
-    <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '10px 12px', fontFamily: MONO, color: INK }}>
+    <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '8px 10px', fontFamily: MONO, color: INK }}>
       <div style={{ fontSize: '24px', lineHeight: 1.2 }}>{value}</div>
       <div style={{ fontSize: '15px', lineHeight: 1.35, marginTop: '4px' }}>{label}</div>
       <div style={{ fontSize: '13px', lineHeight: 1.35, marginTop: '6px' }}>{sub}</div>
@@ -120,7 +120,7 @@ export default async function HmosPage() {
     <OpenGovShell>
       <BackLink fallbackHref="/councils" label="← Back" className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }} />
-      <style>{`.hmo-sort { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-align: inherit; cursor: pointer; text-decoration: underline; } .hmo-fold > summary { cursor: pointer; text-decoration: underline; } .hmo-fold { margin: 0 0 6px; } .hmo-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; margin: 0 0 12px; }`}</style>
+      <style>{`.hmo-sort { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-align: inherit; cursor: pointer; text-decoration: underline; } .hmo-fold > summary { cursor: pointer; text-decoration: underline; } .hmo-fold { margin: 0 0 6px; } .hmo-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; margin: 0 0 12px; }`}</style>
       <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: MONO }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '16px' }}>
           <div style={{ fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', marginBottom: '4px' }}>Councils · Housing</div>
@@ -153,7 +153,7 @@ export default async function HmosPage() {
             const rid = reg.toLowerCase().replace(/[^a-z]+/g, '-');
             return (
               <details key={reg} className="hmo-fold">
-                <summary style={h3}>{reg} ({inReg.length} councils)</summary>
+                <summary style={{ ...h3, margin: '6px 0' }}>{reg} ({inReg.length} councils)</summary>
                 {own.length > 0 && <Table id={`hmo-${rid}`} items={own} nation="England" />}
                 {counties.map((cs) => (
                   <div key={cs}>
@@ -169,10 +169,9 @@ export default async function HmosPage() {
         </section>
 
         <section style={section} id="wales">
-          <h2 style={h2}>Wales, Scotland and Northern Ireland</h2>
-          <details className="hmo-fold"><summary style={h3}>Wales, {fy(years.Wales ?? '2025-03-31')} ({items('Wales').length} councils)</summary><Table id="hmo-wales" items={items('Wales')} nation="Wales" /></details>
-          <details className="hmo-fold" id="scotland"><summary style={h3}>Scotland, {marchDate(years.Scotland ?? '2026-03-31')} ({items('Scotland').length} councils)</summary><Table id="hmo-scotland" items={items('Scotland')} nation="Scotland" /></details>
-          <p style={{ ...para, marginTop: '10px' }} id="northern-ireland">Northern Ireland: figures by council are not published as data.</p>
+          <h2 style={h2}>Wales and Scotland</h2>
+          <details className="hmo-fold"><summary style={{ ...h3, margin: '6px 0' }}>Wales, {fy(years.Wales ?? '2025-03-31')} ({items('Wales').length} councils)</summary><Table id="hmo-wales" items={items('Wales')} nation="Wales" /></details>
+          <details className="hmo-fold" id="scotland"><summary style={{ ...h3, margin: '6px 0' }}>Scotland, {marchDate(years.Scotland ?? '2026-03-31')} ({items('Scotland').length} councils)</summary><Table id="hmo-scotland" items={items('Scotland')} nation="Scotland" /></details>
         </section>
         <details className="hmo-fold" style={{ marginTop: '8px' }}>
           <summary style={h2}>How the nations’ figures differ</summary>
