@@ -23,8 +23,8 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Constituency Donations', href: '/donations/constituencies', desc: 'Every constituency association ranked by the donations it declared.' },
   { name: 'Council Search', href: '/councils/search', desc: 'Find a council by name, town or postcode.' },
   // Found by the hub coverage check (Cowork ENTRY 363, 19 Nov 2026).
-  { name: 'Commission Research: Sample Report', href: '/commission/sample' },
-  { name: 'Commission Research: Terms', href: '/commission/terms' },
+  { name: 'Commission Research: Sample Report', href: '/commission/sample', desc: 'An example of a commissioned research report: how it is laid out and sourced.' },
+  { name: 'Commission Research: Terms', href: '/commission/terms', desc: 'The terms for commissioning an independent research report from opengovt.' },
   { name: 'Government Programmes', href: '/programmes', desc: 'Major government policy commitments, tracked over time.' },
   { name: 'A - Z Directory', href: '/directory', desc: 'Everything on opengovt, A to Z.' },
   { name: 'Donate', href: '/donate', desc: 'Make a single donation to help keep opengovt free and independent.' },
