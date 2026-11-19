@@ -1547,7 +1547,9 @@ export default function MagazineProfileSections({
           const item = (e: MpEdmEntry) => (
             <li key={`${e.role}-${e.id}`} style={{ padding: '11px 0', borderBottom: inkDivider }}>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                <a data-og-row-source="" href={`https://edm.parliament.uk/early-day-motion/${e.id}`} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{e.title}</a>
+                {/* Our own motion page (Cowork ENTRY 367 item 2): every motion listed here is in early_day_motions, which
+                    /edms/<id> reads; Parliament's page stays in the section's sources and on the motion page. */}
+                <Link href={`/edms/${e.id}`} prefetch={false} style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{e.title}</Link>
                 {e.role === 'sponsor' && <span style={chip}>Sponsor</span>}
                 {e.isPrayer && <span style={chip}>Prayer against regulations</span>}
                 {e.isAmendment && <span style={chip}>Amendment</span>}
