@@ -104,6 +104,7 @@ const ALSO_KNOWN_AS: [string, string][] = [
   ['Child Poverty', '/councils/child-poverty'],
   ['Children in Care', '/councils/children-in-care'],
   ['Road Condition', '/councils/road-condition'],
+  ['HMOs (Houses in Multiple Occupation)', '/councils/hmos'],
   ['Local Councils', '/councils'],
   ['Benefits Spending', '/tools/welfare'],
   ['Manifestos', '/parties/manifestos'],

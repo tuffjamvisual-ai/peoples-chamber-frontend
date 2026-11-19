@@ -36,6 +36,8 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
     'Children in care in every English council area: the number looked after, the rate per 10,000 children against England and the change on the year.',
   '/councils/road-condition':
     'The share of A, B, C and unclassified roads that should have been considered for maintenance in every English highway authority, against England.',
+  '/councils/hmos':
+    'Houses in multiple occupation (HMOs) by council, town and postcode: estimated HMOs, licences and the rate per 1,000 homes in England, Wales and Scotland.',
   '/councils/blue-badges':
     'Blue Badges held and issued in every English council area: the share of residents with one, the change on the year, and who qualifies automatically.',
   '/expenses':

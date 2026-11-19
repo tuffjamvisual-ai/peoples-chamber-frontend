@@ -202,11 +202,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // councils had a one-line description; search engine check, 16 Oct 2026).
   const who = data.political_control ? ` Run by ${data.political_control === 'No overall control' ? 'no single party (no overall control)' : data.political_control}.` : '';
   const pop = data.population ? ` Population ${Number(data.population).toLocaleString('en-GB')}.` : '';
+  // HMOs where the council has figures (Cowork ENTRY 363 item 4, with ENTRY 362): one count read, no rows.
+  const hmo = data.gss_code ? await tagDb([COUNCIL_DATA_TAG]).from('council_hmos').select('ons_code', { count: 'exact', head: true }).eq('ons_code', data.gss_code) : null;
+  if (hmo?.error) throw new Error(`/councils/[slug] council_hmos: ${hmo.error.message}`);
+  const offers = (hmo?.count ?? 0) > 0 ? 'Spending, services, HMOs and how the area compares.' : 'Spending, services and how the area compares.';
   return {
     // Owner's brief, 3 Nov 2026: "<Council name>: spending, services and ratings", shorter for a long name (5 Nov 2026).
     title: namedTitle(data.name, (n) => [`${n}: spending, services and ratings`, `${n}: spending and services`, `${n}: spending`, n]),
     // No official codes (T1-NOCODE, owner approved 13 Nov 2026: 'never use codes'; the ONS code led this from 7 Nov 2026).
-    description: metaDescription(`${data.name}, a ${typePhrase(data.type_label)} in ${data.country}.${who}${pop} Spending, services and how the area compares.`),
+    description: metaDescription(`${data.name}, a ${typePhrase(data.type_label)} in ${data.country}.${who}${pop} ${offers}`),
     alternates: { canonical: `/councils/${slug}` },
     // twitter:image comes from ./layout.tsx (AQ1), for this page and every page under it.
   };

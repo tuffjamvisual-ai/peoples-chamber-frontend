@@ -75,6 +75,7 @@ export const NAV: NavItem[] = [
     { label: 'Child Poverty', href: '/councils/child-poverty', desc: PAGE_DESCRIPTIONS['/councils/child-poverty'] },
     { label: 'Children in Care', href: '/councils/children-in-care', desc: PAGE_DESCRIPTIONS['/councils/children-in-care'] },
     { label: 'Road Condition', href: '/councils/road-condition', desc: PAGE_DESCRIPTIONS['/councils/road-condition'] },
+    { label: 'HMOs', href: '/councils/hmos', desc: PAGE_DESCRIPTIONS['/councils/hmos'] },
     { label: 'Sewage Spills', href: '/sewage', desc: 'How long storm overflows spilled sewage in every council area and constituency in England, Scotland and Northern Ireland, from monitoring data. Wales is not included yet.' },
   ] },
   { label: 'Accountability', href: '/transparency', page: '/sections/accountability', children: [

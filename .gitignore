@@ -108,3 +108,6 @@ data/lgsco/
 __pycache__/
 scripts/newsletter/preview/
 scripts/newsletter/sent/
+
+# HMO source files, downloaded by hand (ENTRY 362; scripts/import-council-hmos.ts)
+data/hmos/

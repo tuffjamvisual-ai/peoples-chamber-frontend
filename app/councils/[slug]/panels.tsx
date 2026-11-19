@@ -12,6 +12,7 @@ import CouncilChildPovertySection from '../../components/CouncilChildPovertySect
 import CouncilFuelPovertySection from '../../components/CouncilFuelPovertySection';
 import CouncilHousePricesSection from '../../components/CouncilHousePricesSection';
 import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSection';
+import CouncilHmoSection from '../../components/CouncilHmoSection';
 import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSection';
 import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspectionsSection';
 import CouncilEhcpSection from '../../components/CouncilEhcpSection';
@@ -85,6 +86,7 @@ export function panelParts(tab: CouncilLazyTab, { c, parent, children }: PanelCo
       return [
         part(CouncilHousePricesSection, { gssCode: c.gss_code }, updated('council_house_prices', 'synced_at')),
         part(CouncilHomelessnessSection, { gssCodes: ownOrDistricts, isCounty }, updated('council_homelessness', 'synced_at')),
+        part(CouncilHmoSection, { gssCodes: ownOrDistricts, isCounty, country: c.country, ownCode: c.gss_code, ownName: c.name }, updated('council_hmos', 'updated_at')),
       ];
     case 'crime':
       return [

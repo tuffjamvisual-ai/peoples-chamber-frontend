@@ -32,6 +32,9 @@ const HOME_RANKINGS: [string, string][] = [
   ['Child poverty', '/councils/child-poverty'],
   ['Children in care', '/councils/children-in-care'],
   ['Road condition', '/councils/road-condition'],
+  // HMOs (owner approved 19 Nov 2026, Cowork ENTRY 362: "a link on the landing page so users can search their local area"):
+  // to the national page's search box.
+  ['HMOs', '/councils/hmos#find'],
   ...(SHOW_LEAGUE_TABLE ? [['How council areas compare', '/councils/league-table'] as [string, string]] : []),
 ];
 

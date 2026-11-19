@@ -183,6 +183,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/councils/blue-badges`, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE}/councils/children-in-care`, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE}/councils/road-condition`, changeFrequency: 'yearly', priority: 0.7 },
+    { url: `${SITE}/councils/hmos`, changeFrequency: 'yearly', priority: 0.7 },
     ...(SHOW_LEAGUE_TABLE ? [{ url: `${SITE}/councils/league-table`, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
     { url: `${SITE}/second-jobs`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/lobbying`, changeFrequency: 'weekly', priority: 0.8 },
