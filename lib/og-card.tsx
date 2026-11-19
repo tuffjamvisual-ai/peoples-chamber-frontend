@@ -16,12 +16,13 @@ const INK = '#14100d';
 const FOLDER = '#d8b97c';
 const PAD_X = 80;
 const TEXT_WIDTH = OG_SIZE.width - PAD_X * 2;
-const STAMP_RATIO = 312 / 1084;
-const STAMP_WIDTH = 300;
+// The OPENGOVT.UK stamp (public/og/stamp-uk.png, 1400 x 317; owner, ENTRY 400).
+const STAMP_RATIO = 317 / 1400;
+const STAMP_WIDTH = 340;
 
 // Read once when the module loads and awaited per image, so handled at once (lib/settle.ts).
 const specialElite = handled(readFile(join(process.cwd(), 'public/fonts/special-elite.ttf')));
-const stamp = handled(readFile(join(process.cwd(), 'public/og/stamp.png')));
+const stamp = handled(readFile(join(process.cwd(), 'public/og/stamp-uk.png')));
 
 // Special Elite's letters are about 0.6 of the font size wide (a typewriter face, near monospaced).
 const CHAR_WIDTH = 0.6;
