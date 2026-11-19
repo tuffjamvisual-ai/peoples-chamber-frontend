@@ -9,7 +9,7 @@ export const revalidate = false;
 
 export const metadata: Metadata = {
   title: 'Newsletter',
-  description: 'opengovt Weekly: the week’s investigations, overlooked documents and public spending stories, in one weekly email. Sign up for the first issue.',
+  description: 'opengovt Weekly: the week’s investigations, overlooked documents and public spending stories, by email every Sunday.',
   alternates: { canonical: '/newsletter' },
 };
 
