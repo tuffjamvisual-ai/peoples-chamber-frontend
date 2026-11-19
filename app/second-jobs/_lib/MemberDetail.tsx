@@ -8,7 +8,7 @@ import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { currentPartySlug, fmtAmount, fmtMoney, isOneOff, loadMember, parseParent, parsePayment, slugToLabel } from './data';
+import { currentPartySlug, mpExists, fmtAmount, fmtMoney, isOneOff, loadMember, parseParent, parsePayment, slugToLabel } from './data';
 import { displayMpName } from '@/lib/mp-name';
 import DataList from '@/app/components/DataList';
 import { SubFold } from '@/app/components/PhoneFolds';
@@ -31,6 +31,7 @@ export async function memberMetadata(slug: string, memberId: string): Promise<Me
   if (!item) {
     const now = await currentPartySlug(Number(memberId));
     if (now && now !== slug && (await loadMember(now, Number(memberId)))) permanentRedirect(`/second-jobs/${now}/${Number(memberId)}`);
+    if (await mpExists(Number(memberId))) permanentRedirect(`/mps/${Number(memberId)}`); // as the page below (ENTRY 364)
     notFound();
   }
   const name = displayMpName(item?.mp.display_name || item?.mp.name) || 'MP';
@@ -53,6 +54,9 @@ export default async function MemberDetail({ slug, memberId, page }: { slug: str
     // The MP's page under their current party, when the address has an old party in it (SC1): a permanent redirect.
     const now = await currentPartySlug(memberIdNum);
     if (now && now !== slug && (await loadMember(now, memberIdNum))) permanentRedirect(`/second-jobs/${now}/${memberIdNum}`);
+    // An MP, sitting or former, with no second jobs listed (Search Console, Cowork ENTRY 364: /second-jobs/labour/4514,
+    // Keir Starmer): their own MP page, which has their registered interests. An id we do not know: 404.
+    if (await mpExists(memberIdNum)) permanentRedirect(`/mps/${memberIdNum}`);
     notFound();
   }
 

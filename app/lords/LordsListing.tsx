@@ -5,6 +5,8 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { currentPeers } from '@/lib/lords';
 import LordsIndex, { LordsIndexView } from './LordsIndex';
 import BackLink from '@/app/components/BackLink';
+import { notFound } from 'next/navigation';
+import { DATALIST_PER_PAGE } from '@/app/components/DataList';
 
 const INK = '#14100d';
 
@@ -12,6 +14,8 @@ const INK = '#14100d';
 // rest. Party and type are read in the browser inside Suspense, whose fallback is the unfiltered list, so both are static.
 export default async function LordsListing({ page }: { page: number }) {
   const peers = await currentPeers(supabase); // F04 batch 1: cachedQuery keeps it under the peers tag; no hourly fetch timer
+  // A page past the end of the whole list is a 404, as /bills does (Search Console, Cowork ENTRY 364: /lords/page/9999 was 200).
+  if (page > Math.max(1, Math.ceil(peers.length / DATALIST_PER_PAGE))) notFound();
   return (
     <OpenGovShell>
       <BackLink fallbackHref="/" />

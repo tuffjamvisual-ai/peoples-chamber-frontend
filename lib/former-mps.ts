@@ -83,7 +83,10 @@ export const lookupMember = cache(async (memberId: number): Promise<MemberLookup
   const found = h && h.id === memberId ? build(h) : { kind: 'unknown' as const };
   // Parliament holds no history for some members who did sit in the Commons (James Callaghan). Their record still gives their last seat and its dates.
   if (found.kind === 'unknown') {
-    const record = await memberRecord(memberId);
+    // History answered and has no such member. Parliament's single member address then answers 500 for an id it has
+    // never had (/mps/2521, Search Console, Cowork ENTRY 364), so here a server error from it means no record: a 404,
+    // not a 500. An outage of History itself still throws above, so a real outage is never cached as a missing page.
+    const record = await memberRecord(memberId).catch((e: Error) => { if (/HTTP 5\d\d/.test(e.message)) return null; throw e; });
     if (record?.seats.length) return { kind: 'former_mp', mp: record };
   }
   return found;

@@ -390,6 +390,13 @@ export async function loadLanding(): Promise<{
 // MP, no current employment entry, or a party that is not this slug. Cached per request so both callers share it.
 // The party slug a current MP's second jobs page is under now, or null if they are not a current MP (SC1, 9 Nov 2026):
 // an MP who changed party (Karl Turner, independent then Labour again) keeps the old address in Google, which then 404s.
+// Anyone in our MPs table, sitting or former (Cowork ENTRY 364: /second-jobs/labour/4514): their MP page exists.
+export const mpExists = cache(async (memberId: number): Promise<boolean> => {
+  const { data, error } = await cachedQuery(['q:app/second-jobs/_lib/data.ts:mp-exists', JSON.stringify([memberId])], tableTags('mps'), () => supabase.from('mps').select('member_id').eq('member_id', memberId).maybeSingle());
+  if (error) throw new Error(`mps: ${error.message}`);
+  return !!data;
+});
+
 export const currentPartySlug = cache(async (memberId: number): Promise<string | null> => {
   const { data, error } = await cachedQuery(['q:app/second-jobs/_lib/data.ts:35ff9dae0d', JSON.stringify([memberId])], tableTags('mps'), () => supabase.from('mps').select('party').eq('current_member', true).eq('member_id', memberId).maybeSingle());
   if (error) throw new Error(`mps: ${error.message}`);

@@ -3,8 +3,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import LordsListing from '../../LordsListing';
 
 // /lords/page/N: page 2 onwards of the /lords list on phones and tablets (F04 batch 2), built on first visit and rebuilt by
-// the peers tag. /lords/page/1 is /lords. The canonical stays /lords. A page past the end shows the last page, as the
-// DataList clamps it.
+// the peers tag. /lords/page/1 is /lords. The canonical stays /lords. A page past the end is a 404 (LordsListing; ENTRY 364).
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
 
