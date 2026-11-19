@@ -12,6 +12,7 @@ import BackLink from '../../components/BackLink';
 import { getOrgBySlug, getOrgMeetings, getOrgLobbying, cleanDept, fmtDate, ORG_TYPE_LABEL, type OrgMeeting } from '@/lib/lobbying';
 import { getOrganisation } from '@/lib/organisations';
 import { phoneUpTo } from '@/lib/breakpoints';
+import { orgCanonical } from '@/lib/index-rules';
 
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
@@ -27,6 +28,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const org = await getOrgBySlug(slug);
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
   if (!org) notFound();
+  // Cowork ENTRY 367 item 5 (lib/index-rules.ts): where the organisation page of the same organisation also holds donations,
+  // contracts or grants, that page is canonical; otherwise this page is (it lists every meeting and firm).
+  const orgPage = await getOrganisation(org.slug);
+  const canonical = orgPage && orgCanonical(orgPage, org.org_id) === 'organisations' && orgPage.lobby_org_id === org.org_id ? `/organisations/${org.slug}` : `/lobbying/${org.slug}`;
   return {
     // Never the name alone, which the organisation's own page could share (owner, 7 Nov 2026: titles stay unique).
     title: namedTitle(org.name, (n) => [`${n}: meetings with UK ministers and lobbying firms`, `${n}: meetings with UK ministers`]),
@@ -40,7 +45,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       org.lobbying_firms > 0 && `It was a client of ${countOf(org.lobbying_firms, 'consultant lobbying firm')}.`,
       'Sources: GOV.UK transparency returns and the Registrar of Consultant Lobbyists.',
     ]),
-    alternates: { canonical: `/lobbying/${org.slug}` },
+    alternates: { canonical },
   };
 }
 

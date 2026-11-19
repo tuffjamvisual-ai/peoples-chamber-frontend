@@ -2,7 +2,7 @@
 // Peers from the peers table (lib/peers.ts fills it); votes from lords_division_votes and lords_divisions (the Lords
 // votes sync, from 4 September 2024); written questions from parliament_written_questions (lib/mp-written-questions.ts).
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Post } from '@/lib/peers';
+import { PAGES_FROM, type Post } from '@/lib/peers';
 import { tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { cachedQuery } from '@/lib/tagged-read';
@@ -58,6 +58,35 @@ export async function currentPeers(db: SupabaseClient): Promise<PeerListRow[]> {
     .eq('is_current', true).order('name_list_as', { ascending: true }).order('member_id', { ascending: true }).range(0, 1999));
   if (error) throw new Error(`current peers: ${error.message}`);
   return (data ?? []) as PeerListRow[];
+}
+
+// Every former member with a page (left on or after 4 July 2024, lib/peers.ts peerHasPage), for the fold on /lords
+// (Cowork ENTRY 367 item 6), in Parliament's list order (surname or title), as the current members.
+export type FormerPeerRow = Pick<Peer, 'member_id' | 'name_display' | 'name_list_as' | 'party' | 'end_date'>;
+export async function formerPeersWithPages(db: SupabaseClient): Promise<FormerPeerRow[]> {
+  const { data, error } = await cachedQuery(['q:lib/lords.ts:former-with-pages', PAGES_FROM], tableTags('peers'), () => db.from('peers')
+    .select('member_id, name_display, name_list_as, party, end_date')
+    .eq('is_current', false).gte('end_date', PAGES_FROM)
+    .order('name_list_as', { ascending: true }).order('member_id', { ascending: true }).range(0, 1999));
+  if (error) throw new Error(`former peers: ${error.message}`);
+  return (data ?? []) as FormerPeerRow[];
+}
+
+// Cowork ENTRY 367 item 6: whether a member's page shows any vote, written question or current register entry, as cached
+// head counts (no rows read) in the order most members have one, stopping at the first found. With the posts and
+// committees on the peer's own row, this is lib/index-rules.ts peerNoActivity for the page's metadata.
+export async function peerActivityCounts(db: SupabaseClient, memberId: number): Promise<{ votes: number; questions: number; interests: number }> {
+  const head = async (key: string, table: string, q: () => PromiseLike<{ data: unknown; count?: number | null; error: { message: string; code?: string } | null }>) => {
+    const { count, error } = await cachedQuery([key, JSON.stringify([memberId])], tableTags(table), q);
+    if (error) throw new Error(`peer ${memberId} ${table} count: ${error.message}`);
+    return count ?? 0;
+  };
+  const votes = await head('q:lib/lords.ts:activity-votes', 'lords_division_votes', () => db.from('lords_division_votes').select('division_id', { count: 'exact', head: true }).eq('member_id', memberId));
+  if (votes) return { votes, questions: 0, interests: 0 };
+  const interests = await head('q:lib/lords.ts:activity-interests', 'peer_registered_interests', () => db.from('peer_registered_interests').select('interest_id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true));
+  if (interests) return { votes, questions: 0, interests };
+  const questions = await head('q:lib/lords.ts:activity-questions', 'parliament_written_questions', () => db.from('parliament_written_questions').select('id', { count: 'exact', head: true }).eq('asking_member_id', memberId).eq('house', 'Lords'));
+  return { votes, questions, interests };
 }
 
 // Votes since the first stored division (a peer votes in at most every division, 446 on 3 Nov 2026, so one read).

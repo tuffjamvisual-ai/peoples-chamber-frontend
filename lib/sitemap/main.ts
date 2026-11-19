@@ -24,6 +24,8 @@ import { preFixedSummary } from '@/lib/pm-questions-1945-1961';
 import { FORMER_MP_PROFILE_IDS } from '@/lib/former-mp-profile-ids';
 import { billIndexable, currentSessionBillIds } from '@/lib/bill-indexing';
 import { isLaw } from '@/lib/bill-status';
+import { peerHasPage } from '@/lib/peers';
+import { orgCanonical, thinSupplier, peerNoActivity, type OrgCanonicalFields, type ThinSupplierFields } from '@/lib/index-rules';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -399,7 +401,30 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     'member_id',
     (q) => q.or('is_current.eq.true,end_date.gte.2024-07-04'),
   );
-  const peerEntries: MetadataRoute.Sitemap = peers.map((p) => ({
+  // Cowork ENTRY 367 item 6 (lib/index-rules.ts peerNoActivity): a member with no posts, committees, votes, written
+  // questions or registered interests is noindex, so is left out. A few grouped reads, not one per peer: the members with
+  // no posts or committees (stored as [] or not yet read, null), then of those the ones with current interests, then
+  // written questions, then votes, each read only for the members still without a record. A failed read lists them all.
+  const noActivity = await (async () => {
+    const PAGE = 'is_current.eq.true,end_date.gte.2024-07-04';
+    type PostCols = { member_id: number; is_current: boolean; end_date: string | null; government_posts: unknown[] | null; opposition_posts: unknown[] | null; other_posts: unknown[] | null; committee_memberships: unknown[] | null };
+    const [empty, someNull] = await Promise.all([
+      fetchAllRows<{ member_id: number }>('peers', 'member_id', (q) => q.or(PAGE).eq('government_posts', '[]').eq('opposition_posts', '[]').eq('other_posts', '[]').eq('committee_memberships', '[]').order('member_id')),
+      fetchAllRows<PostCols>('peers', 'member_id, is_current, end_date, government_posts, opposition_posts, other_posts, committee_memberships', (q) => q.or('government_posts.is.null,opposition_posts.is.null,other_posts.is.null,committee_memberships.is.null').order('member_id')),
+    ]);
+    let left = new Set([...empty.map((r) => r.member_id), ...someNull.filter((r) => peerHasPage(r) && peerNoActivity(r, { votes: 0, questions: 0, interests: 0 })).map((r) => r.member_id)]);
+    const drop = async (table: string, column: string, filter: (q: SupabaseQuery) => SupabaseQuery) => {
+      if (!left.size) return;
+      const rows = await fetchAllRows<Record<string, number>>(table, column, (q) => filter(q).in(column, [...left]).order(column));
+      const seen = new Set(rows.map((r) => Number(r[column])));
+      left = new Set([...left].filter((id) => !seen.has(id)));
+    };
+    await drop('peer_registered_interests', 'member_id', (q) => q.eq('is_current', true));
+    await drop('parliament_written_questions', 'asking_member_id', (q) => q.eq('house', 'Lords'));
+    await drop('lords_division_votes', 'member_id', (q) => q);
+    return left;
+  })().catch((e) => { console.error(`sitemap: peers with no activity not checked (${e instanceof Error ? e.message : String(e)})`); return new Set<number>(); });
+  const peerEntries: MetadataRoute.Sitemap = peers.filter((p) => !noActivity.has(p.member_id)).map((p) => ({
     url: `${SITE}/lords/${p.member_id}`,
     changeFrequency: 'weekly',
     priority: 0.5,
@@ -479,20 +504,41 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
   // The organisation's most recent ministerial meeting or lobbying register quarter.
-  const lobbyOrgs = await fetchAllRows<{ slug: string; last_meeting: string | null; last_lobbying_quarter: string | null }>('lobby_org_rankings', 'slug, last_meeting, last_lobbying_quarter', (q) => q.order('org_id'));
-  const lobbyEntries: MetadataRoute.Sitemap = lobbyOrgs.filter((o) => o.slug).map((o) => ({
+  const lobbyOrgs = await fetchAllRows<{ org_id: number; slug: string; last_meeting: string | null; last_lobbying_quarter: string | null }>('lobby_org_rankings', 'org_id, slug, last_meeting, last_lobbying_quarter', (q) => q.order('org_id'));
+  // Organisation pages (report 71), one per organisation_index row. A failed read leaves them out rather than failing
+  // the sitemap.
+  // The date is the organisation's most recent donation, contract, grant, meeting or lobbying quarter.
+  type OrgRow = OrgCanonicalFields & ThinSupplierFields & { slug: string; company_number: string | null; last_donation: string | null; last_contract: string | null; last_grant: string | null; last_meeting: string | null; last_lobbying_quarter: string | null };
+  const orgSlugs = (await fetchAllRows<OrgRow>('organisation_index', 'slug, kind, lobby_org_id, company_number, donations, contracts, framework_places, grants, meetings, lobbying_quarters, last_donation, last_contract, last_grant, last_meeting, last_lobbying_quarter', (q) => q.order('slug')).catch(() => [] as OrgRow[]))
+    .map((o) => ({ ...o, donations: Number(o.donations) || 0, contracts: Number(o.contracts) || 0, framework_places: Number(o.framework_places) || 0, grants: Number(o.grants) || 0, meetings: Number(o.meetings) || 0, lobbying_quarters: Number(o.lobbying_quarters) || 0 }));
+  // Cowork ENTRY 367 item 5 (lib/index-rules.ts): only the canonical one of an organisation's two pages is listed, and no
+  // supplier with 1 to 3 contracts and no other record (noindex). Two small reads, not one per page: the companies with a
+  // checked link to a registry organisation (organisation_links, 45 rows on 19 Nov 2026) and those with a contract held back.
+  // A failed read of either leaves every possible thin supplier out rather than listing a noindex page.
+  const lobbyIdBySlug = new Map(lobbyOrgs.map((o) => [o.slug, Number(o.org_id)]));
+  const orgBySlug = new Map(orgSlugs.map((o) => [o.slug, o]));
+  const [linkedNumbers, heldBackNumbers] = await Promise.all([
+    fetchAllRows<{ company_number: string }>('organisation_links', 'company_number', (q) => q.order('company_number')).then((r) => new Set(r.map((x) => x.company_number))).catch(() => null),
+    fetchAllRows<{ company_number: string | null }>('contract_awards', 'company_number', (q) => q.eq('held_back', true).order('id')).then((r) => new Set(r.map((x) => x.company_number))).catch(() => null),
+  ]);
+  const orgListed = (o: OrgRow) => {
+    if (orgCanonical(o, lobbyIdBySlug.get(o.slug)) === 'lobbying') return false;
+    if (!thinSupplier(o, { linked: false, heldBack: 0 })) return true;
+    if (!linkedNumbers || !heldBackNumbers) return false;
+    return !thinSupplier(o, { linked: !!o.company_number && linkedNumbers.has(o.company_number), heldBack: o.company_number && heldBackNumbers.has(o.company_number) ? 1 : 0 });
+  };
+  const lobbyListed = (l: { org_id: number; slug: string }) => {
+    const o = orgBySlug.get(l.slug);
+    return !(o && o.lobby_org_id != null && Number(o.lobby_org_id) === Number(l.org_id) && orgCanonical(o, Number(l.org_id)) === 'organisations');
+  };
+  const lobbyEntries: MetadataRoute.Sitemap = lobbyOrgs.filter((o) => o.slug && lobbyListed(o)).map((o) => ({
     url: `${SITE}/lobbying/${o.slug}`,
     ...dated(newest(o.last_meeting, o.last_lobbying_quarter)),
     changeFrequency: 'monthly',
     priority: 0.5,
   }));
 
-  // Organisation pages (report 71), one per organisation_index row. A failed read leaves them out rather than failing
-  // the sitemap.
-  // The date is the organisation's most recent donation, contract, grant, meeting or lobbying quarter.
-  type OrgRow = { slug: string; last_donation: string | null; last_contract: string | null; last_grant: string | null; last_meeting: string | null; last_lobbying_quarter: string | null };
-  const orgSlugs = await fetchAllRows<OrgRow>('organisation_index', 'slug, last_donation, last_contract, last_grant, last_meeting, last_lobbying_quarter', (q) => q.order('slug')).catch(() => [] as OrgRow[]);
-  const orgEntries: MetadataRoute.Sitemap = orgSlugs.map((o) => ({
+  const orgEntries: MetadataRoute.Sitemap = orgSlugs.filter(orgListed).map((o) => ({
     url: `${SITE}/organisations/${o.slug}`,
     ...dated(newest(o.last_donation, o.last_contract, o.last_grant, o.last_meeting, o.last_lobbying_quarter)),
     changeFrequency: 'weekly',

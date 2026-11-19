@@ -13,7 +13,8 @@ import PhoneFolds, { type Fold } from '../../components/PhoneFolds';
 import RecordDate from '../../components/RecordDate';
 import StandardsCasesLine from '../../components/StandardsCasesLine';
 import { longDay, updatedDate } from '@/lib/record-dates';
-import { getPeer, peerInterests, peerVoting, lordsDivisionUrl, type Peer } from '@/lib/lords';
+import { getPeer, peerInterests, peerVoting, peerActivityCounts, lordsDivisionUrl, type Peer } from '@/lib/lords';
+import { peerHasPosts, peerNoActivity } from '@/lib/index-rules';
 import { peerHasPage, parliamentProfileUrl, parliamentRegisterUrl, type Post } from '@/lib/peers';
 import { questionsSummary } from '@/lib/mp-written-questions';
 import { lookupMember } from '@/lib/former-mps';
@@ -67,10 +68,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (sameErr) throw new Error(`/lords/[id] same name: ${sameErr.message}`);
   const from = p.start_date?.slice(0, 4), to = p.end_date?.slice(0, 4);
   const years = (sameName ?? 0) > 1 && from ? ` (${to ? (to === from ? from : `${from} to ${to}`) : `since ${from}`})` : '';
+  // Cowork ENTRY 367 item 6 (lib/index-rules.ts): a member with no posts, committees, votes, written questions or registered
+  // interests is noindex, follow (and left out of the sitemap). Posts are on the peer's row; the rest are cached head counts,
+  // read only for a member with no posts. A failed count keeps the page indexed.
+  const inactive = !peerHasPosts(p) && peerNoActivity(p, await peerActivityCounts(supabase, memberId).catch(() => ({ votes: 1, questions: 0, interests: 0 })));
   return {
     title: titleWithin(`${p.name_display}${years}${p.party ? `, ${p.party}` : ''}`),
     description: lordsDescription(p, what),
     alternates: { canonical: `/lords/${memberId}` },
+    ...(inactive ? { robots: { index: false, follow: true } } : {}),
   };
 }
 

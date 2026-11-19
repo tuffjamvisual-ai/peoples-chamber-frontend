@@ -21,6 +21,8 @@ import {
   getOrganisation, orgNameShared, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
   findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, getOrgNameBasisNotices, type OrgIndexRow,
 } from '@/lib/organisations';
+import { getOrgBySlug } from '@/lib/lobbying';
+import { orgCanonical, thinSupplier } from '@/lib/index-rules';
 
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 export function generateStaticParams() { return []; }
@@ -58,12 +60,23 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const tag = org.company_number ? null : org.org_type || (org.kind === 'registry' ? null : org.kind);
   const titleName = tag && (await orgNameShared(org.name, org.slug)) ? `${org.name} (${tag})` : org.name;
   const description = orgDescription(org);
+  // Cowork ENTRY 367 item 5 (lib/index-rules.ts): a registry organisation whose page holds no donations, contracts or grants
+  // names its lobbying page as canonical (that page lists every meeting and firm); a supplier with 1 to 3 contracts and no
+  // other record is noindex, follow (still reachable and in site search). Both checks use cached reads the page makes anyway.
+  const lobby = org.kind === 'registry' ? await getOrgBySlug(org.slug) : null;
+  const canonical = orgCanonical(org, lobby?.org_id) === 'lobbying' ? `/lobbying/${org.slug}` : `/organisations/${org.slug}`;
+  // The counts first (no read); only a page they pass reads its link and held back count.
+  const thin = thinSupplier(org, { linked: false, heldBack: 0 }) && thinSupplier(org, {
+    linked: !!(await getOrgAlsoSee(org)),
+    heldBack: org.company_number ? await getOrgHeldBack(org.company_number).catch(() => 1) : 0, // a failed read keeps the page indexed
+  });
   return {
     // Never the name alone, which its lobbying page could share (owner, 7 Nov 2026: titles stay unique). A name another page
     // shares adds the type we hold, never a Companies House number (T1-NOCODE).
     title: namedTitle(titleName, (n) => [`${n}: ${heldText}`, `${n}: public records`, `${n}: ${heldText}`]),
     description,
-    alternates: { canonical: `/organisations/${org.slug}` },
+    alternates: { canonical },
+    ...(thin ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title: org.name, description, url: `${SITE}/organisations/${org.slug}`, type: 'website' },
     // ./opengraph-image.tsx fills og:image; the same address is given here so twitter:image points to it as well.
     twitter: { card: 'summary_large_image', title: org.name, description, images: [`${SITE}/organisations/${org.slug}/opengraph-image`] },
