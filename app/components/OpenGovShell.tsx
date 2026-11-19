@@ -5,7 +5,6 @@ import AccountTab from './AccountTab';
 import { NAV, menuHref } from '@/lib/site-nav';
 import MobileMenu from './MobileMenu';
 import HeaderNav from './HeaderNav';
-import HeaderFocusTop from './HeaderFocusTop';
 import FeedbackFooterLink from './FeedbackFooterLink';
 import { OPEN_PARLIAMENT_LICENCE_URL } from './ParliamentSourceCredit';
 import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
@@ -87,12 +86,7 @@ export default function OpenGovShell({
             {/* No dropdowns (report 60): each section links to its page listing every link in it (HeaderNav.tsx). */}
             <HeaderNav />
           </nav>
-          {/* From 768px the header stays still behind the page (ENTRY 356): focusing a link in it goes back to the top. */}
-          <HeaderFocusTop />
         </div>
-
-        {/* From 768px the header is fixed behind the page (ENTRY 356); this takes its place in the page, the same size. */}
-        <div className="og-header-spacer" aria-hidden />
 
         {/* Dossier expanding folder, overlapping up into the header. */}
         <div className="og-page og-dossier" style={{ position: 'relative', width: '90%', margin: '-115.5% 5% 0', containerType: 'inline-size' }}>
