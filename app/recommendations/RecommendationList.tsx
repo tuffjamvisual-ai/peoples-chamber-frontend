@@ -1,10 +1,10 @@
 'use client';
 // Filterable list of recommendations for /recommendations (filters by department and status, in the browser). The
 // data is compact (each report's title, line and bodies once; then one short row per recommendation) and the list
-// shows 50 at a time, so the page stays small. /recommendations?department=<department page slug> opens it filtered
+// is all in the HTML, folded by MoreChain (ENTRY 367). /recommendations?department=<department page slug> opens it filtered
 // to every body on that department's page (the department tab's link); ?department=<body key> opens it filtered to
 // that body (a cross referenced body's "Also" link), with the body's note when it has one.
-import NoJsPager from '@/app/components/NoJsPager';
+import MoreChain from '@/app/components/MoreChain';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { phoneUpTo } from '@/lib/breakpoints';
@@ -19,7 +19,6 @@ export type ListRow = [string, string, string, string] | [string, string, string
 type Option = { value: string; label: string };
 
 const INK = '#14100d';
-const PAGE = 50;
 const select: React.CSSProperties = { fontSize: '16px', color: INK, background: 'transparent', border: '1px solid rgba(20,16,13,0.4)', padding: '6px 8px', maxWidth: '100%' };
 const label: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '15px', color: INK, minWidth: 0, maxWidth: '100%' };
 
@@ -107,7 +106,6 @@ export default function RecommendationList({ reports, rows: given, departmentOpt
   const rows = useMemo(() => given.map((r): [string, string, string, string] => (r.length === 7 && monthPassed(r[4], today) ? [r[0], r[1], r[5], r[6]] : [r[0], r[1], r[2], r[3]])), [given, today]);
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
-  const [limit, setLimit] = useState(PAGE);
   const [search, setSearch] = useState(''); // the search box, at every width since UX3i (10 Nov 2026); the page's main action
   // ?department=<page slug>&status=<open|delivered|rejected|target_passed> from a department page's tab.
   useEffect(() => {
@@ -129,36 +127,36 @@ export default function RecommendationList({ reports, rows: given, departmentOpt
       && (!term || `${reports[key]?.title} ${reports[key]?.meta} ${rec} ${words}`.toLowerCase().includes(term))),
     [rows, reports, department, status, term],
   );
-  const shown = matching.slice(0, limit);
   const note = department.startsWith('body:') ? bodyNotes[department.slice(5)] : undefined;
   return (
     <section>
       <style>{CARD_CSS}</style>
       <label className="rec-search" data-main-action style={{ fontSize: '15px', color: INK, margin: '0 0 12px' }}>
         Search recommendations
-        <input className="og-sbox-input" type="search" value={search} onChange={(e) => { setSearch(e.target.value); setLimit(PAGE); }}
+        <input className="og-sbox-input" type="search" value={search} onChange={(e) => { setSearch(e.target.value); }}
           style={{ display: 'block', width: '100%', boxSizing: 'border-box', minHeight: '44px', marginTop: '4px', fontSize: '16px', color: INK, background: 'transparent', border: '1px solid rgba(20,16,13,0.4)', padding: '6px 8px' }} />
       </label>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 20px', margin: '0 0 16px' }}>
         <label style={label}>
           Department
-          <select value={department} onChange={(e) => { setDepartment(e.target.value); setLimit(PAGE); }} style={select}>
+          <select value={department} onChange={(e) => { setDepartment(e.target.value); }} style={select}>
             <option value="">All departments and bodies</option>
             {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </label>
         <label style={label}>
           Status
-          <select value={status} onChange={(e) => { setStatus(e.target.value); setLimit(PAGE); }} style={select}>
+          <select value={status} onChange={(e) => { setStatus(e.target.value); }} style={select}>
             <option value="">All</option>
             {statusOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </label>
       </div>
       {note && <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 12px', maxWidth: '46em' }}>{note}</p>}
-      <NoJsPager id="rec-rows" count={shown.length} rows="> li" size={25}>
-<ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {shown.map(([key, rec, , words]) => {
+      {/* Every matching row is in the page's HTML (Search Console, owner approved 19 Nov 2026, Cowork ENTRY 367 item 1: the
+          JavaScript-only 'Show more' left about 917 of 977 recommendation pages with no link a crawler could see). MoreChain
+          folds them with native details, as /petitions: 3 then 'Show 10 more' on phones and tablets, 25 a press on desktop. */}
+      <MoreChain ordered step={25} style={{ listStyle: 'none', padding: 0, margin: 0 }} items={matching.map(([key, rec, , words]) => {
           const r = reports[key];
           return (
             <li key={`${key}/${rec}`} style={{ borderBottom: '1px dotted rgba(20,16,13,0.2)', padding: '10px 0' }}>
@@ -172,16 +170,8 @@ export default function RecommendationList({ reports, rows: given, departmentOpt
               <RecommendationCard path={`/recommendations/${key}/${rec}`} title={`${r?.title}: recommendation ${rec}`} meta={r?.meta ?? ''} words={words} />
             </li>
           );
-        })}
-      </ol>
-</NoJsPager>
+        })} />
       {matching.length === 0 && <p style={{ fontSize: '16px', color: INK }}>No recommendations match these filters.</p>}
-      {matching.length > limit && (
-        <button type="button" onClick={() => setLimit(limit + PAGE)} style={{ marginTop: '14px', fontSize: '16px', color: INK, background: 'transparent', border: '1px solid rgba(20,16,13,0.4)', padding: '8px 14px', cursor: 'pointer' }}>
-          {/* What a press shows (T1-GUARD, Cowork 13 Nov 2026: 'Show N more'). */}
-          Show {Math.min(PAGE, matching.length - limit).toLocaleString('en-GB')} more
-        </button>
-      )}
     </section>
   );
 }
