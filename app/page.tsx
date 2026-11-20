@@ -75,8 +75,21 @@ export const metadata: Metadata = {
   },
 };
 
-// The report held as the homepage lead, whatever the daily rotation would put there. Empty: the lead rotates with the rest.
-const HOMEPAGE_LEAD_SLUG: string = 'q1yfr4lome';
+// The homepage lead (owner, Cowork ENTRY 432 and ENTRY 415 HEADLINE, 20 Nov 2026): the council areas page, held first
+// whatever the daily rotation would put there; it is not a report, so it carries its own address. Its headline is the
+// page's own (ENTRY 415 HEADLINE: 'Homepage card (ENTRY 432) uses it too'); one line of explanation, no source text.
+const HOMEPAGE_LEAD_SLUG: string = 'council-areas-lowest-scores';
+const HOMEPAGE_LEAD_PAGE: FeaturedItem = {
+  slug: HOMEPAGE_LEAD_SLUG,
+  href: '/council-areas/lowest-scores',
+  headline: 'The 10 Least Desirable Places to Live in England, on the Official Figures',
+  label: 'England · 294 council areas',
+  summary: 'Every council area scored the same way on twelve official measures, from crime and poverty to health, schools and broadband. Not a ranking of how well councils are run.',
+  lede: null,
+};
+// Reports kept off the homepage (ENTRY 432 item 2: the Burnham GMCA report stays published at its address; only the
+// homepage link goes).
+const HOMEPAGE_EXCLUDE = new Set(['q1yfr4lome']);
 
 
 export default async function HomePage() {
@@ -89,7 +102,7 @@ export default async function HomePage() {
   const registryKeys = Object.keys(editorials);
   const investigations = registryKeys
     .map((slug, registryIndex) => ({ ...editorials[slug], registryIndex }))
-    .filter((e) => e.kind === undefined);
+    .filter((e) => e.kind === undefined && !HOMEPAGE_EXCLUDE.has(e.slug));
   investigations.sort((a, b) => {
     const cmp = b.publishedAt.localeCompare(a.publishedAt);
     return cmp !== 0 ? cmp : a.registryIndex - b.registryIndex;
@@ -98,7 +111,7 @@ export default async function HomePage() {
   // picks today's (app/components/HomeFeatured.tsx); the server sends only these candidates and renders its own day.
   const asItem = (e: (typeof investigations)[number]): FeaturedItem => ({ slug: e.slug, headline: e.headline, label: listReadingLabel(e), summary: listSummary(e), lede: e.lede ?? null });
   const featuredPool = investigations.slice(0, Math.min(16, investigations.length)).map(asItem);
-  const heldLead = featuredPool.some((e) => e.slug === HOMEPAGE_LEAD_SLUG) ? null : (() => { const l = investigations.find((e) => e.slug === HOMEPAGE_LEAD_SLUG); return l ? asItem(l) : null; })();
+  const heldLead = HOMEPAGE_LEAD_PAGE;
   const renderedOn = londonDay();
 
   // Each item links only to its press release (owner, 30 Oct 2026), so the department or agency name is plain text and

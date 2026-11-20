@@ -2,7 +2,8 @@
 // the same rule runs in the browser: app/components/HomeFeatured.tsx). All 4 slots rotate daily through the 16 most
 // recent reports, so newer stories cycle through every position; a chosen report can hold the lead (owner, 5 Nov 2026).
 // No server code here.
-export type FeaturedItem = { slug: string; headline: string; label: string; summary: string; lede: string | null };
+// href: a held lead that is not a report (Cowork ENTRY 432: the council areas page); reports link to /editorials/<slug>.
+export type FeaturedItem = { slug: string; headline: string; label: string; summary: string; lede: string | null; href?: string };
 
 /** The pool (newest first, at most 16) in today's order, with the held lead first when there is one. */
 export function rotate<T extends { slug: string }>(pool: T[], day: number, leadSlug: string, lead: T | null): T[] {

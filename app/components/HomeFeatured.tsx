@@ -23,7 +23,7 @@ export function FeaturedLead() {
   if (!s) return null;
   return (
     <article className="og-block og-lead-story">
-      <a className="og-head og-lead-head" href={`/editorials/${s.slug}`}>{s.headline}</a>
+      <a className="og-head og-lead-head" href={s.href ?? `/editorials/${s.slug}`}>{s.headline}</a>
       <div style={LABEL}>{s.label}</div>
       <div className="og-standfirst">{s.summary}</div>
       {s.lede && <p className="og-lede">{s.lede}</p>}
@@ -38,6 +38,6 @@ export function FeaturedBrief({ n, plainLink = false, only }: { n: 1 | 2 | 3; pl
   const cls = `og-block og-brief${only ? ` og-${only}` : ''}`;
   const inner = (<><div className="og-head">{s.headline}</div><div style={LABEL}>{s.label}</div><p>{s.summary}</p><ContinueToArticle /></>);
   return plainLink
-    ? <a className={cls} href={`/editorials/${s.slug}`}>{inner}</a>
-    : <Link className={cls} href={`/editorials/${s.slug}`}>{inner}</Link>;
+    ? <a className={cls} href={s.href ?? `/editorials/${s.slug}`}>{inner}</a>
+    : <Link className={cls} href={s.href ?? `/editorials/${s.slug}`}>{inner}</Link>;
 }
