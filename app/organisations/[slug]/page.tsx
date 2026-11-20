@@ -122,10 +122,9 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
         <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(0, max-content) minmax(0, 1fr)', gap: '6px 16px', fontSize: '15px', margin: '0 0 12px' }}>
           <dt style={{ fontWeight: 'bold' }}>Companies House</dt>
           <dd style={{ margin: 0, overflowWrap: 'anywhere' }}>
-            {/* No number shown (T1-NOCODE, owner approved 13 Nov 2026): a link to the same Companies House record. */}
-            {org.company_number
-              ? <a data-og-row-source="" href={companiesHouseUrl(org.company_number)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>View on Companies House&nbsp;↗</a>
-              : 'No number recorded'}
+            {/* The company number as plain text; its Companies House record is in the Sources fold (owner, Cowork ENTRY 422,
+                20 Nov 2026, replacing T1-NOCODE's in-text link). */}
+            {org.company_number ? `Company ${org.company_number}` : 'No number recorded'}
           </dd>
           {org.name_variants && org.name_variants.length > 0 && (<>
             <dt style={{ fontWeight: 'bold' }}>Also recorded as</dt>
@@ -285,7 +284,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
       </article>
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
           Sources fold; each donation's, contract's and grant's record stays on its row. */}
-      <PageSources sources={[org.company_number && { label: `Companies House record for ${org.name}`, href: companiesHouseUrl(org.company_number) }]} />
+      <PageSources sources={[org.company_number && { label: `Companies House record for ${org.name} (company ${org.company_number})`, href: companiesHouseUrl(org.company_number) }]} />
     </OpenGovShell>
   );
 }

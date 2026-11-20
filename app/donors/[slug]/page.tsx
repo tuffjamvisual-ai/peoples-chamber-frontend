@@ -832,7 +832,7 @@ export default async function DonorPage({ params }: PageProps) {
 
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
           Sources fold; each donation's Electoral Commission reference and each contract's notice stay on their rows. */}
-      <PageSources sources={[crn && { label: 'Companies House record', href: `https://find-and-update.company-information.service.gov.uk/company/${crn}` }]} />
+      <PageSources sources={[crn && { label: `Companies House record for ${canonicalName} (company ${crn})`, href: `https://find-and-update.company-information.service.gov.uk/company/${crn}` }]} />
     </OpenGovShell>
   );
 }

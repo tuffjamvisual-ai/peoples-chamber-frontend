@@ -2412,20 +2412,9 @@ export default function MagazineProfileSections({
                         <td style={{ padding: '5px 4px' }}>
                           <div style={{ fontWeight: 'bold' }}>
                             {donorSlug ? <Link href={`/donors/${donorSlug}`} style={inkLink}>{d.name}</Link> : d.name}
-                            {d.crn && (
-                              <>
-                                {' '}
-                                <a
-                                  href={`https://find-and-update.company-information.service.gov.uk/company/${d.crn}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ ...inkLink, fontSize: '15px', fontWeight: 'normal' }}
-                                  title="Companies House record"
-                                >
-                                  Companies House&nbsp;↗
-                                </a>
-                              </>
-                            )}
+                            {/* The company number as plain text; its Companies House record is in this tab's Sources fold
+                                (owner, Cowork ENTRY 422, 20 Nov 2026). */}
+                            {d.crn && <span style={{ fontSize: '15px', fontWeight: 'normal' }}> (company {d.crn})</span>}
                           </div>
                           {/* Who the donor is, from the donor background (lib/donor-profile.ts), where one exists. */}
                           {donorSlug && donorProfiles[donorSlug] && (
@@ -2583,6 +2572,21 @@ export default function MagazineProfileSections({
               <p style={{ marginTop: '8px', fontSize: '15px', lineHeight: 1.55 }}>
                 Cash and in kind combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} in kind.
               </p>
+
+              {/* The donors' Companies House records (owner, Cowork ENTRY 422, 20 Nov 2026): only in this tab's Sources fold,
+                  one per company donor, never in the rows. A9 allows a fold on an MP profile inside .mp-donation-sources, as
+                  for the biography's .mp-bio-sources. Nothing when no donor has a company number. */}
+              {donorRows.some((r) => r.crn) && (
+                <div className="mp-donation-sources">
+                  <PageSources
+                    marginTop="16px"
+                    sources={donorRows.filter((r) => r.crn).map((r) => ({
+                      label: `Companies House record for ${r.name} (company ${r.crn})`,
+                      href: `https://find-and-update.company-information.service.gov.uk/company/${encodeURIComponent(r.crn as string)}`,
+                    }))}
+                  />
+                </div>
+              )}
 
             </>
           );
@@ -3264,21 +3268,8 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
       <Row label="Nature" value={fmt(d.nature)} />
       <Row label="Donation type" value={fmt(d.donor_type)} />
       <Row label="Donor status" value={fmt(d.donor_status)} />
-      {crn && (
-        <Row
-          label="Companies House"
-          value={
-            <a
-              href={`https://find-and-update.company-information.service.gov.uk/company/${crn}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={inkLink}
-            >
-              View on Companies House&nbsp;↗
-            </a>
-          }
-        />
-      )}
+      {/* The number as plain text; the record is in the donations tab's Sources fold (Cowork ENTRY 422). */}
+      {crn && <Row label="Company number" value={crn} />}
       {(d.addr_line1 || d.addr_town || d.addr_postcode || d.addr_country) && (
         <Row
           label="Donor address"

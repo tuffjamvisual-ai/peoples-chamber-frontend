@@ -7,7 +7,8 @@ import { notFound, redirect } from 'next/navigation';
 import { listPath } from '@/lib/list-path';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import { cachedOrganisationList, searchOrganisations, normaliseCompanyNumber, companiesHouseUrl, type OrgListRow } from '@/lib/organisations';
+import { cachedOrganisationList, searchOrganisations, normaliseCompanyNumber, type OrgListRow } from '@/lib/organisations';
+import PageSources from '../components/PageSources';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 import '@/app/components/search-box-desk.css';
@@ -133,9 +134,9 @@ export default async function OrganisationsListing({ q = '', has, page = 1 }: { 
           <li key={r.slug} style={{ padding: '10px 0', borderBottom: `1px solid ${HAIRLINE}` }}>
             <Link href={`/organisations/${r.slug}`} className="no-hover-scale" style={{ color: INK, fontWeight: 'bold', fontSize: '16px', textDecoration: 'none', overflowWrap: 'anywhere' }}>{r.name}</Link>
             <div style={{ fontFamily: FONT, fontSize: '15px', marginTop: '3px', lineHeight: 1.5, overflowWrap: 'anywhere' }}>
-              {/* No Companies House number shown (T1-NOCODE, owner approved 13 Nov 2026): a link to the same record instead. */}
-              <span className="org-wide">{r.company_number && <><a data-og-row-source="" href={companiesHouseUrl(r.company_number)} target="_blank" rel="noopener noreferrer" aria-label={`View ${r.name} on Companies House`} style={{ color: INK, textDecoration: 'underline' }}>View on Companies House&nbsp;↗</a>{' · '}</>}{datasetsLine(r)}</span>
-              {r.company_number && <span className="org-phone"><a data-og-row-source="" href={companiesHouseUrl(r.company_number)} target="_blank" rel="noopener noreferrer" aria-label={`View ${r.name} on Companies House`} style={{ color: INK, textDecoration: 'underline', display: 'inline-block', minHeight: '44px', lineHeight: '44px' }}>View on Companies House&nbsp;↗</a></span>}
+              {/* No Companies House link in the rows (owner, Cowork ENTRY 422, 20 Nov 2026: sources only in the Sources fold);
+                  each organisation's own page has its Companies House record in its fold. */}
+              <span className="org-wide">{datasetsLine(r)}</span>
               <span className="org-phone">{phoneCountsLine(r)}</span>
             </div>
           </li>
@@ -151,6 +152,8 @@ export default async function OrganisationsListing({ q = '', has, page = 1 }: { 
         </nav>
       )}
 
+      {/* The list's one outside link (Cowork ENTRY 422): where company records come from. */}
+      <PageSources sources={[{ label: 'Company records: Companies House', href: 'https://find-and-update.company-information.service.gov.uk/' }]} />
     </OpenGovShell>
   );
 }
