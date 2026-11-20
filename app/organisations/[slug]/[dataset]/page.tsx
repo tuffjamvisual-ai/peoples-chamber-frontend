@@ -12,7 +12,6 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { EC_DONATIONS_SEARCH } from '@/lib/ec-links';
-import PageSources from '@/app/components/PageSources';
 import {
   DATASETS, getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, GRANTNAV_HOME, findTenderUrl, money, fmtDay, buyerLabel,
   type Dataset, getOrgNameBasisNotices, companiesHouseUrl } from '@/lib/organisations';
