@@ -50,7 +50,7 @@ export default function LowestScoresPage() {
           {/* Owner's experiment (Cowork ENTRY 441): this page's headline at half its size at every width (was
               clamp(28px, 3.4vw, 44px)); same font, weight and line height ratio. To undo, drop the class and the style
               block and put fontSize 'clamp(28px, 3.4vw, 44px)' back in the h1's style. */}
-          <style>{'.ls-h1-half { font-size: clamp(14px, 1.7vw, 22px); }'}</style>
+          <style>{'.ls-h1-half { font-size: clamp(15px, 1.7vw, 22px); }'}</style>
           <h1 className="ls-h1-half" style={{ fontFamily: SERIF, fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             {HEADLINE}
           </h1>
