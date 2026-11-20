@@ -13,7 +13,7 @@ import BackLink from '../../../components/BackLink';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { EC_DONATIONS_SEARCH } from '@/lib/ec-links';
 import {
-  DATASETS, getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, GRANTNAV_HOME, findTenderUrl, money, fmtDay, buyerLabel,
+  DATASETS, getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, GRANTNAV_HOME, FIND_TENDER_HOME, findTenderNoticeNumber, ocidsWithContractPages, money, fmtDay, buyerLabel,
   type Dataset, getOrgNameBasisNotices, companiesHouseUrl } from '@/lib/organisations';
 
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
@@ -58,6 +58,9 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
   // Contract notices linked by the supplier name they print, as on the organisation's page (owner, 7 Nov 2026, M2).
   const byName = dataset === 'contracts' ? await getOrgNameBasisNotices(org.company_number) : [];
   const shown = rows;
+  // Find a Tender links only in the Sources fold (owner, Cowork ENTRY 410, 412, 423): each contract row links our own
+  // contract history page where we have one (ENTRY 412 (2)), else gives the procurement id as text.
+  const withPage = dataset === 'contracts' ? await ocidsWithContractPages((rows as { ocid?: string | null }[]).map((r) => r.ocid)) : new Set<string>();
 
   return (
     <OpenGovShell pageStamp="Organisations">
@@ -75,7 +78,7 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
           {byName.map((x) => (
             <span key={x.url}>
               {' '}{byName.length === 1 ? 'One contract notice' : 'A contract notice'} gave a Companies House number that doesn&rsquo;t exist; it names the
-              supplier as {x.name} and is included on that basis (<a href={x.url} style={{ color: 'inherit', textDecoration: 'underline' }}>the notice on Find a Tender</a>).
+              supplier as {x.name} and is included on that basis (Find a Tender notice {findTenderNoticeNumber(x.url)}, in the Sources fold).
             </span>
           ))}
           {dataset === 'contracts' && ' Framework values are maximums, not spending.'}
@@ -98,7 +101,7 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
             <span style={{ fontWeight: 'bold' }}>{fmtDay(c.awarded_date)}</span> · {c.is_framework ? `framework, up to ${c.value != null ? money(c.value) : 'a value not published'}` : c.value != null ? money(c.value) : 'value not published'} · {buyerLabel(c.dept_slug)}
             <div style={sub}>
               {c.title || 'Untitled contract'} · supplier named as “{c.supplier}”
-              {c.ocid && <> · <a data-og-row-source="" href={findTenderUrl(c.ocid)} rel="noopener" style={{ color: ACCENT }}>Find a Tender record</a></>}
+              {c.ocid && <> · {withPage.has(c.ocid) ? <Link href={`/contracts/${c.ocid}`} style={{ color: ACCENT }}>Contract history</Link> : <>procurement {c.ocid}</>}</>}
             </div>
           </li>
         ))}
@@ -121,6 +124,8 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
         org.company_number && { label: `Companies House record for ${org.name} (company ${org.company_number})`, href: companiesHouseUrl(org.company_number) },
         dataset === 'donations' && rows.length > 0 && { label: 'Donations: the Electoral Commission\u2019s register of donations', href: EC_DONATIONS_SEARCH },
         dataset === 'grants' && rows.length > 0 && { label: 'Grants: 360Giving GrantNav', href: GRANTNAV_HOME },
+        dataset === 'contracts' && rows.length > 0 && { label: 'Contracts: Find a Tender', href: FIND_TENDER_HOME },
+        ...byName.map((x) => ({ label: `Find a Tender notice ${findTenderNoticeNumber(x.url)} (supplier named as ${x.name})`, href: x.url })),
       ]} />
     </OpenGovShell>
   );

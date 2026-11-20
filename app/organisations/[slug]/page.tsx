@@ -20,7 +20,7 @@ import { cleanDept, quarterLabel } from '@/lib/lobbying';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
   getOrganisation, orgNameShared, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
-  findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, getOrgNameBasisNotices, type OrgIndexRow,
+  FIND_TENDER_HOME, findTenderNoticeNumber, ocidsWithContractPages, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, getOrgNameBasisNotices, type OrgIndexRow,
 } from '@/lib/organisations';
 import { getOrgBySlug } from '@/lib/lobbying';
 import { orgCanonical, thinSupplier } from '@/lib/index-rules';
@@ -101,6 +101,9 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
     getOrgAlsoSee(org),
     getOrgNameBasisNotices(org.company_number),
   ]);
+  // Find a Tender links only in the Sources fold (owner, Cowork ENTRY 410, 412, 423): each row links our own contract history
+  // page where we have one (ENTRY 412 (2)), else gives the procurement id as text.
+  const withPage = await ocidsWithContractPages(contracts.map((c) => c.ocid));
   const typeLabel = org.org_type ? ORG_TYPE_LABEL[org.org_type as OrgType] : 'Company';
 
   return (
@@ -189,7 +192,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                   <span style={{ fontWeight: 'bold' }}>{fmtDay(c.awarded_date)}</span> · {c.is_framework ? `framework, up to ${c.value != null ? money(c.value) : 'a value not published'}` : c.value != null ? money(c.value) : 'value not published'} · {buyerLabel(c.dept_slug)}
                   <div style={sub}>
                     {c.title || 'Untitled contract'}
-                    {c.ocid && <> · <a data-og-row-source="" href={findTenderUrl(c.ocid)} rel="noopener" style={{ color: ACCENT }}>Find a Tender record</a></>}
+                    {c.ocid && <> · {withPage.has(c.ocid) ? <Link href={`/contracts/${c.ocid}`} style={{ color: ACCENT }}>Contract history</Link> : <>procurement {c.ocid}</>}</>}
                   </div>
                 </li>
               ))}
@@ -268,7 +271,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
             {byName.map((n) => (
               <span key={n.url}>
                 {' '}{byName.length === 1 ? 'One contract notice' : 'A contract notice'} gave a Companies House number that doesn&rsquo;t exist; it names the
-                supplier as {n.name} and is included on that basis (<a data-og-row-source="" href={n.url} style={{ color: 'inherit', textDecoration: 'underline' }}>the notice on Find a Tender</a>).
+                supplier as {n.name} and is included on that basis (Find a Tender notice {findTenderNoticeNumber(n.url)}, in the Sources fold).
               </span>
             ))}
             {' '}{byName.length ? 'Otherwise nothing' : 'Nothing'} is linked by name alone, so two organisations with the same name but
@@ -283,8 +286,13 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
         </section>
       </article>
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
-          Sources fold; each donation's, contract's and grant's record stays on its row. */}
-      <PageSources sources={[org.company_number && { label: `Companies House record for ${org.name} (company ${org.company_number})`, href: companiesHouseUrl(org.company_number) }]} />
+          Sources fold; each donation's and grant's record stays on its row. Find a Tender (owner, Cowork ENTRY 423): one
+          entry for the contracts (ENTRY 412 (2)), and each notice linked by the supplier name it prints. */}
+      <PageSources sources={[
+        org.company_number && { label: `Companies House record for ${org.name} (company ${org.company_number})`, href: companiesHouseUrl(org.company_number) },
+        contracts.length > 0 && { label: 'Contracts: Find a Tender', href: FIND_TENDER_HOME },
+        ...byName.map((n) => ({ label: `Find a Tender notice ${findTenderNoticeNumber(n.url)} (supplier named as ${n.name})`, href: n.url })),
+      ]} />
     </OpenGovShell>
   );
 }

@@ -242,6 +242,27 @@ export async function getOrgAlsoSee(org: Pick<OrgIndexRow, 'kind' | 'slug' | 'lo
 export const GRANTNAV_HOME = 'https://grantnav.threesixtygiving.org/';
 export const grantNavUrl = (identifier: string) => `https://grantnav.threesixtygiving.org/grant/${encodeURIComponent(identifier)}`;
 export const findTenderUrl = (ocid: string) => `https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(ocid)}`;
+// Find a Tender links go only in a page's Sources fold (owner, Cowork ENTRY 410, 412 and 423): the page text gives the plain
+// notice number or procurement id. The register's home is the one fold entry for a list of contracts (ENTRY 412 (2)).
+export const FIND_TENDER_HOME = 'https://www.find-tender.service.gov.uk/';
+// A notice's number from its address (https://www.find-tender.service.gov.uk/Notice/012345-2025 gives 012345-2025),
+// the form every contract_notices.source_url had on 20 Nov 2026.
+export const findTenderNoticeNumber = (url: string) => decodeURIComponent(url.replace(/[?#].*$/, '').replace(/\/+$/, '').split('/').pop() || url);
+
+// Of the OCIDs given, those with an on-site /contracts/<ocid> page (rows in contract_notices), through
+// contract_ocids_with_notices (migration 2026-10-23h, at most 200 a call), as /transparency/contracts does. A failed read
+// gives none, so the rows show without the on-site link.
+export async function ocidsWithContractPages(ocids: (string | null | undefined)[]): Promise<Set<string>> {
+  const list = [...new Set(ocids.filter((o): o is string => typeof o === 'string' && /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/.test(o)))].sort();
+  const out = new Set<string>();
+  for (let i = 0; i < list.length; i += 200) {
+    const part = list.slice(i, i + 200);
+    const { data, error } = await cachedQuery(['q:lib/organisations.ts:ocids-with-pages', JSON.stringify([part])], tableTags('contract_notices'), () => supabase.rpc('contract_ocids_with_notices', { p_ocids: part }));
+    if (error) { console.error('contract_ocids_with_notices:', error.message); return new Set(); }
+    for (const o of (data as string[] | null) ?? []) out.add(o);
+  }
+  return out;
+}
 
 export function money(n: number): string {
   return `£${Math.round(n).toLocaleString('en-GB')}`;

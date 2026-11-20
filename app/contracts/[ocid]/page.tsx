@@ -25,6 +25,8 @@ import { CONTRACT_NOTICES_TAG, contractTag } from '@/lib/contract-tags';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import PageSources, { type PageSource } from '../../components/PageSources';
+import { findTenderUrl, findTenderNoticeNumber } from '@/lib/organisations';
 
 export const revalidate = false; // A16: rebuilt only when its data changes (tags above), or on a deploy
 
@@ -36,7 +38,6 @@ export function generateStaticParams() {
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#ebe5d8';
-const ACCENT = '#7a1612';
 
 const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/;
 
@@ -91,6 +92,11 @@ const gbp = (v: number) => `£${Math.round(v).toLocaleString('en-GB')}`;
 const signed = (v: number) => `${v >= 0 ? '+' : '−'}£${Math.round(Math.abs(v)).toLocaleString('en-GB')}`;
 const fmtDay = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' }) : '');
 // Change reasons can run to pages; the full text is on the notice.
+// Find a Tender links only in the Sources fold (owner, Cowork ENTRY 410 and 423): the page text gives each notice's number.
+// The fold lists the procurement record (every notice) and the newest FOLD_NOTICES notices; of 119,057 procurements on 20 Nov
+// 2026, 12 had more (the most 1,161), and their other notices are on the procurement record.
+const FOLD_NOTICES = 50;
+const noticeNo = (url: string) => findTenderNoticeNumber(url);
 const short = (s: string) => (s.length > 400 ? `${s.slice(0, 400).replace(/\s+\S*$/, '')}… (full reason on the notice)` : s);
 
 export async function generateMetadata({ params }: { params: Promise<{ ocid: string }> }): Promise<Metadata> {
@@ -146,6 +152,16 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
   const byRelease = new Map<string, Notice>();
   for (const n of notices) if (!byRelease.has(n.release_id) || n.value_type !== 'change_old') byRelease.set(n.release_id, n);
   const timeline = [...byRelease.values()].sort((a, b) => b.published_at.localeCompare(a.published_at));
+  const noticeLabel = (n: Notice) => (kinds.get(n.release_id) && kinds.get(n.release_id)!.kind !== 'value_change' ? kinds.get(n.release_id)!.label : noticeName(n));
+  // The Sources fold: the procurement record, then each notice address once, newest first (PageSources drops repeats).
+  const foldNotices: PageSource[] = [];
+  for (const n of timeline) {
+    if (foldNotices.length >= FOLD_NOTICES) break;
+    if (!n.source_url || foldNotices.some((x) => x.href === n.source_url)) continue;
+    const own = n.title && n.title !== title ? `: ${n.title}` : '';
+    foldNotices.push({ label: `Find a Tender notice ${noticeNo(n.source_url)} (${noticeLabel(n)}, ${fmtDay(n.published_at)})${own}`, href: n.source_url });
+  }
+  const moreNotices = new Set(timeline.map((n) => n.source_url).filter(Boolean)).size - foldNotices.length;
 
   return (
     <OpenGovShell pageStamp="Contracts">
@@ -194,7 +210,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
                 <ul style={list}>
                   {h.changes.map((c) => (
                     <li key={c.url} style={{ marginBottom: '8px' }}>
-                      <a data-og-row-source="" href={c.url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(c.date)}</a>
+                      {fmtDay(c.date)} (notice {noticeNo(c.url)})
                       {' · '}
                       {c.kind.kind !== 'value_change'
                         ? <>{c.kind.label}{c.newValue != null ? `; value as stated ${gbp(c.newValue)}, not a change` : ''}</>
@@ -213,7 +229,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
 
             {h.termination && (
               <p style={{ ...figure, background: CREAM, padding: '10px 12px' }}>
-                <strong>Termination:</strong> <a data-og-row-source="" href={h.termination.url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(h.termination.date)}</a>.
+                <strong>Termination:</strong> {fmtDay(h.termination.date)} (notice {noticeNo(h.termination.url)}).
                 {h.termination.endDate && <> Ended {fmtDay(h.termination.endDate)}.</>}
                 {h.termination.finalValue != null && <> Final value {gbp(h.termination.finalValue)}.</>}
                 {h.termination.reason && <> Reason: &ldquo;{short(h.termination.reason)}&rdquo;</>}
@@ -229,7 +245,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
       <section style={{ marginBottom: '24px' }}>
         <h2 style={sectionH2}>Performance</h2>
         {performance.length
-          ? <ul style={list}>{performance.map((p) => <li key={p.release_id}><a data-og-row-source="" href={p.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(p.published_at)} · Contract performance notice</a></li>)}</ul>
+          ? <ul style={list}>{performance.map((p) => <li key={p.release_id}>{fmtDay(p.published_at)} · Contract performance notice {noticeNo(p.source_url)}</li>)}</ul>
           : <p style={{ fontSize: '15px' }}>No performance notices have been published.</p>}
       </section>
 
@@ -239,7 +255,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
         <ul style={list}>
           {timeline.map((n) => (
             <li key={n.release_id} style={{ marginBottom: '6px' }}>
-              <a data-og-row-source="" href={n.source_url} target="_blank" rel="noopener noreferrer" style={link}>{fmtDay(n.published_at)} · {kinds.get(n.release_id) && kinds.get(n.release_id)!.kind !== 'value_change' ? kinds.get(n.release_id)!.label : noticeName(n)}</a>
+              {fmtDay(n.published_at)} · {noticeLabel(n)} · notice {noticeNo(n.source_url)}
               {partsOf(n) > 1 && <> · {partsOf(n)} {n.value_type === 'change_new' ? 'contracts changed' : n.contract_key.startsWith('award:') ? 'awards' : 'contracts'}</>}
               {partsOf(n) <= 1 && n.value != null && n.value_type !== 'none' && <> · {n.value_type === 'estimated' ? `estimated ${gbp(n.value)}` : n.value_type === 'framework_maximum' ? `${gbp(n.value)} framework maximum` : n.value_type === 'final' ? `final value ${gbp(n.value)}` : n.value_type === 'change_new' ? (kinds.get(n.release_id)?.kind === 'value_change' || !kinds.has(n.release_id) ? `changed to ${gbp(n.value)}` : `value as stated ${gbp(n.value)}`) : gbp(n.value)}</>}
               {/* Several awards where some of the notice's lots have none published: say how many of each, not 'All 8 lots'. */}
@@ -252,7 +268,10 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
         </NoJsPager>
       </section>
 
-      <p style={{ fontSize: '15px' }}>Source: Find a Tender, each line linked to its notice. Values are as each notice published them and are never added together.</p>
+      <p style={{ fontSize: '15px' }}>Values are as each notice published them and are never added together. Each notice is listed in the Sources fold under its number.</p>
+      <PageSources sources={[{ label: `Find a Tender procurement record ${ocid} (every notice)`, href: findTenderUrl(ocid) }, ...foldNotices]}>
+        {moreNotices > 0 && <p style={{ margin: '6px 0 0' }}>The newest {foldNotices.length} notices are listed; the other {moreNotices.toLocaleString('en-GB')} are on the procurement record.</p>}
+      </PageSources>
     </OpenGovShell>
   );
 }
@@ -262,4 +281,3 @@ const h3: React.CSSProperties = { fontFamily: 'var(--font-special-elite), monosp
 const lotLine: React.CSSProperties = { fontSize: '15px', fontWeight: 'bold', margin: '0 0 6px' };
 const figure: React.CSSProperties = { fontSize: '16px', lineHeight: 1.6, margin: '6px 0' };
 const list: React.CSSProperties = { fontSize: '15px', lineHeight: 1.6, paddingLeft: '18px' };
-const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline' };

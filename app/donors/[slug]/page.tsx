@@ -16,7 +16,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { sectorForDonor } from '@/lib/donor-sectors';
 import { departments } from '@/lib/departments';
-import { normaliseCompanyNumber } from '@/lib/organisations';
+import { normaliseCompanyNumber, FIND_TENDER_HOME, ocidsWithContractPages } from '@/lib/organisations';
 import { companiesHouseUrl, companyNumberAsFiled } from '@/lib/companies-house';
 import { donorNameToSlug, narrowTokens } from '@/lib/donor-slug';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
@@ -332,9 +332,11 @@ export default async function DonorPage({ params }: PageProps) {
   }
   const unpublishedValues = matchedContracts.filter((c) => c.value == null).length;
   const contractDeptRows = Array.from(contractsByDept.values()).sort((a, b) => b.total - a.total);
-  // Record-level list (audit reassessment, 16 Oct 2026): each contract, newest first, linked to
-  // its procurement record on Find a Tender by OCID.
+  // Record-level list (audit reassessment, 16 Oct 2026): each contract, newest first, linked to our own contract history
+  // page where we have one (ENTRY 412 (2)), else with its procurement id as text; Find a Tender itself is
+  // linked only in the Sources fold (owner, Cowork ENTRY 410, 412, 423).
   const contractRecords = [...matchedContracts, ...matchedFrameworks].sort((a, b) => (b.awarded_date || '').localeCompare(a.awarded_date || ''));
+  const contractPages = await ocidsWithContractPages(contractRecords.slice(0, 50).map((c) => c.ocid));
   const totalContractValue = matchedContracts.reduce((s, c) => s + Number(c.value || 0), 0);
   // "What followed": one list, newest first, of this donor's donations and the records for the same Companies House
   // number. Each list is capped at the newest WHAT_FOLLOWED_CAP. Shown only when there is at least one record besides
@@ -715,7 +717,9 @@ export default async function DonorPage({ params }: PageProps) {
                       {c.ocid && (
                         <>
                           <br />
-                          <a data-og-row-source="" href={`https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(c.ocid)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>View on Find a Tender&nbsp;↗</a>
+                          {contractPages.has(c.ocid)
+                            ? <Link href={`/contracts/${c.ocid}`} style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>Contract history</Link>
+                            : <span style={{ fontSize: '15px' }}>Procurement {c.ocid}</span>}
                         </>
                       )}
                     </td>
@@ -832,8 +836,12 @@ export default async function DonorPage({ params }: PageProps) {
       </SubFold>
 
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
-          Sources fold; each donation's Electoral Commission reference and each contract's notice stay on their rows. */}
-      <PageSources sources={[crn && { label: `Companies House record for ${canonicalName} (company ${companyNumberAsFiled(crn)})`, href: companiesHouseUrl(crn) }]} />
+          Sources fold; each donation's Electoral Commission reference stays on its row. Find a Tender is one entry for
+          the contracts (owner, Cowork ENTRY 412 (2) and 423); each row links its contract history page, or gives its procurement id as text. */}
+      <PageSources sources={[
+        crn && { label: `Companies House record for ${canonicalName} (company ${companyNumberAsFiled(crn)})`, href: companiesHouseUrl(crn) },
+        contractRecords.length > 0 && { label: 'Contracts: Find a Tender', href: FIND_TENDER_HOME },
+      ]} />
     </OpenGovShell>
   );
 }
