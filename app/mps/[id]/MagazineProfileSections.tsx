@@ -331,6 +331,9 @@ interface Props {
   /** Special advisers this minister appointed (Cabinet Office named list), shown in Roles. */
   spadAdvisers?: { release: SpadReleaseRow; rows: SpadRow[]; interests?: Record<string, { total: number; recusals: number }>; leftOn?: Record<string, string | null>; ministerName: string; gender: string | null } | null;
   conductFindings?: ConductFinding[];
+  /** 'Standards cases: N (M rectified)' and its /standards#<slug> link (lib/standards-cases.ts standardsLine, worked out on
+      the server in MpDossier); null for an MP with none. Shown as the side menu's 'Standards' item (Cowork ENTRY 409). */
+  standards?: { text: string; href: string } | null;
   career?: MpCareer | null; // Political career (PC1): mp_biography.career_parliament and career_research, lib/mp-career.ts
   // MP1 (owner, 7 Nov 2026): the blocks that sat below the sections, now parts of them. Rendered on the server and passed in.
   votingAll?: number;                 // votes in both sources: the record above and Hansard, October 2004 to March 2016
@@ -607,6 +610,7 @@ export default function MagazineProfileSections({
   renderedOn,
   spadAdvisers = null,
   conductFindings = [],
+  standards = null,
   career = null,
   votingAll,
   votingArchive = null,
@@ -2945,6 +2949,20 @@ export default function MagazineProfileSections({
   };
 
 
+  // Cowork ENTRY 409 (owner, 20 Nov 2026): the Commissioner for Standards cases line, which sat in the header (from 768px) or
+  // under it, is the side menu's 'Standards' item, right after Background: the menu has no conduct or standards item, and the
+  // findings themselves are at the foot of Background. The same text and link, for an MP with any cases. Like Written
+  // questions it is a link to another page, not a [data-section] tab. In the 768 to 1023px tab row only the line shows (no
+  // 'Standards' label), so the row stays one item tall; on phones it is a row after the folds.
+  const standardsItem = standards ? (
+    <a href={standards.href} className="mp-std-link" style={{ display: 'block', textDecoration: 'none', color: '#14100d' }}>
+      <span className="og-sidenav-item" style={{ display: 'block', padding: '12px 16px', borderLeft: '4px solid transparent', fontSize: '15px', fontFamily: 'inherit' }}>
+        <span className="mp-std-label" style={{ display: 'block', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Standards</span>
+        <span style={{ display: 'block', marginTop: '2px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{standards.text}</span>
+      </span>
+    </a>
+  ) : null;
+
   return (
     // ENTRY 157 (owner, 16 Nov 2026: the sidebar and text "start too high up the page"): the grid was pulled up 80px under the
     // name and photo; PROPOSAL, two versions for the owner: -64px (+16px) and -48px (+32px), the same at every width.
@@ -2985,6 +3003,9 @@ export default function MagazineProfileSections({
           .mp-sections-nav.more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
           .mp-sections-nav button, .mp-sections-nav a[data-section] > span { white-space: nowrap; flex: 0 0 auto; transform: none !important; border-left: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; padding: 10px 12px !important; font-size: 15px !important; }
           .mp-sections-nav a[data-section] { flex: 0 0 auto; }
+          .mp-sections-nav a.mp-std-link { flex: 0 0 auto; }
+          .mp-sections-nav a.mp-std-link > span { padding: 10px 12px !important; white-space: nowrap; }
+          .mp-sections-nav .mp-std-label { display: none !important; }
           .mp-sections-nav button[data-active="true"], .mp-sections-nav a[data-section][data-active="true"] > span { border-bottom-color: #7a1612 !important; }
           .mp-sections-content { padding: 20px 2px !important; }
           /* The tabs wrap onto two or three lines rather than scroll sideways with the last label cut off (ENTRY 135 L8). */
@@ -2998,7 +3019,7 @@ export default function MagazineProfileSections({
              the departments sidebar; the compact 4px padding, no gap and 7px 8px items are gone. */
           .mp-sections-nav { margin-right: 12px !important; }
           /* Long labels wrap inside the 144px item ("Written questions (N)", "Early day motions": Cowork ENTRY 182 item 4, T2 13:12), 44px at least. */
-          .mp-sections-nav a[data-section] > span, .mp-sections-nav a.mp-wq-link > span { white-space: normal !important; letter-spacing: 0 !important; min-height: 44px; box-sizing: border-box; }
+          .mp-sections-nav a[data-section] > span, .mp-sections-nav a.mp-wq-link > span, .mp-sections-nav a.mp-std-link > span { white-space: normal !important; letter-spacing: 0 !important; min-height: 44px; box-sizing: border-box; }
           .mp-sections-content { padding-top: 10px !important; }
           .mp-sections-content .pf-sub > h2 { margin-bottom: 10px !important; }
         }
@@ -3032,8 +3053,8 @@ export default function MagazineProfileSections({
               return (
                 // A link to the section, so the tab opens with JavaScript off (TB1); with JavaScript on a plain click is
                 // still handled here (a click with a modifier key opens the address in a new tab or window).
+                <Fragment key={s.id}>
                 <a
-                  key={s.id}
                   href={`#section-${s.id}`}
                   data-section={s.id}
                   data-active={isActive ? 'true' : 'false'}
@@ -3072,8 +3093,11 @@ export default function MagazineProfileSections({
                     {s.label}
                   </span>
                 </a>
+                {s.id === 'career' && standardsItem}
+                </Fragment>
               );
             })}
+            {!sections.some((s) => s.id === 'career') && standardsItem}
             {/* ENTRY 159: written questions are a page of their own, so this item is a link to it, not a section. It is not a
                 [data-section] item, so it also shows where the phone hides the section tabs. */}
             {questionTotal > 0 && (
@@ -3123,6 +3147,14 @@ export default function MagazineProfileSections({
           <>
             <style>{`.mp-wq-phone { display: none; } @media ${phoneUpTo(PHONE_MAX)} { .mp-wq-phone { display: flex; align-items: center; min-height: 48px; padding: 8px 0; border-bottom: 1px solid rgba(20,16,13,0.2); font-family: var(--font-special-elite), monospace; font-size: 16px; font-weight: bold; color: #14100d; text-decoration: none; } }`}</style>
             <a href={`/mps/${memberId}/questions`} className="mp-wq-phone">Written questions ({questionTotal.toLocaleString('en-GB')}) →</a>
+          </>
+        )}
+        {/* Cowork ENTRY 409 on phones (under 768px the side menu is hidden): the side menu's 'Standards' item as a row after
+            the folds and Written questions, the same text and link. */}
+        {standards && (
+          <>
+            <style>{`.mp-std-phone { display: none; } @media ${phoneUpTo(PHONE_MAX)} { .mp-std-phone { display: flex; flex-direction: column; justify-content: center; min-height: 48px; padding: 8px 0; border-bottom: 1px solid rgba(20,16,13,0.2); font-family: var(--font-special-elite), monospace; font-size: 16px; color: #14100d; text-decoration: none; } .mp-std-phone > span:first-child { font-weight: bold; } .mp-std-phone > span + span { color: #7a1612; text-decoration: underline; text-underline-offset: 3px; } }`}</style>
+            <a href={standards.href} className="mp-std-phone"><span>Standards</span><span>{standards.text}</span></a>
           </>
         )}
       </div>

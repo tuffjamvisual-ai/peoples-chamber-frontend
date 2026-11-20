@@ -1,9 +1,9 @@
 import Image from 'next/image';
-import StandardsCasesLine from '../../components/StandardsCasesLine';
+import { standardsLine } from '@/lib/standards-cases';
 import Link from 'next/link';
 import MagazineProfileSections from './MagazineProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
-import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
+import { phoneUpTo } from '@/lib/breakpoints';
 
 import BackLink from '@/app/components/BackLink';
 // Rubber-stamp distress texture (patchy ink), matching the OpenGovShell stamps.
@@ -113,20 +113,13 @@ export default function MpDossier({
           .pca-mp-constituency { order: 3; margin: 0 !important; }
           .pca-mp-constituency a { display: inline-flex; align-items: center; min-height: 44px; }
         }
-        /* Desktop (owner, 7 Nov 2026, PF3 and PF4): the profile sections are pulled up 80px over the space below the header,
-           so the Standards cases line would sit under the Background heading and the tab list. It keeps its place in the
-           page, so nothing else moves, and is drawn one line higher (56px, a 44px line and its 12px gap), into the free
-           space under the party name. */
-        @media ${wideFrom(761)} {
-          .mp-standards-line { position: relative; top: -56px; }
-        }
-        /* T1-MPH (Cowork, 11 Nov 2026): from 768px up the Standards cases line is in the header's left column, under the
-           party line; under 768px it stays below the header, as before. */
-        .mp-std-head { display: none; }
-        @media ${wideFrom(768)} {
-          .mp-std-head { display: block; margin-top: 6px; }
-          .mp-std-head .mp-standards-line { position: static; top: auto; margin: 0 !important; }
-          .mp-std-page { display: none; }
+        /* Cowork ENTRY 409 (owner, 20 Nov 2026): the 'Standards cases' line is no longer in the header or under it; it is an
+           item of the sections' side menu (MagazineProfileSections, 'Standards'), and on phones a row after the section folds.
+           Under 768px the name started level with the top of the page's content (108px at 375), 57px higher than the other
+           folder pages, whose kicker line sits above their heading (/councils/leeds and /donors: 165px at 375); the header
+           gets the same space above it. */
+        @media ${phoneUpTo(767.98)} {
+          .pca-mp-header { padding-top: 57px; }
         }
         /* T1-SIDE (owner approved, 12 Nov 2026): from 1024px a tighter header, so the first section's first lines start on
            the first screen at 1280 x 720 and 1024 x 768: the photo about a fifth smaller (208px, 16px higher than T1-MPH put
@@ -139,7 +132,9 @@ export default function MpDossier({
           .pca-mp-header { margin-bottom: calc(1% + 46px) !important; }
           /* Fixed gaps, not a share of the width (Cowork 12 Nov 10:45): at 1280 the wider gaps put the 'Standards cases'
              line into the sidebar once the sidebar was raised level with the first heading. */
-          .pca-mp-bio { margin-top: 20px !important; }
+          /* 34px above the name (was 20px, Cowork ENTRY 409): the name on the line the /donors heading starts on, below its
+             kicker line (413px at 1280; 768 to 1023px already matched, 334px at 768). */
+          .pca-mp-bio { margin-top: 34px !important; }
           .pca-mp-bio h1 { margin: 0 0 10px !important; }
           .pca-mp-constituency { margin-bottom: 8px !important; }
           /* T1-SIDE (Cowork 12 Nov 10:45): the sidebar's first item level with the first section's heading (it was 50px
@@ -242,17 +237,12 @@ export default function MpDossier({
               )}
             </div>
           )}
-          <div className="mp-std-head"><StandardsCasesLine memberId={memberId} /></div>
         </div>
       </div>
 
-      {/* Commissioner for Standards cases (owner, 7 Nov 2026, T1): one line, at every width, for a member with any. From
-          768px up it is shown in the header instead (T1-MPH). */}
-      <div className="mp-std-page"><StandardsCasesLine memberId={memberId} /></div>
-
       {/* Full interactive profile sections (scaled up via zoom to restore text size). */}
       <div className="pca-sections" style={{ zoom: 1.18 }}>
-        <MagazineProfileSections {...sections} memberId={memberId} jsSticky stickyScale={1.18} compactExpenses />
+        <MagazineProfileSections {...sections} memberId={memberId} standards={standardsLine(memberId)} jsSticky stickyScale={1.18} compactExpenses />
       </div>
 
       {footer && <div style={{ marginTop: '48px' }}>{footer}</div>}
