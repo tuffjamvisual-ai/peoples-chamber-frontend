@@ -189,6 +189,8 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/councils/road-condition`, changeFrequency: 'yearly', priority: 0.7 },
     { url: `${SITE}/councils/hmos`, changeFrequency: 'yearly', priority: 0.7 },
     ...(SHOW_LEAGUE_TABLE ? [{ url: `${SITE}/councils/league-table`, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
+    // The council areas list (Cowork ENTRY 415, published 20 Nov 2026); its 294 explanation pages stay noindex.
+    { url: `${SITE}/council-areas/lowest-scores`, changeFrequency: 'yearly', priority: 0.7 },
     { url: `${SITE}/second-jobs`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/lobbying`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/organisations`, changeFrequency: 'weekly', priority: 0.7 },

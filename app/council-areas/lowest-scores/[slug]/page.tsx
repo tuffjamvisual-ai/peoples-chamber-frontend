@@ -10,7 +10,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
-import DraftBanner from '../../../components/DraftBanner';
 import PageSources from '../../../components/PageSources';
 import SourceNotes from '../SourceNotes';
 import { AREAS, RANKED, SOURCES, AREA_NOTES, bySlug, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, type Measure } from '../data';
@@ -26,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const a = bySlug.get(slug);
   if (!a) return {};
-  return { title: `${a.name}: how the council area scores (draft)`, description: 'Draft, not public.', robots: { index: false, follow: false } };
+  return { title: `${a.name}: how the council area scores`, description: `How ${a.name} scores on the twelve official measures behind the council areas list: its rank of 294, its score and the measures that pull it down and up.`, robots: { index: false, follow: true } };
 }
 
 const item = { ...para, lineHeight: 1.5, margin: '0 0 8px', paddingLeft: '12px' };
@@ -47,7 +46,6 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
     <OpenGovShell pageStamp="Council areas">
       <BackLink fallbackHref="/council-areas/lowest-scores" />
       <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
-        <DraftBanner published={false} />
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
             {a.type} · council area

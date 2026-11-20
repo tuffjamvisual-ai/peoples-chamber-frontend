@@ -1,6 +1,6 @@
-// /council-areas/lowest-scores: DRAFT for pictures only (Cowork ENTRY 415: GO v3, v3 ADDENDUM, HEADLINE, LAYOUT CHANGE).
+// /council-areas/lowest-scores (Cowork ENTRY 415: GO v3, v3 ADDENDUM, HEADLINE, LAYOUT CHANGE; published under the ENTRY 415 PUBLISH RULE).
 // Not to be pushed until the publish rule passes (ENTRY 415 PUBLISH RULE). Not linked from any page, not in the sitemap
-// (lib/sitemap lists pages by hand), noindex.
+// (listed by hand in lib/sitemap/main.ts); indexable since the publish; the 294 explanation pages stay noindex.
 //
 // The 10 council areas in England with the lowest scores on the 'places' index (what residents live with, whoever is
 // responsible), then 'Find your area': a postcode search through the site's existing /api/councils/lookup (postcodes.io)
@@ -16,7 +16,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import DraftBanner from '../../components/DraftBanner';
 import PageSources from '../../components/PageSources';
 import SourceNotes from './SourceNotes';
 import FindYourArea from './FindYourArea';
@@ -27,10 +26,11 @@ export const revalidate = false; // A16: static data, rebuilt only on a deploy
 const HEADLINE = 'The 10 Least Desirable Places to Live in England, on the Official Figures';
 export const metadata: Metadata = {
   title: { absolute: HEADLINE },
-  description: 'Draft, not public.',
+  description: 'Every English council area scored the same way on twelve official measures in five equal topics: the ten with the lowest scores, the measures that pull each down, and a postcode search for any area.',
+  alternates: { canonical: '/council-areas/lowest-scores' },
   openGraph: { title: HEADLINE },
   twitter: { title: HEADLINE },
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
 };
 const LOWEST10 = AREAS.slice(0, 10);
 // Short names for the one line under each of the 10 (figures are on each area's explanation page).
@@ -44,7 +44,6 @@ export default function LowestScoresPage() {
     <OpenGovShell pageStamp="Council areas">
       <BackLink fallbackHref="/councils" />
       <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
-        <DraftBanner published={false} />
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '18px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
             England · {RANKED} council areas
