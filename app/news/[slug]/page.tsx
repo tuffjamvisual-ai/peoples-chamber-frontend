@@ -19,6 +19,8 @@ import { newsTag } from '@/lib/news-tag'
 import { tableTags } from '@/lib/source-tags';
 import { splitHtmlLead } from '@/lib/html-lead'
 import { ContinueReading } from '../../components/ReadOn'
+import NewsRecordBox from './NewsRecordBox'
+import { newsRecord } from '@/lib/news-record'
 
 // Plain text of an HTML fragment, for comparing the summary with the body's opening.
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase()
@@ -224,6 +226,8 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const examined = await piecesExaminingRelease(release.title, release.gov_url)
   // Read next (lib/read-next.ts) once, after the full text (owner's request, 25 Oct 2026).
   const readNext = await newsReadNext({ id: release.id, title: release.title, organisation: release.organisation, body: release.body, description: release.description })
+  // "What the record shows" (ENTRY 368): SAMPLE, read and shown only with NEWS_RECORD_BOX=1 (lib/news-record.ts); robots unchanged.
+  const record = await newsRecord({ id: release.id, title: release.title, organisation: release.organisation, body: release.body, description: release.description })
 
   const dateLabel = release.published_at
     ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -313,6 +317,8 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
       </article>
 
       <InvestigationBox pieces={examined} placement="end" />
+
+      <NewsRecordBox record={record} />
 
       {/* On phones and tablets the department context and related links sit in one closed "Related" fold, so the page
           keeps within the length limit (ENTRY 135 H2, 16 Nov 2026); from 1,024px up they show as before. */}
