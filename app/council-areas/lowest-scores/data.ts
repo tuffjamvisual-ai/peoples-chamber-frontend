@@ -2,7 +2,6 @@
 // v3 ADDENDUM). Data: lowest-scores.json, written by the audit's scratch script (v3.py) from audit/worst-places-415/
 // scores.csv v3; no database read. Every one of the 294 council areas has every measure (the v3 rule).
 import type { CSSProperties } from 'react';
-import { OGL_URL } from '@/lib/fold-notes';
 import data from './lowest-scores.json';
 
 export type Measure = { key: string; label: string; figure: string; average: string; rank: number; of: number; period: string; score: number; topic: string };
@@ -22,7 +21,10 @@ export const SOURCES = [...MEASURES.reduce((m, x) => {
   m.set(x.href, prev ? { ...prev, labels: [...prev.labels, x.label] } : { labels: [x.label], source: x.source });
   return m;
 }, new Map<string, { labels: string[]; source: string }>())].map(([href, v]) => ({ label: `${v.labels.join(' and ')}: ${v.source}`, href }));
-export const LICENCE_NOTE = { text: 'Government sources are published under the Open Government Licence v3.0. Ofcom Connected Nations data is published by Ofcom.', href: OGL_URL };
+// One plain line for an area whose rank readers are likely to question (Cowork ENTRY 415 v3b PICTURES: Blackpool).
+export const AREA_NOTES: Record<string, string> = {
+  blackpool: 'Worst of the 294 on crime and life expectancy, but clean air and better than average broadband and 4G lift its score.',
+};
 
 export const INK = '#14100d';
 export const INK_HAIRLINE = 'rgba(20,16,13,0.2)';

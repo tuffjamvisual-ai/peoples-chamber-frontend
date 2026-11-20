@@ -46,8 +46,7 @@ export default function FindYourArea({ ranks, ranked }: { ranks: Record<string, 
   return (
     <div>
       <form onSubmit={onSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', margin: '0 0 10px' }}>
-        <label htmlFor="ls-postcode" style={{ ...text, flex: '1 1 100%' }}>Your postcode</label>
-        <input id="ls-postcode" name="postcode" autoComplete="postal-code" inputMode="text" value={postcode} onChange={(e) => setPostcode(e.target.value)}
+        <input id="ls-postcode" name="postcode" aria-label="Your postcode" placeholder="Your postcode" autoComplete="postal-code" inputMode="text" value={postcode} onChange={(e) => setPostcode(e.target.value)}
           style={{ ...text, flex: '1 1 16em', minWidth: 0, minHeight: '48px', padding: '0 12px', border: `1.5px solid ${INK}`, background: '#fff', boxSizing: 'border-box' }} />
         <button type="submit" disabled={busy}
           style={{ ...text, flex: '1 1 8em', minHeight: '48px', padding: '0 18px', border: `1.5px solid ${INK}`, background: INK, color: '#fff', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>

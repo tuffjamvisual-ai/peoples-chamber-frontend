@@ -12,8 +12,8 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import DraftBanner from '../../../components/DraftBanner';
 import PageSources from '../../../components/PageSources';
-import FoldNotes from '../../../components/FoldNotes';
-import { AREAS, RANKED, SOURCES, LICENCE_NOTE, bySlug, ordinal, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, type Measure } from '../data';
+import SourceNotes from '../SourceNotes';
+import { AREAS, RANKED, SOURCES, AREA_NOTES, bySlug, ordinal, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, type Measure } from '../data';
 
 export const revalidate = false; // A16: static data, rebuilt only on a deploy
 export const dynamicParams = false;
@@ -34,7 +34,7 @@ const item = { ...para, lineHeight: 1.5, margin: '0 0 8px', paddingLeft: '12px' 
 function MeasureLine({ m, mark }: { m: Measure; mark: string }) {
   return (
     <li style={{ ...item, borderLeft: `3px solid ${mark}` }}>
-      <strong>{m.label}</strong>: {m.key === 'crime' ? <>{m.figure} council areas in England; {m.period}</> : <>{m.figure} (council area average {m.average}); {ordinal(m.rank)} of {m.of}, where 1st is the worst figure; {m.period}</>}
+      <strong>{m.label}</strong>: {m.key === 'crime' ? <>{m.figure}; {m.period}</> : <>{m.figure} (council area average {m.average}); {ordinal(m.rank)} of {m.of}, where 1st is the worst figure; {m.period}</>}
     </li>
   );
 }
@@ -59,8 +59,10 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
         </header>
 
         <p style={para}>
-          The score is the average of five topics, each the average of its measures, every measure scored 0 to 100 against all {RANKED} council areas. <Link href="/council-areas/lowest-scores" style={{ color: INK }}>See the 10 lowest and find another council area</Link> or <Link href={`/councils/${a.slug}`} style={{ color: INK }}>the council&rsquo;s own page</Link>. Most of this depends on the economy, government, the police, the NHS and telecoms firms more than on the council.
+          The score is the average of five topics, each the average of its measures, every measure scored 0 to 100 against all {RANKED} council areas. <Link href="/council-areas/lowest-scores" style={{ color: INK }}>See the 10 lowest and find another council area</Link> or <Link href={`/councils/${a.slug}`} style={{ color: INK }}>the council&rsquo;s own page</Link>. Not the council&rsquo;s fault: council performance is left out.
         </p>
+
+        {AREA_NOTES[a.slug] && <p style={para}><strong>{AREA_NOTES[a.slug]}</strong></p>}
 
         <section aria-label="Pulling it down most" style={{ marginBottom: '22px' }}>
           <h2 style={h2}>Pulling it down most</h2>
@@ -68,7 +70,10 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
         </section>
         <section aria-label="Pulling it up most" style={{ marginBottom: '22px' }}>
           <h2 style={h2}>Pulling it up most</h2>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{a.up.map((m) => <MeasureLine key={m.key} m={m} mark={INK_HAIRLINE} />)}</ul>
+          {/* Only measures better than the middle of the 294 (score above 50) count as pulling it up (Cowork, 18:34). */}
+          {a.up.length > 0
+            ? <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{a.up.map((m) => <MeasureLine key={m.key} m={m} mark={INK_HAIRLINE} />)}</ul>
+            : <p style={para}>No measure is better than the middle of the 294.</p>}
         </section>
 
         <section aria-label="Every measure" style={{ marginBottom: '22px' }}>
@@ -88,7 +93,7 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
         </section>
 
         <PageSources sources={SOURCES}>
-          <FoldNotes notes={[LICENCE_NOTE]} />
+          <SourceNotes />
         </PageSources>
       </article>
     </OpenGovShell>
