@@ -1,8 +1,10 @@
 import { shortMonthYear } from '@/lib/short-date';
+import PageSources from '@/app/components/PageSources';
 // Standards findings (House of Commons Committee on Standards reports naming this member), from mp_conduct_findings
 // (app/api/sync-standards-committee). Shown on a full profile's Background tab (MagazineProfileSections) and on the
 // basic former-MP page (FormerMpProfile), so a former member's findings appear too (owner's brief, 3 Nov 2026).
-// Outcome (as a plain label), rule and penalty show when they are filled.
+// Outcome (as a plain label), rule and penalty show when they are filled. Each Committee report is listed in the section's
+// own Sources fold (.mp-standards-sources), not in the rows (Cowork ENTRY 369 #9, owner approved in ENTRY 429; ENTRY 410).
 
 export type ConductFinding = {
   id: number;
@@ -17,9 +19,7 @@ export type ConductFinding = {
 };
 
 const INK = '#14100d';
-const ACCENT = '#7a1612';
 const divider = '1px dashed rgba(20,16,13,0.2)';
-const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline', fontSize: '15px' };
 
 // Plain labels for the stored outcome codes (owner's brief, 3 Nov 2026). An unknown code shows no label.
 const OUTCOME_LABEL: Record<string, string> = {
@@ -63,14 +63,15 @@ export default function StandardsFindings({ findings, headingStyle }: { findings
                 {showPenalty(f) && <span>Penalty: {f.penalty}.</span>}
               </div>
             )}
-            {f.url && (
-              <div style={{ marginTop: '4px' }}>
-                <a href={f.url} target="_blank" rel="noopener noreferrer" style={link}>Read the Committee&rsquo;s report</a>
-              </div>
-            )}
           </li>
         ))}
       </ul>
+      <div className="mp-standards-sources">
+        <PageSources
+          marginTop="12px"
+          sources={findings.map((f) => f.url && { label: `Committee on Standards report${f.closed_date ? `, ${monthYear(f.closed_date)}` : ''}: ${f.summary || f.mp_name_at_time}`, href: f.url })}
+        />
+      </div>
     </section>
   );
 }

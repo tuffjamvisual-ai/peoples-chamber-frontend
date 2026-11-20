@@ -23,7 +23,7 @@ import type { MpCareer } from '@/lib/mp-career';
 import type { QuestionsSummary } from '@/lib/written-question-shared';
 
 const MP_GRID_TOP = '-64px';
-import { ecDonationSearchUrl } from '@/lib/ec-links';
+import { EC_DONATIONS_SEARCH } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';
 import PhoneTable from '../../components/PhoneTable';
 import PhoneFolds, { SubFold } from '../../components/PhoneFolds';
@@ -2575,16 +2575,21 @@ export default function MagazineProfileSections({
               </p>
 
               {/* The donors' Companies House records (owner, Cowork ENTRY 422, 20 Nov 2026): only in this tab's Sources fold,
-                  one per company donor, never in the rows. A9 allows a fold on an MP profile inside .mp-donation-sources, as
-                  for the biography's .mp-bio-sources. Nothing when no donor has a company number. */}
-              {donorRows.some((r) => r.crn) && (
+                  one per company donor, never in the rows. The Electoral Commission's register of donations, where the
+                  donations come from, is one entry there too (Cowork ENTRY 369 #8; ENTRY 412: one entry per dataset), in
+                  place of a source link in each donation. A9 allows a fold on an MP profile inside .mp-donation-sources, as
+                  for the biography's .mp-bio-sources. Nothing when there is neither. */}
+              {(donorRows.some((r) => r.crn) || donations.some((d) => d.ec_ref)) && (
                 <div className="mp-donation-sources">
                   <PageSources
                     marginTop="16px"
-                    sources={donorRows.filter((r) => r.crn).map((r) => ({
-                      label: `Companies House record for ${r.name} (company ${companyNumberAsFiled(r.crn as string)})`,
-                      href: companiesHouseUrl(r.crn as string),
-                    }))}
+                    sources={[
+                      donations.some((d) => d.ec_ref) && { label: 'Donations: the Electoral Commission\u2019s register of donations', href: EC_DONATIONS_SEARCH },
+                      ...donorRows.filter((r) => r.crn).map((r) => ({
+                        label: `Companies House record for ${r.name} (company ${companyNumberAsFiled(r.crn as string)})`,
+                        href: companiesHouseUrl(r.crn as string),
+                      })),
+                    ]}
                   />
                 </div>
               )}
@@ -3305,22 +3310,8 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
       {d.attempted_concealment === true && <Row label="Concealment attempted" value="Yes" />}
       {d.concealment_details && <Row label="Concealment details" value={d.concealment_details} />}
       {d.explanatory_notes && <Row label="EC notes" value={d.explanatory_notes} />}
-      {/* No reference shown (T1-NOCODE, owner approved 13 Nov 2026): the same record, named by its source. */}
-      {d.ec_ref && (
-        <Row
-          label="Source"
-          value={
-            <a
-              href={ecDonationSearchUrl(d.ec_ref)}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={inkLink}
-            >
-              Electoral Commission&nbsp;↗
-            </a>
-          }
-        />
-      )}
+      {/* No reference and no source row (T1-NOCODE, 13 Nov 2026; Cowork ENTRY 369 #8, owner approved in ENTRY 429): the
+          Electoral Commission's register is in the donations tab's Sources fold, not in the page text. */}
       <Row label="Concealment flag" value={fmtBool(d.attempted_concealment)} />
     </dl>
   );

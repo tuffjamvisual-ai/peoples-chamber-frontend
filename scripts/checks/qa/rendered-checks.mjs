@@ -49,7 +49,8 @@
 //       data-og-citations) is a failure, and a link to another site inside one no longer counts as allowed; except the
 //       biography's own Sources fold (.mp-bio-sources, owner approved 16 Nov 2026, COWORK-TO-T1 ENTRY 180).
 //       and the donations tab's Sources fold of the donors' Companies House records (.mp-donation-sources, owner approved
-//       20 Nov 2026, Cowork ENTRY 422).
+//       20 Nov 2026, Cowork ENTRY 422), and the Standards findings section's fold of the Committee's reports
+//       (.mp-standards-sources, Cowork ENTRY 369 #9, owner approved in ENTRY 429).
 // A2 and A3 found problems on pages that existed before the check; those are in rendered-baseline.json and are
 // expected: a run fails only on a new one (a page over the limit that was not, or longer than its baseline by more than
 // 200px; a time word on a page that did not have it).
@@ -216,12 +217,12 @@ function outsideLinks(licence) {
   const out = [];
   // MP profiles and former MPs' basic pages (T1-MPCLEAN, T1-MPCLEAN2): no Sources fold, so nothing is allowed for being inside one.
   const mpProfile = /^\/mps\/\d+\/?$/.test(location.pathname);
-  if (mpProfile) for (const el of document.querySelectorAll('[data-og-sources], [data-og-citations]')) if (!el.closest('.mp-bio-sources, .mp-donation-sources')) out.push(`a Sources fold on an MP profile (${(el.querySelector('summary')?.textContent || el.tagName).trim().replace(/\s+/g, ' ').slice(0, 40)})`);
+  if (mpProfile) for (const el of document.querySelectorAll('[data-og-sources], [data-og-citations]')) if (!el.closest('.mp-bio-sources, .mp-donation-sources, .mp-standards-sources')) out.push(`a Sources fold on an MP profile (${(el.querySelector('summary')?.textContent || el.tagName).trim().replace(/\s+/g, ' ').slice(0, 40)})`);
   for (const a of document.querySelectorAll('a[href]')) {
     let u; try { u = new URL(a.getAttribute('href'), location.href); } catch { continue; }
     if (!/^https?:$/.test(u.protocol) || u.host === location.host || /(^|\.)opengovt\.uk$/.test(u.hostname)) continue;
     // [data-og-contact]: a body's own contact link, not a source (owner, Cowork ENTRY 412: the council's own website).
-    if (a.closest(mpProfile ? 'footer, [data-og-row-source], [data-article-body], [data-og-attribution], [data-og-contact], .mp-bio-sources [data-og-sources], .mp-donation-sources [data-og-sources]' : '[data-og-contact], [data-og-sources], footer, [data-og-row-source], [data-article-body], [data-og-citations], [data-og-attribution]')) continue;
+    if (a.closest(mpProfile ? 'footer, [data-og-row-source], [data-article-body], [data-og-attribution], [data-og-contact], .mp-bio-sources [data-og-sources], .mp-donation-sources [data-og-sources], .mp-standards-sources [data-og-sources]' : '[data-og-contact], [data-og-sources], footer, [data-og-row-source], [data-article-body], [data-og-citations], [data-og-attribution]')) continue;
     if (re.test(u.href) || (a.getAttribute('rel') ?? '').split(/\s+/).includes('license')) continue;
     out.push(`${u.hostname.replace(/^www\./, '')}: ${(a.getAttribute('aria-label') || a.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 60)}`);
   }
