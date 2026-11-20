@@ -5,7 +5,8 @@
 //                        link treated every contract buyer as a department), otherwise the page's own 404. Councils
 //                        and agencies are redirected earlier, in next.config.ts.
 //   /donors/<slug>       no donor name in the register gives this slug: the page's own 404.
-//   /news/<slug>         not in our press releases: GOV.UK's page when it still has the release, otherwise the page's 404.
+//   /news/<slug>         no check: an address with no press release goes on to the page, which answers 404. It used to
+//                        go to GOV.UK when GOV.UK still had the release; only sources go off site (Cowork ENTRY 369).
 // 404, not 410 (owner approved 19 Nov 2026, Cowork ENTRY 367 item 8): 410 is only for pages we removed, and nothing here
 // records whether an address ever had a page (a made-up /donors/zzz answered 410), so these go on to the page, which
 // answers 404. The 'gone' kind stays for any future list of removed pages.
@@ -61,19 +62,10 @@ async function donorAction(_ctx: Ctx, _slug: string): Promise<GoneAction> {
   return PASS;
 }
 
-async function newsAction(ctx: Ctx, slug: string): Promise<GoneAction> {
-  const safe = slug.replace(/[^a-z0-9-]/gi, '').toLowerCase();
-  if (!safe) return PASS;
-  const rows = await rest<{ id: number }[]>(ctx, `press_releases?select=id&news_slug=eq.${encodeURIComponent(safe)}&limit=1`);
-  if (rows == null || rows.length) return PASS;
-  try {
-    const res = await fetch(`https://www.gov.uk/api/content/government/news/${safe}`, { method: 'HEAD', signal: AbortSignal.timeout(TIMEOUT_MS) });
-    if (res.ok) return { kind: 'redirect', location: `https://www.gov.uk/government/news/${safe}` };
-    return PASS; // the news page answers 404 (ENTRY 367 item 8)
-  } catch {
-    ctx.failed = true;
-    return PASS;
-  }
+// A news address with no press release goes on to the news page, which answers 404 (ENTRY 367 item 8). It no longer goes
+// to GOV.UK's copy (Cowork ENTRY 369: only sources go off site), so the proxy makes no read for news pages at all.
+async function newsAction(_ctx: Ctx, _slug: string): Promise<GoneAction> {
+  return PASS;
 }
 
 export async function goneAction(section: 'departments' | 'donors' | 'news', rawSlug: string): Promise<GoneAction> {

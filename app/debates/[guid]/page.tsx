@@ -7,7 +7,7 @@ import AboutThisData from '../../components/AboutThisData';
 import { debateReadNext } from '@/lib/read-next';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound, permanentRedirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { sanitizeHtml as sanitize } from '@/lib/html-sanitize';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -216,8 +216,8 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   const { guid } = await params;
   const d = await getDebate(guid);
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
-  // As the page: a debate Hansard no longer serves goes to its sitting day; otherwise no debate has this address.
-  if (!d || !d.Overview) { const row = await debateRow(guid); const day = row ? hansardDayUrl(row) : null; if (day) permanentRedirect(day); notFound(); }
+  // As the page: a debate Hansard no longer serves is not found too (Cowork ENTRY 369: never a redirect off site).
+  if (!d || !d.Overview) notFound();
   const title = d?.Overview?.Title?.trim() || 'Debate';
   // Description (owner's approval, 23 Oct 2026) from Hansard's own record: the House and date, the first speaker
   // after the chair (the opener) and how many people spoke, when the record names them.
@@ -258,22 +258,14 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   return { title: fullTitle, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` }, ...(header || procedural ? { robots: { index: false, follow: true } } : {}) };
 }
 
-// A debate still in our list whose Hansard record has gone (Hansard republishes some sitting headers under new IDs,
-// about 4 per cent of our rows on 28 Oct 2026) goes, permanently, to that sitting day on Hansard.
-function hansardDayUrl(row: { sitting_date: string | null; house: string | null }): string | null {
-  if (!row.sitting_date) return null;
-  return `https://hansard.parliament.uk/${row.house === 'Lords' ? 'Lords' : 'Commons'}/${row.sitting_date.slice(0, 10)}`;
-}
-
 export default async function DebatePage({ params }: { params: Promise<{ guid: string }> }) {
   const { guid } = await params;
   const debate = await getDebate(guid);
-  if (!debate || !debate.Overview) {
-    const row = await debateRow(guid);
-    const day = row ? hansardDayUrl(row) : null;
-    if (day) permanentRedirect(day);
-    notFound();
-  }
+  // A debate still in our list whose Hansard record has gone (Hansard republishes some sitting headers under new IDs,
+  // about 4 per cent of our rows on 28 Oct 2026) went, permanently, to that sitting day on Hansard. Only sources go off
+  // site (owner, Cowork ENTRY 369), so it is now a 404, as any other address with no debate. A Hansard outage still
+  // throws in getDebate, so it is never published as a 404.
+  if (!debate || !debate.Overview) notFound();
 
   const ov = debate.Overview;
   const allDebateItems = allItems(debate);
