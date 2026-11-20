@@ -130,8 +130,18 @@ const nextConfig: NextConfig = {
   // ships binaries for every platform (about 154 MB); Vercel runs linux x64 only, so the others are left out (about
   // 46 MB kept); likewise sharp's other builds (transformers.js imports sharp at load, so its linux x64 build stays).
   // Function about 143 MB of Vercel's 250 MB (Claude outputs/audit/meaning-390). .npmrc keeps the CUDA libraries out.
+  // transformers.js loads onnxruntime-node with createRequire (requireFromHere('onnxruntime-node')), which the tracer
+  // cannot follow: live on 20 Nov 2026 the function failed with "Cannot find module 'onnxruntime-node'". So its run time
+  // files are listed: package.json, dist (index.js, backend, binding, version) and the linux x64 binary with its library
+  // (onnxruntime_binding.node, libonnxruntime.so.1; about 44 MB). Its install script and other platforms stay out.
   outputFileTracingIncludes: {
-    '/api/meaning-search': ['./models/Supabase/gte-small/**/*'],
+    '/api/meaning-search': [
+      './models/Supabase/gte-small/**/*',
+      './node_modules/onnxruntime-node/package.json',
+      './node_modules/onnxruntime-node/dist/**/*',
+      './node_modules/onnxruntime-node/bin/napi-v6/linux/x64/**/*',
+      './node_modules/onnxruntime-common/**/*',
+    ],
   },
   outputFileTracingExcludes: {
     '/api/meaning-search': [
