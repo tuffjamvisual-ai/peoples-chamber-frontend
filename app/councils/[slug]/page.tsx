@@ -345,8 +345,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     ...(/^E/.test(c.gss_code ?? '') ? [OMBUDSMAN_NOTE] : []),
     ...(electionSummary ? [{ text: `Last election, ${longDate(electionSummary.date)}: ${electionSummary.source || `${c.name}\u2019s published results`}.` }] : []),
     ...(c.population_source && !c.population_source_url ? [{ text: `Population: ${c.population_source}.` }] : []),
-    ...(byelections.length > 0 ? [{ text: `Byelections since May 2026, from ${c.name}\u2019s declarations of result:` }] : []),
-    ...byelections.map((r) => ({ text: `${r.kind === 'by-election' ? 'Byelection' : 'Postponed poll'}, ${r.ward_name}, ${longDate(r.poll_date)}: declaration of result`, href: r.declaration_url })),
+    ...(byelections.length > 0 ? [{ text: `By-elections since May 2026, from ${c.name}\u2019s declarations of result:` }] : []),
+    ...byelections.map((r) => ({ text: `${r.kind === 'by-election' ? 'By-election' : 'Postponed poll'}, ${r.ward_name}, ${longDate(r.poll_date)}: declaration of result`, href: r.declaration_url })),
   ];
 
   return (
