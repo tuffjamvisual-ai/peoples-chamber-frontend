@@ -60,7 +60,9 @@ for (const f of FILES) {
   if (!Array.isArray(j.items)) fail(`${f}: no "items" list`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(j.checked_on || '')) fail(`${f}: checked_on must be YYYY-MM-DD`);
   checkedOn = checkedOn && checkedOn > j.checked_on ? checkedOn : j.checked_on;
-  for (const x of j.items) items.push({ ...x, checked_on: j.checked_on, file: f });
+  // An item's own checked_on wins over the file's (20 Nov 2026): new results are dated when they were checked, and the
+  // file's older items keep their date instead of all being restamped.
+  for (const x of j.items) { if (x.checked_on && !/^\d{4}-\d{2}-\d{2}$/.test(x.checked_on)) fail(`${f}: an item's checked_on must be YYYY-MM-DD`); items.push({ ...x, checked_on: x.checked_on || j.checked_on, file: f }); }
 }
 let rows = items.filter((x) => LOAD.has(x.status));
 const left = items.length - rows.length;
