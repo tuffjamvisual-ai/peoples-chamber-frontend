@@ -241,7 +241,17 @@ export default async function SectionListing({ section, page, q, searched }: {
         hrefFor={pageHref}
       />
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
-      <PageSources sources={section === 'revolving-door' ? REVOLVING_DOOR_SOURCES.map((src) => ({ label: src.label, href: src.url })) : []} />
+      {/* Donations: the Companies House record of each company donor listed on this page, only here (Cowork ENTRY 422 GO item 4);
+          the rows show the number as plain text. PageSources keeps one entry per address. */}
+      <PageSources sources={section === 'revolving-door'
+        ? REVOLVING_DOOR_SOURCES.map((src) => ({ label: src.label, href: src.url }))
+        : section === 'donations'
+          ? (rows || []).filter((r) => typeof r.company_registration_number === 'string' && (r.company_registration_number as string).trim())
+              .map((r) => {
+                const n = (r.company_registration_number as string).trim();
+                return { label: `Companies House record for ${(r.donor_name as string) || 'the donor'} (company ${n})`, href: `https://find-and-update.company-information.service.gov.uk/company/${encodeURIComponent(n)}` };
+              })
+          : []} />
     </OpenGovShell>
   )
 }

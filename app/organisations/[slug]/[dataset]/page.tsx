@@ -1,6 +1,7 @@
 // /organisations/[slug]/[dataset]: every donation, contract or grant linked to one organisation by Companies House
 // number (report 71), newest first, all on one page (the longest list is 53 records). Meetings and lobbying are listed in full on /lobbying/<slug>.
 
+import PageSources from '@/app/components/PageSources';
 import { titleWithin } from '@/lib/seo-title';
 import { countOf, ledBy } from '@/lib/meta-description';
 import NoJsPager from '@/app/components/NoJsPager';
@@ -69,8 +70,8 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
       <header style={{ marginBottom: '18px' }}>
         <h1 style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 'bold', lineHeight: 1.2, margin: '0 0 8px', overflowWrap: 'anywhere' }}>{org.name}: {TITLES[dataset].toLowerCase()}</h1>
         <p style={para}>
-          {/* No number shown (T1-NOCODE, owner approved 13 Nov 2026): the same Companies House record as a link. */}
-          {rows.length.toLocaleString('en-GB')} record{rows.length === 1 ? '' : 's'} linked by this company&rsquo;s Companies House number (<a data-og-row-source="" href={companiesHouseUrl(org.company_number)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>View on Companies House&nbsp;↗</a>), newest first.
+          {/* The number as plain text; its Companies House record is in the Sources fold (owner, Cowork ENTRY 422 GO item 4). */}
+          {rows.length.toLocaleString('en-GB')} record{rows.length === 1 ? '' : 's'} linked by this company&rsquo;s Companies House number (company {org.company_number}), newest first.
           {byName.map((x) => (
             <span key={x.url}>
               {' '}{byName.length === 1 ? 'One contract notice' : 'A contract notice'} gave a Companies House number that doesn&rsquo;t exist; it names the
@@ -114,6 +115,8 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
       </NoJsPager>
 
       <p style={{ ...para, marginTop: '24px' }}><Link href={`/organisations/${org.slug}`} style={{ color: ACCENT }}>Back to {org.name}</Link></p>
+      {/* The company's Companies House record: only here (Cowork ENTRY 422 GO item 4). */}
+      <PageSources sources={[org.company_number && { label: `Companies House record for ${org.name} (company ${org.company_number})`, href: companiesHouseUrl(org.company_number) }]} />
     </OpenGovShell>
   );
 }
