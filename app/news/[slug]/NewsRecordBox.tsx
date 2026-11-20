@@ -1,4 +1,4 @@
-// "What the record shows" (Cowork ENTRY 368, SAMPLE behind NEWS_RECORD_BOX=1; lib/news-record.ts). Under the release,
+// "What the record shows" (Cowork ENTRY 368, live as sampled by ENTRY 368 GO; lib/news-record.ts). Under the release,
 // above the Related fold ("More from ..."). Every item links to an opengovt page (ENTRY 369); no source line inside the
 // text (ENTRY 410). Phones and tablets: one closed fold under the heading (SectionFold), and each list opens with 3 and
 // then Show 10 more (lib/phone-enhance.ts, owner's list rule); from 1,024px up the heading and lists in full (13 at most).

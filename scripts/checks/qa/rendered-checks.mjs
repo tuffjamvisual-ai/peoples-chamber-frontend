@@ -145,8 +145,9 @@ export function visibleText(html) {
     .replace(/<(script|style|template|noscript)\b[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<head\b[\s\S]*?<\/head>/i, ' ')
     // Official text quoted word for word inside a page of ours (data-og-official, on an element that cannot contain another of
-    // its own kind, such as a <p>): left out, so A2 still checks the rest of the page (T1-6, Cowork, 11 Nov 2026).
-    .replace(/<(\w+)\b[^>]*\sdata-og-official\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+    // its own kind, such as a <p>, or og-quote round a GOV.UK release's text on /news/<slug>, ENTRY 368 GO): left out, so A2
+    // still checks the rest of the page (T1-6, Cowork, 11 Nov 2026). Names with a hyphen (og-quote) are read whole.
+    .replace(/<([\w-]+)\b[^>]*\sdata-og-official\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;|&#160;/g, ' ').replace(/&amp;/g, '&').replace(/&rsquo;|&#x27;|&#39;/g, "'").replace(/&ldquo;|&rdquo;|&quot;/g, '"').replace(/&[a-z]+;|&#\d+;/g, ' ')
     .replace(/\s+/g, ' ');

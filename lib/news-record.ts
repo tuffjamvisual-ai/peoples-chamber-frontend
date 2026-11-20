@@ -1,7 +1,7 @@
-// "What the record shows" on /news/<slug> (Cowork ENTRY 368, owner approved 19 Nov 2026): the page's reads. SAMPLE ONLY:
-// nothing is read or shown unless NEWS_RECORD_BOX=1 is set, which no deployed environment sets, so production is
-// unchanged if this is pushed. The matching and the sentences are in lib/news-record-core.ts (shared with the sample
-// script, scripts/news-record/sample-368.ts).
+// "What the record shows" on /news/<slug> (Cowork ENTRY 368, owner approved 19 Nov 2026; live as sampled, ENTRY 368 GO,
+// owner approved 20 Nov 2026): the page's reads, and the news sitemap's list of indexable releases. The matching and the
+// sentences are in lib/news-record-core.ts (shared with the sample script, scripts/news-record/sample-368.ts); whether a
+// page is indexable is newsRecordIndexable() there.
 //
 // Database load (A16: every read in the tagged cache, no timer):
 //   - one shared copy of the reference lists (councils, constituencies, MPs, organisations with contracts or grants),
@@ -15,11 +15,9 @@ import { tagged, keyHash } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { optionalSection } from '@/lib/optional-section';
 import {
-  buildNewsRecord, websearchOr, containsPattern, billPatterns, FETCH_MAX, LIST_MAX,
+  buildNewsRecord, newsRecordIndexable, websearchOr, containsPattern, billPatterns, FETCH_MAX, LIST_MAX,
   type NewsRecord, type NewsRecordReader, type Refs, type ReleaseInput, type CouncilRef, type SeatRef, type MpRef, type OrgRef, type DivisionRow,
 } from '@/lib/news-record-core';
-
-export const newsRecordEnabled = () => process.env.NEWS_RECORD_BOX === '1';
 
 const REF_TABLES = ['councils', 'constituencies', 'mps', 'organisation_index'];
 const ITEM_TABLES = ['parliament_written_questions', 'debates', 'early_day_motions', 'bill', 'commons_divisions_fts', 'commons_division_totals'];
@@ -101,11 +99,41 @@ const reader: NewsRecordReader = {
   },
 };
 
-// The box for one release, or null when the flag is off or a read fails (the page is shown without it).
+// The box for one release, or null when a read fails (the page is shown without it, and stays noindex, follow).
 export async function newsRecord(r: ReleaseInput): Promise<NewsRecord | null> {
-  if (!newsRecordEnabled()) return null;
   return optionalSection(`news record (news ${r.id})`, async () => {
     const refs = await loadRefs();
     return tagged(['news-record-v1', r.id, keyHash(r)], tableTags(...REF_TABLES, ...ITEM_TABLES), () => buildNewsRecord(r, refs, reader));
   }, null);
+}
+
+// The news sitemap (lib/sitemap/parts.ts 'news'; ENTRY 368 GO item 3): the slugs of recent releases whose page is
+// indexable, by the page's own rule and the page's own cached box (same input, same cache key, so a release the page
+// has already built costs no read). Only the most recent releases are judged, not all 46,819: the newest
+// SITEMAP_NEWS_MAX published in the last SITEMAP_NEWS_DAYS days (about 350 in November 2026). An older release that
+// qualifies is still indexable on its page; it is just not listed. Cost per rebuild (the part is kept a day, and built
+// again when a press release, written question, debate, EDM, bill or division sync changes rows): one read of those
+// releases (about 350 rows), then for each release whose box is not in the cache at most six indexed reads (about
+// 0.1 to 0.3 s of database time each release by the sample's EXPLAIN figures), SITEMAP_NEWS_AT_ONCE at a time. A box
+// that cannot be read leaves that release out.
+export const SITEMAP_NEWS_DAYS = 30;
+export const SITEMAP_NEWS_MAX = 400;
+const SITEMAP_NEWS_AT_ONCE = 3;
+export const NEWS_SITEMAP_TAGS = tableTags('press_releases', ...REF_TABLES, ...ITEM_TABLES);
+
+export async function indexableNewsSlugs(): Promise<string[]> {
+  const since = new Date(Date.now() - SITEMAP_NEWS_DAYS * 86400_000).toISOString();
+  const { data, error } = await supabase.from('press_releases')
+    .select('id, title, description, organisation, body, news_slug')
+    .not('news_slug', 'is', null).not('removed_upstream', 'is', true).gte('published_at', since)
+    .order('published_at', { ascending: false }).order('id', { ascending: false }).limit(SITEMAP_NEWS_MAX);
+  if (error) throw new Error(`news sitemap releases: ${error.message}`);
+  const rows = (data || []) as (ReleaseInput & { news_slug: string })[];
+  const out: string[] = [];
+  for (let i = 0; i < rows.length; i += SITEMAP_NEWS_AT_ONCE) {
+    const batch = rows.slice(i, i + SITEMAP_NEWS_AT_ONCE);
+    const records = await Promise.all(batch.map((r) => newsRecord({ id: r.id, title: r.title, organisation: r.organisation, body: r.body, description: r.description })));
+    batch.forEach((r, j) => { if (newsRecordIndexable(records[j])) out.push(r.news_slug.toLowerCase()); });
+  }
+  return out;
 }

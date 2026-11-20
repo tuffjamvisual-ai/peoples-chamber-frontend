@@ -462,6 +462,8 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
   // Republished GOV.UK press releases (/news/[slug]) are not listed: they are word-for-word
   // copies of GOV.UK pages, so they are noindex and Google is pointed at the originals
   // (Search Console review, 16 Oct 2026: 4,923 of 10,425 sitemap URLs were these copies).
+  // The few that are indexable (the "What the record shows" box adds enough, ENTRY 368 GO) are listed in their own
+  // part, /sitemaps/news.xml (lib/sitemap/parts.ts), built from the same test as the page's robots.
 
   // Every UK principal local authority — 382 councils across England,
   // Scotland, Wales and Northern Ireland. Per-council pages at

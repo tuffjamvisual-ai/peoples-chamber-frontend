@@ -2,6 +2,7 @@ import { titleWithin } from '@/lib/seo-title';
 import { sanitizeHtml } from '@/lib/html-sanitize'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { cache } from 'react'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import OpenGovShell from '../../components/OpenGovShell'
@@ -21,6 +22,14 @@ import { splitHtmlLead } from '@/lib/html-lead'
 import { ContinueReading } from '../../components/ReadOn'
 import NewsRecordBox from './NewsRecordBox'
 import { newsRecord } from '@/lib/news-record'
+import { newsRecordIndexable } from '@/lib/news-record-core'
+
+// GOV.UK's own words, quoted word for word (ENTRY 368 GO: releases that qualify are indexable, so the QA1 A2 time words
+// check now reads these pages): marked data-og-official so A2 checks only our text (the box), as on
+// /transparency/press-releases. The check removes a marked element up to its first closing tag of the same name, so the
+// mark sits on an element the sanitiser never lets through (og-quote; lib/html-sanitize.ts drops unknown elements), with
+// display: contents so nothing changes on screen.
+const officialHtml = (html: string) => `<og-quote data-og-official="" style="display:contents">${html}</og-quote>`
 
 // Plain text of an HTML fragment, for comparing the summary with the body's opening.
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase()
@@ -63,6 +72,13 @@ async function getPressRelease(slug: string): Promise<PressRelease | null> {
   if (error) throw new Error(`press_releases lookup failed: ${error.message}`)
   return data
 }
+
+// "What the record shows" (ENTRY 368 GO): the box, read once per render and shared by the metadata (robots) and the page.
+// Keyed by the address's slug (a string), so React's per-render cache matches both calls.
+const releaseRecord = cache(async (slug: string) => {
+  const release = await getPressRelease(slug)
+  return release ? newsRecord({ id: release.id, title: release.title, organisation: release.organisation, body: release.body, description: release.description }) : null
+})
 
 // No article pages are built ahead (owner's approval, 21 Oct 2026: build reliability; the build prerendered 100,
 // each making several reads at once against the database). generateStaticParams returning [] keeps the route
@@ -131,9 +147,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: metaDescription(description),
     // The one address the release is linked at (any case or stray character in the address opens the same page).
     alternates: { canonical: `/news/${slug.replace(/[^a-z0-9-]/gi, '').toLowerCase()}` },
-    // A word-for-word copy of a GOV.UK release: kept for readers, never indexed, so the
-    // GOV.UK original is the one search engines show (Search Console review, 16 Oct 2026).
-    robots: { index: false, follow: true },
+    // A word-for-word copy of a GOV.UK release: kept for readers, not indexed, so the GOV.UK original is the one search
+    // engines show (Search Console review, 16 Oct 2026). Indexable only when the "What the record shows" box adds
+    // enough of our own record (ENTRY 368 GO, owner approved 20 Nov 2026: lib/news-record-core.ts newsRecordIndexable,
+    // the same test the news sitemap uses); the canonical stays this page either way.
+    robots: newsRecordIndexable(await releaseRecord(slug)) ? { index: true, follow: true } : { index: false, follow: true },
   }
 }
 
@@ -226,8 +244,8 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const examined = await piecesExaminingRelease(release.title, release.gov_url)
   // Read next (lib/read-next.ts) once, after the full text (owner's request, 25 Oct 2026).
   const readNext = await newsReadNext({ id: release.id, title: release.title, organisation: release.organisation, body: release.body, description: release.description })
-  // "What the record shows" (ENTRY 368): SAMPLE, read and shown only with NEWS_RECORD_BOX=1 (lib/news-record.ts); robots unchanged.
-  const record = await newsRecord({ id: release.id, title: release.title, organisation: release.organisation, body: release.body, description: release.description })
+  // "What the record shows" (ENTRY 368 GO): our own linked record under the release (lib/news-record.ts).
+  const record = await releaseRecord(slug)
 
   const dateLabel = release.published_at
     ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -252,7 +270,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           <p className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
             {release.organisation || 'UK Government'}{dateLabel ? ` · ${dateLabel}` : ''}
           </p>
-          <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.1, color: INK, transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.1, color: INK, transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }} data-og-official="">
             {release.title}
           </h1>
           {/* A1 — original source, linked (owner's decision, 16 Oct 2026; previously plain text). */}
@@ -283,6 +301,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           <p
             className="text-[17px] sm:text-[19px] leading-[1.55] text-[#14100d]/95 mb-6"
             style={{ fontFamily: SERIF, fontStyle: 'italic' }}
+            data-og-official=""
           >
             {release.description}
           </p>
@@ -295,15 +314,15 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
                 1,024px up it reads straight through. */}
             {bodyLead ? (
               <div data-article-body="" className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]">
-                <div dangerouslySetInnerHTML={{ __html: bodyLead.lead }} />
+                <div dangerouslySetInnerHTML={{ __html: officialHtml(bodyLead.lead) }} />
                 <details className="rf-d rf-more"><summary>Continue reading</summary></details>
-                <div className="rf-b" dangerouslySetInnerHTML={{ __html: bodyLead.rest }} />
+                <div className="rf-b" dangerouslySetInnerHTML={{ __html: officialHtml(bodyLead.rest) }} />
               </div>
             ) : (
               <div
                 data-article-body=""
                 className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]"
-                dangerouslySetInnerHTML={{ __html: bodyHtml }}
+                dangerouslySetInnerHTML={{ __html: officialHtml(bodyHtml) }}
               />
             )}
             <ReadNext links={readNext} />

@@ -12,6 +12,9 @@
 //   agencies               every agency in agency_cache (likewise)
 //   statutory-instruments  every instrument in statutory_instruments (by its API id) and every division on an
 //                          instrument in statutory_instrument (by its division id): both page kinds
+//   news                   recent press releases whose page is indexable (ENTRY 368 GO): the "What the record shows"
+//                          box adds enough (lib/news-record-core.ts newsRecordIndexable, the page's own test); only
+//                          releases of the last 30 days are judged (lib/news-record.ts indexableNewsSlugs, its cost)
 // No lastmod: none of these records holds a date for the page as a whole (the file's rule: a true date or none).
 // Left out on purpose: debates (a debate page decides noindex from its content, read live from Hansard) and contracts
 // (held for the owner: about 235,000 pages).
@@ -22,6 +25,7 @@ import { donorRegistry } from '@/lib/donor-registry';
 import { minorSpellingSlugs } from '@/lib/donor-name-match';
 import { secretariatNameToSlug } from '@/lib/secretariat-slug';
 import { isApiId } from '@/lib/si-treaties-data';
+import { indexableNewsSlugs, NEWS_SITEMAP_TAGS } from '@/lib/news-record';
 import { buildMainEntries } from './main';
 import { SITE, pack, unpack, type SitemapEntry } from './xml';
 
@@ -73,6 +77,10 @@ export const PARTS: Record<string, Part> = {
         ...slugEntries('/statutory-instruments', div.map((r) => String(r.division_id ?? '')), 'monthly', 0.4),
       ];
     },
+  },
+  news: {
+    tags: NEWS_SITEMAP_TAGS,
+    build: async () => slugEntries('/news', await indexableNewsSlugs(), 'monthly', 0.4),
   },
 };
 

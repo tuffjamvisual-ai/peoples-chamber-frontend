@@ -1,5 +1,5 @@
-// "What the record shows" on press release pages (Cowork ENTRY 368, owner approved 19 Nov 2026; SAMPLE, behind the
-// NEWS_RECORD_BOX flag, lib/news-record.ts). Built only from data opengovt holds, each item linked to an opengovt page
+// "What the record shows" on press release pages (Cowork ENTRY 368, owner approved 19 Nov 2026; live as sampled, ENTRY
+// 368 GO, owner approved 20 Nov 2026; the page's reads are in lib/news-record.ts). Built only from data opengovt holds, each item linked to an opengovt page
 // (ENTRY 369: never to outside data). No summary is written by a model: every line is a fixed sentence filled with the
 // record's own fields (dates, counts, stages, figures). No time words ("recently", "now", "currently", "this year").
 //
@@ -355,9 +355,9 @@ export async function buildNewsRecord(r: ReleaseInput, refs: Refs, reader: NewsR
   return { ...judge(uniq), names };
 }
 
-// The proposed index rule (ENTRY 368 item 2; reported, not switched on): at least 3 distinct linked items, of at least
-// two kinds, and about 150 words of the box's own text (the items' titles and lines; the heading is the same on every
-// page and is not counted).
+// The index rule (ENTRY 368 item 2, switched on as sampled by ENTRY 368 GO): at least 3 distinct linked items, of at
+// least two kinds, and about 150 words of the box's own text (the items' titles and lines; the heading is the same on
+// every page and is not counted). The department budget line counts, as in the sample (qualifies, not qualifiesStrict).
 export const RULE = { minItems: 3, minKinds: 2, minWords: 150 };
 export function judge(items: RecordItem[]): Omit<NewsRecord, 'names'> {
   const kinds = KIND_ORDER.filter((k) => items.some((i) => i.kind === k));
@@ -379,4 +379,11 @@ export function judge(items: RecordItem[]): Omit<NewsRecord, 'names'> {
     why: fails.length ? `no: ${fails.join('; ')}` : `yes: ${items.length} items, ${kinds.length} kinds, ${w} words`,
     qualifiesStrict: strictFails.length === 0,
   };
+}
+
+// ENTRY 368 GO: the one test of whether a release's page is indexable, shared by the page's robots
+// (app/news/[slug]/page.tsx) and the news sitemap (lib/sitemap/parts.ts), so the two can never disagree. Pure: decided
+// from the box's items alone (no box, or a box that could not be read, means not indexable: noindex, follow as before).
+export function newsRecordIndexable(record: Pick<NewsRecord, 'items'> | null | undefined): boolean {
+  return !!record && judge(record.items).qualifies;
 }

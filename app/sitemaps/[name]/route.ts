@@ -1,5 +1,5 @@
 // /sitemaps/<type>.xml: one sitemap per page type added on 13 Nov 2026 (T1-SITEMAP (c)): donors, secretariats, people,
-// agencies, statutory-instruments (lib/sitemap/parts.ts). Any other name answers 404.
+// agencies, statutory-instruments; news (recent indexable press releases, ENTRY 368 GO) (lib/sitemap/parts.ts). Any other name answers 404.
 import { partEntries, TYPE_PARTS } from '@/lib/sitemap/parts';
 import { urlsetXml, xmlResponse } from '@/lib/sitemap/xml';
 
