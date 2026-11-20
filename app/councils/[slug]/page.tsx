@@ -496,6 +496,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                     <DataRow label={c.leader_role} value={leaderValue(c)} />
                   )}
                   <DataRow label="Chief executive" value={c.chief_exec ?? c.chief_exec_note} />
+                  {/* The council's own website (owner, Cowork ENTRY 412 answer 7): contact, not a source, so it sits here and
+                      not in the Sources fold; data-og-contact exempts it from the sources-in-fold check. */}
+                  {c.website_url && <DataRow label="Website" value={<a href={c.website_url} data-og-contact rel="noopener" style={{ color: 'inherit' }}>{websiteHost(c.website_url)}</a>} />}
                   <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary, c.slug)} sub={lastElectionSub(c.last_election_year, comp, electionSummary, c)} />
                 </>}>
                   <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
@@ -692,10 +695,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
         {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. Cowork ENTRY 410 (owner, 20 Nov 2026): no source lines
             or source links in the page text; every source of the Overview, Money, Health and Ratings tabs and the welfare
             slot is in this one Sources fold, with the licence and attribution lines above its list. The detail tabs have
-            their own fold each (lib/panel-sources.ts). The council's own website stays here: the page has no other
-            place for links (held for the owner). */}
+            their own fold each (lib/panel-sources.ts). The council's own website is not a source: it is the 'Website' row
+            under the chief executive (owner, ENTRY 412). */}
         <PageSources sources={mergeSameAddress([
-          c.website_url && { label: `${c.name}\u2019s own website`, href: c.website_url },
           comp && comp.total_seats > 0 && { label: `Seats as of May ${comp.snapshot_year}: Open Council Data UK (public domain)`, href: OPEN_COUNCIL_DATA_URL },
           c.leader_source_url && { label: `${c.leader_role ?? 'Leader'}: ${/^https:\/\/en\.wikipedia\.org\//.test(c.leader_source_url) ? 'Wikipedia' : c.name}${c.leader_checked_on ? `, checked ${longDate(c.leader_checked_on)}` : ''}`, href: c.leader_source_url },
           c.leader_second_source_url && { label: `${c.leader_role ?? 'Leader'}: ${c.name}`, href: c.leader_second_source_url },
@@ -949,6 +951,8 @@ function leaderValue(c: CouncilFull): string {
     : c.leader_since_text;
   return since ? `${who} (since ${since})` : who;
 }
+// 'https://www.leeds.gov.uk/home' -> 'leeds.gov.uk' (the address shown for the council's own website).
+const websiteHost = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
 // '2026-10-20' -> '20 October 2026'.
 const longDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 

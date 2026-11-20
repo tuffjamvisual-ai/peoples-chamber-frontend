@@ -240,8 +240,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
       <article>
         <header style={{ marginBottom: '5%', paddingBottom: '24px', borderBottom: `1px solid rgba(20,16,13,0.2)` }}>
-          {/* A2 — SOURCE badge: visually separates government content from opengovt reporting */}
-          <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px', display: 'inline-block', border: '1px solid #7a1612', padding: '2px 7px 1px' }}>
+          {/* A2 — SOURCE badge: visually separates government content from opengovt reporting. A copy label, kept by the
+              owner (ENTRY 412 answer 5); data-og-copy-label exempts it from the sources-in-fold check. */}
+          <p data-og-copy-label style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px', display: 'inline-block', border: '1px solid #7a1612', padding: '2px 7px 1px' }}>
             Source: GOV.UK
           </p>
           <p className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>

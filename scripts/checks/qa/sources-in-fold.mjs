@@ -12,7 +12,8 @@
 // replaces that list (a /councils/<slug> page given there also gets its tabs unless --no-tabs).
 // One page load a second at most (pace rule: a local build reads the production database).
 //
-// Left out of the scan: the Sources folds ([data-og-sources]: PageSources and SourcesFold; on /mps/<id> only the
+// Left out of the scan (owner, ENTRY 412): a council's own website row ([data-og-contact]: contact, not a source) and
+// the 'Source: GOV.UK' page-type badge on /news pages ([data-og-copy-label]: a copy label, not a source line). Also left out: the Sources folds ([data-og-sources]: PageSources and SourcesFold; on /mps/<id> only the
 // biography's .mp-bio-sources fold counts), header, nav, footer (the shell's licence line), [data-og-back],
 // [data-council-tab], script, style, noscript. A panel route is scanned inside #council-panel-body only.
 // Offences:
@@ -66,7 +67,7 @@ for (const p of listed) {
 function scan() {
   const isMp = /^\/mps\/\d+/.test(location.pathname);
   const root = document.querySelector('#council-panel-body') || document.body;
-  const skipSel = [isMp ? '.mp-bio-sources' : '[data-og-sources]', 'header', 'nav', 'footer', '[data-og-back]', '[data-council-tab]', 'script', 'style', 'noscript', 'template'].join(',');
+  const skipSel = [isMp ? '.mp-bio-sources' : '[data-og-sources]', 'header', 'nav', 'footer', '[data-og-back]', '[data-council-tab]', '[data-og-contact]', '[data-og-copy-label]', 'script', 'style', 'noscript', 'template'].join(',');
   const skipped = (el) => !!(el && el.closest && el.closest(skipSel));
   const out = [];
   const snip = (t) => t.replace(/\s+/g, ' ').trim().slice(0, 140);
