@@ -120,11 +120,8 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
           <p style={{ ...para, fontWeight: 'bold' }}>
             {revised ? 'Revised response' : 'Response'}{p.government_response_on ? `, ${petitionDate(p.government_response_on)}` : ''}
           </p>
-          {revised && (
-            <p style={para}>
-              Parliament&rsquo;s record of the response is on the <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>official petition</a>.
-            </p>
-          )}
+          {/* A revised response linked the official petition here; the petition is in the page's Sources fold, so the
+              line is gone (Cowork ENTRY 369 #13, owner approved in ENTRY 429; ENTRY 410: no source links in page text). */}
           {p.government_response_summary && <div style={{ fontWeight: 'bold' }}><AsWritten text={p.government_response_summary} /></div>}
           {/* Phones (step 5, 10 Nov 2026; the page was 5,578px): the summary shows and the full response is folded. */}
           {p.government_response_details && <SubFold tablets label="The full response"><AsWritten text={p.government_response_details} /></SubFold>}

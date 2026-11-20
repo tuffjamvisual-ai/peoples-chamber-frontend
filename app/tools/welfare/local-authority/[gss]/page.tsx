@@ -7,6 +7,10 @@ import BackLink from '../../../../components/BackLink'
 import WelfareLocalAuthorityDetail from '../../../../components/WelfareLocalAuthorityDetail'
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import PageSources from '../../../../components/PageSources'
+import FoldNotes from '../../../../components/FoldNotes'
+import { OGL_NOTE } from '@/lib/fold-notes'
+import niWelfare from '@/lib/data/ni-welfare.json'
 
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
 
@@ -42,6 +46,7 @@ export default async function WelfareLocalAuthorityPage({ params }: { params: Pr
   const gssCode = (gss || '').toUpperCase()
   // The same check as the metadata, here too: a page's metadata can arrive after its status is sent (ENTRY 364).
   if (!(await areaName(gssCode))) notFound()
+  const ni = gssCode.startsWith('N09')
 
   return (
     <OpenGovShell pageStamp="Welfare Explorer">
@@ -51,7 +56,14 @@ export default async function WelfareLocalAuthorityPage({ params }: { params: Pr
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />
-      <WelfareLocalAuthorityDetail gss={gssCode} />
+      {/* A Northern Ireland area's sources and their OGL line are in the page's Sources fold, not a 'Sources:' line in the
+          text (Cowork ENTRY 369 #17, owner approved in ENTRY 429; ENTRY 410), as on the council page. */}
+      <WelfareLocalAuthorityDetail gss={gssCode} sourcesInFold={ni} />
+      {ni && (
+        <PageSources sources={niWelfare.sources.map((x) => ({ label: `Welfare: ${x.label}`, href: x.url }))}>
+          <FoldNotes notes={[OGL_NOTE]} />
+        </PageSources>
+      )}
     </OpenGovShell>
   )
 }

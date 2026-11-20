@@ -11,9 +11,10 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
-import { ecDonationSearchUrl } from '@/lib/ec-links';
+import { EC_DONATIONS_SEARCH } from '@/lib/ec-links';
+import PageSources from '@/app/components/PageSources';
 import {
-  DATASETS, getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, grantNavUrl, findTenderUrl, money, fmtDay, buyerLabel,
+  DATASETS, getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, GRANTNAV_HOME, findTenderUrl, money, fmtDay, buyerLabel,
   type Dataset, getOrgNameBasisNotices, companiesHouseUrl } from '@/lib/organisations';
 
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
@@ -90,7 +91,6 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
             <span style={{ fontWeight: 'bold' }}>{fmtDay(d.accepted_date || d.received_date)}</span> · {d.amount != null ? money(d.amount) : 'value not given'} to {d.recipient_name || 'a recipient not named'}{d.donation_action ? ` (${d.donation_action.toLowerCase()})` : ''}
             <div style={sub}>
               {[d.donation_type_label || d.nature, `given as “${d.donor_name}”`].filter(Boolean).join(' · ')}
-              {d.ec_ref && <> · <a href={ecDonationSearchUrl(d.ec_ref)} rel="noopener" style={{ color: ACCENT }}>Electoral Commission record {d.ec_ref}</a></>}
             </div>
           </li>
         ))}
@@ -107,7 +107,7 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
           <li key={g.identifier} style={item}>
             <span style={{ fontWeight: 'bold' }}>{fmtDay(g.award_date)}</span> · {g.amount != null ? money(g.amount) : 'value not given'} from {g.funder_name || 'a funder not named'}
             <div style={sub}>
-              {g.title || g.scheme_title || 'Untitled grant'}{g.recipient_name ? ` · recipient named as “${g.recipient_name}”` : ''} · <a href={grantNavUrl(g.identifier)} rel="noopener" style={{ color: ACCENT }}>360Giving record</a>
+              {g.title || g.scheme_title || 'Untitled grant'}{g.recipient_name ? ` · recipient named as “${g.recipient_name}”` : ''}
             </div>
           </li>
         ))}
@@ -115,8 +115,14 @@ export default async function OrganisationDatasetPage({ params }: { params: Prom
       </NoJsPager>
 
       <p style={{ ...para, marginTop: '24px' }}><Link href={`/organisations/${org.slug}`} style={{ color: ACCENT }}>Back to {org.name}</Link></p>
-      {/* The company's Companies House record: only here (Cowork ENTRY 422 GO item 4). */}
-      <PageSources sources={[org.company_number && { label: `Companies House record for ${org.name} (company ${org.company_number})`, href: companiesHouseUrl(org.company_number) }]} />
+      {/* One Sources fold (Cowork ENTRY 422 GO item 4 and ENTRY 369 #11 and #12; ENTRY 410 and 412: sources only in the
+          Sources fold, one entry per dataset): the company's Companies House record, and the Electoral Commission and
+          360Giving registers that were links in each row. */}
+      <PageSources sources={[
+        org.company_number && { label: `Companies House record for ${org.name} (company ${org.company_number})`, href: companiesHouseUrl(org.company_number) },
+        dataset === 'donations' && rows.length > 0 && { label: 'Donations: the Electoral Commission\u2019s register of donations', href: EC_DONATIONS_SEARCH },
+        dataset === 'grants' && rows.length > 0 && { label: 'Grants: 360Giving GrantNav', href: GRANTNAV_HOME },
+      ]} />
     </OpenGovShell>
   );
 }

@@ -81,7 +81,9 @@ function RecommendationCard({ path, title, meta, words }: { path: string; title:
         {history && history.events.length === 0 && <p style={{ margin: 0 }}>No statements from the government yet.</p>}
         {history?.events.map((e) => (
           <div key={e.id} style={{ borderLeft: '2px solid rgba(20,16,13,0.25)', padding: '0 0 12px 12px' }}>
-            <a href={e.href} style={{ color: INK, fontWeight: 600 }}>{e.document}</a>{e.page ? `, PDF page ${e.page}` : ''}
+            {/* The document's name as text (Cowork ENTRY 369 #14): its PDF is a source, on the recommendation's own page
+                (the link below), not a link out of this card. */}
+            <span style={{ fontWeight: 600 }}>{e.document}</span>{e.page ? `, PDF page ${e.page}` : ''}
             {e.response && <div>Response: {e.response}</div>}
             {e.lines.map((l) => <div key={l}>{l}</div>)}
             {e.words.length > 0 && (

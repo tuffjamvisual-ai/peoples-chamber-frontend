@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { departments } from '@/lib/departments';
 import DepartmentMasthead from './DepartmentMasthead';
 import { departmentForPage } from '@/lib/question-departments';
-import TookOnNote from '../../components/TookOnNote';
+import TookOnNote, { tookOnSource } from '../../components/TookOnNote';
 import DepartmentStaff from './DepartmentStaff';
 import DepartmentTabs from './DepartmentTabs';
 import { BudgetSlot, AgenciesSlot, ContactSlot, ReleasesSlot, InvestigationsSlot, ProgrammesSlot, type PressReleaseItem, type InvestigationItem, type ProgrammeItem } from './DepartmentSlots';
@@ -379,6 +379,7 @@ export default async function DepartmentPage({ params }: PageProps) {
       <PageSources sources={[
         !!govukSlugs[slug] && { label: `${dept.name} on GOV.UK`, href: `https://www.gov.uk/government/organisations/${govukSlugs[slug]}` },
         foi.length > 0 && { label: foiSource(foi[0].latest).label, href: foiSource(foi[0].latest).url },
+        tookOnSource(departmentForPage(dept.slug)),
       ]} />
 
     </OpenGovShell>

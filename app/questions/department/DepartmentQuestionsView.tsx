@@ -8,7 +8,7 @@ import { namedTitle } from '@/lib/seo-title';
 import { departmentById, departmentBySlug } from '@/lib/question-departments';
 import { questionDepartmentStats, questionPeople, searchQuestions } from '@/lib/question-pages';
 import QuestionItems from '../QuestionItems';
-import TookOnNote from '../../components/TookOnNote';
+import TookOnNote, { tookOnSource } from '../../components/TookOnNote';
 
 import BackLink from '@/app/components/BackLink';
 // One answering department (owner, 6 Nov 2026), one page per Parliament id, with links between reorganised departments. Newest first,
@@ -72,7 +72,7 @@ export default async function DepartmentQuestionsView({ slug, before }: { slug: 
       )}
       {before && <p style={{ margin: '12px 0 0', fontSize: '15px' }}><a href={`/questions/department/${d.slug}`} style={{ display: 'inline-block', padding: '12px 0', color: INK, textDecoration: 'underline' }}>Back to the newest</a></p>}
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, in the page's one Sources fold. */}
-      <PageSources sources={[d.source && { label: d.source.label, href: d.source.url }]} />
+      <PageSources sources={[d.source && { label: d.source.label, href: d.source.url }, tookOnSource(d)]} />
     </OpenGovShell>
   );
 }

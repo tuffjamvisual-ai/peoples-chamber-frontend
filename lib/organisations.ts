@@ -239,6 +239,7 @@ export async function getOrgAlsoSee(org: Pick<OrgIndexRow, 'kind' | 'slug' | 'lo
   return { slug: page.slug, name: corrected(page as Pick<OrgIndexRow, 'kind' | 'company_number' | 'name'> & { slug: string }).name };
 }
 
+export const GRANTNAV_HOME = 'https://grantnav.threesixtygiving.org/';
 export const grantNavUrl = (identifier: string) => `https://grantnav.threesixtygiving.org/grant/${encodeURIComponent(identifier)}`;
 export const findTenderUrl = (ocid: string) => `https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(ocid)}`;
 
