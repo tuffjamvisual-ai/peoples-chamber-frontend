@@ -119,6 +119,9 @@ export async function newsRecord(r: ReleaseInput): Promise<NewsRecord | null> {
 export const SITEMAP_NEWS_DAYS = 30;
 export const SITEMAP_NEWS_MAX = 400;
 const SITEMAP_NEWS_AT_ONCE = 3;
+// Time budget (T2, 20 Nov 2026): a cold build can take 35 to 105 s against the route's 120 s limit; stop judging at 90 s and
+// list what is done, so the part never answers an error. The boxes already judged stay cached, so the next build goes further.
+const SITEMAP_NEWS_BUDGET_MS = 90_000;
 export const NEWS_SITEMAP_TAGS = tableTags('press_releases', ...REF_TABLES, ...ITEM_TABLES);
 
 export async function indexableNewsSlugs(): Promise<string[]> {
@@ -130,7 +133,9 @@ export async function indexableNewsSlugs(): Promise<string[]> {
   if (error) throw new Error(`news sitemap releases: ${error.message}`);
   const rows = (data || []) as (ReleaseInput & { news_slug: string })[];
   const out: string[] = [];
+  const started = Date.now();
   for (let i = 0; i < rows.length; i += SITEMAP_NEWS_AT_ONCE) {
+    if (Date.now() - started > SITEMAP_NEWS_BUDGET_MS) break;
     const batch = rows.slice(i, i + SITEMAP_NEWS_AT_ONCE);
     const records = await Promise.all(batch.map((r) => newsRecord({ id: r.id, title: r.title, organisation: r.organisation, body: r.body, description: r.description })));
     batch.forEach((r, j) => { if (newsRecordIndexable(records[j])) out.push(r.news_slug.toLowerCase()); });
