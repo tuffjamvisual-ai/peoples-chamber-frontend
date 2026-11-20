@@ -54,7 +54,7 @@ export function explainMeasure(m: Measure, place: string): string {
     case 'road_safety':
       return `For every 100,000 people living in ${place}, ${f} people were killed or seriously injured on its roads (average ${a}). ${r}`;
     case 'sewage':
-      if (m.figure.startsWith('0 ')) return `No storm overflow in ${place} spilled sewage (average ${a} hours for every 1,000 people). ${r}`;
+      if (m.figure.startsWith('0 ')) return `No storm overflow in ${place} was recorded spilling sewage (average ${a} hours for every 1,000 people). ${r}`;
       if (m.figure.startsWith('under 1 ')) return `Storm overflows in ${place} spilled sewage for under 1 hour in all for every 1,000 people living there (average ${a}). ${r}`;
       return `Storm overflows in ${place} spilled sewage for a combined ${f} ${f === '1' ? 'hour' : 'hours'} for every 1,000 people living there (average ${a}). ${r}`;
     default:
