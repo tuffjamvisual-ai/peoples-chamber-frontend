@@ -21,9 +21,12 @@ export const SOURCES = [...MEASURES.reduce((m, x) => {
   m.set(x.href, prev ? { ...prev, labels: [...prev.labels, x.label] } : { labels: [x.label], source: x.source });
   return m;
 }, new Map<string, { labels: string[]; source: string }>())].map(([href, v]) => ({ label: `${v.labels.join(' and ')}: ${v.source}`, href }));
+// Road safety and sewage are per resident: the population source joins the fold (it is not a measure, so it is not counted below).
+export const SOURCE_COUNT = SOURCES.length;
+SOURCES.push({ label: 'Population (for road safety and sewage per resident): ONS mid-2025 population estimates', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates' });
 // One plain line for an area whose rank readers are likely to question (Cowork ENTRY 415 v3b PICTURES: Blackpool).
 export const AREA_NOTES: Record<string, string> = {
-  blackpool: 'Worst of the 294 on crime and life expectancy, but clean air and better than average broadband and 4G lift its score.',
+  blackpool: 'Worst of the 294 on crime and life expectancy, 2nd on fuel poverty and 5th on GCSE results; clean air and better than average broadband and 4G lift only its environment score.',
 };
 
 export const INK = '#14100d';

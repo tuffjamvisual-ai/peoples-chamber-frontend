@@ -3,12 +3,13 @@
 // phone script (lib/phone-enhance.ts adds data-pt-tap before React hydrates), which React reported as a hydration mismatch
 // with FoldNotes' link-only line. Kept local to this page so no other page changes.
 import { OGL_URL } from '@/lib/fold-notes';
+import { MEASURE_COUNT, SOURCE_COUNT } from './data';
 
 export default function SourceNotes() {
   const p = { margin: '6px 0' } as const;
   return (
     <>
-      <p style={p}>Nine measures, eight sources: gigabit broadband and indoor 4G from all four networks both come from Ofcom Connected Nations.</p>
+      <p style={p}>{MEASURE_COUNT} measures, {SOURCE_COUNT} sources: gigabit broadband and indoor 4G from all four networks both come from Ofcom Connected Nations.</p>
       <p style={p}>
         Government sources are published under the{' '}
         <a href={OGL_URL} rel="noopener noreferrer" style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Open Government Licence v3.0</a>.

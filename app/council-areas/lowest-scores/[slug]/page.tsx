@@ -13,7 +13,7 @@ import BackLink from '../../../components/BackLink';
 import DraftBanner from '../../../components/DraftBanner';
 import PageSources from '../../../components/PageSources';
 import SourceNotes from '../SourceNotes';
-import { AREAS, RANKED, SOURCES, AREA_NOTES, bySlug, ordinal, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, type Measure } from '../data';
+import { AREAS, RANKED, SOURCES, AREA_NOTES, bySlug, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, type Measure } from '../data';
 
 export const revalidate = false; // A16: static data, rebuilt only on a deploy
 export const dynamicParams = false;
@@ -34,7 +34,7 @@ const item = { ...para, lineHeight: 1.5, margin: '0 0 8px', paddingLeft: '12px' 
 function MeasureLine({ m, mark }: { m: Measure; mark: string }) {
   return (
     <li style={{ ...item, borderLeft: `3px solid ${mark}` }}>
-      <strong>{m.label}</strong>: {m.key === 'crime' ? <>{m.figure}; {m.period}</> : <>{m.figure} (council area average {m.average}); {ordinal(m.rank)} of {m.of}, where 1st is the worst figure; {m.period}</>}
+      <strong>{m.label}</strong>: {m.key === 'crime' ? <>{m.figure}; {m.period}</> : <>{m.figure} (average {m.average}); ranked {m.rank} of {m.of}, 1 is worst; {m.period}</>}
     </li>
   );
 }
@@ -76,18 +76,16 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
             : <p style={para}>No measure is better than the middle of the 294.</p>}
         </section>
 
+        {/* Every measure, one short paragraph per topic: figure, then its score out of 100 (all measures show; no list for the
+            shared phone script to shorten). */}
         <section aria-label="Every measure" style={{ marginBottom: '22px' }}>
-          <h2 style={h2}>Every measure</h2>
+          <h2 style={h2}>Every measure: figure and score out of 100</h2>
           {a.topics.map((t) => (
-            <div key={t.label} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, padding: '8px 0 2px' }}>
-              <h3 style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }}>{t.label}: score {t.score.toFixed(1)}</h3>
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                {a.all.filter((m) => m.topic === t.label).map((m) => (
-                  <li key={m.key} style={{ ...para, lineHeight: 1.5, margin: '0 0 6px' }}>
-                    {m.label}: {m.figure}, score {m.score.toFixed(1)}
-                  </li>
-                ))}
-              </ul>
+            <div key={t.label} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, padding: '6px 0 0' }}>
+              <h3 style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 4px' }}>{t.label}: score {t.score.toFixed(1)}</h3>
+              <p style={{ ...para, lineHeight: 1.45, margin: '0 0 6px' }}>
+                {a.all.filter((m) => m.topic === t.label).map((m) => `${m.label}${m.key === 'crime' ? ':' : ''} ${m.figure}, score ${m.score.toFixed(1)}`).join('; ')}
+              </p>
             </div>
           ))}
         </section>
