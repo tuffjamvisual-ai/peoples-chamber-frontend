@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import SotnBand from './components/SotnBand';
 import Link from 'next/link';
 import OpenGovShell from './components/OpenGovShell';
@@ -67,9 +68,10 @@ export const metadata: Metadata = {
     locale: 'en_GB',
   },
   twitter: {
-    card: 'summary_large_image',
+    card: X_CARD,
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
+    images: [X_SQUARE_IMAGE],
   },
 };
 

@@ -1,4 +1,5 @@
 import { stageWithHouse, type BillStages } from '@/lib/bill-stage';
+import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import { billSummary } from '@/lib/bill-summary';
 import { yearSpan } from '@/lib/year-span';
 import type { Metadata } from 'next';
@@ -89,7 +90,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: `/bills/${billId}` },
     // ./opengraph-image.tsx fills og:image (OG1); the same address is given here so twitter:image points to it as well.
-    twitter: { card: 'summary_large_image', images: [`${SITE}/bills/${billId}/opengraph-image`] },
+    twitter: { card: X_CARD, images: [X_SQUARE_IMAGE] },
   };
 }
 

@@ -1,4 +1,5 @@
 import PhoneEnhance from './components/PhoneEnhance';
+import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import NavTrail from './components/NavTrail';
 import { PHONE_ENHANCE_JS } from '@/lib/phone-enhance';
 import type { Metadata } from "next";
@@ -81,8 +82,10 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     locale: "en_GB",
   },
+  // The small X card (Cowork ENTRY 418): lib/og/x-card.ts.
   twitter: {
-    card: "summary_large_image",
+    card: X_CARD,
+    images: [X_SQUARE_IMAGE],
   },
   // App icons (owner, 30 Oct 2026): apple-icon.png is the header wordmark (OpenGovShell.tsx brandStyle), one line in
   // its stamp, rendered from HTML with the site's Bebas Neue; at 32px and below "OG" in the same stamp, where the full

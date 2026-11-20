@@ -3,6 +3,7 @@
 // suspenders alongside the next.config redirects).
 
 import type { Metadata } from 'next';
+import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import { proseDescription } from '@/lib/meta-description';
 import { titleWithin } from '@/lib/seo-title';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -54,10 +55,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       images: [{ url: ogImage, width: 1200, height: 630, type: 'image/png' }],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: X_CARD,
       title: piece.headline,
       description,
-      images: [ogImage],
+      images: [X_SQUARE_IMAGE],
     },
   };
 }

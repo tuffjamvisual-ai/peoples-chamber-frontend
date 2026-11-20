@@ -4,6 +4,7 @@
 // the latest five records of each from the source tables (lib/organisations.ts). Rendered on demand, cached a day.
 
 import { ShowAll } from '@/app/components/NoJsPager';
+import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import { SubFold } from '@/app/components/PhoneFolds';
 import { namedTitle } from '@/lib/seo-title';
 import { countOf, ledBy } from '@/lib/meta-description';
@@ -79,7 +80,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     ...(thin ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title: org.name, description, url: `${SITE}/organisations/${org.slug}`, type: 'website' },
     // ./opengraph-image.tsx fills og:image; the same address is given here so twitter:image points to it as well.
-    twitter: { card: 'summary_large_image', title: org.name, description, images: [`${SITE}/organisations/${org.slug}/opengraph-image`] },
+    twitter: { card: X_CARD, title: org.name, description, images: [X_SQUARE_IMAGE] },
   };
 }
 

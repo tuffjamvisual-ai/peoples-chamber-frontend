@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import { supabase } from '@/lib/supabase'
 import { SITE } from '@/lib/JsonLd'
 import OpenGovShell from '../components/OpenGovShell'
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   description: 'The bills coming up in the House of Commons over the next seven days, and the most recent votes MPs have held.',
   alternates: { canonical: '/this-week' },
   // ./opengraph-image.tsx fills og:image (OG1); the same address is given here so twitter:image points to it as well.
-  twitter: { card: 'summary_large_image', images: [`${SITE}/this-week/opengraph-image`] },
+  twitter: { card: X_CARD, images: [X_SQUARE_IMAGE] },
 }
 
 const INK = '#14100d'
