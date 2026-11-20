@@ -125,6 +125,26 @@ const nextConfig: NextConfig = {
   // Build reliability (owner's approval, 21 Oct 2026): two prerender workers instead of one per CPU, so the build does
   // not overload the database (reads queued for over 5 s and timed out at the 3 s limit).
   experimental: { cpus: 2 },
+  // Meaning search (Cowork ENTRY 390 GO, owner approved 20 Nov 2026): /api/meaning-search runs the gte-small model kept in
+  // models/ (read from its files at run time, so the tracer cannot see it: listed here). Its runtime, onnxruntime-node,
+  // ships binaries for every platform (about 154 MB); Vercel runs linux x64 only, so the others are left out (about
+  // 46 MB kept); likewise sharp's other builds (transformers.js imports sharp at load, so its linux x64 build stays).
+  // Function about 143 MB of Vercel's 250 MB (Claude outputs/audit/meaning-390). .npmrc keeps the CUDA libraries out.
+  outputFileTracingIncludes: {
+    '/api/meaning-search': ['./models/Supabase/gte-small/**/*'],
+  },
+  outputFileTracingExcludes: {
+    '/api/meaning-search': [
+      './node_modules/onnxruntime-node/bin/napi-v6/darwin/**/*',
+      './node_modules/onnxruntime-node/bin/napi-v6/win32/**/*',
+      './node_modules/onnxruntime-node/bin/napi-v6/linux/arm64/**/*',
+      './node_modules/@img/sharp-*darwin*/**/*',
+      './node_modules/@img/sharp-*win32*/**/*',
+      './node_modules/@img/sharp-*linuxmusl*/**/*',
+      './node_modules/@img/sharp-*arm*/**/*',
+      './node_modules/@img/sharp-wasm32/**/*',
+    ],
+  },
   async redirects() {
     // Editorials moved from descriptive slugs to opaque random slugs.
     // Keep the old indexed URLs alive with permanent (308) redirects.

@@ -1,0 +1,4 @@
+Supabase/gte-small (fork of thenlper/gte-small with ONNX weights for transformers.js), licence MIT (README.md, the model card).
+Downloaded 20 Nov 2026 from https://huggingface.co/Supabase/gte-small at revision 93b36ff09519291b77d6000d2e86bd8565378086.
+onnx/model_quantized.onnx sha256 18dec105109b6004369799ca4761fb8fb413c64172c02147bcfac186b5c5f6cb (matches Hugging Face's X-Linked-ETag).
+Used by lib/meaning/embed.ts (/api/meaning-search) and scripts/meaning/load-embeddings.ts; never fetched at run time.

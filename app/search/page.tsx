@@ -21,6 +21,8 @@ import { phoneUpTo } from '@/lib/breakpoints';
 import { searchDirectory, type DirectoryPage } from '@/lib/directory';
 import { queryNames, type QueryNames, type SpadHit } from '@/lib/search/name-index';
 import { keptWords, nameLeads } from '@/lib/search/query-understanding';
+import MeaningResults from './MeaningResults';
+import { seenKey } from '@/lib/meaning/kinds';
 
 export const dynamic = 'force-dynamic';
 
@@ -442,6 +444,19 @@ export default async function SearchPage({ searchParams }: PageProps) {
     <>Did you mean <Link href={suggestionHref} className="og-tap" style={{ color: ACCENT, fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{suggestion}</Link>?</>
   ) : null;
   const recordsFor = named.found ? named.found.code ? `${named.found.code}` : named.found.name : q;
+  // 'Related by meaning' (Cowork ENTRY 390 GO): with All only, under everything else; the records listed above are left out
+  // of it, by the same key (lib/meaning/kinds.ts seenKey). Not offered when the search is exactly the name of a record
+  // listed above, or when a spelling correction is offered: the ENTRY 390 test found no gain there, only near names
+  // ('tara smith' to any Smith, 'sewige' to Segen).
+  const plain = (t: string) => t.toLowerCase().replace(/["']/g, '').replace(/\s+/g, ' ').trim();
+  const isRecordName = [...mps.map((r) => r.title), ...peers.map((p) => p.name), ...seats.map((c) => c.name), ...councils.map((c) => c.name),
+    ...orgs.map((o) => o.name), ...donors.map((d) => d.name), ...spads.map((a) => a.name)].some((n) => plain(n) === plain(q));
+  const meaningOn = inAll && !isRecordName && !didYouMeanLine;
+  const meaningSeen = meaningOn ? [...new Set([
+    ...pages.map((p) => p.href), ...seats.map((c) => `/constituencies/${c.slug}`), ...mps.map((r) => r.url), ...peers.map((p) => p.href),
+    ...spads.map((s) => s.href), ...councils.map((c) => `/councils/${c.slug}`), ...orgs.map((o) => `/organisations/${o.slug}`),
+    ...results.map((r) => r.url),
+  ].map(seenKey))] : [];
 
   // The site's own pages: above the records, or below them when a name in the query leads.
   const pagesBlock = pages.length > 0 && (
@@ -676,6 +691,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
         </section>
         </ResultGroup>
       )}
+
+      {/* Related by meaning (Cowork ENTRY 390 GO): asked for by the browser after the results above are shown; it adds a group
+          under them or nothing. Folded on phones like every later group, open when it is the only one. */}
+      {meaningOn && <MeaningResults q={q} seen={meaningSeen} fold={firstGroup !== null} />}
 
       {/* T1-DECLUT item 1 (owner, 12 Nov 2026): no 'Popular searches' block; it was a fixed list, not real data. */}
       {q && <p className="srch-intro-p" style={{ fontSize: '16px', lineHeight: 1.8, color: '#14100d', marginTop: '28px' }}>{SEARCHED}</p>}
