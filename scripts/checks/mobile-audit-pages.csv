@@ -89,6 +89,7 @@ route,example_url,why_chosen
 "/lords/[id]","/lords/4576","typical (middle of the list), measure 505"
 "/lords/[id]","/lords/150","most data, measure 4166"
 "/lords/[id]","/lords/5486","little or no data, measure 6"
+"/lords/[id]","/lords/2698","former peer who left before 4 Jul 2024 (FormerPeerProfile, Cowork ENTRY 369; T2's note)"
 "/bills/[id]","/bills/657","typical (middle of the list), measure 734"
 "/bills/[id]","/bills/3942","most data, measure 3544"
 "/bills/[id]","/bills/4080","little or no data, measure 90"
