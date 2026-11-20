@@ -56,10 +56,10 @@ export default function LowestScoresPage() {
         </header>
 
         <p style={para}>
-          Every one of the {RANKED} council areas is scored on the same {MEASURE_COUNT} official measures, each published for every council area: money and work, health, housing, and environment and connectivity. The four topics count the same. 1 is the lowest score. Below are the 10 lowest; find any council area by postcode to see its rank and what pulls it down or up.
+          Every one of the {RANKED} council areas is scored on the same {MEASURE_COUNT} official measures, each published for every council area: money and work, health, housing, environment and connectivity, and crime. The five topics count the same. 1 is the lowest score. Below are the 10 lowest; find any council area by postcode to see its rank and what pulls it down or up.
         </p>
         <p style={para}>
-          <strong>Not the council&rsquo;s fault.</strong> Most of this depends on the economy, government, the NHS and telecoms firms more than on the council. Council performance, such as finances and road repairs, is left out.
+          <strong>Not the council&rsquo;s fault.</strong> Most of this depends on the economy, government, the police, the NHS and telecoms firms more than on the council. Council performance, such as finances and road repairs, is left out.
         </p>
         <p style={para}>
           This is not the <Link href="/councils/league-table" style={{ color: INK }}>council area league table</Link>, which uses more measures, including some published only for counties, so the order is different.
@@ -76,7 +76,7 @@ export default function LowestScoresPage() {
                   <span style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'normal' }}>{a.score.toFixed(1)}</span>
                 </h3>
                 <p style={{ ...para, lineHeight: 1.5, margin: '0 0 4px', paddingLeft: '12px', borderLeft: `3px solid ${ACCENT}` }}>
-                  <span style={{ fontWeight: 'bold' }}>Pulling it down: </span>{a.down.map((m) => `${m.label} ${m.figure}`).join('; ')}
+                  <span style={{ fontWeight: 'bold' }}>Pulling it down: </span>{a.down.map((m) => (m.key === 'crime' ? m.figure[0].toUpperCase() + m.figure.slice(1) : `${m.label} ${m.figure}`)).join('; ')}
                 </p>
               </li>
             ))}
@@ -95,10 +95,10 @@ export default function LowestScoresPage() {
               <span className="og-fold-mark" aria-hidden="true" />
             </summary>
             <p style={para}>
-              Each measure is scored from 0 to 100 by where the council area sits among all {RANKED}: the best figure scores 100, the worst 0, and areas with the same figure share a score. A topic&rsquo;s score is the average of its measures; the overall score is the average of the four topics, so each topic counts a quarter. No figure is estimated and no county figure is given to a district. City of London and the Isles of Scilly are too small to compare fairly.
+              Each measure is scored from 0 to 100 by where the council area sits among all {RANKED}: the best figure scores 100, the worst 0, and areas with the same figure share a score. A topic&rsquo;s score is the average of its measures; the overall score is the average of the five topics, so each topic counts a fifth. Crime is the crime score from the Indices of Deprivation, which combines the risk of violence, burglary, theft and criminal damage; it is shown as a rank of the 296 council areas in England. No figure is estimated and no county figure is given to a district. City of London and the Isles of Scilly are too small to compare fairly.
             </p>
             <p style={para}>
-              Measures that are not published for every council area at council area level are left out, so that every area is judged the same way: crime (combined for some council areas and missing for others), schools and road injuries (published for counties), temporary accommodation (not every council area reports it), sewage spills (not published by council area) and healthy life expectancy (published for counties). House prices against earnings and fly tipping are left out by choice. &ldquo;Least desirable&rdquo; here means the lowest score on these measures, nothing more. The council area average is the plain average of the {RANKED}, each counting once, so it is not the official England figure. Small differences in score change the order a lot, so areas a few places apart are much alike.
+              Measures that are not published for every council area at council area level are left out, so that every area is judged the same way: police recorded crime rates (combined for some council areas and missing for others, so crime comes from the Indices of Deprivation instead), schools and road injuries (published for counties), temporary accommodation (not every council area reports it), sewage spills (not published by council area) and healthy life expectancy (published for counties). House prices against earnings and fly tipping are left out by choice. &ldquo;Least desirable&rdquo; here means the lowest score on these measures, nothing more. The council area average is the plain average of the {RANKED}, each counting once, so it is not the official England figure. Small differences in score change the order a lot, so areas a few places apart are much alike.
             </p>
           </details>
           <details style={{ borderTop: `1px solid ${INK_HAIRLINE}` }}>
