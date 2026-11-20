@@ -69,7 +69,7 @@ export default function StandardsFindings({ findings, headingStyle }: { findings
       <div className="mp-standards-sources">
         <PageSources
           marginTop="12px"
-          sources={findings.map((f) => f.url && { label: `Committee on Standards report${f.closed_date ? `, ${monthYear(f.closed_date)}` : ''}: ${f.summary || f.mp_name_at_time}`, href: f.url })}
+          sources={findings.map((f) => f.url && { label: `Committee on Standards report${f.closed_date ? `, ${monthYear(f.closed_date)}` : ''}`, href: f.url })}
         />
       </div>
     </section>
