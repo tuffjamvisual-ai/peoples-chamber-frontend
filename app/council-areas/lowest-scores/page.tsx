@@ -10,7 +10,7 @@
 // is left out (v3 rule). The full list of 294 is not on the page (owner, ENTRY 415 LAYOUT CHANGE).
 //
 // Owner rules: 'council area', never 'town'; per cent in words; no time words; no hyphens in our text; sources only in the
-// Sources fold (ENTRY 410); no outside links elsewhere; the 'not the council's fault' caveat.
+// Sources fold (ENTRY 410); no outside links elsewhere; the owner's neutral caveat under the headline ('Not a ranking of how well councils are run: council performance is left out.').
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -53,12 +53,12 @@ export default function LowestScoresPage() {
             {HEADLINE}
           </h1>
           <div style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
-            Not a ranking of how well councils are run.
+            Not a ranking of how well councils are run: council performance is left out.
           </div>
         </header>
 
         <p style={para}>
-          All {RANKED} council areas in England, scored the same way on {MEASURE_COUNT} official measures in five equal topics. 1 is the lowest score. <strong>Not the council&rsquo;s fault:</strong> council performance is left out.
+          All {RANKED} council areas in England, scored the same way on {MEASURE_COUNT} official measures in five equal topics. 1 is the lowest score.
         </p>
 
         {/* All 10 show on phones too (Cowork, 18:34): the phone script leaves lists inside [data-own-more] alone. */}
