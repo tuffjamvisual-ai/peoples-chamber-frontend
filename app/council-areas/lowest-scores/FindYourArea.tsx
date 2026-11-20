@@ -6,6 +6,7 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import '@/app/components/search-box-desk.css';
+import { plainScoreRank } from './ranks';
 
 const INK = '#14100d';
 const MONO = 'var(--font-special-elite), monospace';
@@ -66,7 +67,7 @@ export default function FindYourArea({ ranks, ranked }: { ranks: Record<string, 
       <div aria-live="polite">
         {result?.kind === 'area' && (
           <p style={{ ...text, margin: 0 }}>
-            <strong>{result.name}</strong>: rank {result.rank} of {ranked} (1 is the lowest score), score {result.score.toFixed(1)}.{' '}
+            <strong>{result.name}</strong>: the {plainScoreRank(result.rank, ranked)}, score {result.score.toFixed(1)} out of 100.{' '}
             <Link href={`/council-areas/lowest-scores/${result.slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>See what pulls it down or up</Link>
           </p>
         )}

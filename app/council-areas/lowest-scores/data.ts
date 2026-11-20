@@ -4,8 +4,11 @@
 import type { CSSProperties } from 'react';
 import data from './lowest-scores.json';
 
-export type Measure = { key: string; label: string; figure: string; average: string; rank: number; of: number; period: string; score: number; topic: string };
-export type Area = { rank: number; name: string; slug: string; type: string; score: number; topics: { label: string; score: number }[]; down: Measure[]; up: Measure[]; all: Measure[] };
+export type Measure = { key: string; label: string; figure: string; average: string; rank: number; of: number; period: string; score: number; topic: string; tie?: number };
+// ONS police recorded crime (ENTRY 436 point 1): shown for information, not scored. own: the area's own figure; combined: one
+// figure for this area and its neighbours together ('with'); missing: no reliable figure (Kent, ONS note 5).
+export type Police = { status: 'own' | 'combined' | 'missing'; figure?: string; with?: string[]; humberside?: boolean; kent?: boolean };
+export type Area = { rank: number; name: string; slug: string; type: string; score: number; topics: { label: string; score: number }[]; down: Measure[]; up: Measure[]; all: Measure[]; police: Police };
 export type MeasureInfo = { key: string; label: string; unit: string; period: string; better: string; topic: string; source: string; href: string };
 
 export const AREAS = data.areas as Area[];
@@ -14,6 +17,10 @@ export const TOPICS = data.topics as { key: string; label: string; measures: str
 export const RANKED = data.ranked as number;
 export const MEASURE_COUNT = data.measureCount as number;
 export const bySlug = new Map(AREAS.map((a) => [a.slug, a]));
+export const POLICE = data.police as { period: string; england: string };
+// The council area averages of the overall and topic scores (each area counting once).
+export const AVG_SCORE = AREAS.reduce((s, a) => s + a.score, 0) / AREAS.length;
+export const AVG_TOPIC = new Map(TOPICS.map((t, i) => [t.label, AREAS.reduce((s, a) => s + a.topics[i].score, 0) / AREAS.length]));
 
 // One line per source address: measures from the same source (Ofcom) share it.
 export const SOURCES = [...MEASURES.reduce((m, x) => {
@@ -24,9 +31,11 @@ export const SOURCES = [...MEASURES.reduce((m, x) => {
 // Road safety and sewage are per resident: the population source joins the fold (it is not a measure, so it is not counted below).
 export const SOURCE_COUNT = SOURCES.length;
 SOURCES.push({ label: 'Population (for road safety and sewage per resident): ONS mid-2025 population estimates', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates' });
+// The police recorded crime figure on each area page is shown, not scored (ENTRY 436), so it is not counted either.
+SOURCES.push({ label: 'Police recorded crime (shown on each area page, not scored): ONS, Police force area data tables, year ending June 2026, tables C1 to C4 (Community Safety Partnerships) and P3 (England)', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/policeforceareadatatables' });
 // One plain line for an area whose rank readers are likely to question (Cowork ENTRY 415 v3b PICTURES: Blackpool).
 export const AREA_NOTES: Record<string, string> = {
-  blackpool: 'Worst of the 294 on crime and life expectancy, 2nd on fuel poverty and 5th on GCSE results; clean air and better than average broadband and 4G lift only its environment score.',
+  blackpool: 'Worst of the 294 on crime and life expectancy, 2nd worst on fuel poverty and 5th worst on GCSE results; clean air and better than average broadband and 4G lift only its environment score.',
 };
 
 export const INK = '#14100d';
@@ -38,7 +47,4 @@ export const h2: CSSProperties = { fontFamily: MONO, fontSize: '15px', letterSpa
 export const para: CSSProperties = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK, margin: '0 0 14px', maxWidth: '46em' };
 export const foldSummary: CSSProperties = { cursor: 'pointer', minHeight: '44px', display: 'flex', alignItems: 'center', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: MONO, fontSize: '15px', color: INK };
 
-export const ordinal = (n: number) => {
-  const s = n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th';
-  return `${n}${s}`;
-};
+export { ordinal } from './ranks';
