@@ -2,8 +2,8 @@
 // Council byelections since May 2026 (owner's approval of the design, 30 Oct 2026), into council_byelections
 // (migration 2026-10-30e-council-byelections.sql). Shown on /councils/[slug] under the seats.
 //
-// Reads the two research files (never retyped):
-//   "Claude outputs/data/councils/byelections-since-may-2026-gains.json" and "...-holds.json"
+// Reads the three research files (never retyped):
+//   "Claude outputs/data/councils/byelections-since-may-2026-gains.json", "...-holds.json" and "...-neither.json"
 // and loads only items with status "confirmed_council" or "winner_only_council" ("not_confirmed" is left out).
 //
 // Each council name is matched to the councils table exactly: the table's short_name, or its name without the
@@ -35,7 +35,9 @@ const arg = (n, d = '') => (process.argv.find((a) => a.startsWith(`--${n}=`)) ||
 const WRITE = process.argv.includes('--write');
 const SQL = arg('sql');
 const DIR = arg('dir', path.join(__dirname, '..', 'Claude outputs', 'data', 'councils'));
-const FILES = ['byelections-since-may-2026-gains.json', 'byelections-since-may-2026-holds.json'];
+// The third file holds results filed as neither a gain nor a hold: the previous holder's party at the vacancy is not
+// proven from the council's own record (Cowork ENTRY 421). The page never says gain or hold, so the rows are the same.
+const FILES = ['byelections-since-may-2026-gains.json', 'byelections-since-may-2026-holds.json', 'byelections-since-may-2026-neither.json'];
 const LOAD = new Set(['confirmed_council', 'winner_only_council']);
 // Fixed name mappings (owner's approval, 30 Oct 2026): the research file's name -> councils.slug.
 const ALIASES = { 'Newcastle upon Tyne': 'newcastle' };
