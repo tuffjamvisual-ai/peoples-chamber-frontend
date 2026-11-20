@@ -18,7 +18,7 @@ import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
 import { careerTimeline, dateLabel, type CareerEntry } from '@/lib/career-timeline';
-import BioText from './BioText';
+import BioPager from './BioPager';
 import type { MpCareer } from '@/lib/mp-career';
 import type { QuestionsSummary } from '@/lib/written-question-shared';
 
@@ -1009,6 +1009,35 @@ export default function MagazineProfileSections({
     .map((b) => ({ key: b.key, label: compactExpenses ? b.short : b.label }));
 
   // One section's content (the active tab on desktop; each section in turn on phones).
+  // The biography's "Last reviewed" line and Sources fold: after the text, and on phones after its last page (BioPager).
+  const bioAfter = (
+    <>
+      {bio?.bio_last_reviewed && (
+        <div className="mp-bio-provenance" style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid rgba(20,16,13,0.18)', fontSize: '15px' }}>
+          {bio?.bio_last_reviewed && (
+            <p style={{ margin: '0 0 8px' }}>
+              Last reviewed: {new Date(`${bio.bio_last_reviewed}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </p>
+          )}
+        </div>
+      )}
+      {/* The biography's sources (owner approved 16 Nov 2026, COWORK-TO-T1 ENTRY 180, T1-BIOSOURCES; reversing T1-MPCLEAN for
+          the biography only): one closed "Sources (N)" fold listing mp_biography.bio_sources, each title linked, with
+          what it supports on its own line. The site's Sources fold (PageSources, A9); the inline links beside each claim
+          stay as they are. Only https addresses, as BioText's links. Nothing when there are none. */}
+      {(bio?.bio_sources?.length ?? 0) > 0 && (
+        <div className="mp-bio-sources">
+          <PageSources
+            marginTop="12px"
+            sources={(bio?.bio_sources ?? []).map((s) =>
+              s.url && /^https:\/\//.test(s.url)
+                ? { label: s.title, href: s.url, note: s.supports ? <span style={{ display: 'block' }}>{s.supports}</span> : undefined }
+                : null)}
+          />
+        </div>
+      )}
+    </>
+  );
   const renderSection = (active: SectionId) => (
     <>
         {active === 'career' && (
@@ -1085,44 +1114,27 @@ export default function MagazineProfileSections({
                 defined below. Reinstate by restoring the <section> block
                 here if the metrics view is wanted back. */}
 
-            {/* data-article-body: the biography's inline source links are citations in its text, which A9 allows there
-                (rendered-checks.mjs). Without the mark, an MP whose biography shows first failed A9 (/mps/206, 16 Nov 2026). */}
-            <div data-article-body="" style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
-              {paragraphs.length === 0 ? (
-                <p>Biography unavailable.</p>
-              ) : (
-                // Labels in bold, label only paragraphs as subheadings, and https source links beside each claim (BF1, BioText.tsx).
-                <BioText paragraphs={paragraphs} paragraphStyle={(idx) => {
+            {/* The text, in pages on phones when it runs past 200 words (Cowork ENTRY 445 B, BioPager.tsx); from 768px up, and
+                without JavaScript, the whole biography as before. The "Last reviewed" line and the Sources fold follow the last
+                page only on phones. Labels in bold, label only paragraphs as subheadings, and https source links beside each
+                claim (BF1, BioText.tsx). */}
+            {paragraphs.length === 0 ? (
+              <>
+                <div data-article-body="" style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
+                  <p>Biography unavailable.</p>
+                </div>
+                {bioAfter}
+              </>
+            ) : (
+              <BioPager
+                paragraphs={paragraphs}
+                paragraphStyle={(idx) => {
                   const tilt = idx % 4;
                   const rot = tilt === 0 ? '0.1deg' : tilt === 1 ? '-0.15deg' : tilt === 2 ? '0.08deg' : '-0.1deg';
                   return { marginBottom: '16px', transform: `rotate(${rot})` };
-                }} />
-              )}
-            </div>
-
-            {bio?.bio_last_reviewed && (
-              <div className="mp-bio-provenance" style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid rgba(20,16,13,0.18)', fontSize: '15px' }}>
-                {bio?.bio_last_reviewed && (
-                  <p style={{ margin: '0 0 8px' }}>
-                    Last reviewed: {new Date(`${bio.bio_last_reviewed}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                  </p>
-                )}
-              </div>
-            )}
-            {/* The biography's sources (owner approved 16 Nov 2026, COWORK-TO-T1 ENTRY 180, T1-BIOSOURCES; reversing T1-MPCLEAN for
-                the biography only): one closed "Sources (N)" fold listing mp_biography.bio_sources, each title linked, with
-                what it supports on its own line. The site's Sources fold (PageSources, A9); the inline links beside each claim
-                stay as they are. Only https addresses, as BioText's links. Nothing when there are none. */}
-            {(bio?.bio_sources?.length ?? 0) > 0 && (
-              <div className="mp-bio-sources">
-                <PageSources
-                  marginTop="12px"
-                  sources={(bio?.bio_sources ?? []).map((s) =>
-                    s.url && /^https:\/\//.test(s.url)
-                      ? { label: s.title, href: s.url, note: s.supports ? <span style={{ display: 'block' }}>{s.supports}</span> : undefined }
-                      : null)}
-                />
-              </div>
+                }}
+                after={bioAfter}
+              />
             )}
 
           </>

@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import BioText, { bioBlocks, safeHref } from '../../app/mps/[id]/BioText';
+import BioText, { bioBlocks, bioPages, bioWords, safeHref, BIO_PAGE_MAX } from '../../app/mps/[id]/BioText';
 import { withoutLeadingLabel } from '../../lib/bio-labels';
 
 const text = fs.readFileSync(path.join(__dirname, 'fixtures', 'bio-4029-sample.md'), 'utf8');
@@ -94,4 +94,35 @@ test('the RSS lead drops the link markup and keeps the descriptive text', () => 
   assert.doesNotMatch(lead, /\]\(|\*\*/);
   assert.ok(lead.startsWith('Labour MP for Nottingham South since May 2010.'));
   assert.match(lead, /\(official role\)/);
+});
+
+// Phone pages (Cowork ENTRY 445 B): split only at paragraph ends, at most 200 words a page unless one paragraph is longer.
+const words = (n: number, w = 'word') => Array.from({ length: n }, () => w).join(' ');
+const pageWords = (paras: string[]) => { const b = bioBlocks(paras); return bioPages(b).map((p) => p.reduce((s, i) => s + bioWords(b[i]), 0)); };
+
+test('a biography of 200 words or fewer is one page', () => {
+  assert.deepEqual(pageWords([words(120), words(80)]), [200]);
+  assert.equal(bioPages(bioBlocks(paragraphs)).length >= 1, true);
+});
+
+test('pages hold whole paragraphs, at most 200 words unless a paragraph is longer, in order', () => {
+  const paras = [words(124), words(71), words(139), words(158), words(211)];
+  assert.deepEqual(pageWords(paras), [195, 139, 158, 211]);
+  const b = bioBlocks(paras);
+  assert.deepEqual(bioPages(b).flat(), b.map((_, i) => i));
+  // Abbott's shape (ENTRY 445): no two neighbours fit in 200 words, so each paragraph is a page.
+  const abbott = pageWords([words(134), words(114), words(234), words(92), words(257), words(81)]);
+  assert.deepEqual(abbott, [134, 114, 234, 92, 257, 81]);
+  assert.ok(pageWords([words(60), words(60), words(60), words(60), words(60)]).every((n) => n <= BIO_PAGE_MAX));
+});
+
+test('a subheading starts the page of the paragraph after it', () => {
+  const paras = [words(150), '**Commitments.**', words(150)];
+  const b = bioBlocks(paras);
+  assert.deepEqual(bioPages(b), [[0], [1, 2]]);
+});
+
+test('link addresses are not counted as words', () => {
+  const b = bioBlocks(['See [the record](https://example.com/a/very/long/address) here.']);
+  assert.equal(bioWords(b[0]), 4);
 });
