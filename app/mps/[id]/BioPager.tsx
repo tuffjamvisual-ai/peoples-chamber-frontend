@@ -3,8 +3,8 @@
 // The MP biography in pages on phones (owner approved 20 Nov 2026, Cowork ENTRY 445 B: "the mobile view may need to split
 // into pages"). Under 768px (and on a phone held sideways: PHONE, lib/breakpoints.ts, as the phone script and the section
 // folds use), a biography of more than 200 words shows one page of about 150 to 200 words at a time, split only where a
-// paragraph ends (bioPages, BioText.tsx), with "Page 1 of N" and Previous and Next at the foot of the section. The
-// "Last reviewed" line and the Sources fold (the `after` content) come after the last page only. From 768px up, and
+// paragraph ends (bioPages, BioText.tsx), with "Page 1 of N" and Previous and Next straight under the text. The
+// "Last reviewed" line and the Sources fold (the `after` content) come after that, on the last page only. From 768px up, and
 // whenever the script has not run (JavaScript off, or before it loads), the whole biography shows exactly as before: the
 // server's HTML holds every page, none hidden, and no pager.
 //
@@ -120,7 +120,8 @@ export default function BioPager({ paragraphs, paragraphStyle, after }: { paragr
             </div>
           ))}
       </div>
-      {(!paged || page === n) && after}
+      {/* The page count and buttons straight under the text on every page, then (last page only) 'Last reviewed' and the
+          Sources fold (Cowork, ENTRY 445 PART B PICTURES OK: with 20 sources open the buttons were far below the text). */}
       {paged && (
         <nav className="mp-bio-pager" aria-label="Biography pages">
           <style>{CSS}</style>
@@ -131,6 +132,7 @@ export default function BioPager({ paragraphs, paragraphStyle, after }: { paragr
           </div>
         </nav>
       )}
+      {(!paged || page === n) && after}
     </>
   );
 }
