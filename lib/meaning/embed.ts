@@ -27,6 +27,9 @@ function getExtractor(): Promise<Extractor> {
       return (await pipeline('feature-extraction', MEANING_MODEL, { dtype: 'q8' })) as unknown as Extractor;
     })().catch((e) => {
       extractor = null; // the next search tries again
+      // Logged so a failure on Vercel can be diagnosed (it was silent: the search answered 'model' with no reason).
+      // The message only: no request data, nothing personal.
+      console.error(`meaning model failed to load: ${e instanceof Error ? `${e.name}: ${e.message}`.slice(0, 500) : String(e).slice(0, 500)}`);
       throw e;
     });
   }
