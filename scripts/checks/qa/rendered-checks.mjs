@@ -218,7 +218,8 @@ function outsideLinks(licence) {
   for (const a of document.querySelectorAll('a[href]')) {
     let u; try { u = new URL(a.getAttribute('href'), location.href); } catch { continue; }
     if (!/^https?:$/.test(u.protocol) || u.host === location.host || /(^|\.)opengovt\.uk$/.test(u.hostname)) continue;
-    if (a.closest(mpProfile ? 'footer, [data-og-row-source], [data-article-body], [data-og-attribution], .mp-bio-sources [data-og-sources]' : '[data-og-sources], footer, [data-og-row-source], [data-article-body], [data-og-citations], [data-og-attribution]')) continue;
+    // [data-og-contact]: a body's own contact link, not a source (owner, Cowork ENTRY 412: the council's own website).
+    if (a.closest(mpProfile ? 'footer, [data-og-row-source], [data-article-body], [data-og-attribution], [data-og-contact], .mp-bio-sources [data-og-sources]' : '[data-og-contact], [data-og-sources], footer, [data-og-row-source], [data-article-body], [data-og-citations], [data-og-attribution]')) continue;
     if (re.test(u.href) || (a.getAttribute('rel') ?? '').split(/\s+/).includes('license')) continue;
     out.push(`${u.hostname.replace(/^www\./, '')}: ${(a.getAttribute('aria-label') || a.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 60)}`);
   }
