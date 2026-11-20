@@ -66,8 +66,8 @@ async function fetchAllRows<T>(
 // two counts: (1) Next never produced a /sitemap.xml index (robots.txt 404'd),
 // and (2) under Next 16 the `id` arg is a Promise<string>, but the code compared
 // it as a plain string, so every section fell through to an empty result.
-// Total URL count (about 23,400 in November 2026) is well under the 50k
-// single-sitemap limit, so one file is simplest.
+// Total URL count (about 23,400 in November 2026, about 25,250 with the 1,851 former peers of Cowork ENTRY 369) is well
+// under the 50k single-sitemap limit, so one file is simplest.
 // lastmod (owner's approval, 29 Oct 2026, Search Console; widened 5 Nov 2026, visibility campaign item 13): a URL carries
 // a date only where we hold a true one for that record, as each entry below says. Every other entry has no lastModified,
 // so a deploy or a bulk import never tells search engines that every page changed.
@@ -443,6 +443,19 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'weekly',
     priority: 0.5,
   }));
+  // Every earlier former peer's basic page (Cowork ENTRY 369, owner approved in ENTRY 429): left before 4 July 2024, or
+  // with no end date while not current (the rows lib/peers.ts peerHasPage gives no full page). Indexable, so all listed.
+  // No lastmod: the row holds no date for the page.
+  const formerPeers = await fetchAllRows<{ member_id: number }>(
+    'peers',
+    'member_id',
+    (q) => q.eq('is_current', false).or('end_date.is.null,end_date.lt.2024-07-04').order('member_id'),
+  );
+  const formerPeerEntries: MetadataRoute.Sitemap = formerPeers.map((p) => ({
+    url: `${SITE}/lords/${p.member_id}`,
+    changeFrequency: 'yearly',
+    priority: 0.3,
+  }));
 
   // Republished GOV.UK press releases (/news/[slug]) are not listed: they are word-for-word
   // copies of GOV.UK pages, so they are noindex and Google is pointed at the originals
@@ -653,6 +666,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     ...mpEntries,
     ...formerProfileEntries,
     ...peerEntries,
+    ...formerPeerEntries,
     ...councilEntries,
     ...divisionEntries,
     ...archiveDivisionEntries,

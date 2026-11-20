@@ -2,7 +2,7 @@ import { titleWithin } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageSources from '@/app/components/PageSources';
-import { notFound, permanentRedirect, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
@@ -24,8 +24,9 @@ import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 // A member of the House of Lords (owner's yes, 3 Nov 2026): name, party, type of peerage, sitting since, posts held,
 // a voting record summary with recent votes, the register of interests (owner, 4 Nov 2026), written questions and links
-// to the official Parliament profile. No biography. Pages exist for current peers and anyone who has sat since 4 July 2024 (lib/peers.ts peerHasPage); earlier
-// former peers go to their Parliament profile, and a member who was only ever an MP goes to /mps/[id]. A former MP now
+// to the official Parliament profile. No biography. Full pages exist for current peers and anyone who has sat since 4 July 2024 (lib/peers.ts peerHasPage);
+// every earlier former peer has a basic page from their peers row (Cowork ENTRY 369, owner approved in ENTRY 429: "we never link
+// to outside data, only sources go off site", so no redirect to Parliament), and a member who was only ever an MP goes to /mps/[id]. A former MP now
 // in the Lords links to their Commons record, and that record links back. Cached for a day; /api/sync-peers refreshes a
 // peer's page when their stored row changes.
 export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
@@ -54,6 +55,14 @@ function lordsDescription(p: Peer, what: string): string {
   return wholeSentences([lead, firstThatFits(lead, ["This page lists their posts, votes and written questions from Parliament's records.", 'Their posts, votes and written questions are listed.'])]);
 }
 
+// An earlier former peer (Cowork ENTRY 369): who, then their dates when Parliament's record gives both in order.
+function formerPeerDescription(p: Peer, what: string): string {
+  const who = `${p.name_display}${what ? ` (${what})` : ''}`;
+  const dated = !!p.start_date && !!p.end_date && p.start_date <= p.end_date;
+  const lead = dated ? `${who} was a member of the House of Lords from ${fmt(p.start_date)} to ${fmt(p.end_date)}.` : `${who} is a former member of the House of Lords.`;
+  return wholeSentences([lead, firstThatFits(lead, ["This page gives their party, type of peerage and dates in the Lords from Parliament's records.", "Their dates in the Lords are from Parliament's records."])]);
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const memberId = Number(id);
@@ -61,13 +70,18 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!Number.isInteger(memberId) || memberId <= 0) notFound();
   const p = await peer(memberId);
   if (!p) { if ((await lookupMember(memberId)).kind === 'former_mp') permanentRedirect(`/mps/${memberId}`); notFound(); }
-  if (!peerHasPage(p)) return { title: 'House of Lords', robots: { index: false, follow: true } };
   const what = [p.party, p.peerage_type].filter(Boolean).join(', ');
   // A title another member has held too (two Archbishops of Canterbury) adds their years in the Lords from Parliament's data, so no two pages share a title (owner, 7 Nov 2026).
   const { count: sameName, error: sameErr } = await cachedQuery(['q:app/lords/[id]/page.tsx:dc6ef93acd', JSON.stringify([p.name_display])], tableTags('peers'), () => supabase.from('peers').select('member_id', { count: 'exact', head: true }).eq('name_display', p.name_display));
   if (sameErr) throw new Error(`/lords/[id] same name: ${sameErr.message}`);
   const from = p.start_date?.slice(0, 4), to = p.end_date?.slice(0, 4);
   const years = (sameName ?? 0) > 1 && from ? ` (${to ? (to === from ? from : `${from} to ${to}`) : `since ${from}`})` : '';
+  // An earlier former peer's basic page (Cowork ENTRY 369): the title the entry gives, indexable.
+  if (!peerHasPage(p)) return {
+    title: titleWithin(`${p.name_display}${years}: former member of the House of Lords`),
+    description: formerPeerDescription(p, what),
+    alternates: { canonical: `/lords/${memberId}` },
+  };
   // Cowork ENTRY 367 item 6 (lib/index-rules.ts): a member with no posts, committees, votes, written questions or registered
   // interests is noindex, follow (and left out of the sitemap). Posts are on the peer's row; the rest are cached head counts,
   // read only for a member with no posts. A failed count keeps the page indexed.
@@ -108,7 +122,7 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
     if (m.kind === 'former_mp') permanentRedirect(`/mps/${memberId}`);
     notFound();
   }
-  if (!peerHasPage(p)) redirect(parliamentProfileUrl(memberId));
+  if (!peerHasPage(p)) return <FormerPeerProfile p={p} wasMp={(await lookupMember(memberId).catch(() => null))?.kind === 'former_mp'} />;
 
   const [voting, interests, questions, member] = await Promise.all([
     peerVoting(supabase, memberId).catch((e) => { console.error(`/lords/${memberId} votes:`, e instanceof Error ? e.message : e); return null; }),
@@ -275,6 +289,87 @@ export default async function PeerPage({ params }: { params: Promise<{ id: strin
         { label: 'Profile on UK Parliament\u2019s Members website', href: parliamentProfileUrl(memberId) },
         interests.length > 0 && { label: 'Register of Lords\u2019 Interests on UK Parliament\u2019s Members website', href: parliamentRegisterUrl(memberId) },
       ]} />
+    </OpenGovShell>
+  );
+}
+
+// A peer who left before 4 July 2024 (Cowork ENTRY 369, owner approved in ENTRY 429). Only what their peers row holds:
+// name as published, party or group, type of peerage, the dates of membership and the end reason, each 'Not published'
+// where Parliament's record is blank. Posts are shown only once their Biography has been read into the row
+// (posts_checked_at set; scripts/load-peers.ts or /api/sync-peers): until then the section is left out, as no figure is
+// invented. Parliament's profile is in the Sources fold only.
+const NOT_PUBLISHED = 'Not published';
+function FormerPeerProfile({ p, wasMp }: { p: Peer; wasMp: boolean }) {
+  const memberId = p.member_id;
+  const posts = [...(p.government_posts ?? []), ...(p.opposition_posts ?? []), ...(p.other_posts ?? [])];
+  const committees = p.committee_memberships ?? [];
+  const facts: [string, string][] = [
+    ['Party or group', p.party || NOT_PUBLISHED],
+    ['Type of peerage', p.peerage_type || NOT_PUBLISHED],
+    ['Joined the Lords', fmt(p.start_date) || NOT_PUBLISHED],
+    ['Left the Lords', fmt(p.end_date) || NOT_PUBLISHED],
+    ['Reason membership ended', p.end_reason || NOT_PUBLISHED],
+  ];
+  // The membership facts are the page's main content, so they are never folded; posts fold on phones as on the full page.
+  const membership = (
+      <section data-main-action style={{ color: INK }}>
+        <h2 id="peer-membership" style={h2}>Membership of the House of Lords</h2>
+        <dl style={{ margin: 0, fontSize: '15px' }}>
+          {facts.map(([k, v]) => (
+            <div key={k} style={{ display: 'flex', flexWrap: 'wrap', gap: '0 12px', padding: '6px 0', borderBottom: divider }}>
+              <dt style={{ fontWeight: 'bold', flex: '0 0 13em', maxWidth: '100%' }}>{k}</dt>
+              <dd style={{ margin: 0, flex: '1 1 12em', minWidth: 0 }}>{v}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+  );
+  const folds: Fold[] = [];
+  if (p.posts_checked_at && (posts.length > 0 || committees.length > 0)) folds.push({
+    id: 'posts',
+    label: 'Posts held',
+    summary: `${(posts.length + committees.length).toLocaleString('en-GB')} ${posts.length + committees.length === 1 ? 'post' : 'posts'}`,
+    node: (
+      <div style={{ color: INK }}>
+        <h2 id="peer-posts" style={h2}>Posts held</h2>
+        <PostList posts={posts} current={false} />
+        <PostList posts={posts} current />
+        {committees.length > 0 && (
+          <>
+            <h3 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '12px 0 4px' }}>Committees</h3>
+            <PostList posts={committees} current={false} />
+            <PostList posts={committees} current />
+          </>
+        )}
+        <RecordDate text={`Updated ${longDay(p.posts_checked_at)}`} source="peers.posts_checked_at" />
+      </div>
+    ),
+  });
+  return (
+    <OpenGovShell pageStamp="House of Lords">
+      <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'House of Lords', path: '/lords' }, { name: p.name_display, path: `/lords/${memberId}` }])} />
+      <BackLink fallbackHref="/lords" />
+      <header style={{ display: 'flex', gap: '18px', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: '8px', color: INK }}>
+        {p.thumbnail_url && (
+          // Parliament's official thumbnail, served by Parliament (attributed in the site footer, as on MP pages).
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={p.thumbnail_url} alt={p.name_display} width={120} height={120} loading="eager" fetchPriority="high"
+            style={{ width: '120px', height: '120px', objectFit: 'cover', border: `1px solid rgba(20,16,13,0.25)`, background: '#d6cdb8' }} />
+        )}
+        <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 'bold', margin: '0 0 6px', lineHeight: 1.15 }}>{p.name_display}</h1>
+          <p style={{ fontSize: '15px', fontWeight: 'bold', color: ACCENT, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Former member of the House of Lords</p>
+          {wasMp && (
+            <p style={{ fontSize: '15px', margin: '6px 0 0' }}>
+              <Link href={`/mps/${memberId}`} style={link}>Record as an MP</Link>
+            </p>
+          )}
+        </div>
+      </header>
+      <StandardsCasesLine memberId={memberId} style={{ marginTop: '12px' }} />
+      {membership}
+      {folds.length > 0 && <PhoneFolds folds={folds} />}
+      <PageSources sources={[{ label: 'Profile on UK Parliament\u2019s Members website', href: parliamentProfileUrl(memberId) }]} />
     </OpenGovShell>
   );
 }

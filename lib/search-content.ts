@@ -1,4 +1,3 @@
-import { peerHasPage, parliamentProfileUrl } from '@/lib/peers';
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
@@ -379,7 +378,7 @@ export async function searchConstituencies(q: string, limit = 10): Promise<Const
 }
 
 // Members of the House of Lords (owner, 4 Nov 2026), from the peers table, matched on any form of their name, current
-// members first. A peer with no page here links to Parliament's profile (lib/peers.ts).
+// members first. Every peer links to their page here: earlier former peers have a basic page (Cowork ENTRY 369).
 export type PeerSearchResult = { memberId: number; name: string; party: string | null; peerageType: string | null; isCurrent: boolean; href: string };
 
 export async function searchPeers(q: string, limit = 10): Promise<PeerSearchResult[]> {
@@ -408,7 +407,7 @@ export async function searchPeers(q: string, limit = 10): Promise<PeerSearchResu
     party: r.party ?? null,
     peerageType: r.peerage_type ?? null,
     isCurrent: r.is_current,
-    href: peerHasPage(r) ? `/lords/${r.member_id}` : parliamentProfileUrl(r.member_id),
+    href: `/lords/${r.member_id}`,
   }));
 }
 

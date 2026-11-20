@@ -4,7 +4,6 @@
 import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { supabaseAdminRead as db } from '@/lib/supabase-admin';
-import { peerHasPage } from '@/lib/peers';
 import { displayMpName } from '@/lib/mp-name';
 
 export const QUESTION_PAGE_SIZE = 25;
@@ -40,7 +39,7 @@ export const questionDepartmentStats = unstable_cache(async (): Promise<Departme
 }, ['question-department-stats'], { revalidate: false, tags: tableTags('parliament_written_questions', 'rpc:written_question_department_stats') }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
 export type Person = { id: number; name: string; house: 'Commons' | 'Lords'; href: string | null };
-// Everyone who can ask or answer: MPs link to /mps/<id>, peers with a page to /lords/<id>.
+// Everyone who can ask or answer: MPs link to /mps/<id>, peers to /lords/<id> (every former peer has a page since Cowork ENTRY 369).
 export const questionPeople = unstable_cache(async (): Promise<Person[]> => {
   // F02 (ENTRY 134, owner approved 15 Nov 2026): every row, page by page (lib/read-all.ts, which throws on a short read).
   // .limit(3000) returned only the API's 1,000 rows: 1,000 of 2,822 peers, so 7,030 Lords questions lost a name (T2,
@@ -52,9 +51,9 @@ export const questionPeople = unstable_cache(async (): Promise<Person[]> => {
   const mps = { data: mpRows }, peers = { data: peerRows };
   return [
     ...((mps.data ?? []) as { member_id: number; display_name: string | null; name: string }[]).map((m) => ({ id: m.member_id, name: displayMpName(m.display_name || m.name) as string, house: 'Commons' as const, href: `/mps/${m.member_id}` })),
-    ...((peers.data ?? []) as { member_id: number; name_display: string; is_current: boolean; end_date: string | null }[]).map((p) => ({ id: p.member_id, name: p.name_display, house: 'Lords' as const, href: peerHasPage(p) ? `/lords/${p.member_id}` : null })),
+    ...((peers.data ?? []) as { member_id: number; name_display: string; is_current: boolean; end_date: string | null }[]).map((p) => ({ id: p.member_id, name: p.name_display, house: 'Lords' as const, href: `/lords/${p.member_id}` })),
   ];
-}, ['question-people-v2'], { revalidate: false, tags: tableTags('mps', 'peers') }); // v2: F02 reads every row // A16: refreshed when the MP or peer lists change
+}, ['question-people-v3'], { revalidate: false, tags: tableTags('mps', 'peers') }); // v2: F02 reads every row; v3: every peer linked (ENTRY 369) // A16: refreshed when the MP or peer lists change
 
 // One screen of questions, newest first, after `before` (date_id of the last row shown), and the total when it is the first screen.
 async function searchQuestionsRead(f: QuestionFilters, before: string | null, wantTotal: boolean, pageSize = QUESTION_PAGE_SIZE): Promise<{ rows: QuestionRow[]; more: string | null; total: number | null }> {

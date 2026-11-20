@@ -261,7 +261,6 @@ function OrgRow({ o }: { o: OrgListRow }) {
 // A member of the House of Lords, in the same row style.
 const PEER_META = { label: 'Peer', color: '#5a1a3a' };
 function PeerRow({ p }: { p: PeerSearchResult }) {
-  const external = p.href.startsWith('http');
   const link: React.CSSProperties = { display: 'block', fontSize: '16px', fontWeight: 600, color: INK, textDecoration: 'none', lineHeight: 1.4 };
   return (
     <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
@@ -270,11 +269,9 @@ function PeerRow({ p }: { p: PeerSearchResult }) {
           {PEER_META.label}
         </span>
         <div style={{ minWidth: 0 }}>
-          {external
-            ? <a href={p.href} target="_blank" rel="noopener noreferrer" style={link}>{p.name}</a>
-            : <Link href={p.href} style={link}>{p.name}</Link>}
+          <Link href={p.href} style={link}>{p.name}</Link>
           <span style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d' }}>
-            {[p.party, p.peerageType, !p.isCurrent && 'Former member', external && "Parliament's profile"].filter(Boolean).join(' · ')}
+            {[p.party, p.peerageType, !p.isCurrent && 'Former member'].filter(Boolean).join(' · ')}
           </span>
         </div>
       </div>

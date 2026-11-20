@@ -6,7 +6,7 @@ import { cache } from 'react';
 import { metaDescription, wholeSentences } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { lastSeatLine, lookupMember, memberRecord, parliamentMemberUrl } from '@/lib/former-mps';
+import { lastSeatLine, lookupMember, memberRecord } from '@/lib/former-mps';
 import FormerMpProfile from './FormerMpProfile';
 import { VotingArchiveMerged, EarlierRegisters } from './HistoricRecord';
 import { memberVoteSummary, registerHistory } from '@/lib/historic-archive';
@@ -323,12 +323,14 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         .order('closed_date', { ascending: false }));
       const [formerReports, peer] = await Promise.all([mpReportItems(memberId).catch(() => []), getPeer(supabase, memberId).catch(() => null)]);
       const related = formerReports.length ? [{ href: `/mps/${memberId}/reports`, label: `Reports on ${m.mp.name} (${formerReports.length})` }] : [];
-      // A former MP now in the Lords links to their peer page, which links back (owner, 3 Nov 2026).
-      if (peer && peerHasPage(peer)) related.unshift({ href: `/lords/${memberId}`, label: `${peer.name_display} in the House of Lords` });
+      // A former MP now in the Lords, or once in it, links to their peer page, which links back (owner, 3 Nov 2026; every
+      // former peer has a page since Cowork ENTRY 369).
+      if (peer) related.unshift({ href: `/lords/${memberId}`, label: `${peer.name_display} in the House of Lords` });
       related.push(...pmqsLinks(memberId, await pmqsContributions(memberId)));
       return <FormerMpProfile mp={m.mp} conductFindings={findings ?? []} related={related} />;
     }
-    // A member who only sat in the Lords: their peer page (owner, 3 Nov 2026), or Parliament's profile if they have none.
+    // A member who only sat in the Lords: their peer page (owner, 3 Nov 2026). Never Parliament's profile (Cowork ENTRY 369:
+    // only sources go off site): an earlier former peer has a basic page too, and a member with no peers row is not found.
     if (m.kind === 'lords_only') {
       const peer = await getPeer(supabase, memberId).catch(() => null);
       if (peer && peerHasPage(peer)) permanentRedirect(`/lords/${memberId}`);
@@ -336,7 +338,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       const counts = await memberArchiveCounts(memberId);
       const record = counts.asked + counts.prime_minister + counts.standing_in > 0 ? await memberRecord(memberId) : null;
       if (record) return <FormerMpProfile mp={record} related={pmqsLinks(memberId, counts)} />;
-      permanentRedirect(parliamentMemberUrl(memberId));
+      if (peer) permanentRedirect(`/lords/${memberId}`);
     }
     notFound();
   }
