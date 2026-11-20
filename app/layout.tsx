@@ -1,6 +1,7 @@
 import PhoneEnhance from './components/PhoneEnhance';
 import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import NavTrail from './components/NavTrail';
+import RefClick from './components/RefClick';
 import { PHONE_ENHANCE_JS } from '@/lib/phone-enhance';
 import type { Metadata } from "next";
 import { Bebas_Neue } from "next/font/google";
@@ -178,6 +179,8 @@ export default function RootLayout({
         <PhoneEnhance />
         {/* The pages this tab has shown, so the back arrow knows when the previous page is one of ours (BackLink.tsx). */}
         <NavTrail />
+        {/* Clicks through our own tagged links (?ref=x11), counted without cookies; nothing at all without ?ref= (Cowork ENTRY 440). */}
+        <RefClick />
         {/* Floating jump-to-bottom arrow on every page (styled like the Claude chat app's). */}
         <FloatingScrollDownButton />
         {/* Web Analytics and Speed Insights, loaded on the visitor's first real interaction. */}
