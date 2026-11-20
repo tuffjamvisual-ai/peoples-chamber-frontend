@@ -83,7 +83,8 @@ export function jointRunnersUp(r: CouncilByelection): string | null {
 // party only where the council's own page gives it.
 export function contextSentence(r: CouncilByelection): string | null {
   if (r.kind === 'postponed_ordinary') return 'Poll postponed from May 2026.';
-  if (!r.former_councillor) return null;
+  // No previous holder from the council's own records (Cowork ENTRY 417): say so rather than leave it unsaid.
+  if (!r.former_councillor) return 'Previous holder not confirmed.';
   const who = r.former_party_source === 'council' ? withParty(r.former_councillor, r.former_party_at_vacancy) : r.former_councillor;
   return r.vacancy_reason ? `Seat previously held by ${who}, ${r.vacancy_reason}.` : `Seat previously held by ${who}.`;
 }

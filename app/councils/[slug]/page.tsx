@@ -32,6 +32,7 @@ import CouncilRatingsSection, { CouncilRatingsSourceNotes } from '../../componen
 import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
 import { loadCouncilByelections, resultSentence, jointRunnersUp, contextSentence } from '@/lib/council-byelections';
+import { parishByelectionsFor } from '@/lib/parish-byelections';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { phoneUpTo } from '@/lib/breakpoints';
 
@@ -347,6 +348,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     ...(c.population_source && !c.population_source_url ? [{ text: `Population: ${c.population_source}.` }] : []),
     ...(byelections.length > 0 ? [{ text: `By-elections since May 2026, from ${c.name}\u2019s declarations of result:` }] : []),
     ...byelections.map((r) => ({ text: `${r.kind === 'by-election' ? 'By-election' : 'Postponed poll'}, ${r.ward_name}, ${longDate(r.poll_date)}: declaration of result`, href: r.declaration_url })),
+    ...parishByelectionsFor(c.slug).map((p) => ({ text: `${p.body} by-election, ${p.ward}, ${longDate(p.pollDate)}: ${c.name}\u2019s declaration of result`, href: p.declarationUrl })),
   ];
 
   return (
@@ -473,7 +475,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       label="By-elections since May 2026"
                       value={<>
                         {comp && comp.total_seats > 0 && (
-                          <span style={{ display: 'block', marginBottom: '10px' }}>Seat totals are as at May 2026 and do not include the byelections below.</span>
+                          <span style={{ display: 'block', marginBottom: '10px' }}>Seat totals are as at May 2026 and do not include the by-elections below.</span>
                         )}
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                           {byelections.map((r) => {
@@ -488,6 +490,20 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                           })}
                         </ul>
                       </>}
+                    />
+                  )}
+                  {/* Town and parish by-elections the council ran (owner asked, Cowork ENTRY 417): a note, from the
+                      declaration (in the Sources fold). lib/parish-byelections.ts. */}
+                  {parishByelectionsFor(c.slug).length > 0 && (
+                    <DataRow
+                      label="Town and parish by-elections"
+                      value={<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                        {parishByelectionsFor(c.slug).map((p) => (
+                          <li key={`${p.pollDate} ${p.body} ${p.ward}`} style={{ margin: '0 0 12px' }}>
+                            {`${longDate(p.pollDate)}, ${p.body}, ${p.ward}: ${p.winnerName}${p.winnerParty ? ` (${p.winnerParty})` : ''} elected with ${p.winnerVotes.toLocaleString('en-GB')} votes; ${p.runnerUpName}${p.runnerUpParty ? ` (${p.runnerUpParty})` : ''} ${p.runnerUpVotes.toLocaleString('en-GB')}.${p.turnoutPct != null ? ` Turnout ${p.turnoutPct} per cent.` : ''}`}
+                          </li>
+                        ))}
+                      </ul>}
                     />
                   )}
                   {/* Shown only when the leader was read from a source (scripts/import-council-leaders.js, owner's
