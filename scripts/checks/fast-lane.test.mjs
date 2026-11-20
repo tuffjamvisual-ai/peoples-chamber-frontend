@@ -119,6 +119,13 @@ test('deleting a share image route or an unused asset: fast', () => {
   assert.equal(r.samples.everyKind, true);
 });
 
+test('deleting one share image route: fast, its page sampled so the parent card it now shows is checked', () => {
+  const r = run({ changes: [['D', 'app/mps/opengraph-image.tsx']] });
+  assert.equal(r.fast, true, r.reasons.join('; '));
+  assert.deepEqual(r.samples.pages, ['/mps']);
+  assert.match(r.notes.join(' '), /deleted: sampled \/mps/);
+});
+
 test('a rename: both paths must qualify', () => {
   assert.equal(run({ changes: [['R', 'public/og/a.png', 'public/og/b.png']] }).fast, true);
   const r = run({ changes: [['R', 'lib/og/x.tsx', 'lib/x.tsx']] });
@@ -126,20 +133,10 @@ test('a rename: both paths must qualify', () => {
   assert.deepEqual(r.reasons, ['lib/x.tsx']);
 });
 
-test('a by-election change: fast, the council page the diff names', () => {
-  const diff = "@@ -10 +10 @@\n-  if (slug === 'flintshire') return 1;\n+  if (slug === 'flintshire') return 2;\n";
-  const r = run({ changes: [['M', 'lib/council-byelections.ts']], diff });
-  assert.equal(r.fast, true, r.reasons.join('; '));
-  assert.deepEqual(r.kinds, ['by-election list']);
-  assert.deepEqual(r.samples.pages, ['/councils/flintshire']);
-  assert.deepEqual(r.samples.imageRoutes, []);
-});
-
-test('a by-election change naming no council: the audit council page, with a note', () => {
+test('a by-election change: full (loader code reading the database, T2 20 Nov 2026)', () => {
   const r = run({ changes: [['M', 'lib/council-byelections.ts']], diff: "@@ -1 +1 @@\n-const a = 1;\n+const a = 2;\n" });
-  assert.equal(r.fast, true);
-  assert.deepEqual(r.samples.pages, ['/councils/derry-city-and-strabane']);
-  assert.match(r.notes[0], /names no council/);
+  assert.equal(r.fast, false);
+  assert.deepEqual(r.reasons, ['lib/council-byelections.ts']);
 });
 
 test('newsletter issues and robots.txt: fast', () => {

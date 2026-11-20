@@ -12,7 +12,7 @@
 //   static images        public/**/*.{png,jpg,jpeg,webp,gif,svg,ico}, only if the file's name appears nowhere in app/,
 //                        lib/ or any .css file (T2: /resigned-stamp.png is a mask in DepartmentMasthead.tsx)
 //   newsletter issues    public/newsletter/**
-//   page text content    lib/council-byelections.ts, public/robots.txt
+//   page text content    public/robots.txt (lib/council-byelections.ts is loader code: full check, T2 20 Nov 2026)
 // and no commit message in base..head says "Layout change approved". Anything else: the full check, with the reason.
 //
 // Samples for the fast check: when a helper, asset or font changed, one page of EVERY share image kind (the default
@@ -70,7 +70,7 @@ export function kindOf(f) {
   if (isHelper(f)) return KIND.helper;
   if (f.startsWith('public/og/') || f === 'public/fonts/bebas-neue.ttf') return KIND.asset;
   if (f.startsWith('public/newsletter/')) return KIND.newsletter;
-  if (f === 'lib/council-byelections.ts') return KIND.byelections;
+  // lib/council-byelections.ts is loader code reading the database, not a list (T2, 20 Nov 2026): it takes the full check.
   if (f === 'public/robots.txt') return KIND.robots;
   if (STATIC_IMAGE.test(f)) return KIND.image;
   return null;
@@ -168,7 +168,16 @@ export function eligibility({ base = 'origin/main', head, repo = gitRepo() }) {
       if (!kind) { reasons.push(gone ? `deletes ${p} (not a fast lane file)` : p); continue; }
       kinds.add(kind);
       if (kind === KIND.helper || kind === KIND.route) {
-        if (gone) { if (kind === KIND.helper) wide = true; continue; }
+        if (gone) {
+          if (kind === KIND.helper) { wide = true; continue; }
+          // A deleted share image route changes which card its pages show (they fall back to a parent's): sample its
+          // example page, whose og:image (the parent's card) checkSamples fetches too (T2, 20 Nov 2026).
+          const { route } = routeOfShareFile(p);
+          const page = route.includes('[') ? repo.examplePage(base, route) : route;
+          if (!page) { reasons.push(`${p}: deleted, and no example page for ${route} in scripts/checks/mobile-audit-pages.csv`); continue; }
+          pages.add(page); notes.push(`${p} deleted: sampled ${page} (its card now comes from a parent)`);
+          continue;
+        }
         const bad = allImporters(p, rev()).filter((i) => !isShareRoute(i) && !isHelper(i));
         if (bad.length) { reasons.push(`${p} is imported by ${bad.slice(0, 3).join(', ')}${bad.length > 3 ? ` and ${bad.length - 3} more` : ''} (not a share image route)`); continue; }
         if (kind === KIND.helper) { wide = true; continue; }
@@ -253,7 +262,9 @@ export function gitRepo(cwd = process.cwd()) {
     },
     nameUsedIn(head, name) {
       try {
-        return git('grep', '-l', '-F', '-e', name, head, '--', 'app', 'lib', ':(glob)**/*.css').split('\n').filter(Boolean).map((l) => l.replace(`${head}:`, ''));
+        // app/, lib/, every CSS file, the Next config, the proxy, and public data files that can name an image (manifests,
+        // HTML, XML, JSON) (T2, 20 Nov 2026).
+        return git('grep', '-l', '-F', '-e', name, head, '--', 'app', 'lib', ':(glob)**/*.css', 'next.config.ts', 'next.config.js', 'next.config.mjs', 'proxy.ts', 'middleware.ts', ':(glob)public/**/*.json', ':(glob)public/**/*.webmanifest', ':(glob)public/**/*.html', ':(glob)public/**/*.xml').split('\n').filter(Boolean).map((l) => l.replace(`${head}:`, ''));
       } catch { return []; } // git grep exits 1 when nothing matches
     },
     fileDiff(base, head, p) { return git('diff', '-U0', base, head, '--', p); },
