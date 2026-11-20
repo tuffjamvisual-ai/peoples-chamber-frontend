@@ -465,12 +465,12 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                     />
                   )}
 
-                  {/* Byelections since May 2026 (owner's approval, 30 Oct 2026; lib/council-byelections.ts), newest
+                  {/* By-elections since May 2026 (owner's approval, 30 Oct 2026; lib/council-byelections.ts), newest
                       first, each from the council's own declaration (listed in the Sources fold, Cowork ENTRY 410). The
                       seats above are left as at May 2026. */}
                   {byelections.length > 0 && (
                     <DataRow
-                      label="Byelections since May 2026"
+                      label="By-elections since May 2026"
                       value={<>
                         {comp && comp.total_seats > 0 && (
                           <span style={{ display: 'block', marginBottom: '10px' }}>Seat totals are as at May 2026 and do not include the byelections below.</span>
