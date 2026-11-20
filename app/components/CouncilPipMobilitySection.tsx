@@ -7,7 +7,7 @@
 import Link from 'next/link';
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { addPanelSource } from '@/lib/panel-sources';
-import { changeLine, derivedNote, eligibleLine, sourceLine, UK_SCHEME_LINE, UK_SCHEME_SOURCE, type PipMobilityRow } from '@/lib/pip-mobility';
+import { changeLine, derivedNote, eligibleLine, monthLabel, UK_SCHEME_LINE, UK_SCHEME_SOURCE, STAT_XPLORE_URL, type PipMobilityRow } from '@/lib/pip-mobility';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -24,6 +24,8 @@ export default async function CouncilPipMobilitySection({ gssCode }: { gssCode: 
   const rows = (data || []) as PipMobilityRow[];
   if (!rows.length) return null;
   const cur = rows[0];
+  // The figures' source (DWP Stat-Xplore) is in the tab's Sources fold with the scheme's (Cowork ENTRY 410), not in the text.
+  addPanelSource({ label: `DWP Stat-Xplore, Personal Independence Payment, ${monthLabel(cur.period)}`, href: STAT_XPLORE_URL });
   addPanelSource({ label: UK_SCHEME_SOURCE.label, href: UK_SCHEME_SOURCE.url });
   const yearEarlier = `${Number(cur.period.slice(0, 4)) - 1}${cur.period.slice(4, 10)}`;
   const prev = rows.find((r) => r.period.slice(0, 10) === yearEarlier);
@@ -51,10 +53,7 @@ export default async function CouncilPipMobilitySection({ gssCode }: { gssCode: 
         {eligibleLine(cur.enhanced)}
         {change && <span style={{ display: 'block', color: INK_SOFT, marginTop: '2px' }}>{change}</span>}
       </p>
-      <p style={small}>
-        {UK_SCHEME_LINE}{' '}
-        Source: {UK_SCHEME_SOURCE.label} (in Sources at the end of this tab).
-      </p>
+      <p style={small}>{UK_SCHEME_LINE}</p>
       {districts.length > 0 && (
         <>
           <p style={small}>{derivedNote(districts.length)}</p>
@@ -68,7 +67,6 @@ export default async function CouncilPipMobilitySection({ gssCode }: { gssCode: 
           </ul>
         </>
       )}
-      <p style={small}>{sourceLine(cur.period)}</p>
     </section>
   );
 }

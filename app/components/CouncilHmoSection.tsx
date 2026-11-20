@@ -6,9 +6,10 @@
 // Northern Ireland: a note. A county shows the sum of its districts (only years where every district has the figure),
 // as the other sections. Wording in lib/hmos.ts.
 import Link from 'next/link';
-import { addPanelSource } from '@/lib/panel-sources';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 import {
-  loadAreas, sumDistricts, count, fy, marchDate, share, perThousand, perThousandText, noteText, NO_FIGURE, NATIONAL_PATH, SOURCE, OGL, OGL_URL,
+  loadAreas, sumDistricts, count, fy, marchDate, share, perThousand, perThousandText, noteText, NO_FIGURE, NATIONAL_PATH, SOURCE,
   DEFINITION_2018, ENGLAND_ESTIMATE_NOTE, WALES_NOTE, SCOTLAND_NOTE, NI_NOTE, OVER_100_NOTE, type HmoRow,
 } from '@/lib/hmos';
 
@@ -40,16 +41,6 @@ function Cards({ cards }: { cards: { value: string; label: string; sub: string }
         </div>
       ))}
     </div>
-  );
-}
-
-function Source({ nation }: { nation: keyof typeof SOURCE }) {
-  addPanelSource({ label: SOURCE[nation].label, href: SOURCE[nation].href });
-  return (
-    <p style={small}>
-      Source: {SOURCE[nation].label} (in Sources at the end of this tab).{' '}
-      <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
-    </p>
   );
 }
 
@@ -86,6 +77,12 @@ export default async function CouncilHmoSection({ gssCodes, isCounty, country, o
   const cur = rows[0];
   if (!cur) return null;
   const nation = cur.nation;
+  // The source and its licence go in the tab's Sources fold (Cowork ENTRY 410), not in the text. Added here, while the
+  // section is read, so the panel route has them before it lists the fold (they were added by a child component before,
+  // which renders after the fold's list is read).
+  const src = SOURCE[nation as keyof typeof SOURCE];
+  if (src) addPanelSource({ label: src.label, href: src.href });
+  addPanelNote(OGL_NOTE);
   const rate = perThousand(nation === 'Scotland' ? cur.licensed : cur.estimated, cur.homes);
   const homesLine = cur.homes != null && cur.homes_year ? `${count(cur.homes)} homes, ${marchDate(cur.homes_year)}` : 'Homes: no figure published';
 
@@ -129,7 +126,6 @@ export default async function CouncilHmoSection({ gssCodes, isCounty, country, o
         <YearNotes rows={rows} nation={nation} />
         {rows.some((r) => (share(r.licensed, r.licensable) ?? 0) > 100) && <p style={small}>{OVER_100_NOTE}</p>}
         <p style={small}><Link href={NATIONAL_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council</Link>.</p>
-        <Source nation="England" />
       </section>
     );
   }
@@ -167,7 +163,6 @@ export default async function CouncilHmoSection({ gssCodes, isCounty, country, o
         </div>
         <YearNotes rows={rows} nation={nation} />
         <p style={small}><Link href={NATIONAL_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council</Link>.</p>
-        <Source nation="Wales" />
       </section>
     );
   }
@@ -203,7 +198,6 @@ export default async function CouncilHmoSection({ gssCodes, isCounty, country, o
       </div>
       <YearNotes rows={recent} nation={nation} />
       <p style={small}><Link href={NATIONAL_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council</Link>.</p>
-      <Source nation="Scotland" />
     </section>
   );
 }

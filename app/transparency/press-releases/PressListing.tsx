@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import LastUpdated from '../../components/LastUpdated';
+import PageSources from '../../components/PageSources';
 import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -450,6 +451,8 @@ export default async function PressListing({ sp, strict = false }: { sp: { q?: s
         .press-card { transition: opacity 140ms ease; }
         .press-card:hover { opacity: 0.7; }
       `}</style>
+      {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
+      <PageSources sources={[{ label: 'GOV.UK, news and communications (press releases)', href: 'https://www.gov.uk/search/news-and-communications' }]} />
       <LastUpdated sourceKey="press_releases" />
     </OpenGovShell>
   );

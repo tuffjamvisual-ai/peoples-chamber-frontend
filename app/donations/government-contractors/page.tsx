@@ -10,6 +10,7 @@
 
 import type { Metadata } from 'next';
 import LastUpdated from '../../components/LastUpdated';
+import PageSources from '../../components/PageSources';
 import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
 import { SubFold } from '@/app/components/PhoneFolds';
@@ -146,6 +147,8 @@ export default async function ContractorsWhoDonatePage() {
         Sources: Find a Tender (OCDS) + Electoral Commission donations register. Match rule: the supplier&rsquo;s Companies House number on Find a Tender equals the donor&rsquo;s on the Electoral Commission register; a contract counts only when its notices give one number for that supplier. Counting: Find a Tender publishes several notices for one contract (an award, its contract details, later changes); each contract is counted once at its latest value. Frameworks are counted as places, not added to the contract value: a framework&rsquo;s value is the most that every supplier on it could be paid, potential value, not spending.
       </p>
       </SubFold>
+      {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
+      <PageSources sources={[{ label: 'Find a Tender (OCDS)', href: 'https://www.find-tender.service.gov.uk/' }]} />
       <LastUpdated sourceKey="government_contracts" />
     </OpenGovShell>
   );

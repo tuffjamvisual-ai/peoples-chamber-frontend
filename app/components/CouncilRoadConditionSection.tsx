@@ -6,10 +6,11 @@
 // lib/road-condition.ts.
 
 import Link from 'next/link';
-import { addPanelSource } from '@/lib/panel-sources';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 import {
   loadArea, value, valueText, notComparable, changeText, fye, ROAD_TYPES, RED_MEANING, NOT_COMPARABLE_WARNING, LAST_YEAR_NOTE,
-  ENGLAND_NOTE, SOURCE_PAGE, SOURCE_LABEL, OGL, OGL_URL, RANKING_PATH,
+  ENGLAND_NOTE, SOURCE_PAGE, SOURCE_LABEL, RANKING_PATH,
 } from '@/lib/road-condition';
 
 const INK = '#14100d';
@@ -56,6 +57,7 @@ export default async function CouncilRoadConditionSection({ gssCode, country, is
   const treated = value(cur, 'treated_a_pct') != null || value(cur, 'treated_bcu_pct') != null;
 
   addPanelSource({ label: SOURCE_LABEL, href: SOURCE_PAGE });
+  addPanelNote(OGL_NOTE);
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <Heading />
@@ -85,14 +87,10 @@ export default async function CouncilRoadConditionSection({ gssCode, country, is
       )}
 
       {flagged && <p style={small}>{NOT_COMPARABLE_WARNING}</p>}
-      <p style={small}>Red means the road {RED_MEANING} (DfT). Unclassified roads are surveyed in different ways by different councils, so DfT advises caution comparing them. {ENGLAND_NOTE}</p>
+      <p style={small}>Red means the road {RED_MEANING}. Unclassified roads are surveyed in different ways by different councils, so DfT advises caution comparing them. {ENGLAND_NOTE}</p>
       <p style={small}>{LAST_YEAR_NOTE}</p>
       <p style={small}>
         <Link href={RANKING_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every highway authority in England</Link>.
-      </p>
-      <p style={small}>
-        Source: {SOURCE_LABEL} (in Sources at the end of this tab).{' '}
-        <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
       </p>
     </section>
   );

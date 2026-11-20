@@ -6,9 +6,10 @@
 
 import Link from 'next/link';
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
-import { addPanelSource } from '@/lib/panel-sources';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 import {
-  loadArea, count, shareText, change, changeText, pctChangeText, asAt, yearTo, releaseFor, OGL, OGL_URL,
+  loadArea, count, shareText, change, changeText, pctChangeText, asAt, yearTo, releaseFor,
   ROUNDING_NOTE, SHARE_NOTE, LOW_TEXT, RANKING_PATH, type BlueBadgeRow,
 } from '@/lib/blue-badges';
 
@@ -64,6 +65,7 @@ export default async function CouncilBlueBadgesSection({ gssCode, country, isDis
   const hasLow = cur.low_fields.some((f) => SHOWN.includes(f));
   const rel = releaseFor(cur.year);
   addPanelSource({ label: `Department for Transport, ${rel.label}`, href: rel.url });
+  addPanelNote(OGL_NOTE);
   const changeLine = changeText(cur, prev);
 
   return (
@@ -84,10 +86,6 @@ export default async function CouncilBlueBadgesSection({ gssCode, country, isDis
       </p>
       <p style={small}>
         <Link href={RANKING_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council in England</Link>, with who qualifies automatically and who is assessed by the council.
-      </p>
-      <p style={small}>
-        Source: Department for Transport, {rel.label} (in Sources at the end of this tab).{' '}
-        <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
       </p>
     </section>
   );

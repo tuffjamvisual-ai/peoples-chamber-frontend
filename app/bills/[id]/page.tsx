@@ -708,7 +708,11 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       })()}
 
       {/* EL1 (owner, 10 Nov 2026): the official record at Parliament is in the page's one Sources fold, not a link above. */}
-      <PageSources sources={[bill.parliament_id != null && { label: 'This bill on UK Parliament\u2019s Bills website', href: `https://bills.parliament.uk/bills/${bill.parliament_id}` }]} />
+      {/* Cowork ENTRY 410 (20 Nov 2026): the Lords votes' source, named before on their date line, is listed here. */}
+      <PageSources sources={[
+        bill.parliament_id != null && { label: 'This bill on UK Parliament\u2019s Bills website', href: `https://bills.parliament.uk/bills/${bill.parliament_id}` },
+        lordsDivisions.length > 0 && { label: 'Lords votes: UK Parliament, Lords Votes', href: 'https://votes.parliament.uk/' },
+      ]} />
 
       </article>
 

@@ -10,6 +10,7 @@
 import NoJsPager from '@/app/components/NoJsPager';
 import type { Metadata } from 'next';
 import LastUpdated from '../components/LastUpdated';
+import PageSources from '../components/PageSources';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
@@ -22,6 +23,9 @@ import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
+
+// MHCLG's guide to local government structure, the list behind the councils and their types (Cowork ENTRY 410).
+const COUNCIL_LIST_SOURCE_URL = 'https://www.gov.uk/guidance/local-government-structure-and-elections';
 export const revalidate = false; // A16: rebuilt only when council data changes (council-data and table tags), or on a deploy
 
 // Title and description (owner, 7 Nov 2026, L4): the word "councils" and the number of councils from the data. The page lists
@@ -214,6 +218,14 @@ export default async function CouncilsIndex() {
             );
           })}
         </div>
+        {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the council details' source, in a Sources fold rather than the date line.
+            The list of councils and their types follows MHCLG's guide to local government structure (checked 20 Nov
+            2026, OGL v3.0); the rest is from each council's own publications, linked on its page. */}
+        <PageSources sources={[
+          { label: 'Ministry of Housing, Communities and Local Government, Local government structure and elections', href: COUNCIL_LIST_SOURCE_URL },
+        ]}>
+          <p style={{ margin: '6px 0' }}>Council details are also from each council&rsquo;s own publications, listed on its page.</p>
+        </PageSources>
       </article>
       <LastUpdated sourceKey="councils" />
     </OpenGovShell>

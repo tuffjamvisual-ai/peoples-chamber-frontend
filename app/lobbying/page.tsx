@@ -7,6 +7,7 @@ import type { CSSProperties } from 'react';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import LastUpdated from '../components/LastUpdated';
+import PageSources from '../components/PageSources';
 import LobbyRanking, { type RankingTab } from './LobbyRanking';
 import { ShowAll, NoJsFold } from '../components/NoJsPager';
 import { SubFold } from '../components/PhoneFolds';
@@ -192,6 +193,11 @@ export default async function LobbyingPage() {
         <LastUpdated sourceKey="lobbying_meetings" />
         <LastUpdated sourceKey="consultant_lobbyists" />
         </SubFold>
+        {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
+        <PageSources sources={[
+          { label: 'GOV.UK, ministers\u2019 meetings transparency returns', href: 'https://www.gov.uk/government/collections/ministers-transparency-publications' },
+          { label: 'Registrar of Consultant Lobbyists, quarterly returns', href: 'https://registrarofconsultantlobbyists.org.uk/' },
+        ]} />
       </article>
     </OpenGovShell>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { cache } from 'react';
 import { wholeSentences } from '@/lib/meta-description';
 import LastUpdated from '../components/LastUpdated';
+import PageSources from '../components/PageSources';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
@@ -328,6 +329,8 @@ export default async function ExpensesPage() {
         </div>
       </section>
 
+      {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
+      <PageSources sources={[{ label: 'Independent Parliamentary Standards Authority (IPSA), MP costs', href: 'https://www.theipsa.org.uk/mp-costs/' }]} />
       <LastUpdated sourceKey="mp_expenses" />
     </OpenGovShell>
   );

@@ -17,15 +17,18 @@ import { SHOW_COUNCIL_FOUNDED } from '@/lib/feature-flags';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import PageSources from '../../components/PageSources';
-import { OMBUDSMAN_SOURCES } from '../../components/CouncilOmbudsmanSection';
+import PageSources, { type PageSource } from '../../components/PageSources';
+import { OMBUDSMAN_SOURCES, OMBUDSMAN_NOTE } from '../../components/CouncilOmbudsmanSection';
+import FoldNotes from '../../components/FoldNotes';
+import { OGL_NOTE, CC_BY_SA_4_URL, type FoldNote } from '@/lib/fold-notes';
+import { MEASURE_SOURCE_URLS } from '@/lib/council-league';
 import niWelfare from '@/lib/data/ni-welfare.json';
 import CouncilTabs from './CouncilTabs';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
 import { Dated, recordText, showsWelfare, tabsWithContent } from './panels';
 import RecordDate from '../../components/RecordDate';
 import { longDay } from '@/lib/record-dates';
-import CouncilRatingsSection from '../../components/CouncilRatingsSection';
+import CouncilRatingsSection, { CouncilRatingsSourceNotes } from '../../components/CouncilRatingsSection';
 import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
 import { loadCouncilByelections, resultSentence, jointRunnersUp, contextSentence } from '@/lib/council-byelections';
@@ -106,12 +109,19 @@ type PublicHealthMetricRow = {
   period_label: string | null;
 };
 
-const PUBLIC_HEALTH_SOURCE_LABELS: Record<string, string> = {
-  fingertips: 'OHID Fingertips',
-  scottish_health_survey: 'Scottish Health Survey',
-  ons_life_expectancy_gb: 'ONS',
-  ons_life_expectancy_ni: 'ONS',
+// Where each public health figure comes from, for the page's Sources fold (Cowork ENTRY 410: the source is not named on
+// the row). Fingertips and ONS life expectancy are the league table's addresses (lib/council-league.ts); the Scottish
+// Health Survey collection was checked on 20 Nov 2026. All OGL v3.0.
+const PUBLIC_HEALTH_SOURCES: Record<string, { label: string; href: string }> = {
+  fingertips: { label: 'Public health: Office for Health Improvement and Disparities, Fingertips', href: MEASURE_SOURCE_URLS.obesity },
+  scottish_health_survey: { label: 'Public health: Scottish Government, Scottish Health Survey', href: 'https://www.gov.scot/collections/scottish-health-survey/' },
+  ons_life_expectancy_gb: { label: 'Life expectancy: Office for National Statistics, life expectancy for local areas', href: MEASURE_SOURCE_URLS.life_exp_f },
+  ons_life_expectancy_ni: { label: 'Life expectancy: Office for National Statistics, life expectancy for local areas', href: MEASURE_SOURCE_URLS.life_exp_f },
 };
+
+// Seats by party (Open Council Data UK, public domain): its downloads page, the one the composition import names
+// (checked 20 Nov 2026). Listed in the page's Sources fold, not under the seats (Cowork ENTRY 410).
+const OPEN_COUNCIL_DATA_URL = 'https://opencouncildata.co.uk/productsAndDownloads.php';
 
 type ServiceSpendingRow = {
   service_category: string;
@@ -120,10 +130,14 @@ type ServiceSpendingRow = {
   period_label: string | null;
 };
 
-const SERVICE_SPENDING_SOURCE_LABELS: Record<string, string> = {
-  mhclg_rsx: 'MHCLG (outturn)',
-  scotland_lfr: 'Scottish Government (outturn)',
-  statswales: 'StatsWales (outturn)',
+// Spending by service, each nation's outturn statistics, for the page's Sources fold (Cowork ENTRY 410: not on the row).
+// England: MHCLG's revenue expenditure and financing collection; Scotland: the Scottish Local Government Finance
+// Statistics 2024-25 workbooks the import reads; Wales: the StatsWales dataset the import reads (213aeb99...). All
+// checked 20 Nov 2026; all OGL v3.0.
+const SERVICE_SPENDING_SOURCES: Record<string, { label: string; href: string }> = {
+  mhclg_rsx: { label: 'Ministry of Housing, Communities and Local Government, local authority revenue expenditure (outturn)', href: 'https://www.gov.uk/government/collections/local-authority-revenue-expenditure-and-financing' },
+  scotland_lfr: { label: 'Scottish Government, Scottish Local Government Finance Statistics (outturn)', href: 'https://www.gov.scot/publications/scottish-local-government-finance-statistics-slgfs-2024-25-workbooks/' },
+  statswales: { label: 'Welsh Government, StatsWales, revenue outturn expenditure by authority and service', href: 'https://stats.gov.wales/en-GB/213aeb99-18eb-42c9-b00e-e4b716e82cdf' },
 };
 
 // The single category in each nation's data that represents the whole
@@ -320,6 +334,21 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     (r) => r.value_pounds != null && Math.round(r.value_pounds / 1000000) !== 0,
   );
 
+  // The page's Sources fold (Cowork ENTRY 410): the licence and attribution lines, including sources with no address of
+  // their own (the last election's results, a population estimate with no link) and each byelection's declaration of
+  // result. The Ratings tab's financial health records are added in the fold by CouncilRatingsSourceNotes.
+  const wikiUsed = !!c.wikipedia_url || /wikipedia\.org\//.test(c.leader_source_url ?? '') || !!c.chief_exec_source_url;
+  const oglUsed = !!councilTax?.source_url || showServiceSpending || showPublicHealth || /^E/.test(c.gss_code ?? '') || !!c.population_source || !!c.gss_code?.startsWith('N09');
+  const foldNotes: FoldNote[] = [
+    ...(wikiUsed ? [{ text: 'Text from Wikipedia (the description of the council and, where the Sources list says so, the leader and chief executive) is used under the Creative Commons Attribution-ShareAlike 4.0 licence (CC BY-SA 4.0).', href: CC_BY_SA_4_URL }] : []),
+    ...(oglUsed ? [OGL_NOTE] : []),
+    ...(/^E/.test(c.gss_code ?? '') ? [OMBUDSMAN_NOTE] : []),
+    ...(electionSummary ? [{ text: `Last election, ${longDate(electionSummary.date)}: ${electionSummary.source || `${c.name}\u2019s published results`}.` }] : []),
+    ...(c.population_source && !c.population_source_url ? [{ text: `Population: ${c.population_source}.` }] : []),
+    ...(byelections.length > 0 ? [{ text: `Byelections since May 2026, from ${c.name}\u2019s declarations of result:` }] : []),
+    ...byelections.map((r) => ({ text: `${r.kind === 'by-election' ? 'Byelection' : 'Postponed poll'}, ${r.ward_name}, ${longDate(r.poll_date)}: declaration of result`, href: r.declaration_url })),
+  ];
+
   return (
     <OpenGovShell pageStamp="Councils">
       {/* Phones (owner, 30 Oct 2026): under 640px each label sits above its value at full width, as the two columns
@@ -410,20 +439,15 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
                   {c.description}
                 </p>
-                {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0), so it is credited. */}
-                {c.wikipedia_url && (
-                  <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, margin: '-20px auto 28px', maxWidth: '46em', color: INK_SOFT }}>
-                    From Wikipedia, under CC BY-SA 4.0 (in Sources at the end of the page).
-                  </p>
-                )}
+                {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0): credited in the Sources fold. */}
                 </SubFold>
               )}
               </div>
 
               {hasLeadership && (
                 <Section title="Political Control & Leadership" date={councilUpdated} source="councils.updated_at"
-                  // NI2 (9 Nov 2026): where the seat figures come from, and as of when.
-                  sourceLine={comp && comp.total_seats > 0 ? { text: `Seats: opencouncildata.co.uk, public domain, as of May ${comp.snapshot_year}`, source: 'council_composition.snapshot_year' } : undefined}
+                  // NI2 (9 Nov 2026): as of when the seat figures are; where they come from is in the Sources fold (ENTRY 410).
+                  sourceLine={comp && comp.total_seats > 0 ? { text: `Seats as of May ${comp.snapshot_year}`, source: 'council_composition.snapshot_year' } : undefined}
                   moreLabel="Seats, leader and elections" more={<>
                   {/* Who runs it and the seats (T1-GUARD headroom, Cowork 13 Nov 2026 ENTRY 2): in this fold on phones, so
                       the page has room under the 2,500px phone length as the byelections grow; from 640px (and on tablets)
@@ -437,12 +461,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                     <DataRow
                       label="Seats"
                       value={`${seatsLine(comp)} (${comp.total_seats} seats)`}
-                      sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
+                      sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties.`}
                     />
                   )}
 
                   {/* Byelections since May 2026 (owner's approval, 30 Oct 2026; lib/council-byelections.ts), newest
-                      first, each from the council's own declaration. The seats above are left as at May 2026. */}
+                      first, each from the council's own declaration (listed in the Sources fold, Cowork ENTRY 410). The
+                      seats above are left as at May 2026. */}
                   {byelections.length > 0 && (
                     <DataRow
                       label="Byelections since May 2026"
@@ -458,7 +483,6 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                                 {resultSentence(r, c.gss_code.startsWith('S12'))}
                                 {jointRunnersUp(r) && <> {jointRunnersUp(r)}</>}
                                 {context && <span style={{ display: 'block' }}>{context}</span>}
-                                <span style={{ display: 'block' }}><a data-og-row-source="" href={r.declaration_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Declaration of result</a></span>
                               </li>
                             );
                           })}
@@ -469,9 +493,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   {/* Shown only when the leader was read from a source (scripts/import-council-leaders.js, owner's
                       decision, 19 Oct 2026); the old backfilled value was often the ceremonial mayor or chair. */}
                   {c.leader_source_url && c.leader_role && (
-                    <DataRow label={c.leader_role} value={leaderValue(c)} sub={leaderSource(c)} />
+                    <DataRow label={c.leader_role} value={leaderValue(c)} />
                   )}
-                  <DataRow label="Chief executive" value={c.chief_exec ?? c.chief_exec_note} sub={chiefExecSource(c)} />
+                  <DataRow label="Chief executive" value={c.chief_exec ?? c.chief_exec_note} />
                   <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary, c.slug)} sub={lastElectionSub(c.last_election_year, comp, electionSummary, c)} />
                 </>}>
                   <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
@@ -483,7 +507,6 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   <DataRow
                     label={c.population_year ? `Population (${c.population_year} estimate)` : 'Population'}
                     value={c.population?.toLocaleString('en-GB') ?? null}
-                    sub={c.population_source ? `Source: ${c.population_source}` : null}
                   />
                   {/* Founded year: hidden (owner's decision, 20 Oct 2026; SHOW_COUNCIL_FOUNDED). */}
                   {SHOW_COUNCIL_FOUNDED && <DataRow label="Founded" value={c.founded_year?.toString() ?? null} />}
@@ -557,12 +580,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
                   {c.description}
                 </p>
-                {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0), so it is credited. */}
-                {c.wikipedia_url && (
-                  <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, margin: '-20px auto 28px', maxWidth: '46em', color: INK_SOFT }}>
-                    From Wikipedia, under CC BY-SA 4.0 (in Sources at the end of the page).
-                  </p>
-                )}
+                {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0): credited in the Sources fold. */}
                 </SubFold>
               )}
               </div>
@@ -605,7 +623,6 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                     sub={
                       [
                         spendingPeriodLabel,
-                        spendingSource ? SERVICE_SPENDING_SOURCE_LABELS[spendingSource] || spendingSource : null,
                         !spendingAggregateRow
                           ? `Sum of this council's ${spendingBreakdownRows.length} reported service categories. ${c.country} does not publish a single total figure in this source.`
                           : null,
@@ -672,24 +689,46 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             that link to this council; nothing when there are none (lib/related-links.ts). */}
         <RelatedLine links={await councilRelated(c.slug)} />
 
-        {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The council's own website, Wikipedia (the
-            description and its CC BY-SA 4.0 licence, the chief executive, some leaders), the population estimate, the
-            Ombudsman's figures and Northern Ireland's welfare sources are in this one Sources fold. Each byelection's
-            declaration and each rating's source stay on their rows. */}
-        <PageSources sources={[
+        {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. Cowork ENTRY 410 (owner, 20 Nov 2026): no source lines
+            or source links in the page text; every source of the Overview, Money, Health and Ratings tabs and the welfare
+            slot is in this one Sources fold, with the licence and attribution lines above its list. The detail tabs have
+            their own fold each (lib/panel-sources.ts). The council's own website stays here: the page has no other
+            place for links (held for the owner). */}
+        <PageSources sources={mergeSameAddress([
           c.website_url && { label: `${c.name}\u2019s own website`, href: c.website_url },
-          c.population_source && c.population_source_url && { label: `Population: ${c.population_source}`, href: c.population_source_url },
-          c.leader_source_url && { label: `${c.leader_role ?? 'Leader'}: ${/^https:\/\/en\.wikipedia\.org\//.test(c.leader_source_url) ? 'Wikipedia' : c.name}`, href: c.leader_source_url },
+          comp && comp.total_seats > 0 && { label: `Seats as of May ${comp.snapshot_year}: Open Council Data UK (public domain)`, href: OPEN_COUNCIL_DATA_URL },
+          c.leader_source_url && { label: `${c.leader_role ?? 'Leader'}: ${/^https:\/\/en\.wikipedia\.org\//.test(c.leader_source_url) ? 'Wikipedia' : c.name}${c.leader_checked_on ? `, checked ${longDate(c.leader_checked_on)}` : ''}`, href: c.leader_source_url },
           c.leader_second_source_url && { label: `${c.leader_role ?? 'Leader'}: ${c.name}`, href: c.leader_second_source_url },
-          c.chief_exec_source_url && { label: 'Chief executive: Wikipedia', href: c.chief_exec_source_url },
-          c.wikipedia_url && { label: `${c.name} on Wikipedia (the description above)`, href: c.wikipedia_url },
-          c.wikipedia_url && { label: 'Wikipedia text licence: CC BY-SA 4.0', href: 'https://creativecommons.org/licenses/by-sa/4.0/' },
+          c.chief_exec_source_url && { label: `Chief executive: Wikipedia${c.chief_exec_checked_on ? `, checked ${longDate(c.chief_exec_checked_on)}` : ''}`, href: c.chief_exec_source_url },
+          c.wikipedia_url && { label: `${c.name} on Wikipedia (the description of the council)`, href: c.wikipedia_url },
+          c.wikipedia_url && { label: 'Wikipedia text licence: CC BY-SA 4.0', href: CC_BY_SA_4_URL },
+          c.population_source && c.population_source_url && { label: `Population: ${c.population_source}`, href: c.population_source_url },
+          councilTax?.source_url && { label: `Council tax ${councilTax.year.replace('-', '/')}: ${councilTaxPublisher(councilTax)}, council tax levels`, href: councilTax.source_url },
+          showServiceSpending && spendingSource && SERVICE_SPENDING_SOURCES[spendingSource] && { label: `Spending by service${spendingPeriodLabel ? ` ${spendingPeriodLabel}` : ''}: ${SERVICE_SPENDING_SOURCES[spendingSource].label}`, href: SERVICE_SPENDING_SOURCES[spendingSource].href },
+          ...(showPublicHealth ? [...new Set([...publicHealthByKey.values()].filter((r) => r.value != null).map((r) => r.source))].map((k) => PUBLIC_HEALTH_SOURCES[k]).filter(Boolean) : []),
           ...(/^E/.test(c.gss_code ?? '') ? OMBUDSMAN_SOURCES : []),
           ...(c.gss_code?.startsWith('N09') ? niWelfare.sources.map((x) => ({ label: `Welfare: ${x.label}`, href: x.url })) : []),
-        ]} />
+        ])}>
+          <FoldNotes notes={foldNotes} />
+          <CouncilRatingsSourceNotes gssCode={c.gss_code} type={c.type} />
+        </PageSources>
       </article>
     </OpenGovShell>
   );
+}
+
+// One entry per address, its labels joined (Cowork ENTRY 410): the leader, the chief executive and the description are
+// often all from the same Wikipedia article, and PageSources keeps only the first entry for an address, so the chief
+// executive's checked date was lost.
+function mergeSameAddress(list: (PageSource | null | false | undefined | '' | 0)[]): PageSource[] {
+  const byHref = new Map<string, PageSource>();
+  for (const s of list) {
+    if (!s || !s.href) continue;
+    const had = byHref.get(s.href);
+    if (had) had.label = `${had.label}; ${s.label}`;
+    else byHref.set(s.href, { ...s });
+  }
+  return [...byHref.values()];
 }
 
 // Stored status values are short codes ("majority", "NOC (largest: Labour 48/99)").
@@ -768,8 +807,8 @@ function PublicHealthRow({
   }
 
   const formattedValue = isYears ? `${row.value.toFixed(1)} years` : `${row.value.toFixed(1)}%`;
-  const sourceLabel = PUBLIC_HEALTH_SOURCE_LABELS[row.source] || row.source;
-  const sub = row.period_label ? `${row.period_label} · ${sourceLabel}` : sourceLabel;
+  // The period only; the source is in the page's Sources fold (Cowork ENTRY 410).
+  const sub = row.period_label;
 
   return <DataRow label={label} value={formattedValue} sub={sub} />;
 }
@@ -812,8 +851,10 @@ function councilTaxSub(t: CouncilTax): string {
   const nation = t.nation === 'Scotland'
     ? ' Scottish Water charges are added on the same bill; police and fire are funded nationally.'
     : t.nation === 'Wales' ? ' Fire services in Wales are funded by a levy on the council, not a separate charge.' : '';
-  return `${base}${nation} Source: ${t.nation === 'England' ? 'Ministry of Housing, Communities and Local Government' : t.nation === 'Wales' ? 'Welsh Government' : 'Scottish Government'}, council tax levels ${t.year.replace('-', '/')}.`;
+  return `${base}${nation}`;
 }
+// The council tax figures' publisher, for the page's Sources fold (Cowork ENTRY 410: not on the row). OGL v3.0.
+const councilTaxPublisher = (t: CouncilTax) => (t.nation === 'England' ? 'Ministry of Housing, Communities and Local Government' : t.nation === 'Wales' ? 'Welsh Government' : 'Scottish Government');
 
 // "Last election" line: parties ranked 1st, 2nd, 3rd..., with each party's share of the
 // vote where the council's full result is held (lib/council-election-summary.ts),
@@ -887,8 +928,8 @@ function lastElectionSub(year: number | null | undefined, comp: CouncilCompositi
         ? ` Includes the ${p.ward} poll, postponed to ${fmt(p.date)}.`
         : ` Includes the ${p.ward} poll of ${fmt(p.date)}, held for seats left unfilled on ${fmt(sum.date)}.`).join('')
     : '';
-  if (sum?.stv) return upNote + unopposed.trim() + (unopposed ? ' ' : '') + `Share of all first preference votes across the council's ${sum.wards} ${areaWord(c)} (councillors here are elected by single transferable vote, where voters rank candidates); seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra} Source: ${sum.source || "the council's published results"}.`;
-  if (sum) return upNote + (unopposed ? unopposed.trim() + ' ' : '') + `Share of all votes cast across the council's ${sum.wards} ${areaWord(c)}; seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra} Source: ${sum.source || "the council's published results"}.`;
+  if (sum?.stv) return upNote + unopposed.trim() + (unopposed ? ' ' : '') + `Share of all first preference votes across the council's ${sum.wards} ${areaWord(c)} (councillors here are elected by single transferable vote, where voters rank candidates); seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra}`;
+  if (sum) return upNote + (unopposed ? unopposed.trim() + ' ' : '') + `Share of all votes cast across the council's ${sum.wards} ${areaWord(c)}; seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra}`;
   // Only when the seats list is shown (the composition is from that election's year).
   if (comp && year && comp.snapshot_year === year && comp.total_seats > 0) return 'Seats on the council after that election (where a council elects a third of its seats at a time, this is the whole council). Vote shares are added once the full result is collected.';
   return null;
@@ -909,33 +950,8 @@ function leaderValue(c: CouncilFull): string {
     : c.leader_since_text;
   return since ? `${who} (since ${since})` : who;
 }
-function leaderSource(c: CouncilFull): React.ReactNode {
-  const link = (_href: string, text: string) => text;
-  const src = c.leader_source_url as string;
-  const wiki = /^https:\/\/en\.wikipedia\.org\//.test(src);
-  return (
-    <>
-      Source: {link(src, wiki ? 'Wikipedia' : c.name)}
-      {c.leader_second_source_url && <>, {link(c.leader_second_source_url, c.name)}</>}
-      {c.leader_checked_on && <>, checked {longDate(c.leader_checked_on)}</>}
-    </>
-  );
-}
-
 // '2026-10-20' -> '20 October 2026'.
 const longDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
-
-// Where the chief executive was read, and when (migration 2026-10-20c): the council's Wikipedia article.
-function chiefExecSource(c: CouncilFull): React.ReactNode {
-  if (!c.chief_exec_source_url) return null;
-  const checked = c.chief_exec_checked_on ? longDate(c.chief_exec_checked_on) : null;
-  return (
-    <>
-      Source: Wikipedia
-      {checked && <>, checked {checked}</>}
-    </>
-  );
-}
 
 function DataRow({ label, value, sub, valueColour }: { label: string; value: React.ReactNode | null; sub?: React.ReactNode | null; valueColour?: string }) {
   if (value == null || value === '') return null;

@@ -12,6 +12,9 @@
 // year and measure in the table under "Yearly figures".
 
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
+import { MEASURE_SOURCE_URLS } from '@/lib/council-league';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 import './phone-table.css';
 
 const INK = '#14100d';
@@ -127,6 +130,9 @@ export default async function CouncilRoadCasualtiesSection({
     .map((u) => ({ ...u, serious: u.ksi != null && u.killed != null ? Number(u.ksi) - Number(u.killed) : null }))
     .filter((u) => u.killed != null || u.serious != null);
   const release = rows[rows.length - 1].release_label;
+  // The source and its licence are in the tab's Sources fold (Cowork ENTRY 410), not in the text.
+  addPanelSource({ label: `Department for Transport, Reported road casualties Great Britain (${release})`, href: MEASURE_SOURCE_URLS.roads });
+  addPanelNote(OGL_NOTE);
   const caveatYears: number[] = years.filter((y) => y === 2022 || y === 2023);
 
   const stat = (label: string, n: number | null) =>
@@ -258,9 +264,6 @@ export default async function CouncilRoadCasualtiesSection({
 
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         These are casualties in collisions reported to the police on all roads in the council&rsquo;s area, including motorways and trunk roads it doesn&rsquo;t manage. Killed, seriously injured and slightly injured are counts as recorded by the police and add up to all casualties. Police forces have moved to an injury based recording system that classes more injuries as serious, so the Department for Transport estimates how many people would have been recorded as seriously injured if every force had used it. The chart uses that estimate, rounded to whole people, so that years can be compared.
-      </p>
-      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        Source: Department for Transport, Reported road casualties Great Britain ({release}). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>
   );

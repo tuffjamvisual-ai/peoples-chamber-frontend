@@ -7,6 +7,9 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import CouncilSewageSection from '../../../components/CouncilSewageSection';
+import PageSources from '../../../components/PageSources';
+import FoldNotes from '../../../components/FoldNotes';
+import { panelNotes, panelSources } from '@/lib/panel-sources';
 import { getSubpageCouncil } from '@/lib/council-subpage';
 import { isCoveredCode } from '@/lib/sewage';
 
@@ -30,6 +33,11 @@ export default async function CouncilSewagePage({ params }: { params: Promise<{ 
   const { slug } = await params;
   const d = await getSubpageCouncil(slug);
   if (!d || !isCoveredCode(d.c.gss_code)) notFound();
+  // The section adds its sources and licence lines while it renders (lib/panel-sources.ts); it is called first so the
+  // page's Sources fold (Cowork ENTRY 410) lists them.
+  const section = await CouncilSewageSection({ gssCode: d.c.gss_code, isCounty: d.c.type === 'county', districtCodes: d.children.map((x) => x.gss_code).filter((g): g is string => !!g) });
+  const sources = [...panelSources()];
+  const notes = [...panelNotes()];
   return (
     <OpenGovShell pageStamp="Councils">
       <BackLink fallbackHref={`/councils/${slug}#sewage`} label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
@@ -37,7 +45,8 @@ export default async function CouncilSewagePage({ params }: { params: Promise<{ 
       <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 20px' }}>
         <a href={`/councils/${slug}#sewage`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{d.c.name}</a>: every storm overflow in the area and how much it spilled.
       </p>
-      <CouncilSewageSection gssCode={d.c.gss_code} isCounty={d.c.type === 'county'} districtCodes={d.children.map((x) => x.gss_code).filter((g): g is string => !!g)} />
+      {section}
+      <PageSources sources={sources}><FoldNotes notes={notes} /></PageSources>
     </OpenGovShell>
   );
 }

@@ -21,8 +21,7 @@ export const fmtPct = (p: number | null) => (p == null ? 'not published' : `${p.
 // What the figure counts, as on the council section's "About these figures" fold.
 export const EXPLAINER =
   'A child is counted if their family’s income is below 60 per cent of the UK median for that year and the family claimed Child Benefit plus at least one other benefit (Universal Credit, tax credits or Housing Benefit). The two measures can differ a lot: housing costs push the figure after housing costs far higher in expensive areas such as London. Figures are provisional and years before 2021/22 are not comparable, so the trend starts there.';
-export const sourceLine = (release: string) =>
-  `Source: Department for Work and Pensions, Children in Low Income Families: local area statistics (${release}).`;
+// The source is listed in each page's Sources fold, not in the text (Cowork ENTRY 410).
 export const SOURCE_PAGE = 'https://www.gov.uk/government/collections/children-in-low-income-families-local-area-statistics';
 export const SOURCE_LABEL = 'Department for Work and Pensions, Children in Low Income Families: local area statistics';
 

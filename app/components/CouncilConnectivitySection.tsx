@@ -8,6 +8,9 @@
 // area. A county figure is only shown when every district has it.
 
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
+import { MEASURE_SOURCE_URLS } from '@/lib/council-league';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -67,6 +70,10 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
   const bAll = (bData ?? []) as B[];
   if (bAll.length === 0) return null;
   const month = bAll[0].data_month;
+  // The source and its licence are in the tab's Sources fold (Cowork ENTRY 410), not in the text. The address is Ofcom's
+  // coverage and speeds page (the league table's); Ofcom refuses automated readers, so it was not fetched to check.
+  addPanelSource({ label: `Ofcom, Connected Nations (${fmtMonth(month)} data)`, href: MEASURE_SOURCE_URLS.gigabit });
+  addPanelNote(OGL_NOTE);
   const b = bAll.filter((r) => r.data_month === month);
   if (b.length < gssCodes.length) return null; // a county total would be partial
   const premises = b.reduce((t, r) => t + r.all_premises, 0);
@@ -145,7 +152,7 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         {/* Held at this edition (owner decision 18 Nov 2026, Cowork ENTRY 324): Ofcom no longer lets automated readers fetch newer ones. */}
-        Source: Ofcom, Connected Nations ({fmtMonth(month)} data), the latest edition we hold. Contains public sector information licensed under the Open Government Licence v3.0.
+        The figures are for {fmtMonth(month)}, the latest edition we hold.
       </p>
     </section>
   );

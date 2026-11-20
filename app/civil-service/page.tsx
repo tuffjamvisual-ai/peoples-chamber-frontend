@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import LastUpdated from '../components/LastUpdated';
+import PageSources from '../components/PageSources';
 import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
@@ -153,6 +154,8 @@ export default async function CivilServicePage() {
           </section>
         )}
       </div>
+      {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
+      <PageSources sources={[{ label: 'Office for National Statistics, Public sector employment reference table (civil service staffing by department)', href: 'https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/publicsectorpersonnel/datasets/publicsectoremploymentreferencetable' }]} />
       <LastUpdated sourceKey="department_staffing" />
     </OpenGovShell>
   );

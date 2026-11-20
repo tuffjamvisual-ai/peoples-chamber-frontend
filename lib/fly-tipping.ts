@@ -21,7 +21,8 @@ export type FlyTippingRow = {
 };
 
 export type FlyTippingLine = { label: string; value: string; sub?: string };
-export type FlyTippingView = { year: string; lines: FlyTippingLine[]; notes: string[]; source: string };
+// source: the publisher and the row's own dataset address, for the tab's Sources fold (Cowork ENTRY 410: not in the text).
+export type FlyTippingView = { year: string; lines: FlyTippingLine[]; notes: string[]; source: { label: string; href: string } };
 
 const num = (n: number) => Math.round(n).toLocaleString('en-GB');
 const yearLabel = (y: string) => y.replace('-', '/'); // 2024-25 -> 2024/25
@@ -74,9 +75,12 @@ export function flyTippingView(rows: FlyTippingRow[]): FlyTippingView | null {
   if (!cur.summed_from_districts && cur.months_enforcement != null && cur.months_enforcement < 12) notes.push(`Enforcement figures cover ${cur.months_enforcement} months of ${Y}.`);
   if (cur.notes) notes.push(cur.notes);
 
-  const source = cur.nation === 'Wales'
-    ? `Source: Welsh Government, StatsWales, Local authority reported fly-tipping, ${Y}.`
-    : `Source: Defra, Fly-tipping statistics for England, ${Y}.`;
+  const source = {
+    label: cur.nation === 'Wales'
+      ? `Welsh Government, StatsWales, Local authority reported fly-tipping, ${Y}`
+      : `Defra, Fly-tipping statistics for England, ${Y}`,
+    href: cur.source_url,
+  };
   return { year: cur.year, lines, notes, source };
 }
 

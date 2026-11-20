@@ -12,6 +12,12 @@
 // "Yearly figures".
 
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
+
+// HM Land Registry's UK House Price Index reports (Cowork ENTRY 410: the source is listed in the tab's Sources fold, not
+// in the text; checked 20 Nov 2026). Licence: OGL v3.0, with HM Land Registry's own attribution wording (in the fold).
+const HPI_SOURCE_URL = 'https://www.gov.uk/government/collections/uk-house-price-index-reports';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -107,6 +113,7 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
 
   if (rows.length === 0) {
     if (gssCode !== ISLES_OF_SCILLY) return null;
+    addPanelSource({ label: 'HM Land Registry, UK House Price Index', href: HPI_SOURCE_URL });
     return (
       <Section>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
@@ -120,6 +127,11 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
   if (priced.length === 0) return null;
   const latest = priced[priced.length - 1];
   const latestSales = [...rows].reverse().find((r) => r.sales_volume != null) ?? null;
+  {
+    const tag = latest.release_tag;
+    addPanelSource({ label: `HM Land Registry, UK House Price Index (${fmtMonth(`${tag}-01`)} data)`, href: HPI_SOURCE_URL });
+    addPanelNote({ text: `Contains HM Land Registry data \u00a9 Crown copyright and database right ${tag.slice(0, 4)}. This data is licensed under the Open Government Licence v3.0.`, href: OGL_NOTE.href });
+  }
 
   // One bar per year, same calendar month as the latest figure.
   const mm = latest.month.slice(5, 7);
@@ -137,8 +149,6 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
     { label: 'Mortgage buyers', price: latest.mortgage_price, change: latest.mortgage_12m_pct },
   ].filter((b) => b.price != null);
 
-  const releaseTag = latest.release_tag;
-  const releaseLabel = fmtMonth(`${releaseTag}-01`);
   const isNI = gssCode.startsWith('N09');
 
   return (
@@ -218,12 +228,9 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
         </table>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
         Average prices are HM Land Registry&rsquo;s estimates for the whole area, adjusted for the mix of homes sold, not the price of any one home. Figures for the latest months are provisional: sales can take weeks or months to be registered, so each month is revised for a year after it is first published. Sales counts are published about three months behind prices. In areas with fewer sales, figures can swing noticeably from month to month.
         {isNI && ' Land Registry does not publish a breakdown by type of home or buyer for Northern Ireland councils.'}
-      </p>
-      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        Source: HM Land Registry, UK House Price Index ({releaseLabel} data). Contains HM Land Registry data &copy; Crown copyright and database right {releaseTag.slice(0, 4)}. This data is licensed under the Open Government Licence v3.0.
       </p>
     </Section>
   );

@@ -13,6 +13,9 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import LastUpdated from '../../components/LastUpdated';
 import LeagueTable from './LeagueTable';
+import PageSources from '../../components/PageSources';
+import FoldNotes from '../../components/FoldNotes';
+import { OGL_URL } from '@/lib/fold-notes';
 import type { ClientRow } from './LeagueTable';
 import Link from 'next/link';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
@@ -45,6 +48,14 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#7a1612';
 const SERIF = 'var(--font-special-elite), monospace';
 const MONO = 'var(--font-special-elite), monospace';
+
+// The council finance records behind the warning flags (Cowork ENTRY 410: in the Sources fold, not the text). The
+// addresses the finance import reads (scripts/import-council-finance.js); OGL v3.0.
+const FINANCE_SOURCES = [
+  { label: 'Council finance: MHCLG, Local authority revenue expenditure and financing England, 2024 to 2025 outturn (reserves)', href: 'https://www.gov.uk/government/statistics/local-authority-revenue-expenditure-and-financing-england-2024-to-2025-individual-local-authority-data-outturn' },
+  { label: 'Council finance: GOV.UK, Exceptional financial support for local authorities', href: 'https://www.gov.uk/government/collections/exceptional-financial-support-for-local-authorities' },
+  { label: 'Council finance: GOV.UK, Statutory best value inspections and interventions in England', href: 'https://www.gov.uk/government/collections/statutory-best-value-inspections-and-interventions-in-england' },
+];
 
 const h2: CSSProperties = { fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' };
 const para: CSSProperties = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK, margin: '0 0 14px', maxWidth: '46em' };
@@ -174,7 +185,7 @@ export default async function LeagueTablePage() {
             Weight test: every area was scored {stability.versions} more ways, leaving out each topic in turn and counting each topic double. The order of areas stays broadly the same each time, but the exact band is less certain near its edges: {stability.near} of {stability.ranked} areas change band in half the versions or more (marked ≈), and {stability.never} never change band. Read the bands as broad groups, and use the topic scores to see why an area sits where it does.
           </p>
           <p style={para}>
-            Warning flags: an Ofsted judgement of Inadequate for children’s services; a section 114 notice (dates from the published record); current government intervention or a best value inspection (GOV.UK list of statutory interventions); exceptional financial support from government, by financial year; and usable reserves (money a council holds that is not tied to schools or public health) below zero or down by half or more in {data.reservesYear ?? 'the latest year'}. For a district, flags marked “county” belong to its county council.
+            Warning flags: an Ofsted judgement of Inadequate for children’s services; a section 114 notice (dates from the published record); current government intervention or a best value inspection; exceptional financial support from government, by financial year; and usable reserves (money a council holds that is not tied to schools or public health) below zero or down by half or more in {data.reservesYear ?? 'the latest year'}. For a district, flags marked “county” belong to its county council.
           </p>
           <div style={{ overflowX: 'auto', marginBottom: '14px' }}>
             <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%', minWidth: '640px' }}>
@@ -185,7 +196,6 @@ export default async function LeagueTablePage() {
                   <th style={th}>Better</th>
                   <th style={th}>Period</th>
                   <th style={th}>Mainly responsible</th>
-                  <th style={th}>Source</th>
                 </tr>
               </thead>
               <tbody>
@@ -196,7 +206,6 @@ export default async function LeagueTablePage() {
                     <td style={td}>{m.better === 'higher' ? 'Higher' : 'Lower'}</td>
                     <td style={td}>{m.period ?? 'n/a'}</td>
                     <td style={td}>{m.responsible}</td>
-                    <td style={td}>{m.sourceUrl ? <a href={m.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{m.source}</a> : m.source}</td>
                   </tr>
                 ))}
               </tbody>
@@ -206,12 +215,17 @@ export default async function LeagueTablePage() {
             Roads use the Department for Transport’s adjusted counts of people killed or seriously injured. Police forces record injuries in different ways, and some changed systems in recent years; the adjusted figures correct for that so areas can be compared. They are counted per billion vehicle miles on the highway authority’s roads.
           </p>
           <p style={para}>
-            Crime is recorded crimes per 1,000 residents over 12 months, not counting antisocial behaviour. Greater Manchester’s published figures are incomplete, so its boroughs are not scored on crime. City of London and the Isles of Scilly are too small to compare fairly and are listed separately. Council finance: MHCLG revenue outturn 2024/25 (reserves), GOV.UK exceptional financial support and intervention pages.
-          </p>
-          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
-            Government sources are published under the Open Government Licence v3.0. Ofcom Connected Nations data is published by Ofcom. Police recorded crime from data.police.uk under the Open Government Licence.
+            Crime is recorded crimes per 1,000 residents over 12 months, not counting antisocial behaviour. Greater Manchester’s published figures are incomplete, so its boroughs are not scored on crime. City of London and the Isles of Scilly are too small to compare fairly and are listed separately.
           </p>
         </section>
+        {/* Cowork ENTRY 410 (owner, 20 Nov 2026): each measure's source (the method table's Source column was links) and the
+            licence lines are in the page's one Sources fold, not in the text. */}
+        <PageSources sources={[
+          ...data.measureInfo.filter((m) => m.sourceUrl).map((m) => ({ label: `${m.label}: ${m.source}`, href: m.sourceUrl as string })),
+          ...FINANCE_SOURCES,
+        ]}>
+          <FoldNotes notes={[{ text: 'Government sources are published under the Open Government Licence v3.0. Ofcom Connected Nations data is published by Ofcom. Police recorded crime from data.police.uk under the Open Government Licence.', href: OGL_URL }]} />
+        </PageSources>
       </article>
       <LastUpdated sourceKey="council_league_table" />
     </OpenGovShell>

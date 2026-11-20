@@ -14,6 +14,12 @@ import { getAreaTotals, latestYears, getCouncilOverflows, getCouncilRefs, rankBy
 import type { Overflow, AreaTotal } from '@/lib/sewage';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
+import { SEWAGE_SOURCES } from '@/lib/sewage-sources';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE, type FoldNote } from '@/lib/fold-notes';
+
+// The boundaries the overflows are placed in council areas by, with their attribution.
+export const BOUNDARIES_NOTE: FoldNote = { text: 'Council boundaries: Office for National Statistics, licensed under the Open Government Licence v3.0. Contains OS data \u00a9 Crown copyright and database right 2026.' };
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -121,11 +127,19 @@ export default async function CouncilSewageSection({
     </div>
   );
 
-  const sourceLine = nation === 'England'
-    ? `Source: Environment Agency, Event Duration Monitoring storm overflow annual return ${year}. Locations placed in council areas using Office for National Statistics boundaries. Contains public sector information licensed under the Open Government Licence v3.0. Contains OS data © Crown copyright and database right 2026.`
-    : nation === 'Scotland'
-      ? `Source: Scottish Water, overflow event data (${year} figures), licensed under the Open Government Licence${companies.length > 1 ? '; Environment Agency storm overflow annual return for English water company overflows' : ''}. Locations placed in council areas using Office for National Statistics boundaries (contains OS data © Crown copyright and database right 2026).`
-      : `Source: NI Water, Event Duration Monitor data (${year} figures). Council areas as given by NI Water.`;
+  // The sources and their licences are in the Sources fold (Cowork ENTRY 410); the text keeps the method only.
+  if (nation === 'England') {
+    addPanelSource({ label: `${SEWAGE_SOURCES.England.label}, ${year}`, href: SEWAGE_SOURCES.England.href });
+  } else if (nation === 'Scotland') {
+    addPanelSource({ label: `${SEWAGE_SOURCES.Scotland.label} (${year} figures)`, href: SEWAGE_SOURCES.Scotland.href });
+    if (companies.length > 1) addPanelSource({ label: `${SEWAGE_SOURCES.England.label}, for English water company overflows`, href: SEWAGE_SOURCES.England.href });
+  } else {
+    addPanelSource({ label: `${SEWAGE_SOURCES['Northern Ireland'].label} (${year} figures)`, href: SEWAGE_SOURCES['Northern Ireland'].href });
+  }
+  if (nation !== 'Northern Ireland') { addPanelNote(OGL_NOTE); addPanelNote(BOUNDARIES_NOTE); }
+  const sourceLine = nation === 'Northern Ireland'
+    ? `Figures for ${year}. Council areas are as the water company gives them.`
+    : `Figures for ${year}. Locations are placed in council areas using official boundaries.`;
 
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>

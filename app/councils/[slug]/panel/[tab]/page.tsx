@@ -3,8 +3,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { isCouncilLazyTab } from '@/lib/council-panels';
-import { panelSources } from '@/lib/panel-sources';
+import { panelNotes, panelSources } from '@/lib/panel-sources';
 import PageSources from '../../../../components/PageSources';
+import FoldNotes from '../../../../components/FoldNotes';
 import { loadPanelContext, panelParts } from '../../panels';
 
 // One detail tab of a council page, read by CouncilTabs when the tab is opened (owner, 4 Nov 2026). Kept and refreshed
@@ -27,6 +28,7 @@ export default async function CouncilPanel({ params }: { params: Promise<{ slug:
   // own, from the data cache, so rendering the sections below repeats none of them against the database.
   for (const p of parts) await p.read();
   const sources = [...panelSources()];
+  const notes = [...panelNotes()];
   // The paper background (Cowork 13 Nov 2026, ENTRY 9, proposal 1): opened at its own address (a shared link, a crawler),
   // the panel had no shell, so its ink coloured text sat on the dark page. The council page's tab takes only the inside of
   // #council-panel-body (CouncilTabs), so the tab is unchanged.
@@ -34,7 +36,7 @@ export default async function CouncilPanel({ params }: { params: Promise<{ slug:
     <div style={{ background: '#e1c495', minHeight: '100vh', padding: '0 8px', boxSizing: 'border-box' }}>
     <div id="council-panel-body">
       {parts.map((p, i) => <Fragment key={i}>{p.node}</Fragment>)}
-      <PageSources sources={sources} marginTop="8px" />
+      <PageSources sources={sources} marginTop="8px"><FoldNotes notes={notes} /></PageSources>
     </div>
     </div>
   );

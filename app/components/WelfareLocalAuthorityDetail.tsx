@@ -434,7 +434,7 @@ function NiView({ payload, sourcesInFold }: { payload: NiPayload; sourcesInFold?
     <>
       <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '16px', marginBottom: '22px' }}>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: 0 }}>
-          {`Benefits in Northern Ireland are run by the Department for Communities, not DWP. These figures come from its published statistics and NISRA's. Spending is an estimate: claimants in this council multiplied by average payments across Northern Ireland, because average payments are not published by council. Housing Benefit is not published by council area in Northern Ireland, so the total covers five benefits. Ranks compare the ${payload.ranked} Northern Ireland councils.`}
+          {`Benefits in Northern Ireland are run by the Department for Communities, not DWP. These figures are official benefit statistics. Spending is an estimate: claimants in this council multiplied by average payments across Northern Ireland, because average payments are not published by council. Housing Benefit is not published by council area in Northern Ireland, so the total covers five benefits. Ranks compare the ${payload.ranked} Northern Ireland councils.`}
         </p>
       </section>
 
@@ -461,17 +461,19 @@ function NiView({ payload, sourcesInFold }: { payload: NiPayload; sourcesInFold?
         <DataRow label="Housing Benefit" value="Not published by council area" sub="Northern Ireland Housing Statistics give Housing Benefit receipt for Northern Ireland as a whole, not by council" />
       </Section>
 
+      {/* On the council page (EL1, Cowork ENTRY 410) the sources and their OGL line are in the page's one Sources fold,
+          with nothing about them in the text; elsewhere they are listed here as before. */}
+      {!sourcesInFold && (
       <section style={{ marginBottom: '8px' }}>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: 0 }}>
-          {/* On the council page (EL1) the sources are in the page's one Sources fold; here a plain line says so. */}
-          {sourcesInFold ? <>Sources: Department for Communities and NISRA benefit statistics, listed in Sources at the end of the page</> : <>
           Sources:{' '}
           {payload.sources.map((x, i) => (
             <span key={x.url}>{i > 0 ? '; ' : ''}<a href={x.url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.label}</a></span>
-          ))}</>}
+          ))}
           . Open Government Licence v3.0.
         </p>
       </section>
+      )}
     </>
   )
 }

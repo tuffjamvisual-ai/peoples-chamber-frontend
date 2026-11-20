@@ -13,6 +13,9 @@
 
 import { SubFold } from './PhoneFolds';
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
+import { MEASURE_SOURCE_URLS } from '@/lib/council-league';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -75,6 +78,9 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
     .map((r) => ({ ...r, rate: r.rate == null ? null : Number(r.rate), rate_men: r.rate_men == null ? null : Number(r.rate_men), rate_women: r.rate_women == null ? null : Number(r.rate_women) }))
     .filter((r) => r.claimants != null);
   if (rows.length === 0) return null;
+  // The source and its licence are in the tab's Sources fold (Cowork ENTRY 410), not in the text.
+  addPanelSource({ label: 'Office for National Statistics, Claimant Count (Nomis)', href: MEASURE_SOURCE_URLS.claimants });
+  addPanelNote(OGL_NOTE);
 
   const latest = rows[rows.length - 1];
   const yearAgoMonth = `${Number(latest.month.slice(0, 4)) - 1}${latest.month.slice(4)}`;
@@ -192,12 +198,9 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
       {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones what the figure counts and its source fold (the council figures
           ran to 3,600px at 320); from 768px as before. */}
       <SubFold label="About these figures">
-      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
         The Claimant Count is people claiming Jobseeker&rsquo;s Allowance plus people on Universal Credit who are required to look for work. Before 2013 it counted only Unemployment Benefit or Jobseeker&rsquo;s Allowance claimants, so earlier years are not strictly comparable. Universal Credit requires more people to search for work than Jobseeker&rsquo;s Allowance did, so as it replaced older benefits from 2013, part of the rise in the count reflects that change rather than more unemployment. It is not the official unemployment rate, which comes from a survey. The latest month can be revised.
         {rows[0].month > '1986-01-01' && ` Figures for this council start in ${fmtMonth(rows[0].month)}.`}
-      </p>
-      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        Source: Office for National Statistics, Claimant Count (via Nomis). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
       </SubFold>
     </section>

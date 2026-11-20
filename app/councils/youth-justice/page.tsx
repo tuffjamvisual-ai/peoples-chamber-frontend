@@ -121,11 +121,13 @@ export default async function YouthJusticePage() {
         <section style={section}>
           <h2 style={h2}>About these figures</h2>
           <p style={{ ...para, margin: 0 }}>
-            Source: {SOURCE_LABEL}, tables 2.10 and 2.11 (in Sources at the end of the page). Each English council page shows its youth justice service&rsquo;s caseload and funding.{' '}
-            <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
+            Each English council page shows its youth justice service&rsquo;s caseload and funding.
           </p>
         </section>
-        <PageSources sources={[{ label: SOURCE_LABEL, href: SOURCE_PAGE }]} />
+        {/* Cowork ENTRY 410: the source and its licence only in the Sources fold. */}
+        <PageSources sources={[{ label: `${SOURCE_LABEL}, tables 2.10 and 2.11`, href: SOURCE_PAGE }]}>
+          <a href={OGL_URL} style={{ color: INK }}>{OGL}</a>
+        </PageSources>
       </article>
       <LastUpdated sourceKey="youth_justice" />
     </OpenGovShell>

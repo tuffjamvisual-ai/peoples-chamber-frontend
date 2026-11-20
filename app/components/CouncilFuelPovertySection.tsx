@@ -10,6 +10,13 @@
 
 import { SubFold } from './PhoneFolds';
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
+
+// The publisher's page for these figures (Cowork ENTRY 410: the source is listed in the tab's Sources fold, not in the
+// text). DESNZ's fuel poverty statistics collection, which holds each year's sub-regional release; checked 20 Nov 2026
+// (the sub-regional collection's old address redirects here). Licence: OGL v3.0.
+const FUEL_POVERTY_SOURCE_URL = 'https://www.gov.uk/government/collections/fuel-poverty-statistics';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -44,6 +51,8 @@ export default async function CouncilFuelPovertySection({ gssCode }: { gssCode: 
   const loaded = await loadFuelPoverty(gssCode);
   if (!loaded) return null;
   const { mine, year, pct, engPct } = loaded;
+  addPanelSource({ label: `Department for Energy Security and Net Zero, Sub-regional fuel poverty data (${year} data)`, href: FUEL_POVERTY_SOURCE_URL });
+  addPanelNote(OGL_NOTE);
 
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
@@ -60,11 +69,8 @@ export default async function CouncilFuelPovertySection({ gssCode }: { gssCode: 
       {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones what the figure counts and its source fold (the council figures
           ran to 3,600px at 320); from 768px as before. */}
       <SubFold label="About these figures">
-      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
         A household is counted as fuel poor if its home has an energy efficiency rating of band D or below and, after paying for housing and the energy it needs, its income is below the poverty line (60 per cent of the national median). These are modelled estimates: the government advises using them for broad comparisons and to spot areas of particularly high or low fuel poverty, not to track year to year changes, so only the latest year is shown.
-      </p>
-      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        Source: Department for Energy Security and Net Zero, Sub-regional fuel poverty data ({year} data). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
       </SubFold>
     </section>

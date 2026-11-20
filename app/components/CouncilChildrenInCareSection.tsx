@@ -5,9 +5,10 @@
 // lib/children-in-care.ts.
 
 import Link from 'next/link';
-import { addPanelSource } from '@/lib/panel-sources';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 import {
-  loadArea, text, rateText, n, changeText, change, pctChangeText, asAt, yearTo, releaseLabel, SOURCE_PAGE, OGL, OGL_URL,
+  loadArea, text, rateText, n, changeText, change, pctChangeText, asAt, yearTo, releaseLabel, SOURCE_PAGE,
   RANKING_PATH, ROUNDING_NOTE,
 } from '@/lib/children-in-care';
 
@@ -58,6 +59,7 @@ export default async function CouncilChildrenInCareSection({ gssCode, country, i
   const engOutside = n(eng, 'placed_outside_area_pct');
 
   addPanelSource({ label: `Department for Education, ${releaseLabel(cur.year)}`, href: SOURCE_PAGE });
+  addPanelNote(OGL_NOTE);
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <Heading />
@@ -76,10 +78,6 @@ export default async function CouncilChildrenInCareSection({ gssCode, country, i
       <p style={small}>The rate is children looked after per 10,000 children in the area. {ROUNDING_NOTE}</p>
       <p style={small}>
         <Link href={RANKING_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council in England</Link>, with what &ldquo;looked after&rdquo; means.
-      </p>
-      <p style={small}>
-        Source: Department for Education, {releaseLabel(cur.year)} (in Sources at the end of this tab).{' '}
-        <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
       </p>
     </section>
   );

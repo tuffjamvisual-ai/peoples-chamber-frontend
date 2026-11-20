@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import NoJsPager from '@/app/components/NoJsPager';
 import { SubFold } from '@/app/components/PhoneFolds';
 import LastUpdated from '../../components/LastUpdated';
+import PageSources from '../../components/PageSources';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -345,6 +346,8 @@ export default async function RegisterListing({ sp, strict = false }: { sp: SP; 
         />
         <p style={{ marginTop: '12px' }}>Source: the Register of Members&rsquo; Financial Interests, published by the House of Commons and synced from the Parliament Members API. Entries are the Members&rsquo; own declarations. Covers 588 of 650 current MPs; the remainder have no registrable interests recorded.</p>
       </AboutThisData>
+      {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
+      <PageSources sources={[{ label: 'UK Parliament, Register of Members\u2019 Financial Interests (the Interests API this page is synced from)', href: 'https://interests-api.parliament.uk/' }]} />
       <LastUpdated sourceKey="registered_interests" />
     </OpenGovShell>
   );

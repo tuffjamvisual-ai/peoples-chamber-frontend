@@ -13,7 +13,7 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
-import { pageDb } from '@/lib/page-reads';
+import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 
 export const TOPIC_NAMES = ['Schools and children', 'Safety', 'Health', 'Jobs and poverty', 'Housing', 'Environment', 'Connectivity', 'Local services'] as const;
 export const SERVICE_PARTS: { key: string; label: string }[] = [
@@ -326,11 +326,13 @@ export type ReserveDetail = {
   usable_end_pct_of_spending: number | null; source: string; source_url: string;
 };
 
-// One council's finance record: dated events (newest first) and its latest reserves.
+// One council's finance record: dated events (newest first) and its latest reserves. Read through the tagged data cache
+// (council-data and each table's tag), as every other council page read (A16), since the council page's Sources fold
+// also lists these records (Cowork ENTRY 410, CouncilRatingsSourceNotes); it was an untimed read on each render.
 export async function getCouncilFinance(code: string): Promise<{ events: FinanceEvent[]; reserves: ReserveDetail | null }> {
   const [ev, rs] = await Promise.all([
-    pageDb().from('council_finance_events').select('event_type, period, event_date, amount_gbp, source, source_url').eq('council_gss_code', code).order('period', { ascending: false }),
-    pageDb().from('council_reserves').select('financial_year, usable_start, usable_end, usable_change, unallocated_end, earmarked_end, usable_end_pct_of_spending, source, source_url').eq('council_gss_code', code).order('financial_year', { ascending: false }).limit(1),
+    tagDb([COUNCIL_DATA_TAG]).from('council_finance_events').select('event_type, period, event_date, amount_gbp, source, source_url').eq('council_gss_code', code).order('period', { ascending: false }),
+    tagDb([COUNCIL_DATA_TAG]).from('council_reserves').select('financial_year, usable_start, usable_end, usable_change, unallocated_end, earmarked_end, usable_end_pct_of_spending, source, source_url').eq('council_gss_code', code).order('financial_year', { ascending: false }).limit(1),
   ]);
   if (ev.error) throw new Error(ev.error.message);
   if (rs.error) throw new Error(rs.error.message);

@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { getLeagueData, getCouncilFinance, TOPIC_NAMES, SERVICE_PARTS, MEASURE_TOPIC, formatPeriod, bandLabel, ordinal } from '@/lib/council-league';
 import type { LeagueRow, LeagueFlag, FinanceEvent, ReserveDetail } from '@/lib/council-league';
+import FoldNotes from './FoldNotes';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 const INK = '#14100d';
@@ -92,15 +93,36 @@ function FinanceHealth({ events, reserves, name }: { events: FinanceEvent[]; res
         <ul style={{ ...para, paddingLeft: '1.2em' }}>
           {events.map((e) => (
             <li key={`${e.event_type}-${e.period}`} style={{ marginBottom: '4px' }}>
-              {eventLabel(e)} · <a data-og-row-source="" href={e.source_url} style={{ color: INK }} rel="noopener noreferrer" target="_blank">source</a>
+              {eventLabel(e)}
             </li>
           ))}
         </ul>
       ) : (
         <p style={para}>No section 114 notice, government intervention or exceptional financial support is on the record for this council.</p>
       )}
-      {reserves && <p style={small}>Reserves: {reserves.source}, figures in the council’s own return.</p>}
+      {reserves && <p style={small}>Reserves figures are from the council’s own return.</p>}
     </section>
+  );
+}
+
+// The financial health sources, inside the council page's Sources fold (Cowork ENTRY 410: each event's record and the
+// reserves return are listed there, not linked on the rows), shown under the same conditions as the section itself.
+// A component, rendered in the fold, so the reads stay the section's own (cached as the section's are).
+export async function CouncilRatingsSourceNotes({ gssCode, type }: { gssCode: string | null; type: string }) {
+  if (!gssCode || !gssCode.startsWith('E')) return null;
+  let data: Awaited<ReturnType<typeof getLeagueData>>;
+  let finance: Awaited<ReturnType<typeof getCouncilFinance>>;
+  try {
+    [data, finance] = await Promise.all([getLeagueData(), getCouncilFinance(gssCode)]);
+  } catch {
+    return null;
+  }
+  if (type !== 'county' && ![...data.rows, ...data.separate].some((r) => r.code === gssCode)) return null;
+  return (
+    <FoldNotes notes={[
+      ...finance.events.filter((e) => e.source_url).map((e) => ({ text: `${eventLabel(e)}: ${e.source}`, href: e.source_url })),
+      finance.reserves?.source_url ? { text: `Reserves ${finance.reserves.financial_year}: ${finance.reserves.source}`, href: finance.reserves.source_url } : null,
+    ]} />
   );
 }
 

@@ -127,12 +127,11 @@ export default async function FreeSchoolMealsPage() {
           <p style={para}>
             Pupils on roll in the January school census in each council&rsquo;s area, by the council that runs education there. A figure DfE does not give is shown as not published.
           </p>
-          <p style={{ ...para, margin: 0 }}>
-            Source: Department for Education, Schools, pupils and their characteristics (in Sources at the end of the page).{' '}
-            <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
-          </p>
         </section>
-        <PageSources sources={[{ label: SOURCE_LABEL, href: SOURCE_PAGE }]} />
+        {/* Cowork ENTRY 410: the source and its licence only in the Sources fold. */}
+        <PageSources sources={[{ label: SOURCE_LABEL, href: SOURCE_PAGE }]}>
+          <a href={OGL_URL} style={{ color: INK }}>{OGL}</a>
+        </PageSources>
       </article>
       <LastUpdated sourceKey="free_school_meals" />
     </OpenGovShell>

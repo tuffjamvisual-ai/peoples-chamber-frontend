@@ -10,6 +10,8 @@
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import LastUpdated from '../components/LastUpdated';
+import PageSources from '../components/PageSources';
+import { SEWAGE_SOURCES } from '@/lib/sewage-sources';
 import SewageExplorer from './SewageExplorer';
 import type { ExplorerRow, ExplorerTable } from './SewageExplorer';
 import {
@@ -259,6 +261,8 @@ export default async function SewageView({ initialTable, initialSort = 'hours' }
           </SubFold>
         </section>
       </article>
+      {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
+      <PageSources sources={[SEWAGE_SOURCES.England, SEWAGE_SOURCES.Scotland, SEWAGE_SOURCES['Northern Ireland']]} />
       <LastUpdated sourceKey="sewage_overflows" />
     </OpenGovShell>
   );

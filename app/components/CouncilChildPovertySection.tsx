@@ -10,7 +10,9 @@
 import { SubFold } from './PhoneFolds';
 import Link from 'next/link';
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
-import { combine, fmtNum, fmtPct, fyLabel, EXPLAINER, sourceLine, RANKING_PATH, type PovertyRow, type Figure } from '@/lib/child-poverty';
+import { combine, fmtNum, fmtPct, fyLabel, EXPLAINER, SOURCE_LABEL, SOURCE_PAGE, RANKING_PATH, type PovertyRow, type Figure } from '@/lib/child-poverty';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -49,6 +51,9 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
   const loaded = await loadChildPoverty(gssCodes);
   if (!loaded) return null;
   const { latest, ahc, bhc, trend, release } = loaded;
+  // The source and its licence are in the tab's Sources fold (Cowork ENTRY 410), not in the text.
+  addPanelSource({ label: `${SOURCE_LABEL} (${release})`, href: SOURCE_PAGE });
+  addPanelNote(OGL_NOTE);
   const stat = (label: string, fig: Figure | null, sub: string) =>
     fig && (
       <div style={{ flex: '1 1 220px', borderLeft: `3px solid ${INK}`, padding: '4px 0 4px 12px' }}>
@@ -108,12 +113,9 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
       {/* T1-MOB batch 1 (Cowork 13 Nov 2026): on phones what the figure counts and its source fold (the council figures
           ran to 3,600px at 320); from 768px as before. */}
       <SubFold label="About these figures">
-      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
         {EXPLAINER}
-      </p>
-      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        {sourceLine(release)}
       </p>
       </SubFold>
     </section>

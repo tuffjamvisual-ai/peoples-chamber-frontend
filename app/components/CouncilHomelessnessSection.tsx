@@ -13,6 +13,12 @@
 
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
+
+// MHCLG's homelessness statistics collection, which holds the statutory homelessness detailed local authority tables
+// (Cowork ENTRY 410: the source is listed in the tab's Sources fold, not in the text; checked 20 Nov 2026). OGL v3.0.
+const HOMELESSNESS_SOURCE_URL = 'https://www.gov.uk/government/collections/homelessness-statistics';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -135,6 +141,8 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
   const loaded = await loadHomelessness(gssCodes);
   if (!loaded) return null;
   const { byPeriod, periods, labelOf, combine, newest, latestA1, latestTA, provisional, owed, prevention, relief, s21, ta, taKids, children, anotherLA, noAccom, types, typeRows, trend, maxTA, gaps } = loaded;
+  addPanelSource({ label: 'Ministry of Housing, Communities and Local Government, Statutory homelessness: detailed local authority level tables (accredited official statistics)', href: HOMELESSNESS_SOURCE_URL });
+  addPanelNote(OGL_NOTE);
 
   const stat = (label: string, value: number | null, sub: string | null) =>
     value != null && (
@@ -269,9 +277,6 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
         {' '}&ldquo;Not published&rdquo; means the council did not submit figures or MHCLG suppressed small numbers to protect households.
         {gaps.length > 0 && ` No temporary accommodation figure is available for: ${gaps.join(', ')}.`}
         {periods[0] > '2019-04-01' && ` Figures start in ${labelOf(periods[0])}, when this council was created.`}
-      </p>
-      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        Source: Ministry of Housing, Communities and Local Government, Statutory homelessness: detailed local authority level tables (accredited official statistics). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>
   );

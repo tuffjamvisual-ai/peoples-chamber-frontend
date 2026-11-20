@@ -6,6 +6,9 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import CouncilSchoolInspectionsSection from '../../../components/CouncilSchoolInspectionsSection';
+import PageSources from '../../../components/PageSources';
+import FoldNotes from '../../../components/FoldNotes';
+import { panelNotes, panelSources } from '@/lib/panel-sources';
 import { getSubpageCouncil } from '@/lib/council-subpage';
 
 export const revalidate = false; // A16: rebuilt only when council data changes (council-data and table tags), or on a deploy  // a week (owner, 30 Oct 2026, cache Stage 2a part 4): the council syncs refresh the council routes on a real new release
@@ -29,6 +32,11 @@ export default async function CouncilSchoolsPage({ params }: { params: Promise<{
   const d = await getSubpageCouncil(slug);
   // Ofsted figures are for education authorities in England; a district's schools are on its county's page.
   if (!d || !d.c.gss_code?.startsWith('E') || d.c.type === 'district') notFound();
+  // The section adds its sources and licence lines while it renders (lib/panel-sources.ts); it is called first so the
+  // page's Sources fold (Cowork ENTRY 410) lists them.
+  const section = await CouncilSchoolInspectionsSection({ gssCode: d.c.gss_code, isDistrict: false, countyName: d.parent?.name ?? null, countySlug: d.parent?.slug ?? null });
+  const sources = [...panelSources()];
+  const notes = [...panelNotes()];
   return (
     <OpenGovShell pageStamp="Councils">
       <BackLink fallbackHref={`/councils/${slug}#schools`} label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
@@ -36,7 +44,8 @@ export default async function CouncilSchoolsPage({ params }: { params: Promise<{
       <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 20px' }}>
         <a href={`/councils/${slug}#schools`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{d.c.name}</a>: every state funded school and its latest Ofsted inspection.
       </p>
-      <CouncilSchoolInspectionsSection gssCode={d.c.gss_code} isDistrict={false} countyName={d.parent?.name ?? null} countySlug={d.parent?.slug ?? null} />
+      {section}
+      <PageSources sources={sources}><FoldNotes notes={notes} /></PageSources>
     </OpenGovShell>
   );
 }

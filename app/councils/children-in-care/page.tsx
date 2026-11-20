@@ -110,7 +110,6 @@ export default async function ChildrenInCarePage() {
               second table folded. From 640px up, as before. */}
           <SubFold label="Read it">
           {EXPLAINER.map((p) => <p key={p.slice(0, 20)} style={para}>{p}</p>)}
-          <p style={para}>This summary is from DfE&rsquo;s release and its notes (in Sources at the end of the page).</p>
           </SubFold>
         </section>
 
@@ -177,18 +176,16 @@ export default async function ChildrenInCarePage() {
           <h2 style={h2}>About these figures</h2>
           <SubFold label="Read about the figures">
           <p style={para}>
-            Children looked after on 31 March, from the SSDA903 return each council makes to DfE. Unless stated, the figures leave out children looked after under an agreed series of short term placements (DfE). {ROUNDING_NOTE}
+            Children looked after on 31 March, from the SSDA903 return each council makes to DfE. Unless stated, the figures leave out children looked after under an agreed series of short term placements. {ROUNDING_NOTE}
             {usedSymbols.length ? ` Where DfE gives no figure it shows a symbol: ${usedSymbols.map((s) => SYMBOL_MEANING[s]).join('; ')}. A council with no figure is not ranked.` : ''}
-          </p>
-          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
-            Source: Department for Education, {releaseLabel(latest)} (in Sources at the end of the page).{' '}
-            <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
           </p>
           </SubFold>
         </section>
-        {/* EL1 (owner, 11 Nov 2026): the sources this page cites are linked in its one Sources fold; the Open Government
-            Licence attribution stays where it is. */}
-        <PageSources sources={[{ label: `Department for Education, ${releaseLabel(latest)}`, href: SOURCE_PAGE }]} />
+        {/* EL1 (owner, 11 Nov 2026) and Cowork ENTRY 410 (20 Nov 2026): the sources this page cites, with the summary's
+            release notes and the Open Government Licence attribution, are in its one Sources fold, not in the text. */}
+        <PageSources sources={[{ label: `Department for Education, ${releaseLabel(latest)}, with its notes (the summary above)`, href: SOURCE_PAGE }]}>
+          <a href={OGL_URL} style={{ color: INK }}>{OGL}</a>
+        </PageSources>
       </article>
       <LastUpdated sourceKey="children_in_care" />
     </OpenGovShell>

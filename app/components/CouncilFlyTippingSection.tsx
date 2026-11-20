@@ -5,6 +5,8 @@
 
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { flyTippingView, noFlyTippingFigures, type FlyTippingRow } from '@/lib/fly-tipping';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -38,6 +40,9 @@ export default async function CouncilFlyTippingSection({ gssCode, country }: { g
   if (error || !data?.length) return null; // table not created yet, or no figures held
   const view = flyTippingView((data as FlyTippingRow[]).map((r) => ({ ...r, incidents_per_1000: r.incidents_per_1000 == null ? null : Number(r.incidents_per_1000) })));
   if (!view) return null;
+  // The source and its licence are in the tab's Sources fold (Cowork ENTRY 410), not in the text.
+  if (view.source.href) addPanelSource(view.source);
+  addPanelNote(OGL_NOTE);
   return (
     <section style={sectionStyle}>
       <Heading />
@@ -53,7 +58,6 @@ export default async function CouncilFlyTippingSection({ gssCode, country }: { g
         ))}
       </dl>
       {view.notes.map((n) => <p key={n} style={small}>{n}</p>)}
-      <p style={small}>{view.source}</p>
     </section>
   );
 }

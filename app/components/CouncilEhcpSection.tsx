@@ -7,7 +7,8 @@
 // county's Schools tab.
 
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
-import { addPanelSource } from '@/lib/panel-sources';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -98,7 +99,8 @@ export default async function CouncilEhcpSection({
     ['took over a year', change(shown.over_1_year_ex, prev.over_1_year_ex)],
   ].filter(([, t]) => t) as [string, string][];
 
-  addPanelSource({ label: 'DfE, Education, health and care plans, 2026 release', href: SOURCE_URL });
+  addPanelSource({ label: 'DfE, Education, health and care plans, 2026 release (calendar years)', href: SOURCE_URL });
+  addPanelNote(OGL_NOTE);
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <Heading />
@@ -123,10 +125,7 @@ export default async function CouncilEhcpSection({
         must get; the council should issue one within 20 weeks of a request. All three figures leave out exceptions: cases
         where the law allows longer, such as a school being closed for the holidays or a family&rsquo;s exceptional circumstances.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
-        Source: DfE, Education, health and care plans, 2026 release (in Sources at the end of this tab){' '}
-        (calendar years). Contains public sector information licensed under the Open Government Licence v3.0.
-      </p>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>The figures are for calendar years.</p>
     </section>
   );
 }

@@ -3,8 +3,9 @@
 // that runs education (county, unitary, metropolitan and London borough councils); a district page gets one line pointing
 // to its county. England beside each figure. Wording in lib/free-school-meals.ts.
 import Link from 'next/link';
-import { addPanelSource } from '@/lib/panel-sources';
-import { loadArea, summarise, pctText, count, tookShare, changeText, sinceText, censusLabel, SOURCE_PAGE, SOURCE_LABEL, OGL, OGL_URL, RANKING_PATH } from '@/lib/free-school-meals';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
+import { loadArea, summarise, pctText, count, tookShare, changeText, sinceText, censusLabel, SOURCE_PAGE, SOURCE_LABEL, RANKING_PATH } from '@/lib/free-school-meals';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -42,6 +43,7 @@ export default async function CouncilFreeSchoolMealsSection({ gssCode, country, 
   const notTaking = cur.fsm_eligible != null && cur.fsm_taking_meal != null ? cur.fsm_eligible - cur.fsm_taking_meal : null;
 
   addPanelSource({ label: SOURCE_LABEL, href: SOURCE_PAGE });
+  addPanelNote(OGL_NOTE);
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <Heading />
@@ -59,10 +61,6 @@ export default async function CouncilFreeSchoolMealsSection({ gssCode, country, 
       <p style={small}>Shares are of all pupils in the council&rsquo;s state funded and non maintained special schools, from the January school census.</p>
       <p style={small}>
         <Link href={RANKING_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council in England</Link>, with what eligible means.
-      </p>
-      <p style={small}>
-        Source: Department for Education, Schools, pupils and their characteristics (in Sources at the end of this tab).{' '}
-        <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
       </p>
     </section>
   );

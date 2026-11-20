@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import LastUpdated from '../components/LastUpdated';
+import PageSources from '../components/PageSources';
 import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
@@ -146,6 +147,8 @@ export default async function SpendingPage() {
           </section>
         )}
       </div>
+      {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
+      <PageSources sources={[{ label: 'HM Treasury, Main Supply Estimates (GOV.UK)', href: 'https://www.gov.uk/government/collections/hmt-main-estimates' }]} />
       <LastUpdated sourceKey="department_budgets" />
     </OpenGovShell>
   );

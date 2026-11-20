@@ -21,6 +21,8 @@ export const OMBUDSMAN_SOURCES = [
   { label: 'Local Government and Social Care Ombudsman, annual review data', href: SOURCE_URL },
   { label: 'The Ombudsman\u2019s guide to reading these figures', href: GUIDE_URL },
 ];
+// The Ombudsman's copyright line, kept with its sources in the fold (Cowork ENTRY 410: not in the page text).
+export const OMBUDSMAN_NOTE = { text: '\u00a9 Commission for Local Administration in England (Local Government and Social Care Ombudsman annual review data).' };
 
 type Row = {
   year: string;
@@ -172,9 +174,7 @@ export default async function CouncilOmbudsmanSection({ gssCode }: { gssCode: st
         <P>Change on {prev!.year}: {changes.map(([label, t]) => `${label} ${t}`).join('; ')}.</P>
       )}
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
-        Source: Local Government and Social Care Ombudsman, annual review data {cur.year} (1 April to 31 March), with its
-        guide to reading these figures, in Sources at the end of the page.
-        {' '}© Commission for Local Administration in England. &ldquo;Investigated&rdquo; (upheld plus not upheld) and the changes on {prev ? prev.year : 'the year before'} are our sums from the published figures.
+        Figures for {cur.year} (1 April to 31 March). &ldquo;Investigated&rdquo; (upheld plus not upheld) and the changes on {prev ? prev.year : 'the year before'} are our sums from the published figures.
       </p>
     </section>
   );

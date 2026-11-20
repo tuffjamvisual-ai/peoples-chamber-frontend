@@ -13,6 +13,9 @@
 import Link from 'next/link';
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
+import { MEASURE_SOURCE_URLS } from '@/lib/council-league';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 import { ShowAll } from './NoJsPager';
 import { SubFold } from './PhoneFolds';
 
@@ -122,6 +125,10 @@ export async function loadSchoolsHeadline(gssCode: string | null) {
   };
 }
 
+// Ofsted's reports site, where every school's inspection reports are (one Sources fold entry in place of a link per
+// school, Cowork ENTRY 410; checked 20 Nov 2026). OGL v3.0.
+const OFSTED_REPORTS_URL = 'https://reports.ofsted.gov.uk/';
+
 export default async function CouncilSchoolInspectionsSection({
   gssCode,
   isDistrict,
@@ -156,6 +163,11 @@ export default async function CouncilSchoolInspectionsSection({
   const schools = await fetchSchools(gssCode);
   if (schools.length === 0) return null;
   const snapshot = schools[0].snapshot_date;
+  // The sources and their licence are in the Sources fold (Cowork ENTRY 410), not in the text: Ofsted's dataset, and one
+  // entry for the schools' own inspection reports in place of a link on each school's row (held for the owner).
+  addPanelSource({ label: `Ofsted, State-funded schools inspections and outcomes as at ${fmtDate(snapshot)} (official statistics)`, href: MEASURE_SOURCE_URLS.schools_quality });
+  if (schools.some((s) => s.web_link)) addPanelSource({ label: 'Ofsted, each school\u2019s inspection reports', href: OFSTED_REPORTS_URL });
+  addPanelNote(OGL_NOTE);
   const pupils = schools.reduce((t, s) => t + (s.pupils ?? 0), 0);
 
   const withRC = schools.filter((s) => s.rc_inspection_date);
@@ -177,8 +189,8 @@ export default async function CouncilSchoolInspectionsSection({
   const concern = schools.filter((s) => s.most_recent_category && CATEGORY[s.most_recent_category]);
   const hasPredecessor = schools.some((s) => latest(s).predecessor);
 
-  const link = (s: School, text: string) =>
-    s.web_link ? <a data-og-row-source="" href={s.web_link} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{text}</a> : text;
+  // The school's name, as plain text: its Ofsted report is in the Sources fold as one entry (Cowork ENTRY 410).
+  const link = (_s: School, text: string) => text;
 
   // Shown inside the earlier inspections fold when there is one, otherwise on its own (ENTRY 141 N4).
   const ungradedTable = ungradedCounts.length > 0 ? (
@@ -318,9 +330,6 @@ export default async function CouncilSchoolInspectionsSection({
         Since 10 November 2025 Ofsted inspects schools under a renewed framework and publishes a report card grading up to eight areas on a scale of five points, plus whether safeguarding standards are met. Ofsted says these grades cannot be compared with grades from the previous framework, so they are shown separately. Graded inspections between 1 September 2024 and 9 November 2025 gave no overall grade (&ldquo;Not judged&rdquo;). Ungraded inspections check whether a school is still at its previous grade; the &ldquo;Earlier inspections&rdquo; figures use the last graded inspection.
       </p>
       </SubFold>
-      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        Source: Ofsted, State-funded schools inspections and outcomes as at {fmtDate(snapshot)} (official statistics). Contains public sector information licensed under the Open Government Licence v3.0.
-      </p>
     </section>
   );
 }

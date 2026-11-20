@@ -8,6 +8,8 @@
 // same way (the table holds no country rows). Wording in lib/child-poverty.ts, shared with the council section.
 
 import PageSources from '@/app/components/PageSources';
+import FoldNotes from '@/app/components/FoldNotes';
+import { OGL_NOTE } from '@/lib/fold-notes';
 import { SubFold } from '@/app/components/PhoneFolds';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
@@ -17,7 +19,7 @@ import '../../components/phone-table.css';
 import { supabase } from '@/lib/supabase';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import {
-  loadAllCouncils, loadLatestYear, combine, fyLabel, fmtNum, fmtPct, EXPLAINER, sourceLine, RANKING_PATH, FIRST_COMPARABLE_FYE, SOURCE_PAGE, SOURCE_LABEL,
+  loadAllCouncils, loadLatestYear, combine, fyLabel, fmtNum, fmtPct, EXPLAINER, RANKING_PATH, FIRST_COMPARABLE_FYE, SOURCE_PAGE, SOURCE_LABEL,
 } from '@/lib/child-poverty';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
@@ -123,10 +125,12 @@ export default async function ChildPovertyPage() {
             The first list holds county councils (the total of their district councils), unitary councils, metropolitan and London boroughs (in England these run children&rsquo;s services), and every council in Wales, Scotland and Northern Ireland; the second, district councils, ranked among districts only. The change is shown before housing costs because the figure after housing costs is held only from {fyLabel(latest - 1)}.
             {eng?.bhc?.pct != null && eng.first?.pct != null && ` England before housing costs: ${fmtPct(eng.first.pct)} in ${fyLabel(FIRST_COMPARABLE_FYE)}, ${fmtPct(eng.bhc.pct)} in ${fyLabel(latest)}.`}
           </p>
-          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>{sourceLine(release)}</p>
           </SubFold>
         </section>
-        <PageSources sources={[{ label: SOURCE_LABEL, href: SOURCE_PAGE }]} />
+        {/* Cowork ENTRY 410: the source and its licence only in the Sources fold. */}
+        <PageSources sources={[{ label: `${SOURCE_LABEL} (${release})`, href: SOURCE_PAGE }]}>
+          <FoldNotes notes={[OGL_NOTE]} />
+        </PageSources>
       </article>
     </OpenGovShell>
   );

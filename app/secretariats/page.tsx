@@ -3,11 +3,12 @@
 
 import type { Metadata } from 'next';
 import LastUpdated from '../components/LastUpdated';
+import PageSources from '../components/PageSources';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import AppgSource from '../components/AppgSource';
+import AppgSource, { APPG_DATASET_URL } from '../components/AppgSource';
 import { secretariatNameToSlug } from '@/lib/secretariat-slug';
 import { ShowAll } from '@/app/components/NoJsPager';
 import { cachedQuery } from '@/lib/tagged-read';
@@ -111,6 +112,8 @@ export default async function SecretariatsIndex() {
       </div>
 
       <AppgSource />
+      {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
+      <PageSources sources={[{ label: 'mySociety, APPG groups and memberships dataset (from the UK Parliament APPG register)', href: APPG_DATASET_URL }]} />
       <LastUpdated sourceKey="appgs" />
 </OpenGovShell>
   );

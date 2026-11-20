@@ -176,7 +176,7 @@ export default async function RoadConditionPage() {
         <SubFold label="About these England figures">
         <p style={para}>{ENGLAND_NOTE}</p>
         <p style={{ ...para, borderLeft: `3px solid ${ACCENT}`, paddingLeft: '12px' }}>
-          <strong>The last year of this series.</strong> {LAST_YEAR_NOTE} (DfT, Road conditions in England to March 2026, in Sources at the end of the page.)
+          <strong>The last year of this series.</strong> {LAST_YEAR_NOTE}
         </p>
         </SubFold>
         </div>
@@ -185,27 +185,25 @@ export default async function RoadConditionPage() {
           <h2 className="rc-h2" style={h2}>What the figures mean</h2>
           <NoJsFold id="rc-mean" always tablets label="What the figures mean">
           {EXPLAINER.map((p) => <p key={p.slice(0, 20)} style={para}>{p}</p>)}
-          <p style={para}>This is from the notes to DfT&rsquo;s road condition data tables (in Sources at the end of the page).</p>
         </NoJsFold>
         </section>
         <section className="rc-about" style={section}>
           <h2 className="rc-h2" style={h2}>About these figures</h2>
           <NoJsFold id="rc-about" always tablets label="About these figures">
           <p style={para}>
-            Figures are collected from highway authorities each year, and councils can revise the year before, so earlier years may change (DfT). Where DfT gives no figure it uses shorthand: {Object.values(SYMBOL_MEANING).join('; ')}.
-          </p>
-          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
-            Source: {SOURCE_LABEL} (RDC0120, RDC0122, RDC0130, RDC0321), in Sources at the end of the page.{' '}
-            <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
+            Figures are collected from highway authorities each year, and councils can revise the year before, so earlier years may change. Where DfT gives no figure it uses shorthand: {Object.values(SYMBOL_MEANING).join('; ')}.
           </p>
         </NoJsFold>
         </section>
-        {/* EL1 (owner, 11 Nov 2026): the sources this page cites are linked in its one Sources fold; the Open Government
-            Licence attribution stays where it is. */}
+        {/* EL1 (owner, 11 Nov 2026) and Cowork ENTRY 410 (20 Nov 2026): the sources this page cites (the explainer is from
+            the data tables' notes, the last-year note from the publication) and the Open Government Licence attribution
+            are in its one Sources fold, not in the text. */}
         <PageSources sources={[
-          { label: `${SOURCE_LABEL} (RDC0120, RDC0122, RDC0130, RDC0321)`, href: SOURCE_PAGE },
-          { label: 'DfT, Road conditions in England to March 2026', href: PUBLICATION },
-        ]} />
+          { label: `${SOURCE_LABEL} (RDC0120, RDC0122, RDC0130, RDC0321), with their notes`, href: SOURCE_PAGE },
+          { label: 'DfT, Road conditions in England to March 2026 (the last year of the series)', href: PUBLICATION },
+        ]}>
+          <a href={OGL_URL} style={{ color: INK }}>{OGL}</a>
+        </PageSources>
       </article>
       <LastUpdated sourceKey="road_condition" />
     </OpenGovShell>

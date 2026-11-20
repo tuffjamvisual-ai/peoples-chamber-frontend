@@ -191,13 +191,10 @@ export default async function BlueBadgesPage() {
           <p style={para}>
             Everyone else who applies is assessed by their council against the scheme&rsquo;s criteria, which DfT calls &ldquo;subject to further assessment&rdquo;. Since 30 August 2019 this has included people whose disabilities cannot be seen. Each council page shows how many of its badges were held each way.
           </p>
-          <p style={para}>
-            This summary is from the notes to DfT&rsquo;s Blue Badge data tables (in Sources at the end of the page).
-          </p>
           <h3 style={{ fontSize: '16px', margin: '14px 0 6px' }}>The figures</h3>
         {lostStolen?.lost != null && lostStolen.stolen != null && (
           <p style={{ ...para, margin: '0 0 10px' }}>
-            In {yearTo(lostStolen.year)}, {(lostStolen.lost + lostStolen.stolen).toLocaleString('en-GB')} badges were reported lost or stolen in England: {lostStolen.lost.toLocaleString('en-GB')} lost and {lostStolen.stolen.toLocaleString('en-GB')} stolen (DfT). DfT does not publish these figures by council.
+            In {yearTo(lostStolen.year)}, {(lostStolen.lost + lostStolen.stolen).toLocaleString('en-GB')} badges were reported lost or stolen in England: {lostStolen.lost.toLocaleString('en-GB')} lost and {lostStolen.stolen.toLocaleString('en-GB')} stolen. DfT does not publish these figures by council.
           </p>
         )}
           <p style={para}>
@@ -205,18 +202,16 @@ export default async function BlueBadgesPage() {
             {rounded ? ` ${ROUNDING_NOTE}` : ''}
             {anyLow ? ` Where DfT gives no figure it describes it as ${LOW_TEXT}, and the council is not ranked.` : ''}
           </p>
-          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
-            Source: Department for Transport, {rel.label} (in Sources at the end of the page).{' '}
-            <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
-          </p>
         </AboutThisData>
-        {/* EL1 (owner, 11 Nov 2026): the sources this page cites are linked in its one Sources fold; the Open Government
-            Licence attribution stays where it is. */}
+        {/* EL1 (owner, 11 Nov 2026) and Cowork ENTRY 410 (20 Nov 2026): the sources this page cites (the summary is from the
+            data tables' notes) and the Open Government Licence attribution are in its one Sources fold, not in the text. */}
         <PageSources sources={[
           { label: `Department for Transport, ${rel.label}`, href: rel.url },
           lostStolen?.lost != null && lostStolen.stolen != null && lsRel && { label: `Department for Transport, ${lsRel.label} (badges lost or stolen)`, href: lsRel.url },
-          { label: 'Department for Transport, Blue Badge scheme statistics: data tables', href: 'https://www.gov.uk/government/statistical-data-sets/blue-badge-scheme-statistics-data-tables-dis' },
-        ]} />
+          { label: 'Department for Transport, Blue Badge scheme statistics: data tables, with their notes', href: 'https://www.gov.uk/government/statistical-data-sets/blue-badge-scheme-statistics-data-tables-dis' },
+        ]}>
+          <a href={OGL_URL} style={{ color: INK }}>{OGL}</a>
+        </PageSources>
       </article>
       <LastUpdated sourceKey="blue_badges" />
     </OpenGovShell>

@@ -14,6 +14,9 @@
 
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
+import { MEASURE_SOURCE_URLS } from '@/lib/council-league';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -70,13 +73,23 @@ function changeText(current: number, previous: number | null, period: string): s
   return `${pct > 0 ? 'Up' : 'Down'} ${Math.abs(pct).toFixed(1)} per cent on the ${period}`; // "per cent" in a sentence (ENTRY 135 L3)
 }
 
+// How each nation's figures are made. The publisher is not named here (Cowork ENTRY 410: sources only in the tab's
+// Sources fold); it is listed there from CRIME_SOURCES.
 const SOURCE_NOTES: Record<string, string> = {
   police_uk:
-    'Source: data.police.uk, the official police crime data for England and Wales, summed to this council’s boundary from the small local area each crime is recorded in. Locations are approximate by design to protect privacy. Includes antisocial behaviour. Excludes fraud, which is recorded nationally, and the small number of crimes (about 1.4 per cent in recent months) that police record with no location.',
+    'These are the police’s recorded crime figures for England and Wales, summed to this council’s boundary from the small local area each crime is recorded in. Locations are approximate by design to protect privacy. Includes antisocial behaviour. Excludes fraud, which is recorded nationally, and the small number of crimes (about 1.4 per cent in recent months) that police record with no location.',
   psni:
-    'Source: Police Service of Northern Ireland, Police Recorded Crime monthly tables. PSNI’s 11 policing districts cover the same areas as Northern Ireland’s 11 councils.',
+    'These are the police’s recorded crime monthly tables. Northern Ireland’s 11 policing districts cover the same areas as its 11 councils.',
   scotland_rcs:
-    'Source: Scottish Government, Recorded Crime in Scotland (Accredited Official Statistics). Published once a year for each financial year (April to March).',
+    'These are the official recorded crime figures for Scotland, published once a year for each financial year (April to March).',
+};
+// The publisher's page for each nation's figures (OGL v3.0). data.police.uk is the league table's own address; PSNI's
+// statistics page is the one the import reads (scripts/import-council-crime.js); the Scottish Government's Recorded
+// Crime in Scotland collection was checked on 20 Nov 2026.
+const CRIME_SOURCES: Record<string, { label: string; href: string }> = {
+  police_uk: { label: 'data.police.uk, police recorded crime for England and Wales', href: MEASURE_SOURCE_URLS.crime },
+  psni: { label: 'Police Service of Northern Ireland, Police Recorded Crime monthly tables', href: 'https://www.psni.police.uk/about-us/our-publications-and-reports/official-statistics/police-recorded-crime-statistics' },
+  scotland_rcs: { label: 'Scottish Government, Recorded Crime in Scotland (accredited official statistics)', href: 'https://www.gov.scot/collections/recorded-crime-in-scotland/' },
 };
 
 export type CrimeHeadline = { total: number; periodText: string; change: string | null; ratePer1000: number | null };
@@ -183,6 +196,8 @@ export default async function CouncilCrimeSection({
   const loaded = await loadCrime(gssCodes, population);
   if (!loaded) return null;
   const { headline, categories, trend, newestPeriod, source } = loaded;
+  if (CRIME_SOURCES[source]) addPanelSource(CRIME_SOURCES[source]);
+  addPanelNote(OGL_NOTE);
   const maxTrend = Math.max(1, ...trend.map((t) => t.total));
 
   return (

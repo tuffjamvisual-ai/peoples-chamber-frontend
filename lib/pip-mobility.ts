@@ -33,7 +33,9 @@ export function derivedNote(districts: number): string {
   return `Worked out by opengovt by adding the DWP figures for its ${districts} district${districts === 1 ? '' : 's'}.`;
 }
 
-export const sourceLine = (period: string) => `Source: DWP Stat-Xplore, PIP, ${monthLabel(period)}`;
+// DWP Stat-Xplore, where the figures are read (the import's address); listed in the tab's Sources fold, not the text
+// (Cowork ENTRY 410).
+export const STAT_XPLORE_URL = 'https://stat-xplore.dwp.gov.uk/';
 
 // One national line under the council figure (John's wording, 21 Oct 2026).
 export const UK_SCHEME_LINE = 'Across the UK, more than 890,000 vehicles were leased through the Motability Scheme at 30 September 2025.';

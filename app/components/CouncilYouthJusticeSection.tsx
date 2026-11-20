@@ -4,12 +4,13 @@
 // by source). Run by county, unitary, metropolitan and London borough councils; a district page points to its county.
 // England and Wales beside each figure (the release has no England only total). Wording in lib/youth-justice.ts.
 import Link from 'next/link';
-import { addPanelSource } from '@/lib/panel-sources';
+import { addPanelNote, addPanelSource } from '@/lib/panel-sources';
+import { OGL_NOTE } from '@/lib/fold-notes';
 import { supabase } from '@/lib/supabase';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { COUNCIL_DATA_TAG } from '@/lib/page-reads';
-import { loadFte, loadServices, loadServiceTotals, fteText, rateText, val, pounds, yearLabel, fyLabel, FUNDING_SOURCES, EW, SOURCE_PAGE, SOURCE_LABEL, OGL, OGL_URL, RANKING_PATH, type YjsRow, type FteRow } from '@/lib/youth-justice';
+import { loadFte, loadServices, loadServiceTotals, fteText, rateText, val, pounds, yearLabel, fyLabel, FUNDING_SOURCES, EW, SOURCE_PAGE, SOURCE_LABEL, RANKING_PATH, type YjsRow, type FteRow } from '@/lib/youth-justice';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -64,6 +65,7 @@ export default async function CouncilYouthJusticeSection({ gssCode, country, isD
   const funding = svc && val(svc.funding_total) != null ? FUNDING_SOURCES.map(([k, label]) => [label, val(svc[k] as YjsRow['funding_total'])] as const).filter(([, v]) => v != null && v > 0) : [];
 
   addPanelSource({ label: SOURCE_LABEL, href: SOURCE_PAGE });
+  addPanelNote(OGL_NOTE);
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <Heading />
@@ -96,10 +98,6 @@ export default async function CouncilYouthJusticeSection({ gssCode, country, isD
       <p style={small}>A first caution or conviction is counted by where the child lives; the service&rsquo;s caseload by the service. Rates are per 100,000 children aged 10 to 17.</p>
       <p style={small}>
         <Link href={RANKING_PATH} style={{ color: INK, textDecoration: 'underline' }}>Compare every council in England and Wales</Link>, with what the figures mean.
-      </p>
-      <p style={small}>
-        Source: {SOURCE_LABEL} (in Sources at the end of this tab).{' '}
-        <a href={OGL_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{OGL}</a>
       </p>
     </section>
   );
