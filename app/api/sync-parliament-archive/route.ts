@@ -10,8 +10,9 @@
 //   debates    Debates from our own database, Stage 1 (owner's approval, 30 Oct 2026). The same day walk again over
 //              every sitting day, storing what the debate page needs: each record's overview (title, house, date,
 //              location, previous and next) in hansard_debates, the parent links and positions from the section trees,
-//              and for every item its order, type, speaker label (AttributedTo) and HTML (value_html), alongside
-//              contribution_text as before. Parent headings and sitting headers are fetched once each too; only their
+//              and for every item its order, type, speaker label (AttributedTo) and contribution_text as before. The
+//              item HTML (value_html) is no longer stored (Cowork ENTRY 420, 20 Nov 2026: no page read it; the copy is on
+//              the EDGE_SSD, archive-cold-data/2026-11-20). Parent headings and sitting headers are fetched once each too; only their
 //              own items are stored (their children are stored under the children's own ids).
 //   re-fetch   A debate is fetched again once a day until it is 14 days old, then settled_at is set. A re-fetch that
 //              changes the text re-stores the debate and is recorded in the debates cursor (text_changes); the page
@@ -38,7 +39,7 @@
 // While the questions backfill is unfinished, the debates backfill takes 60 per cent of a run's remaining time.
 //
 // Saves go in batches of ITEM_BATCH rows (owner, 30 Oct 2026): a whole debate in one upsert (up to 2,002 items) hit the
-// statement timeout at 15:28 on 30 Oct, and value_html roughly doubles each row.
+// statement timeout at 15:28 on 30 Oct (value_html, stored then, roughly doubled each row).
 //
 // Archived speeches are never hard deleted (owner, 30 Oct 2026): a contribution Hansard drops from a re-published
 // debate gets removed_at (migration 2026-10-30g). Anything that reads the archive for readers (the Stage 2 debate page,
@@ -105,8 +106,11 @@ async function debatesForDay(run: Run, date: string): Promise<Listed[]> {
 
 function slug(s: string) { return s.replace(/[^A-Za-z0-9]+/g, '').slice(0, 60) || 'Debate'; }
 
+// What a re-fetch compares: everything stored for an item. The text is htmlToText(Value), so a change to the published
+// words shows; a change to the HTML markup alone is not stored anywhere and is not a change (ENTRY 420: value_html is
+// no longer kept; on 20 Nov 2026 contribution_text equalled htmlToText(value_html) in all 9,004 sampled rows with HTML).
 const fingerprint = (r: Row) =>
-  [r.ext_id, r.item_order, r.item_type, r.attributed_to ?? '', r.value_html ?? ''].join('\u0001');
+  [r.ext_id, r.item_order, r.item_type, r.attributed_to ?? '', r.contribution_text ?? ''].join('\u0001');
 
 type StoreOpts = {
   originalId: string;                                   // the id as Hansard listed it (rows before Stage 1 kept its case)
@@ -147,7 +151,6 @@ async function storeDebate(run: Run, guid: string, deb: Debate, o: StoreOpts): P
       item_order: n,
       item_type: i.ItemType,
       attributed_to: (i.AttributedTo ?? '').trim() || null,
-      value_html: i.Value ?? null,
       removed_at: null,
     });
   });

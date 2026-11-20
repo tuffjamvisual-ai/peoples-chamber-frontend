@@ -44,20 +44,24 @@ const OGL = 'Open Government Licence v3.0';
 const DATASETS = [
   {
     file: 'written-questions.csv',
-    title: 'Written questions tabled by current and former MPs, with answers',
+    // From parliament_written_questions since Cowork ENTRY 420 (20 Nov 2026): mp_questions (the latest 50 questions of
+    // each current MP) was dropped; this table is the site's own archive of every Commons question tabled from 4 July
+    // 2024. Same file columns: id as pq_id, asking_member_id as member_id, answering_body as department.
+    title: 'Written questions tabled by MPs since 4 July 2024, with answers',
     source: 'UK Parliament written questions and answers',
     source_url: 'https://questions-statements.parliament.uk/',
     licence: OPL,
     date: 'date_tabled',
-    sql: `select pq_id, uin, member_id, date_tabled, date_answered, department, heading, question_text, answer_text, is_withdrawn
-          from mp_questions order by date_tabled, pq_id`,
+    sql: `select id as pq_id, uin, asking_member_id as member_id, date_tabled, date_answered, answering_body as department,
+                 heading, question_text, answer_text, is_withdrawn
+          from parliament_written_questions where house = 'Commons' order by date_tabled, id`,
     columns: {
       pq_id: ['integer', 'Parliament\'s id for the written question'],
       uin: ['text', 'The question\'s unique identification number as printed by Parliament'],
       member_id: ['integer', 'Parliament\'s member id of the MP who asked the question'],
       date_tabled: ['date', 'The date the question was tabled'],
       date_answered: ['date', 'The date it was answered (empty if not yet answered)'],
-      department: ['text', 'The answering government department'],
+      department: ['text', 'The answering government department (answering body)'],
       heading: ['text', 'The question\'s heading'],
       question_text: ['text', 'The text of the question'],
       answer_text: ['text', 'The text of the answer (empty if not yet answered)'],

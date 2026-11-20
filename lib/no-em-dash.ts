@@ -66,7 +66,7 @@ async function fetchRetryingReadsInBuild(input: Parameters<typeof fetch>[0], ini
 // and no stored name has one. "rpc/<function>" is a read function's result.
 const EXACT_COLUMNS: Record<string, string[]> = {
   // Parliament
-  hansard_contributions: ['contribution_text', 'value_html', 'debate_title', 'attributed_to'],
+  hansard_contributions: ['contribution_text', 'debate_title', 'attributed_to'],
   hansard_debates: ['title', 'prev_title', 'next_title'],
   debates: ['title', 'summary'],
   lords_divisions: ['motion_text'],
@@ -83,7 +83,7 @@ const EXACT_COLUMNS: Record<string, string[]> = {
   'rpc/topic_bills_page': ['title'],
   committees: ['name'],
   pmqs_archive_sessions: ['prime_minister_as_named', 'source', 'note'],
-  pmqs_archive_exchanges: ['attributed_to', 'contribution_text', 'parlparse_text', 'parlparse_speaker_id', 'member_id_confidence', 'display_source', 'source'],
+  pmqs_archive_exchanges: ['attributed_to', 'contribution_text', 'parlparse_speaker_id', 'member_id_confidence', 'display_source', 'source'],
   pmqs_archive_people: ['parlparse_speaker_id', 'parlparse_person_id', 'name', 'confidence', 'how_matched', 'most_common_printed_name', 'historic_hansard_url'],
   pmqs_library_totals: ['prime_minister', 'note'],
   pm_questions_1945_1961: ['question', 'answer_first_contribution', 'section', 'asker_as_printed', 'answerer_as_printed', 'hansard_reference', 'date_status', 'period_label'],

@@ -17,7 +17,7 @@ export type Overview = {
 };
 export type Debate = { Overview?: Overview; Items?: DebateItem[] | null; ChildDebates?: Debate[] | null };
 export type Known = { guid: string; fetched_at: string | null; settled_at: string | null; gone_at: string | null };
-export type Stored = { ext_id: string; item_order: number | null; item_type: string | null; attributed_to: string | null; value_html: string | null; removed_at?: string | null };
+export type Stored = { ext_id: string; item_order: number | null; item_type: string | null; attributed_to: string | null; contribution_text: string | null; removed_at?: string | null };
 
 export async function readAll<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>): Promise<T[]> {
   const out: T[] = [];
@@ -39,7 +39,7 @@ export const REQUEST_TIMEOUT_MS = 20_000;
 export const DB_TIMEOUT_MS = 10_000;
 export const TOP_UP_DAYS = 3;
 export const TOP_UP_EVERY_MS = 6 * 60 * 60 * 1000;
-export const ITEM_BATCH = 50;                                  // rows per upsert: about 100 KB with value_html
+export const ITEM_BATCH = 50;                                  // rows per upsert (about 100 KB when value_html was stored)
 export const SETTLE_DAYS = 14;                                 // re-fetched daily until this old, then settled
 export const REFETCH_AFTER_MS = 20 * 60 * 60 * 1000;           // "daily", with slack for the 10 minute schedule
 export const OUR_IDS_EVERY_MS = 24 * 60 * 60 * 1000;
@@ -264,7 +264,7 @@ export class Run {
     const out: Stored[] = [];
     for (let from = 0; ; from += 1000) {
       const { data, error } = await this.db.from('hansard_contributions')
-        .select('ext_id, item_order, item_type, attributed_to, value_html, removed_at')
+        .select('ext_id, item_order, item_type, attributed_to, contribution_text, removed_at')
         .in('debate_ext_id', [...new Set(ids)]).order('ext_id').range(from, from + 999);
       if (error) throw new Error(`hansard_contributions read: ${error.message}`);
       out.push(...((data ?? []) as Stored[]));

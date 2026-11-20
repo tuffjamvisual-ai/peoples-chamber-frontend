@@ -19,7 +19,7 @@ export const maxDuration = 300;
 // instead of one or more Questions and Statements API requests per MP (about 650 a day). One full recount each run
 // (about 173 pages of 1,000 rows from our own database), so a question published late for a day already counted is
 // still counted, which the old per MP date cursor missed. Only MPs whose figures changed are written. This route no
-// longer fills mp_questions (full text); nothing on the site reads it (scripts/sync-mp-questions.js can still fill it).
+// longer fills mp_questions (full text), which was dropped on Cowork ENTRY 420 (20 Nov 2026; copy on the EDGE_SSD).
 // ?dry=1 outside production reads and counts but writes nothing.
 
 type Stored = { member_id: number; written_questions: number | null; wq_top_departments: { dept: string; count: number }[] | null };

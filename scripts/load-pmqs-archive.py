@@ -23,13 +23,14 @@ CHECKS = [
     ('library totals', "SELECT count(*) FROM pmqs_library_totals", '11'),
     ('sessions by source', "SELECT source, count(*) FROM pmqs_archive_sessions GROUP BY 1 ORDER BY 1", 'hansard-api|5 historic-hansard|13 parlparse|3146'),
     ('display source', "SELECT display_source, count(*) FROM pmqs_archive_exchanges GROUP BY 1 ORDER BY 1", 'hansard-api|4560 ours|153092'),
-    ('ours differs from parlparse', "SELECT count(*) FROM pmqs_archive_exchanges WHERE display_source = 'ours' AND contribution_text <> parlparse_text", '0'),
+    ('ours differs from parlparse', "SELECT count(*) FROM pmqs_archive_exchanges WHERE display_source = 'ours' AND contribution_text <> parlparse_text", '0', 'parlparse'),
     ('member 769', "SELECT count(*) FROM pmqs_archive_exchanges WHERE member_id = 769", '3199'),
     ('seven old Lords ids', "SELECT count(*) FROM pmqs_archive_exchanges WHERE member_id IN (3326, 2303, 2017, 1736, 1722, 3899, 3078)", '0'),
     ('members 960, 1078, 614, 850', "SELECT member_id, count(*) FROM pmqs_archive_exchanges WHERE member_id IN (960, 1078, 614, 850) GROUP BY 1 ORDER BY 1", '614|632 850|261 960|1553 1078|414'),
     ('25 Feb 2009', "SELECT prime_minister_as_named, note IS NOT NULL AND note <> '' FROM pmqs_archive_sessions WHERE \"date\" = '2009-02-25'", 'Gordon Brown|t'),
     ('session counts agree', "SELECT count(*) FROM pmqs_archive_sessions s WHERE s.exchanges <> (SELECT count(*) FROM pmqs_archive_exchanges e WHERE e.\"date\" = s.\"date\")", '0'),
-    ('empty or null text', "SELECT count(*) FROM pmqs_archive_exchanges WHERE contribution_text = '' OR parlparse_text = ''", '0'),
+    ('empty or null text', "SELECT count(*) FROM pmqs_archive_exchanges WHERE contribution_text = '' OR parlparse_text = ''", '0', 'parlparse'),
+    ('empty text', "SELECT count(*) FROM pmqs_archive_exchanges WHERE contribution_text = ''", '0', 'live'),
     ('row level security on, tables', f"SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relname IN ({TABLES}) AND c.relrowsecurity", '4'),
     ('public can only read', f"SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace CROSS JOIN unnest(ARRAY['INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER']) p CROSS JOIN unnest(ARRAY['anon','authenticated']) r WHERE n.nspname = 'public' AND c.relname IN ({TABLES}) AND has_table_privilege(r, c.oid, p)", '0'),
     ('public can read', f"SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace CROSS JOIN unnest(ARRAY['anon','authenticated']) r WHERE n.nspname = 'public' AND c.relname IN ({TABLES}) AND has_table_privilege(r, c.oid, 'SELECT')", '8'),
@@ -48,15 +49,27 @@ def psql(script):
     return r.returncode, r.stdout, re.sub(r'postgres\S+', '<address>', r.stderr)
 
 
+# parlparse_text was dropped from the live table (Cowork ENTRY 420, 20 Nov 2026, migration 2026-11-20a-cold-tier1.sql; the
+# column's copy: /Volumes/EDGE_SSD/opengovt-work/archive-cold-data/2026-11-20/pmqs_archive_exchanges.parlparse_text.csv).
+# A load builds the tables from 2026-11-05h, which still has the column, so it runs every check but the 'live' ones;
+# --checks reads the live table, so it skips the 'parlparse' ones.
+LIVE = False
+
+
+def checks():
+    skip = 'parlparse' if LIVE else 'live'
+    return [c for c in CHECKS if (c[3] if len(c) > 3 else None) != skip]
+
+
 def check_sql():
-    return ''.join(f"\\echo @@{i}\n{sql};\n" for i, (_, sql, _) in enumerate(CHECKS))
+    return ''.join(f"\\echo @@{i}\n{c[1]};\n" for i, c in enumerate(checks()))
 
 
 def compare(out):
     ok = True
     parts = re.split(r'^@@(\d+)$', out, flags=re.M)
     got = {int(parts[i]): ' '.join(parts[i + 1].split()) for i in range(1, len(parts), 2)}
-    for i, (name, _, want) in enumerate(CHECKS):
+    for i, (name, _, want, *_rest) in enumerate(checks()):
         have = got.get(i, '(no result)')
         match = have == want
         ok = ok and match
@@ -95,6 +108,8 @@ def batches(folder, tmp):
 
 def main():
     if sys.argv[1:] == ['--checks']:
+        global LIVE
+        LIVE = True
         sys.exit(0 if checks_only() else 1)
     folder, tmp = sys.argv[1], sys.argv[2]
     commit = '--commit' in sys.argv[3:]

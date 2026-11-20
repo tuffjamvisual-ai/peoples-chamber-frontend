@@ -1,3 +1,11 @@
+// RETIRED (Cowork ENTRY 420, owner approved, 20 Nov 2026): mp_questions was dropped from the database (migration
+// scripts/migrations/2026-11-20a-cold-tier1.sql; full copy with checksums in /Volumes/EDGE_SSD/opengovt-work/archive-cold-data/
+// 2026-11-20/mp_questions.csv, second copy on GoliathSSD). Nothing on the site read it; written questions now come from
+// parliament_written_questions (/api/sync-parliament-archive). The script refuses to run so it cannot wipe or recreate
+// rows in a table that no longer exists. The old code is kept below for reference only.
+console.error('sync-mp-questions.js is retired: mp_questions was dropped on 20 Nov 2026 (Cowork ENTRY 420). Written questions come from parliament_written_questions. Nothing done.');
+process.exit(1);
+
 process.loadEnvFile(`${__dirname}/../.env.local`); // the Supabase key lives in .env.local, never in this file
 if (!process.env.SUPABASE_SECRET_KEY) throw new Error('SUPABASE_SECRET_KEY missing from .env.local');
 // Sync MP written questions and answers from the Parliament Members API.
