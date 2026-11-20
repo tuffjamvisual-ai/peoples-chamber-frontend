@@ -47,7 +47,11 @@ export default function LowestScoresPage() {
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
             England · {RANKED} council areas
           </div>
-          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
+          {/* Owner's experiment (Cowork ENTRY 441): this page's headline at half its size at every width (was
+              clamp(28px, 3.4vw, 44px)); same font, weight and line height ratio. To undo, drop the class and the style
+              block and put fontSize 'clamp(28px, 3.4vw, 44px)' back in the h1's style. */}
+          <style>{'.ls-h1-half { font-size: clamp(14px, 1.7vw, 22px); }'}</style>
+          <h1 className="ls-h1-half" style={{ fontFamily: SERIF, fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             {HEADLINE}
           </h1>
           <div style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
