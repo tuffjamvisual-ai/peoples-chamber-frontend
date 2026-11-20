@@ -95,7 +95,10 @@ function writeRefusal(): string | null {
 }
 
 // --- corpus ----------------------------------------------------------------------------------------------------------
-type Rec = { kind: MeaningKind; path: string; title: string; text: string; hash: string };
+// hash: of the model and the embedded text (source_hash); date and house are shown under the result, not embedded.
+type Rec = { kind: MeaningKind; path: string; title: string; text: string; hash: string; date: string | null; house: string | null };
+// Everything a row holds besides its vector: a row is written again when any of it changed.
+const sig = (r: { hash: string; title: string; kind: string; date: string | null; house: string | null }) => [r.hash, r.kind, r.title, r.date ?? '', r.house ?? ''].join('\u0001');
 const hashOf = (text: string) => crypto.createHash('sha256').update(`${MODEL}\nq8 mean normalize\n${text}`).digest('hex').slice(0, 32);
 // The special advisers page's anchor for an adviser (as lib/search/name-index.ts and SpadRosterTable adviserAnchor).
 const anchor = (name: string) => name.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -105,13 +108,13 @@ function buildCorpus(): { rows: Rec[]; dropped: Record<string, number> } {
   const drop = (why: string) => { dropped[why] = (dropped[why] ?? 0) + 1; };
   const out: Rec[] = [];
   const seen = new Set<string>();
-  const add = (kind: MeaningKind, p: string, title: string, text: string) => {
+  const add = (kind: MeaningKind, p: string, title: string, text: string, date: string | null = null, house: string | null = null) => {
     if (!p.startsWith('/') || p.startsWith('//') || p.length > 300) return drop('bad path');
     if (seen.has(p)) return drop(`duplicate path (${kind})`);
     const t = title.replace(/\s+/g, ' ').trim().slice(0, 500);
     if (!t) return drop('no title');
     seen.add(p);
-    out.push({ kind, path: p, title: t, text, hash: hashOf(text) });
+    out.push({ kind, path: p, title: t, text, hash: hashOf(text), date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null, house: house === 'Commons' || house === 'Lords' ? house : null });
   };
   // The site's own pages first (as the ENTRY 390 test, scripts/meaning-test/dir-export.ts): one per address, with all its
   // directory names and its description.
@@ -129,7 +132,7 @@ function buildCorpus(): { rows: Rec[]; dropped: Record<string, number> } {
   const lines = readOnly(fs.readFileSync(path.join(ROOT, 'scripts/meaning/corpus.sql'), 'utf8')).split('\n').filter((l) => l.startsWith('{'));
   const committees = new Set(COMMITTEE_IDS.map(String));
   for (const l of lines) {
-    const r = JSON.parse(l) as { kind: MeaningKind; path: string; title: string | null; text: string; ref: string | null };
+    const r = JSON.parse(l) as { kind: MeaningKind; path: string; title: string | null; text: string; ref: string | null; date: string | null; house: string | null };
     if (!MEANING_KINDS.includes(r.kind)) { drop(`unknown kind ${r.kind}`); continue; }
     if (r.kind === 'committee' && !committees.has(String(r.ref))) { drop('committee without a page'); continue; }
     if (r.kind === 'special_adviser') {
@@ -137,7 +140,9 @@ function buildCorpus(): { rows: Rec[]; dropped: Record<string, number> } {
       add(r.kind, `${r.path}#${anchor(String(r.title))}`, String(r.title), r.text);
       continue;
     }
-    add(r.kind, r.path, String(r.title ?? ''), r.text);
+    // An APPG has no page of its own: the APPG list, searched for its title (Cowork ENTRY 390 PICTURES answer 2).
+    if (r.kind === 'appg') { add(r.kind, `${r.path}${encodeURIComponent(String(r.title).trim())}`, String(r.title), r.text); continue; }
+    add(r.kind, r.path, String(r.title ?? ''), r.text, r.date, r.house);
   }
   return { rows: out, dropped };
 }
@@ -174,7 +179,7 @@ async function embedAll(rows: Rec[]): Promise<Float32Array> {
   }
   fs.writeFileSync(path.join(OUT, 'corpus.jsonl'), rows.map((r) => JSON.stringify(r)).join('\n') + '\n');
   fs.writeFileSync(vecFile, Buffer.from(buf.buffer, buf.byteOffset, buf.byteLength));
-  fs.writeFileSync(metaFile, JSON.stringify(rows.map(({ kind, path: p, title, hash }) => ({ kind, path: p, title, hash }))));
+  fs.writeFileSync(metaFile, JSON.stringify(rows.map(({ kind, path: p, title, hash, date, house }) => ({ kind, path: p, title, hash, date, house }))));
   return buf;
 }
 
@@ -182,12 +187,13 @@ async function embedAll(rows: Rec[]): Promise<Float32Array> {
 const lit = (s: string) => `'${s.replace(/'/g, "''")}'`;
 const vecLit = (v: Float32Array) => `'[${Array.from(v, (x) => x.toFixed(5)).join(',')}]'`;
 function upsertSql(rows: Rec[], vecOf: (r: Rec) => Float32Array): string {
-  return `INSERT INTO public.search_embeddings (path, kind, title, embedding, source_hash) VALUES\n${rows
-    .map((r) => `(${lit(r.path)}, ${lit(r.kind)}, ${lit(r.title)}, ${vecLit(vecOf(r))}::extensions.halfvec(384), ${lit(r.hash)})`).join(',\n')}
-ON CONFLICT (path) DO UPDATE SET kind = excluded.kind, title = excluded.title, embedding = excluded.embedding,
+  return `INSERT INTO public.search_embeddings (path, kind, title, item_date, house, embedding, source_hash) VALUES\n${rows
+    .map((r) => `(${lit(r.path)}, ${lit(r.kind)}, ${lit(r.title)}, ${r.date ? `${lit(r.date)}::date` : 'NULL'}, ${r.house ? lit(r.house) : 'NULL'}, ${vecLit(vecOf(r))}::extensions.halfvec(384), ${lit(r.hash)})`).join(',\n')}
+ON CONFLICT (path) DO UPDATE SET kind = excluded.kind, title = excluded.title, item_date = excluded.item_date, house = excluded.house, embedding = excluded.embedding,
   source_hash = excluded.source_hash, updated_at = now()
 WHERE search_embeddings.source_hash IS DISTINCT FROM excluded.source_hash OR search_embeddings.title IS DISTINCT FROM excluded.title
-  OR search_embeddings.kind IS DISTINCT FROM excluded.kind;\n`;
+  OR search_embeddings.kind IS DISTINCT FROM excluded.kind OR search_embeddings.item_date IS DISTINCT FROM excluded.item_date
+  OR search_embeddings.house IS DISTINCT FROM excluded.house;\n`;
 }
 // The migration's own text, without its COMMIT, to rehearse inside a transaction that is rolled back.
 function migrationBody(): string {
@@ -213,10 +219,10 @@ const tableExists = () => readOnly(`SELECT to_regclass('public.search_embeddings
 
   const exists = tableExists();
   const held = new Map<string, string>();
-  if (exists) for (const l of readOnly('SELECT path, source_hash FROM public.search_embeddings;').split('\n').filter(Boolean)) {
-    const i = l.lastIndexOf('|'); held.set(l.slice(0, i), l.slice(i + 1));
+  if (exists) for (const l of readOnly("SELECT json_build_object('path', path, 'hash', source_hash, 'kind', kind, 'title', title, 'date', item_date, 'house', house) FROM public.search_embeddings;").split('\n').filter(Boolean)) {
+    const r = JSON.parse(l); held.set(r.path, sig(r));
   }
-  const todo = rows.filter((r) => held.get(r.path) !== r.hash);
+  const todo = rows.filter((r) => held.get(r.path) !== sig(r));
   const stale = [...held.keys()].filter((p) => !index.has(p));
   console.log(`database: table ${exists ? 'exists' : 'not created yet'}; ${held.size} rows held; ${todo.length} new or changed; ${rows.length - todo.length} unchanged; ${stale.length} no longer in the corpus`);
 

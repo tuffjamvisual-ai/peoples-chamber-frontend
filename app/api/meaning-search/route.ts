@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const q = (new URL(request.url).searchParams.get('q') ?? '').slice(0, MAX_QUERY * 2);
   const { hits, why, ms } = await meaningSearch(q, 25);
   return Response.json(
-    { results: hits.map(({ kind, path, title }) => ({ kind, path, title })) },
+    { results: hits.map(({ kind, path, title, date, house }) => ({ kind, path, title, date, house })) },
     { headers: { ...HEADERS, 'Server-Timing': `embed;dur=${ms.embed}, db;dur=${ms.db}${why ? `, skip;desc="${why}"` : ''}` } },
   );
 }

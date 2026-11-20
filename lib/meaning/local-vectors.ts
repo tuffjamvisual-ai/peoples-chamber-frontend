@@ -1,6 +1,6 @@
 // LOCAL DEVELOPMENT ONLY (Cowork ENTRY 390 GO): pictures of meaning search before the vectors are in the database. With
 // MEANING_LOCAL_VECTORS=<prefix> set for `next dev`, the search reads <prefix>.f32 (the vectors, 384 float32 each) and
-// <prefix>.meta.json (kind, path, title per row), both written by scripts/meaning/load-embeddings.ts, and scans them in
+// <prefix>.meta.json (kind, path, title, date, house per row), both written by scripts/meaning/load-embeddings.ts, and scans them in
 // memory. It can never run on the live site: localVectorsAllowed() is false unless NODE_ENV is 'development' (next build
 // and next start set 'production') and VERCEL is unset (Vercel sets it in every build and function).
 import 'server-only';
@@ -11,7 +11,7 @@ export function localVectorsAllowed(): boolean {
   return process.env.NODE_ENV === 'development' && !process.env.VERCEL && !!process.env.MEANING_LOCAL_VECTORS;
 }
 
-let held: { prefix: string; vecs: Float32Array; meta: { kind: MeaningKind; path: string; title: string }[] } | null = null;
+let held: { prefix: string; vecs: Float32Array; meta: { kind: MeaningKind; path: string; title: string; date?: string | null; house?: string | null }[] } | null = null;
 
 export function localSearch(q: Float32Array, limit: number): MeaningHit[] {
   if (!localVectorsAllowed()) return [];
@@ -33,5 +33,5 @@ export function localSearch(q: Float32Array, limit: number): MeaningHit[] {
     scores[i] = s;
   }
   return [...scores.keys()].sort((a, b) => scores[b] - scores[a]).slice(0, limit)
-    .map((i) => ({ ...meta[i], score: +scores[i].toFixed(4) }));
+    .map((i) => ({ kind: meta[i].kind, path: meta[i].path, title: meta[i].title, date: meta[i].date ?? null, house: meta[i].house ?? null, score: +scores[i].toFixed(4) }));
 }

@@ -51,9 +51,9 @@ export async function meaningSearch(raw: string, limit = 15): Promise<{ hits: Me
         .rpc('search_meaning', { p_query: `[${Array.from(vec, (x) => x.toFixed(5)).join(',')}]`, p_limit: limit })
         .abortSignal(AbortSignal.timeout(DB_MS));
       if (error) return { hits: [], why: 'db', ms };
-      rows = ((data ?? []) as { kind: string; path: string; title: string; score: number }[])
+      rows = ((data ?? []) as { kind: string; path: string; title: string; score: number; item_date: string | null; house: string | null }[])
         .filter((r) => KINDS.has(r.kind) && typeof r.path === 'string' && r.path.startsWith('/') && !r.path.startsWith('//'))
-        .map((r) => ({ kind: r.kind as MeaningKind, path: r.path, title: r.title, score: Number(r.score) }));
+        .map((r) => ({ kind: r.kind as MeaningKind, path: r.path, title: r.title, score: Number(r.score), date: r.item_date ?? null, house: r.house ?? null }));
     }
     ms.db = Math.round(performance.now() - t1);
     return { hits: rows.filter((r) => r.score >= MIN_SCORE), ms };
