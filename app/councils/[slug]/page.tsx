@@ -701,7 +701,6 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           c.leader_second_source_url && { label: `${c.leader_role ?? 'Leader'}: ${c.name}`, href: c.leader_second_source_url },
           c.chief_exec_source_url && { label: `Chief executive: Wikipedia${c.chief_exec_checked_on ? `, checked ${longDate(c.chief_exec_checked_on)}` : ''}`, href: c.chief_exec_source_url },
           c.wikipedia_url && { label: `${c.name} on Wikipedia (the description of the council)`, href: c.wikipedia_url },
-          c.wikipedia_url && { label: 'Wikipedia text licence: CC BY-SA 4.0', href: CC_BY_SA_4_URL },
           c.population_source && c.population_source_url && { label: `Population: ${c.population_source}`, href: c.population_source_url },
           councilTax?.source_url && { label: `Council tax ${councilTax.year.replace('-', '/')}: ${councilTaxPublisher(councilTax)}, council tax levels`, href: councilTax.source_url },
           showServiceSpending && spendingSource && SERVICE_SPENDING_SOURCES[spendingSource] && { label: `Spending by service${spendingPeriodLabel ? ` ${spendingPeriodLabel}` : ''}: ${SERVICE_SPENDING_SOURCES[spendingSource].label}`, href: SERVICE_SPENDING_SOURCES[spendingSource].href },
