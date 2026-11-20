@@ -1,0 +1,976 @@
+{
+ "ranked": 294,
+ "measureCount": 14,
+ "measures": [
+  {
+   "key": "crime",
+   "label": "Crime",
+   "unit": "recorded crimes per 1,000 residents, not counting anti-social behaviour",
+   "period": "October 2025 to September 2026",
+   "better": "lower",
+   "county": false,
+   "source": "Police recorded crime, data.police.uk, with ONS mid-2025 population",
+   "href": "https://data.police.uk/data/"
+  },
+  {
+   "key": "child_poverty",
+   "label": "Child poverty",
+   "unit": "per cent of children in low income households, after housing costs",
+   "period": "year to March 2025",
+   "better": "lower",
+   "county": false,
+   "source": "DWP, Children in low income families: local area statistics",
+   "href": "https://www.gov.uk/government/collections/children-in-low-income-families-local-area-statistics"
+  },
+  {
+   "key": "claimants",
+   "label": "Claiming unemployment benefits",
+   "unit": "per cent of residents aged 16 to 64 claiming",
+   "period": "September 2026",
+   "better": "lower",
+   "county": false,
+   "source": "ONS Claimant Count (Nomis)",
+   "href": "https://www.nomisweb.co.uk/sources/cc"
+  },
+  {
+   "key": "affordability",
+   "label": "House prices against earnings",
+   "unit": "median house price as a multiple of median earnings",
+   "period": "2025",
+   "better": "lower",
+   "county": false,
+   "source": "ONS, House price to residence-based earnings ratio",
+   "href": "https://www.ons.gov.uk/peoplepopulationandcommunity/housing/datasets/ratioofhousepricetoresidencebasedearningslowerquartileandmedian"
+  },
+  {
+   "key": "temp_accommodation",
+   "label": "Temporary accommodation",
+   "unit": "households in temporary accommodation per 1,000 households (provisional figures)",
+   "period": "January to March 2026 (provisional)",
+   "better": "lower",
+   "county": false,
+   "source": "MHCLG, Statutory homelessness live tables",
+   "href": "https://www.gov.uk/government/statistical-data-sets/live-tables-on-homelessness"
+  },
+  {
+   "key": "schools",
+   "label": "Schools rated Good or Outstanding",
+   "unit": "per cent of schools with a graded quality of education judgement",
+   "period": "inspections to 31 August 2026",
+   "better": "higher",
+   "county": true,
+   "source": "Ofsted, State-funded schools inspections and outcomes: management information",
+   "href": "https://www.gov.uk/government/statistical-data-sets/monthly-management-information-ofsteds-school-inspections-outcomes"
+  },
+  {
+   "key": "sewage",
+   "label": "Sewage spills",
+   "unit": "hours of sewage spills per monitored storm overflow",
+   "period": "2025",
+   "better": "lower",
+   "county": false,
+   "source": "Environment Agency, Event duration monitoring: storm overflows annual returns",
+   "href": "https://www.data.gov.uk/dataset/19f6064d-7356-466f-844e-d20ea10ae9fd/event-duration-monitoring-storm-overflows-annual-returns"
+  },
+  {
+   "key": "gigabit",
+   "label": "Gigabit broadband",
+   "unit": "per cent of premises that can get gigabit broadband",
+   "period": "January 2026",
+   "better": "higher",
+   "county": false,
+   "source": "Ofcom, Connected Nations",
+   "href": "https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/"
+  },
+  {
+   "key": "fuel_poverty",
+   "label": "Fuel poverty",
+   "unit": "per cent of households in fuel poverty",
+   "period": "2024",
+   "better": "lower",
+   "county": false,
+   "source": "DESNZ, Sub-regional fuel poverty statistics",
+   "href": "https://www.gov.uk/government/statistics/sub-regional-fuel-poverty-report-2026-2024-data"
+  },
+  {
+   "key": "life_expectancy",
+   "label": "Life expectancy",
+   "unit": "years at birth, women and men averaged",
+   "period": "2021 to 2023",
+   "better": "higher",
+   "county": false,
+   "source": "ONS, Life expectancy for local areas",
+   "href": "https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandlifeexpectancies/datasets/lifeexpectancyforlocalareasofgreatbritain"
+  },
+  {
+   "key": "obesity",
+   "label": "Adults overweight or obese",
+   "unit": "per cent of adults overweight or obese",
+   "period": "2024 to 2025",
+   "better": "lower",
+   "county": false,
+   "source": "OHID, Public health profiles (Fingertips)",
+   "href": "https://fingertips.phe.org.uk/"
+  },
+  {
+   "key": "road_ksi",
+   "label": "Road deaths and serious injuries",
+   "unit": "people killed or seriously injured per billion vehicle miles (adjusted)",
+   "period": "2025",
+   "better": "lower",
+   "county": true,
+   "source": "DfT, Reported road casualties (adjusted)",
+   "href": "https://www.gov.uk/government/statistical-data-sets/road-safety-statistics-data-tables"
+  },
+  {
+   "key": "fly_tipping",
+   "label": "Fly-tipping",
+   "unit": "fly-tipping incidents per 1,000 residents",
+   "period": "April 2024 to March 2025",
+   "better": "lower",
+   "county": false,
+   "source": "Defra, Fly-tipping statistics for England",
+   "href": "https://www.gov.uk/government/statistics/fly-tipping-statistics-for-england"
+  },
+  {
+   "key": "indoor_4g",
+   "label": "Indoor 4G from all four networks",
+   "unit": "per cent of premises with indoor 4G from all four networks",
+   "period": "January 2026",
+   "better": "higher",
+   "county": false,
+   "source": "Ofcom, Connected Nations",
+   "href": "https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/"
+  }
+ ],
+ "areas": [
+  {
+   "position": 1,
+   "name": "Blackpool",
+   "slug": "blackpool",
+   "type": "Unitary authority",
+   "score": 26.3,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "schools",
+     "label": "Schools rated Good or Outstanding",
+     "figure": "58.8 per cent",
+     "average": "86.8 per cent",
+     "rank": 294,
+     "of": 294,
+     "period": "to August 2026",
+     "county": false
+    },
+    {
+     "key": "life_expectancy",
+     "label": "Life expectancy",
+     "figure": "76.0 years",
+     "average": "81.3 years",
+     "rank": 294,
+     "of": 294,
+     "period": "2021 to 2023",
+     "county": false
+    },
+    {
+     "key": "fuel_poverty",
+     "label": "Fuel poverty",
+     "figure": "13.9 per cent",
+     "average": "9.7 per cent",
+     "rank": 293,
+     "of": 294,
+     "period": "2024",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 2,
+   "name": "Boston",
+   "slug": "boston",
+   "type": "District council",
+   "score": 28.0,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "fly_tipping",
+     "label": "Fly-tipping",
+     "figure": "65.9 per 1,000 residents",
+     "average": "18.5",
+     "rank": 282,
+     "of": 293,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "indoor_4g",
+     "label": "Indoor 4G from all four networks",
+     "figure": "76.1 per cent",
+     "average": "89.9 per cent",
+     "rank": 265,
+     "of": 294,
+     "period": "January 2026",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "35.2 per cent",
+     "average": "25.0 per cent",
+     "rank": 264,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 3,
+   "name": "Hastings",
+   "slug": "hastings",
+   "type": "District council",
+   "score": 28.3,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "crime",
+     "label": "Crime",
+     "figure": "118.6 per 1,000 residents",
+     "average": "74.9",
+     "rank": 265,
+     "of": 283,
+     "period": "year to September 2026",
+     "county": false
+    },
+    {
+     "key": "temp_accommodation",
+     "label": "Temporary accommodation",
+     "figure": "15.1 per 1,000 households",
+     "average": "4.4",
+     "rank": 261,
+     "of": 282,
+     "period": "January to March 2026",
+     "county": false
+    },
+    {
+     "key": "life_expectancy",
+     "label": "Life expectancy",
+     "figure": "78.8 years",
+     "average": "81.3 years",
+     "rank": 269,
+     "of": 294,
+     "period": "2021 to 2023",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 4,
+   "name": "Liverpool",
+   "slug": "liverpool",
+   "type": "Metropolitan borough",
+   "score": 28.4,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "life_expectancy",
+     "label": "Life expectancy",
+     "figure": "77.8 years",
+     "average": "81.3 years",
+     "rank": 289,
+     "of": 294,
+     "period": "2021 to 2023",
+     "county": false
+    },
+    {
+     "key": "road_ksi",
+     "label": "Road deaths and serious injuries",
+     "figure": "232.7 per billion vehicle miles",
+     "average": "103.7",
+     "rank": 279,
+     "of": 293,
+     "period": "2025",
+     "county": false
+    },
+    {
+     "key": "crime",
+     "label": "Crime",
+     "figure": "123.0 per 1,000 residents",
+     "average": "74.9",
+     "rank": 269,
+     "of": 283,
+     "period": "year to September 2026",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 5,
+   "name": "Great Yarmouth",
+   "slug": "great-yarmouth",
+   "type": "District council",
+   "score": 29.6,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "fly_tipping",
+     "label": "Fly-tipping",
+     "figure": "76.8 per 1,000 residents",
+     "average": "18.5",
+     "rank": 286,
+     "of": 293,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "37.2 per cent",
+     "average": "25.0 per cent",
+     "rank": 270,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "fuel_poverty",
+     "label": "Fuel poverty",
+     "figure": "11.5 per cent",
+     "average": "9.7 per cent",
+     "rank": 251,
+     "of": 294,
+     "period": "2024",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 6,
+   "name": "East Lindsey",
+   "slug": "east-lindsey",
+   "type": "District council",
+   "score": 30.0,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "gigabit",
+     "label": "Gigabit broadband",
+     "figure": "67.0 per cent",
+     "average": "87.5 per cent",
+     "rank": 285,
+     "of": 294,
+     "period": "January 2026",
+     "county": false
+    },
+    {
+     "key": "indoor_4g",
+     "label": "Indoor 4G from all four networks",
+     "figure": "72.7 per cent",
+     "average": "89.9 per cent",
+     "rank": 275,
+     "of": 294,
+     "period": "January 2026",
+     "county": false
+    },
+    {
+     "key": "obesity",
+     "label": "Adults overweight or obese",
+     "figure": "72.5 per cent",
+     "average": "64.8 per cent",
+     "rank": 268,
+     "of": 294,
+     "period": "2024 to 2025",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 7,
+   "name": "Hull",
+   "slug": "hull",
+   "type": "Unitary authority",
+   "score": 32.2,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "sewage",
+     "label": "Sewage spills",
+     "figure": "791.5 hours per overflow",
+     "average": "113.1",
+     "rank": 286,
+     "of": 286,
+     "period": "2025",
+     "county": false
+    },
+    {
+     "key": "life_expectancy",
+     "label": "Life expectancy",
+     "figure": "77.7 years",
+     "average": "81.3 years",
+     "rank": 291,
+     "of": 294,
+     "period": "2021 to 2023",
+     "county": false
+    },
+    {
+     "key": "fuel_poverty",
+     "label": "Fuel poverty",
+     "figure": "13.5 per cent",
+     "average": "9.7 per cent",
+     "rank": 290,
+     "of": 294,
+     "period": "2024",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 8,
+   "name": "Nottingham",
+   "slug": "nottingham",
+   "type": "Unitary authority",
+   "score": 32.2,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "fly_tipping",
+     "label": "Fly-tipping",
+     "figure": "79.0 per 1,000 residents",
+     "average": "18.5",
+     "rank": 287,
+     "of": 293,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "crime",
+     "label": "Crime",
+     "figure": "138.3 per 1,000 residents",
+     "average": "74.9",
+     "rank": 276,
+     "of": 283,
+     "period": "year to September 2026",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "40.2 per cent",
+     "average": "25.0 per cent",
+     "rank": 284,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 9,
+   "name": "North East Lincolnshire",
+   "slug": "north-east-lincolnshire",
+   "type": "Unitary authority",
+   "score": 32.2,
+   "counted": 13,
+   "missing": [
+    "Temporary accommodation"
+   ],
+   "why": [
+    {
+     "key": "crime",
+     "label": "Crime",
+     "figure": "126.2 per 1,000 residents",
+     "average": "74.9",
+     "rank": 273,
+     "of": 283,
+     "period": "year to September 2026",
+     "county": false
+    },
+    {
+     "key": "fuel_poverty",
+     "label": "Fuel poverty",
+     "figure": "12.3 per cent",
+     "average": "9.7 per cent",
+     "rank": 278,
+     "of": 294,
+     "period": "2024",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "35.5 per cent",
+     "average": "25.0 per cent",
+     "rank": 266,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 10,
+   "name": "Manchester",
+   "slug": "manchester",
+   "type": "Metropolitan borough",
+   "score": 32.4,
+   "counted": 13,
+   "missing": [
+    "Crime"
+   ],
+   "why": [
+    {
+     "key": "life_expectancy",
+     "label": "Life expectancy",
+     "figure": "77.4 years",
+     "average": "81.3 years",
+     "rank": 293,
+     "of": 294,
+     "period": "2021 to 2023",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "42.3 per cent",
+     "average": "25.0 per cent",
+     "rank": 288,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "schools",
+     "label": "Schools rated Good or Outstanding",
+     "figure": "77.3 per cent",
+     "average": "86.8 per cent",
+     "rank": 283,
+     "of": 294,
+     "period": "to August 2026",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 11,
+   "name": "Bradford",
+   "slug": "bradford",
+   "type": "Metropolitan borough",
+   "score": 32.6,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "claimants",
+     "label": "Claiming unemployment benefits",
+     "figure": "7.0 per cent",
+     "average": "3.6 per cent",
+     "rank": 288,
+     "of": 294,
+     "period": "September 2026",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "41.8 per cent",
+     "average": "25.0 per cent",
+     "rank": 286,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "crime",
+     "label": "Crime",
+     "figure": "116.9 per 1,000 residents",
+     "average": "74.9",
+     "rank": 263,
+     "of": 283,
+     "period": "year to September 2026",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 12,
+   "name": "Barking and Dagenham",
+   "slug": "barking-and-dagenham",
+   "type": "London borough",
+   "score": 32.7,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "claimants",
+     "label": "Claiming unemployment benefits",
+     "figure": "7.5 per cent",
+     "average": "3.6 per cent",
+     "rank": 292,
+     "of": 294,
+     "period": "September 2026",
+     "county": false
+    },
+    {
+     "key": "fuel_poverty",
+     "label": "Fuel poverty",
+     "figure": "12.8 per cent",
+     "average": "9.7 per cent",
+     "rank": 282,
+     "of": 294,
+     "period": "2024",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "39.2 per cent",
+     "average": "25.0 per cent",
+     "rank": 278,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 13,
+   "name": "Oldham",
+   "slug": "oldham",
+   "type": "Metropolitan borough",
+   "score": 33.3,
+   "counted": 13,
+   "missing": [
+    "Crime"
+   ],
+   "why": [
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "41.8 per cent",
+     "average": "25.0 per cent",
+     "rank": 287,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "schools",
+     "label": "Schools rated Good or Outstanding",
+     "figure": "77.3 per cent",
+     "average": "86.8 per cent",
+     "rank": 284,
+     "of": 294,
+     "period": "to August 2026",
+     "county": false
+    },
+    {
+     "key": "claimants",
+     "label": "Claiming unemployment benefits",
+     "figure": "6.6 per cent",
+     "average": "3.6 per cent",
+     "rank": 280,
+     "of": 294,
+     "period": "September 2026",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 14,
+   "name": "Newham",
+   "slug": "newham",
+   "type": "London borough",
+   "score": 34.0,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "temp_accommodation",
+     "label": "Temporary accommodation",
+     "figure": "59.8 per 1,000 households",
+     "average": "4.4",
+     "rank": 282,
+     "of": 282,
+     "period": "January to March 2026",
+     "county": false
+    },
+    {
+     "key": "claimants",
+     "label": "Claiming unemployment benefits",
+     "figure": "7.5 per cent",
+     "average": "3.6 per cent",
+     "rank": 292,
+     "of": 294,
+     "period": "September 2026",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "44.9 per cent",
+     "average": "25.0 per cent",
+     "rank": 292,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 15,
+   "name": "Burnley",
+   "slug": "burnley",
+   "type": "District council",
+   "score": 34.1,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "life_expectancy",
+     "label": "Life expectancy",
+     "figure": "77.8 years",
+     "average": "81.3 years",
+     "rank": 290,
+     "of": 294,
+     "period": "2021 to 2023",
+     "county": false
+    },
+    {
+     "key": "fuel_poverty",
+     "label": "Fuel poverty",
+     "figure": "13.3 per cent",
+     "average": "9.7 per cent",
+     "rank": 286,
+     "of": 294,
+     "period": "2024",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "39.9 per cent",
+     "average": "25.0 per cent",
+     "rank": 280,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 16,
+   "name": "Thanet",
+   "slug": "thanet",
+   "type": "District council",
+   "score": 34.2,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "obesity",
+     "label": "Adults overweight or obese",
+     "figure": "73.3 per cent",
+     "average": "64.8 per cent",
+     "rank": 275,
+     "of": 294,
+     "period": "2024 to 2025",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "34.9 per cent",
+     "average": "25.0 per cent",
+     "rank": 262,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "claimants",
+     "label": "Claiming unemployment benefits",
+     "figure": "5.3 per cent",
+     "average": "3.6 per cent",
+     "rank": 256,
+     "of": 294,
+     "period": "September 2026",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 17,
+   "name": "Hackney",
+   "slug": "hackney",
+   "type": "London borough",
+   "score": 34.3,
+   "counted": 13,
+   "missing": [
+    "Sewage spills"
+   ],
+   "why": [
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "50.1 per cent",
+     "average": "25.0 per cent",
+     "rank": 293,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "road_ksi",
+     "label": "Road deaths and serious injuries",
+     "figure": "497.6 per billion vehicle miles",
+     "average": "103.7",
+     "rank": 292,
+     "of": 293,
+     "period": "2025",
+     "county": false
+    },
+    {
+     "key": "temp_accommodation",
+     "label": "Temporary accommodation",
+     "figure": "32.8 per 1,000 households",
+     "average": "4.4",
+     "rank": 280,
+     "of": 282,
+     "period": "January to March 2026",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 18,
+   "name": "Peterborough",
+   "slug": "peterborough",
+   "type": "Unitary authority",
+   "score": 34.5,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "obesity",
+     "label": "Adults overweight or obese",
+     "figure": "73.9 per cent",
+     "average": "64.8 per cent",
+     "rank": 283,
+     "of": 294,
+     "period": "2024 to 2025",
+     "county": false
+    },
+    {
+     "key": "fly_tipping",
+     "label": "Fly-tipping",
+     "figure": "46.8 per 1,000 residents",
+     "average": "18.5",
+     "rank": 269,
+     "of": 293,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "34.9 per cent",
+     "average": "25.0 per cent",
+     "rank": 263,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 19,
+   "name": "West Lindsey",
+   "slug": "west-lindsey",
+   "type": "District council",
+   "score": 34.6,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "indoor_4g",
+     "label": "Indoor 4G from all four networks",
+     "figure": "66.4 per cent",
+     "average": "89.9 per cent",
+     "rank": 291,
+     "of": 294,
+     "period": "January 2026",
+     "county": false
+    },
+    {
+     "key": "obesity",
+     "label": "Adults overweight or obese",
+     "figure": "74.7 per cent",
+     "average": "64.8 per cent",
+     "rank": 290,
+     "of": 294,
+     "period": "2024 to 2025",
+     "county": false
+    },
+    {
+     "key": "gigabit",
+     "label": "Gigabit broadband",
+     "figure": "68.1 per cent",
+     "average": "87.5 per cent",
+     "rank": 281,
+     "of": 294,
+     "period": "January 2026",
+     "county": false
+    }
+   ]
+  },
+  {
+   "position": 20,
+   "name": "Leicester",
+   "slug": "leicester",
+   "type": "Unitary authority",
+   "score": 35.5,
+   "counted": 14,
+   "missing": [],
+   "why": [
+    {
+     "key": "fuel_poverty",
+     "label": "Fuel poverty",
+     "figure": "13.3 per cent",
+     "average": "9.7 per cent",
+     "rank": 288,
+     "of": 294,
+     "period": "2024",
+     "county": false
+    },
+    {
+     "key": "child_poverty",
+     "label": "Child poverty",
+     "figure": "40.1 per cent",
+     "average": "25.0 per cent",
+     "rank": 281,
+     "of": 294,
+     "period": "year to March 2025",
+     "county": false
+    },
+    {
+     "key": "life_expectancy",
+     "label": "Life expectancy",
+     "figure": "78.5 years",
+     "average": "81.3 years",
+     "rank": 279,
+     "of": 294,
+     "period": "2021 to 2023",
+     "county": false
+    }
+   ]
+  }
+ ]
+}
