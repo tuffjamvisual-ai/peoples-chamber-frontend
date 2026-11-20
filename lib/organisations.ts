@@ -13,6 +13,7 @@ import { nameBasisCorrections } from '@/lib/contract-notices';
 import { getOrgMeetings, getOrgLobbying, type OrgMeeting, type OrgLobbying } from '@/lib/lobbying';
 import { cachedQuery, tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
+import { normaliseCompanyNumber, companiesHouseUrl } from '@/lib/companies-house';
 
 export type OrgIndexRow = {
   slug: string;
@@ -128,14 +129,8 @@ export const listOrganisations = cache(async (): Promise<OrgListRow[]> => {
 // The same list cached for an hour across requests, for /organisations and the Organisations group on /search.
 export const cachedOrganisationList = unstable_cache(async () => listOrganisations(), ['organisation-list-v2'], { revalidate: false, tags: tableTags('organisation_index') }); // F04 batch 1 (A16): no timer; refreshed by its tag
 
-// A Companies House number as Companies House writes it (normalise_company_number in SQL), or null.
-export function normaliseCompanyNumber(raw: string): string | null {
-  const c = raw.toUpperCase().replace(/\s/g, '');
-  if (/^0*$/.test(c) || /^[A-Z]{2}0*$/.test(c)) return null;
-  if (/^[0-9]{1,8}$/.test(c)) return c.padStart(8, '0');
-  if (/^[A-Z]{2}[0-9]{1,6}$/.test(c)) return c.slice(0, 2) + c.slice(2).padStart(6, '0');
-  return null;
-}
+// A Companies House number as Companies House writes it, and its address: lib/companies-house.ts (shared with client code).
+export { normaliseCompanyNumber, companiesHouseUrl };
 
 // Search on the name, the other spellings and the Companies House number. Returns the best matches first: an exact
 // number, then names that start with the words, then the rest by size of record.
@@ -244,7 +239,6 @@ export async function getOrgAlsoSee(org: Pick<OrgIndexRow, 'kind' | 'slug' | 'lo
   return { slug: page.slug, name: corrected(page as Pick<OrgIndexRow, 'kind' | 'company_number' | 'name'> & { slug: string }).name };
 }
 
-export const companiesHouseUrl = (n: string) => `https://find-and-update.company-information.service.gov.uk/company/${encodeURIComponent(n)}`;
 export const grantNavUrl = (identifier: string) => `https://grantnav.threesixtygiving.org/grant/${encodeURIComponent(identifier)}`;
 export const findTenderUrl = (ocid: string) => `https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(ocid)}`;
 

@@ -1,6 +1,7 @@
 'use client';
 
 import PageSources from '../../components/PageSources';
+import { companiesHouseUrl, companyNumberAsFiled } from '@/lib/companies-house';
 import PhoneMore from '../../components/PhoneMore';
 import { shortDayMonthYear, shortMonthYear } from '@/lib/short-date';
 import { useToday } from '@/app/components/useToday';
@@ -2581,8 +2582,8 @@ export default function MagazineProfileSections({
                   <PageSources
                     marginTop="16px"
                     sources={donorRows.filter((r) => r.crn).map((r) => ({
-                      label: `Companies House record for ${r.name} (company ${r.crn})`,
-                      href: `https://find-and-update.company-information.service.gov.uk/company/${encodeURIComponent(r.crn as string)}`,
+                      label: `Companies House record for ${r.name} (company ${companyNumberAsFiled(r.crn as string)})`,
+                      href: companiesHouseUrl(r.crn as string),
                     }))}
                   />
                 </div>

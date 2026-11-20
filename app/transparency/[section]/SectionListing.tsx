@@ -1,4 +1,5 @@
 import PageSources from '@/app/components/PageSources';
+import { companiesHouseUrl, companyNumberAsFiled } from '@/lib/companies-house';
 import { supabase } from '@/lib/supabase'
 import { notFound, redirect } from 'next/navigation'
 import { PAGE_LIMIT, SECTIONS, cleanSearch, dayKey, sectionCount, sectionRows, sectionTags } from './sectionData'
@@ -249,7 +250,7 @@ export default async function SectionListing({ section, page, q, searched }: {
           ? (rows || []).filter((r) => typeof r.company_registration_number === 'string' && (r.company_registration_number as string).trim())
               .map((r) => {
                 const n = (r.company_registration_number as string).trim();
-                return { label: `Companies House record for ${(r.donor_name as string) || 'the donor'} (company ${n})`, href: `https://find-and-update.company-information.service.gov.uk/company/${encodeURIComponent(n)}` };
+                return { label: `Companies House record for ${(r.donor_name as string) || 'the donor'} (company ${companyNumberAsFiled(n)})`, href: companiesHouseUrl(n) };
               })
           : []} />
     </OpenGovShell>

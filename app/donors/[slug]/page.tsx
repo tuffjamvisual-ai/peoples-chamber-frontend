@@ -17,6 +17,7 @@ import BackLink from '../../components/BackLink';
 import { sectorForDonor } from '@/lib/donor-sectors';
 import { departments } from '@/lib/departments';
 import { normaliseCompanyNumber } from '@/lib/organisations';
+import { companiesHouseUrl, companyNumberAsFiled } from '@/lib/companies-house';
 import { donorNameToSlug, narrowTokens } from '@/lib/donor-slug';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { relatedDonorNames, mainSpellingFor } from '@/lib/donor-related';
@@ -832,7 +833,7 @@ export default async function DonorPage({ params }: PageProps) {
 
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
           Sources fold; each donation's Electoral Commission reference and each contract's notice stay on their rows. */}
-      <PageSources sources={[crn && { label: `Companies House record for ${canonicalName} (company ${crn})`, href: `https://find-and-update.company-information.service.gov.uk/company/${crn}` }]} />
+      <PageSources sources={[crn && { label: `Companies House record for ${canonicalName} (company ${companyNumberAsFiled(crn)})`, href: companiesHouseUrl(crn) }]} />
     </OpenGovShell>
   );
 }
