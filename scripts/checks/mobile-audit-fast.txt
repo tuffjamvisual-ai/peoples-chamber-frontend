@@ -104,3 +104,4 @@
 # PMQs pages for a former MP and a former Prime Minister (owner, 6 Nov 2026).
 /mps/4128/pmqs
 /mps/8/pmqs
+/council-areas/lowest-scores
