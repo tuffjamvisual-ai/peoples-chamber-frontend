@@ -498,7 +498,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   <DataRow label="Chief executive" value={c.chief_exec ?? c.chief_exec_note} />
                   {/* The council's own website (owner, Cowork ENTRY 412 answer 7): contact, not a source, so it sits here and
                       not in the Sources fold; data-og-contact exempts it from the sources-in-fold check. */}
-                  {c.website_url && <DataRow label="Website" value={<a href={c.website_url} data-og-contact rel="noopener" style={{ color: 'inherit' }}>{websiteHost(c.website_url)}</a>} />}
+                  {c.website_url && <DataRow label="Website" value={<a href={c.website_url} data-og-contact rel="noopener" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{websiteHost(c.website_url)}</a>} />}
                   <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary, c.slug)} sub={lastElectionSub(c.last_election_year, comp, electionSummary, c)} />
                 </>}>
                   <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
