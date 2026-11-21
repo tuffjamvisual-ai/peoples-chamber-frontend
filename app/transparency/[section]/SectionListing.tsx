@@ -184,7 +184,7 @@ export default async function SectionListing({ section, page, q, searched }: {
             Each row is a notice published on Find a Tender, not a separate contract: one contract can appear as an award, its contract details and later changes.{' '}
             <SubFold label="Values and where the notices come from">
             A framework&rsquo;s value is the most that every supplier on it could be paid: potential value, not spending. Do not add these values up.
-            {' '}The notices are read every day from Find a Tender&rsquo;s open data service (find-tender.service.gov.uk). Notices published only on Contracts Finder, where many lower value contracts appear, are not included.
+            {' '}The notices are read every day from Find a Tender&rsquo;s open data service (in the Sources fold at the foot of the page). Notices published only on Contracts Finder, where many lower value contracts appear, are not included.
             </SubFold>
           </div>
         )}
@@ -252,7 +252,10 @@ export default async function SectionListing({ section, page, q, searched }: {
                 const n = (r.company_registration_number as string).trim();
                 return { label: `Companies House record for ${(r.donor_name as string) || 'the donor'} (company ${companyNumberAsFiled(n)})`, href: companiesHouseUrl(n) };
               })
-          : []} />
+          : section === 'contracts'
+            // Cowork ENTRY 423 follow up (ENTRY 410 rule): the open data service the note named, only here.
+            ? [{ label: 'Contracts: Find a Tender and its open data service (OCDS)', href: 'https://www.find-tender.service.gov.uk/' }]
+            : []} />
     </OpenGovShell>
   )
 }

@@ -17,9 +17,9 @@ import BackLink from '../../components/BackLink';
 import JsonLd, { buildBreadcrumbs, SITE } from '@/lib/JsonLd';
 import { ORG_TYPE_LABEL, type OrgType } from '@/lib/lobbying-types';
 import { cleanDept, quarterLabel } from '@/lib/lobbying';
-import { ecDonationSearchUrl } from '@/lib/ec-links';
+import { ecDonationSearchUrl, EC_DONATIONS_SEARCH } from '@/lib/ec-links';
 import {
-  getOrganisation, orgNameShared, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
+  getOrganisation, orgNameShared, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl, GRANTNAV_HOME,
   FIND_TENDER_HOME, findTenderNoticeNumber, ocidsWithContractPages, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, getOrgNameBasisNotices, type OrgIndexRow,
 } from '@/lib/organisations';
 import { getOrgBySlug } from '@/lib/lobbying';
@@ -165,7 +165,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                   {d.donation_action ? ` (${d.donation_action.toLowerCase()})` : ''}
                   <div style={sub}>
                     {[d.donation_type_label || d.nature, d.donor_name !== org.name ? `given as “${d.donor_name}”` : null].filter(Boolean).join(' · ')}
-                    {d.ec_ref && <> · <a data-og-row-source="" href={ecDonationSearchUrl(d.ec_ref)} rel="noopener" style={{ color: ACCENT }}>Electoral Commission record</a></>}
+                    {d.ec_ref && <> · Electoral Commission reference {d.ec_ref}</>}
                   </div>
                 </li>
               ))}
@@ -212,7 +212,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
                 <li key={g.identifier} style={item}>
                   <span style={{ fontWeight: 'bold' }}>{fmtDay(g.award_date)}</span> · {g.amount != null ? money(g.amount) : 'value not given'} from {g.funder_name || 'a funder not named'}
                   <div style={sub}>
-                    {g.title || g.scheme_title || 'Untitled grant'} · <a data-og-row-source="" href={grantNavUrl(g.identifier)} rel="noopener" style={{ color: ACCENT }}>360Giving record</a>
+                    {g.title || g.scheme_title || 'Untitled grant'} · <span style={{ overflowWrap: 'anywhere' }}>360Giving grant {g.identifier}</span>
                   </div>
                 </li>
               ))}
@@ -277,22 +277,30 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
             {' '}{byName.length ? 'Otherwise nothing' : 'Nothing'} is linked by name alone, so two organisations with the same name but
             different numbers have separate pages, and a record that gives no number is not shown here.
           </p>
+          {/* The sources line moved to the Sources fold (owner, Cowork ENTRY 410 and 423 follow up). */}
           <p style={{ ...para, marginBottom: 0 }}>
-            Sources: Electoral Commission donations register; Find a Tender; government grants published through
-            360Giving; GOV.UK ministers&rsquo; meetings returns; Registrar of Consultant Lobbyists. All under the Open
-            Government Licence v3.0. Figures updated {fmtDay(org.refreshed_at)}.
+            Figures updated {fmtDay(org.refreshed_at)}. The sources are listed in the Sources fold at the foot of the page.
           </p>
           </SubFold>
         </section>
       </article>
-      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside. The company's Companies House record is in this one
-          Sources fold; each donation's and grant's record stays on its row. Find a Tender (owner, Cowork ENTRY 423): one
-          entry for the contracts (ENTRY 412 (2)), and each notice linked by the supplier name it prints. */}
+      {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, all in this one Sources fold (Cowork ENTRY 410, 423
+          and its follow up): the company's Companies House record; the five registers the matching note's sources line
+          named, with their licence; each shown donation's Electoral Commission record and each shown grant's 360Giving
+          record (the rows give the reference as text); each notice linked by the supplier name it prints. */}
       <PageSources sources={[
         org.company_number && { label: `Companies House record for ${org.name} (company ${org.company_number})`, href: companiesHouseUrl(org.company_number) },
-        contracts.length > 0 && { label: 'Contracts: Find a Tender', href: FIND_TENDER_HOME },
+        { label: 'Donations: the Electoral Commission\u2019s register of donations', href: EC_DONATIONS_SEARCH },
+        { label: 'Contracts: Find a Tender', href: FIND_TENDER_HOME },
+        { label: 'Grants: government grants published through 360Giving (GrantNav)', href: GRANTNAV_HOME },
+        { label: 'Meetings: GOV.UK, ministers\u2019 meetings transparency returns', href: 'https://www.gov.uk/government/collections/ministers-transparency-publications' },
+        { label: 'Lobbying: Registrar of Consultant Lobbyists, quarterly returns', href: 'https://registrarofconsultantlobbyists.org.uk/' },
+        ...donations.filter((d) => d.ec_ref).map((d) => ({ label: `Electoral Commission record ${d.ec_ref} (${fmtDay(d.accepted_date || d.received_date)}, ${d.amount != null ? money(d.amount) : 'value not given'})`, href: ecDonationSearchUrl(d.ec_ref!) })),
+        ...grants.map((g) => ({ label: `360Giving record ${g.identifier} (${fmtDay(g.award_date)}, ${g.amount != null ? money(g.amount) : 'value not given'})`, href: grantNavUrl(g.identifier) })),
         ...byName.map((n) => ({ label: `Find a Tender notice ${findTenderNoticeNumber(n.url)} (supplier named as ${n.name})`, href: n.url })),
-      ]} />
+      ]}>
+        <p style={{ margin: '6px 0 0' }}>All under the Open Government Licence v3.0.</p>
+      </PageSources>
     </OpenGovShell>
   );
 }
