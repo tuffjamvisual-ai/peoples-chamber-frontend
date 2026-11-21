@@ -43,9 +43,9 @@ const CHECK = weightingCheck();
 const scoreLine = (score: number, rank: number) => `${score.toFixed(1)} out of 100 · ${plainScoreRank(rank, RANKED)}`;
 
 // Desktop: a four column table. Phones (the site's PHONE width): one card per row, the place name, the why sentence
-// straight under it with the link 'Why <place> ranks here' (to the area page's Why fold, #why), then area and score (the
-// .ls-meta line inside the why cell; the area and score cells hide). The Why fold is on area pages only (Cowork ENTRY 444
-// decisions, 21 Nov 2026 04:12, item 1); the link runs on in the cell's text, so it adds no tap row to the phone length.
+// straight under it, then area and score (the .ls-meta line inside the why cell; the area and score cells hide). The
+// place name is the row's one link (owner rule A10: a page links a record once; Cowork 14:01 dropped the second link,
+// 'Why <place> ranks here'). The Why fold is on area pages only (Cowork ENTRY 444 decisions, 21 Nov 2026 04:12, item 1).
 // data-pt-table="keep": the shared phone script leaves this table to these styles. The section is data-own-more, so the
 // phone script adds no button of its own; LsMore shows 5 rows then 'Show 5 more' on phones (ENTRY 472 (4)).
 const TABLE_CSS = `
@@ -124,8 +124,7 @@ export default function LowestScoresPage() {
                   <td className="ls-area">{areaCovered(a.name, a.type)}</td>
                   <td className="ls-score">{scoreLine(a.score, a.rank)}</td>
                   <td className="ls-whyc">
-                    {whySentence(a)}{' '}
-                    <Link href={`/council-areas/lowest-scores/${a.slug}#why`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Why {a.name} ranks here</Link>
+                    {whySentence(a)}
                     <span className="ls-meta">{areaCovered(a.name, a.type)} · {scoreLine(a.score, a.rank)}</span>
                   </td>
                 </tr>
