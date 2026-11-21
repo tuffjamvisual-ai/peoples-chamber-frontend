@@ -3,7 +3,7 @@ import { standardsLine } from '@/lib/standards-cases';
 import Link from 'next/link';
 import MagazineProfileSections from './MagazineProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
-import { phoneUpTo } from '@/lib/breakpoints';
+import { phoneUpTo, wideFrom } from '@/lib/breakpoints';
 
 import BackLink from '@/app/components/BackLink';
 // Rubber-stamp distress texture (patchy ink), matching the OpenGovShell stamps.
@@ -141,6 +141,14 @@ export default function MpDossier({
              lower at 1280 and 1024: 48px x zoom 1.18 less the content's own top padding). */
           .pca-sections aside { margin-top: 5px !important; }
         }
+        /* Cowork ENTRY 473 (a) (owner, 21 Nov 2026): the side menu and the first section start just below the photo's
+           turned frame, with a small gap, wherever the photo sits beside them. The frame (turned 12 degrees) reached 42 to
+           43px below the top of the sections from 1024px (629px against 587px at 1280 x 800 on /mps/5247) and up to 6px
+           below the tab row from 768 to 1023px. The grid sits inside the 1.18 zoom, so 49px here is 58px on the page:
+           about 16px clear of the frame from 1024px; 17px (20px on the page) leaves 14 to 20px from 768 to 1023px.
+           Under 768px the photo is small and in line with the name, already clear (no change). */
+        @media ${wideFrom(768).split(', ').map((q) => `${q} and (max-width: 1023.98px)`).join(', ')} { .mp-sections-grid { margin-top: -47px !important; } }
+        @media ${wideFrom(1024)} { .mp-sections-grid { margin-top: -15px !important; } }
       `}</style>
 
       {/* "All MPs" above the header (UX1f, 9 Nov 2026): the list of MPs with this MP's party open. It was "← Back", which

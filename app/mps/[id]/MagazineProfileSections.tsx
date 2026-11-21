@@ -695,16 +695,17 @@ export default function MagazineProfileSections({
   // Honour ?section= on initial mount so paginating the voting record
   // (which forces a full reload via the href-based <Pagination>) lands
   // the user back on the voting tab rather than the default first tab.
-  // Otherwise a profile opens on 'career' (Background) whenever that
-  // section is shown for the MP (John's choice, 20 Oct 2026; since 24 Oct 2026
-  // it is shown for a timeline, career history, education or a career
-  // background), and on the first section shown when it is not.
+  // Otherwise a profile opens on 'bio' (Political bio) whenever the MP has a visible biography (owner, Cowork ENTRY 473,
+  // 21 Nov 2026; it opened on Background from 20 Oct 2026), then on 'career' (Background) when that is shown, and on the
+  // first section shown when neither is. A tab named in the address (?section= or #section-<id>) still wins.
   const initialActive: SectionId =
     initialSection && validIds.has(initialSection as SectionId)
       ? (initialSection as SectionId)
-      : has.career
-        ? 'career'
-        : (sections[0]?.id ?? 'bio');
+      : has.bio
+        ? 'bio'
+        : has.career
+          ? 'career'
+          : (sections[0]?.id ?? 'bio');
   const [active, setActive] = useState<SectionId>(initialActive);
   // ?section= in the address wins. The page is statically cached, so the server never sees the address
   // (initialSection is null there); read it here once the page has loaded.
