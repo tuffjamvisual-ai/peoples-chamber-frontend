@@ -1,5 +1,5 @@
 'use client';
-// 'See all 12 measures' (Cowork ENTRY 444 item 3(c)): on the area page, opens the existing 'Every measure explained' fold
+// 'See all N measures' (Cowork ENTRY 444 item 3(c); 11 since sewage was removed): on the area page, opens the existing 'Every measure explained' fold
 // (<details id="all-measures">) and scrolls to it. Without JavaScript the link still goes to the fold's heading, where one
 // tap opens it. Not in a <p>, so the shared phone script does not mark it as a lone link before React hydrates (see
 // SourceNotes.tsx); its own 44px tap height instead. OpenFoldOnHash opens a fold when the page is reached with its id as

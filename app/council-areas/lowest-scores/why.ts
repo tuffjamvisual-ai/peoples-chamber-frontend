@@ -11,7 +11,7 @@
 //                 (no body or dataset name: those are in the Sources fold; ENTRY 444 decisions, 21 Nov 04:12, item 4).
 //                 Effect = (50 minus the measure's score) times its share: the points it takes off the overall score
 //                 against a middle area (50 on every measure); the most negative helped most.
-//   weightingCheck (item 4) the ten lowest under seven weightings: the five topics equal (the method used), the twelve
+//   weightingCheck (item 4) the ten lowest under seven weightings: the five topics equal (the method used), the eleven
 //                 measures equal, and the five topics equal with each topic left out in turn.
 //
 // Scores: the page data rounds each measure score to 0.1, so the order here uses the exact score from the rank (the
@@ -98,11 +98,6 @@ export function figureWords(m: Measure, place: string): string {
     case 'indoor_4g': s = `${f} per cent of homes and businesses had indoor 4G from all four networks`; break;
     case 'schools': s = `pupils averaged an Attainment 8 score of ${f} at GCSE`; break;
     case 'road_safety': s = `${f} in every 100,000 people were killed or seriously injured on the roads`; break;
-    case 'sewage':
-      if (m.figure.startsWith('0 ')) s = 'no storm overflow was recorded spilling sewage';
-      else if (m.figure.startsWith('under 1 ')) s = 'storm overflows spilled sewage for under 1 hour for every 1,000 people';
-      else s = `storm overflows spilled sewage for ${f} ${f === '1' ? 'hour' : 'hours'} for every 1,000 people`;
-      break;
     default: s = `${m.label.toLowerCase()} was ${m.figure}`;
   }
   if (m.rank === 1) s += `, the ${(m.tie ?? 1) > 1 ? 'joint ' : ''}${BETTER.get(m.key) === 'higher' ? 'lowest' : 'highest'} of the ${m.of}`;

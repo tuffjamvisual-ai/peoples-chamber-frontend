@@ -11,7 +11,7 @@ export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // rank: 1 is the worst figure; tie: how many areas share that rank (they all hold the lowest rank of the group).
 // Ranks in the worse half count from the worst end, the rest from the best end: a tied group at the best end counts from
-// its best place, so the 13 areas with no sewage spills (rank 282 of 294) are each 'joint best of 294'.
+// its best place, so areas sharing the best figure are each 'joint best of 294'.
 export function plainRank(rank: number, of: number, worst = 'worst', best = 'best', tie = 1): string {
   const joint = tie > 1 ? 'joint ' : '';
   if (rank <= of / 2) return `${joint}${rank === 1 ? '' : `${ordinal(rank)} `}${worst} of ${of}`;

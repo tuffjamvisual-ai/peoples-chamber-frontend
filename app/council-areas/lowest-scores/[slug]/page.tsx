@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const a = bySlug.get(slug);
   if (!a) return {};
-  return { title: `${a.name}: how the council area scores`, description: `How ${a.name} scores on the twelve official measures behind the council areas list: its rank of 294, its score and the measures that pull it down and up.`, robots: { index: false, follow: true } };
+  return { title: `${a.name}: how the council area scores`, description: `How ${a.name} scores on the eleven official measures behind the council areas list: its rank of 294, its score and the measures that pull it down and up.`, robots: { index: false, follow: true } };
 }
 
 const item = { ...para, lineHeight: 1.5, margin: '0 0 8px', paddingLeft: '12px' };

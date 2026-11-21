@@ -16,16 +16,17 @@ import pageData from '../../app/council-areas/lowest-scores/lowest-scores.json';
 const area = (slug: string) => AREAS.find((a) => a.slug === slug)!;
 
 test('the ten why sentences match WHY-DRAFT.md', () => {
+  // ENTRY 482 REVISED (sewage removed): the same ten sentences Cowork accepted in WHY-DRAFT.md, in the new order.
   const want = [
     'Housing and crime pulled the score down most. 13.3 per cent of households were in fuel poverty, and only ten council areas had a higher crime score.',
     'Crime and housing pulled the score down most. Only three council areas had a higher crime score, and 13.5 per cent of households were in fuel poverty.',
     'Housing and crime pulled the score down most. 12.9 per cent of households were in fuel poverty, and only 19 council areas had a higher crime score.',
-    'Housing and health pulled the score down most. 14.8 per cent of households were in fuel poverty, the highest of the 294, and a baby born there can expect to live 78.2 years.',
     'Crime and housing pulled the score down most. Blackpool had the highest crime score of the 294, and 13.9 per cent of households were in fuel poverty.',
-    'Below average on all five topics. Health and crime pulled the score down most. 74.4 per cent of adults were overweight or obese, and only 28 council areas had a higher crime score.',
     'Housing and health pulled the score down most. 13.5 per cent of households were in fuel poverty, and 75.1 per cent of adults were overweight or obese.',
-    'Housing and crime pulled the score down most. 12.7 per cent of households were in fuel poverty, and only 16 council areas had a higher crime score.',
+    'Housing and health pulled the score down most. 14.8 per cent of households were in fuel poverty, the highest of the 294, and a baby born there can expect to live 78.2 years.',
     'Below average on all five topics. Housing and crime pulled the score down most. 12.3 per cent of households were in fuel poverty, and only 32 council areas had a higher crime score.',
+    'Below average on all five topics. Health and crime pulled the score down most. 74.4 per cent of adults were overweight or obese, and only 28 council areas had a higher crime score.',
+    'Housing and crime pulled the score down most. 12.7 per cent of households were in fuel poverty, and only 16 council areas had a higher crime score.',
     'Below average on all five topics. Crime and housing pulled the score down most. Only 12 council areas had a higher crime score, and 12.1 per cent of households were in fuel poverty.',
   ];
   assert.deepEqual(AREAS.slice(0, 10).map(whySentence), want);
@@ -39,7 +40,7 @@ test('exact scores match the page data and the weights match the method', () => 
   assert.equal(shareWords(weightOf('Money, work and schools')), '6.7 per cent');
   assert.equal(shareWords(weightOf('Health')), '10 per cent');
   assert.equal(shareWords(weightOf('Crime')), '20 per cent');
-  assert.equal(shareWords(weightOf('Environment and connectivity')), '4 per cent');
+  assert.equal(shareWords(weightOf('Environment and connectivity')), '5 per cent'); // four measures since sewage was removed (ENTRY 482 REVISED)
   // The weighted sum of the exact measure scores is the overall score.
   for (const a of AREAS) assert.ok(Math.abs(a.all.reduce((s, m) => s + exactScore(m) * weightOf(m.topic), 0) - a.score) < 0.051, a.slug);
 });
@@ -54,15 +55,15 @@ test('Hull: crime, then fuel poverty, then gigabit broadband helped most', () =>
   assert.deepEqual(acc.map((p) => p.lead), ['Biggest effect: crime', 'Second biggest effect: fuel poverty', 'Helped most: gigabit broadband']);
   assert.match(acc[0].text, /4th highest of the 294 council areas \(April 2018 to March 2024\); the middle area is 147th\. Crime is 20 per cent of the overall score\.$/);
   assert.match(acc[1].text, /^13\.5 per cent of households were in fuel poverty \(2024\), against a council area average of 9\.7 per cent: 5th worst of 294\. Fuel poverty is 20 per cent/);
-  assert.match(acc[2].text, /99\.6 per cent .*\(January 2026\).*87\.5 per cent: best of 294\. Gigabit broadband is 4 per cent/);
+  assert.match(acc[2].text, /99\.6 per cent .*\(January 2026\).*87\.5 per cent: best of 294\. Gigabit broadband is 5 per cent/);
 });
 
-test('item 4: nine of the ten stay in the bottom 20 under all seven weightings', () => {
+test('item 4: all ten stay in the bottom 20 under all seven weightings (nine before sewage was removed)', () => {
   const c = weightingCheck();
   assert.equal(c.ways, 7);
-  assert.equal(c.stayed, 9);
-  assert.deepEqual(c.out.map((o) => o.name), ['Sandwell']);
-  assert.equal(weightingSentence(c), 'We tried seven different ways of weighting the figures. Nine of these ten areas stayed in the bottom 20 every time.');
+  assert.equal(c.stayed, 10);
+  assert.deepEqual(c.out.map((o) => o.name), []);
+  assert.equal(weightingSentence(c), 'We tried seven different ways of weighting the figures. All ten of these areas stayed in the bottom 20 every time.');
 });
 
 test('house rules on all 294 sentences and accounts', () => {
@@ -145,7 +146,7 @@ test('the two rank correlations in How the scores work match the data', () => {
   assert.equal(withDeprivation.toFixed(2), deprivation, `deprivation ${withDeprivation}`);
   assert.equal(withLife.toFixed(2), life, `life expectancy ${withLife}`);
   assert.equal(deprivation, '0.92');
-  assert.equal(life, '0.89');
+  assert.equal(life, '0.88'); // 0.89 before sewage was removed
 });
 
 // T2 21 Nov 2026 06:17: explainPolice names the force. Status 'missing' reads 'Kent Police could not place many crimes ...'

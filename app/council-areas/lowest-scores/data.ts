@@ -46,9 +46,10 @@ export const SOURCES = [...MEASURES.reduce((m, x) => {
     : `${v.labels.join(' and ')}: ${v.source}`,
   href,
 }));
-// Road safety and sewage are per resident: the population source joins the fold (it is not a measure, so it is not counted below).
+// Road safety is per resident: the population source joins the fold (it is not a measure, so it is not counted below).
+// Sewage spills were removed from the index (owner, Cowork ENTRY 482 REVISED, 21 Nov 2026: they do not make a place worse to live).
 export const SOURCE_COUNT = SOURCES.length;
-SOURCES.push({ label: 'Population (for road safety and sewage per resident): ONS mid-2025 population estimates', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates' });
+SOURCES.push({ label: 'Population (for road safety per resident): ONS mid-2025 population estimates', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates' });
 // The police recorded crime figure on each area page is shown, not scored (ENTRY 436), so it is not counted either.
 SOURCES.push({ label: 'Police recorded crime (shown on each area page, not scored): ONS, Police force area data tables, year ending June 2026, tables C1 to C4 (Community Safety Partnerships) and P3 (England)', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/policeforceareadatatables' });
 // One plain line for an area whose rank readers are likely to question (Cowork ENTRY 415 v3b PICTURES: Blackpool).
