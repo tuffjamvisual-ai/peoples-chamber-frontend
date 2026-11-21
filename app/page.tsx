@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { HEADLINE as LOWEST_SCORES_HEADLINE } from './council-areas/lowest-scores/data';
+import { HEADLINE as LOWEST_SCORES_HEADLINE, MEASURE_COUNT as LOWEST_SCORES_MEASURES } from './council-areas/lowest-scores/data';
 import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import SotnBand from './components/SotnBand';
 import Link from 'next/link';
@@ -85,7 +85,7 @@ const HOMEPAGE_LEAD_PAGE: FeaturedItem = {
   href: '/council-areas/lowest-scores',
   headline: LOWEST_SCORES_HEADLINE, // ENTRY 493 item 1: the page's own headline, built from its data
   label: 'England · 294 council areas',
-  summary: 'Every council area scored the same way on twelve official measures, from crime and poverty to health, schools and broadband. Not a ranking of how well councils are run.',
+  summary: `Every council area scored the same way on ${LOWEST_SCORES_MEASURES} official measures, from crime and poverty to health, schools and broadband. Not a ranking of how well councils are run.`, // ENTRY 493 addendum: the count from the data (11)
   lede: null,
 };
 // Reports kept off the homepage (ENTRY 432 item 2: the Burnham GMCA report stays published at its address; only the
