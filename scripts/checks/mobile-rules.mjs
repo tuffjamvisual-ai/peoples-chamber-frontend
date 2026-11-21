@@ -177,7 +177,11 @@ for (const pg of list) {
       if (m.width > 0) add('width', `${m.width}px wider than the screen`);
       // A 'height' exception lifts the length limit for its page type (owner approved 18 Nov 2026, ENTRY 302: lists open with 3
       // even where that makes the page longer).
-      if (m.height > MAX_HEIGHT[kind] && !excFor.some((x) => x.rule === 'height')) add('height', `${m.height}px (limit ${MAX_HEIGHT[kind]})`);
+      // A 'height' exception with 'max' (owner decision 21 Nov 2026, ENTRY 493) raises the limit to that height per kind
+      // instead of lifting it.
+      const hExc = excFor.find((x) => x.rule === 'height');
+      const hLimit = hExc ? (hExc.max?.[kind] ?? Infinity) : MAX_HEIGHT[kind];
+      if (m.height > hLimit) add('height', `${m.height}px (limit ${hLimit})`);
       if (m.back && !backOk(m.back, sectionOf(pg.route))) add('back', `back arrow goes to ${m.back}, outside ${sectionOf(pg.route).join(' or ')}`);
       for (const d of m.order) add('order', d);
       if (w === 390 && m.primary != null && m.primary >= h) add('primary', `primary control starts at ${m.primary}px, below the first screen (${h}px)`);

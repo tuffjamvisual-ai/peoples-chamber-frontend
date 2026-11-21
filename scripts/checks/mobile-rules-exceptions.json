@@ -156,6 +156,12 @@
       "route": "/council-areas/lowest-scores",
       "selector": ".ls-more-ctl",
       "reason": "owner decision ENTRY 472(4): the ten lowest areas open with 5 rows, then 'Show 5 more' (owner approved 21 Nov 2026 14:55, Cowork ENTRY 492 item 1)."
+    },
+    {
+      "rule": "height",
+      "route": "/council-areas/lowest-scores",
+      "max": { "phone": 2949, "tablet": 4033 },
+      "reason": "owner decision 21 Nov 2026, ENTRY 493: 5 rows plus towns lines. Measured heights plus 100px (320px 2,849; 768px 3,933)."
     }
   ]
 }

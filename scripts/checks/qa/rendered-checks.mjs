@@ -91,6 +91,9 @@ async function pace() {
   lastHit = Date.now();
 }
 const LIMIT_PX = 2500;
+// Named page limits (owner decision 21 Nov 2026, ENTRY 493: 5 rows plus towns lines). Every other page keeps LIMIT_PX.
+const PAGE_LIMIT_PX = { '/council-areas/lowest-scores': 2700 };
+const limitFor = (url) => PAGE_LIMIT_PX[new URL(url, 'http://x').pathname] ?? LIMIT_PX;
 // Page types where the owner lifted the phone length limit (18 Nov 2026, Cowork ENTRY 302 item 1: lists open with 3 always,
 // even where that makes the page longer). /debates/[guid] is the same case (2 to 3 speeches, 78px over): added under that
 // rule, told to Cowork. /reports: 20 reports a page with no month folds (owner decision, ENTRY 306).
@@ -457,9 +460,9 @@ async function main() {
   for (const r of results) {
     if (r.error || (r.status != null && r.status >= 500)) fails.push(`${r.url}: could not check (${r.error ?? `HTTP ${r.status}`})`);
     const b = base[r.url] ?? {};
-    if (r.height != null && r.height > LIMIT_PX && !LENGTH_LIFTED.some((re) => re.test(new URL(r.url, 'http://x').pathname))) {
-      const known = b.height != null && b.height > LIMIT_PX;
-      if (!known) fails.push(`A3 ${r.url}: ${r.height}px at 375px, over ${LIMIT_PX}px (new)`);
+    if (r.height != null && r.height > limitFor(r.url) && !LENGTH_LIFTED.some((re) => re.test(new URL(r.url, 'http://x').pathname))) {
+      const known = b.height != null && b.height > limitFor(r.url);
+      if (!known) fails.push(`A3 ${r.url}: ${r.height}px at 375px, over ${limitFor(r.url)}px (new)`);
       else if (r.height > b.height + GROWTH_PX) fails.push(`A3 ${r.url}: ${r.height}px, longer than its baseline ${b.height}px`);
       else expected.push(`A3 ${r.url}: ${r.height}px (baseline ${b.height}px, page not yet shortened)`);
     }
