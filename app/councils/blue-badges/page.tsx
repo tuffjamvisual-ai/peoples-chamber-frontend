@@ -16,7 +16,7 @@ import LastUpdated from '../../components/LastUpdated';
 import '../../components/phone-table.css';
 import { supabase } from '@/lib/supabase';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
-import { PHONE } from '@/lib/breakpoints';
+import { PHONE, wideFrom } from '@/lib/breakpoints';
 import {
   loadLatestTwoYears, loadEnglandLostStolen, count, shareText, sharePct, change, changeText, pctChangeText, asAt, yearTo,
   releaseFor, yearOf, OGL, OGL_URL, ROUNDING_NOTE, SHARE_NOTE, LOW_TEXT, RANKING_PATH, type BlueBadgeRow,
@@ -92,7 +92,13 @@ export default async function BlueBadgesPage() {
       />
       {/* Phones (UX3b, 10 Nov 2026): the council table straight after the title, then the national figures and the rest, so
           the table starts on the first screen (A6). CSS order, the same with JavaScript off; from 640px up, as before. */}
-      <style>{`@media ${PHONE} { .bb-flow { display: flex; flex-direction: column; } .bb-flow > * { order: 2; } .bb-flow > header { order: 0; margin-bottom: 14px !important; } .bb-flow > .bb-main { order: 1; } }`}</style>
+      {/* From 768px up (A6 banner, Cowork 05:42 21 Nov 2026): on a first visit at 1280 x 720 the cookie banner (from 654px)
+          covered the start of the council table (700px). Tighter spacing above the table starts it at 630px, more than 20px
+          above the banner: no top padding, the title band 10px top and bottom with a 16px gap below it (16px as on the other
+          council hubs), and the England figures as one compact block. Spacing only: the same words, figures and order;
+          phones keep their own rules above. */}
+      <style>{`@media ${PHONE} { .bb-flow { display: flex; flex-direction: column; } .bb-flow > * { order: 2; } .bb-flow > header { order: 0; margin-bottom: 14px !important; } .bb-flow > .bb-main { order: 1; } }
+@media ${wideFrom(768)} { .bb-flow { padding-top: 0 !important; } .bb-flow > header { padding-top: 10px !important; padding-bottom: 10px !important; margin-bottom: 16px !important; } .bb-intro { margin-bottom: 8px !important; } .bb-eng { line-height: 1.25 !important; margin-bottom: 0 !important; } .bb-eng-change { line-height: 1.5 !important; } .bb-flow > .bb-main { margin-top: 8px; } }`}</style>
       <article className="bb-flow" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
@@ -105,19 +111,19 @@ export default async function BlueBadgesPage() {
 
         {/* T1-5x (owner, 10 Nov 2026): one intro line and the headline figures above the tables; who qualifies, the
             method notes and the lost or stolen figure are in "About this data" after the tables. */}
-        <p style={para}>
+        <p className="bb-intro" style={para}>
           Disabled parking cards, issued by county and unitary councils and metropolitan and London boroughs (not district councils).
         </p>
 
         {eng && (
           <>
-            <p style={{ fontFamily: SERIF, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 6px' }}>
+            <p className="bb-eng" style={{ fontFamily: SERIF, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 6px' }}>
               England, {asAt(latest)}: <strong>{count(eng, 'held')} badges held</strong>, {shareText(eng)} of residents
             </p>
-            <p style={{ fontFamily: SERIF, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 6px' }}>
+            <p className="bb-eng" style={{ fontFamily: SERIF, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 6px' }}>
               Issued in {yearTo(latest)}: <strong>{count(eng, 'issued')}</strong>
             </p>
-            {changeText(eng, engPrev) && <p style={{ ...para, margin: '0 0 6px' }}>Badges held: {changeText(eng, engPrev)}</p>}
+            {changeText(eng, engPrev) && <p className="bb-eng bb-eng-change" style={{ ...para, margin: '0 0 6px' }}>Badges held: {changeText(eng, engPrev)}</p>}
           </>
         )}
 
