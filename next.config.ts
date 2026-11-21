@@ -117,20 +117,24 @@ const LIST_VARIANT_KEYS = ['page', 'dpage', 'before', 'q', 'k', 'words', 'at', '
   'department', 'procedure', 'flag', 'has', 'party', 'type', 'view', 'vp', 'vq', 'name', 'pm', 'member', 'constituency',
   'role', 'who', 'state', 'status', 'show', 'sort', 'uin', 'debated', 'responded', 'prayer'];
 
-// ENTRY 487: the long tail routes held by Vercel's CDN instead of saved copies (see headers() below).
-const LONG_TAIL_CDN = [
-  '/questions/:id((?!search$|department$)[^/]+)',
-  '/debates/:guid((?!search$|filter$)[^/]+)',
-  '/divisions/:slug((?!page$|year$)[^/]+)',
-  '/contracts/:ocid',
-  '/donors/:slug',
-  '/edms/:id((?!search$|filter$)[^/]+)',
-  '/mps/:id/votes-from-hansard/:year',
-  '/bills/:id((?!search$|sessions$|page$)[^/]+)',
-  '/organisations/:slug((?!search$|filter$)[^/]+)',
-  '/news/:slug',
-  '/pmqs/filter/:path*',
-  '/edms/filter/:path*',
+// ENTRY 487: the long tail routes held by Vercel's CDN instead of saved copies (see headers() below), each with the cache
+// tags of the tables its pages show (owner decision 21 Nov 2026 19:58, option A: clear after each sync). A sync that really
+// changes a table calls refreshTables() (lib/source-tags.ts), whose revalidateTag(tag, 'max') Vercel turns into a CDN
+// purge of every response carrying that tag (vercel.com/docs/caching/cdn-cache/purge: 'next/cache on Next.js 16 and
+// later'), so a changed page, or a new record's 'not found', is refreshed on its next visits. 'long-tail' purges them all.
+const LONG_TAIL_CDN: [string, string[]][] = [
+  ['/questions/:id((?!search$|department$)[^/]+)', ['table:parliament_written_questions']],
+  ['/debates/:guid((?!search$|filter$)[^/]+)', ['table:debates', 'table:hansard_debates']],
+  ['/divisions/:slug((?!page$|year$)[^/]+)', ['table:commons_divisions_fts', 'table:commons_division_totals', 'table:mp_division_votes']],
+  ['/contracts/:ocid', ['table:contract_notices', 'table:government_contracts']],
+  ['/donors/:slug', ['political-donations']],
+  ['/edms/:id((?!search$|filter$)[^/]+)', ['table:early_day_motions', 'table:early_day_motion_signatures', 'edms-list']],
+  ['/mps/:id/votes-from-hansard/:year', ['historic-archive', 'table:mps']],
+  ['/bills/:id((?!search$|sessions$|page$)[^/]+)', ['table:bill']],
+  ['/organisations/:slug((?!search$|filter$)[^/]+)', ['table:organisation_index', 'table:contract_notices']],
+  ['/news/:slug', ['table:press_releases']],
+  ['/pmqs/filter/:path*', ['pmqs']],
+  ['/edms/filter/:path*', ['table:early_day_motions', 'table:early_day_motion_signatures', 'edms-list']],
 ];
 
 const nextConfig: NextConfig = {
@@ -349,7 +353,10 @@ const nextConfig: NextConfig = {
       // Next.js sets 'private, no-store' as the Cache-Control of a dynamic page, so browsers and other caches keep nothing.
       // A data change shows within a day (the syncs' revalidateTag no longer reaches these pages); a deploy starts empty.
       // Sibling list and search pages are left out by name.
-      ...LONG_TAIL_CDN.map((source) => ({ source, headers: [{ key: 'Vercel-CDN-Cache-Control', value: 'max-age=86400, stale-while-revalidate=604800' }] })),
+      ...LONG_TAIL_CDN.map(([source, tags]) => ({ source, headers: [
+        { key: 'Vercel-CDN-Cache-Control', value: 'max-age=86400, stale-while-revalidate=604800' },
+        { key: 'Vercel-Cache-Tag', value: [...tags, 'long-tail'].join(',') },
+      ] })),
       {
         source: '/(.*)',
         headers: [
