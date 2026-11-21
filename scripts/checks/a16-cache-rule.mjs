@@ -29,7 +29,7 @@ const SHA = opt('--sha');
 const ROOT = process.cwd();
 const EXC_FILE = 'scripts/checks/a16-exceptions.json';
 const BASE_FILE = 'scripts/checks/a16-baseline.json';
-const CACHED_HELPERS = ['unstable_cache', 'mpCached', 'mpCachedCount', 'tagged', 'cachedQuery']; // tagged(), cachedQuery(): lib/tagged-read.ts
+const CACHED_HELPERS = ['unstable_cache', 'mpCached', 'mpCachedCount', 'tagged', 'cachedQuery', 'cacheUnlessSkipped', 'cachedOrDirect']; // tagged(), cachedQuery(): lib/tagged-read.ts; cacheUnlessSkipped(), cachedOrDirect(): lib/data-cache-skip.ts (cached except in a long tail request, ENTRY 487)
 
 // Files, from the commit (--sha) or the working tree.
 const git = (...a) => execFileSync('git', a, { encoding: 'utf8', maxBuffer: 1 << 28 });
