@@ -8,6 +8,30 @@ User-agent: CCBot
 User-agent: meta-externalagent
 Disallow: /
 
+# Crawlers the site gets nothing from (owner, Cowork ENTRY 485, 21 Nov 2026: they made tens of thousands of uncached page
+# renders a week, each a database read and a paid cache write). Tokens: ExaSearchBot from crawler.exa.ai ('Its robots.txt
+# product token is ExaSearchBot'); SERankingBacklinksBot from the title of SE Ranking's crawler help page (the page itself
+# refused our fetch); PetalBot and ShapBot as their user agents name them. A crawler that ignores robots.txt is a firewall
+# matter, not this file.
+User-agent: SERankingBacklinksBot
+User-agent: PetalBot
+User-agent: ShapBot
+User-agent: ExaSearchBot
+Disallow: /
+
+# Bing: kept, but asked to wait 10 seconds between requests (owner, ENTRY 485). Bingbot reads its own group, so the
+# general rules below are repeated for it.
+User-agent: bingbot
+Crawl-delay: 10
+Allow: /
+Disallow: /api/
+Disallow: /internal/
+Disallow: /preview/
+Disallow: /login
+Disallow: /account
+Disallow: /feedback
+Disallow: /_vercel/
+
 User-agent: *
 Allow: /
 Disallow: /api/
