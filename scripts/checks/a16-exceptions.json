@@ -24,6 +24,8 @@
   { "route": "/preview/programmes/*", "why": "owner's private draft preview, signed in" },
   { "route": "/your-area/find", "why": "postcode or place lookup (outside geocoder), then a redirect to the static /your-area/<code>; owner approved 16 Nov 2026, ENTRY 187" },
   { "route": "/divisions/[slug]/mp", "why": "search results (an MP typed into the division page form; must work with JavaScript off); reads only tagged data; owner approved 16 Nov 2026, ENTRY 187" },
+  { "route": "/archive", "why": "Archive search from the SSD (Cowork ENTRY 480 PART A, owner approved 21 Nov 2026 22:44): every search is a call to the Mac through the tunnel, per request, never cached, signed in only; nothing read from Supabase; 404 unless ARCHIVE_ENABLED=1, noindex. Needs the owner's 'A16 exception approved' before the push" },
+  { "route": "/archive/[id]", "why": "Archive record from the SSD (Cowork ENTRY 480 PART A): the record is fetched from the Mac through the tunnel on every visit (no cache, by design); signed in only; nothing read from Supabase; 404 unless ARCHIVE_ENABLED=1, noindex. Needs the owner's 'A16 exception approved' before the push" },
   { "route": "/newsletter/unsubscribe", "why": "one-off token form that must work with JavaScript off (one-click unsubscribe); reads no data; owner approved 16 Nov 2026, ENTRY 187" },
   { "route": "/questions/[id]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
   { "route": "/debates/[guid]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },

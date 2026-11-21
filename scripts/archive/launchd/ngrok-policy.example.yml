@@ -1,0 +1,16 @@
+# Template for ~/opengovt-archive/secret/ngrok-policy.yml (mode 600; the real file holds the password and is never in git).
+# Cowork ENTRY 480: basic auth in front of the archive server; ngrok's basic-auth action is free on the free plan.
+# Requests without the right Authorization: Basic header get 401 from ngrok and never reach the Mac. Only GET is let
+# through; anything else is refused at ngrok as well (the server refuses it too).
+on_http_request:
+  - expressions:
+      - "req.method != 'GET'"
+    actions:
+      - type: deny
+        config:
+          status_code: 405
+  - actions:
+      - type: basic-auth
+        config:
+          credentials:
+            - "opengovt-vercel:REPLACE_WITH_A_LONG_RANDOM_PASSWORD"

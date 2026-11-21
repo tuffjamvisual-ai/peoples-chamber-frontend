@@ -1,0 +1,89 @@
+{
+ "counted_at": "2026-11-21T22:40:00Z",
+ "datasets": [
+  {
+   "name": "Written answers (Commons), TheyWorkForYou",
+   "records": 1254425
+  },
+  {
+   "name": "Hansard (Commons debates), TheyWorkForYou",
+   "records": 615130
+  },
+  {
+   "name": "Written questions and answers 2014 to 2024 (Parliament API)",
+   "records": 456090
+  },
+  {
+   "name": "Find a Tender notices (UK public procurement)",
+   "records": 343365
+  },
+  {
+   "name": "Written answers (Lords), TheyWorkForYou",
+   "records": 166908
+  },
+  {
+   "name": "Hansard (Lords) 1914 to 2005, historic Hansard",
+   "records": 136652
+  },
+  {
+   "name": "Hansard (Lords debates), TheyWorkForYou",
+   "records": 55661
+  },
+  {
+   "name": "Petitions (petition.parliament.uk, 2020 to 2026)",
+   "records": 53242
+  },
+  {
+   "name": "Legislation (legislation.gov.uk, as enacted or made)",
+   "records": 42408
+  },
+  {
+   "name": "Written ministerial statements (Commons), TheyWorkForYou",
+   "records": 24896
+  },
+  {
+   "name": "Written ministerial statements (Lords), TheyWorkForYou",
+   "records": 21315
+  },
+  {
+   "name": "Hansard (Westminster Hall), TheyWorkForYou",
+   "records": 10861
+  },
+  {
+   "name": "LGSCO annual review data (councils)",
+   "records": 4366
+  },
+  {
+   "name": "Ministers' and officials' gifts, hospitality, travel and meetings (GOV.UK transparency releases)",
+   "records": 3602
+  },
+  {
+   "name": "NAO reports (nao.org.uk)",
+   "records": 2781
+  },
+  {
+   "name": "NHS England referral to treatment waiting times (file headings only)",
+   "records": 1468
+  },
+  {
+   "name": "ACOBA advice (GOV.UK)",
+   "records": 713
+  },
+  {
+   "name": "Honours lists (GOV.UK)",
+   "records": 328
+  },
+  {
+   "name": "Ministerial directions (GOV.UK)",
+   "records": 71
+  },
+  {
+   "name": "Police misconduct statistics (GOV.UK)",
+   "records": 15
+  },
+  {
+   "name": "Northern Ireland contracts awarded (Department of Finance)",
+   "records": 3
+  }
+ ]
+}

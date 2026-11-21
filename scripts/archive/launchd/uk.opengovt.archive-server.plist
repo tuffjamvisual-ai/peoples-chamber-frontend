@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The archive search service (Cowork ENTRY 480 PART A, owner approved 21 Nov 2026 22:44; audit/archive-480/SSD-ONLY-PLAN.md).
+     Runs as this user (a LaunchAgent, not root), listens on 127.0.0.1:3391 only, opens the SSD's SQLite index read only.
+     The code runs from ~/opengovt-archive/server (a copy of scripts/archive/archive-server.mjs and datasets.json made by
+     scripts/archive/launchd/install.sh), never from a git worktree. The key is in ~/opengovt-archive/secret/key (mode 600),
+     never in this file. KeepAlive restarts it if it stops; ThrottleInterval 30 s between restarts (e.g. while EDGE_SSD is
+     not mounted, the server stops at start and is tried again). Install: scripts/archive/launchd/install.sh (after T2's OK). -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>uk.opengovt.archive-server</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/node</string>
+    <string>/Users/johnnybot/opengovt-archive/server/archive-server.mjs</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>ARCHIVE_KEY_FILE</key><string>/Users/johnnybot/opengovt-archive/secret/key</string>
+    <key>ARCHIVE_PORT</key><string>3391</string>
+    <key>ARCHIVE_DB</key><string>/Volumes/EDGE_SSD/opengovt-index/opengovt-archive.sqlite</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>30</integer>
+  <key>StandardOutPath</key><string>/Users/johnnybot/opengovt-archive/logs/server.log</string>
+  <key>StandardErrorPath</key><string>/Users/johnnybot/opengovt-archive/logs/server.log</string>
+</dict>
+</plist>

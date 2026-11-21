@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The ngrok tunnel for the archive server (Cowork ENTRY 480: ngrok Free to start). Forwards ONE local port only,
+     127.0.0.1:3391, on the account's one free development domain (named in ~/opengovt-archive/secret/ngrok-url, read by
+     the wrapper). The traffic policy (~/opengovt-archive/secret/ngrok-policy.yml, mode 600) puts basic auth in front:
+     a second secret, different from the server's key. ngrok's own config (account token) stays where ngrok keeps it.
+     Runs as this user; KeepAlive restarts it; 60 s between restarts so a lost connection does not hammer ngrok. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>uk.opengovt.archive-tunnel</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>/Users/johnnybot/opengovt-archive/server/tunnel.sh</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>60</integer>
+  <key>StandardOutPath</key><string>/Users/johnnybot/opengovt-archive/logs/tunnel.log</string>
+  <key>StandardErrorPath</key><string>/Users/johnnybot/opengovt-archive/logs/tunnel.log</string>
+</dict>
+</plist>
