@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { decileOf } from '@/lib/deprivation/band';
+import { decileOf } from '@/lib/deprivation/decile';
 
 export const dynamic = 'force-dynamic';
 

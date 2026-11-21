@@ -31,7 +31,8 @@ export default function FindYourArea({ ranks, ranked }: { ranks: Record<string, 
     try {
       const res = await fetch('/api/councils/lookup?postcode=' + encodeURIComponent(clean));
       const j = await res.json().catch(() => ({}));
-      if (res.status === 502) setResult({ kind: 'message', text: 'The postcode search did not work. Please try again.' });
+      // T2 (ENTRY 494): any rate limit or server failure is a failed search, not 'England only'.
+      if (res.status === 429 || res.status >= 500) setResult({ kind: 'message', text: 'The postcode search did not work. Please try again.' });
       else if (!res.ok || !j.slug) setResult({ kind: 'message', text: ENGLAND_ONLY });
       else if (UNRANKED.has(j.slug)) setResult({ kind: 'message', text: `${j.shortName || j.name} is not ranked: too few residents to compare fairly.` });
       else if (!ranks[j.slug]) setResult({ kind: 'message', text: ENGLAND_ONLY });
