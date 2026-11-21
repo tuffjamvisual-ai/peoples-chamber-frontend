@@ -66,7 +66,7 @@ export const SOURCES = [...MEASURES.reduce((m, x) => {
 export const SOURCE_COUNT = SOURCES.length;
 SOURCES.push({ label: 'Population (for road safety per resident): ONS mid-2025 population estimates', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates' });
 // The police recorded crime figure on each area page is shown, not scored (ENTRY 436), so it is not counted either.
-SOURCES.push({ label: 'Police recorded crime (shown on each area page, not scored): ONS, Police force area data tables, year ending June 2026, tables C1 to C4 (Community Safety Partnerships) and P3 (England)', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/policeforceareadatatables' });
+SOURCES.push({ label: 'Police recorded crime (shown on each area page, not scored): ONS, Police force area data tables, year ending June 2026, tables C1 to C4 (Community Safety Partnerships), P1 and P3 (England)', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/policeforceareadatatables' });
 // One plain line for an area whose rank readers are likely to question (Cowork ENTRY 415 v3b PICTURES: Blackpool).
 export const AREA_NOTES: Record<string, string> = {
   blackpool: 'Worst of the 294 on crime and life expectancy, 2nd worst on fuel poverty and 5th worst on GCSE results; clean air and better than average broadband and 4G lift only its environment score.',

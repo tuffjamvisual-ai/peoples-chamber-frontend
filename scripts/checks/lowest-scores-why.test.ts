@@ -177,8 +177,8 @@ test('the police force named in the police sentence covers the area', () => {
 test('ENTRY 484: counts and England figures, Hull and Blackpool', () => {
   const hull = area('hull'), bp = area('blackpool');
   const m = (a: typeof hull, k: string) => explainMeasure(a.all.find((x) => x.key === k)!, a);
-  assert.match(m(hull, 'road_safety'), /^In 2025, 8 people were killed and 166 seriously injured on roads in Hull, 41 per cent above the England rate for an area of its size\./);
-  assert.match(m(bp, 'road_safety'), /^In 2025, 1 person was killed and 99 seriously injured on roads in Blackpool, 55 per cent above the England rate/);
+  assert.match(m(hull, 'road_safety'), /^8 people were killed and 166 seriously injured on roads in Hull, 41 per cent above the England rate for an area of its size\./);
+  assert.match(m(bp, 'road_safety'), /^1 person was killed and 99 seriously injured on roads in Blackpool, 55 per cent above the England rate/);
   assert.match(m(hull, 'fuel_poverty'), /^13\.5 per cent of households are in fuel poverty, 3\.6 percentage points above England’s 9\.9 per cent:/);
   assert.match(m(hull, 'child_poverty'), /^20,601 children, 37\.2 per cent, live in low income households once housing costs are paid, 10\.1 percentage points above England’s 27\.1 per cent\./);
   assert.match(m(hull, 'gigabit'), /^130,749 of 131,287 homes and businesses, 99\.6 per cent, can get gigabit broadband, 11\.2 percentage points above/);

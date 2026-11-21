@@ -97,7 +97,7 @@ export function explainMeasure(m: Measure, a: Area): string {
       return `Pupils living in ${place} averaged an Attainment 8 score of ${f}, ${vs}: roughly ${grade(Number(f))} in each of their eight main GCSE subjects. ${r}`;
     case 'road_safety': {
       const c = roadCounts(a);
-      return c ? `In ${ENGLAND.road.year}, ${c} on roads in ${place}, ${vs} for an area of its size. ${r}` : `${f} people in every 100,000 were killed or seriously injured on its roads. ${r}`;
+      return c ? `${cap(c)} on roads in ${place}, ${vs} for an area of its size. ${r}` : `${f} people in every 100,000 were killed or seriously injured on its roads. ${r}`;
     }
     default:
       return `${m.figure}. ${r}`;
