@@ -23,7 +23,7 @@ import LsMore from './LsMore';
 import { AREAS, HEADLINE, topicHeading, MEASURES, TOPICS, RANKED, MEASURE_COUNT, SOURCES, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary } from './data';
 import { ordinal, plainScoreRank } from './ranks';
 import { englandFigure } from './explain';
-import { areaCovered, whySentence, weightingCheck, weightingSentence, SHARES, countWord } from './why';
+import { areaCovered, firstAgainstSecond, tiesNotes, whySentence, weightingCheck, weightingSentence, SHARES, countWord } from './why';
 import { PHONE } from '@/lib/breakpoints';
 
 export const revalidate = false; // A16: static data, rebuilt only on a deploy
@@ -38,6 +38,8 @@ export const metadata: Metadata = {
 };
 const LOWEST10 = AREAS.slice(0, 10);
 // The row's one link (owner rule A10), its text 'Why Hyndburn ranks ninth' (Cowork ENTRY 493 item 8); the name is plain.
+// ENTRY 493 (5) and (6): why 1st is below 2nd (in row 2) and the ties (in the last tied row), built from the data.
+const TIES = tiesNotes(10);
 const POSITION = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
 const CHECK = weightingCheck();
 
@@ -54,6 +56,7 @@ const TABLE_CSS = `
 .ls-ten th, .ls-ten td { text-align: left; vertical-align: top; padding: 10px 14px 8px 0; line-height: 1.45; font-weight: normal; }
 .ls-ten thead th { text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1.5px solid ${INK}; padding-bottom: 6px; }
 .ls-ten tr.ls-row > * { border-top: 1px solid ${INK_HAIRLINE}; }
+.ls-ten .ls-note { display: block; margin-top: 6px; font-size: 15px; font-style: italic; }
 .ls-ten tr.ls-row > th { font-family: ${SERIF}; font-size: 18px; font-weight: bold; width: 19%; }
 .ls-ten .ls-area { width: 18%; }
 .ls-ten .ls-score { width: 17%; }
@@ -139,6 +142,8 @@ export default function LowestScoresPage() {
                     {whySentence(a)}{' '}
                     <Link href={`/council-areas/lowest-scores/${a.slug}#why`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Why {a.name} ranks {POSITION[a.rank - 1] ?? ordinal(a.rank)}</Link>
                     <span className="ls-meta">{areaCovered(a.name, a.type)} · {scoreLine(a.score, a.rank)}</span>
+                    {a.rank === 2 && <span className="ls-note">{firstAgainstSecond()}</span>}
+                    {TIES.filter((t) => t.after === a.slug).map((t) => <span key={t.text} className="ls-note">{t.text}</span>)}
                   </td>
                 </tr>
               ))}

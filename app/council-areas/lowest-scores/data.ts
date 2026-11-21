@@ -17,7 +17,7 @@ export type Facts = {
   gigabit?: { count: number; premises: number };
   police?: { count: number; pct_vs_england: number };
 };
-export type Area = { rank: number; name: string; slug: string; type: string; score: number; topics: { label: string; score: number }[]; down: Measure[]; up: Measure[]; all: Measure[]; police: Police; facts: Facts };
+export type Area = { rank: number; name: string; slug: string; type: string; score: number; topics: { label: string; score: number }[]; down: Measure[]; up: Measure[]; all: Measure[]; police: Police; facts: Facts; exact: number };  // exact: the unrounded overall score, which sets the order (ENTRY 493 (5), (6))
 export type MeasureInfo = { key: string; label: string; unit: string; period: string; better: string; topic: string; source: string; href: string };
 
 // No body or dataset names in the page text, only in the Sources fold (Cowork ENTRY 444 decisions, 21 Nov 2026 04:12, item 4):

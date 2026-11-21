@@ -200,3 +200,12 @@ test('ENTRY 484: counts and England figures, Hull and Blackpool', () => {
     }
   }
 });
+
+// Cowork ENTRY 493 (5) and (6), owner approved 21 Nov 2026: built from the data, the wording Cowork accepted at 16:37.
+import { firstAgainstSecond, tiesNotes } from '../../app/council-areas/lowest-scores/why';
+test('ENTRY 493: why 1st is below 2nd, and the ties among the ten', () => {
+  assert.equal(firstAgainstSecond(), "Hull scores lower than Burnley on four of the five topics (money, work and schools; housing: fuel poverty; environment and connectivity; crime), but Burnley's health score is far lower (6.0 against 12.5), so Burnley comes out lowest, by less than 0.1 points.");
+  assert.deepEqual(tiesNotes(10), [{ after: 'city-of-doncaster', text: 'Barnsley, Hyndburn and City of Doncaster all round to 19.2; they are listed by their unrounded scores (19.175, 19.181 and 19.209).' }]);
+  // The order follows the unrounded score.
+  for (let i = 1; i < AREAS.length; i++) assert.ok(AREAS[i - 1].exact <= AREAS[i].exact, AREAS[i].slug);
+});

@@ -208,3 +208,41 @@ export function weightingSentence(c = weightingCheck()): string {
   const stayed = c.stayed === c.of ? `All ${countWord(c.of)} of these areas` : `${cap(countWord(c.stayed))} of these ${countWord(c.of)} areas`;
   return `We tried ${countWord(c.ways)} different ways of weighting the figures. ${stayed} stayed in the bottom ${c.bottom} every time.`;
 }
+
+// ---- Cowork ENTRY 493 (5) and (6), owner approved 21 Nov 2026 ----
+// A topic in a list: lower case, the housing topic named for its one measure, as Cowork's wording has it.
+const listTopic = (label: string) => (label === 'Housing' ? 'housing: fuel poverty' : label.toLowerCase());
+const joinList = (xs: string[], sep: string) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(sep)} and ${xs[xs.length - 1]}`);
+
+/** Why the first is below the second, from the topic scores: 'Hull scores lower than Burnley on four of the five topics
+ *  (...), but Burnley's health score is far lower (6.0 against 12.5), so Burnley comes out lowest, by less than 0.1 points.' */
+export function firstAgainstSecond(): string {
+  const [a, b] = AREAS;
+  const n = a.topics.length;
+  const bLower = a.topics.map((t, i) => ({ t, i })).filter(({ i }) => b.topics[i].score < a.topics[i].score);
+  const aLower = a.topics.map((t, i) => ({ t, i })).filter(({ i }) => a.topics[i].score < b.topics[i].score);
+  const gap = b.exact - a.exact;
+  const by = gap < 0.1 ? 'by less than 0.1 points' : `by ${gap.toFixed(1)} points`;
+  if (bLower.length > aLower.length && aLower.length > 0) {
+    const worst = [...aLower].sort((x, y) => (b.topics[y.i].score - a.topics[y.i].score) - (b.topics[x.i].score - a.topics[x.i].score))[0];
+    const tw = (k: number) => (k === n ? 'all' : WORDS[k] ?? String(k));
+    return `${b.name} scores lower than ${a.name} on ${tw(bLower.length)} of the ${WORDS[n] ?? n} topics (${bLower.map(({ t }) => listTopic(t.label)).join('; ')}), but ${a.name}'s ${listTopic(worst.t.label)} score is far lower (${a.topics[worst.i].score.toFixed(1)} against ${b.topics[worst.i].score.toFixed(1)}), so ${a.name} comes out lowest, ${by}.`;
+  }
+  return `${a.name} scores lower than ${b.name} on ${WORDS[aLower.length] ?? aLower.length} of the ${WORDS[n] ?? n} topics (${aLower.map(({ t }) => listTopic(t.label)).join('; ')}) and comes out lowest, ${by}.`;
+}
+
+/** Areas in the ten shown whose scores show the same to one decimal place: listed by their unrounded scores, or joint
+ *  when those are equal too. 'Barnsley, Hyndburn and City of Doncaster all round to 19.2; they are listed by their
+ *  unrounded scores (19.175, 19.181 and 19.209).' */
+export function tiesNotes(shown = 10): { after: string; text: string }[] {
+  const ten = AREAS.slice(0, shown);
+  const groups = new Map<string, typeof ten>();
+  for (const a of ten) groups.set(a.score.toFixed(1), [...(groups.get(a.score.toFixed(1)) ?? []), a]);
+  return [...groups.entries()].filter(([, g]) => g.length > 1).map(([shownScore, g]) => {
+    const names = joinList(g.map((a) => a.name), ', ');
+    const all = g.length === 2 ? 'both' : 'all';
+    const after = g[g.length - 1].slug; // shown in the last tied area's row, beside the others
+    if (new Set(g.map((a) => a.exact.toFixed(3))).size < g.length) return { after, text: `${names} ${all} score ${shownScore} and are joint ${ordinal(g[0].rank)}.` };
+    return { after, text: `${names} ${all} round to ${shownScore}; they are listed by their unrounded scores (${joinList(g.map((a) => a.exact.toFixed(3)), ', ')}).` };
+  });
+}
