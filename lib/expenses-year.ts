@@ -14,11 +14,21 @@ export async function latestExpensesYear(): Promise<string> {
 export const expensesYearShort = (y: string) => `20${y.slice(0, 2)}/${y.slice(3, 5)}`;
 export const expensesYearLong = (y: string) => `20${y.slice(0, 2)} / 20${y.slice(3, 5)}`;
 
-// Every year with IPSA totals, newest first (ENTRY 495: the latest year at /expenses, earlier ones at /expenses/year/<yy_yy>).
+// Every year with IPSA totals, newest first (ENTRY 495; Cowork 22:44: every loaded year is selectable on purpose, now
+// 2025/26, 2024/25 and 2023/24). One small read per year (the newest year below the last one found), so no answer
+// depends on the API's row cap (T2, 22:36): each read returns one row.
 export async function expensesYears(): Promise<string[]> {
-  const { data, error } = await tagDb().from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(5000);
-  if (error && error.code !== 'PGRST116') throw new Error(`expenses-years mp_expenses_summary: ${error.message}`);
-  return [...new Set(((data || []) as { year: string }[]).map((r) => r.year))];
+  const years: string[] = [];
+  for (let i = 0; i < 30; i++) {
+    let q = tagDb().from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1);
+    if (years.length) q = q.lt('year', years[years.length - 1]);
+    const { data, error } = await q;
+    if (error && error.code !== 'PGRST116') throw new Error(`expenses-years mp_expenses_summary: ${error.message}`);
+    const y = (data && data[0] && (data[0] as { year: string }).year) || null;
+    if (!y) break;
+    years.push(y);
+  }
+  return years;
 }
 // The address of a year's page: the latest year is /expenses itself.
 export const expensesYearHref = (y: string, latest: string) => (y === latest ? '/expenses' : `/expenses/year/${y}`);
