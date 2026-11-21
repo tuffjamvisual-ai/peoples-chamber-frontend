@@ -22,6 +22,7 @@ import FindYourArea from './FindYourArea';
 import LsMore from './LsMore';
 import { AREAS, MEASURES, TOPICS, RANKED, MEASURE_COUNT, SOURCES, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary } from './data';
 import { plainScoreRank } from './ranks';
+import { englandFigure } from './explain';
 import { areaCovered, whySentence, weightingCheck, weightingSentence, SHARES, countWord } from './why';
 import { PHONE } from '@/lib/breakpoints';
 
@@ -173,7 +174,7 @@ export default function LowestScoresPage() {
                 <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                   {MEASURES.filter((m) => m.topic === t.label).map((m) => (
                     <li key={m.key} style={{ ...para, margin: '0 0 6px' }}>
-                      <strong>{m.label}</strong>: {m.unit}; {m.period}; {m.better === 'higher' ? 'higher is better' : 'lower is better'}.
+                      <strong>{m.label}</strong>: {m.unit}; {m.period}; {m.better === 'higher' ? 'higher is better' : 'lower is better'}.{englandFigure(m.key) ? ` ${englandFigure(m.key)}.` : ''}
                     </li>
                   ))}
                 </ul>

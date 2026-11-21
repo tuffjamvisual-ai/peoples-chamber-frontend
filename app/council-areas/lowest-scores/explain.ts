@@ -34,6 +34,17 @@ export function vsEngland(m: Measure, a: Area): string {
   return '';
 }
 
+/** England's figure for the measures fold ('England 9.9 per cent'); a figure that is the 294 council areas together, because
+ *  the source publishes no England row for it, says so (Cowork 13:20: 'England (294 council areas)'). */
+export function englandFigure(key: string): string | null {
+  const basis = (ENGLAND.basis as Record<string, string> | undefined)?.[key];
+  const label = basis ? `England (${basis})` : 'England';
+  if ((PCT as readonly string[]).includes(key)) return `${label} ${ENGLAND[key as (typeof PCT)[number]].toFixed(1)} per cent`;
+  if (key === 'life_expectancy') return `${label} ${ENGLAND.life_expectancy.toFixed(1)} years`;
+  if (key === 'schools') return `${label} ${ENGLAND.schools.toFixed(1)}`;
+  return null;
+}
+
 /** Road casualties as counts: '8 people were killed and 166 seriously injured'. */
 export function roadCounts(a: Area): string | null {
   const r = a.facts.road;
@@ -97,7 +108,7 @@ export function explainMeasure(m: Measure, a: Area): string {
       return `Pupils living in ${place} averaged an Attainment 8 score of ${f}, ${vs}: roughly ${grade(Number(f))} in each of their eight main GCSE subjects. ${r}`;
     case 'road_safety': {
       const c = roadCounts(a);
-      return c ? `${cap(c)} on roads in ${place}, ${vs} for an area of its size. ${r}` : `${f} people in every 100,000 were killed or seriously injured on its roads. ${r}`;
+      return c ? `${cap(c)} on roads in ${place}, ${vs}. ${r}` : `${f} people in every 100,000 were killed or seriously injured on its roads. ${r}`;
     }
     default:
       return `${m.figure}. ${r}`;

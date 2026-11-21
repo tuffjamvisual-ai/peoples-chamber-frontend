@@ -42,7 +42,7 @@ export const POLICE = data.police as { period: string; england: string };
 export const ENGLAND = data.england as {
   road: { killed: number; serious: number; year: string }; police: { count: number; per_1000: number; period: string };
   child_poverty: number; unemployment: number; fuel_poverty: number; life_expectancy: number; obesity: number; air: number;
-  gigabit: number; indoor_4g: number; schools: number;
+  gigabit: number; indoor_4g: number; schools: number; basis?: Record<string, string>;
 };
 // The council area averages of the overall and topic scores (each area counting once).
 export const AVG_SCORE = AREAS.reduce((s, a) => s + a.score, 0) / AREAS.length;
