@@ -30,6 +30,7 @@ import os from 'os';
 import path from 'path';
 import { execFileSync, spawn } from 'child_process';
 import { checkRange } from './layout-lock.mjs';
+import { parseVrPages } from './qa/vr-named.mjs';
 import { fileURLToPath } from 'url';
 
 // This script's own folder (ENTRY 185): its helper scripts come from the code being pushed (scripts/git-hooks/pre-push runs
@@ -227,7 +228,7 @@ try {
     // T1-VR: the pages the job names, from 'VR-pages:' lines in the pushed commits' messages.
     const from = fromOf.get(sha);
     const messages = from ? git('log', '--format=%B', `${from}..${sha}`) : git('log', '-1', '--format=%B', sha);
-    const named = [...messages.matchAll(/^VR-pages:\s*(.+)$/gim)].map((m) => m[1]).join(',');
+    const named = parseVrPages(messages).join(',');
     try {
       run('node', ['scripts/checks/qa/visual-compare.mjs', '--base', base, '--sha', sha, ...(from ? ['--from', from] : []), '--job-pages', named], { cwd: wt, env });
     } catch {

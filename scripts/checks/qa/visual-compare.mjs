@@ -20,7 +20,8 @@
 // and every picture on the page loaded, CSS ones too, and every web font the page declares.
 //
 // The pages a job names: a line 'VR-pages: /mps/[id], /' in a commit message of the push (page types or addresses,
-// comma separated; 'VR-pages: all' for a change meant for every page). Those pages may differ.
+// separated by commas or spaces, joined across every commit of the push; 'VR-pages: all' for a change meant for every
+// page; qa/vr-named.mjs). Those pages may differ; a page type also names every address of that type.
 //
 // Why a page differs, from what the page shows (the live page can be a cached copy from earlier, so newer data shows as a
 // difference too):
@@ -51,6 +52,7 @@ import sharp from 'sharp';
 import { execFileSync } from 'child_process';
 import { pages as samplePages, parseCsv } from './rendered-checks.mjs';
 import { pushPages } from './vr-pages.mjs';
+import { splitVrPages, parseVrPages, pageNamed } from './vr-named.mjs';
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -60,7 +62,7 @@ const LIVE = arg('--live', 'https://www.opengovt.uk').replace(/\/$/, '');
 const SHA = arg('--sha', 'local');
 const ACCEPT = arg('--accept', process.env.VR_ACCEPT || '');
 const ONLY = arg('--only', '');
-let JOB_PAGES = arg('--job-pages', '').split(',').map((s) => s.trim()).filter(Boolean);
+let JOB_PAGES = splitVrPages(arg('--job-pages', ''));
 const FROM = arg('--from', null);
 const NIGHTLY = argv.includes('--nightly');
 const SAVE_DIR = arg('--save-dir', null);
@@ -239,7 +241,7 @@ async function sideBySide(file, beforePng, afterPng, cmp, width) {
   await sharp({ create: { width: W, height: H, channels: 3, background: '#ffffff' } }).composite(comp).jpeg({ quality: 78 }).toFile(file);
 }
 
-const jobNames = (p) => JOB_PAGES.some((j) => j === 'all' || j === p.route || j === p.url);
+const jobNames = (p) => pageNamed(JOB_PAGES, p);
 const EXTRA = [{ route: '/bills/[id]', url: '/bills/3942' }, { route: '/bills/[id]', url: '/bills/4080' }, { route: '/divisions/[slug]', url: '/divisions/pw-2019-01-15-293-commons' }, { route: '/councils/[slug]', url: '/councils/kent' }];
 const fileName = (url, view, ext) => `${url.replace(/^\//, '').replace(/[^a-z0-9]+/gi, '_') || 'home'}-${view}.${ext}`;
 const ukClock = () => { const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', hour12: false, timeZoneName: 'short' }).formatToParts(new Date()).map((x) => [x.type, x.value])); return `${p.hour}:${p.minute} ${p.timeZoneName === 'BST' || p.timeZoneName === 'GMT+1' ? 'BST' : 'GMT'}`; };
@@ -423,7 +425,7 @@ async function nightlyRun() {
   try { try { git('fetch', '-q', 'origin', 'main'); } catch { /* the last fetched main */ } head = git('rev-parse', 'origin/main'); } catch { /* no git */ }
   const lastMeta = last && fs.existsSync(path.join(last, 'meta.json')) ? JSON.parse(fs.readFileSync(path.join(last, 'meta.json'), 'utf8')) : null;
   if (head && lastMeta?.head) {
-    try { named = [...git('log', '--format=%B', `${lastMeta.head}..${head}`).matchAll(/^VR-pages:\s*(.+)$/gim)].flatMap((m) => m[1].split(',').map((x) => x.trim())).filter(Boolean); } catch { /* history moved */ }
+    try { named = parseVrPages(git('log', '--format=%B', `${lastMeta.head}..${head}`)); } catch { /* history moved */ }
   }
   JOB_PAGES = named;
   const list = [...samplePages(), ...EXTRA];
