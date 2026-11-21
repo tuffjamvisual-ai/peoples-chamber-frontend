@@ -12,7 +12,7 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import PageSources from '../../../components/PageSources';
 import SourceNotes from '../SourceNotes';
-import { AREAS, RANKED, SOURCES, AREA_NOTES, AVG_TOPIC, bySlug, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary, type Area, type Measure } from '../data';
+import { AREAS, topicHeading, RANKED, SOURCES, AREA_NOTES, AVG_TOPIC, bySlug, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary, type Area, type Measure } from '../data';
 import { explainMeasure, explainPolice, explainScore, measureRank, plainPeriod, shortFigure } from '../explain';
 import { cap, plainScoreRank } from '../ranks';
 import { whySentence } from '../why';
@@ -71,17 +71,17 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
         </section>
 
         <p style={para}>
-          The score is the average of five topics, each the average of its measures, every measure scored 0 to 100 against all {RANKED} council areas. <Link href="/council-areas/lowest-scores" style={{ color: INK }}>See the 10 lowest and find another council area</Link> or <Link href={`/councils/${a.slug}`} style={{ color: INK }}>the council&rsquo;s own page</Link>. Not a ranking of how well councils are run: council performance is left out.
+          The score is the average of five topics, each the average of its measures, every measure scored 0 to 100 against all {RANKED} council areas. <Link href="/council-areas/lowest-scores" style={{ color: INK }}>See the 10 lowest and find another council area</Link> or <Link href={`/councils/${a.slug}`} style={{ color: INK }}>the council&apos;s own page</Link>. Not a ranking of how well councils are run: council performance is left out.
         </p>
 
         {AREA_NOTES[a.slug] && <p style={para}><strong>{AREA_NOTES[a.slug]}</strong></p>}
 
-        <section aria-label="Pulling it down most" style={{ marginBottom: '22px' }}>
-          <h2 style={h2}>Pulling it down most</h2>
+        <section aria-label={`Where ${a.name} ranks lowest on individual measures`} style={{ marginBottom: '22px' }}>
+          <h2 style={h2}>Where {a.name} ranks lowest on individual measures</h2>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{a.down.map((m) => <MeasureLine key={m.key} m={m} a={a} mark={ACCENT} />)}</ul>
         </section>
-        <section aria-label="Pulling it up most" style={{ marginBottom: '22px' }}>
-          <h2 style={h2}>Pulling it up most</h2>
+        <section aria-label={`Where ${a.name} ranks highest on individual measures`} style={{ marginBottom: '22px' }}>
+          <h2 style={h2}>Where {a.name} ranks highest on individual measures</h2>
           {/* Only measures better than the middle of the 294 (score above 50) count as pulling it up (Cowork, 18:34). */}
           {a.up.length > 0
             ? <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{a.up.map((m) => <MeasureLine key={m.key} m={m} a={a} mark={INK_HAIRLINE} />)}</ul>
@@ -103,10 +103,10 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
             Every measure explained
             <span className="og-fold-mark" aria-hidden="true" />
           </summary>
-          <p style={{ ...para, margin: '0 0 8px' }}>A topic&rsquo;s score is the average of its measures&rsquo; scores, each out of 100.</p>
+          <p style={{ ...para, margin: '0 0 8px' }}>A topic&apos;s score is the average of its measures&apos; scores, each out of 100.</p>
           {a.topics.map((t) => (
             <div key={t.label} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, padding: '6px 0 0' }}>
-              <h3 style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 4px' }}>{t.label}: score {t.score.toFixed(1)} (average {(AVG_TOPIC.get(t.label) ?? 50).toFixed(1)})</h3>
+              <h3 style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 4px' }}>{topicHeading(t.label)}: score {t.score.toFixed(1)} (average {(AVG_TOPIC.get(t.label) ?? 50).toFixed(1)})</h3>
               {a.all.filter((m) => m.topic === t.label).map((m) => (
                 <p key={m.key} style={{ ...para, lineHeight: 1.45, margin: '0 0 8px' }}>
                   <strong>{m.label}</strong> ({plainPeriod(m.period)}), score {m.score.toFixed(1)}: {explainMeasure(m, a)}

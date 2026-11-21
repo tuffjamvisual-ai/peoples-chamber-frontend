@@ -22,16 +22,16 @@ export function vsEngland(m: Measure, a: Area): string {
     const e = ENGLAND[m.key as (typeof PCT)[number]];
     const d = diff(f, e);
     // A figure that is the 294 council areas together (no published England row) is named so (T2 13:28, Cowork 13:20).
-    const ref = basisOf(m.key) ? `the ${e.toFixed(1)} per cent for England’s ${basisOf(m.key)}` : `England’s ${e.toFixed(1)} per cent`;
+    const ref = basisOf(m.key) ? `the ${e.toFixed(1)} per cent for England's ${basisOf(m.key)}` : `England's ${e.toFixed(1)} per cent`;
     return d === 0 ? `the same as ${ref}` : `${side(d, 'percentage point')} ${ref}`;
   }
   if (m.key === 'life_expectancy') {
     const d = diff(f, ENGLAND.life_expectancy);
-    return d === 0 ? `the same as England’s ${ENGLAND.life_expectancy.toFixed(1)} years` : `${Math.abs(d).toFixed(1)} years ${d < 0 ? 'less' : 'more'} than England’s ${ENGLAND.life_expectancy.toFixed(1)}`;
+    return d === 0 ? `the same as England's ${ENGLAND.life_expectancy.toFixed(1)} years` : `${Math.abs(d).toFixed(1)} years ${d < 0 ? 'less' : 'more'} than England's ${ENGLAND.life_expectancy.toFixed(1)}`;
   }
   if (m.key === 'schools') {
     const d = diff(f, ENGLAND.schools);
-    return d === 0 ? `the same as England’s ${ENGLAND.schools.toFixed(1)}` : `${side(d, 'point')} England’s ${ENGLAND.schools.toFixed(1)}`;
+    return d === 0 ? `the same as England's ${ENGLAND.schools.toFixed(1)}` : `${side(d, 'point')} England's ${ENGLAND.schools.toFixed(1)}`;
   }
   if (m.key === 'road_safety' && a.facts.road) return pctVs(a.facts.road.pct_vs_england);
   return '';
@@ -67,7 +67,7 @@ export function shortFigure(m: Measure, a: Area): string {
 export const crimeRank = (m: Measure) => plainRank(m.rank, m.of, 'highest', 'lowest', m.tie);
 // Without the closing 'of 294', for 'the 4th highest crime score of the 294 council areas'.
 const crimeWord = (m: Measure) => crimeRank(m).replace(/ of \d+$/, '');
-export const measureRank = (m: Measure) => (m.key === 'crime' ? `${crimeRank(m)} on the government’s crime score` : plainRank(m.rank, m.of, 'worst', 'best', m.tie));
+export const measureRank = (m: Measure) => (m.key === 'crime' ? `${crimeRank(m)} on the government's crime score` : plainRank(m.rank, m.of, 'worst', 'best', m.tie));
 // A period for brackets: 'Indices of Deprivation 2025 (crimes April 2018 to March 2024)' without brackets inside brackets.
 export const plainPeriod = (p: string) => p.replace(' (', ', ').replace(')', '');
 
@@ -106,7 +106,7 @@ export function explainMeasure(m: Measure, a: Area): string {
     case 'indoor_4g':
       return `${f} per cent of homes and businesses get a 4G signal indoors from all four mobile networks, ${vs}. ${r}`;
     case 'crime':
-      return `${place} has the ${crimeWord(m)} crime score of the ${m.of} council areas (the middle area is ${ordinal(Math.ceil(m.of / 2))}). The score is the government’s measure of how much violence, burglary, theft, criminal damage and antisocial behaviour people living there face, from police records.`;
+      return `${place} has the ${crimeWord(m)} crime score of the ${m.of} council areas (the middle area is ${ordinal(Math.ceil(m.of / 2))}). The score is the government's measure of how much violence, burglary, theft, criminal damage and antisocial behaviour people living there face, from police records.`;
     case 'schools':
       return `Pupils living in ${place} averaged an Attainment 8 score of ${f}, ${vs}: roughly ${grade(Number(f))} in each of their eight main GCSE subjects. ${r}`;
     case 'road_safety': {
@@ -123,17 +123,16 @@ const list = (names: string[]) => (names.length < 2 ? names.join('') : `${names.
 // ONS police recorded crime: information only; the ranking stays on the government's crime score (ENTRY 436 point 1).
 export function explainPolice(a: Area): string {
   const crime = a.all.find((m) => m.key === 'crime');
-  const rank = crime ? ` ${cap(crimeWord(crime))} of the ${crime.of} areas on the government’s crime score.` : '';
+  const rank = crime ? ` ${cap(crimeWord(crime))} of the ${crime.of} areas on the government's crime score.` : '';
   const p = a.police;
   if (p.status === 'missing') return `Kent Police could not place many crimes in an area in this table, so no reliable figure is published for ${a.name}.${rank}`;
   const c = a.facts.police;
-  // ENTRY 484: the count, then the England comparison (the rate per resident against England's, in per cent).
-  if (p.status === 'combined') return c
-    ? `The police publish one figure for ${list([a.name, ...(p.with ?? [])])} together: ${n(c.count)} crimes recorded, ${POLICE.period}, ${pctVs(c.pct_vs_england)}.${rank}`
-    : `The police publish one figure for ${list([a.name, ...(p.with ?? [])])} together: ${p.figure} crimes per 1,000 residents, ${POLICE.period} (England ${POLICE.england}).${rank}`;
-  const humberside = p.humberside ? ` Humberside Police could not place some crimes in an area in this table, so ${a.name}’s figure is likely to be too low.` : '';
-  if (c) return `${n(c.count)} crimes were recorded by the police in ${a.name}, ${POLICE.period}, ${pctVs(c.pct_vs_england)}.${rank}${humberside}`;
-  return `${p.figure} crimes recorded by the police per 1,000 residents, ${POLICE.period} (England ${POLICE.england}).${rank}${humberside}`;
+  // ENTRY 493 item 4: the local rate and England's side by side, both per 1,000 residents, then the count and the period.
+  const rates = (rate: string, place: string) => `${rate} crimes per 1,000 residents in ${place}, against ${POLICE.england} for England.`;
+  const count = c ? ` ${n(c.count)} crimes were recorded by the police, ${POLICE.period}.` : ` ${cap(POLICE.period)}.`;
+  if (p.status === 'combined') return `The police publish one figure for ${list([a.name, ...(p.with ?? [])])} together: ${rates(p.figure ?? '', 'the area')}${count}${rank}`;
+  const humberside = p.humberside ? ` Humberside Police could not place some crimes in an area in this table, so ${a.name}'s figure is likely to be too low.` : '';
+  return `${rates(p.figure ?? '', a.name)}${count}${rank}${humberside}`;
 }
 
 export function explainScore(a: Area, of: number): string {

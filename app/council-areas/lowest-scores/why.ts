@@ -7,7 +7,7 @@
 //                 'Below average on all five topics.' when every topic score is under 50 (the council area average of
 //                 every topic score is 50, as the scores are rank based).
 //   whyAccount    (item 3(b)) the measure with the biggest effect, the second, and the one that helped most, each with
-//                 its figure, England’s figure, a plain rank, its share of the overall score and the period
+//                 its figure, England's figure, a plain rank, its share of the overall score and the period
 //                 (no body or dataset name: those are in the Sources fold; ENTRY 444 decisions, 21 Nov 04:12, item 4).
 //                 Effect = (50 minus the measure's score) times its share: the points it takes off the overall score
 //                 against a middle area (50 on every measure); the most negative helped most.
@@ -111,7 +111,7 @@ export function figureWords(m: Measure, place: string, a?: Area): string {
 }
 
 // A topic name in running text: 'housing', 'crime'; a name with 'and' in it reads as 'the money, work and schools topic'.
-const topicName = (label: string) => (label.includes(' and ') ? `the ${label.toLowerCase()} topic` : label.toLowerCase());
+const topicName = (label: string) => (label === 'Housing' ? 'housing (fuel poverty)' : label.includes(' and ') ? `the ${label.toLowerCase()} topic` : label.toLowerCase());
 
 /** The why sentence (ENTRY 444 item 2). */
 export function whySentence(a: Area): string {
@@ -155,7 +155,7 @@ function partFor(e: Effect, lead: string, a: Area): AccountPart {
   const share = `${m.label} is ${shareWords(e.weight)} of the overall score.`;
   if (m.key === 'crime') {
     const rank = plainRank(m.rank, m.of, 'highest', 'lowest', m.tie);
-    return { lead, text: `${place}’s crime score was the ${rank.replace(/ of \d+$/, '')} of the ${m.of} council areas ${where}; the middle area is ${ordinal(Math.ceil(m.of / 2))}. ${share}` };
+    return { lead, text: `${place}'s crime score was the ${rank.replace(/ of \d+$/, '')} of the ${m.of} council areas ${where}; the middle area is ${ordinal(Math.ceil(m.of / 2))}. ${share}` };
   }
   const rank = plainRank(m.rank, m.of, 'worst', 'best', m.tie);
   return { lead, text: `${cap(figureWords({ ...m, rank: 0 }, place, a))} ${where}, ${vsEngland(m, a)}: ${rank}. ${share}` };
@@ -175,7 +175,7 @@ export function whyAccount(a: Area): AccountPart[] {
 }
 
 /** The rule under the account on each area page. */
-export const WHY_RULE = 'A measure’s effect is how far its score falls below 50, the middle, times its share of the overall score; the one furthest above 50, times its share, helped most.';
+export const WHY_RULE = 'A measure\'s effect is how far its score falls below 50, the middle, times its share of the overall score; the one furthest above 50, times its share, helped most.';
 
 /** Every measure's share, for the 'biggest effect' rule in How the scores work. */
 export const SHARES = TOPICS.map((t) => ({ topic: t.label, count: t.measures.length, share: shareWords(weightOf(t.label)) }));

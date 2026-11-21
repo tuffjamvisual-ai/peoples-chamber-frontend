@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { HEADLINE as LOWEST_SCORES_HEADLINE } from './council-areas/lowest-scores/data';
 import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import SotnBand from './components/SotnBand';
 import Link from 'next/link';
@@ -82,7 +83,7 @@ const HOMEPAGE_LEAD_SLUG: string = 'council-areas-lowest-scores';
 const HOMEPAGE_LEAD_PAGE: FeaturedItem = {
   slug: HOMEPAGE_LEAD_SLUG,
   href: '/council-areas/lowest-scores',
-  headline: 'The 10 Least Desirable Places to Live in England, on the Official Figures',
+  headline: LOWEST_SCORES_HEADLINE, // ENTRY 493 item 1: the page's own headline, built from its data
   label: 'England · 294 council areas',
   summary: 'Every council area scored the same way on twelve official measures, from crime and poverty to health, schools and broadband. Not a ranking of how well councils are run.',
   lede: null,

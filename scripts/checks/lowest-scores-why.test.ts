@@ -18,16 +18,16 @@ const area = (slug: string) => AREAS.find((a) => a.slug === slug)!;
 test('the ten why sentences match WHY-DRAFT.md', () => {
   // ENTRY 482 REVISED (sewage removed): the same ten sentences Cowork accepted in WHY-DRAFT.md, in the new order.
   const want = [
-    'Housing and crime pulled the score down most. 13.3 per cent of households were in fuel poverty, and only ten council areas had a higher crime score.',
-    'Crime and housing pulled the score down most. Only three council areas had a higher crime score, and 13.5 per cent of households were in fuel poverty.',
-    'Housing and crime pulled the score down most. 12.9 per cent of households were in fuel poverty, and only 19 council areas had a higher crime score.',
-    'Crime and housing pulled the score down most. Blackpool had the highest crime score of the 294, and 13.9 per cent of households were in fuel poverty.',
-    'Housing and health pulled the score down most. 13.5 per cent of households were in fuel poverty, and 75.1 per cent of adults were overweight or obese.',
-    'Housing and health pulled the score down most. 14.8 per cent of households were in fuel poverty, the highest of the 294, and a baby born there can expect to live 78.2 years.',
-    'Below average on all five topics. Housing and crime pulled the score down most. 12.3 per cent of households were in fuel poverty, and only 32 council areas had a higher crime score.',
+    'Housing (fuel poverty) and crime pulled the score down most. 13.3 per cent of households were in fuel poverty, and only ten council areas had a higher crime score.',
+    'Crime and housing (fuel poverty) pulled the score down most. Only three council areas had a higher crime score, and 13.5 per cent of households were in fuel poverty.',
+    'Housing (fuel poverty) and crime pulled the score down most. 12.9 per cent of households were in fuel poverty, and only 19 council areas had a higher crime score.',
+    'Crime and housing (fuel poverty) pulled the score down most. Blackpool had the highest crime score of the 294, and 13.9 per cent of households were in fuel poverty.',
+    'Housing (fuel poverty) and health pulled the score down most. 13.5 per cent of households were in fuel poverty, and 75.1 per cent of adults were overweight or obese.',
+    'Housing (fuel poverty) and health pulled the score down most. 14.8 per cent of households were in fuel poverty, the highest of the 294, and a baby born there can expect to live 78.2 years.',
+    'Below average on all five topics. Housing (fuel poverty) and crime pulled the score down most. 12.3 per cent of households were in fuel poverty, and only 32 council areas had a higher crime score.',
     'Below average on all five topics. Health and crime pulled the score down most. 74.4 per cent of adults were overweight or obese, and only 28 council areas had a higher crime score.',
-    'Housing and crime pulled the score down most. 12.7 per cent of households were in fuel poverty, and only 16 council areas had a higher crime score.',
-    'Below average on all five topics. Crime and housing pulled the score down most. Only 12 council areas had a higher crime score, and 12.1 per cent of households were in fuel poverty.',
+    'Housing (fuel poverty) and crime pulled the score down most. 12.7 per cent of households were in fuel poverty, and only 16 council areas had a higher crime score.',
+    'Below average on all five topics. Crime and housing (fuel poverty) pulled the score down most. Only 12 council areas had a higher crime score, and 12.1 per cent of households were in fuel poverty.',
   ];
   assert.deepEqual(AREAS.slice(0, 10).map(whySentence), want);
 });
@@ -54,8 +54,8 @@ test('Hull: crime, then fuel poverty, then gigabit broadband helped most', () =>
   const acc = whyAccount(h);
   assert.deepEqual(acc.map((p) => p.lead), ['Biggest effect: crime', 'Second biggest effect: fuel poverty', 'Helped most: gigabit broadband']);
   assert.match(acc[0].text, /4th highest of the 294 council areas \(April 2018 to March 2024\); the middle area is 147th\. Crime is 20 per cent of the overall score\.$/);
-  assert.match(acc[1].text, /^13\.5 per cent of households were in fuel poverty \(2024\), 3\.6 percentage points above England’s 9\.9 per cent: 5th worst of 294\. Fuel poverty is 20 per cent/);
-  assert.match(acc[2].text, /99\.6 per cent .*\(January 2026\), 11\.2 percentage points above England’s 88\.4 per cent: best of 294\. Gigabit broadband is 5 per cent/);
+  assert.match(acc[1].text, /^13\.5 per cent of households were in fuel poverty \(2024\), 3\.6 percentage points above England's 9\.9 per cent: 5th worst of 294\. Fuel poverty is 20 per cent/);
+  assert.match(acc[2].text, /99\.6 per cent .*\(January 2026\), 11\.2 percentage points above England's 88\.4 per cent: best of 294\. Gigabit broadband is 5 per cent/);
 });
 
 test('item 4: all ten stay in the bottom 20 under all seven weightings (nine before sewage was removed)', () => {
@@ -179,15 +179,16 @@ test('ENTRY 484: counts and England figures, Hull and Blackpool', () => {
   const m = (a: typeof hull, k: string) => explainMeasure(a.all.find((x) => x.key === k)!, a);
   assert.match(m(hull, 'road_safety'), /^8 people were killed and 166 seriously injured on roads in Hull, 41 per cent above the England rate\. 41st worst of 294\.$/);
   assert.match(m(bp, 'road_safety'), /^1 person was killed and 99 seriously injured on roads in Blackpool, 55 per cent above the England rate/);
-  assert.match(m(hull, 'fuel_poverty'), /^13\.5 per cent of households are in fuel poverty, 3\.6 percentage points above England’s 9\.9 per cent:/);
-  assert.match(m(hull, 'child_poverty'), /^20,601 children, 37\.2 per cent, live in low income households once housing costs are paid, 10\.1 percentage points above England’s 27\.1 per cent\./);
+  assert.match(m(hull, 'fuel_poverty'), /^13\.5 per cent of households are in fuel poverty, 3\.6 percentage points above England's 9\.9 per cent:/);
+  assert.match(m(hull, 'child_poverty'), /^20,601 children, 37\.2 per cent, live in low income households once housing costs are paid, 10\.1 percentage points above England's 27\.1 per cent\./);
   assert.match(m(hull, 'gigabit'), /^130,749 of 131,287 homes and businesses, 99\.6 per cent, can get gigabit broadband, 11\.2 percentage points above/);
-  assert.match(m(hull, 'life_expectancy'), /^A baby born in Hull can expect to live 77\.7 years, 3\.4 years less than England’s 81\.1\./);
-  assert.match(m(hull, 'schools'), /Attainment 8 score of 40\.4, 5\.7 points below England’s 46\.1:/);
-  assert.match(explainPolice(hull), /^32,936 crimes were recorded by the police in Hull, year to June 2026, 44 per cent above the England rate\. 4th highest/);
+  assert.match(m(hull, 'life_expectancy'), /^A baby born in Hull can expect to live 77\.7 years, 3\.4 years less than England's 81\.1\./);
+  assert.match(m(hull, 'schools'), /Attainment 8 score of 40\.4, 5\.7 points below England's 46\.1:/);
+  // ENTRY 493 item 4: both rates per 1,000 residents side by side, then the count and the period.
+  assert.match(explainPolice(hull), /^119\.6 crimes per 1,000 residents in Hull, against 83\.3 for England\. 32,936 crimes were recorded by the police, year to June 2026\. 4th highest/);
   assert.equal(shortFigure(hull.all.find((x) => x.key === 'fuel_poverty')!, hull), '13.5 per cent (England 9.9 per cent)');
   assert.equal(englandFigure('unemployment'), 'England (294 council areas) 4.5 per cent');
-  assert.match(m(hull, 'unemployment'), /1\.4 percentage points above the 4\.5 per cent for England’s 294 council areas\./);
+  assert.match(m(hull, 'unemployment'), /1\.4 percentage points above the 4\.5 per cent for England's 294 council areas\./);
   assert.equal(shortFigure(hull.all.find((x) => x.key === 'unemployment')!, hull), '5.9 per cent (294 council areas together 4.5 per cent)');
   assert.equal(englandFigure('gigabit'), 'England 88.4 per cent');
   assert.equal(englandFigure('crime'), null);
@@ -195,7 +196,7 @@ test('ENTRY 484: counts and England figures, Hull and Blackpool', () => {
     const texts = [...a.all.map((x) => explainMeasure(x, a)), ...a.all.map((x) => shortFigure(x, a)), explainPolice(a)];
     for (const t of texts) {
       assert.doesNotMatch([a.name, ...(a.police.with ?? [])].reduce((x, nm) => x.replaceAll(nm, ''), t), /[-‐-―%]|\(average |council area average|undefined|NaN|per 100,000/, `${a.slug}: ${t}`);
-      assert.doesNotMatch(t, /percentage points? (above|below) England’s \d+\.\d per cent.*per cent above England/, t);
+      assert.doesNotMatch(t, /percentage points? (above|below) England's \d+\.\d per cent.*per cent above England/, t);
     }
   }
 });
