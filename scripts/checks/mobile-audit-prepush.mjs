@@ -190,7 +190,9 @@ try {
   const wtFetch = path.join(wt, '.next/cache/fetch-cache');
   if (fs.existsSync(FETCH_CACHE_KEEP)) {
     fs.mkdirSync(path.dirname(wtFetch), { recursive: true });
-    run('cp', [process.platform === 'darwin' ? '-cR' : '-R', FETCH_CACHE_KEEP, wtFetch]);
+    // -p keeps each entry's file time (T1, Cowork 11:05 on 21 Nov 2026): without it every copy looked new, so the 24 hour
+    // drop below never fired and an EDM list from 18 Nov stopped two pushes on 21 Nov (/edms 'not named').
+    run('cp', [process.platform === 'darwin' ? '-cpR' : '-pR', FETCH_CACHE_KEEP, wtFetch]);
     console.log(`push checks: fetch-cache copied from ${FETCH_CACHE_KEEP} into the check build`);
     // Cowork ENTRY 195: entries older than 24 hours are dropped from the check build's copy, so old answers (a biography
     // loaded since, say) never show in a check build; the database writes also purge their tables' entries from the saved
@@ -207,7 +209,7 @@ try {
   if (fs.existsSync(wtFetch)) {
     fs.rmSync(FETCH_CACHE_KEEP, { recursive: true, force: true });
     fs.mkdirSync(path.dirname(FETCH_CACHE_KEEP), { recursive: true });
-    run('cp', [process.platform === 'darwin' ? '-cR' : '-R', wtFetch, FETCH_CACHE_KEEP]);
+    run('cp', [process.platform === 'darwin' ? '-cpR' : '-pR', wtFetch, FETCH_CACHE_KEEP]);
   }
   try { rulesRoutes = await mobileRulesRoutes(wt, fromOf.get(sha)); } catch { rulesRoutes = null; }
   const port = 3198;
