@@ -1,13 +1,16 @@
 // The 'why it ranks here' generator for /council-areas/lowest-scores (Cowork ENTRY 444, app/council-areas/lowest-scores/
 // why.ts): the ten why sentences as Cowork checked them in audit/worst-places-415/WHY-DRAFT.md, the Hull account, the
 // weights, the item 4 check, the house rules on all 294 sentences, and no body or dataset name in the sentences or folds
-// (ENTRY 444 decisions, 21 Nov 2026 04:12, items 4 and 6).
+// (ENTRY 444 decisions, 21 Nov 2026 04:12, items 4 and 6), and the two rank correlations written in How the scores work
+// (T2 review, 21 Nov 2026 06:12, note 1).
 // Run: npx tsx --test scripts/checks/lowest-scores-why.test.ts
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { AREAS, MEASURES, SOURCES } from '../../app/council-areas/lowest-scores/data';
 import { explainMeasure, plainPeriod } from '../../app/council-areas/lowest-scores/explain';
 import { areaCovered, effects, exactScore, shareWords, weightOf, weightingCheck, weightingSentence, whyAccount, whySentence, WHY_RULE, SHARES } from '../../app/council-areas/lowest-scores/why';
+import imd from './fixtures/imd2025-rank-by-slug.json';
 
 const area = (slug: string) => AREAS.find((a) => a.slug === slug)!;
 
@@ -100,4 +103,46 @@ test('every source behind the figures is in the Sources fold', () => {
   const crime = SOURCES.find((s) => s.href === MEASURES.find((m) => m.key === 'crime')!.href)!;
   assert.match(crime.label, /^Crime, and the check against overall deprivation in How the scores work: MHCLG, English Indices of Deprivation 2025/);
   for (const b of ['DESNZ', 'MHCLG', 'Ofcom']) assert.ok(SOURCES.some((s) => s.label.includes(b)), b);
+});
+
+// T2 review 21 Nov 2026 06:12 note 1: How the scores work writes two Spearman rank correlations as figures (0.92 with the
+// government's overall measure of deprivation, 0.89 with life expectancy; WHY-DRAFT.md: 0.923 and 0.891). They are not
+// computed on the build, so this recomputes them from the page data and fails if the data changes them. The deprivation
+// rank is not in the page data: scripts/checks/fixtures/imd2025-rank-by-slug.json (IoD 2025 File 10, rank of average score).
+const ranks = (v: number[]) => {
+  const s = v.map((x, i) => [x, i]).sort((p, q) => p[0] - q[0]);
+  const r: number[] = new Array(v.length);
+  for (let i = 0; i < s.length; ) {
+    let j = i;
+    while (j + 1 < s.length && s[j + 1][0] === s[i][0]) j++;
+    for (let k = i; k <= j; k++) r[s[k][1]] = (i + j) / 2 + 1; // ties share the average rank
+    i = j + 1;
+  }
+  return r;
+};
+const spearman = (x: number[], y: number[]) => {
+  const [rx, ry] = [ranks(x), ranks(y)];
+  const mean = (v: number[]) => v.reduce((s, n) => s + n, 0) / v.length;
+  const [mx, my] = [mean(rx), mean(ry)];
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < rx.length; i++) { sxy += (rx[i] - mx) * (ry[i] - my); sxx += (rx[i] - mx) ** 2; syy += (ry[i] - my) ** 2; }
+  return sxy / Math.sqrt(sxx * syy);
+};
+
+test('the two rank correlations in How the scores work match the data', () => {
+  const page = readFileSync(new URL('../../app/council-areas/lowest-scores/page.tsx', import.meta.url), 'utf8');
+  const written = page.match(/a rank correlation of (0\.\d\d)[^)]*\) and by life expectancy \((0\.\d\d)\)/);
+  assert.ok(written, 'the correlation sentence is in page.tsx');
+  const [, deprivation, life] = written;
+  const imdRank = imd.ranks as Record<string, number>;
+  assert.equal(AREAS.length, 294);
+  for (const a of AREAS) assert.ok(Number.isInteger(imdRank[a.slug]), `deprivation rank for ${a.slug}`);
+  const score = AREAS.map((a) => a.score);
+  // Rank 1 is the most deprived and a low score is a worse place, so the same order gives a positive correlation.
+  const withDeprivation = spearman(score, AREAS.map((a) => imdRank[a.slug]));
+  const withLife = spearman(score, AREAS.map((a) => parseFloat(a.all.find((m) => m.key === 'life_expectancy')!.figure)));
+  assert.equal(withDeprivation.toFixed(2), deprivation, `deprivation ${withDeprivation}`);
+  assert.equal(withLife.toFixed(2), life, `life expectancy ${withLife}`);
+  assert.equal(deprivation, '0.92');
+  assert.equal(life, '0.89');
 });
