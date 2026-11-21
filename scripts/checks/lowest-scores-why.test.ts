@@ -2,15 +2,16 @@
 // why.ts): the ten why sentences as Cowork checked them in audit/worst-places-415/WHY-DRAFT.md, the Hull account, the
 // weights, the item 4 check, the house rules on all 294 sentences, and no body or dataset name in the sentences or folds
 // (ENTRY 444 decisions, 21 Nov 2026 04:12, items 4 and 6), and the two rank correlations written in How the scores work
-// (T2 review, 21 Nov 2026 06:12, note 1).
+// (T2 review, 21 Nov 2026 06:12, note 1), and the police force named in each area's police sentence (T2, 06:17).
 // Run: npx tsx --test scripts/checks/lowest-scores-why.test.ts
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { AREAS, MEASURES, SOURCES } from '../../app/council-areas/lowest-scores/data';
-import { explainMeasure, plainPeriod } from '../../app/council-areas/lowest-scores/explain';
+import { explainMeasure, explainPolice, plainPeriod } from '../../app/council-areas/lowest-scores/explain';
 import { areaCovered, effects, exactScore, shareWords, weightOf, weightingCheck, weightingSentence, whyAccount, whySentence, WHY_RULE, SHARES } from '../../app/council-areas/lowest-scores/why';
 import imd from './fixtures/imd2025-rank-by-slug.json';
+import pageData from '../../app/council-areas/lowest-scores/lowest-scores.json';
 
 const area = (slug: string) => AREAS.find((a) => a.slug === slug)!;
 
@@ -145,4 +146,28 @@ test('the two rank correlations in How the scores work match the data', () => {
   assert.equal(withLife.toFixed(2), life, `life expectancy ${withLife}`);
   assert.equal(deprivation, '0.92');
   assert.equal(life, '0.89');
+});
+
+// T2 21 Nov 2026 06:17: explainPolice names the force. Status 'missing' reads 'Kent Police could not place many crimes ...'
+// and the humberside flag (on an 'own' figure) reads 'Humberside Police could not place some crimes ...', so every area
+// with either must be in that force's area. Read from the page data, lowest-scores.json.
+test('the police force named in the police sentence covers the area', () => {
+  const KENT = ['Dartford', 'Gravesham', 'Maidstone', 'Medway', 'Tonbridge and Malling', 'Tunbridge Wells'];
+  const HUMBERSIDE = ['Hull', 'North East Lincolnshire', 'North Lincolnshire', 'East Riding of Yorkshire'];
+  const areas = pageData.areas as { name: string; slug: string; police: { status: string; humberside?: boolean } }[];
+  assert.equal(areas.length, 294);
+  const missing = areas.filter((a) => a.police.status === 'missing');
+  const humberside = areas.filter((a) => a.police.humberside);
+  for (const a of missing) assert.ok(KENT.includes(a.name), `police status missing outside Kent: ${a.name}`);
+  for (const a of humberside) {
+    assert.ok(HUMBERSIDE.includes(a.name), `humberside flag outside Humberside: ${a.name}`);
+    assert.equal(a.police.status, 'own', `${a.name}: the Humberside sentence is only written on an own figure`);
+  }
+  assert.ok(missing.length > 0 && humberside.length > 0);
+  // The sentences as the page writes them name only these areas' forces.
+  for (const a of AREAS) {
+    const t = explainPolice(a);
+    if (t.includes('Kent Police')) assert.ok(KENT.includes(a.name), `${a.name}: ${t}`);
+    if (t.includes('Humberside Police')) assert.ok(HUMBERSIDE.includes(a.name), `${a.name}: ${t}`);
+  }
 });
