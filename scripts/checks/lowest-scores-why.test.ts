@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { AREAS, MEASURES, SOURCES } from '../../app/council-areas/lowest-scores/data';
-import { explainMeasure, explainPolice, plainPeriod } from '../../app/council-areas/lowest-scores/explain';
+import { explainMeasure, explainPolice, plainPeriod, shortFigure } from '../../app/council-areas/lowest-scores/explain';
 import { areaCovered, effects, exactScore, shareWords, weightOf, weightingCheck, weightingSentence, whyAccount, whySentence, WHY_RULE, SHARES } from '../../app/council-areas/lowest-scores/why';
 import imd from './fixtures/imd2025-rank-by-slug.json';
 import pageData from '../../app/council-areas/lowest-scores/lowest-scores.json';
@@ -54,8 +54,8 @@ test('Hull: crime, then fuel poverty, then gigabit broadband helped most', () =>
   const acc = whyAccount(h);
   assert.deepEqual(acc.map((p) => p.lead), ['Biggest effect: crime', 'Second biggest effect: fuel poverty', 'Helped most: gigabit broadband']);
   assert.match(acc[0].text, /4th highest of the 294 council areas \(April 2018 to March 2024\); the middle area is 147th\. Crime is 20 per cent of the overall score\.$/);
-  assert.match(acc[1].text, /^13\.5 per cent of households were in fuel poverty \(2024\), against a council area average of 9\.7 per cent: 5th worst of 294\. Fuel poverty is 20 per cent/);
-  assert.match(acc[2].text, /99\.6 per cent .*\(January 2026\).*87\.5 per cent: best of 294\. Gigabit broadband is 5 per cent/);
+  assert.match(acc[1].text, /^13\.5 per cent of households were in fuel poverty \(2024\), 3\.6 percentage points above England’s 9\.9 per cent: 5th worst of 294\. Fuel poverty is 20 per cent/);
+  assert.match(acc[2].text, /99\.6 per cent .*\(January 2026\), 11\.2 percentage points above England’s 88\.4 per cent: best of 294\. Gigabit broadband is 5 per cent/);
 });
 
 test('item 4: all ten stay in the bottom 20 under all seven weightings (nine before sewage was removed)', () => {
@@ -91,7 +91,7 @@ test('no body or dataset name in the why sentences, the Why fold or the folds of
   for (const m of MEASURES) texts.push(m.unit, m.period); // 'The 12 measures in 5 topics' fold
   for (const a of AREAS) {
     texts.push(whySentence(a), ...whyAccount(a).map((p) => `${p.lead}. ${p.text}`));
-    for (const m of a.all) texts.push(plainPeriod(m.period), explainMeasure(m, a.name)); // 'Every measure explained' fold
+    for (const m of a.all) texts.push(plainPeriod(m.period), explainMeasure(m, a)); // 'Every measure explained' fold
   }
   for (const t of texts) assert.doesNotMatch(t, BODY_RE, t);
   // Hull's fold as the reader sees it: the period only, in brackets.
@@ -170,5 +170,27 @@ test('the police force named in the police sentence covers the area', () => {
     const t = explainPolice(a);
     if (t.includes('Kent Police')) assert.ok(KENT.includes(a.name), `${a.name}: ${t}`);
     if (t.includes('Humberside Police')) assert.ok(HUMBERSIDE.includes(a.name), `${a.name}: ${t}`);
+  }
+});
+
+// Cowork ENTRY 484 (owner approved 21 Nov 2026): real numbers first, then England; per cent measures in percentage points.
+test('ENTRY 484: counts and England figures, Hull and Blackpool', () => {
+  const hull = area('hull'), bp = area('blackpool');
+  const m = (a: typeof hull, k: string) => explainMeasure(a.all.find((x) => x.key === k)!, a);
+  assert.match(m(hull, 'road_safety'), /^In 2025, 8 people were killed and 166 seriously injured on roads in Hull, 41 per cent above the England rate for an area of its size\./);
+  assert.match(m(bp, 'road_safety'), /^In 2025, 1 person was killed and 99 seriously injured on roads in Blackpool, 55 per cent above the England rate/);
+  assert.match(m(hull, 'fuel_poverty'), /^13\.5 per cent of households are in fuel poverty, 3\.6 percentage points above England’s 9\.9 per cent:/);
+  assert.match(m(hull, 'child_poverty'), /^20,601 children, 37\.2 per cent, live in low income households once housing costs are paid, 10\.1 percentage points above England’s 27\.1 per cent\./);
+  assert.match(m(hull, 'gigabit'), /^130,749 of 131,287 homes and businesses, 99\.6 per cent, can get gigabit broadband, 11\.2 percentage points above/);
+  assert.match(m(hull, 'life_expectancy'), /^A baby born in Hull can expect to live 77\.7 years, 3\.4 years less than England’s 81\.1\./);
+  assert.match(m(hull, 'schools'), /Attainment 8 score of 40\.4, 5\.7 points below England’s 46\.1:/);
+  assert.match(explainPolice(hull), /^32,936 crimes were recorded by the police in Hull, year to June 2026, 44 per cent above the England rate for an area of its size\./);
+  assert.equal(shortFigure(hull.all.find((x) => x.key === 'fuel_poverty')!, hull), '13.5 per cent (England 9.9 per cent)');
+  for (const a of AREAS) {
+    const texts = [...a.all.map((x) => explainMeasure(x, a)), ...a.all.map((x) => shortFigure(x, a)), explainPolice(a)];
+    for (const t of texts) {
+      assert.doesNotMatch([a.name, ...(a.police.with ?? [])].reduce((x, nm) => x.replaceAll(nm, ''), t), /[-‐-―%]|\(average |council area average|undefined|NaN|per 100,000/, `${a.slug}: ${t}`);
+      assert.doesNotMatch(t, /percentage points? (above|below) England’s \d+\.\d per cent.*per cent above England/, t);
+    }
   }
 });

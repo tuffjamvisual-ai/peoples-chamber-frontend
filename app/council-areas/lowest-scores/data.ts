@@ -8,7 +8,16 @@ export type Measure = { key: string; label: string; figure: string; average: str
 // ONS police recorded crime (ENTRY 436 point 1): shown for information, not scored. own: the area's own figure; combined: one
 // figure for this area and its neighbours together ('with'); missing: no reliable figure (Kent, ONS note 5).
 export type Police = { status: 'own' | 'combined' | 'missing'; figure?: string; with?: string[]; humberside?: boolean; kent?: boolean };
-export type Area = { rank: number; name: string; slug: string; type: string; score: number; topics: { label: string; score: number }[]; down: Measure[]; up: Measure[]; all: Measure[]; police: Police };
+// Counts behind the figures and their England comparison (Cowork ENTRY 484, owner approved 21 Nov 2026), from the same source
+// files (audit e484/facts484.py): road casualties in 2025 (pct: the area's rate per resident against England's, in per cent),
+// children in low income households, premises that can get gigabit broadband, and police recorded crimes.
+export type Facts = {
+  road?: { killed: number; serious: number; pct_vs_england: number };
+  child_poverty?: { count: number };
+  gigabit?: { count: number; premises: number };
+  police?: { count: number; pct_vs_england: number };
+};
+export type Area = { rank: number; name: string; slug: string; type: string; score: number; topics: { label: string; score: number }[]; down: Measure[]; up: Measure[]; all: Measure[]; police: Police; facts: Facts };
 export type MeasureInfo = { key: string; label: string; unit: string; period: string; better: string; topic: string; source: string; href: string };
 
 // No body or dataset names in the page text, only in the Sources fold (Cowork ENTRY 444 decisions, 21 Nov 2026 04:12, item 4):
@@ -29,6 +38,12 @@ export const RANKED = data.ranked as number;
 export const MEASURE_COUNT = data.measureCount as number;
 export const bySlug = new Map(AREAS.map((a) => [a.slug, a]));
 export const POLICE = data.police as { period: string; england: string };
+// England's figure for every measure, from the same source files (ENTRY 484: compare with England throughout).
+export const ENGLAND = data.england as {
+  road: { killed: number; serious: number; year: string }; police: { count: number; per_1000: number; period: string };
+  child_poverty: number; unemployment: number; fuel_poverty: number; life_expectancy: number; obesity: number; air: number;
+  gigabit: number; indoor_4g: number; schools: number;
+};
 // The council area averages of the overall and topic scores (each area counting once).
 export const AVG_SCORE = AREAS.reduce((s, a) => s + a.score, 0) / AREAS.length;
 export const AVG_TOPIC = new Map(TOPICS.map((t, i) => [t.label, AREAS.reduce((s, a) => s + a.topics[i].score, 0) / AREAS.length]));

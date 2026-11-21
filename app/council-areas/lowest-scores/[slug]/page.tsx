@@ -12,8 +12,8 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import PageSources from '../../../components/PageSources';
 import SourceNotes from '../SourceNotes';
-import { AREAS, RANKED, SOURCES, AREA_NOTES, AVG_TOPIC, bySlug, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary, type Measure } from '../data';
-import { explainMeasure, explainPolice, explainScore, measureRank, plainPeriod } from '../explain';
+import { AREAS, RANKED, SOURCES, AREA_NOTES, AVG_TOPIC, bySlug, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary, type Area, type Measure } from '../data';
+import { explainMeasure, explainPolice, explainScore, measureRank, plainPeriod, shortFigure } from '../explain';
 import { cap, plainScoreRank } from '../ranks';
 import { whySentence } from '../why';
 import WhyFold from '../WhyFold';
@@ -35,10 +35,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 const item = { ...para, lineHeight: 1.5, margin: '0 0 8px', paddingLeft: '12px' };
 
-function MeasureLine({ m, mark }: { m: Measure; mark: string }) {
+function MeasureLine({ m, a, mark }: { m: Measure; a: Area; mark: string }) {
   return (
     <li style={{ ...item, borderLeft: `3px solid ${mark}` }}>
-      <strong>{m.label}</strong>: {m.key === 'crime' ? cap(measureRank(m)) : <>{m.figure} (average {m.average}); {measureRank(m)}</>}
+      <strong>{m.label}</strong>: {m.key === 'crime' ? cap(measureRank(m)) : <>{shortFigure(m, a)}; {measureRank(m)}</>}
     </li>
   );
 }
@@ -78,13 +78,13 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
 
         <section aria-label="Pulling it down most" style={{ marginBottom: '22px' }}>
           <h2 style={h2}>Pulling it down most</h2>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{a.down.map((m) => <MeasureLine key={m.key} m={m} mark={ACCENT} />)}</ul>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{a.down.map((m) => <MeasureLine key={m.key} m={m} a={a} mark={ACCENT} />)}</ul>
         </section>
         <section aria-label="Pulling it up most" style={{ marginBottom: '22px' }}>
           <h2 style={h2}>Pulling it up most</h2>
           {/* Only measures better than the middle of the 294 (score above 50) count as pulling it up (Cowork, 18:34). */}
           {a.up.length > 0
-            ? <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{a.up.map((m) => <MeasureLine key={m.key} m={m} mark={INK_HAIRLINE} />)}</ul>
+            ? <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>{a.up.map((m) => <MeasureLine key={m.key} m={m} a={a} mark={INK_HAIRLINE} />)}</ul>
             : <p style={para}>No measure is better than the middle of the 294.</p>}
         </section>
 
@@ -94,7 +94,7 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
           <p style={para}>{explainPolice(a)}</p>
         </section>
 
-        {/* Every measure, one short paragraph each: what the figure means, the council area average and a plain rank
+        {/* Every measure, one short paragraph each: what the figure means, England's figure (ENTRY 484) and a plain rank
             (ENTRY 436 points 2 and 3), then its score out of 100; paragraphs, not a list, so the shared phone script leaves
             them whole. In a fold, closed as the page opens, so the page keeps to the 2,500px phone limit (A3). */}
         <OpenFoldOnHash />
@@ -109,7 +109,7 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
               <h3 style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 4px' }}>{t.label}: score {t.score.toFixed(1)} (average {(AVG_TOPIC.get(t.label) ?? 50).toFixed(1)})</h3>
               {a.all.filter((m) => m.topic === t.label).map((m) => (
                 <p key={m.key} style={{ ...para, lineHeight: 1.45, margin: '0 0 8px' }}>
-                  <strong>{m.label}</strong> ({plainPeriod(m.period)}), score {m.score.toFixed(1)}: {explainMeasure(m, a.name)}
+                  <strong>{m.label}</strong> ({plainPeriod(m.period)}), score {m.score.toFixed(1)}: {explainMeasure(m, a)}
                 </p>
               ))}
             </div>

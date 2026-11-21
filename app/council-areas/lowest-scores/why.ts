@@ -7,7 +7,7 @@
 //                 'Below average on all five topics.' when every topic score is under 50 (the council area average of
 //                 every topic score is 50, as the scores are rank based).
 //   whyAccount    (item 3(b)) the measure with the biggest effect, the second, and the one that helped most, each with
-//                 its figure, the council area average, a plain rank, its share of the overall score and the period
+//                 its figure, England’s figure, a plain rank, its share of the overall score and the period
 //                 (no body or dataset name: those are in the Sources fold; ENTRY 444 decisions, 21 Nov 04:12, item 4).
 //                 Effect = (50 minus the measure's score) times its share: the points it takes off the overall score
 //                 against a middle area (50 on every measure); the most negative helped most.
@@ -21,6 +21,7 @@
 import type { Area, Measure } from './data';
 import { AREAS, MEASURES, TOPICS } from './data';
 import { cap, ordinal, plainRank } from './ranks';
+import { roadCounts, vsEngland } from './explain';
 
 const num = (s: string) => s.split(' ')[0];
 const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
@@ -83,7 +84,7 @@ function crimeWords(m: Measure, place: string): string {
 
 /** A measure's figure in plain words, as a clause: '13.5 per cent of households were in fuel poverty'. When it is the
  *  worst figure of the 294 it says so (', the highest of the 294'). */
-export function figureWords(m: Measure, place: string): string {
+export function figureWords(m: Measure, place: string, a?: Area): string {
   if (m.key === 'crime') return crimeWords(m, place);
   const f = num(m.figure);
   let s: string;
@@ -97,7 +98,12 @@ export function figureWords(m: Measure, place: string): string {
     case 'gigabit': s = `${f} per cent of homes and businesses could get gigabit broadband`; break;
     case 'indoor_4g': s = `${f} per cent of homes and businesses had indoor 4G from all four networks`; break;
     case 'schools': s = `pupils averaged an Attainment 8 score of ${f} at GCSE`; break;
-    case 'road_safety': s = `${f} in every 100,000 people were killed or seriously injured on the roads`; break;
+    case 'road_safety': {
+      // ENTRY 484: counts, not a rate per 100,000; the rate's rank is not attached to counts.
+      const c = a ? roadCounts(a) : null;
+      if (c) return `${c} on the roads`;
+      s = `${f} in every 100,000 people were killed or seriously injured on the roads`; break;
+    }
     default: s = `${m.label.toLowerCase()} was ${m.figure}`;
   }
   if (m.rank === 1) s += `, the ${(m.tie ?? 1) > 1 ? 'joint ' : ''}${BETTER.get(m.key) === 'higher' ? 'lowest' : 'highest'} of the ${m.of}`;
@@ -117,8 +123,8 @@ export function whySentence(a: Area): string {
   if (t2.score < 50) lead = `${cap(pair)} pulled the score down most.`;
   else if (t1.score < 50) lead = `${cap(topicName(t1.label))} pulled the score down most, then ${topicName(t2.label)}.`;
   else lead = `${cap(pair)} were its two lowest topics.`;
-  const c1 = figureWords(lowestMeasure(a, t1.label), a.name);
-  const c2 = figureWords(lowestMeasure(a, t2.label), a.name);
+  const c1 = figureWords(lowestMeasure(a, t1.label), a.name, a);
+  const c2 = figureWords(lowestMeasure(a, t2.label), a.name, a);
   return `${allBelow ? 'Below average on all five topics. ' : ''}${lead} ${cap(c1)}, and ${c2}.`;
 }
 
@@ -141,8 +147,9 @@ export function effects(a: Area): Effect[] {
 const plainPeriod = (p: string) => p.replace(' (', ', ').replace(')', '');
 
 export type AccountPart = { lead: string; text: string };
-/** One measure's lines: figure (with its period beside it), council area average, plain rank, share. */
-function partFor(e: Effect, lead: string, place: string): AccountPart {
+/** One measure's lines: figure (with its period beside it), England's figure (ENTRY 484), plain rank, share. */
+function partFor(e: Effect, lead: string, a: Area): AccountPart {
+  const place = a.name;
   const { m } = e;
   const where = `(${plainPeriod(m.period)})`;
   const share = `${m.label} is ${shareWords(e.weight)} of the overall score.`;
@@ -151,7 +158,7 @@ function partFor(e: Effect, lead: string, place: string): AccountPart {
     return { lead, text: `${place}’s crime score was the ${rank.replace(/ of \d+$/, '')} of the ${m.of} council areas ${where}; the middle area is ${ordinal(Math.ceil(m.of / 2))}. ${share}` };
   }
   const rank = plainRank(m.rank, m.of, 'worst', 'best', m.tie);
-  return { lead, text: `${cap(figureWords({ ...m, rank: 0 }, place))} ${where}, against a council area average of ${m.average}: ${rank}. ${share}` };
+  return { lead, text: `${cap(figureWords({ ...m, rank: 0 }, place, a))} ${where}, ${vsEngland(m, a)}: ${rank}. ${share}` };
 }
 
 /** The account in the ENTRY's order: biggest effect, second, helped most. */
@@ -160,10 +167,10 @@ export function whyAccount(a: Area): AccountPart[] {
   const down = list.filter((e) => e.effect > 0);
   const up = [...list].reverse().find((e) => e.effect < 0);
   const out: AccountPart[] = [];
-  if (down[0]) out.push(partFor(down[0], `Biggest effect: ${down[0].m.label.toLowerCase()}`, a.name));
-  if (down[1]) out.push(partFor(down[1], `Second biggest effect: ${down[1].m.label.toLowerCase()}`, a.name));
+  if (down[0]) out.push(partFor(down[0], `Biggest effect: ${down[0].m.label.toLowerCase()}`, a));
+  if (down[1]) out.push(partFor(down[1], `Second biggest effect: ${down[1].m.label.toLowerCase()}`, a));
   if (!down.length) out.push({ lead: 'Biggest effect', text: `No measure is worse than the middle of the ${a.all[0].of}.` });
-  out.push(up ? partFor(up, `Helped most: ${up.m.label.toLowerCase()}`, a.name) : { lead: 'Helped most', text: `No measure is better than the middle of the ${a.all[0].of}.` });
+  out.push(up ? partFor(up, `Helped most: ${up.m.label.toLowerCase()}`, a) : { lead: 'Helped most', text: `No measure is better than the middle of the ${a.all[0].of}.` });
   return out;
 }
 
