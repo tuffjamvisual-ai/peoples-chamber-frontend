@@ -20,7 +20,7 @@ import PageSources from '../../components/PageSources';
 import SourceNotes from './SourceNotes';
 import FindYourArea from './FindYourArea';
 import LsMore from './LsMore';
-import { AREAS, HEADLINE, topicHeading, MEASURES, TOPICS, RANKED, MEASURE_COUNT, SOURCES, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary } from './data';
+import { AREAS, HEADLINE, topicHeading, townsLine, MEASURES, TOPICS, RANKED, MEASURE_COUNT, SOURCES, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary } from './data';
 import { ordinal, plainScoreRank } from './ranks';
 import { englandFigure } from './explain';
 import { areaCovered, firstAgainstSecond, tiesNotes, whySentence, weightingCheck, weightingSentence, SHARES, countWord } from './why';
@@ -40,6 +40,7 @@ const LOWEST10 = AREAS.slice(0, 10);
 // The row's one link (owner rule A10), its text 'Why Hyndburn ranks ninth' (Cowork ENTRY 493 item 8); the name is plain.
 // ENTRY 493 (5) and (6): why 1st is below 2nd (in row 2) and the ties (in the last tied row), built from the data.
 const TIES = tiesNotes(10);
+const FIRST_POINTER = `Why ${AREAS[0].name} is below ${AREAS[1].name}: see How the scores work, below.`;
 const POSITION = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
 const CHECK = weightingCheck();
 
@@ -56,6 +57,7 @@ const TABLE_CSS = `
 .ls-ten th, .ls-ten td { text-align: left; vertical-align: top; padding: 10px 14px 8px 0; line-height: 1.45; font-weight: normal; }
 .ls-ten thead th { text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1.5px solid ${INK}; padding-bottom: 6px; }
 .ls-ten tr.ls-row > * { border-top: 1px solid ${INK_HAIRLINE}; }
+.ls-ten .ls-towns { display: block; margin-top: 4px; font-family: ${SERIF}; font-size: 15px; font-weight: normal; line-height: 1.45; }
 .ls-ten .ls-note { display: block; margin-top: 6px; font-size: 15px; font-style: italic; }
 .ls-ten tr.ls-row > th { font-family: ${SERIF}; font-size: 18px; font-weight: bold; width: 19%; }
 .ls-ten .ls-area { width: 18%; }
@@ -135,14 +137,15 @@ export default function LowestScoresPage() {
                   <th scope="row">
                     {a.rank}.{' '}
                     {a.name}
+                    <span className="ls-towns">{townsLine(a)}</span>
                   </th>
                   <td className="ls-area">{areaCovered(a.name, a.type)}</td>
                   <td className="ls-score">{scoreLine(a.score, a.rank)}</td>
                   <td className="ls-whyc">
                     {whySentence(a)}{' '}
                     <Link href={`/council-areas/lowest-scores/${a.slug}#why`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Why {a.name} ranks {POSITION[a.rank - 1] ?? ordinal(a.rank)}</Link>
-                    <span className="ls-meta">{areaCovered(a.name, a.type)} · {scoreLine(a.score, a.rank)}</span>
-                    {a.rank === 2 && <span className="ls-note">{firstAgainstSecond()}</span>}
+                    <span className="ls-meta">{scoreLine(a.score, a.rank)}</span>
+                    {a.rank === 2 && <span className="ls-note">{FIRST_POINTER}</span>}
                     {TIES.filter((t) => t.after === a.slug).map((t) => <span key={t.text} className="ls-note">{t.text}</span>)}
                   </td>
                 </tr>
@@ -168,6 +171,8 @@ export default function LowestScoresPage() {
             <p style={para}>
               Each measure is scored from 0 to 100 by where the council area sits among all {RANKED}: the best figure scores 100, the worst 0, and areas with the same figure share a score. A topic&apos;s score is the average of its measures; the overall score is the average of the five topics, so each topic counts a fifth. We use published official figures, including official estimates. We do not fill gaps or give county figures to districts. City of London and the Isles of Scilly are too small to compare fairly.
              Crime is the government&apos;s crime score for each council area, built from crimes recorded by the police from April 2018 to March 2024 (violence, stalking and harassment, burglary, theft other than shoplifting, criminal damage, public order and weapons offences) and antisocial behaviour incidents from April 2022 to March 2024. The government ranks 296 council areas on it, including City of London and the Isles of Scilly; here crime is ranked among the 294, like every other measure. This is not the <Link href="/councils/league-table" style={{ color: INK }}>council area league table</Link>, which uses more measures, including some published only for counties, so the order is different.</p>
+            {/* ENTRY 493 (5), owner's height decision (c) 16:50: why the lowest is below the second, here, with a pointer in the list. */}
+            <p style={para}>{firstAgainstSecond()}</p>
             {/* ENTRY 444 items 2, 3(b) and 4: the rules behind the why sentences and the Why folds, and the checks. No body or
                 dataset names here (ENTRY 444 decisions item 4); the deprivation check's source is in the Sources fold. */}
             <p style={para}>

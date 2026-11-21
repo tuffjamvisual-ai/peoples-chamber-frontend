@@ -17,7 +17,7 @@ export type Facts = {
   gigabit?: { count: number; premises: number };
   police?: { count: number; pct_vs_england: number };
 };
-export type Area = { rank: number; name: string; slug: string; type: string; score: number; topics: { label: string; score: number }[]; down: Measure[]; up: Measure[]; all: Measure[]; police: Police; facts: Facts; exact: number };  // exact: the unrounded overall score, which sets the order (ENTRY 493 (5), (6))
+export type Area = { rank: number; name: string; slug: string; type: string; score: number; topics: { label: string; score: number }[]; down: Measure[]; up: Measure[]; all: Measure[]; police: Police; facts: Facts; exact: number; towns: string[]; covers: string };  // exact: the unrounded overall score, which sets the order (ENTRY 493 (5), (6))
 export type MeasureInfo = { key: string; label: string; unit: string; period: string; better: string; topic: string; source: string; href: string };
 
 // No body or dataset names in the page text, only in the Sources fold (Cowork ENTRY 444 decisions, 21 Nov 2026 04:12, item 4):
@@ -39,6 +39,17 @@ export const MEASURE_COUNT = data.measureCount as number;
 export const bySlug = new Map(AREAS.map((a) => [a.slug, a]));
 // The housing topic holds one measure, fuel poverty, so it is named for it (Cowork ENTRY 493 item 7): 'Housing: fuel
 // poverty' in headings, 'housing (fuel poverty)' in running text. The data keeps 'Housing' as the topic key.
+// 'Includes Accrington, Great Harwood, Oswaldtwistle and Clayton-le-Moors. The score covers the whole borough.' (Cowork ENTRY
+// 493 item 9, owner approved 16:45): the four largest built up areas whose largest share of 2021 residents is in the area
+// (ONS BUA 2022 to LAD lookup and Census 2021 residents; audit/lowest-scores-493/towns493.py). A name that has 'and' in it
+// takes a comma before the last 'and', so the list still reads clearly.
+export function townsLine(a: Area): string {
+  const t = a.towns;
+  const covers = `The score covers the whole ${a.covers}.`;
+  if (!t.length) return covers;
+  const last = t.length > 1 ? `${t.slice(0, -1).join(', ')}${t.slice(0, -1).some((x) => x.includes(' and ')) || t[t.length - 1].includes(' and ') ? ',' : ''} and ${t[t.length - 1]}` : t[0];
+  return `Includes ${last}. ${covers}`;
+}
 export const topicHeading = (label: string) => (label === 'Housing' ? 'Housing: fuel poverty' : label);
 // The page headline (owner approved, Cowork ENTRY 493 item 1, 21 Nov 2026): the two lowest areas, built from the data,
 // never written in by hand. Used by the page title and h1, its metadata and share image, and the homepage box.
@@ -72,6 +83,9 @@ export const SOURCES = [...MEASURES.reduce((m, x) => {
 export const SOURCE_COUNT = SOURCES.length;
 SOURCES.push({ label: 'Population (for road safety per resident): ONS mid-2025 population estimates', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates' });
 // The police recorded crime figure on each area page is shown, not scored (ENTRY 436), so it is not counted either.
+// Towns line under each area name (Cowork ENTRY 493 item 9): the two ONS sources it is built from.
+SOURCES.push({ label: 'Towns under each area name: ONS, Built Up Area (2022) to Local Authority District (December 2022) lookup, and Output Area (2021) to Built Up Area to Local Authority District best fit lookup', href: 'https://geoportal.statistics.gov.uk/' });
+SOURCES.push({ label: 'Residents of each built up area: ONS, Census 2021, TS001 Number of usual residents (by output area)', href: 'https://www.nomisweb.co.uk/sources/census_2021_bulk' });
 SOURCES.push({ label: 'Police recorded crime (shown on each area page, not scored): ONS, Police force area data tables, year ending June 2026, tables C1 to C4 (Community Safety Partnerships), P1 and P3 (England); rates per 1,000 residents on ONS mid-2024 population estimates for the areas (Table C4) and mid-2025 for England (Table P3)', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/policeforceareadatatables' });
 // One plain line for an area whose rank readers are likely to question (Cowork ENTRY 415 v3b PICTURES: Blackpool).
 export const AREA_NOTES: Record<string, string> = {

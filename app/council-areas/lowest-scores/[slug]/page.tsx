@@ -12,7 +12,7 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import PageSources from '../../../components/PageSources';
 import SourceNotes from '../SourceNotes';
-import { AREAS, topicHeading, RANKED, SOURCES, AREA_NOTES, AVG_TOPIC, bySlug, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary, type Area, type Measure } from '../data';
+import { AREAS, topicHeading, townsLine, RANKED, SOURCES, AREA_NOTES, AVG_TOPIC, bySlug, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary, type Area, type Measure } from '../data';
 import { explainMeasure, explainPolice, explainScore, measureRank, plainPeriod, shortFigure } from '../explain';
 import { cap, plainScoreRank } from '../ranks';
 import { whySentence } from '../why';
@@ -56,6 +56,7 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
             {a.type} · council area
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, lineHeight: 1.18, margin: 0 }}>{a.name}</h1>
+          <div style={{ fontFamily: SERIF, fontSize: '16px', lineHeight: 1.5, marginTop: '6px' }}>{townsLine(a)}</div>
           <div style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
             {cap(plainScoreRank(a.rank, RANKED))} · score {a.score.toFixed(1)} out of 100
           </div>

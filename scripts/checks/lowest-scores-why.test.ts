@@ -209,3 +209,12 @@ test('ENTRY 493: why 1st is below 2nd, and the ties among the ten', () => {
   // The order follows the unrounded score.
   for (let i = 1; i < AREAS.length; i++) assert.ok(AREAS[i - 1].exact <= AREAS[i].exact, AREAS[i].slug);
 });
+
+// Cowork ENTRY 493 item 9 (owner approved 16:45): the towns line under each area name.
+import { townsLine } from '../../app/council-areas/lowest-scores/data';
+test('ENTRY 493: towns line, built from the two ONS sources', () => {
+  assert.equal(townsLine(area('hyndburn')), 'Includes Accrington, Great Harwood, Oswaldtwistle and Clayton-le-Moors. The score covers the whole borough.');
+  assert.equal(townsLine(area('north-east-lincolnshire')), 'Includes Grimsby, Cleethorpes, Humberston and New Waltham, and Immingham. The score covers the whole council area.');
+  for (const a of AREAS) assert.match(townsLine(a), /The score covers the whole (borough|city|district|council area)\.$/, a.slug);
+  assert.ok(SOURCES.some((s) => s.label.startsWith('Towns under each area name: ONS')), 'towns source in the Sources fold');
+});
