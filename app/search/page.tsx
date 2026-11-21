@@ -20,7 +20,8 @@ import { cachedOrganisationList, searchOrganisations, type OrgListRow } from '@/
 import { phoneUpTo } from '@/lib/breakpoints';
 import { searchDirectory, type DirectoryPage } from '@/lib/directory';
 import { queryNames, type QueryNames, type SpadHit } from '@/lib/search/name-index';
-import { keptWords, nameLeads } from '@/lib/search/query-understanding';
+import { keptWords, mostlyDate, nameLeads } from '@/lib/search/query-understanding';
+import { yearListPage } from '@/lib/search/year-list';
 import MeaningResults from './MeaningResults';
 import { seenKey } from '@/lib/meaning/kinds';
 
@@ -390,7 +391,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
   // match every word, the words beside a name found in the query ('salary' in 'shabana mahmood salary'), then the words
   // without filler ('councils' in 'how many councils are there in the uk').
   const kept = keptWords(q).join(' ');
-  const pages = !inAll ? [] : [q, named.found?.rest ?? '', kept].reduce<DirectoryPage[]>((got, t) => (got.length || !t.trim() ? got : searchDirectory(t, PAGES_SHOWN)), []);
+  const directoryPages = !inAll ? [] : [q, named.found?.rest ?? '', kept].reduce<DirectoryPage[]>((got, t) => (got.length || !t.trim() ? got : searchDirectory(t, PAGES_SHOWN)), []);
+  // 'pmq 1965', 'votes june 2024' (Cowork ENTRY 489): that year's (or month's) list leads, before every other result.
+  const yearPage = inAll ? await yearListPage(q) : null;
+  const pages = yearPage ? [yearPage, ...directoryPages.filter((p) => p.href !== yearPage.href)].slice(0, Math.max(PAGES_SHOWN, 1)) : directoryPages;
   const orgMatches = orgList.length ? searchOrganisations(orgList, rq, { wordStart: true }) : [];
   const orgs = orgMatches.slice(0, shown);
   const linkedDonors = donorSearch.results.filter((d) => d.slug);
@@ -405,7 +409,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const results = [...strict, ...loose.results];
   const hasRecords = seats.length + mps.length + peers.length + spads.length + councils.length + orgs.length + donors.length > 0;
   // A name found inside the query (or the place for an area code) leads: the records come before the pages.
-  const recordsFirst = !!named.found && hasRecords;
+  const recordsFirst = !!named.found && hasRecords && !yearPage;
   // The first group of results shown, which stays open on phones (UX2q); every later one is folded there.
   type Group = 'pages' | 'seats' | 'mps' | 'peers' | 'spads' | 'councils' | 'orgs' | 'donors' | 'content';
   const recordGroups: [Group, number][] = [['seats', seats.length], ['mps', mps.length], ['peers', peers.length], ['spads', spads.length], ['councils', councils.length], ['orgs', orgs.length], ['donors', donors.length]];
@@ -451,7 +455,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const plain = (t: string) => t.toLowerCase().replace(/["']/g, '').replace(/\s+/g, ' ').trim();
   const isRecordName = [...mps.map((r) => r.title), ...peers.map((p) => p.name), ...seats.map((c) => c.name), ...councils.map((c) => c.name),
     ...orgs.map((o) => o.name), ...donors.map((d) => d.name), ...spads.map((a) => a.name)].some((n) => plain(n) === plain(q));
-  const meaningOn = inAll && !isRecordName && !didYouMeanLine;
+  // A query that is mostly a year or a date has no meaning to match (ENTRY 489: 'pmq 1965' showed 2025 debates).
+  const meaningOn = inAll && !isRecordName && !didYouMeanLine && !mostlyDate(q);
   const meaningSeen = meaningOn ? [...new Set([
     ...pages.map((p) => p.href), ...seats.map((c) => `/constituencies/${c.slug}`), ...mps.map((r) => r.url), ...peers.map((p) => p.href),
     ...spads.map((s) => s.href), ...councils.map((c) => `/councils/${c.slug}`), ...orgs.map((o) => `/organisations/${o.slug}`),

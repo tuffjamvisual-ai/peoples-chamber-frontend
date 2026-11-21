@@ -101,3 +101,21 @@ test('close names: an MP before a donor of the same score', () => {
   assert.deepEqual(orderCloseNames(live).map((r) => r.kind + ':' + r.name.trim()), ['mp:Mrs Kemi Badenoch', 'donor:Kemi Badenoch', 'donor:Hamish A Badenoch', 'donor:BAA']);
   assert.equal(nameLeads('badnoch', 'badenoch', 'Mrs Kemi Badenoch'), true);
 });
+
+// Cowork ENTRY 489: PMQs or votes with a year lead with that year's list; topic words keep the topic search.
+import { yearListFor, mostlyDate } from '../../lib/search/query-understanding';
+test('ENTRY 489: PMQs and votes with a year or month', () => {
+  assert.deepEqual(yearListFor('pmq 1965'), { kind: 'pmqs', year: 1965, month: null });
+  assert.deepEqual(yearListFor('pmqs march 1965'), { kind: 'pmqs', year: 1965, month: 3 });
+  assert.deepEqual(yearListFor('pmq 1950'), { kind: 'pmqs', year: 1950, month: null });
+  assert.deepEqual(yearListFor("Prime Minister\u2019s Questions 2019"), { kind: 'pmqs', year: 2019, month: null });
+  assert.deepEqual(yearListFor('questions to the prime minister in 1950'), { kind: 'pmqs', year: 1950, month: null });
+  assert.deepEqual(yearListFor('mar 1965 pmq'), { kind: 'pmqs', year: 1965, month: 3 });
+  assert.deepEqual(yearListFor('votes 2019'), { kind: 'divisions', year: 2019, month: null });
+  assert.deepEqual(yearListFor('divisions june 2024'), { kind: 'divisions', year: 2024, month: 6 });
+  for (const q of ['pmqs housing 1965', 'pmqs', 'debates 2020', 'housing 1965', 'pmq 1965 1966', '1965']) assert.equal(yearListFor(q), null, q);
+});
+test('ENTRY 489: Related by meaning is left out for a query that is mostly a date', () => {
+  for (const q of ['pmq 1965', '1965', 'march 1965', 'debates 2020', 'votes june 2024']) assert.equal(mostlyDate(q), true, q);
+  for (const q of ['housing 1965', 'pmqs housing', 'nhs waiting lists', 'covid 2020 inquiry']) assert.equal(mostlyDate(q), false, q);
+});

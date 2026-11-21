@@ -193,3 +193,47 @@ export function orderCloseNames<T extends { kind: string; name: string; score?: 
     .sort((a, b) => b.s - a.s || (rank[a.r.kind] ?? 9) - (rank[b.r.kind] ?? 9) || a.i - b.i)
     .map((x) => x.r);
 }
+
+// ---- PMQs or votes with a year (Cowork ENTRY 489, owner approved 21 Nov 2026) ----
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+// A month by its name or first three letters or more ('mar', 'march'); 'may' is itself a month.
+const monthOfWord = (w: string) => (w.length < 3 ? 0 : MONTHS.findIndex((m) => m.startsWith(w)) + 1);
+const PMQS_RE = /\b(pmqs?|prime\s+minister'?s?\s+questions?|questions?\s+to\s+the\s+prime\s+minister)\b/;
+const VOTES_RE = /\b(divisions?|votes?|voting)\b/;
+const DATE_FILLER = new Set(['in', 'of', 'the', 'on', 'for', 'during', 'from', 'all', 'list', 'every', 'session', 'sessions', 'commons']);
+
+// Section names that, beside a date, still make the query a date ('debates 2020', 'hansard march 1965').
+const SECTION_WORDS = new Set(['pmq', 'pmqs', 'debate', 'debates', 'hansard', 'vote', 'votes', 'division', 'divisions', 'prime', 'minister', 'ministers', 'questions', 'question']);
+
+export type YearList = { kind: 'pmqs' | 'divisions'; year: number; month: number | null };
+
+/**
+ * 'pmq 1965', 'pmqs march 1965', 'prime minister's questions 1950', 'votes 2019', 'divisions june 2024': the year (and
+ * month) list the search should lead with. Only when the query is that and nothing else besides filler words, so
+ * 'pmqs housing 1965' still searches for housing. Null otherwise. Debates have no year pages, so they are not matched.
+ */
+export function yearListFor(q: string): YearList | null {
+  const s = q.toLowerCase().replace(/[’`]/g, "'").replace(/\s+/g, ' ').trim();
+  const kind = PMQS_RE.test(s) ? 'pmqs' : VOTES_RE.test(s) ? 'divisions' : null;
+  if (!kind) return null;
+  const rest = s.replace(kind === 'pmqs' ? PMQS_RE : VOTES_RE, ' ').replace(/[^a-z0-9 ]/g, ' ').split(' ').filter(Boolean);
+  const years = rest.filter((w) => /^(19|20)\d\d$/.test(w));
+  if (years.length !== 1) return null;
+  let month: number | null = null;
+  for (const w of rest) {
+    if (w === years[0] || DATE_FILLER.has(w)) continue;
+    const m = monthOfWord(w);
+    if (m && month === null) { month = m; continue; }
+    return null; // another word: a topic search, not a date list
+  }
+  return { kind, year: Number(years[0]), month };
+}
+
+/** True when the query is mostly a year or a date ('1965', 'pmq 1965', 'march 1965'): 'Related by meaning' is then
+ *  left out, because a date has no meaning to match and the nearest texts are unrelated recent debates. */
+export function mostlyDate(q: string): boolean {
+  if (yearListFor(q)) return true;
+  const ws = q.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(' ').filter(Boolean);
+  if (!ws.some((w) => /^(19|20)\d\d$/.test(w))) return false;
+  return ws.every((w) => /^\d{1,4}$/.test(w) || monthOfWord(w) > 0 || DATE_FILLER.has(w) || SECTION_WORDS.has(w));
+}
