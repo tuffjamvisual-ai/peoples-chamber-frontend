@@ -46,7 +46,7 @@ export const bySlug = new Map(AREAS.map((a) => [a.slug, a]));
 export function townsLine(a: Area): string {
   const t = a.towns;
   const covers = `The score covers the whole ${a.covers}.`;
-  if (!t.length) return covers;
+  if (t.length < 2) return covers; // one town areas (Hull, Blackpool): only the coverage line (Cowork 16:56)
   const last = t.length > 1 ? `${t.slice(0, -1).join(', ')}${t.slice(0, -1).some((x) => x.includes(' and ')) || t[t.length - 1].includes(' and ') ? ',' : ''} and ${t[t.length - 1]}` : t[0];
   return `Includes ${last}. ${covers}`;
 }
