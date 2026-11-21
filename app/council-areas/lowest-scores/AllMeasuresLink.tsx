@@ -3,7 +3,7 @@
 // (<details id="all-measures">) and scrolls to it. Without JavaScript the link still goes to the fold's heading, where one
 // tap opens it. Not in a <p>, so the shared phone script does not mark it as a lone link before React hydrates (see
 // SourceNotes.tsx); its own 44px tap height instead. OpenFoldOnHash opens a fold when the page is reached with its id as
-// the hash: #all-measures, and #why from the main page's 'Why <place> ranks here' links (ENTRY 444 decisions item 1).
+// the hash: #all-measures, and #why from the place name links on the main page (ENTRY 444 decisions item 1).
 import { useEffect } from 'react';
 
 export const ALL_MEASURES_ID = 'all-measures';
