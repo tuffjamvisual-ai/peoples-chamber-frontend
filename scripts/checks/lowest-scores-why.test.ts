@@ -1,11 +1,13 @@
 // The 'why it ranks here' generator for /council-areas/lowest-scores (Cowork ENTRY 444, app/council-areas/lowest-scores/
 // why.ts): the ten why sentences as Cowork checked them in audit/worst-places-415/WHY-DRAFT.md, the Hull account, the
-// weights, the item 4 check, and the house rules on all 294 sentences.
+// weights, the item 4 check, the house rules on all 294 sentences, and no body or dataset name in the sentences or folds
+// (ENTRY 444 decisions, 21 Nov 2026 04:12, items 4 and 6).
 // Run: npx tsx --test scripts/checks/lowest-scores-why.test.ts
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { AREAS } from '../../app/council-areas/lowest-scores/data';
-import { areaCovered, effects, exactScore, shareWords, weightOf, weightingCheck, weightingSentence, whyAccount, whySentence } from '../../app/council-areas/lowest-scores/why';
+import { AREAS, MEASURES, SOURCES } from '../../app/council-areas/lowest-scores/data';
+import { explainMeasure, plainPeriod } from '../../app/council-areas/lowest-scores/explain';
+import { areaCovered, effects, exactScore, shareWords, weightOf, weightingCheck, weightingSentence, whyAccount, whySentence, WHY_RULE, SHARES } from '../../app/council-areas/lowest-scores/why';
 
 const area = (slug: string) => AREAS.find((a) => a.slug === slug)!;
 
@@ -30,7 +32,9 @@ test('exact scores match the page data and the weights match the method', () => 
   assert.equal(weightOf('Crime'), 0.2);
   assert.equal(weightOf('Housing'), 0.2);
   assert.equal(weightOf('Health'), 0.1);
-  assert.equal(shareWords(weightOf('Money, work and schools')), '6 2/3 per cent');
+  assert.equal(shareWords(weightOf('Money, work and schools')), '6.7 per cent');
+  assert.equal(shareWords(weightOf('Health')), '10 per cent');
+  assert.equal(shareWords(weightOf('Crime')), '20 per cent');
   assert.equal(shareWords(weightOf('Environment and connectivity')), '4 per cent');
   // The weighted sum of the exact measure scores is the overall score.
   for (const a of AREAS) assert.ok(Math.abs(a.all.reduce((s, m) => s + exactScore(m) * weightOf(m.topic), 0) - a.score) < 0.051, a.slug);
@@ -44,9 +48,9 @@ test('Hull: crime, then fuel poverty, then gigabit broadband helped most', () =>
   assert.equal(e[1].effect.toFixed(2), '9.73');
   const acc = whyAccount(h);
   assert.deepEqual(acc.map((p) => p.lead), ['Biggest effect: crime', 'Second biggest effect: fuel poverty', 'Helped most: gigabit broadband']);
-  assert.match(acc[0].text, /4th highest of the 294 council areas \(Indices of Deprivation 2025, crimes April 2018 to March 2024, MHCLG\)/);
-  assert.match(acc[1].text, /^13\.5 per cent of households were in fuel poverty \(2024, DESNZ\), against a council area average of 9\.7 per cent: 5th worst of 294\. Fuel poverty is 20 per cent/);
-  assert.match(acc[2].text, /99\.6 per cent .*\(January 2026, Ofcom\).*87\.5 per cent: best of 294\. Gigabit broadband is 4 per cent/);
+  assert.match(acc[0].text, /4th highest of the 294 council areas \(April 2018 to March 2024\); the middle area is 147th\. Crime is 20 per cent of the overall score\.$/);
+  assert.match(acc[1].text, /^13\.5 per cent of households were in fuel poverty \(2024\), against a council area average of 9\.7 per cent: 5th worst of 294\. Fuel poverty is 20 per cent/);
+  assert.match(acc[2].text, /99\.6 per cent .*\(January 2026\).*87\.5 per cent: best of 294\. Gigabit broadband is 4 per cent/);
 });
 
 test('item 4: nine of the ten stay in the bottom 20 under all seven weightings', () => {
@@ -70,4 +74,30 @@ test('house rules on all 294 sentences and accounts', () => {
   }
   assert.equal(areaCovered('Burnley', 'District council'), 'Burnley, district council area');
   assert.equal(areaCovered('Hull', 'Unitary authority'), 'Hull, unitary authority');
+});
+
+// ENTRY 444 decisions item 4: body and dataset names only in the Sources fold.
+const BODIES = ['DESNZ', 'MHCLG', 'Ofcom', 'ONS', 'Indices of Deprivation', 'OHID', 'DfE', 'DWP', 'Environment Agency', 'Home Office', 'Police', 'DfT', 'UKHSA', 'Office for National Statistics', 'Fingertips', 'Active Lives', 'Connected Nations', 'Nomis', 'STATS19'];
+const BODY_RE = new RegExp(`\\b(${BODIES.join('|')})\\b`);
+
+test('no body or dataset name in the why sentences, the Why fold or the folds of figures', () => {
+  assert.match('Crime: MHCLG, English Indices of Deprivation 2025', BODY_RE); // the check itself catches them
+  const texts: string[] = [WHY_RULE, ...SHARES.map((t) => t.share)];
+  for (const m of MEASURES) texts.push(m.unit, m.period); // 'The 12 measures in 5 topics' fold
+  for (const a of AREAS) {
+    texts.push(whySentence(a), ...whyAccount(a).map((p) => `${p.lead}. ${p.text}`));
+    for (const m of a.all) texts.push(plainPeriod(m.period), explainMeasure(m, a.name)); // 'Every measure explained' fold
+  }
+  for (const t of texts) assert.doesNotMatch(t, BODY_RE, t);
+  // Hull's fold as the reader sees it: the period only, in brackets.
+  const hull = whyAccount(area('hull')).map((p) => p.text).join(' ');
+  for (const p of ['(April 2018 to March 2024)', '(2024)', '(January 2026)']) assert.ok(hull.includes(p), p);
+});
+
+test('every source behind the figures is in the Sources fold', () => {
+  const hrefs = new Set(SOURCES.map((s) => s.href));
+  for (const m of MEASURES) assert.ok(hrefs.has(m.href), m.key);
+  const crime = SOURCES.find((s) => s.href === MEASURES.find((m) => m.key === 'crime')!.href)!;
+  assert.match(crime.label, /^Crime, and the check against overall deprivation in How the scores work: MHCLG, English Indices of Deprivation 2025/);
+  for (const b of ['DESNZ', 'MHCLG', 'Ofcom']) assert.ok(SOURCES.some((s) => s.label.includes(b)), b);
 });

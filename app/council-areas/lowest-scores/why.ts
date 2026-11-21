@@ -7,7 +7,8 @@
 //                 'Below average on all five topics.' when every topic score is under 50 (the council area average of
 //                 every topic score is 50, as the scores are rank based).
 //   whyAccount    (item 3(b)) the measure with the biggest effect, the second, and the one that helped most, each with
-//                 its figure, the council area average, a plain rank, its share of the overall score, period and source.
+//                 its figure, the council area average, a plain rank, its share of the overall score and the period
+//                 (no body or dataset name: those are in the Sources fold; ENTRY 444 decisions, 21 Nov 04:12, item 4).
 //                 Effect = (50 minus the measure's score) times its share: the points it takes off the overall score
 //                 against a middle area (50 on every measure); the most negative helped most.
 //   weightingCheck (item 4) the ten lowest under seven weightings: the five topics equal (the method used), the twelve
@@ -38,15 +39,10 @@ const TOPIC_SIZE = new Map(TOPICS.map((t) => [t.label, t.measures.length]));
 /** A measure's share of the overall score: a fifth for its topic, split equally among the topic's measures. */
 export const weightOf = (topic: string) => 1 / TOPICS.length / (TOPIC_SIZE.get(topic) ?? 1);
 
-/** '20 per cent', '6 2/3 per cent'. */
+/** '20 per cent', '6.7 per cent': whole shares as whole numbers, any other to one decimal (ENTRY 444 decisions item 6). */
 export function shareWords(w: number): string {
   const pct = w * 100;
   if (Math.abs(pct - Math.round(pct)) < 1e-9) return `${Math.round(pct)} per cent`;
-  for (const d of [2, 3, 4]) {
-    const whole = Math.floor(pct);
-    const n = Math.round((pct - whole) * d);
-    if (Math.abs((pct - whole) * d - n) < 1e-9) return `${whole} ${n}/${d} per cent`;
-  }
   return `${pct.toFixed(1)} per cent`;
 }
 
@@ -147,14 +143,13 @@ export function effects(a: Area): Effect[] {
     .map(({ m, weight, effect }) => ({ m, weight, effect }));
 }
 
-const PUBLISHER = new Map(MEASURES.map((m) => [m.key, m.source.split(',')[0]]));
 const plainPeriod = (p: string) => p.replace(' (', ', ').replace(')', '');
 
 export type AccountPart = { lead: string; text: string };
-/** One measure's lines: figure (with period and source beside it), council area average, plain rank, share. */
+/** One measure's lines: figure (with its period beside it), council area average, plain rank, share. */
 function partFor(e: Effect, lead: string, place: string): AccountPart {
   const { m } = e;
-  const where = `(${plainPeriod(m.period)}, ${PUBLISHER.get(m.key)})`;
+  const where = `(${plainPeriod(m.period)})`;
   const share = `${m.label} is ${shareWords(e.weight)} of the overall score.`;
   if (m.key === 'crime') {
     const rank = plainRank(m.rank, m.of, 'highest', 'lowest', m.tie);
@@ -176,6 +171,9 @@ export function whyAccount(a: Area): AccountPart[] {
   out.push(up ? partFor(up, `Helped most: ${up.m.label.toLowerCase()}`, a.name) : { lead: 'Helped most', text: `No measure is better than the middle of the ${a.all[0].of}.` });
   return out;
 }
+
+/** The rule under the account on each area page. */
+export const WHY_RULE = 'A measure’s effect is how far its score falls below 50, the middle, times its share of the overall score; the one furthest above 50, times its share, helped most.';
 
 /** Every measure's share, for the 'biggest effect' rule in How the scores work. */
 export const SHARES = TOPICS.map((t) => ({ topic: t.label, count: t.measures.length, share: shareWords(weightOf(t.label)) }));

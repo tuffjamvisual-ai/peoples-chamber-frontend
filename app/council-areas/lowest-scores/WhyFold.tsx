@@ -1,15 +1,16 @@
-// 'Why <place> ranks here' (Cowork ENTRY 444 item 3(b) and (c)): a closed fold under each of the ten on the main page and
-// on every area page. The measure with the biggest effect, the second and the one that helped most (whyAccount, why.ts),
-// then 'See all 12 measures'. Paragraphs, not a list, so the shared phone script leaves them whole; inside a <details>,
-// which the phone script never cuts. The map outline (item 3(a)) is a separate step, not in this fold yet.
+// 'Why <place> ranks here' (Cowork ENTRY 444 item 3(b) and (c); decisions 21 Nov 2026 04:12 item 1): a closed fold on each
+// area page only (id why; the main page links each of the ten here, to #why, which opens it). The measure with the
+// biggest effect, the second and the one that helped most (whyAccount, why.ts), the rule in one sentence, then 'See all
+// 12 measures'. Paragraphs, not a list, so the shared phone script leaves them whole; inside a <details>, which the phone
+// script never cuts. The map outline (item 3(a)) is a separate step, not in this fold yet.
 import type { Area } from './data';
 import { MEASURE_COUNT, INK, MONO, para, foldSummary } from './data';
-import { whyAccount } from './why';
-import AllMeasuresLink from './AllMeasuresLink';
+import { whyAccount, WHY_RULE } from './why';
+import AllMeasuresLink, { WHY_ID } from './AllMeasuresLink';
 
-export default function WhyFold({ a, linkTo, rule }: { a: Area; linkTo?: string; rule?: boolean }) {
+export default function WhyFold({ a }: { a: Area }) {
   return (
-    <details className="ls-why">
+    <details id={WHY_ID} className="ls-why" style={{ scrollMarginTop: '12px' }}>
       <summary style={foldSummary}>
         Why {a.name} ranks here
         <span className="og-fold-mark" aria-hidden="true" />
@@ -19,13 +20,9 @@ export default function WhyFold({ a, linkTo, rule }: { a: Area; linkTo?: string;
           <strong>{p.lead}.</strong> {p.text}
         </p>
       ))}
-      {rule && (
-        <p style={{ ...para, lineHeight: 1.5, margin: '0 0 8px' }}>
-          A measure&rsquo;s effect is how far its score falls below 50, the middle, times its share of the overall score; the one furthest above 50, times its share, helped most.
-        </p>
-      )}
+      <p style={{ ...para, lineHeight: 1.5, margin: '0 0 8px' }}>{WHY_RULE}</p>
       <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }}>
-        <AllMeasuresLink href={linkTo} count={MEASURE_COUNT} />
+        <AllMeasuresLink count={MEASURE_COUNT} />
       </div>
     </details>
   );

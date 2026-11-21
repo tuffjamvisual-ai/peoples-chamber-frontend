@@ -19,7 +19,6 @@ import BackLink from '../../components/BackLink';
 import PageSources from '../../components/PageSources';
 import SourceNotes from './SourceNotes';
 import FindYourArea from './FindYourArea';
-import WhyFold from './WhyFold';
 import { AREAS, MEASURES, TOPICS, RANKED, MEASURE_COUNT, SOURCES, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary } from './data';
 import { plainScoreRank } from './ranks';
 import { areaCovered, whySentence, weightingCheck, weightingSentence, SHARES, countWord } from './why';
@@ -42,9 +41,11 @@ const CHECK = weightingCheck();
 const scoreLine = (score: number, rank: number) => `${score.toFixed(1)} out of 100 · ${plainScoreRank(rank, RANKED)}`;
 
 // Desktop: a four column table. Phones (the site's PHONE width): one card per row, the place name, the why sentence
-// straight under it, then area and score (the .ls-meta line inside the why cell; the area and score cells hide), then the
-// Why fold. data-pt-table="keep": the shared phone script leaves this table to these styles. The section is
-// data-own-more, so the phone script shows all ten rows (Cowork, 18:34).
+// straight under it with the link 'Why <place> ranks here' (to the area page's Why fold, #why), then area and score (the
+// .ls-meta line inside the why cell; the area and score cells hide). The Why fold is on area pages only (Cowork ENTRY 444
+// decisions, 21 Nov 2026 04:12, item 1); the link runs on in the cell's text, so it adds no tap row to the phone length.
+// data-pt-table="keep": the shared phone script leaves this table to these styles. The section is data-own-more, so the
+// phone script shows all ten rows (Cowork, 18:34).
 const TABLE_CSS = `
 .ls-ten { width: 100%; border-collapse: collapse; font-family: ${MONO}; font-size: 15px; color: ${INK}; }
 .ls-ten th, .ls-ten td { text-align: left; vertical-align: top; padding: 10px 14px 8px 0; line-height: 1.45; font-weight: normal; }
@@ -53,7 +54,6 @@ const TABLE_CSS = `
 .ls-ten tr.ls-row > th { font-family: ${SERIF}; font-size: 18px; font-weight: bold; width: 19%; }
 .ls-ten .ls-area { width: 18%; }
 .ls-ten .ls-score { width: 17%; }
-.ls-ten tr.ls-fold > td { padding: 0 0 4px; }
 .ls-ten .ls-meta { display: none; }
 @media ${PHONE} {
   .ls-ten thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -103,7 +103,7 @@ export default function LowestScoresPage() {
               <tr><th scope="col">Place</th><th scope="col">Area covered</th><th scope="col">Overall score</th><th scope="col">Why it ranks here</th></tr>
             </thead>
             <tbody>
-              {LOWEST10.flatMap((a) => [
+              {LOWEST10.map((a) => (
                 <tr key={a.slug} className="ls-row">
                   <th scope="row">
                     {a.rank}.{' '}
@@ -112,14 +112,12 @@ export default function LowestScoresPage() {
                   <td className="ls-area">{areaCovered(a.name, a.type)}</td>
                   <td className="ls-score">{scoreLine(a.score, a.rank)}</td>
                   <td className="ls-whyc">
-                    {whySentence(a)}
+                    {whySentence(a)}{' '}
+                    <Link href={`/council-areas/lowest-scores/${a.slug}#why`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Why {a.name} ranks here</Link>
                     <span className="ls-meta">{areaCovered(a.name, a.type)} · {scoreLine(a.score, a.rank)}</span>
                   </td>
-                </tr>,
-                <tr key={`${a.slug}-why`} className="ls-fold">
-                  <td colSpan={4}><WhyFold a={a} linkTo={`/council-areas/lowest-scores/${a.slug}`} /></td>
-                </tr>,
-              ])}
+                </tr>
+              ))}
             </tbody>
           </table>
           {/* ENTRY 444 item 4: worked out from the page data on every build (why.ts weightingCheck). */}
@@ -139,16 +137,17 @@ export default function LowestScoresPage() {
             </summary>
             <p style={para}>
               Each measure is scored from 0 to 100 by where the council area sits among all {RANKED}: the best figure scores 100, the worst 0, and areas with the same figure share a score. A topic&rsquo;s score is the average of its measures; the overall score is the average of the five topics, so each topic counts a fifth. No figure is estimated and no county figure is given to a district. City of London and the Isles of Scilly are too small to compare fairly.
-             Crime is the government&rsquo;s crime score from the Indices of Deprivation 2025, built from crimes recorded by the police from April 2018 to March 2024 (violence, stalking and harassment, burglary, theft other than shoplifting, criminal damage, public order and weapons offences) and antisocial behaviour incidents from April 2022 to March 2024. The Indices rank 296 council areas, including City of London and the Isles of Scilly; here crime is ranked among the 294, like every other measure. This is not the <Link href="/councils/league-table" style={{ color: INK }}>council area league table</Link>, which uses more measures, including some published only for counties, so the order is different.</p>
-            {/* ENTRY 444 items 2, 3(b) and 4: the rules behind the why sentences and the Why folds, and the checks. */}
+             Crime is the government&rsquo;s crime score for each council area, built from crimes recorded by the police from April 2018 to March 2024 (violence, stalking and harassment, burglary, theft other than shoplifting, criminal damage, public order and weapons offences) and antisocial behaviour incidents from April 2022 to March 2024. The government ranks 296 council areas on it, including City of London and the Isles of Scilly; here crime is ranked among the 294, like every other measure. This is not the <Link href="/councils/league-table" style={{ color: INK }}>council area league table</Link>, which uses more measures, including some published only for counties, so the order is different.</p>
+            {/* ENTRY 444 items 2, 3(b) and 4: the rules behind the why sentences and the Why folds, and the checks. No body or
+                dataset names here (ENTRY 444 decisions item 4); the deprivation check's source is in the Sources fold. */}
             <p style={para}>
-              Each measure&rsquo;s share of the overall score: {SHARES.map((t) => `${t.topic.toLowerCase()} ${t.share}${t.count > 1 ? ` each (${countWord(t.count)} measures)` : ' (one measure)'}`).join('; ')}. The sentence beside each area names its two lowest scoring topics and, in each, the measure with the lowest score, with its figure. In &ldquo;Why it ranks here&rdquo;, a measure&rsquo;s effect is how far its score falls below 50, the middle, times its share of the overall score: the measure with the largest effect had the biggest effect on the score, and the one furthest above 50, times its share, helped most.
+              Each measure&rsquo;s share of the overall score: {SHARES.map((t) => `${t.topic.toLowerCase()} ${t.share}${t.count > 1 ? ` each (${countWord(t.count)} measures)` : ' (one measure)'}`).join('; ')}. The sentence beside each area names its two lowest scoring topics and, in each, the measure with the lowest score, with its figure. In &ldquo;Why it ranks here&rdquo; on each area&rsquo;s page, a measure&rsquo;s effect is how far its score falls below 50, the middle, times its share of the overall score: the measure with the largest effect had the biggest effect on the score, and the one furthest above 50, times its share, helped most.
             </p>
             <p style={para}>
-              The {countWord(CHECK.ways)} ways of weighting the figures: the five topics counting equally (the method used here), every measure counting equally, and the five topics counting equally with each topic left out in turn.{CHECK.out.length > 0 && ` ${CHECK.out.map((o) => o.name).join(' and ')} left the bottom ${CHECK.bottom} with ${CHECK.out.map((o) => o.run).join(' and ')}.`} As checks, the order of the {RANKED} by overall score is close to their order on the government&rsquo;s Indices of Deprivation 2025 (a rank correlation of 0.92, where 1 would be the same order) and by life expectancy (0.89). Life expectancy is itself one of the {MEASURE_COUNT} measures, so the second check is not independent.
+              The {countWord(CHECK.ways)} ways of weighting the figures: the five topics counting equally (the method used here), every measure counting equally, and the five topics counting equally with each topic left out in turn.{CHECK.out.length > 0 && ` ${CHECK.out.map((o) => o.name).join(' and ')} left the bottom ${CHECK.bottom} with ${CHECK.out.map((o) => o.run).join(' and ')}.`} As checks, the order of the {RANKED} by overall score is close to their order on the government&rsquo;s overall measure of deprivation (a rank correlation of 0.92, where 1 would be the same order) and by life expectancy (0.89). Life expectancy is itself one of the {MEASURE_COUNT} measures, so the second check is not independent.
             </p>
             <p style={para}>
-              Measures that are not published for every council area at council area level are left out, so that every area is judged the same way: police recorded crime rates (combined for some council areas and missing for others, so the score uses the Indices of Deprivation instead; each area&rsquo;s page shows its police figure for information, crimes recorded per 1,000 residents in the year to June 2026, not counting fraud, which is recorded nationally; rates are high in city centres, where many people visit but few live), temporary accommodation (not every council area reports it in any one quarter) and healthy life expectancy (published only for counties and unitary councils). Road safety counts people killed or seriously injured in collisions in the area; sewage spills count the hours of spills from storm overflows placed in the area by their grid reference, with zero where there are none; both are per resident. House prices against earnings and fly tipping are left out by choice. &ldquo;Least desirable&rdquo; here means the lowest score on these measures, nothing more. The council area average is the plain average of the {RANKED}, each counting once, so it is not the official England figure. Small differences in score change the order a lot, so areas a few places apart are much alike.
+              Measures that are not published for every council area at council area level are left out, so that every area is judged the same way: police recorded crime rates (combined for some council areas and missing for others, so the score uses the government&rsquo;s crime score instead; each area&rsquo;s page shows its police figure for information, crimes recorded per 1,000 residents in the year to June 2026, not counting fraud, which is recorded nationally; rates are high in city centres, where many people visit but few live), temporary accommodation (not every council area reports it in any one quarter) and healthy life expectancy (published only for counties and unitary councils). Road safety counts people killed or seriously injured in collisions in the area; sewage spills count the hours of spills from storm overflows placed in the area by their grid reference, with zero where there are none; both are per resident. House prices against earnings and fly tipping are left out by choice. &ldquo;Least desirable&rdquo; here means the lowest score on these measures, nothing more. The council area average is the plain average of the {RANKED}, each counting once, so it is not the official England figure. Small differences in score change the order a lot, so areas a few places apart are much alike.
             </p>
           </details>
           <details style={{ borderTop: `1px solid ${INK_HAIRLINE}` }}>

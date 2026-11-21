@@ -11,8 +11,19 @@ export type Police = { status: 'own' | 'combined' | 'missing'; figure?: string; 
 export type Area = { rank: number; name: string; slug: string; type: string; score: number; topics: { label: string; score: number }[]; down: Measure[]; up: Measure[]; all: Measure[]; police: Police };
 export type MeasureInfo = { key: string; label: string; unit: string; period: string; better: string; topic: string; source: string; href: string };
 
-export const AREAS = data.areas as Area[];
-export const MEASURES = data.measures as MeasureInfo[];
+// No body or dataset names in the page text, only in the Sources fold (Cowork ENTRY 444 decisions, 21 Nov 2026 04:12, item 4):
+// the period beside each figure is plain ('(April 2018 to March 2024)'), and the three units that named a body or survey
+// read plainly. The data file keeps its own strings; only what the page shows changes here; the Sources fold keeps each full source.
+const PLAIN_PERIOD: Record<string, string> = { crime: 'April 2018 to March 2024' };
+const PLAIN_UNIT: Record<string, string> = {
+  crime: 'the government’s crime score (recorded violence, stalking and harassment, burglary, theft, criminal damage, public order and weapons offences, and antisocial behaviour incidents), shown as a rank among the 294 council areas, where 1st is the highest',
+  obesity: 'per cent of adults overweight or obese (from a national survey)',
+  road_safety: 'people killed or seriously injured on the roads in the area per 100,000 residents (serious injuries as officially adjusted)',
+};
+const plainMeasure = <T extends { key: string; period: string }>(m: T): T => (PLAIN_PERIOD[m.key] ? { ...m, period: PLAIN_PERIOD[m.key] } : m);
+
+export const AREAS = (data.areas as Area[]).map((a) => ({ ...a, down: a.down.map(plainMeasure), up: a.up.map(plainMeasure), all: a.all.map(plainMeasure) }));
+export const MEASURES = (data.measures as MeasureInfo[]).map((m) => ({ ...plainMeasure(m), unit: PLAIN_UNIT[m.key] ?? m.unit }));
 export const TOPICS = data.topics as { key: string; label: string; measures: string[] }[];
 export const RANKED = data.ranked as number;
 export const MEASURE_COUNT = data.measureCount as number;
@@ -25,9 +36,16 @@ export const AVG_TOPIC = new Map(TOPICS.map((t, i) => [t.label, AREAS.reduce((s,
 // One line per source address: measures from the same source (Ofcom) share it.
 export const SOURCES = [...MEASURES.reduce((m, x) => {
   const prev = m.get(x.href);
-  m.set(x.href, prev ? { ...prev, labels: [...prev.labels, x.label] } : { labels: [x.label], source: x.source });
+  m.set(x.href, prev ? { ...prev, labels: [...prev.labels, x.label] } : { labels: [x.label], source: x.source, key: x.key });
   return m;
-}, new Map<string, { labels: string[]; source: string }>())].map(([href, v]) => ({ label: `${v.labels.join(' and ')}: ${v.source}`, href }));
+}, new Map<string, { labels: string[]; source: string; key: string }>())].map(([href, v]) => ({
+  // The rank check against overall deprivation in How the scores work comes from the same publication as the crime
+  // score; the page text no longer names it (ENTRY 444 decisions item 4), so its Sources line says so.
+  label: v.key === 'crime'
+    ? `${v.labels.join(' and ')}, and the check against overall deprivation in How the scores work: ${v.source} and overall rank`
+    : `${v.labels.join(' and ')}: ${v.source}`,
+  href,
+}));
 // Road safety and sewage are per resident: the population source joins the fold (it is not a measure, so it is not counted below).
 export const SOURCE_COUNT = SOURCES.length;
 SOURCES.push({ label: 'Population (for road safety and sewage per resident): ONS mid-2025 population estimates', href: 'https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates' });

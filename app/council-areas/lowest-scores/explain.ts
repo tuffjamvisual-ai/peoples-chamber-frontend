@@ -69,9 +69,9 @@ export function explainPolice(a: Area): string {
   const crime = a.all.find((m) => m.key === 'crime');
   const rank = crime ? ` ${cap(crimeWord(crime))} of the ${crime.of} areas on the government’s crime score.` : '';
   const p = a.police;
-  if (p.status === 'missing') return `Kent Police could not place many crimes in an area in this table, so no reliable figure is published for ${a.name}.${rank}`;
-  if (p.status === 'combined') return `Police publish one figure for ${list([a.name, ...(p.with ?? [])])} together: ${p.figure} crimes per 1,000 residents, ${POLICE.period} (England ${POLICE.england}).${rank}`;
-  const humberside = p.humberside ? ` Humberside Police could not place some crimes in an area in this table, so ${a.name}’s figure is likely to be too low.` : '';
+  if (p.status === 'missing') return `The police force could not place many crimes in an area in this table, so no reliable figure is published for ${a.name}.${rank}`;
+  if (p.status === 'combined') return `The police publish one figure for ${list([a.name, ...(p.with ?? [])])} together: ${p.figure} crimes per 1,000 residents, ${POLICE.period} (England ${POLICE.england}).${rank}`;
+  const humberside = p.humberside ? ` The police force could not place some crimes in an area in this table, so ${a.name}’s figure is likely to be too low.` : '';
   return `${p.figure} crimes recorded by the police per 1,000 residents, ${POLICE.period} (England ${POLICE.england}).${rank}${humberside}`;
 }
 

@@ -17,7 +17,7 @@ import { explainMeasure, explainPolice, explainScore, measureRank, plainPeriod }
 import { cap, plainScoreRank } from '../ranks';
 import { whySentence } from '../why';
 import WhyFold from '../WhyFold';
-import { ALL_MEASURES_ID, OpenAllMeasures } from '../AllMeasuresLink';
+import { ALL_MEASURES_ID, OpenFoldOnHash } from '../AllMeasuresLink';
 
 export const revalidate = false; // A16: static data, rebuilt only on a deploy
 export const dynamicParams = false;
@@ -63,10 +63,11 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
 
         <p style={para}>{explainScore(a, RANKED)}</p>
 
-        {/* Reader first (Cowork ENTRY 444 items 2 and 3): the why sentence and the Why fold, the same rules as the main page. */}
+        {/* Reader first (Cowork ENTRY 444 items 2 and 3): the why sentence and the Why fold (id why; on area pages only,
+            ENTRY 444 decisions item 1: the main page links each of the ten here with #why, which opens it). */}
         <p style={para}>{whySentence(a)}</p>
         <section aria-label={`Why ${a.name} ranks here`} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, borderBottom: `1px solid ${INK_HAIRLINE}`, marginBottom: '22px' }}>
-          <WhyFold a={a} rule />
+          <WhyFold a={a} />
         </section>
 
         <p style={para}>
@@ -96,7 +97,7 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
         {/* Every measure, one short paragraph each: what the figure means, the council area average and a plain rank
             (ENTRY 436 points 2 and 3), then its score out of 100; paragraphs, not a list, so the shared phone script leaves
             them whole. In a fold, closed as the page opens, so the page keeps to the 2,500px phone limit (A3). */}
-        <OpenAllMeasures />
+        <OpenFoldOnHash />
         <details id={ALL_MEASURES_ID} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, marginBottom: '8px', scrollMarginTop: '12px' }}>
           <summary style={foldSummary}>
             Every measure explained
