@@ -351,7 +351,7 @@ const nextConfig: NextConfig = {
       // write) and Vercel's CDN holds the rendered page instead, for a day, then serves it stale for up to a week while it
       // fetches a fresh one. Vercel-CDN-Cache-Control is read by Vercel's CDN only (vercel.com/docs/caching/cdn-cache);
       // Next.js sets 'private, no-store' as the Cache-Control of a dynamic page, so browsers and other caches keep nothing.
-      // A data change shows within a day (the syncs' revalidateTag no longer reaches these pages); a deploy starts empty.
+      // A data change shows after the next sync: each response carries Vercel-Cache-Tag (LONG_TAIL_CDN above), which the syncs' revalidateTag purges; a deploy starts empty.
       // Sibling list and search pages are left out by name.
       ...LONG_TAIL_CDN.map(([source, tags]) => ({ source, headers: [
         { key: 'Vercel-CDN-Cache-Control', value: 'max-age=86400, stale-while-revalidate=604800' },
