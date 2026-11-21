@@ -285,16 +285,17 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
         </section>
       </article>
       {/* EL1 (owner, 10 and 11 Nov 2026): only sources link outside, all in this one Sources fold (Cowork ENTRY 410, 423
-          and its follow up): the company's Companies House record; the five registers the matching note's sources line
-          named, with their licence; each shown donation's Electoral Commission record and each shown grant's 360Giving
+          and its follow up): the company's Companies House record; of the five registers the matching note's sources
+          line named, only those this organisation has records in (Cowork 02:37: every entry must support something on the
+          page), with their licence; each shown donation's Electoral Commission record and each shown grant's 360Giving
           record (the rows give the reference as text); each notice linked by the supplier name it prints. */}
       <PageSources sources={[
         org.company_number && { label: `Companies House record for ${org.name} (company ${org.company_number})`, href: companiesHouseUrl(org.company_number) },
-        { label: 'Donations: the Electoral Commission\u2019s register of donations', href: EC_DONATIONS_SEARCH },
-        { label: 'Contracts: Find a Tender', href: FIND_TENDER_HOME },
-        { label: 'Grants: government grants published through 360Giving (GrantNav)', href: GRANTNAV_HOME },
-        { label: 'Meetings: GOV.UK, ministers\u2019 meetings transparency returns', href: 'https://www.gov.uk/government/collections/ministers-transparency-publications' },
-        { label: 'Lobbying: Registrar of Consultant Lobbyists, quarterly returns', href: 'https://registrarofconsultantlobbyists.org.uk/' },
+        org.donations > 0 && { label: 'Donations: the Electoral Commission\u2019s register of donations', href: EC_DONATIONS_SEARCH },
+        (org.contracts > 0 || org.framework_places > 0 || byName.length > 0) && { label: 'Contracts: Find a Tender', href: FIND_TENDER_HOME },
+        org.grants > 0 && { label: 'Grants: government grants published through 360Giving (GrantNav)', href: GRANTNAV_HOME },
+        org.meetings > 0 && { label: 'Meetings: GOV.UK, ministers\u2019 meetings transparency returns', href: 'https://www.gov.uk/government/collections/ministers-transparency-publications' },
+        org.lobbying_quarters > 0 && { label: 'Lobbying: Registrar of Consultant Lobbyists, quarterly returns', href: 'https://registrarofconsultantlobbyists.org.uk/' },
         ...donations.filter((d) => d.ec_ref).map((d) => ({ label: `Electoral Commission record ${d.ec_ref} (${fmtDay(d.accepted_date || d.received_date)}, ${d.amount != null ? money(d.amount) : 'value not given'})`, href: ecDonationSearchUrl(d.ec_ref!) })),
         ...grants.map((g) => ({ label: `360Giving record ${g.identifier} (${fmtDay(g.award_date)}, ${g.amount != null ? money(g.amount) : 'value not given'})`, href: grantNavUrl(g.identifier) })),
         ...byName.map((n) => ({ label: `Find a Tender notice ${findTenderNoticeNumber(n.url)} (supplier named as ${n.name})`, href: n.url })),

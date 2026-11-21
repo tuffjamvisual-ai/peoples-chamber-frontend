@@ -1,4 +1,5 @@
 import PageSources from '@/app/components/PageSources';
+import { EC_DONATIONS_SEARCH } from '@/lib/ec-links';
 import { companiesHouseUrl, companyNumberAsFiled } from '@/lib/companies-house';
 import { supabase } from '@/lib/supabase'
 import { notFound, redirect } from 'next/navigation'
@@ -195,7 +196,7 @@ export default async function SectionListing({ section, page, q, searched }: {
               and the related pages are in "Explore this dataset" after the first results: a closed native fold on phones,
               open from 640px up. A search's own count stays here. */}
           <style>{`.tr-dwide { display: none !important; } .tr-dhead { margin-bottom: 16px !important; } .tr-explore-h { font-size: 18px; font-weight: bold; margin: 0 0 8px; } @media ${PHONE} { .tr-explore-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; } }`}</style>
-          <p className="text-[#14100d] text-[15px] leading-[1.5]" style={{ margin: 0 }}>Source: the Electoral Commission&rsquo;s donations register.</p>
+          {/* The source line moved to the Sources fold (Cowork 02:37, ENTRY 410 rule: sources only in the fold). */}
           </>
         )}
       </header>
@@ -247,11 +248,12 @@ export default async function SectionListing({ section, page, q, searched }: {
       <PageSources sources={section === 'revolving-door'
         ? REVOLVING_DOOR_SOURCES.map((src) => ({ label: src.label, href: src.url }))
         : section === 'donations'
-          ? (rows || []).filter((r) => typeof r.company_registration_number === 'string' && (r.company_registration_number as string).trim())
+          ? [{ label: 'Donations: the Electoral Commission\u2019s register of donations', href: EC_DONATIONS_SEARCH },
+            ...(rows || []).filter((r) => typeof r.company_registration_number === 'string' && (r.company_registration_number as string).trim())
               .map((r) => {
                 const n = (r.company_registration_number as string).trim();
                 return { label: `Companies House record for ${(r.donor_name as string) || 'the donor'} (company ${companyNumberAsFiled(n)})`, href: companiesHouseUrl(n) };
-              })
+              })]
           : section === 'contracts'
             // Cowork ENTRY 423 follow up (ENTRY 410 rule): the open data service the note named, only here.
             ? [{ label: 'Contracts: Find a Tender and its open data service (OCDS)', href: 'https://www.find-tender.service.gov.uk/' }]
