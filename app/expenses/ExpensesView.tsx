@@ -39,34 +39,53 @@ export async function expensesMetadata(year: string, canonical: string): Promise
 
 
 
-// Feature essay rendered below the Top 10 list. Stored as one
-// blank-line-separated string and split into <p> elements so the
-// renderer matches the bio/critique convention elsewhere on the
-// site. Em-dashes intentionally absent (per site-wide rule).
-const FEATURE_TITLE = 'The Invisible Cost of Keeping Parliament Running';
-const FEATURE_BODY = `Most people know MPs cost money. What most people do not know is how much. Every Member of Parliament receives a staffing budget of around £177,000 a year. They can claim office expenses. Many claim accommodation costs. Travel between Westminster and their constituency is funded by the taxpayer, with no formal spending cap.
-
-None of this is secret. That is the strange part. The information exists. It is published. The rules are available online. Receipts are recorded. Audits take place. Yet ask the average voter how much their MP spends each year and the answer is usually silence.
-
-That tells us something important. Transparency is not simply about making information available. Transparency is about making information understandable.
-
-The parliamentary expenses system was rebuilt after the 2009 expenses scandal shattered public trust. MPs were exposed claiming for everything from housing costs to furnishings and personal items. Careers ended. Reputations collapsed. The public reaction was furious because voters felt Parliament had been operating according to rules that ordinary people never knew existed.
-
-The system that replaced it is undoubtedly stricter. The question is whether it is genuinely transparent.
-
-Take staffing budgets. A typical MP employs several staff members to handle casework, correspondence, research and constituency issues. The work is real. Constituents expect help with benefits, housing, immigration cases, local services and government departments. Most MPs could not perform the role without staff. But how many people know how many staff their MP employs? How much those staff cost? How those costs compare with other MPs? Very few.
-
-The same pattern appears elsewhere. Travel is funded. Accommodation is funded. Office costs are funded. Additional support can be provided under exceptional circumstances. Every category has rules. Every category has oversight. Yet the overall picture remains surprisingly difficult for ordinary voters to understand.
-
-Parliament often points out that all this information is publicly available. Technically, that is true. So are thousands of pages of government procurement records, local authority accounts and departmental spending reports. Availability is not the same thing as accessibility. If information can only be understood by journalists, researchers, campaign groups and the small number of citizens willing to spend hours navigating official databases, then transparency exists largely in theory.
-
-Most voters have a simple question. How much does my MP cost? The answer should be available in seconds. Instead, understanding the full picture often requires navigating multiple websites, downloading spreadsheets and interpreting categories that mean little to anyone outside Westminster. That is not openness. It is bureaucracy.
-
-The deeper issue is trust. The public funds Parliament. Parliament operates on behalf of the public. Yet there remains a significant information gap between those paying the bills and those spending the money. Not because the information is hidden, but because it is buried.
-
-This is not a story about corruption. It is a story about visibility. The expenses scandal of 2009 taught Parliament that secrecy destroys trust. The lesson that appears not to have been learned is that complexity can produce much the same result.
-
-A transparent system is one that ordinary people can understand without specialist knowledge. Until voters can easily see what their MP spends, how those costs compare and why the money is necessary, Westminster will continue to mistake publication for transparency. They are not the same thing.`;
+// The explainer (Cowork ENTRY 495 (e), agreed 21 Nov 2026 22:23 with the 21:54 fixes) in place of the essay. Every figure
+// is IPSA's: the 2025/26 budgets from the Scheme's Annex A and the reason column of 'Total spend data 2025 to 2026'; the
+// rules quoted from the Scheme (2025-26) and IPSA's guide to MPs' business costs; the staff share is our sum of IPSA data.
+const FEATURE_TITLE = "How MPs' business costs work";
+const SCHEME = 'https://www.theipsa.org.uk/publications/the-scheme';
+const GUIDE = 'https://www.theipsa.org.uk/a-guide-to-mps-business-costs';
+const xa = { color: '#7a1612', textDecoration: 'underline' } as const;
+const xh = { fontSize: '15px', fontWeight: 'bold', margin: '0 0 0.4em 0', breakAfter: 'avoid' } as const;
+const xp = { margin: '0 0 0.9em 0' } as const;
+const EXPLAINER = (
+  <>
+    <h3 style={xh}>What MPs&apos; business costs are</h3>
+    <p style={xp}>
+      MPs&apos; business costs pay for the work of an MP&apos;s office, not the MP&apos;s salary. The Independent Parliamentary Standards
+      Authority (IPSA) sets the rules and the budgets, pays the claims and publishes them. Staff are about four fifths of business
+      costs: 79.4 per cent in 2025/26, computed by opengovt from IPSA data.
+    </p>
+    <h3 style={xh}>The budgets for 2025/26</h3>
+    <ul style={{ margin: '0 0 0.9em 0', paddingLeft: '1.1em' }}>
+      <li style={xp}><strong>Staffing</strong>: £263,370 for an MP outside London; £281,980 for a London MP.</li>
+      <li style={xp}>
+        <strong>Office costs</strong>: £35,930 outside London; £39,560 in London. Newly elected MPs also get a £6,000 start up
+        supplement, which <a href={SCHEME} style={xa}>IPSA&apos;s Scheme</a> says is &quot;available to new MPs for the duration of the
+        financial year in which they were elected&quot;.
+      </li>
+      <li style={xp}>
+        <strong>Accommodation</strong>, for MPs eligible to claim: for an MP from outside London renting in London, £31,840, rising to
+        £39,110, £46,380 or £53,650 with one, two or three dependants; for an MP renting in their constituency, outside the London
+        area, £21,680; £6,870 for an MP who owns their home and claims only the associated costs (such as utilities). Under{' '}
+        <a href={SCHEME} style={xa}>IPSA&apos;s Scheme</a>, accommodation costs &quot;are not payable to MPs who: a. are London Area MPs;
+        or b. by virtue of any particular office held, occupy &apos;grace and favour&apos; accommodation in London.&quot;
+      </li>
+      <li style={xp}><strong>Winding up</strong>: a budget for MPs who leave Parliament, to close their office.</li>
+    </ul>
+    <h3 style={xh}>What is not capped</h3>
+    <p style={xp}>
+      Travel and subsistence, and some other costs, have no fixed budget. An MP whose constituency is far from Westminster, in
+      Scotland or Northern Ireland for example, travels more and so costs more.
+    </p>
+    <h3 style={xh}>How often IPSA publishes</h3>
+    <p style={xp}>
+      IPSA publishes MPs&apos; claims every two months, usually four to five months after they are made, and the year&apos;s totals
+      once each year is complete. <a href={GUIDE} style={xa}>IPSA&apos;s guide</a> says: &quot;For security reasons, this doesn&apos;t
+      include costs that relate to security&quot;.
+    </p>
+  </>
+);
 
 // Dossier ink-on-parchment palette
 const INK = '#14100d';
@@ -153,7 +172,8 @@ const IPSA_STAFF_SHARE: Record<string, number> = { '24_25': 79 };
 export async function ExpensesView({ year: YEAR, years }: { year: string; years: string[] }) {
   const YEAR_LABEL = yearLong(YEAR);
   const { top, grandTotal } = await topSpenders(YEAR);
-  const share = await staffingShare(YEAR);
+  // IPSA's own figure where it has one; otherwise our sum (one year's rows, at most about 700, under any row cap).
+  const share = IPSA_STAFF_SHARE[YEAR] != null ? null : await staffingShare(YEAR);
 
   return (
     <OpenGovShell>
@@ -277,7 +297,7 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
 
       <p style={{ marginTop: '32px', fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
         Totals reflect spend recorded against budgets and uncapped categories for the {YEAR_LABEL} financial year.
-        Itemised line items are visible on each MP&rsquo;s profile under Expenses.
+        Itemised line items are visible on each MP&apos;s profile under Expenses.
       </p>
 
       {/* Feature essay — same compact 2-column newspaper treatment
@@ -299,7 +319,7 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
             textAlign: 'center',
           }}
         >
-          Feature · Analysis
+          Explainer
         </p>
         {/* The essay (owner, 15 Nov 2026, ENTRY 135 H3): on phones and tablets a closed fold with its title as the label
             (globals.css .rf-d, .rf-b, .rf-h, up to 1,023px); from 1,024px up the title and the essay as before. */}
@@ -338,28 +358,13 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
             hyphens: 'none',
           }}
         >
-          {FEATURE_BODY
-            .split(/\n\n+/)
-            .map((p) => p.trim())
-            .filter(Boolean)
-            .map((p, i) => (
-              <p
-                key={i}
-                style={{
-                  margin: '0 0 0.9em 0',
-                  breakInside: 'avoid-column',
-                  pageBreakInside: 'avoid',
-                }}
-              >
-                {p}
-              </p>
-            ))}
+          {EXPLAINER}
         </div>
         </div>
       </section>
 
       {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
-      <PageSources sources={[{ label: 'Independent Parliamentary Standards Authority (IPSA), MP costs', href: 'https://www.theipsa.org.uk/mp-costs/' }, { label: 'IPSA, annual publications: total spend data by year (the staffing share for 2025/26 is our sum of these figures)', href: 'https://www.theipsa.org.uk/mp-staffing-business-costs/annual-publications' }]} />
+      <PageSources sources={[{ label: 'Independent Parliamentary Standards Authority (IPSA), MP costs', href: 'https://www.theipsa.org.uk/mp-costs/' }, { label: 'IPSA, The Scheme of MPs\' Staffing and Business Costs 2025-26 (budgets, accommodation rule, start up supplement)', href: SCHEME }, { label: 'IPSA, A guide to MPs\' business costs (publication timing, security costs)', href: GUIDE }, { label: 'IPSA, annual publications: total spend data by year (the staffing share for 2025/26 is our sum of these figures)', href: 'https://www.theipsa.org.uk/mp-staffing-business-costs/annual-publications' }]} />
       <LastUpdated sourceKey="mp_expenses" />
     </OpenGovShell>
   );
