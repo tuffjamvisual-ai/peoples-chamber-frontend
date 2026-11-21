@@ -5,6 +5,7 @@
 // out. This page does.
 
 import NoJsPager from '@/app/components/NoJsPager';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -32,7 +33,7 @@ import { tagged } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { cachedQuery } from '@/lib/tagged-read';
 
-export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -72,9 +73,6 @@ function fmtDay(iso: string | null | undefined): string {
 // statically cached (ISR); dynamicParams is left at its default (true), so any donor slug renders on demand.
 // Pre-rendering 20 donor pages at build added full-table name lookups to the build's database load, and builds
 // failed on the 3s statement timeout.
-export async function generateStaticParams() {
-  return [];
-}
 
 type DonationRow = {
   id: number;
@@ -202,6 +200,7 @@ const resolveDonor = cache(async (slug: string): Promise<ResolvedDonor | null> =
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { slug } = await params;
   const name = (await resolveDonor(slug))?.name;
   if (!name) return { title: 'Donor' };
@@ -216,6 +215,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function DonorPage({ params }: PageProps) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { slug } = await params;
   const resolved = await resolveDonor(slug);
   if (!resolved) notFound();

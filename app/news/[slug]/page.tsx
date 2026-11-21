@@ -1,4 +1,5 @@
 import { titleWithin } from '@/lib/seo-title';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import { sanitizeHtml } from '@/lib/html-sanitize'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -36,7 +37,7 @@ const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9
 
 // Press release copies do not change once published, so a week is only a safety net (owner's approval, 29 Oct 2026,
 // cache Stage 1): the press release crons refresh any release they change (lib/news-path.ts, /api/revalidate).
-export const revalidate = false // A16: rebuilt only when its data changes (tags on every read), or on a deploy
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 const SERIF = 'var(--font-special-elite), monospace'
 const INK = '#14100d'
@@ -83,7 +84,6 @@ const releaseRecord = cache(async (slug: string) => {
 // No article pages are built ahead (owner's approval, 21 Oct 2026: build reliability; the build prerendered 100,
 // each making several reads at once against the database). generateStaticParams returning [] keeps the route
 // cached: each page renders on its first visit and is kept for a week, or until a cron changes it (revalidate above).
-export function generateStaticParams() { return [] }
 
 // Fallback for rows that pre-date the body-column rollout. Once the backfill
 // has run and the next sync cycle has populated `body` for every retained
@@ -108,6 +108,7 @@ async function getBodyHtmlLive(govUrl: string): Promise<string | null> {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { slug } = await params
   const release = await getPressRelease(slug)
   if (!release) return { title: 'Press release' }
@@ -225,6 +226,7 @@ function InvestigationBox({ pieces, placement }: { pieces: EditorialListEntry[];
 }
 
 export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { slug } = await params
   const release = await getPressRelease(slug)
   if (!release) notFound()

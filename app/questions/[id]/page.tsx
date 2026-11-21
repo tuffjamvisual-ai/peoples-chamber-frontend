@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import type { CSSProperties } from 'react';
 import { cache } from 'react';
 import Link from 'next/link';
@@ -17,8 +18,7 @@ import BackLink from '@/app/components/BackLink';
 // One written question (owner, backlog item 15c, 6 Nov 2026): the question and answer as published, who asked and who answered, dates and
 // days taken, attachments, and for a corrected answer its date with the original in a fold. Addressed by Parliament's id, because 45,904
 // question numbers repeat; /questions/<number> goes to the list of questions with that number. Kept for a day, refreshed by the sync.
-export const revalidate = false; // A16: rebuilt only when its question's answer changes (question:<id>), or on a deploy
-export function generateStaticParams() { return []; }
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 const INK = '#14100d';
 const LINE = '1px solid rgba(20,16,13,0.25)';
@@ -31,6 +31,7 @@ const days = (from: string, to: string) => Math.round((Date.parse(to) - Date.par
 const fileSize = (b?: number) => (b ? (b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`) : '');
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const q = await load((await params).id);
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
   if (!q) notFound();
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default async function QuestionPage({ params }: { params: Promise<{ id: string }> }) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { id } = await params;
   const q = await load(id);
   // Numbers are shorter than Parliament's ids and repeat, so a number goes to the list of questions with it.

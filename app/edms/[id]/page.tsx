@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import type { CSSProperties } from 'react';
 import { cache } from 'react';
 import Link from 'next/link';
@@ -18,8 +19,7 @@ import BackLink from '@/app/components/BackLink';
 // with date and party, withdrawn signatures marked, and amendments. Addressed by Parliament's motion id, because numbers repeat
 // across sessions; /edms/<number> goes to the list of motions with that number. Kept for a day and refreshed by /api/sync-edms.
 // Signature dates are the date part of Parliament's time, which carries no time zone, so no conversion can move one to another day.
-export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
-export function generateStaticParams() { return []; }
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 const INK = '#14100d';
 const LINE = '1px solid rgba(20,16,13,0.25)';
@@ -41,6 +41,7 @@ function edmDescription(m: Edm): string {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const m = await load((await params).id);
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
   if (!m) notFound();
@@ -61,6 +62,7 @@ const Name = ({ s, plain = false }: { s: Pick<EdmSignature, 'member_id' | 'membe
 const Motion = ({ m }: { m: LinkedEdm }) => <Link href={`/edms/${m.id}`} prefetch={false} style={link}>EDM {m.uin_with_suffix}: {m.title}</Link>;
 
 export default async function EdmPage({ params }: { params: Promise<{ id: string }> }) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { id } = await params;
   const m = await load(id);
   // Numbers are far below Parliament's ids and repeat across sessions, so a number goes to the list of motions with it.

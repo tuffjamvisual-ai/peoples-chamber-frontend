@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import { notFound, permanentRedirect } from 'next/navigation';
 import EdmsListing, { STEP } from '../../EdmsListing';
 import { listChoices, listPath } from '@/lib/list-path';
@@ -11,8 +12,7 @@ import { tableTags } from '@/lib/source-tags';
 // visit and rebuilt only when the EDM tag is refreshed or on a deploy. Every value is checked, so the cache stays bounded:
 // unknown keys or values 404; a member must be an MP we hold; role only with a member; show a multiple of 25 over 25 and at most
 // the whole list rounded up to 25. Not indexed (as the filtered query addresses were).
-export const revalidate = false;
-export function generateStaticParams() { return []; }
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 export const metadata: Metadata = {
   title: 'Early day motions in the Commons',
@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default async function EdmsFiltered({ params }: { params: Promise<{ f: string[] }> }) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { f } = await params;
   const c = listChoices('/edms', f);
   if (!c) notFound();

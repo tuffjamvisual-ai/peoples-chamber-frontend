@@ -1,4 +1,5 @@
 import { titleWithin } from '@/lib/seo-title';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -16,8 +17,7 @@ import { tableTags } from '@/lib/source-tags';
 
 // One member's votes in one year from 2004 to 2016 (owner, 6 Nov 2026), linked from their page. Kept apart from the voting record, with no rebellion figures.
 // The archive does not change, so each page is rendered once and cached. Not in the sitemap.
-export const revalidate = false; // A16: the 2004 to 2016 archive does not change; the MP name follows the mps tag
-export function generateStaticParams() { return []; }
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 const INK = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
@@ -37,6 +37,7 @@ const parse = ({ id, year }: Params) => {
 };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const p = parse(await params);
   const name = p ? await memberName(p.memberId) : null;
   if (!p || !name) return { title: 'Commons votes' };
@@ -48,6 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 }
 
 export default async function Page({ params }: { params: Promise<Params> }) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const p = parse(await params);
   if (!p) notFound();
   const [name, { summary, votes }] = await Promise.all([memberName(p.memberId), memberVotesInYear(p.memberId, p.year)]);
