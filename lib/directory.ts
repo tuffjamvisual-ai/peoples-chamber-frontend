@@ -26,7 +26,7 @@ const EXTRA: DirectoryEntry[] = [
   // Found by the hub coverage check (Cowork ENTRY 363, 19 Nov 2026).
   { name: 'Commission Research: Sample Report', href: '/commission/sample', desc: 'An example of a commissioned research report: how it is laid out and sourced.' },
   { name: 'Commission Research: Terms', href: '/commission/terms', desc: 'The terms for commissioning an independent research report from opengovt.' },
-  { name: 'Government Programmes', href: '/programmes', desc: 'Major government policy commitments, tracked over time.' },
+  // /programmes is out until it has content (owner, Cowork ENTRY 479, 21 Nov 2026): noindex and out of the sitemap too.
   { name: 'A - Z Directory', href: '/directory', desc: 'Everything on opengovt, A to Z.' },
   { name: 'Donate', href: '/donate', desc: 'Make a single donation to help keep opengovt free and independent.' },
   { name: 'Donations by Trusts', href: '/donations/trust-funded', desc: 'Political donations made through a trust rather than a named person, with who set up the trust.' },
@@ -187,7 +187,6 @@ export const KEYWORDS: Record<string, readonly string[]> = {
   '/polls': ['opinion polls', 'vote', 'have your say', 'reader polls', 'poll results'],
   '/polls/archive': ['old polls', 'past results', 'poll archive', 'closed polls'],
   '/privacy': ['privacy policy', 'data protection', 'GDPR', 'personal data', 'your data'],
-  '/programmes': ['government pledges', 'policy commitments', 'government promises', 'manifesto tracker'],
   '/questions': ['written questions', 'parliamentary questions', 'PQs', 'ministers answers', 'WQs'],
   '/register-history': ['old register of interests', 'past interests', 'register archive', 'interests 2000 to 2024', 'MP interests history'],
   '/reports': ['investigations', 'articles', 'news', 'briefings', 'analysis', 'stories'],

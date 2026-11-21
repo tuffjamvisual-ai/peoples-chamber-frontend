@@ -32,6 +32,8 @@ export async function generateMetadata(
     title: namedTitle(prog.name, (n) => [`${n}: government programme progress`, `${n}: government programme`, n]),
     description: prog.summary?.slice(0, 155) ?? `Track progress on ${prog.name}.`,
     alternates: { canonical: `/programmes/${slug}` },
+    // Hidden with /programmes until the tracker has content (owner, Cowork ENTRY 479, 21 Nov 2026).
+    robots: { index: false, follow: true },
   };
 }
 

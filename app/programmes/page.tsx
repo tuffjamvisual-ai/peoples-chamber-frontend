@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   title: fitTitle('Government programmes: commitments tracked', 'Government programmes'), // T1-A3 (6) (owner approved)
   description: 'Major government policy commitments, tracked over time.',
   alternates: { canonical: '/programmes' },
+  // Hidden until it has content (owner, Cowork ENTRY 479, 21 Nov 2026): no programme is published, so the page says only
+  // 'No programmes published yet.' Not indexed, not in the sitemap or the A to Z directory; the page and its data stay.
+  // To bring it back: drop this line and put the entry back in lib/directory.ts (the sitemap follows the directory).
+  robots: { index: false, follow: true },
 };
 
 const INK      = '#14100d';
