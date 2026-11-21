@@ -23,15 +23,15 @@ export async function yearListPage(q: string): Promise<DirectoryPage | null> {
     const inMonth = month ? [...all.sessions, ...all.preFixed].filter((d) => d.date.startsWith(`${year}-${String(month).padStart(2, '0')}-`)).length : 0;
     const monthNote = month ? ` ${monthName(month)} ${year} is on this page${inMonth ? '' : ', with no sitting that month'}.` : '';
     return sessions
-      ? row(pmqsYearHref(year), `PMQs in ${year}: all sessions`, `Every session of Prime Minister's Questions in ${year} (${sessions}), with who answered.${monthNote}`)
-      : row(pmqsYearHref(year), `Questions to the Prime Minister in ${year}: every day`, `Every day in ${year} with questions to the Prime Minister (${days}), before PMQs had a fixed time in July 1961.${monthNote}`);
+      ? row(pmqsYearHref(year), `PMQs in ${year}: all sessions`, `All ${sessions} sessions of Prime Minister's Questions in ${year}, with who answered.${monthNote}`)
+      : row(pmqsYearHref(year), `Questions to the Prime Minister in ${year}: every day`, `All ${days} days in ${year} with questions to the Prime Minister, before PMQs had a fixed time in July 1961.${monthNote}`);
   }
   const years = await divisionYears();
   if (!years.includes(year)) return null;
   if (month) {
     const months = await yearMonths(year);
     const m = months.find((x) => x.month === month);
-    if (m) return row(divisionMonthHref(year, month), `Commons votes in ${monthName(month)} ${year}`, `Every Commons division in ${monthName(month)} ${year} (${m.count}), with the result.`);
+    if (m) return row(divisionMonthHref(year, month), `Commons votes in ${monthName(month)} ${year}`, `All ${m.count} Commons divisions in ${monthName(month)} ${year}, with the result.`);
   }
   return row(yearHref(year), `Commons votes in ${year}`, `Every Commons division in ${year}, with the result.`);
 }
