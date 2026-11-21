@@ -7,6 +7,7 @@ import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import '@/app/components/search-box-desk.css';
 import { plainScoreRank } from './ranks';
+import { bandSentence, mhclgNeighbourhoodHref } from '@/lib/deprivation/band';
 
 const INK = '#14100d';
 const MONO = 'var(--font-special-elite), monospace';
@@ -14,7 +15,7 @@ const ACCENT = '#7a1612';
 const UNRANKED = new Set(['city-of-london-corporation', 'isles-of-scilly']);
 const ENGLAND_ONLY = 'This list covers council areas in England only. Check the postcode, or try one in England.';
 
-type Result = { kind: 'area'; slug: string; rank: number; score: number; name: string } | { kind: 'message'; text: string };
+type Result = { kind: 'area'; slug: string; rank: number; score: number; name: string; band: string | null; lsoa: string | null } | { kind: 'message'; text: string };
 
 export default function FindYourArea({ ranks, ranked }: { ranks: Record<string, [number, number, string]>; ranked: number }) {
   const [postcode, setPostcode] = useState('');
@@ -36,7 +37,7 @@ export default function FindYourArea({ ranks, ranked }: { ranks: Record<string, 
       else if (!ranks[j.slug]) setResult({ kind: 'message', text: ENGLAND_ONLY });
       else {
         const [rank, score, name] = ranks[j.slug];
-        setResult({ kind: 'area', slug: j.slug, rank, score, name });
+        setResult({ kind: 'area', slug: j.slug, rank, score, name, band: typeof j.imdDecile === 'number' ? bandSentence(j.imdDecile) : null, lsoa: typeof j.lsoa === 'string' && /^E01\d{6}$/.test(j.lsoa) ? j.lsoa : null });
       }
     } catch {
       setResult({ kind: 'message', text: 'The postcode search did not work. Please try again.' });
@@ -69,6 +70,13 @@ export default function FindYourArea({ ranks, ranked }: { ranks: Record<string, 
           <p style={{ ...text, margin: 0 }}>
             <strong>{result.name}</strong>: the {plainScoreRank(result.rank, ranked)}, score {result.score.toFixed(1)} out of 100.{' '}
             <Link href={`/council-areas/lowest-scores/${result.slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>See what pulls it down or up</Link>
+          </p>
+        )}
+        {/* ENTRY 494 item 2: the postcode's own neighbourhood, kept apart from the area's score. */}
+        {result?.kind === 'area' && result.band && (
+          <p style={{ ...text, margin: '8px 0 0' }}>
+            <strong>Deprivation in your neighbourhood</strong>: {result.band}
+            {result.lsoa && (<>{' '}<a href={mhclgNeighbourhoodHref(result.lsoa)} rel="noopener" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>MHCLG&apos;s map of this neighbourhood</a></>)}
           </p>
         )}
         {result?.kind === 'message' && <p style={{ ...text, margin: 0 }}>{result.text}</p>}

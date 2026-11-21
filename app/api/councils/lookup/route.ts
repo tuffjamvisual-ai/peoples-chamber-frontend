@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { decileOf } from '@/lib/deprivation/band';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +39,7 @@ type PostcodesIoResult = {
   admin_district?: string | null;
   codes?: {
     lau2?: string | null;
+    lsoa21?: string | null; // 2021 LSOA (ENTRY 494: the neighbourhood's deprivation decile)
     admin_district?: string | null;
   };
 };
@@ -84,5 +86,8 @@ export async function GET(req: NextRequest) {
     name: data.name,
     shortName: data.short_name,
     typeLabel: data.type_label,
+    // ENTRY 494: the postcode's neighbourhood decile (England only; null elsewhere). The postcode itself is not kept.
+    imdDecile: await decileOf(result.codes?.lsoa21),
+    lsoa: result.codes?.lsoa21 || null,
   });
 }
