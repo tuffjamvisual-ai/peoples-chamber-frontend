@@ -379,8 +379,9 @@ export default async function HomePage() {
               <FeaturedBrief n={3} only="desk" />
 
               <Link className="og-block og-card" href="/expenses">
-                <div className="og-head">The biggest expenses bill</div>
-                <p>The ten biggest claimants ran up the largest bills in {expensesYear}. See which MPs spent the most and on what.</p>
+                {/* ENTRY 495 (b), owner approved 21 Nov 2026: neutral wording; the title as proposed to Cowork. */}
+                <div className="og-head">Highest MP business costs</div>
+                <p>The ten MPs with the highest business costs in {expensesYear}, and what drove them: staff, travel, office and accommodation.</p>
                 <div className="og-cta">See the full top ten &rarr;</div>
               </Link>
 

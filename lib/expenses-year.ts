@@ -13,3 +13,12 @@ export async function latestExpensesYear(): Promise<string> {
 // hyphen: the site shows no dash-like marks in its own text (owner's rule, 17 Oct 2026).
 export const expensesYearShort = (y: string) => `20${y.slice(0, 2)}/${y.slice(3, 5)}`;
 export const expensesYearLong = (y: string) => `20${y.slice(0, 2)} / 20${y.slice(3, 5)}`;
+
+// Every year with IPSA totals, newest first (ENTRY 495: the latest year at /expenses, earlier ones at /expenses/year/<yy_yy>).
+export async function expensesYears(): Promise<string[]> {
+  const { data, error } = await tagDb().from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(5000);
+  if (error && error.code !== 'PGRST116') throw new Error(`expenses-years mp_expenses_summary: ${error.message}`);
+  return [...new Set(((data || []) as { year: string }[]).map((r) => r.year))];
+}
+// The address of a year's page: the latest year is /expenses itself.
+export const expensesYearHref = (y: string, latest: string) => (y === latest ? '/expenses' : `/expenses/year/${y}`);
