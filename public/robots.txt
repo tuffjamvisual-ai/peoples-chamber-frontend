@@ -32,6 +32,40 @@ Disallow: /account
 Disallow: /feedback
 Disallow: /_vercel/
 
+# AI search and assistant crawlers, and Apple and Meta link fetchers: the main pages stay open to them, the long tail
+# (one page per question, debate, division, contract, donor, motion, bill, organisation, press release and filter) is
+# for Google and Bing only (owner, Cowork ENTRY 488, 21 Nov 2026). A crawler reads only its own group, so the general
+# rules are repeated. GPTBot, ClaudeBot, Applebot-Extended and meta-externalagent stay blocked from the whole site above.
+# The trailing slash keeps the list pages (/questions, /debates and so on) open.
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Claude-SearchBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: facebookexternalhit
+User-agent: meta-externalfetcher
+User-agent: Applebot
+Allow: /
+Disallow: /questions/
+Disallow: /debates/
+Disallow: /divisions/
+Disallow: /contracts/
+Disallow: /donors/
+Disallow: /edms/
+Disallow: /mps/*/votes-from-hansard/
+Disallow: /bills/
+Disallow: /organisations/
+Disallow: /news/
+Disallow: /pmqs/filter/
+Disallow: /lords/*/questions
+Disallow: /api/
+Disallow: /internal/
+Disallow: /preview/
+Disallow: /login
+Disallow: /account
+Disallow: /feedback
+Disallow: /_vercel/
+
 User-agent: *
 Allow: /
 Disallow: /api/
