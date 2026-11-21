@@ -14,13 +14,13 @@
 // change's old value, for the same supplier; one that matches nothing is shown as its own contract.
 
 import { buildHistories, sameLot, type Notice } from '@/lib/contract-history';
+import { cachedOrDirect, skipDataCache } from '@/lib/data-cache-skip';
 import { lotLabel, hasSeveralLots, namesLot, type LotTitle } from '@/lib/contract-lot-label';
 import type { ChangeKind } from '@/lib/contract-notice-kind';
 import NoJsPager, { NoJsPagerLinks, njpItem } from '@/app/components/NoJsPager';
 import { namedTitle } from '@/lib/seo-title';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { unstable_cache } from 'next/cache';
 import { CONTRACT_NOTICES_TAG, contractTag } from '@/lib/contract-tags';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -28,12 +28,9 @@ import BackLink from '../../components/BackLink';
 import PageSources, { type PageSource } from '../../components/PageSources';
 import { findTenderUrl, findTenderNoticeNumber } from '@/lib/organisations';
 
-export const revalidate = false; // A16: rebuilt only when its data changes (tags above), or on a deploy
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 // Built on first visit and cached (no pages at build time), like the news and council pages.
-export function generateStaticParams() {
-  return [];
-}
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
@@ -44,7 +41,7 @@ const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/;
 const NOTICE_COLUMNS = 'ocid, release_id, notice_type, tags, published_at, contract_key, award_id, title, buyer_name, suppliers, is_framework, value, value_type, value_from_text, change_description, change_reason, termination_reason, end_date, status, source_url';
 // A16 (owner rule 15 Nov 2026, COWORK-TO-T1 ENTRY 129): kept until the contracts sync refreshes this procurement's tag
 // (contract:<ocid>, only when it got a new notice or a newer lot) or the 'contract-notices' tag; no timer.
-const loadNotices = (ocid: string) => unstable_cache(
+const loadNotices = (ocid: string) => cachedOrDirect(
   async (): Promise<Notice[]> => {
     const read = (cols: string) => supabase.from('contract_notices').select(cols).eq('ocid', ocid).order('published_at').order('contract_key').limit(5000);
     let { data, error } = await read(`${NOTICE_COLUMNS}, lot_ids`);
@@ -58,7 +55,7 @@ const loadNotices = (ocid: string) => unstable_cache(
 )();
 
 // The procurement's lots as published (T1-LOT); none when the table is missing or the read fails.
-const loadLots = (ocid: string) => unstable_cache(
+const loadLots = (ocid: string) => cachedOrDirect(
   async (): Promise<LotTitle[]> => {
     const { data, error } = await supabase.from('contract_lots').select('lot_id, title').eq('ocid', ocid).order('lot_id');
     if (error) { console.error(`/contracts/[ocid] contract_lots: ${error.message}`); return []; }
@@ -100,6 +97,7 @@ const noticeNo = (url: string) => findTenderNoticeNumber(url);
 const short = (s: string) => (s.length > 400 ? `${s.slice(0, 400).replace(/\s+\S*$/, '')}… (full reason on the notice)` : s);
 
 export async function generateMetadata({ params }: { params: Promise<{ ocid: string }> }): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { ocid } = await params;
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
   if (!OCID_RE.test(ocid)) notFound();
@@ -110,6 +108,7 @@ export async function generateMetadata({ params }: { params: Promise<{ ocid: str
 }
 
 export default async function ContractHistoryPage({ params }: { params: Promise<{ ocid: string }> }) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { ocid } = await params;
   if (!OCID_RE.test(ocid)) notFound();
   const [notices, lots] = await Promise.all([loadNotices(ocid), loadLots(ocid)]);

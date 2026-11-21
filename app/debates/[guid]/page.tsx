@@ -1,4 +1,5 @@
 import { titleWithin } from '@/lib/seo-title';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import NoJsPager, { NoJsFold, NoJsPagerLinks, njpItem, pagesByHeight } from '@/app/components/NoJsPager';
 import { splitAnswer } from '@/lib/answer-html';
 import { Fragment, cache } from 'react';
@@ -29,21 +30,11 @@ import { tableTags } from '@/lib/source-tags';
 // with 24h ISR — same approved carve-out as /bills/[id]/full: heavy payload, low
 // per-debate traffic. Speaker names link to their on-site MP profile where we
 // hold one, and the previous/next debate links stay on site.
-export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 // On phones a long speech opens with its first 600 characters, then "Continue reading", and the debate with its first two
 // speeches, then "Show all" (UX5, T1-6, 11 Nov 2026: the 2,500px phone length; 2,000 and five before). Wider: as before.
 const SPEECH_OPENS = 600;
 
-export async function generateStaticParams() {
-  const { data, error } = await cachedQuery(['q:app/debates/[guid]/page.tsx:f7c11c55b6'], tableTags('debates'), () => supabase
-    .from('debates')
-    .select('hansard_ext_id')
-    .limit(3));
-  if (error || !data?.length) throw new Error(`generateStaticParams debates: ${error?.message || 'zero rows'}`);
-  const guids = data.map((r) => String(r.hansard_ext_id).toUpperCase()).filter(Boolean);
-  if (!guids.length) throw new Error('generateStaticParams debates: zero usable values');
-  return guids.map((guid) => ({ guid }));
-}
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -213,6 +204,7 @@ const venueWords = (venue: string | null, opening: boolean) =>
     : (opening ? 'A debate' : 'Debate');
 
 export async function generateMetadata({ params }: { params: Promise<{ guid: string }> }): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { guid } = await params;
   const d = await getDebate(guid);
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
@@ -259,6 +251,7 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
 }
 
 export default async function DebatePage({ params }: { params: Promise<{ guid: string }> }) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { guid } = await params;
   const debate = await getDebate(guid);
   // A debate still in our list whose Hansard record has gone (Hansard republishes some sitting headers under new IDs,

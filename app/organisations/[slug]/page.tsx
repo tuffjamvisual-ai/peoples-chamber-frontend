@@ -4,6 +4,7 @@
 // the latest five records of each from the source tables (lib/organisations.ts). Rendered on demand, cached a day.
 
 import { ShowAll } from '@/app/components/NoJsPager';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import { SubFold } from '@/app/components/PhoneFolds';
 import { namedTitle } from '@/lib/seo-title';
@@ -25,8 +26,7 @@ import {
 import { getOrgBySlug } from '@/lib/lobbying';
 import { orgCanonical, thinSupplier } from '@/lib/index-rules';
 
-export const revalidate = false; // A16: rebuilt only when its data changes (tags on every read), or on a deploy
-export function generateStaticParams() { return []; }
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 const INK = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.22)';
@@ -50,6 +50,7 @@ function orgDescription(org: OrgIndexRow): string {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { slug } = await params;
   const org = await getOrganisation(slug);
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
@@ -85,6 +86,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function OrganisationPage({ params }: { params: Promise<{ slug: string }> }) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { slug } = await params;
   const org = await getOrganisation(slug);
   if (!org) notFound();

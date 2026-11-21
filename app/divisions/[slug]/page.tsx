@@ -1,4 +1,5 @@
 import NoJsPager from '@/app/components/NoJsPager';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import { divisionSeoTitle } from '@/lib/division-title';
 import { titleWithin } from '@/lib/seo-title';
 import { billSummary as officialBillSummary } from '@/lib/bill-summary';
@@ -35,7 +36,7 @@ import { tableTags, DIVISION_TABLES } from '@/lib/source-tags';
 import { SubFold } from '@/app/components/PhoneFolds';
 
 import '@/app/components/search-box-desk.css';
-export const revalidate = false; // A16: rebuilt only when its data changes (source tags on every read), or on a deploy  // divisions don't change after the vote happens
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -121,6 +122,7 @@ interface PageProps {
 type Vote = DivisionVote;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { slug } = await params;
   const m = SLUG_RE.exec(slug);
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
@@ -248,40 +250,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // same source the /divisions index uses: one row per division (a materialized
 // copy of commons_divisions_titled, fast enough for the anon role's 3-second
 // timeout), so no dedupe is needed against the per-MP rows in mp_division_votes.
-export async function generateStaticParams() {
-  const { data, error } = await cachedQuery(['division-static-params'], tableTags(...DIVISION_TABLES), () => supabase
-    .from('commons_divisions_fts')
-    .select('division_date_only, division_number')
-    .not('division_date_only', 'is', null)
-    .not('division_number', 'is', null)
-    .limit(20));
-  if (error) {
-    throw new Error(
-      `generateStaticParams(/divisions/[slug]) query failed: ${error.message}`
-    );
-  }
-  if (!data || data.length === 0) {
-    throw new Error(
-      'generateStaticParams(/divisions/[slug]): commons_divisions_fts returned no rows'
-    );
-  }
-  const seen = new Set<string>();
-  for (const row of data) {
-    const date = String(row.division_date_only).slice(0, 10);
-    const num = row.division_number;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
-    if (num === null || num === undefined) continue;
-    seen.add(`pw-${date}-${num}-commons`);
-  }
-  if (seen.size === 0) {
-    throw new Error(
-      'generateStaticParams(/divisions/[slug]): no usable slugs derived'
-    );
-  }
-  return Array.from(seen).map((slug) => ({ slug }));
-}
 
 export default async function DivisionDetailPage({ params }: PageProps) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { slug } = await params;
   const m = SLUG_RE.exec(slug);
   if (!m) notFound();

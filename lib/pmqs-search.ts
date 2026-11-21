@@ -3,7 +3,7 @@
 // 3,000 and more. The filters work on the session list the page already reads (cached); only words go to the database:
 // the archive (1961 to 2024) and the Hansard rows of the sessions since, each match read once and kept for an hour.
 import 'server-only';
-import { unstable_cache } from 'next/cache';
+import { cacheUnlessSkipped } from './data-cache-skip';
 import { supabase } from '@/lib/supabase';
 import { PMQS_TAG, type PmqsSet } from '@/lib/pmqs';
 import { ilikeWords } from '@/lib/ilike-words';
@@ -15,7 +15,7 @@ export const ROW_CAP = 4000;
 
 export type TextMatches = { dates: string[]; capped: boolean };
 
-const readMatches = unstable_cache(async (words: string, guidDates: [string, string, number][]): Promise<TextMatches> => {
+const readMatches = cacheUnlessSkipped(async (words: string, guidDates: [string, string, number][]): Promise<TextMatches> => {
   // The words in order, anything between (the site's search rule, lib/ilike-words.ts).
   const like = ilikeWords(words);
   if (!like) return { dates: [], capped: false };
@@ -56,7 +56,7 @@ export function sessionsMatching(words: string, set: PmqsSet): Promise<TextMatch
 // The questions to the Prime Minister from 1945 to 1961 (T2 ENTRY 3, Cowork 14 Nov 2026): the dates of the days whose
 // questions, answers or speakers' names contain the words. Small tables (about 4,000 questions, 26,000 rows of text), so a
 // plain match, kept for an hour like the sessions' search.
-const preFixedRead = unstable_cache(async (words: string): Promise<TextMatches> => {
+const preFixedRead = cacheUnlessSkipped(async (words: string): Promise<TextMatches> => {
   const like = ilikeWords(words);
   if (!like) return { dates: [], capped: false };
   const exchanges = new Set<string>();

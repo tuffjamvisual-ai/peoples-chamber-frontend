@@ -8,6 +8,7 @@
 // serif body, with the vote presented as an official ballot paper.
 
 import { stageWithHouse, startedIn } from '@/lib/bill-stage';
+import { skipDataCache } from '@/lib/data-cache-skip';
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import { billStageLine, NO_SUMMARY_TEXT } from '@/lib/bill-summary'
@@ -33,28 +34,12 @@ import { billStatus, isLaw, sittingCancelled } from '@/lib/bill-status';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { billTag } from '@/lib/bill-refresh'
-export const revalidate = false; // A16: rebuilt only when its data changes (bill and table tags), or on a deploy  // a week; the bill syncs refresh a bill when its data changes (lib/bill-refresh.ts)
+export const dynamic = 'force-dynamic'; // ENTRY 487 (owner approved 21 Nov 2026): no saved copy (no ISR write); rendered on demand and held by Vercel's CDN for a day (next.config.ts headers)
 
 // Prerender a small set of bill pages at build time. The list does NOT need
 // to be complete — its presence is what enables ISR caching for the whole
 // route. Pages not listed here render on first request and are cached from
 // then on (see revalidate above, 1h).
-export async function generateStaticParams() {
-  const { data, error } = await cachedQuery(['q:app/bills/[id]/page.tsx:d76786f49c'], tableTags('bill'), () => supabase
-    .from('bill')
-    .select('id')
-    .not('id', 'is', null)
-    .limit(20))
-  if (error) {
-    throw new Error(
-      `generateStaticParams(/bills/[id]) query failed: ${error.message}`
-    )
-  }
-  if (!data || data.length === 0) {
-    throw new Error('generateStaticParams(/bills/[id]): bill returned no rows')
-  }
-  return data.map((row) => ({ id: String(row.id) }))
-}
 
 // Whether search engines may index this bill: the rule shared with the sitemap, in lib/bill-indexing.ts (owner, 7 Nov 2026).
 // The facts the indexing rule reads, shared by the metadata and the page (ENTRY 367 item 7): whether the bill progressed.
@@ -83,6 +68,7 @@ async function progressFacts(billId: number) {
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { id } = await params
   const billId = parseInt(id, 10)
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
@@ -125,6 +111,7 @@ function lightBadge(colour: unknown): boolean {
 }
 
 export default async function BillDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { id } = await params
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) notFound()

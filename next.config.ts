@@ -117,6 +117,22 @@ const LIST_VARIANT_KEYS = ['page', 'dpage', 'before', 'q', 'k', 'words', 'at', '
   'department', 'procedure', 'flag', 'has', 'party', 'type', 'view', 'vp', 'vq', 'name', 'pm', 'member', 'constituency',
   'role', 'who', 'state', 'status', 'show', 'sort', 'uin', 'debated', 'responded', 'prayer'];
 
+// ENTRY 487: the long tail routes held by Vercel's CDN instead of saved copies (see headers() below).
+const LONG_TAIL_CDN = [
+  '/questions/:id((?!search$|department$)[^/]+)',
+  '/debates/:guid((?!search$|filter$)[^/]+)',
+  '/divisions/:slug((?!page$|year$)[^/]+)',
+  '/contracts/:ocid',
+  '/donors/:slug',
+  '/edms/:id((?!search$|filter$)[^/]+)',
+  '/mps/:id/votes-from-hansard/:year',
+  '/bills/:id((?!search$|sessions$|page$)[^/]+)',
+  '/organisations/:slug((?!search$|filter$)[^/]+)',
+  '/news/:slug',
+  '/pmqs/filter/:path*',
+  '/edms/filter/:path*',
+];
+
 const nextConfig: NextConfig = {
   // The recommendations tracker's switch (lib/feature-flags.ts), set at build time so the server and the browser (the
   // menu's current section in HeaderNav) read the same value. Not a secret; a change needs a new deploy.
@@ -327,6 +343,13 @@ const nextConfig: NextConfig = {
           { key: 'Cache-Control', value: 'private, no-store' },
         ],
       },
+      // ENTRY 487 (owner approved 21 Nov 2026): the long tail pages keep no saved copy (each is 'force-dynamic', no ISR
+      // write) and Vercel's CDN holds the rendered page instead, for a day, then serves it stale for up to a week while it
+      // fetches a fresh one. Vercel-CDN-Cache-Control is read by Vercel's CDN only (vercel.com/docs/caching/cdn-cache);
+      // Next.js sets 'private, no-store' as the Cache-Control of a dynamic page, so browsers and other caches keep nothing.
+      // A data change shows within a day (the syncs' revalidateTag no longer reaches these pages); a deploy starts empty.
+      // Sibling list and search pages are left out by name.
+      ...LONG_TAIL_CDN.map((source) => ({ source, headers: [{ key: 'Vercel-CDN-Cache-Control', value: 'max-age=86400, stale-while-revalidate=604800' }] })),
       {
         source: '/(.*)',
         headers: [
