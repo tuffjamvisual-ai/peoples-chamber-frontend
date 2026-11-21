@@ -305,7 +305,6 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                               <a data-og-row-source="" href={publicationHref(p, bill.parliament_id)} target="_blank" rel="noopener noreferrer" className="focus-ring"
                                 style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.5, color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', overflowWrap: 'anywhere' }}>
                                 {p.title || '(untitled publication)'}
-                                <span className="sr-only"> (opens on Parliament&rsquo;s website)</span>
                               </a>
                               {p.house && p.house !== 'Unassigned' && (
                                 <span style={{ marginLeft: '10px', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{p.house}</span>
