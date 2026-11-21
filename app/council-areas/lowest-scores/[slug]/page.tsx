@@ -15,6 +15,9 @@ import SourceNotes from '../SourceNotes';
 import { AREAS, RANKED, SOURCES, AREA_NOTES, AVG_TOPIC, bySlug, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary, type Measure } from '../data';
 import { explainMeasure, explainPolice, explainScore, measureRank, plainPeriod } from '../explain';
 import { cap, plainScoreRank } from '../ranks';
+import { whySentence } from '../why';
+import WhyFold from '../WhyFold';
+import { ALL_MEASURES_ID, OpenAllMeasures } from '../AllMeasuresLink';
 
 export const revalidate = false; // A16: static data, rebuilt only on a deploy
 export const dynamicParams = false;
@@ -60,6 +63,12 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
 
         <p style={para}>{explainScore(a, RANKED)}</p>
 
+        {/* Reader first (Cowork ENTRY 444 items 2 and 3): the why sentence and the Why fold, the same rules as the main page. */}
+        <p style={para}>{whySentence(a)}</p>
+        <section aria-label={`Why ${a.name} ranks here`} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, borderBottom: `1px solid ${INK_HAIRLINE}`, marginBottom: '22px' }}>
+          <WhyFold a={a} rule />
+        </section>
+
         <p style={para}>
           The score is the average of five topics, each the average of its measures, every measure scored 0 to 100 against all {RANKED} council areas. <Link href="/council-areas/lowest-scores" style={{ color: INK }}>See the 10 lowest and find another council area</Link> or <Link href={`/councils/${a.slug}`} style={{ color: INK }}>the council&rsquo;s own page</Link>. Not a ranking of how well councils are run: council performance is left out.
         </p>
@@ -87,7 +96,8 @@ export default async function AreaScorePage({ params }: { params: Promise<{ slug
         {/* Every measure, one short paragraph each: what the figure means, the council area average and a plain rank
             (ENTRY 436 points 2 and 3), then its score out of 100; paragraphs, not a list, so the shared phone script leaves
             them whole. In a fold, closed as the page opens, so the page keeps to the 2,500px phone limit (A3). */}
-        <details style={{ borderTop: `1px solid ${INK_HAIRLINE}`, marginBottom: '8px' }}>
+        <OpenAllMeasures />
+        <details id={ALL_MEASURES_ID} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, marginBottom: '8px', scrollMarginTop: '12px' }}>
           <summary style={foldSummary}>
             Every measure explained
             <span className="og-fold-mark" aria-hidden="true" />

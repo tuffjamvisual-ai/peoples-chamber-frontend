@@ -19,8 +19,11 @@ import BackLink from '../../components/BackLink';
 import PageSources from '../../components/PageSources';
 import SourceNotes from './SourceNotes';
 import FindYourArea from './FindYourArea';
+import WhyFold from './WhyFold';
 import { AREAS, MEASURES, TOPICS, RANKED, MEASURE_COUNT, SOURCES, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary } from './data';
-import { shortLine } from './explain';
+import { plainScoreRank } from './ranks';
+import { areaCovered, whySentence, weightingCheck, weightingSentence, SHARES, countWord } from './why';
+import { PHONE } from '@/lib/breakpoints';
 
 export const revalidate = false; // A16: static data, rebuilt only on a deploy
 
@@ -34,6 +37,33 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 const LOWEST10 = AREAS.slice(0, 10);
+const CHECK = weightingCheck();
+
+const scoreLine = (score: number, rank: number) => `${score.toFixed(1)} out of 100 · ${plainScoreRank(rank, RANKED)}`;
+
+// Desktop: a four column table. Phones (the site's PHONE width): one card per row, the place name, the why sentence
+// straight under it, then area and score (the .ls-meta line inside the why cell; the area and score cells hide), then the
+// Why fold. data-pt-table="keep": the shared phone script leaves this table to these styles. The section is
+// data-own-more, so the phone script shows all ten rows (Cowork, 18:34).
+const TABLE_CSS = `
+.ls-ten { width: 100%; border-collapse: collapse; font-family: ${MONO}; font-size: 15px; color: ${INK}; }
+.ls-ten th, .ls-ten td { text-align: left; vertical-align: top; padding: 10px 14px 8px 0; line-height: 1.45; font-weight: normal; }
+.ls-ten thead th { text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1.5px solid ${INK}; padding-bottom: 6px; }
+.ls-ten tr.ls-row > * { border-top: 1px solid ${INK_HAIRLINE}; }
+.ls-ten tr.ls-row > th { font-family: ${SERIF}; font-size: 18px; font-weight: bold; width: 19%; }
+.ls-ten .ls-area { width: 18%; }
+.ls-ten .ls-score { width: 17%; }
+.ls-ten tr.ls-fold > td { padding: 0 0 4px; }
+.ls-ten .ls-meta { display: none; }
+@media ${PHONE} {
+  .ls-ten thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ls-ten, .ls-ten tbody, .ls-ten tr, .ls-ten th, .ls-ten td { display: block; width: auto; }
+  .ls-ten tr.ls-row { border-top: 1px solid ${INK_HAIRLINE}; padding-top: 8px; }
+  .ls-ten tr.ls-row > * { border-top: 0; padding: 0; width: auto; }
+  .ls-ten tr.ls-row > th { margin-bottom: 4px; width: auto; }
+  .ls-ten .ls-area, .ls-ten .ls-score { display: none; }
+  .ls-ten .ls-meta { display: block; margin-top: 4px; }
+}`;
 
 // Rank, score and name of every ranked council area by slug, for the postcode result (small: 294 short rows).
 const RANKS = Object.fromEntries(AREAS.map((a) => [a.slug, [a.rank, a.score, a.name] as [number, number, string]]));
@@ -63,26 +93,37 @@ export default function LowestScoresPage() {
           All {RANKED} council areas in England, scored the same way on {MEASURE_COUNT} official measures in five equal topics, lowest score first.
         </p>
 
-        {/* All 10 show on phones too (Cowork, 18:34): the phone script leaves lists inside [data-own-more] alone. */}
+        {/* All 10 show on phones too (Cowork, 18:34): the phone script leaves lists inside [data-own-more] alone. Reader first
+            layout (Cowork ENTRY 444): what the reader sees first is where, how it scores and why, in plain words. */}
         <section data-main-action="" data-own-more="" aria-label="The 10 lowest scores" style={{ marginBottom: '28px' }}>
           <h2 style={h2}>The 10 lowest scores</h2>
-          <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {LOWEST10.map((a) => (
-              <li key={a.slug} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, padding: '0 0 4px' }}>
-                <h3 style={{ fontFamily: SERIF, fontSize: '18px', fontWeight: 'bold', margin: 0, color: INK, display: 'flex', gap: '10px', alignItems: 'center', minHeight: '44px' }}>
-                  <span>{a.rank}.</span>
-                  <Link href={`/council-areas/lowest-scores/${a.slug}`} style={{ flex: 1, color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{a.name}</Link>
-                  <span style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'normal' }}>{a.score.toFixed(1)}</span>
-                </h3>
-                {/* Its three worst measures with the figure and the average (ENTRY 436 point 4): a short data line at the
-                    page's 15px, like the site's table text, not running text (which phones set at 17px), so the 10 fit the
-                    2,500px phone limit. */}
-                <div style={{ ...para, lineHeight: 1.35, margin: 0, paddingLeft: '10px', borderLeft: `3px solid ${ACCENT}` }}>
-                  {a.down.map((m) => shortLine(m)).join('; ')}
-                </div>
-              </li>
-            ))}
-          </ol>
+          <style>{TABLE_CSS}</style>
+          <table className="ls-ten" data-pt-table="keep">
+            <thead>
+              <tr><th scope="col">Place</th><th scope="col">Area covered</th><th scope="col">Overall score</th><th scope="col">Why it ranks here</th></tr>
+            </thead>
+            <tbody>
+              {LOWEST10.flatMap((a) => [
+                <tr key={a.slug} className="ls-row">
+                  <th scope="row">
+                    {a.rank}.{' '}
+                    <Link href={`/council-areas/lowest-scores/${a.slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{a.name}</Link>
+                  </th>
+                  <td className="ls-area">{areaCovered(a.name, a.type)}</td>
+                  <td className="ls-score">{scoreLine(a.score, a.rank)}</td>
+                  <td className="ls-whyc">
+                    {whySentence(a)}
+                    <span className="ls-meta">{areaCovered(a.name, a.type)} · {scoreLine(a.score, a.rank)}</span>
+                  </td>
+                </tr>,
+                <tr key={`${a.slug}-why`} className="ls-fold">
+                  <td colSpan={4}><WhyFold a={a} linkTo={`/council-areas/lowest-scores/${a.slug}`} /></td>
+                </tr>,
+              ])}
+            </tbody>
+          </table>
+          {/* ENTRY 444 item 4: worked out from the page data on every build (why.ts weightingCheck). */}
+          <p style={{ ...para, margin: '12px 0 0' }}>{weightingSentence(CHECK)}</p>
         </section>
 
         <section aria-label="Find your area" style={{ border: `1.5px solid ${INK}`, padding: '10px 12px', marginBottom: '20px' }}>
@@ -99,6 +140,13 @@ export default function LowestScoresPage() {
             <p style={para}>
               Each measure is scored from 0 to 100 by where the council area sits among all {RANKED}: the best figure scores 100, the worst 0, and areas with the same figure share a score. A topic&rsquo;s score is the average of its measures; the overall score is the average of the five topics, so each topic counts a fifth. No figure is estimated and no county figure is given to a district. City of London and the Isles of Scilly are too small to compare fairly.
              Crime is the government&rsquo;s crime score from the Indices of Deprivation 2025, built from crimes recorded by the police from April 2018 to March 2024 (violence, stalking and harassment, burglary, theft other than shoplifting, criminal damage, public order and weapons offences) and antisocial behaviour incidents from April 2022 to March 2024. The Indices rank 296 council areas, including City of London and the Isles of Scilly; here crime is ranked among the 294, like every other measure. This is not the <Link href="/councils/league-table" style={{ color: INK }}>council area league table</Link>, which uses more measures, including some published only for counties, so the order is different.</p>
+            {/* ENTRY 444 items 2, 3(b) and 4: the rules behind the why sentences and the Why folds, and the checks. */}
+            <p style={para}>
+              Each measure&rsquo;s share of the overall score: {SHARES.map((t) => `${t.topic.toLowerCase()} ${t.share}${t.count > 1 ? ` each (${countWord(t.count)} measures)` : ' (one measure)'}`).join('; ')}. The sentence beside each area names its two lowest scoring topics and, in each, the measure with the lowest score, with its figure. In &ldquo;Why it ranks here&rdquo;, a measure&rsquo;s effect is how far its score falls below 50, the middle, times its share of the overall score: the measure with the largest effect had the biggest effect on the score, and the one furthest above 50, times its share, helped most.
+            </p>
+            <p style={para}>
+              The {countWord(CHECK.ways)} ways of weighting the figures: the five topics counting equally (the method used here), every measure counting equally, and the five topics counting equally with each topic left out in turn.{CHECK.out.length > 0 && ` ${CHECK.out.map((o) => o.name).join(' and ')} left the bottom ${CHECK.bottom} with ${CHECK.out.map((o) => o.run).join(' and ')}.`} As checks, the order of the {RANKED} by overall score is close to their order on the government&rsquo;s Indices of Deprivation 2025 (a rank correlation of 0.92, where 1 would be the same order) and by life expectancy (0.89). Life expectancy is itself one of the {MEASURE_COUNT} measures, so the second check is not independent.
+            </p>
             <p style={para}>
               Measures that are not published for every council area at council area level are left out, so that every area is judged the same way: police recorded crime rates (combined for some council areas and missing for others, so the score uses the Indices of Deprivation instead; each area&rsquo;s page shows its police figure for information, crimes recorded per 1,000 residents in the year to June 2026, not counting fraud, which is recorded nationally; rates are high in city centres, where many people visit but few live), temporary accommodation (not every council area reports it in any one quarter) and healthy life expectancy (published only for counties and unitary councils). Road safety counts people killed or seriously injured in collisions in the area; sewage spills count the hours of spills from storm overflows placed in the area by their grid reference, with zero where there are none; both are per resident. House prices against earnings and fly tipping are left out by choice. &ldquo;Least desirable&rdquo; here means the lowest score on these measures, nothing more. The council area average is the plain average of the {RANKED}, each counting once, so it is not the official England figure. Small differences in score change the order a lot, so areas a few places apart are much alike.
             </p>

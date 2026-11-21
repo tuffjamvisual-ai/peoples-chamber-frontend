@@ -78,12 +78,3 @@ export function explainPolice(a: Area): string {
 export function explainScore(a: Area, of: number): string {
   return `${a.score.toFixed(1)} out of 100. 100 would be the best figure of the ${of} council areas on every measure, 0 the worst on every one (average ${AVG_SCORE.toFixed(1)}). ${a.name} is the ${plainScoreRank(a.rank, of)}.`;
 }
-
-// Short form for the top 10 list (ENTRY 436 point 4): 'Life expectancy 77.7 years (average 81.3)'. Short names and units
-// keep each place to two or three lines on a phone (the page stays under the 2,500px phone limit, rendered check A3).
-const SHORT: Record<string, string> = { child_poverty: 'Child poverty', unemployment: 'Unemployment', fuel_poverty: 'Fuel poverty', life_expectancy: 'Life expectancy', obesity: 'Overweight', air: 'Air pollution', gigabit: 'Gigabit broadband', indoor_4g: '4G coverage', schools: 'GCSE results', road_safety: 'Road safety', sewage: 'Sewage spills' };
-export function shortLine(m: Measure): string {
-  if (m.key === 'crime') return `Crime score ${crimeRank(m)}`;
-  const figure = m.figure.replace(' Attainment 8 score', '').replace(' residents', '');
-  return `${SHORT[m.key] ?? m.label} ${figure} (average ${num(m.average)})`;
-}
