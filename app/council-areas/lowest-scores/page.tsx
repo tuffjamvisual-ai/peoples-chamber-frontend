@@ -19,6 +19,7 @@ import BackLink from '../../components/BackLink';
 import PageSources from '../../components/PageSources';
 import SourceNotes from './SourceNotes';
 import FindYourArea from './FindYourArea';
+import LsMore from './LsMore';
 import { AREAS, MEASURES, TOPICS, RANKED, MEASURE_COUNT, SOURCES, INK, INK_HAIRLINE, ACCENT, SERIF, MONO, h2, para, foldSummary } from './data';
 import { plainScoreRank } from './ranks';
 import { areaCovered, whySentence, weightingCheck, weightingSentence, SHARES, countWord } from './why';
@@ -45,7 +46,7 @@ const scoreLine = (score: number, rank: number) => `${score.toFixed(1)} out of 1
 // .ls-meta line inside the why cell; the area and score cells hide). The Why fold is on area pages only (Cowork ENTRY 444
 // decisions, 21 Nov 2026 04:12, item 1); the link runs on in the cell's text, so it adds no tap row to the phone length.
 // data-pt-table="keep": the shared phone script leaves this table to these styles. The section is data-own-more, so the
-// phone script shows all ten rows (Cowork, 18:34).
+// phone script adds no button of its own; LsMore shows 5 rows then 'Show 5 more' on phones (ENTRY 472 (4)).
 const TABLE_CSS = `
 .ls-ten { width: 100%; border-collapse: collapse; font-family: ${MONO}; font-size: 15px; color: ${INK}; }
 .ls-ten th, .ls-ten td { text-align: left; vertical-align: top; padding: 10px 14px 8px 0; line-height: 1.45; font-weight: normal; }
@@ -72,8 +73,17 @@ export default function LowestScoresPage() {
   return (
     <OpenGovShell pageStamp="Council areas">
       <BackLink fallbackHref="/councils" />
-      <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
-        <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '18px' }}>
+      {/* Small phones (Cowork ENTRY 475, owner approved 21 Nov 2026): on a first visit at 320 x 568 the cookie banner (from
+          458px) covered the top of the main action (449px; daily QA A6). Under 360px only, less space above it: the
+          article's top padding, the title band's padding and the gap below it, and the gap below the intro line. No words,
+          figures or order change; 360px and wider are as before. */}
+      <style>{`@media (max-width: 359.98px) {
+  .ls-art { padding-top: 6px !important; }
+  .ls-head { padding-top: 8px !important; padding-bottom: 8px !important; margin-bottom: 10px !important; }
+  .ls-intro { margin-bottom: 8px !important; }
+}`}</style>
+      <article className="ls-art" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
+        <header className="ls-head" style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '18px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
             England · {RANKED} council areas
           </div>
@@ -89,11 +99,12 @@ export default function LowestScoresPage() {
           </div>
         </header>
 
-        <p style={para}>
+        <p className="ls-intro" style={para}>
           All {RANKED} council areas in England, scored the same way on {MEASURE_COUNT} official measures in five equal topics, lowest score first.
         </p>
 
-        {/* All 10 show on phones too (Cowork, 18:34): the phone script leaves lists inside [data-own-more] alone. Reader first
+        {/* On phones the first 5, then 'Show 5 more' (owner, Cowork ENTRY 472 (4), 21 Nov 2026; LsMore); all 10 on wider
+            screens and with JavaScript off. The phone script leaves lists inside [data-own-more] alone. Reader first
             layout (Cowork ENTRY 444): what the reader sees first is where, how it scores and why, in plain words. */}
         <section data-main-action="" data-own-more="" aria-label="The 10 lowest scores" style={{ marginBottom: '28px' }}>
           <h2 style={h2}>The 10 lowest scores</h2>
@@ -120,6 +131,7 @@ export default function LowestScoresPage() {
               ))}
             </tbody>
           </table>
+          <LsMore total={LOWEST10.length} />
           {/* ENTRY 444 item 4: worked out from the page data on every build (why.ts weightingCheck). */}
           <p style={{ ...para, margin: '12px 0 0' }}>{weightingSentence(CHECK)}</p>
         </section>
