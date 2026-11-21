@@ -88,7 +88,7 @@ const BODY_RE = new RegExp(`\\b(${BODIES.join('|')})\\b`);
 test('no body or dataset name in the why sentences, the Why fold or the folds of figures', () => {
   assert.match('Crime: MHCLG, English Indices of Deprivation 2025', BODY_RE); // the check itself catches them
   const texts: string[] = [WHY_RULE, ...SHARES.map((t) => t.share)];
-  for (const m of MEASURES) texts.push(m.unit, m.period); // 'The 12 measures in 5 topics' fold
+  for (const m of MEASURES) texts.push(m.unit, m.period); // 'The 11 measures in 5 topics' fold
   for (const a of AREAS) {
     texts.push(whySentence(a), ...whyAccount(a).map((p) => `${p.lead}. ${p.text}`));
     for (const m of a.all) texts.push(plainPeriod(m.period), explainMeasure(m, a)); // 'Every measure explained' fold

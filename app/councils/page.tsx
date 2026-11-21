@@ -8,6 +8,7 @@
 // follow-up phases. The listing is the foundation.
 
 import NoJsPager from '@/app/components/NoJsPager';
+import { HEADLINE as LOWEST_SCORES_HEADLINE, MEASURE_COUNT as LOWEST_SCORES_MEASURES } from '../council-areas/lowest-scores/data'; // ENTRY 493 (a): built from the page's data
 import type { Metadata } from 'next';
 import LastUpdated from '../components/LastUpdated';
 import PageSources from '../components/PageSources';
@@ -155,7 +156,7 @@ export default async function CouncilsIndex() {
 
         {/* The council areas list (Cowork ENTRY 415 PUBLISH RULE: linked from the council areas pages on publish). */}
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK, borderBottom: `1px solid ${INK}`, padding: '0 0 10px' }}>
-          <a href="/council-areas/lowest-scores" style={{ color: INK, fontWeight: 'bold' }}>The 10 least desirable places to live in England</a>: every council area scored the same way on twelve official measures, with a postcode search. Not a ranking of how well councils are run.
+          <a href="/council-areas/lowest-scores" style={{ color: INK, fontWeight: 'bold' }}>{LOWEST_SCORES_HEADLINE}</a>: every council area scored the same way on {LOWEST_SCORES_MEASURES} official measures, with a postcode search. Not a ranking of how well councils are run.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
