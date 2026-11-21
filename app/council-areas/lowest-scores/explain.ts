@@ -12,6 +12,7 @@ const n = (x: number) => x.toLocaleString('en-GB');
 // points, never a percentage of a percentage; life expectancy in years; GCSE results in Attainment 8 points; road safety as
 // the area's rate per resident against England's, in per cent. The crime score has no England figure (it is a rank).
 const PCT = ['child_poverty', 'unemployment', 'fuel_poverty', 'obesity', 'air', 'gigabit', 'indoor_4g'] as const;
+const basisOf = (key: string) => (ENGLAND.basis as Record<string, string> | undefined)?.[key];
 const diff = (f: number, e: number) => Math.round((f - e) * 10) / 10;
 const side = (d: number, unit: string) => `${Math.abs(d).toFixed(1)} ${unit}${Math.abs(d) === 1 ? '' : 's'} ${d > 0 ? 'above' : 'below'}`;
 const pctVs = (p: number) => (p === 0 ? 'the same as the England rate' : `${Math.abs(p)} per cent ${p > 0 ? 'above' : 'below'} the England rate`);
@@ -20,7 +21,9 @@ export function vsEngland(m: Measure, a: Area): string {
   if ((PCT as readonly string[]).includes(m.key)) {
     const e = ENGLAND[m.key as (typeof PCT)[number]];
     const d = diff(f, e);
-    return d === 0 ? `the same as England’s ${e.toFixed(1)} per cent` : `${side(d, 'percentage point')} England’s ${e.toFixed(1)} per cent`;
+    // A figure that is the 294 council areas together (no published England row) is named so (T2 13:28, Cowork 13:20).
+    const whose = basisOf(m.key) ? `the ${basisOf(m.key)}’` : 'England’s';
+    return d === 0 ? `the same as ${whose} ${e.toFixed(1)} per cent` : `${side(d, 'percentage point')} ${whose} ${e.toFixed(1)} per cent`;
   }
   if (m.key === 'life_expectancy') {
     const d = diff(f, ENGLAND.life_expectancy);
@@ -37,7 +40,7 @@ export function vsEngland(m: Measure, a: Area): string {
 /** England's figure for the measures fold ('England 9.9 per cent'); a figure that is the 294 council areas together, because
  *  the source publishes no England row for it, says so (Cowork 13:20: 'England (294 council areas)'). */
 export function englandFigure(key: string): string | null {
-  const basis = (ENGLAND.basis as Record<string, string> | undefined)?.[key];
+  const basis = basisOf(key);
   const label = basis ? `England (${basis})` : 'England';
   if ((PCT as readonly string[]).includes(key)) return `${label} ${ENGLAND[key as (typeof PCT)[number]].toFixed(1)} per cent`;
   if (key === 'life_expectancy') return `${label} ${ENGLAND.life_expectancy.toFixed(1)} years`;
@@ -57,7 +60,7 @@ export function shortFigure(m: Measure, a: Area): string {
   if (m.key === 'road_safety' && a.facts.road) return `${n(a.facts.road.killed)} killed and ${n(a.facts.road.serious)} seriously injured in ${ENGLAND.road.year}, ${pctVs(a.facts.road.pct_vs_england)}`;
   const e = (PCT as readonly string[]).includes(m.key) ? `${ENGLAND[m.key as (typeof PCT)[number]].toFixed(1)} per cent`
     : m.key === 'life_expectancy' ? `${ENGLAND.life_expectancy.toFixed(1)} years` : m.key === 'schools' ? ENGLAND.schools.toFixed(1) : '';
-  return e ? `${m.figure} (England ${e})` : m.figure;
+  return e ? `${m.figure} (${basisOf(m.key) ? `${basisOf(m.key)} together` : 'England'} ${e})` : m.figure;
 }
 
 // The crime score reads 'highest' and 'lowest', not 'worst' and 'best'.

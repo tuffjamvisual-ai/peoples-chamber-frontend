@@ -187,6 +187,8 @@ test('ENTRY 484: counts and England figures, Hull and Blackpool', () => {
   assert.match(explainPolice(hull), /^32,936 crimes were recorded by the police in Hull, year to June 2026, 44 per cent above the England rate for an area of its size\./);
   assert.equal(shortFigure(hull.all.find((x) => x.key === 'fuel_poverty')!, hull), '13.5 per cent (England 9.9 per cent)');
   assert.equal(englandFigure('unemployment'), 'England (294 council areas) 4.5 per cent');
+  assert.match(m(hull, 'unemployment'), /1\.4 percentage points above the 294 council areas’ 4\.5 per cent\./);
+  assert.equal(shortFigure(hull.all.find((x) => x.key === 'unemployment')!, hull), '5.9 per cent (294 council areas together 4.5 per cent)');
   assert.equal(englandFigure('gigabit'), 'England 88.4 per cent');
   assert.equal(englandFigure('crime'), null);
   for (const a of AREAS) {
