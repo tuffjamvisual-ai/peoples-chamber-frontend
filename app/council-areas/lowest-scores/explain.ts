@@ -22,8 +22,8 @@ export function vsEngland(m: Measure, a: Area): string {
     const e = ENGLAND[m.key as (typeof PCT)[number]];
     const d = diff(f, e);
     // A figure that is the 294 council areas together (no published England row) is named so (T2 13:28, Cowork 13:20).
-    const whose = basisOf(m.key) ? `the ${basisOf(m.key)}’` : 'England’s';
-    return d === 0 ? `the same as ${whose} ${e.toFixed(1)} per cent` : `${side(d, 'percentage point')} ${whose} ${e.toFixed(1)} per cent`;
+    const ref = basisOf(m.key) ? `the ${e.toFixed(1)} per cent for England’s ${basisOf(m.key)}` : `England’s ${e.toFixed(1)} per cent`;
+    return d === 0 ? `the same as ${ref}` : `${side(d, 'percentage point')} ${ref}`;
   }
   if (m.key === 'life_expectancy') {
     const d = diff(f, ENGLAND.life_expectancy);
@@ -129,10 +129,10 @@ export function explainPolice(a: Area): string {
   const c = a.facts.police;
   // ENTRY 484: the count, then the England comparison (the rate per resident against England's, in per cent).
   if (p.status === 'combined') return c
-    ? `The police publish one figure for ${list([a.name, ...(p.with ?? [])])} together: ${n(c.count)} crimes recorded, ${POLICE.period}, ${pctVs(c.pct_vs_england)} for an area of their size.${rank}`
+    ? `The police publish one figure for ${list([a.name, ...(p.with ?? [])])} together: ${n(c.count)} crimes recorded, ${POLICE.period}, ${pctVs(c.pct_vs_england)}.${rank}`
     : `The police publish one figure for ${list([a.name, ...(p.with ?? [])])} together: ${p.figure} crimes per 1,000 residents, ${POLICE.period} (England ${POLICE.england}).${rank}`;
   const humberside = p.humberside ? ` Humberside Police could not place some crimes in an area in this table, so ${a.name}’s figure is likely to be too low.` : '';
-  if (c) return `${n(c.count)} crimes were recorded by the police in ${a.name}, ${POLICE.period}, ${pctVs(c.pct_vs_england)} for an area of its size.${rank}${humberside}`;
+  if (c) return `${n(c.count)} crimes were recorded by the police in ${a.name}, ${POLICE.period}, ${pctVs(c.pct_vs_england)}.${rank}${humberside}`;
   return `${p.figure} crimes recorded by the police per 1,000 residents, ${POLICE.period} (England ${POLICE.england}).${rank}${humberside}`;
 }
 

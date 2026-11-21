@@ -184,10 +184,10 @@ test('ENTRY 484: counts and England figures, Hull and Blackpool', () => {
   assert.match(m(hull, 'gigabit'), /^130,749 of 131,287 homes and businesses, 99\.6 per cent, can get gigabit broadband, 11\.2 percentage points above/);
   assert.match(m(hull, 'life_expectancy'), /^A baby born in Hull can expect to live 77\.7 years, 3\.4 years less than England’s 81\.1\./);
   assert.match(m(hull, 'schools'), /Attainment 8 score of 40\.4, 5\.7 points below England’s 46\.1:/);
-  assert.match(explainPolice(hull), /^32,936 crimes were recorded by the police in Hull, year to June 2026, 44 per cent above the England rate for an area of its size\./);
+  assert.match(explainPolice(hull), /^32,936 crimes were recorded by the police in Hull, year to June 2026, 44 per cent above the England rate\. 4th highest/);
   assert.equal(shortFigure(hull.all.find((x) => x.key === 'fuel_poverty')!, hull), '13.5 per cent (England 9.9 per cent)');
   assert.equal(englandFigure('unemployment'), 'England (294 council areas) 4.5 per cent');
-  assert.match(m(hull, 'unemployment'), /1\.4 percentage points above the 294 council areas’ 4\.5 per cent\./);
+  assert.match(m(hull, 'unemployment'), /1\.4 percentage points above the 4\.5 per cent for England’s 294 council areas\./);
   assert.equal(shortFigure(hull.all.find((x) => x.key === 'unemployment')!, hull), '5.9 per cent (294 council areas together 4.5 per cent)');
   assert.equal(englandFigure('gigabit'), 'England 88.4 per cent');
   assert.equal(englandFigure('crime'), null);
