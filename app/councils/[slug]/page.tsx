@@ -198,8 +198,8 @@ function formatPoundsMillions(valuePounds: number): string {
 // route.ts and app/api/welfare/local-authority/[gss]/route.ts — so it's
 // removed here rather than left as misleading dead code.
 
-// The council's type as a phrase for a sentence, from councils.type_label (owner, 7 Nov 2026, L2): "Lewes District Council
-// is a district council in England". Proper names keep their capital ("London borough"); the Northern Ireland label and
+// The council's type as a phrase for the meta description, from councils.type_label (owner, 7 Nov 2026, L2): "Lewes
+// District Council, a district council in England". Proper names keep their capital ("London borough"); the Northern Ireland label and
 // the City of London's are worded for a sentence.
 const TYPE_PHRASE: Record<string, string> = {
   'District Council': 'district council', 'Unitary Authority': 'unitary authority', 'Metropolitan Borough': 'metropolitan borough',
@@ -424,17 +424,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           slots={{
             overview: <div data-main-action className="ov-flow">
               {/* Phones (UX2f, owner approved through Cowork, 10 Nov 2026): political control and the key figures first; the
-                  opening sentence and the Wikipedia background (a closed fold) after them; from 768px up as before. Rendered in both
+                  Wikipedia background (a closed fold) after them; from 768px up as before. Rendered in both
                   places, each display: none at the other's widths, so the HTML order is the order shown (ENTRY 239 A2, MOB-ORDER;
                   it was CSS order). */}
               <style>{`.ov-narrow { display: none; } @media ${phoneUpTo(767.98)} { .ov-wide { display: none; } .ov-narrow { display: block; } }`}</style>
               <div className="ov-about ov-wide">
-              {/* Opening sentence (owner, 7 Nov 2026, L2): what the council is, from the council's own row; no code (T1-NOCODE). */}
-              {c.gss_code && (
-                <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 16px', maxWidth: '46em', color: INK }}>
-                  {c.name} is a {typePhrase(c.type_label)} in {c.country}.
-                </p>
-              )}
+              {/* No generated opening sentence ("<Name> is a county council in England."): it repeated the heading (owner, Cowork
+                  ENTRY 450, 21 Nov 2026); the page starts with the description. The meta description keeps its own wording. */}
               {/* The description and its credit folded on phones (step 5, 10 Nov 2026: page length). */}
               {c.description && (
                 <SubFold tablets label="About the council">
@@ -585,14 +581,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   </NoJsFold>
                 </section>
               )}
-              {/* Phones: the same opening sentence and background after the figures (in this place in the HTML, ENTRY 239 A2). */}
+              {/* Phones: the same background after the figures (in this place in the HTML, ENTRY 239 A2). */}
               <div className="ov-about ov-narrow">
-              {/* Opening sentence (owner, 7 Nov 2026, L2): what the council is, from the council's own row; no code (T1-NOCODE). */}
-              {c.gss_code && (
-                <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 16px', maxWidth: '46em', color: INK }}>
-                  {c.name} is a {typePhrase(c.type_label)} in {c.country}.
-                </p>
-              )}
               {/* The description and its credit folded on phones (step 5, 10 Nov 2026: page length). */}
               {c.description && (
                 <SubFold tablets label="About the council">

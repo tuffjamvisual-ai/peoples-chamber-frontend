@@ -14,10 +14,13 @@ const text = fs.readFileSync(path.join(__dirname, 'fixtures', 'bio-4029-sample.m
 // As the page splits political_bio (app/mps/[id]/page.tsx).
 const paragraphs = text.split(/\n\n+/).map((p) => p.trim()).filter((p) => p.length > 0);
 const html = (paras: string[]) => renderToStaticMarkup(createElement(BioText, { paragraphs: paras }));
-const links = (out: string) => [...out.matchAll(/<a ([^>]*)>([^<]*)<\/a>/g)].map((m) => ({ attrs: m[1], href: /href="([^"]*)"/.exec(m[1])?.[1], text: m[2] }));
+// Each link's text is followed by the visually hidden new tab note (lib/og-jsx, Cowork ENTRY 450).
+const NEW_TAB = '<span class="sr-only"> (opens in a new tab)</span>';
+const links = (out: string) => [...out.matchAll(/<a ([^>]*)>([^<]*)(<span class="sr-only"> \(opens in a new tab\)<\/span>)?<\/a>/g)].map((m) => ({ attrs: m[1], href: /href="([^"]*)"/.exec(m[1])?.[1], text: m[2], newTab: m[3] === NEW_TAB }));
 const sourceLinks = [...text.matchAll(/\[([^\]\n]+)\]\(((?:[^\s()]|\([^\s()]*\))+)\)/g)].map((m) => ({ text: m[1], url: m[2] }));
 
-test('every link in the sample is https, keeps its text, and opens in the same tab with rel="noopener"', () => {
+// Links to other sites open in a new tab (owner, Cowork ENTRY 450, 21 Nov 2026; until then BF1 kept the same tab).
+test('every link in the sample is https, keeps its text, and opens in a new tab with rel="noopener noreferrer"', () => {
   const out = html(paragraphs);
   const found = links(out);
   assert.equal(sourceLinks.length, 18);
@@ -25,8 +28,9 @@ test('every link in the sample is https, keeps its text, and opens in the same t
   found.forEach((l, i) => {
     assert.ok(l.href?.startsWith('https://'), `link ${i + 1} is https`);
     assert.equal(l.text.replace(/&amp;/g, '&'), sourceLinks[i].text);
-    assert.match(l.attrs, /rel="noopener"/);
-    assert.doesNotMatch(l.attrs, /target=/);
+    assert.match(l.attrs, /rel="noopener noreferrer"/);
+    assert.match(l.attrs, /target="_blank"/);
+    assert.ok(l.newTab, `link ${i + 1} has the hidden new tab note`);
   });
   // "DVSA plan" and "January written answer" exactly as written.
   assert.ok(found.some((l) => l.text === 'DVSA plan'));
@@ -37,7 +41,7 @@ test('no markdown is left in the output: no "**", no "](" and no bare source add
   const out = html(paragraphs);
   assert.doesNotMatch(out, /\*\*/);
   assert.doesNotMatch(out, /\]\(/);
-  const visible = out.replace(/<[^>]+>/g, '');
+  const visible = out.split(NEW_TAB).join('').replace(/<[^>]+>/g, '');
   assert.doesNotMatch(visible, /https?:\/\//);
 });
 

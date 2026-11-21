@@ -51,6 +51,9 @@
 //       and the donations tab's Sources fold of the donors' Companies House records (.mp-donation-sources, owner approved
 //       20 Nov 2026, Cowork ENTRY 422), and the Standards findings section's fold of the Committee's reports
 //       (.mp-standards-sources, Cowork ENTRY 369 #9, owner approved in ENTRY 429).
+//   A20 new tab (owner, Cowork ENTRY 450, 21 Nov 2026): every rendered <a href> to another site (an http(s) host other
+//       than the page's own and opengovt.uk) has target="_blank" (scripts/checks/qa/new-tab-links.mjs). Always fails, no
+//       baseline; checked on the page as it opens and, on a council page's full run, after its detail tabs are opened.
 // A2 and A3 found problems on pages that existed before the check; those are in rendered-baseline.json and are
 // expected: a run fails only on a new one (a page over the limit that was not, or longer than its baseline by more than
 // 200px; a time word on a page that did not have it).
@@ -62,6 +65,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
 import { loadSources, recordDates, judgeDates } from './record-dates.mjs';
+import { collectLinks, newTabFailures } from './new-tab-links.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..', '..');
@@ -298,6 +302,7 @@ async function main() {
         if (!loaded) { await pace(); await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 }); }
         await page.waitForTimeout(300);
         r.outside = await page.evaluate(outsideLinks, A9_LICENCE.source);
+        r.a20 = newTabFailures(await page.evaluate(collectLinks), page.url());
         // A17 (owner, 18 Nov 2026, Cowork ENTRY 320; the PMQs tile approved on 13 Nov never reached the live homepage): the
         // homepage links to /pmqs and has the PMQs search box (a form sending to /pmqs); and (ENTRY 327) links to /reports (the
         // ranking pages' row went in ENTRY 372).
@@ -321,6 +326,7 @@ async function main() {
         const tabs = await openCouncilTabs(page);
         for (const t of tabs.failed) r.outside.push(`council tab "${t}" did not load`);
         if (tabs.opened.length) r.outside = [...new Set([...r.outside, ...await page.evaluate(outsideLinks, A9_LICENCE.source)])];
+        if (tabs.opened.length) r.a20 = [...new Set([...(r.a20 ?? []), ...newTabFailures(await page.evaluate(collectLinks), page.url())])];
         r.councilTabs = tabs.opened;
       }
     } catch (e) { r.error = e.message.split('\n')[0]; }
@@ -473,6 +479,7 @@ async function main() {
     for (const d of r.dates) if (d.stale) expected.push(`date ${r.url}: "Updated ${d.date}" is ${d.age} days old, over ${d.limit} for ${d.judgedBy === 'source' ? d.source : "this page's data"} (data, reported only)`);
     for (const o of r.outside ?? []) fails.push(`A9 ${r.url}: links outside the site, not as a source (${o})`);
     for (const f of r.a15 ?? []) fails.push(`A15 ${r.url}: a fold without the site's marker: ${f}`);
+    for (const f of r.a20 ?? []) fails.push(`A20 ${r.url}: a link to another site without target="_blank" (${f})`);
     for (const f of r.a17 ?? []) fails.push(`A17 ${r.url}: ${f}`);
     for (const f of r.a18 ?? []) fails.push(`A18 ${r.url}: side by side columns not balanced at 1280x720: ${f}`);
     for (const f of r.a19 ?? []) fails.push(`A19 ${r.url}: a search box differs from the shared desktop box (323 x 45, 15px): ${f}`);
@@ -492,6 +499,7 @@ async function main() {
     a9_outside_links: results.reduce((n, r) => n + (r.outside?.length ?? 0), 0),
     a10_pages_with_repeats: results.filter((r) => r.a10?.dups.length).length,
     a15_folds_without_marker: results.reduce((n, r) => n + (r.a15?.length ?? 0), 0),
+    a20_links_without_new_tab: results.reduce((n, r) => n + (r.a20?.length ?? 0), 0),
     a10_pages_over_one_related: results.filter((r) => (r.a10?.related ?? 0) > 1).length,
     date_lines: results.reduce((n, r) => n + r.dates.length, 0),
     date_lines_by_source: results.reduce((n, r) => n + r.dates.filter((d) => d.judgedBy === 'source').length, 0),
@@ -502,7 +510,7 @@ async function main() {
     expected: expected.length,
   };
   if (JSON_OUT) fs.writeFileSync(JSON_OUT, JSON.stringify({ summary, fails, expected, results }, null, 1));
-  console.log(`rendered checks (A2 time words, A3 phone length, A6 first screen, A9 outside links, A10 repeated links, A15 fold marker): ${JSON.stringify(summary)}`);
+  console.log(`rendered checks (A2 time words, A3 phone length, A6 first screen, A9 outside links, A10 repeated links, A15 fold marker, A20 new tab): ${JSON.stringify(summary)}`);
   for (const e of expected) console.log(`  expected: ${e}`);
   for (const f of fails) console.log(`  FAIL ${f}`);
   return fails.length ? 1 : 0;

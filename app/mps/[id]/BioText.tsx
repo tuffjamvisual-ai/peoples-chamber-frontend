@@ -5,7 +5,7 @@ import type { CSSProperties, ReactNode } from 'react';
 // else is markdown, and no HTML in the text is ever rendered (React writes it out as text):
 //   **Label.** at the very start of a paragraph   the label in bold, then the rest of the paragraph
 //   a paragraph that is only **Label.**           a small subheading (h3), so commitments scan on a phone
-//   [descriptive text](https://...)               a link to the source beside the claim, in the same tab; any other
+//   [descriptive text](https://...)               a link to the source beside the claim, in a new tab (lib/og-jsx, ENTRY 450); any other
 //                                                 scheme (http:, javascript:, ...) shows the descriptive text alone
 // The "Sources (N)" fold under the biography (MagazineProfileSections.tsx, PageSources; ENTRY 180) is built from
 // mp_biography.bio_sources and is not touched here.
