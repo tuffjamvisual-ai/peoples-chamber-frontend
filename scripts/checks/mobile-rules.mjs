@@ -79,6 +79,8 @@ function measure({ excSelectors, listSelectors }) {
   const text = (e) => (e.textContent || e.getAttribute('aria-label') || e.getAttribute('placeholder') || '').trim().replace(/\s+/g, ' ');
   const name = (e) => `${e.tagName.toLowerCase()}${e.id ? '#' + e.id : ''} "${text(e).slice(0, 40)}"`;
   const excepted = (e) => excSelectors.some((s) => { try { return e.matches(s); } catch { return false; } });
+  // A 'lists' exception covers a whole list kept whole, or a list control that opens with more than 3 by an owner decision.
+  const listExc = (e) => listSelectors.some((s) => { try { return e.matches(s); } catch { return false; } });
   const out = { taps: [], lists: [], order: [], back: null, primary: null, height: document.documentElement.scrollHeight, width: document.documentElement.scrollWidth - W };
   const items = [];
   for (const e of main.querySelectorAll('a[href], button, summary, select, input:not([type=hidden]), textarea, h1, h2, h3, h4')) {
@@ -122,7 +124,7 @@ function measure({ excSelectors, listSelectors }) {
         else {
           const n = /^([\d,]+) of ([\d,]+)$/.exec(text(c));
           if (!n) out.lists.push(`count '${text(c)}' is not 'N of M' beside ${name(e)}`);
-          else if (Number(n[1].replace(/,/g, '')) !== 3) out.lists.push(`opens with ${n[1]} of ${n[2]}, not 3: ${name(e)}`);
+          else if (Number(n[1].replace(/,/g, '')) !== 3 && !listExc(e)) out.lists.push(`opens with ${n[1]} of ${n[2]}, not 3: ${name(e)}`);
           else if (desk) out.lists.push(`a list of ${n[2]} folds from 1,024px (every list shows whole there, ENTRY 302): ${name(e)}`);
         }
       }
@@ -130,7 +132,6 @@ function measure({ excSelectors, listSelectors }) {
   }
   // Whole lists: a list showing more items than FOLD_ABOVE, outside the lists that stay whole.
   const OWN = 'nav, .og-menu-panel, .og-mbar, footer, details, .pf-list, [data-own-more], [data-article-body]';
-  const listExc = (e) => listSelectors.some((s) => { try { return e.matches(s); } catch { return false; } });
   for (const l of document.querySelectorAll('.ng-page ul, .ng-page ol, .ng-page tbody')) {
     if (l.closest(OWN) || chrome(l) || inClosed(l) || !vis(l) || listExc(l)) continue;
     const shown = [...l.children].filter((c) => vis(c)).length;

@@ -78,14 +78,25 @@ export default function LowestScoresPage() {
           458px) covered the top of the main action (449px; daily QA A6). Under 360px only, less space above it: the
           article's top padding, the title band's padding and the gap below it, and the gap below the intro line. No words,
           figures or order change; 360px and wider are as before. */}
-      <style>{`@media (max-width: 359.98px) {
-  .ls-art { padding-top: 6px !important; }
-  .ls-head { padding-top: 8px !important; padding-bottom: 8px !important; margin-bottom: 10px !important; }
-  .ls-intro { margin-bottom: 8px !important; }
+      {/* Phones and tablets (Cowork ENTRY 492 item 2, owner approved 21 Nov 2026): the space above the list is tighter under
+          1,024px, so the page keeps under the length limits (2,500px phones, 3,000px tablets). Spacing only: no words,
+          figures, rows or links change, and desktop (1,024px and wider) is as before. */}
+      <style>{`@media (max-width: 1023.98px) {
+  .ls-art { padding-top: 4px !important; }
+  .ls-head { padding-top: 8px !important; padding-bottom: 8px !important; margin-bottom: 8px !important; }
+  .ls-head-kicker { margin-bottom: 2px !important; }
+  .ls-head-note { margin-top: 4px !important; }
+  .ls-intro { margin-bottom: 6px !important; }
+  .ls-main > h2 { margin-top: 0 !important; margin-bottom: 6px !important; }
+}
+@media (max-width: 359.98px) {
+  .ls-art { padding-top: 2px !important; }
+  .ls-head { padding-top: 6px !important; padding-bottom: 6px !important; margin-bottom: 6px !important; }
+  .ls-intro { margin-bottom: 4px !important; }
 }`}</style>
       <article className="ls-art" style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: INK, fontFamily: SERIF }}>
         <header className="ls-head" style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '18px' }}>
-          <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
+          <div className="ls-head-kicker" style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK, marginBottom: '4px' }}>
             England · {RANKED} council areas
           </div>
           {/* Owner's experiment (Cowork ENTRY 441): this page's headline at half its size at every width (was
@@ -95,7 +106,7 @@ export default function LowestScoresPage() {
           <h1 className="ls-h1-half" style={{ fontFamily: SERIF, fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             {HEADLINE}
           </h1>
-          <div style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
+          <div className="ls-head-note" style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
             Not a ranking of how well councils are run: council performance is left out.
           </div>
         </header>
@@ -107,7 +118,7 @@ export default function LowestScoresPage() {
         {/* On phones the first 5, then 'Show 5 more' (owner, Cowork ENTRY 472 (4), 21 Nov 2026; LsMore); all 10 on wider
             screens and with JavaScript off. The phone script leaves lists inside [data-own-more] alone. Reader first
             layout (Cowork ENTRY 444): what the reader sees first is where, how it scores and why, in plain words. */}
-        <section data-main-action="" data-own-more="" aria-label="The 10 lowest scores" style={{ marginBottom: '28px' }}>
+        <section className="ls-main" data-main-action="" data-own-more="" aria-label="The 10 lowest scores" style={{ marginBottom: '28px' }}>
           <h2 style={h2}>The 10 lowest scores</h2>
           <style>{TABLE_CSS}</style>
           <table className="ls-ten" data-pt-table="keep">

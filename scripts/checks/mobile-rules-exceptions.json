@@ -150,6 +150,12 @@
       "route": "/cookies",
       "selector": "input[type=\"radio\"]",
       "reason": "The analytics Yes and No radios: their labels' tap areas (44px each) would overlap in the 10px gap between them, so they meet halfway and each is 39px, over the 24px floor (owner approved 18 Nov 2026, Cowork ENTRY 286, audit/t1-ticks/PROPOSAL.md item 3), as the cut-back link areas."
+    },
+    {
+      "rule": "lists",
+      "route": "/council-areas/lowest-scores",
+      "selector": ".ls-more-ctl",
+      "reason": "owner decision ENTRY 472(4): the ten lowest areas open with 5 rows, then 'Show 5 more' (owner approved 21 Nov 2026 14:55, Cowork ENTRY 492 item 1)."
     }
   ]
 }
