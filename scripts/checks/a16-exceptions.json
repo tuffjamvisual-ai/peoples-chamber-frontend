@@ -24,6 +24,18 @@
   { "route": "/preview/programmes/*", "why": "owner's private draft preview, signed in" },
   { "route": "/your-area/find", "why": "postcode or place lookup (outside geocoder), then a redirect to the static /your-area/<code>; owner approved 16 Nov 2026, ENTRY 187" },
   { "route": "/divisions/[slug]/mp", "why": "search results (an MP typed into the division page form; must work with JavaScript off); reads only tagged data; owner approved 16 Nov 2026, ENTRY 187" },
-  { "route": "/newsletter/unsubscribe", "why": "one-off token form that must work with JavaScript off (one-click unsubscribe); reads no data; owner approved 16 Nov 2026, ENTRY 187" }
+  { "route": "/newsletter/unsubscribe", "why": "one-off token form that must work with JavaScript off (one-click unsubscribe); reads no data; owner approved 16 Nov 2026, ENTRY 187" },
+  { "route": "/questions/[id]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/debates/[guid]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/divisions/[slug]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/contracts/[ocid]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/donors/[slug]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/edms/[id]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/mps/[id]/votes-from-hansard/[year]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/bills/[id]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/organisations/[slug]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/news/[slug]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/pmqs/filter/[...f]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" },
+  { "route": "/edms/filter/[...f]", "why": "long tail: no saved copy (no ISR write), held by Vercel's CDN for a day (Vercel-CDN-Cache-Control in next.config.ts); owner approved 21 Nov 2026, Cowork ENTRY 487" }
  ]
 }
