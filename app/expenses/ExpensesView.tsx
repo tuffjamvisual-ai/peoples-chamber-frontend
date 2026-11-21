@@ -66,8 +66,8 @@ const EXPLAINER = (
       </li>
       <li style={xp}>
         <strong>Accommodation</strong>, for MPs eligible to claim: for an MP from outside London renting in London, £31,840, rising to
-        £39,110, £46,380 or £53,650 with one, two or three dependants; for an MP renting in their constituency, outside the London
-        area, £21,680; £6,870 for an MP who owns their home and claims only the associated costs (such as utilities). Under{' '}
+        £39,110, £46,380 or £53,650 with one, two or three dependants; £21,680 for an MP renting in their constituency outside the London
+        area, with the same £7,270 per dependant (up to three); £6,870 for an MP who owns their home and claims only the associated costs (such as utilities). Under{' '}
         <a href={SCHEME} style={xa}>IPSA&apos;s Scheme</a>, accommodation costs &quot;are not payable to MPs who: a. are London Area MPs;
         or b. by virtue of any particular office held, occupy &apos;grace and favour&apos; accommodation in London.&quot;
       </li>
@@ -103,6 +103,7 @@ function fmtMoney(v: number | string | null | undefined): string {
 type ExpenseRow = {
   member_id: number;
   year: string;
+  mp_name: string | null;
   total_spend: number | null;
   staffing_spend: number | null;
   office_spend: number | null;
@@ -117,29 +118,33 @@ type MpRow = {
   name: string | null;
   display_name: string | null;
   current_member: boolean | null;
+  end_date: string | null;
 };
+export type TopRow = { row: ExpenseRow; mp: MpRow | undefined; name: string; note: string | null };
 
-// The year's ten highest business costs among current MPs, and their total (owner, 7 Nov 2026, L4: one read, shared by the
-// page and its description through React's request cache).
+// The year's ten highest business costs, and their total (owner, 7 Nov 2026, L4: one read, shared by the page and its
+// description through React's request cache). Every MP in IPSA's data for the year is ranked, including those who have
+// since left Parliament (Cowork 22:52, ENTRY 495: the ranking follows IPSA's data; it used to keep current MPs only, which
+// dropped Josh Simons and Stephen Gethins, who served all of 2025/26 and left in May 2026). The name is our MP record's
+// where we hold one, else IPSA's (mp_name); a left MP is marked so on the row.
 const topSpenders = cache(async (YEAR: string) => {
-  // Fetch a few extra rows so we can drop any non-current MPs and still hit 10.
-  const { data: expenseRows, error: expenseRowsErr } = await cachedQuery(['q:app/expenses/page.tsx:74f3d30961', JSON.stringify([YEAR])], tableTags('mp_expenses_summary'), () => supabase
+  const { data: expenseRows, error: expenseRowsErr } = await cachedQuery(['q:app/expenses/top-v2', JSON.stringify([YEAR])], tableTags('mp_expenses_summary'), () => supabase
     .from('mp_expenses_summary')
     .select(
-      'member_id, year, total_spend, staffing_spend, office_spend, accommodation_spend, travel_subsistence_spend, other_costs_spend, winding_up_spend'
+      'member_id, year, mp_name, total_spend, staffing_spend, office_spend, accommodation_spend, travel_subsistence_spend, other_costs_spend, winding_up_spend'
     )
     .eq('year', YEAR)
     .order('total_spend', { ascending: false, nullsFirst: false })
-    .limit(20));
+    .limit(10));
   if (expenseRowsErr && expenseRowsErr.code !== 'PGRST116') throw new Error(`/expenses mp_expenses_summary: ${expenseRowsErr.message}`);
 
   const ids = (expenseRows || []).map((r: ExpenseRow) => r.member_id);
 
   const { data: mpRows } = ids.length
-    ? await cachedQuery(['q:app/expenses/page.tsx:0cf4f4e8b6', JSON.stringify([ids])], tableTags('mps'), () => supabase
+    ? await cachedQuery(['q:app/expenses/mps-v2', JSON.stringify([ids])], tableTags('mps'), () => supabase
         .from('mps')
         .select(
-          'member_id, name, display_name, current_member'
+          'member_id, name, display_name, current_member, end_date'
         )
         .in('member_id', ids))
     : { data: [] as MpRow[] };
@@ -148,10 +153,14 @@ const topSpenders = cache(async (YEAR: string) => {
     ((mpRows as MpRow[]) || []).map((m) => [m.member_id, m])
   );
 
-  const top = ((expenseRows as ExpenseRow[]) || [])
-    .map((row) => ({ row, mp: mpById.get(row.member_id) }))
-    .filter((x): x is { row: ExpenseRow; mp: MpRow } => Boolean(x.mp && x.mp.current_member))
-    .slice(0, 10);
+  const top: TopRow[] = ((expenseRows as ExpenseRow[]) || []).map((row) => {
+    const mp = mpById.get(row.member_id);
+    const name = displayMpName(mp?.display_name || mp?.name || row.mp_name || '');
+    const left = mp && !mp.current_member
+      ? (mp.end_date ? `left Parliament ${new Date(`${mp.end_date}T00:00:00Z`).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })}` : 'has left Parliament')
+      : !mp ? 'former MP' : null;
+    return { row, mp, name, note: left };
+  });
 
   const grandTotal = top.reduce((s, x) => s + (Number(x.row.total_spend) || 0), 0);
   return { top, grandTotal };
@@ -165,6 +174,13 @@ const staffingShare = cache(async (YEAR: string): Promise<number | null> => {
   const rows = (data || []) as { staffing_spend: number | null; total_spend: number | null }[];
   const total = rows.reduce((s, r) => s + (Number(r.total_spend) || 0), 0);
   return total > 0 ? rows.reduce((s, r) => s + (Number(r.staffing_spend) || 0), 0) / total : null;
+});
+// When this year's totals were last written (the newest updated_at of its rows; one row read).
+const loadedAt = cache(async (YEAR: string): Promise<string | null> => {
+  const { data, error } = await cachedQuery(['q:app/expenses:loaded-at', YEAR], tableTags('mp_expenses_summary'), () => supabase
+    .from('mp_expenses_summary').select('updated_at').eq('year', YEAR).order('updated_at', { ascending: false }).limit(1));
+  if (error) throw new Error(`/expenses loaded at: ${error.message}`);
+  return ((data || [])[0] as { updated_at: string | null } | undefined)?.updated_at ?? null;
 });
 // IPSA's own figure for 2024/25 ('Supporting democracy, understanding our 2024-25 data', 20 Nov 2025); later years are our sum.
 const IPSA_STAFF_SHARE: Record<string, number> = { '24_25': 79 };
@@ -199,7 +215,7 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
           MPs&apos; expenses {YEAR_LABEL}: the ten highest business costs
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginBottom: '20px' }}>
-          Ranked by total business costs claimed across staffing, office, accommodation, travel and other categories.{' '}
+          Ranked by total business costs claimed across staffing, office, accommodation, travel and other categories. Every MP in IPSA&apos;s figures for the year is ranked, including MPs who have since left Parliament.{' '}
           <Link href="/expenses/refused" style={{ color: ACCENT, textDecoration: 'underline' }}>
             Refused &amp; repaid &rarr;
           </Link>
@@ -221,7 +237,7 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
           {IPSA_STAFF_SHARE[YEAR] != null
             ? `Staff are about four fifths of MPs' business costs: ${IPSA_STAFF_SHARE[YEAR]} per cent in ${yearShort(YEAR)}, according to IPSA.`
             : share != null ? `Staff are about four fifths of MPs' business costs: ${(share * 100).toFixed(1)} per cent in ${yearShort(YEAR)}, by our sum of IPSA's figures.` : ''}{' '}
-          Travel distance (MPs from Scotland and Northern Ireland travel furthest) and whether an MP can claim for accommodation (London MPs cannot) explain much of the difference between MPs.
+          Travel distance (MPs from Scotland and Northern Ireland travel furthest) and whether an MP can claim for accommodation (MPs for London Area seats cannot) explain much of the difference between MPs.
         </p>
         {/* Phones (UX3b, 10 Nov 2026): the three figures follow the ten MPs (the copy after the list), so the list starts on
             the first screen (A6). From 640px up, here as before. */}
@@ -279,11 +295,12 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
       >
         {top.map((x, i) => (
           <SimpleRow
-            key={x.mp.member_id}
+            key={x.row.member_id}
             rank={i + 1}
             total={x.row.total_spend}
-            memberId={x.mp.member_id}
-            name={displayMpName(x.mp.display_name || x.mp.name || '')}
+            memberId={x.mp ? x.row.member_id : null}
+            name={x.name}
+            note={x.note}
             split={splitOf(x.row)}
           />
         ))}
@@ -365,7 +382,8 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
 
       {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
       <PageSources sources={[{ label: 'Independent Parliamentary Standards Authority (IPSA), MP costs', href: 'https://www.theipsa.org.uk/mp-costs/' }, { label: 'IPSA, The Scheme of MPs\' Staffing and Business Costs 2025-26 (budgets, accommodation rule, start up supplement)', href: SCHEME }, { label: 'IPSA, A guide to MPs\' business costs (publication timing, security costs)', href: GUIDE }, { label: 'IPSA, annual publications: total spend data by year (the staffing share for 2025/26 is our sum of these figures)', href: 'https://www.theipsa.org.uk/mp-staffing-business-costs/annual-publications' }]} />
-      <LastUpdated sourceKey="mp_expenses" />
+      {/* The date this year's totals were loaded (Cowork 22:52), not the itemised claims' date the source key reads by default. */}
+      <LastUpdated sourceKey="mp_expenses" at={await loadedAt(YEAR)} />
     </OpenGovShell>
   );
 }
@@ -394,11 +412,13 @@ function SimpleRow({
   total,
   memberId,
   name,
+  note,
   split,
 }: {
   rank: number;
   total: number | null;
-  memberId: number;
+  memberId: number | null;
+  note: string | null;
   name: string;
   split: string;
 }) {
@@ -427,6 +447,8 @@ function SimpleRow({
           name carries aria-text via aria-label on the link.
           Previous flex-anchor approach failed because Next.js Link
           renders inline-area in column-flow layout. 2026-06-03. */}
+      {/* Only MPs we hold a record for link to their page (Cowork 22:52: former MPs without one are named from IPSA's data). */}
+      {memberId != null && (
       <Link
         href={`/mps/${memberId}#expenses`}
         aria-label={`${name} expenses breakdown`}
@@ -451,6 +473,7 @@ function SimpleRow({
           {name} expenses breakdown
         </span>
       </Link>
+      )}
       <span
         style={{
           fontSize: '15px',
@@ -474,6 +497,7 @@ function SimpleRow({
         }}
       >
         {name}
+        {note && <span style={{ fontWeight: 400, letterSpacing: 0, textTransform: 'none' }}> ({note})</span>}
       </span>
       {/* Dot-leader fill — the broadsheet classified hallmark. */}
       <span
