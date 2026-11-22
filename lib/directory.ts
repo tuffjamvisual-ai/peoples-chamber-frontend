@@ -68,9 +68,8 @@ const EXTRA: DirectoryEntry[] = [
   // The section pages (Cowork ENTRY 502, 22 Nov 2026): one per menu heading.
   { name: 'Your Area Section', href: '/sections/your-area', desc: 'Your MP, your council, local figures, sewage spills and welfare spending in your area, in one list.' },
   { name: 'Parliament Section', href: '/sections/parliament', desc: 'MPs, the House of Lords, bills, votes, debates, questions and laws, in one list.' },
-  { name: 'Government Section', href: '/sections/government', desc: 'Departments, ministers, special advisers, press releases, major projects and contracts, in one list.' },
+  { name: 'Government Section', href: '/sections/government', desc: 'Departments, ministers, official figures, special advisers, press releases, major projects and contracts, in one list.' },
   { name: 'Money and Influence Section', href: '/sections/money-and-influence', desc: "MPs' money, donations, lobbying and All Party Parliamentary Groups, in one list." },
-  { name: 'State of the Nation Section', href: '/sections/state-of-the-nation', desc: 'The official figures on the economy, public money and public services, in one list.' },
   { name: 'Read Section', href: '/sections/read', desc: 'Reports, this week in Parliament and every topic, in one list.' },
   { name: 'Parties Section', href: '/sections/parties', desc: 'Every party, the manifesto comparisons and the reader polls, in one list.' },
   { name: 'Your Area', href: '/your-area', desc: 'Your council and the latest local figures for your area, from a postcode, town or council.' },
@@ -206,7 +205,6 @@ export const KEYWORDS: Record<string, readonly string[]> = {
   '/sections/parliament': ['parliament', 'MPs', 'Lords', 'bills', 'votes', 'debates', 'questions'],
   '/sections/parties': ['parties', 'manifestos', 'polls', 'vote', 'reader polls', 'have your say'],
   '/sections/read': ['read', 'reports', 'articles', 'this week', 'topics'],
-  '/sections/state-of-the-nation': ['state of the nation', 'official figures', 'economy', 'public services'],
   '/sections/your-area': ['local', 'my area', 'councils', 'sewage', 'local data', 'postcode'],
   '/sewage': ['sewage', 'sewage dumping', 'storm overflows', 'water companies', 'sewage discharges', 'raw sewage'],
   '/spending': ['government spending', 'department spending', 'DEL', 'public spending', 'budgets'],
