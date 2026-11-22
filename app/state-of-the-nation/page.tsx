@@ -29,7 +29,7 @@ const groupId = (g: string) => g.toLowerCase().replace(/[^a-z]+/g, '-');
 
 function Card({ f, renderedOn }: { f: Figure; renderedOn: string }) {
   return (
-    <article className="sotn-card" style={{ border: `1px solid ${HAIRLINE}`, background: 'rgba(255,255,255,0.18)', padding: '14px 14px 12px', fontFamily: MONO, color: INK, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+    <article id={f.id} className="sotn-card" style={{ scrollMarginTop: '72px',  border: `1px solid ${HAIRLINE}`, background: 'rgba(255,255,255,0.18)', padding: '14px 14px 12px', fontFamily: MONO, color: INK, display: 'flex', flexDirection: 'column', gap: '6px' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
         <h3 style={{ fontSize: '15px', lineHeight: 1.35, fontWeight: 'bold', margin: 0 }}>{f.label}</h3>
         <NewMark publishedOn={f.publishedOn} days={NEW_DAYS} renderedOn={renderedOn} color={INK} />
