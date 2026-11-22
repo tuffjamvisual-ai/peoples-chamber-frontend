@@ -159,6 +159,12 @@ export default async function HomePage() {
                   headline and summary without the opening extract, and the "This week in Parliament" card's text is two lines. */}
               <style>{`@media ${phoneUpTo(479)} { .og-lead-story .og-lede { display: none !important; } a.og-card[href="/this-week"] > :not(.og-head) { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } }`}</style>
               <style>{`@media ${phoneUpTo(1023.98)} { .og-brief > :not(.og-head) { display: none !important; } .og-rail > a.og-card > :not(.og-head) { display: none !important; } }`}</style>
+              {/* Phones (owner change 5, Cowork ENTRY 507, 22 Nov 2026: "text has large line gaps"): the reports and the rail
+                  cards show their title only here, yet each kept the spacing built for a title with text under it (14px
+                  margin, 14px padding and 6px above and below the title: 40px between one line titles). Each is now a
+                  44px tap row with the title centred in it, titles at line height 1.3, and the rail starts without its
+                  doubled space. Under 768px only; tablets and desktop unchanged. */}
+              <style>{`@media (max-width: 767.98px) { .og-brief, .og-rail > a.og-card { margin-top: 0 !important; padding: 10px 0 !important; min-height: 44px; box-sizing: border-box; } .og-brief > .og-head, .og-rail > a.og-card > .og-head { margin: 0 !important; line-height: 1.3; } .og-rail { margin-top: 10px !important; padding-top: 4px !important; } .og-rail .og-news-line { margin-top: 8px; } }`}</style>
               {/* Phones only (owner, 10 Nov 2026, S5-home; the page was 4,689px at 375px): folded, nothing cut. The other
                   reports show their headlines only, which are the links, and so do the four promotion cards (Bills tracker, expenses,
                   manifestos, departments; UX5, T1-6, 11 Nov 2026); the research promotion is in a closed native
