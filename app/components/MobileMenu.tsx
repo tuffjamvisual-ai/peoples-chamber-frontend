@@ -36,7 +36,8 @@ const GROUPS_CSS = `.og-menu-groups { display: block; width: 100%; box-sizing: b
 .og-menu-group a, .og-menu-more a { display: block; box-sizing: border-box; min-height: 44px; align-content: center; color: #14100d; text-decoration: none; font-size: 17px; line-height: 1.2; }
 .og-menu-group a:active, .og-menu-more a:active { color: #7a1612; }
 .og-menu-group a:focus-visible, .og-menu-more a:focus-visible { outline: 2px solid #7a1612; outline-offset: 1px; }
-.og-menu-more { display: flex; gap: 24px; padding: 4px 0 0; }
+.og-menu-more { display: flex; flex-wrap: wrap; column-gap: 24px; padding: 4px 0 0; }
+.og-menu-site { border-top: 1px solid rgba(20,16,13,0.2); margin-top: 6px; }
 .og-menu-account { margin-top: 14px; }`;
 
 export default function MobileMenu() {
@@ -152,6 +153,13 @@ export default function MobileMenu() {
           <div className="og-menu-more">
             <Link href="/" onClick={(e) => follow(e, '/')}>Home</Link>
             <a href="/directory" onClick={(e) => follow(e, '/directory')}>A to Z</a>
+          </div>
+          {/* The footer's site links (ENTRY 502), here on phones instead of the footer (A3: phone page length); Commission, the
+              newsletter and Donate (Support Us) are already in this panel. */}
+          <div className="og-menu-more og-menu-site">
+            {[['/search', 'Search'], ['/state-of-the-nation', 'State of the Nation'], ['/about', 'About'], ['/contact', 'Contact']].map(([h, t]) => (
+              <a key={h} href={h} onClick={(e) => follow(e, h)}>{t}</a>
+            ))}
           </div>
         </nav>
         <style>{ACCOUNT_CSS}</style>

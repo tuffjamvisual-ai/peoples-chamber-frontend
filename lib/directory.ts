@@ -70,7 +70,7 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Parliament Section', href: '/sections/parliament', desc: 'MPs, the House of Lords, bills, votes, debates, questions and laws, in one list.' },
   { name: 'Government Section', href: '/sections/government', desc: 'Departments, ministers, official figures, special advisers, press releases, major projects and contracts, in one list.' },
   { name: 'Money and Influence Section', href: '/sections/money-and-influence', desc: "MPs' money, donations, lobbying and All Party Parliamentary Groups, in one list." },
-  { name: 'Read Section', href: '/sections/read', desc: 'Reports, this week in Parliament and every topic, in one list.' },
+  { name: 'Read Section', href: '/sections/read', desc: 'Reports, the Commons business ahead and every topic, in one list.' },
   { name: 'Parties Section', href: '/sections/parties', desc: 'Every party, the manifesto comparisons and the reader polls, in one list.' },
   { name: 'Your Area', href: '/your-area', desc: 'Your council and the latest local figures for your area, from a postcode, town or council.' },
   // The menu lists it as Recommendations while the tracker is public (4 Nov 2026); this is its full name.
