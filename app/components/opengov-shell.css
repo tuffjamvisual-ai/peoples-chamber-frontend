@@ -230,9 +230,9 @@
 /* ---- Phone app feel (Cowork ENTRY 507, owner approved a DEMO, 22 Nov 2026; preview only) ----
    (2) The bottom app bar (PhoneAppBar.tsx): fixed to the screen's foot above the phone's home bar (safe area), five items
    of at least 48px, labels under icons, the current one in the site's red. The page gets the bar's height as room below.
-   (3) The header bar stays at the top while the page scrolls (position fixed: the page's body clips sideways overflow, so
-   sticky would not hold), 56px, slimming to 44px once scrolled; padded by the top safe area when the app is opened from
-   the home screen. The menu panel and its headings open with a short fade and slide; none of this moves when the reader
+   (3) The folder's top edge, with the OPENGOVT stamp on it, stays at the top while the text scrolls (position fixed: the
+   page's body clips sideways overflow, so sticky would not hold), 64px; padded by the top safe area when the app is
+   opened from the home screen. The menu panel and its headings open with a short fade and slide; none of this moves when the reader
    has asked for reduced motion. Nothing here applies from 768px up. */
 /* The room kept at the page foot for the fixed app bar, in one place: the page padding uses it, and the length checks
    (A3, the fast audit, the mobile rules) subtract it, as it is screen chrome, not page content (Cowork ENTRY 507 height
@@ -248,11 +248,20 @@
   .og-appbar-item:focus-visible { outline: 2px solid #7a1612; outline-offset: -3px; }
   .og-appbar-item:active { color: #7a1612; }
   .dossier-content { padding-bottom: calc(28px + var(--og-appbar-room) + env(safe-area-inset-bottom)) !important; }
-  .og-header { position: fixed !important; top: 0; left: 0; right: 0; z-index: 55; height: calc(56px + env(safe-area-inset-top)) !important; padding-top: env(safe-area-inset-top); box-sizing: border-box; transition: height 160ms ease; }
-  .og-dossier { margin-top: calc(56px + env(safe-area-inset-top)) !important; }
-  html[data-scrolled='1'] .og-header { height: calc(44px + env(safe-area-inset-top)) !important; box-shadow: 0 1px 6px rgba(20, 16, 13, 0.18); }
-  html[data-scrolled='1'] .og-masthead-wrap { transform: translateY(-50%) scale(0.82) !important; transform-origin: left center; }
-  .og-masthead-wrap { transition: transform 160ms ease; }
+  /* Static folder, scrolling text (owner changes 1, 2 and 4, 22 Nov 2026): the folder's top edge is the header itself,
+     fixed at the top with the OPENGOVT stamp sitting on it (the folder-top picture the phone already loads; no band
+     colour, no line or shadow under it), and the folder's paper is a fixed layer behind the page, so only the text moves,
+     between the folder top and the app bar. The page still scrolls as a whole (no inner scroll box): anchor links, Back
+     to top and the browser's own scrolling work as before; scroll-padding keeps anchored headings clear of the folder
+     top. The search and menu icons are gone from the header (the app bar has Search and Menu). Styling only. */
+  .og-header { position: fixed !important; top: 0; left: 0; right: 0; z-index: 55; height: calc(64px + env(safe-area-inset-top)) !important; padding-top: env(safe-area-inset-top); box-sizing: border-box; border-bottom: 0 !important; box-shadow: none !important; background: #e1c495 url('/folder-top.webp') no-repeat center bottom / 100% 64px !important; }
+  .og-mbar { display: none !important; }
+  .og-masthead-wrap { top: calc(50% + 4px + env(safe-area-inset-top) / 2) !important; left: 16px !important; }
+  .dossier-frame .d-top { visibility: hidden; }
+  .ng-page { isolation: isolate; }
+  .ng-page::before { content: ''; position: fixed; inset: 0; z-index: -1; background: #e1c495; pointer-events: none; }
+  .og-dossier { margin-top: calc(64px + env(safe-area-inset-top)) !important; background: transparent !important; }
+  html { scroll-padding-top: calc(76px + env(safe-area-inset-top)); }
   /* With the phone menu open the bar stays on top and the panel stops just above it (owner, 22 Nov 2026); the Menu
      button is marked while the menu is open. */
   .og-appbar { z-index: 2147483001; }
@@ -268,5 +277,4 @@
 @keyframes og-fold-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   .og-menu-panel:not([hidden]), .og-menu-group[open] > ul { animation: none !important; }
-  .og-header, .og-masthead-wrap { transition: none !important; }
 }

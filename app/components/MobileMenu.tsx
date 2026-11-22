@@ -110,7 +110,10 @@ export default function MobileMenu() {
       document.removeEventListener('keydown', onKey);
       html.style.overflow = prev.overflow;
       html.style.paddingRight = prev.paddingRight;
-      button?.focus({ preventScroll: true });
+      // Back to the Menu control the reader can see: the header's on wider phones, the app bar's under 768px (where the
+      // header has no icons, owner 22 Nov 2026).
+      const target = button && button.offsetParent !== null ? button : document.querySelector<HTMLElement>('.og-appbar-menu');
+      target?.focus({ preventScroll: true });
     };
   }, [open, closeMenu, router]);
 
