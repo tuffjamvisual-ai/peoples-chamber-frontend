@@ -150,7 +150,7 @@ export default function MobileMenu() {
             </details>
           ))}
           <div className="og-menu-more">
-            <a href="/" onClick={(e) => follow(e, '/')}>Home</a>
+            <Link href="/" onClick={(e) => follow(e, '/')}>Home</Link>
             <a href="/search" onClick={(e) => follow(e, '/search')}>Search</a>
             <a href="/directory" onClick={(e) => follow(e, '/directory')}>A to Z</a>
           </div>
