@@ -99,7 +99,7 @@ async function main(): Promise<number> {
         for (const m of html.matchAll(/href="(\/[^"#?]*)"/g)) if (!/^\/(_next|api|ingest)\//.test(m[1])) internal.add(m[1]);
         await tab.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
         // QA2d (owner, 9 Nov 2026): the page minus its article text (data-article-body), which is never folded.
-        r.height = await tab.evaluate(() => Math.round(document.documentElement.scrollHeight - [...document.querySelectorAll('[data-article-body]')].reduce((n, el) => n + el.getBoundingClientRect().height, 0)));
+        r.height = await tab.evaluate(() => Math.round(document.documentElement.scrollHeight - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--og-appbar-room')) || 0) - [...document.querySelectorAll('[data-article-body]')].reduce((n, el) => n + el.getBoundingClientRect().height, 0)));
         if (r.height > LIMIT_PX) r.problems.push(`${r.height}px tall at 375px, over ${LIMIT_PX}px`);
       }
     } catch (e) { r.problems.push(`could not load: ${(e as Error).message.split('\n')[0]}`); }

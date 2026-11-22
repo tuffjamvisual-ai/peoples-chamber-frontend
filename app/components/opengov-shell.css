@@ -234,15 +234,20 @@
    sticky would not hold), 56px, slimming to 44px once scrolled; padded by the top safe area when the app is opened from
    the home screen. The menu panel and its headings open with a short fade and slide; none of this moves when the reader
    has asked for reduced motion. Nothing here applies from 768px up. */
+/* The room kept at the page foot for the fixed app bar, in one place: the page padding uses it, and the length checks
+   (A3, the fast audit, the mobile rules) subtract it, as it is screen chrome, not page content (Cowork ENTRY 507 height
+   decision, 22 Nov 2026). 0 where the bar does not show. */
+:root { --og-appbar-room: 0px; }
 .og-appbar { display: none; }
 @media (max-width: 767.98px) {
+  :root { --og-appbar-room: 59px; }
   .og-appbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: #d9b97f; border-top: 1px solid rgba(20, 16, 13, 0.25); padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
   .og-appbar-item { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 58px; padding: 6px 0 4px; border: 0; background: transparent; color: #14100d; text-decoration: none; font-family: var(--font-special-elite), monospace; font-size: 15px; line-height: 1.1; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .og-appbar-item[aria-current='page'] { color: #7a1612; font-weight: bold; }
   .og-appbar-item[aria-current='page'] svg { stroke-width: 2.6; }
   .og-appbar-item:focus-visible { outline: 2px solid #7a1612; outline-offset: -3px; }
   .og-appbar-item:active { color: #7a1612; }
-  .dossier-content { padding-bottom: calc(28px + 59px + env(safe-area-inset-bottom)) !important; }
+  .dossier-content { padding-bottom: calc(28px + var(--og-appbar-room) + env(safe-area-inset-bottom)) !important; }
   .og-header { position: fixed !important; top: 0; left: 0; right: 0; z-index: 55; height: calc(56px + env(safe-area-inset-top)) !important; padding-top: env(safe-area-inset-top); box-sizing: border-box; transition: height 160ms ease; }
   .og-dossier { margin-top: calc(56px + env(safe-area-inset-top)) !important; }
   html[data-scrolled='1'] .og-header { height: calc(44px + env(safe-area-inset-top)) !important; box-shadow: 0 1px 6px rgba(20, 16, 13, 0.18); }
@@ -251,11 +256,11 @@
   /* With the phone menu open the bar stays on top and the panel stops just above it (owner, 22 Nov 2026); the Menu
      button is marked while the menu is open. */
   .og-appbar { z-index: 2147483001; }
-  .og-menu-panel:not([hidden]) { height: auto !important; bottom: calc(59px + env(safe-area-inset-bottom)) !important; }
+  .og-menu-panel:not([hidden]) { height: auto !important; bottom: calc(var(--og-appbar-room) + env(safe-area-inset-bottom)) !important; }
   .og-appbar-menu[aria-expanded='true'] { color: #7a1612; font-weight: bold; }
   .og-appbar-menu[aria-expanded='true'] svg { stroke-width: 2.6; }
   /* The cookie banner sits just above the bar, so neither covers the other. */
-  .og-cookie-banner { bottom: calc(59px + env(safe-area-inset-bottom)) !important; }
+  .og-cookie-banner { bottom: calc(var(--og-appbar-room) + env(safe-area-inset-bottom)) !important; }
   .og-menu-panel:not([hidden]) { animation: og-menu-in 180ms ease-out; }
   .og-menu-group[open] > ul { animation: og-fold-in 160ms ease-out; }
 }

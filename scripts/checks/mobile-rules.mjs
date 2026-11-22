@@ -81,7 +81,7 @@ function measure({ excSelectors, listSelectors }) {
   const excepted = (e) => excSelectors.some((s) => { try { return e.matches(s); } catch { return false; } });
   // A 'lists' exception covers a whole list kept whole, or a list control that opens with more than 3 by an owner decision.
   const listExc = (e) => listSelectors.some((s) => { try { return e.matches(s); } catch { return false; } });
-  const out = { taps: [], lists: [], order: [], back: null, primary: null, height: document.documentElement.scrollHeight, width: document.documentElement.scrollWidth - W };
+  const out = { taps: [], lists: [], order: [], back: null, primary: null, height: document.documentElement.scrollHeight - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--og-appbar-room')) || 0), width: document.documentElement.scrollWidth - W };
   const items = [];
   for (const e of main.querySelectorAll('a[href], button, summary, select, input:not([type=hidden]), textarea, h1, h2, h3, h4')) {
     if (!vis(e) || chrome(e) || e.closest('[aria-hidden="true"]')) continue;
