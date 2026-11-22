@@ -147,6 +147,9 @@ export default function OpenGovShell({
                 <a href="/terms" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Terms</a>
                 <span aria-hidden >·</span>
                 <FeedbackFooterLink style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale" />
+                {/* X (owner, Cowork ENTRY 512, 22 Nov 2026): in this row, so it shows on phones and desktop alike. */}
+                <span aria-hidden >·</span>
+                <a href="https://x.com/opengovtuk" target="_blank" rel="noopener noreferrer" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">X @opengovtuk&nbsp;↗</a>
               </div>
             </footer>
           </div>
