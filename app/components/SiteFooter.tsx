@@ -57,8 +57,9 @@ export default function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={linkStyle}
+                aria-label="opengovt on X"
               >
-                X @opengovtuk&nbsp;↗
+                X
               </a>
               <a
                 href="https://github.com/tuffjamvisual-ai/peoples-chamber-frontend"
