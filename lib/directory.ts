@@ -16,8 +16,9 @@ export type DirectoryEntry = { name: string; href: string; desc: string; see?: s
 // Pages the menu does not list, with a plain one line description.
 const EXTRA: DirectoryEntry[] = [
   { name: 'About opengovt', href: '/about', desc: 'Who runs opengovt, how the data is gathered and the editorial principles behind it.' },
-  // In the footer since ENTRY 502 (22 Nov 2026), no longer in the header row, so listed here.
+  // In the footer since ENTRY 502 (22 Nov 2026), no longer in the header row, so listed here (Search too).
   { name: 'Commission Research', href: '/commission', desc: 'Commission an independent, fully sourced research report from opengovt.' },
+  { name: 'Search', href: '/search', desc: 'Search bills, MPs, departments, contracts, donations and the rest of the public record.' },
   { name: 'Contact', href: '/contact', desc: 'Corrections, data and press enquiries, and general questions.' },
   { name: 'APPG Funders', href: '/appg-funders', desc: 'Every organisation that funds one or more All Party Parliamentary Groups, ranked by groups funded.' },
   { name: 'APPG Secretariats', href: '/secretariats', desc: 'The firms and charities that run All Party Parliamentary Groups, ranked by the number of groups each runs.' },
