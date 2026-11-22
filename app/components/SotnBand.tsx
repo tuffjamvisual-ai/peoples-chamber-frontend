@@ -3,7 +3,8 @@
 // homelessness and borrowing this year, each linked to its card on /state-of-the-nation. Server rendered; a figure not yet published is left out rather
 // than shown empty.
 // Two forms (ENTRY 233 MOB-HOME, owner approved 17 Nov 2026):
-// - 'band', desktop (1,024px up): under the finders, every figure and "See all the figures" one link, as before.
+// - 'band', desktop (1,024px up): under the finders, the six figures in one row, small (owner, 22 Nov 2026, ENTRY 508
+//   change: numbers 16px, about 60 per cent of before; labels and periods at the site's 15px minimum), each its own link.
 // - 'strip', phones and tablets (up to 1,023.98px): straight after the lead story, compact: each figure and its label
 //   as plain text (no link), then a separate "See all the figures" link. Each form is display: none at the other's
 //   widths, so a screen reader meets only the one shown, in the order it is shown.
@@ -23,8 +24,8 @@ export default async function SotnBand({ variant = 'band' }: { variant?: 'band' 
   if (variant === 'strip') return <SotnStrip six={six} />;
   return (
     <section aria-labelledby="sotn-band-h" className="og-sotn og-desk" style={{ margin: '0 0 28px', borderTop: `2px solid ${INK}`, paddingTop: '12px', fontFamily: MONO, color: INK }}>
-      <style>{`.og-sotn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .og-sotn-fig { display: block; color: inherit; text-decoration: none; border: 1px solid ${HAIRLINE}; padding: 10px 12px; min-height: 44px; }
+      <style>{`.og-sotn-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+        .og-sotn-fig { display: block; color: inherit; text-decoration: none; border-top: 1px solid ${HAIRLINE}; padding: 6px 0 0; min-height: 44px; }
         .og-sotn-link:hover .og-sotn-v, .og-sotn-link:focus-visible .og-sotn-v { text-decoration: underline; } .og-sotn-link:focus-visible { outline: 2px solid ${ACCENT}; outline-offset: 2px; }
         .og-sotn-all { display: inline-block; min-height: 44px; line-height: 44px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; font-size: 15px; }
 `}</style>
@@ -33,9 +34,9 @@ export default async function SotnBand({ variant = 'band' }: { variant?: 'band' 
       <div className="og-sotn-grid">
         {six.map((f) => (
           <Link key={f.id} href={`${SOTN_ALL_HREF}#${f.id}`} className="og-sotn-fig og-sotn-link">
-            <span className="og-sotn-v" style={{ display: 'block', fontSize: '26px', fontWeight: 'bold', lineHeight: 1.15 }}>{f.value}</span>
-            <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.35, marginTop: '4px' }}>{f.label}</span>
-            {f.period && <span className="og-sotn-p" style={{ display: 'block', fontSize: '15px', lineHeight: 1.35, marginTop: '2px' }}>{f.period}</span>}
+            <span className="og-sotn-v" style={{ display: 'block', fontSize: '16px', fontWeight: 'bold', lineHeight: 1.2 }}>{f.value}</span>
+            <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.3, marginTop: '2px' }}>{f.label}</span>
+            {f.period && <span className="og-sotn-p" style={{ display: 'block', fontSize: '15px', lineHeight: 1.3, marginTop: '2px' }}>{f.period}</span>}
           </Link>
         ))}
       </div>
