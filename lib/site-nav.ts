@@ -21,9 +21,9 @@ export type NavItem = { label: string; href: string; page?: string; children?: N
 // one list drives the desktop header, the phone menu (PHONE_MENU_GROUPS below is built from it), the section pages and
 // the A to Z, so they always match. No page was removed: About, Contact, Commission research and Donate are in the
 // footer (OpenGovShell.tsx); the old section addresses /sections/local, /accountability and /vote redirect to the new ones.
-// The link to /directory reads 'A - Z Directory' everywhere (owner, 11 Nov 2026, T1-AZ), dash and spaces exactly so.
+// The header row (owner, 22 Nov 2026, ENTRY 502): no Home item (the OPENGOVT logo links home; the phone menu keeps a Home
+// link) and the directory link reads 'A to Z', so the row sits inside the folder at 1280 and 1440.
 export const NAV: NavItem[] = [
-  { label: 'Home', href: '/' },
   { label: 'Your area', href: '/your-area', page: '/sections/your-area', children: [
     { label: 'Find Your MP', href: '/find-your-mp', desc: 'Enter your postcode to find your MP, their voting record, expenses, declared interests and contributions.' },
     { label: 'Your Area', href: '/your-area', desc: 'Your council and the latest local figures for your area, from a postcode, town or council.' },
@@ -135,7 +135,7 @@ export const NAV: NavItem[] = [
     { group: 'Polls', label: "opengovt Polls", href: '/polls', desc: 'Polls on issues in Parliament and government. Have your say and see the results.' },
   ] },
   { label: 'Search', href: '/search' },
-  { label: 'A - Z Directory', href: '/directory' },
+  { label: 'A to Z', href: '/directory' },
 ];
 
 

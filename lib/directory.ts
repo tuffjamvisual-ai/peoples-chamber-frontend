@@ -16,6 +16,9 @@ export type DirectoryEntry = { name: string; href: string; desc: string; see?: s
 // Pages the menu does not list, with a plain one line description.
 const EXTRA: DirectoryEntry[] = [
   { name: 'About opengovt', href: '/about', desc: 'Who runs opengovt, how the data is gathered and the editorial principles behind it.' },
+  // In the footer since ENTRY 502 (22 Nov 2026), no longer in the header row, so listed here.
+  { name: 'Commission Research', href: '/commission', desc: 'Commission an independent, fully sourced research report from opengovt.' },
+  { name: 'Contact', href: '/contact', desc: 'Corrections, data and press enquiries, and general questions.' },
   { name: 'APPG Funders', href: '/appg-funders', desc: 'Every organisation that funds one or more All Party Parliamentary Groups, ranked by groups funded.' },
   { name: 'APPG Secretariats', href: '/secretariats', desc: 'The firms and charities that run All Party Parliamentary Groups, ranked by the number of groups each runs.' },
   { name: 'Bills by Session', href: '/bills/sessions', desc: 'Every bill since the 2006 to 2007 session: which became law, which were withdrawn or ran out of time.' },
@@ -284,13 +287,16 @@ function build(): DirectoryEntry[] {
     if (d && !descFor.has(href)) descFor.set(href, d);
     out.push({ name: clean(name), href, desc: d });
   };
+  // Home is no longer a header item (owner, 22 Nov 2026, ENTRY 502: the logo links home), but stays in the A to Z.
+  add('Home', '/', TOP_DESC['/']);
   for (const item of NAV) {
+    if (item.href === '/directory') continue; // listed as 'A - Z Directory' in EXTRA
     if (item.children?.length) {
       for (const c of item.children) {
         add(c.label, c.href, c.desc);
       }
     } else {
-      add(item.label === 'Home' ? 'Home' : item.label, item.href, TOP_DESC[item.href]);
+      add(item.label, item.href, TOP_DESC[item.href]);
     }
   }
   for (const t of topics) add(`${t.title} (topic)`, `/topics/${t.slug}`, (t.blurb || '').split(/(?<=\.)\s/)[0]);
