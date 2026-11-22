@@ -53,7 +53,9 @@ export function townsLine(a: Area): string {
 export const topicHeading = (label: string) => (label === 'Housing' ? 'Housing: fuel poverty' : label);
 // The page headline (owner approved, Cowork ENTRY 493 item 1, 21 Nov 2026): the two lowest areas, built from the data,
 // never written in by hand. Used by the page title and h1, its metadata and share image, and the homepage box.
-export const HEADLINE = `${AREAS[0].name} and ${AREAS[1].name} score lowest in opengovt's ranking of living conditions in England`;
+// The headline everywhere it appears (page title, h1, social title and image, homepage lead, the /councils link): no place
+// names (owner, Cowork ENTRY 509, 22 Nov 2026); the places stay in the table and the 'Why Burnley is below Hull' line.
+export const HEADLINE = "opengovt's ranking of living conditions in England";
 export const POLICE = data.police as { period: string; england: string };
 // England's figure for every measure, from the same source files (ENTRY 484: compare with England throughout).
 export const ENGLAND = data.england as {
