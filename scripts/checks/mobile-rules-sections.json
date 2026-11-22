@@ -28,7 +28,7 @@
       "/polls"
     ],
     "/explainers/donations": "/transparency/donations",
-    "/tools/welfare": "/sections/accountability",
+    "/tools/welfare": "/sections/your-area",
     "/coverage/[id]": "/",
     "/council-areas/lowest-scores": "/councils"
   }

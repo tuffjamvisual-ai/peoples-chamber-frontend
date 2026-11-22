@@ -68,10 +68,11 @@ function anchor(title: string) {
   return title.toLowerCase().replace(/&/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-// The 15 party cards (report 62): a compact grid, so the Parliament page stays scannable.
-const COMPACT_CSS = '.og-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 14px;margin-top:6px}@media (max-width:900px){.og-cards{grid-template-columns:repeat(2,1fr)}}@media (max-width:520px){.og-cards{grid-template-columns:1fr}}';
+// The 15 party cards (report 62): a compact grid, so the page stays scannable. On phones (520px and under) two columns of
+// names only (Cowork ENTRY 502: the Parties section opens on them, and one card a row with its line made it 3,331px).
+const COMPACT_CSS = '.og-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 14px;margin-top:6px}@media (max-width:900px){.og-cards{grid-template-columns:repeat(2,1fr)}}@media (max-width:520px){.og-cards p{display:none}}';
 
-// The links in their order, split into their subheadings (Accountability has two, Parliament four).
+// The links in their order, split into their subheadings.
 function groups(links: NavLink[]): { title: string | null; links: NavLink[] }[] {
   const out: { title: string | null; links: NavLink[] }[] = [];
   for (const l of links) {
