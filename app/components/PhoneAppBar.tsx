@@ -4,7 +4,7 @@
 // (safe area). Each is at least 48px tall with its label under its icon; the current one is marked (aria-current and the
 // site's red). Menu opens the existing phone menu (MobileMenu.tsx listens for 'og:open-menu'), so there is still one
 // menu. Hidden from 768px up (opengov-shell.css). Pages get room at the bottom so nothing sits behind the bar.
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePagePath } from '@/lib/use-page-path';
 
@@ -27,16 +27,24 @@ export default function PhoneAppBar() {
     window.addEventListener('scroll', on, { passive: true });
     return () => window.removeEventListener('scroll', on);
   }, []);
+  // Whether the phone menu is open (MobileMenu.tsx says so): the Menu button is then marked and closes it.
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    const on = (e: Event) => setMenuOpen(Boolean((e as CustomEvent<boolean>).detail));
+    window.addEventListener('og:menu', on);
+    return () => window.removeEventListener('og:menu', on);
+  }, []);
   const here = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(href + '/'));
   return (
     <nav aria-label="App" className="og-appbar">
       {ITEMS.map((it) => (
-        <Link key={it.href} href={it.href} prefetch={false} className="og-appbar-item" aria-current={here(it.href) ? 'page' : undefined}>
+        <Link key={it.href} href={it.href} prefetch={false} className="og-appbar-item" aria-current={!menuOpen && here(it.href) ? 'page' : undefined}>
           {it.icon}
           <span>{it.label}</span>
         </Link>
       ))}
-      <button type="button" className="og-appbar-item" onClick={() => window.dispatchEvent(new Event('og:open-menu'))} aria-controls="og-menu-panel">
+      <button type="button" className="og-appbar-item og-appbar-menu" onClick={() => window.dispatchEvent(new Event(menuOpen ? 'og:close-menu' : 'og:open-menu'))}
+        aria-controls="og-menu-panel" aria-expanded={menuOpen} aria-label={menuOpen ? 'Close menu' : 'Menu'}>
         <svg {...ICON}><path d="M4 7h16M4 12h16M4 17h16" /></svg>
         <span>Menu</span>
       </button>

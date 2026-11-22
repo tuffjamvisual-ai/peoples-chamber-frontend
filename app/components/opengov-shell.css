@@ -247,6 +247,12 @@
   html[data-scrolled='1'] .og-header { height: calc(44px + env(safe-area-inset-top)) !important; box-shadow: 0 1px 6px rgba(20, 16, 13, 0.18); }
   html[data-scrolled='1'] .og-masthead-wrap { transform: translateY(-50%) scale(0.82) !important; transform-origin: left center; }
   .og-masthead-wrap { transition: transform 160ms ease; }
+  /* With the phone menu open the bar stays on top and the panel stops just above it (owner, 22 Nov 2026); the Menu
+     button is marked while the menu is open. */
+  .og-appbar { z-index: 2147483001; }
+  .og-menu-panel:not([hidden]) { height: auto !important; bottom: calc(59px + env(safe-area-inset-bottom)) !important; }
+  .og-appbar-menu[aria-expanded='true'] { color: #7a1612; font-weight: bold; }
+  .og-appbar-menu[aria-expanded='true'] svg { stroke-width: 2.6; }
   /* The cookie banner sits just above the bar, so neither covers the other. */
   .og-cookie-banner { bottom: calc(59px + env(safe-area-inset-bottom)) !important; }
   .og-menu-panel:not([hidden]) { animation: og-menu-in 180ms ease-out; }
