@@ -1,10 +1,10 @@
 // The homepage's "State of the nation" band (T1-SOTN, layout change approved by the owner 15 Nov 2026, COWORK-TO-T1
 // ENTRY 105; six figures since ENTRY 508, 22 Nov 2026): net migration, GDP growth, inflation, the NHS waiting list,
-// homelessness and borrowing this year, each linked to its card on /state-of-the-nation. Server rendered; a figure not yet published is left out rather
+// homelessness and borrowing this year; the band is one link to /state-of-the-nation (the one link rule). Server rendered; a figure not yet published is left out rather
 // than shown empty.
 // Two forms (ENTRY 233 MOB-HOME, owner approved 17 Nov 2026):
 // - 'band', desktop (1,024px up): under the finders, the six figures in one row, small (owner, 22 Nov 2026, ENTRY 508
-//   change: numbers 16px, about 60 per cent of before; labels and periods at the site's 15px minimum), each its own link.
+//   change: numbers 16px, about 60 per cent of before; labels and periods at the site's 15px minimum), the whole band one link.
 // - 'strip', phones and tablets (up to 1,023.98px): straight after the lead story, compact: each figure and its label
 //   as plain text (no link), then a separate "See all the figures" link. Each form is display: none at the other's
 //   widths, so a screen reader meets only the one shown, in the order it is shown.
@@ -30,17 +30,20 @@ export default async function SotnBand({ variant = 'band' }: { variant?: 'band' 
         .og-sotn-all { display: inline-block; min-height: 44px; line-height: 44px; color: ${ACCENT}; text-decoration: underline; text-underline-offset: 3px; font-size: 15px; }
 `}</style>
       <h2 id="sotn-band-h" style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', margin: '0 0 10px' }}>State of the nation</h2>
-      {/* Six figures (ENTRY 508): each links to its own card on /state-of-the-nation; "See all the figures" to the page. */}
-      <div className="og-sotn-grid">
-        {six.map((f) => (
-          <Link key={f.id} href={`${SOTN_ALL_HREF}#${f.id}`} className="og-sotn-fig og-sotn-link">
-            <span className="og-sotn-v" style={{ display: 'block', fontSize: '16px', fontWeight: 'bold', lineHeight: 1.2 }}>{f.value}</span>
-            <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.3, marginTop: '2px' }}>{f.label}</span>
-            {f.period && <span className="og-sotn-p" style={{ display: 'block', fontSize: '15px', lineHeight: 1.3, marginTop: '2px' }}>{f.period}</span>}
-          </Link>
-        ))}
-      </div>
-      <Link href={SOTN_ALL_HREF} className="og-sotn-all">See all the figures</Link>
+      {/* One link for the whole band (the owner's rule: a page is linked once in the body; Cowork 13:5x, ENTRY 508 A10
+          decision): the six figures and "See all the figures" all lead to /state-of-the-nation. */}
+      <Link href={SOTN_ALL_HREF} className="og-sotn-link" style={{ display: 'block', color: 'inherit', textDecoration: 'none' }}>
+        <span className="og-sotn-grid">
+          {six.map((f) => (
+            <span key={f.id} className="og-sotn-fig">
+              <span className="og-sotn-v" style={{ display: 'block', fontSize: '16px', fontWeight: 'bold', lineHeight: 1.2 }}>{f.value}</span>
+              <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.3, marginTop: '2px' }}>{f.label}</span>
+              {f.period && <span className="og-sotn-p" style={{ display: 'block', fontSize: '15px', lineHeight: 1.3, marginTop: '2px' }}>{f.period}</span>}
+            </span>
+          ))}
+        </span>
+        <span className="og-sotn-all">See all the figures</span>
+      </Link>
     </section>
   );
 }
@@ -72,14 +75,12 @@ function SotnStrip({ six }: { six: Fig[] }) {
         <Link href={SOTN_ALL_HREF} className="og-sotn-sa">See all &rarr;</Link>
       </div>
       {/* The strip's six figures (ENTRY 508: a tidy 2 by 3 grid on phones) stay whole, not a list the phone script folds;
-          each links to its card on /state-of-the-nation. */}
+          the strip's one link is 'See all' (ENTRY 508 A10 decision). */}
       <ul className="og-sotn-sl" data-own-more="">
         {six.map((f) => (
           <li key={f.id}>
-            <Link href={`${SOTN_ALL_HREF}#${f.id}`}>
-              <span className="og-sotn-sv">{f.value}</span>
-              <span className="og-sotn-sk">{SHORT[f.id] ?? f.label}{f.period ? `, ${midSentence(f.period)}` : ''}</span>
-            </Link>
+            <span className="og-sotn-sv">{f.value}</span>
+            <span className="og-sotn-sk">{SHORT[f.id] ?? f.label}{f.period ? `, ${midSentence(f.period)}` : ''}</span>
           </li>
         ))}
       </ul>
