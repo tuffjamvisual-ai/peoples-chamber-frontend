@@ -321,7 +321,8 @@ async function main() {
       }
       if (r.status === 200 && !extra.includes(p)) {
         // QA2d (owner, 9 Nov 2026): article text is never folded, so the limit applies to the page minus the article body.
-        r.height = await page.evaluate(() => Math.round(document.documentElement.scrollHeight - [...document.querySelectorAll('[data-article-body]')].reduce((n, el) => n + el.getBoundingClientRect().height, 0)));
+        // The room kept for the phone app bar (--og-appbar-room, 59px under 768px) is screen chrome, not content (Cowork ENTRY 507).
+        r.height = await page.evaluate(() => Math.round(document.documentElement.scrollHeight - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--og-appbar-room')) || 0) - [...document.querySelectorAll('[data-article-body]')].reduce((n, el) => n + el.getBoundingClientRect().height, 0)));
       }
       if (r.status === 200 && !PUSH) {
         // A9 on a council page's detail tabs (T1-5c, Cowork, 11 Nov 2026): they load only when opened, so each one is

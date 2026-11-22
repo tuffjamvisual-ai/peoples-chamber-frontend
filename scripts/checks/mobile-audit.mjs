@@ -217,7 +217,7 @@ function measure() {
     tall_media: tall.length, tall_media_eg: tall.slice(0, 3).map((e) => `${label(e)} ${Math.round(e.getBoundingClientRect().height)}px`),
     link_rows_before_content: most,
     duplicate_link_sets: dup.length, duplicate_link_sets_eg: dup.slice(0, 2),
-    page_height: document.documentElement.scrollHeight,
+    page_height: document.documentElement.scrollHeight - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--og-appbar-room')) || 0), // without the phone app bar's room (Cowork ENTRY 507)
   };
 }
 
