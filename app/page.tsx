@@ -172,13 +172,13 @@ export default async function HomePage() {
               <style>{`.og-finders { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px 20px; align-items: start; margin-bottom: 28px; } @media (min-width: 640px) { .og-finders { grid-template-columns: repeat(2, minmax(0, 1fr)); } } .og-finders > form, .og-finders > section { margin: 0 !important; }`}</style>
               <div className="og-finders">
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
-                <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt archives</label>
+                <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt</label>
                 {/* Tells the search term log this search came from the homepage (Cowork ENTRY 375 item 2); /search takes it
                     out of the address once logged. Not a filter: the page, its canonical and its noindex are unchanged. */}
                 <input type="hidden" name="via" value="home" />
                 {/* Suggestions as you type (SEARCH-ALL batch 1, Cowork ENTRY 326); Enter with none picked opens /search as before. */}
                 <div className="og-sbox-row" style={{ position: 'relative' }}>
-                  <SuggestInput suggestPath="/api/suggest/site" inputProps={{ 'data-main-action': true }} ariaLabel="Search opengovt archives"
+                  <SuggestInput suggestPath="/api/suggest/site" inputProps={{ 'data-main-action': true }} ariaLabel="Search opengovt"
                     id="home-search-q"
                     name="q"
                     placeholder="MPs, bills, votes, debates"
@@ -220,14 +220,32 @@ export default async function HomePage() {
               </form>
 
               <AreaSearch label="Find your local council" placeholder="Postcode, town or council" logBox="home-council" />
-              {/* A 2 by 2 grid on desktop (owner, 19 Nov 2026, Cowork ENTRY 374): Search opengovt archives | Find your local council /
-                  Search Prime Minister's Questions | Find your MP; stacked on phones, as before. */}
+              {/* A 2 by 2 grid on desktop (owner, 19 Nov 2026, Cowork ENTRY 374): Search opengovt | Find your local council /
+                  Search opengovt archives (or PMQs while the archive is off, ENTRY 503) | Find your MP; stacked on phones. */}
               {/* PMQs search (owner, 18 Nov 2026, Cowork ENTRY 320): directly under the two main searches, in the same look as
                   the main search. A plain form to /pmqs?q= (rewritten to /pmqs/search), so it works with no script. As you type
                   suggestions come with the shared search piece (SEARCH-ALL, ENTRY 318). */}
               {/* As wide as one of the two finders above it once they sit side by side (each at least 280px with a 20px gap). */}
               {/* Phones (homepage length, 2,611px at 375 with this block, limit 2,500): smaller gaps under the PMQs box and the links. */}
               <style>{`@media ${phoneUpTo(767.98)} { .og-rail > a.og-pmqs-card { display: none !important; } }`}</style>
+              {/* Archive search (Cowork ENTRY 503, owner approved 22 Nov 2026) in the PMQs box's place while the archive is on
+                  (ARCHIVE_ENABLED, read when this saved page is built); otherwise the PMQs box, so the slot is never empty. A plain
+                  GET form to /archive?q=, which asks signed out readers to sign in. The PMQs search stays in the menu and A to Z. */}
+              {process.env.ARCHIVE_ENABLED === '1' ? (
+              <form action="/archive" method="get" className="og-pmqs-search" style={{ margin: 0 }}>
+                <label htmlFor="home-archive-q" className="og-kicker og-search-label">Search opengovt archives</label>
+                <div className="og-sbox-row" style={{ position: 'relative' }}>
+                  <input id="home-archive-q" name="q" type="search" maxLength={200} placeholder="Hansard, answers and laws"
+                    className="og-search-input og-sbox-input"
+                    style={{ width: '100%', padding: '12px 36px 12px 14px', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', background: '#f4e8d4', border: '1px solid rgba(20,16,13,0.18)', outline: 'none', boxSizing: 'border-box' }} />
+                  <button type="submit" className="og-search-go og-sbox-btn" aria-label="Search opengovt archives"
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#7a1612', fontSize: '18px', lineHeight: 1, padding: '4px' }}>
+                    <span className="og-sbox-arrow">→</span><span className="og-sbox-word">Search</span>
+                  </button>
+                </div>
+                <p style={{ margin: '6px 0 0', fontSize: '15px', color: '#14100d', fontFamily: "var(--font-special-elite), monospace" }}>Free account needed.</p>
+              </form>
+              ) : (
               <form action="/pmqs" method="get" className="og-pmqs-search" style={{ margin: 0 }}>
                 <label htmlFor="home-pmqs-q" className="og-kicker og-search-label">Search Prime Minister&rsquo;s Questions</label>
                 {/* For the search term log, as the main search above. */}
@@ -275,6 +293,7 @@ export default async function HomePage() {
                   </button>
                 </div>
               </form>
+              )}
               <HomeMpSearch />
               </div>
               {/* The 'How councils compare' links row is gone (owner, 19 Nov 2026, Cowork ENTRY 372): the ranking pages are
