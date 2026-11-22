@@ -3,6 +3,7 @@ import { preload } from 'react-dom';
 import Link from 'next/link';
 import AccountTab from './AccountTab';
 import MobileMenu from './MobileMenu';
+import PhoneAppBar from './PhoneAppBar';
 import HeaderNav from './HeaderNav';
 import FeedbackFooterLink from './FeedbackFooterLink';
 import { OPEN_PARLIAMENT_LICENCE_URL } from './ParliamentSourceCredit';
@@ -80,6 +81,8 @@ export default function OpenGovShell({
 
           {/* Phones (under 768px): the one-row header's search and menu icons (MobileMenu.tsx); hidden from 768px up. */}
           <MobileMenu />
+          {/* Phones (ENTRY 507 demo): the bottom app bar, fixed to the screen's foot; hidden from 768px up. */}
+          <PhoneAppBar />
 
           <nav aria-label="Primary" className="og-navwrap" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(1.5%) rotate(-2.5deg)' }}>
             {/* No dropdowns (report 60): each section links to its page listing every link in it (HeaderNav.tsx). */}
