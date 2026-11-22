@@ -213,3 +213,9 @@
   .og-footer-links a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
   .og-masthead-wrap a { display: inline-flex; align-items: center; min-height: 44px; }
 }
+
+/* Footer link rows (owner via Cowork, 22 Nov 2026, ENTRY 512): each separator dot travels with the link after it, so a
+   wrapped row never ends in a dot, and a link's text starts at the left of its tap area (the phone rule's 44px minimum
+   width centred a short link such as 'X', which looked indented). */
+.og-fl-pair { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
+.og-footer-links a, .og-footer-links button { justify-content: flex-start !important; }

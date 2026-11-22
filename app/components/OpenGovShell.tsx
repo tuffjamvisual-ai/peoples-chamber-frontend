@@ -126,30 +126,40 @@ export default function OpenGovShell({
               <style>{`@media (max-width: 767.98px) { .og-footer-site { display: none !important; } }`}</style>
               <div className="og-footer-links og-footer-site" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 10px', lineHeight: 1.4, margin: '0 0 8px' }}>
                 <a href="/search" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Search</a>
-                <span aria-hidden >·</span>
-                <a href="/state-of-the-nation" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">State of the Nation</a>
-                <span aria-hidden >·</span>
-                <a href="/about" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">About</a>
-                <span aria-hidden >·</span>
-                <a href="/contact" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Contact</a>
-                <span aria-hidden >·</span>
-                <a href="/commission" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Commission research</a>
-                <span aria-hidden >·</span>
-                <a href="/donate" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Donate</a>
-                <span aria-hidden >·</span>
-                <a href="/newsletter" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Newsletter</a>
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <a href="/state-of-the-nation" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">State of the Nation</a>
+                </span>
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <a href="/about" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">About</a>
+                </span>
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <a href="/contact" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Contact</a>
+                </span>
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <a href="/commission" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Commission research</a>
+                </span>
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <a href="/donate" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Donate</a>
+                </span>
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <a href="/newsletter" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Newsletter</a>
+                </span>
               </div>
               <div className="og-footer-links" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 10px', lineHeight: 1.4 }}>
                 <a href="/privacy" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Privacy</a>
-                <span aria-hidden >·</span>
-                <a href="/cookies" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Cookies</a>
-                <span aria-hidden >·</span>
-                <a href="/terms" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Terms</a>
-                <span aria-hidden >·</span>
-                <FeedbackFooterLink style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale" />
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <a href="/cookies" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Cookies</a>
+                </span>
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <a href="/terms" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Terms</a>
+                </span>
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <FeedbackFooterLink style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale" />
+                </span>
                 {/* X (owner, Cowork ENTRY 512, 22 Nov 2026): in this row, so it shows on phones and desktop alike. */}
-                <span aria-hidden >·</span>
-                <a href="https://x.com/opengovtuk" target="_blank" rel="noopener noreferrer" aria-label="opengovt on X" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">X</a>
+                <span className="og-fl-pair"><span aria-hidden >·</span>
+                  <a href="https://x.com/opengovtuk" target="_blank" rel="noopener noreferrer" aria-label="opengovt on X" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">X</a>
+                </span>
               </div>
             </footer>
           </div>
