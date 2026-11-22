@@ -51,6 +51,15 @@ export default function SiteFooter() {
           <div>
             <FootHead>Connect</FootHead>
             <FootCol>
+              {/* X (owner, Cowork ENTRY 512, 22 Nov 2026). This footer is not used by any live page (OpenGovShell has its own). */}
+              <a
+                href="https://x.com/opengovtuk"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={linkStyle}
+              >
+                X @opengovtuk&nbsp;↗
+              </a>
               <a
                 href="https://github.com/tuffjamvisual-ai/peoples-chamber-frontend"
                 target="_blank"
