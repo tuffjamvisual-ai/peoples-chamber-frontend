@@ -236,19 +236,19 @@
 .og-appbar { display: none; }
 @media (max-width: 767.98px) {
   .og-appbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: #d9b97f; border-top: 1px solid rgba(20, 16, 13, 0.25); padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-  .og-appbar-item { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; padding: 6px 0 4px; border: 0; background: transparent; color: #14100d; text-decoration: none; font-family: var(--font-special-elite), monospace; font-size: 13px; line-height: 1.1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .og-appbar-item { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 58px; padding: 6px 0 4px; border: 0; background: transparent; color: #14100d; text-decoration: none; font-family: var(--font-special-elite), monospace; font-size: 15px; line-height: 1.1; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .og-appbar-item[aria-current='page'] { color: #7a1612; font-weight: bold; }
   .og-appbar-item[aria-current='page'] svg { stroke-width: 2.6; }
   .og-appbar-item:focus-visible { outline: 2px solid #7a1612; outline-offset: -3px; }
   .og-appbar-item:active { color: #7a1612; }
-  .dossier-content { padding-bottom: calc(28px + 57px + env(safe-area-inset-bottom)) !important; }
+  .dossier-content { padding-bottom: calc(28px + 59px + env(safe-area-inset-bottom)) !important; }
   .og-header { position: fixed !important; top: 0; left: 0; right: 0; z-index: 55; height: calc(56px + env(safe-area-inset-top)) !important; padding-top: env(safe-area-inset-top); box-sizing: border-box; transition: height 160ms ease; }
   .og-dossier { margin-top: calc(56px + env(safe-area-inset-top)) !important; }
   html[data-scrolled='1'] .og-header { height: calc(44px + env(safe-area-inset-top)) !important; box-shadow: 0 1px 6px rgba(20, 16, 13, 0.18); }
   html[data-scrolled='1'] .og-masthead-wrap { transform: translateY(-50%) scale(0.82) !important; transform-origin: left center; }
   .og-masthead-wrap { transition: transform 160ms ease; }
   /* The cookie banner sits just above the bar, so neither covers the other. */
-  .og-cookie-banner { bottom: calc(57px + env(safe-area-inset-bottom)) !important; }
+  .og-cookie-banner { bottom: calc(59px + env(safe-area-inset-bottom)) !important; }
   .og-menu-panel:not([hidden]) { animation: og-menu-in 180ms ease-out; }
   .og-menu-group[open] > ul { animation: og-fold-in 160ms ease-out; }
 }
