@@ -99,7 +99,7 @@ export default function CommissionPage() {
           <EnquiryLink className="cm-act cm-act-go no-hover-scale" />
           <Link href="/commission/sample" className="cm-act cm-act-see no-hover-scale">View a sample report</Link>
         </div>
-        <p className="cm-centred" style={{ fontSize: '16px', lineHeight: 1.6, marginTop: 0, marginBottom: '18px' }}>Your fee covers research into any public record, including data not yet published on opengovt.</p>
+        <p className="cm-centred" style={{ fontSize: '16px', lineHeight: 1.6, marginTop: 0, marginBottom: '18px' }}>Your fee covers the research, including data not on opengovt.</p>
         <div className="cm-service" style={{ borderTop: `3px solid ${INK}`, borderBottom: `1px solid ${HAIRLINE}`, padding: '16px 0 18px', display: 'flex', flexDirection: 'column' }}>
           <h2 style={{ ...h2, marginBottom: '6px' }}>{SERVICE.name}</h2>
           <p style={{ fontSize: '18px', fontWeight: 'bold', color: ACCENT, margin: '0 0 10px' }}>{SERVICE.price}</p>
