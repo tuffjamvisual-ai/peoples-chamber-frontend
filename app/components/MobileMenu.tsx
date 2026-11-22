@@ -154,10 +154,11 @@ export default function MobileMenu() {
             <Link href="/" onClick={(e) => follow(e, '/')}>Home</Link>
             <a href="/directory" onClick={(e) => follow(e, '/directory')}>A to Z</a>
           </div>
-          {/* The footer's site links (ENTRY 502), here on phones instead of the footer (A3: phone page length); Commission, the
+          {/* The footer's site links (ENTRY 502), here on phones instead of the footer (A3: phone page length), without Search
+              (owner, Cowork 01:3x: phones keep the search icon in the phone bar); Commission, the
               newsletter and Donate (Support Us) are already in this panel. */}
           <div className="og-menu-more og-menu-site">
-            {[['/search', 'Search'], ['/state-of-the-nation', 'State of the Nation'], ['/about', 'About'], ['/contact', 'Contact']].map(([h, t]) => (
+            {[['/state-of-the-nation', 'State of the Nation'], ['/about', 'About'], ['/contact', 'Contact']].map(([h, t]) => (
               <a key={h} href={h} onClick={(e) => follow(e, h)}>{t}</a>
             ))}
           </div>
