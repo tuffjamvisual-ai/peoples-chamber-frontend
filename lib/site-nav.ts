@@ -16,8 +16,9 @@ import { partyHref } from '@/lib/party-verdict';
 // (the 15 parties).
 export type NavLink = { label: string; href: string; desc?: string; group?: string; compact?: boolean };
 export type NavItem = { label: string; href: string; page?: string; children?: NavLink[] };
-// The menu (Cowork ENTRY 502, owner approved 22 Nov 2026, from T2's audit audit/menu-501/REPORT.md): seven headings, Your
-// area, Parliament, Government, Money and influence, State of the nation, Read and Parties, then Search and A to Z. This
+// The menu (Cowork ENTRY 502, owner approved 22 Nov 2026, from T2's audit audit/menu-501/REPORT.md): six headings, Your
+// area, Parliament, Government, Money and influence, Read and Parties, then A to Z (owner 22 Nov: no Home, Search or
+// State of the nation item; State of the Nation and the dashboard sit under Government, Official figures). This
 // one list drives the desktop header, the phone menu (PHONE_MENU_GROUPS below is built from it), the section pages and
 // the A to Z, so they always match. No page was removed: About, Contact, Commission research and Donate are in the
 // footer (OpenGovShell.tsx); the old section addresses /sections/local, /accountability and /vote redirect to the new ones.
@@ -71,6 +72,8 @@ export const NAV: NavItem[] = [
     { group: 'Ministers and advisers', label: "Ministers' Meetings", href: '/transparency/ministers-meetings', desc: PAGE_DESCRIPTIONS['/transparency/ministers-meetings'] },
     { group: 'Ministers and advisers', label: "Ministers' Hospitality", href: '/transparency/hospitality', desc: PAGE_DESCRIPTIONS['/transparency/hospitality'] },
     { group: 'Ministers and advisers', label: 'Special Advisers', href: '/transparency/special-advisers', desc: 'Every current Special Adviser, their department, and the gifts, hospitality and meetings they declared.' },
+    { group: 'Official figures', label: 'State of the Nation', href: '/state-of-the-nation', desc: 'Inflation, growth, jobs, public borrowing and debt, NHS waits, courts, homelessness and migration: official figures.' },
+    { group: 'Official figures', label: 'State Dashboard', href: '/transparency/state-dashboard', desc: 'The state of England\'s public services, tracked from official primary sources, each with its source.' },
     { group: 'What government does', label: 'Press Releases', href: '/transparency/press-releases', desc: 'UK Government department press releases from 2007 to today, plus Commons select committee reports.' },
     { group: 'What government does', label: 'Major Projects', href: '/transparency/major-projects', desc: 'Every project in the Government Major Projects Portfolio, with its delivery rating and whole life cost.' },
     { group: 'What government does', label: 'Ministerial Directions', href: '/transparency/ministerial-directions', desc: 'Every ministerial direction published since 2015: what was directed, by whom and when.' },
@@ -105,10 +108,6 @@ export const NAV: NavItem[] = [
     { group: 'Influence', label: 'Revolving Door', href: '/transparency/revolving-door', desc: PAGE_DESCRIPTIONS['/transparency/revolving-door'] },
     { group: 'Influence', label: 'Transparency Overview', href: '/transparency', desc: 'Every transparency page on opengovt in one place: registers, money, lobbying and government.' },
     { group: 'Influence', label: 'Money & Power', href: '/money', desc: 'Patterns across registers: MPs paid twice, contractors who donate, APPG funders and lobby firms.' },
-  ] },
-  { label: 'State of the nation', href: '/state-of-the-nation', page: '/sections/state-of-the-nation', children: [
-    { label: 'State of the Nation', href: '/state-of-the-nation', desc: 'Inflation, growth, jobs, public borrowing and debt, NHS waits, courts, homelessness and migration: official figures.' },
-    { label: 'State Dashboard', href: '/transparency/state-dashboard', desc: 'The state of England\'s public services, tracked from official primary sources, each with its source.' },
   ] },
   { label: 'Read', href: '/reports', page: '/sections/read', children: [
     { label: 'Reports', href: '/reports' },

@@ -119,10 +119,12 @@ export default function OpenGovShell({
               <p style={{ margin: '0 0 8px', color: '#14100d', lineHeight: 1.4, maxWidth: '82ch' }}>
                 opengovt is independent and is not affiliated with GOV.UK.
               </p>
-              {/* Search, About, Contact, Commission research, Donate and the newsletter (Cowork ENTRY 502, owner approved 22 Nov 2026):
+              {/* Search, State of the Nation (owner, 22 Nov: out of the menu row), About, Contact, Commission research, Donate and the newsletter (Cowork ENTRY 502, owner approved 22 Nov 2026):
                   out of the main menu row, here on every page, before the legal links. */}
               <div className="og-footer-links" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 10px', lineHeight: 1.4, margin: '0 0 8px' }}>
                 <a href="/search" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Search</a>
+                <span aria-hidden >·</span>
+                <a href="/state-of-the-nation" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">State of the Nation</a>
                 <span aria-hidden >·</span>
                 <a href="/about" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">About</a>
                 <span aria-hidden >·</span>
