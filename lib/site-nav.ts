@@ -22,7 +22,8 @@ export type NavItem = { label: string; href: string; page?: string; children?: N
 // the A to Z, so they always match. No page was removed: About, Contact, Commission research and Donate are in the
 // footer (OpenGovShell.tsx); the old section addresses /sections/local, /accountability and /vote redirect to the new ones.
 // The header row (owner, 22 Nov 2026, ENTRY 502): no Home item (the OPENGOVT logo links home; the phone menu keeps a Home
-// link) and the directory link reads 'A to Z', so the row sits inside the folder at 1280 and 1440.
+// link), no Search item (search is on the homepage, in the A to Z and the footer; the phone bar keeps its search icon)
+// and the directory link reads 'A to Z', so the row sits inside the folder at 1280 and 1440.
 export const NAV: NavItem[] = [
   { label: 'Your area', href: '/your-area', page: '/sections/your-area', children: [
     { label: 'Find Your MP', href: '/find-your-mp', desc: 'Enter your postcode to find your MP, their voting record, expenses, declared interests and contributions.' },
@@ -134,7 +135,6 @@ export const NAV: NavItem[] = [
     { group: 'Parties', label: 'Your Party', href: partyHref('your-party'), compact: true, desc: partyDescription(PARTY_NAMES['your-party']) },
     { group: 'Polls', label: "opengovt Polls", href: '/polls', desc: 'Polls on issues in Parliament and government. Have your say and see the results.' },
   ] },
-  { label: 'Search', href: '/search' },
   { label: 'A to Z', href: '/directory' },
 ];
 
