@@ -58,17 +58,21 @@ export default function MobileMenu() {
     setOpen(true);
   };
 
-  // The phone app bar's Menu button (PhoneAppBar.tsx, ENTRY 507) opens this same menu.
-  useEffect(() => {
-    const open = () => { if (!ownEntry.current) openMenu(); };
-    window.addEventListener('og:open-menu', open);
-    return () => window.removeEventListener('og:open-menu', open);
-  });
   // Close by going back over the menu's own history entry; the popstate handler below finishes the job.
   const closeMenu = useCallback(() => {
     if (ownEntry.current) window.history.back();
     else setOpen(false);
   }, []);
+  // The phone app bar's Menu button (PhoneAppBar.tsx, ENTRY 507) opens and closes this same menu, and is told whether it
+  // is open (owner, 22 Nov: the bar stays on screen with the menu open, its Menu button marked).
+  useEffect(() => {
+    const open = () => { if (!ownEntry.current) openMenu(); };
+    const close = () => { if (ownEntry.current) closeMenu(); };
+    window.addEventListener('og:open-menu', open);
+    window.addEventListener('og:close-menu', close);
+    return () => { window.removeEventListener('og:open-menu', open); window.removeEventListener('og:close-menu', close); };
+  });
+  useEffect(() => { window.dispatchEvent(new CustomEvent('og:menu', { detail: open })); }, [open]);
 
   useEffect(() => {
     if (!open) return;
