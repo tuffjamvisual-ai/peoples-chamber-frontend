@@ -30,7 +30,7 @@ const MONO = 'var(--font-special-elite), monospace';
 const CARDS_CSS = '.og-pcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 14px}@media (max-width:900px){.og-pcards{grid-template-columns:repeat(2,1fr)}}@media (max-width:520px){.og-pcards{grid-template-columns:1fr}}';
 
 // The parties in the menu's order: the Parties group's party links (/parties/<slug>/bio) in lib/site-nav.ts.
-const SLUGS = NAV.find((n) => n.label === 'Parliament')!.children!
+const SLUGS = NAV.find((n) => n.label === 'Parties')!.children!
   .filter((c) => c.group === 'Parties' && /^\/parties\/[^/]+\/bio$/.test(c.href))
   .map((c) => c.href.split('/')[2]);
 

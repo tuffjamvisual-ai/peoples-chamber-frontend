@@ -60,7 +60,7 @@ export const ROUTES: { route: string; path: string }[] = [
   { route: '/debates/[guid]', path: '/debates/1532738B-A3C2-4ACB-AE5B-0D7B8FAC2600' },
   // The section pages every header link now opens (report 60), one representative; the other six are in the phone
   // layout pass below.
-  { route: '/sections/[slug]', path: '/sections/accountability' },
+  { route: '/sections/[slug]', path: '/sections/money-and-influence' },
   // Organisation pages (report 71): a company found by Companies House number, and a lobbying registry organisation.
   { route: '/organisations/[slug]', path: '/organisations/kpmg-llp' },
   { route: '/organisations/[slug]', path: '/organisations/rolls-royce' },
