@@ -121,7 +121,10 @@ export default function OpenGovShell({
               </p>
               {/* Search, State of the Nation (owner, 22 Nov: out of the menu row), About, Contact, Commission research, Donate and the newsletter (Cowork ENTRY 502, owner approved 22 Nov 2026):
                   out of the main menu row, here on every page, before the legal links. */}
-              <div className="og-footer-links" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 10px', lineHeight: 1.4, margin: '0 0 8px' }}>
+              {/* Phones (A3, the phone length rule): this row is in the phone menu panel instead (MobileMenu.tsx), so phone
+                  pages keep their length; from 768px up it shows here. */}
+              <style>{`@media (max-width: 767.98px) { .og-footer-site { display: none !important; } }`}</style>
+              <div className="og-footer-links og-footer-site" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 10px', lineHeight: 1.4, margin: '0 0 8px' }}>
                 <a href="/search" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Search</a>
                 <span aria-hidden >·</span>
                 <a href="/state-of-the-nation" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">State of the Nation</a>
