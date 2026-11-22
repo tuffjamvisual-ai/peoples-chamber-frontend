@@ -219,3 +219,10 @@
    width centred a short link such as 'X', which looked indented). */
 .og-fl-pair { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
 .og-footer-links a, .og-footer-links button { justify-content: flex-start !important; }
+/* Phones (under 768px, Cowork 11:35): no separator dots in the footer link rows; the links wrap with a 16px gap, so no
+   line starts or ends with a dot. Desktop keeps its dots. */
+@media (max-width: 767.98px) {
+  .og-footer-links { gap: 0 16px !important; }
+  .og-footer-links span[aria-hidden] { display: none !important; }
+  .og-fl-pair { gap: 0; }
+}
