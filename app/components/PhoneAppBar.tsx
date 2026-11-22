@@ -18,15 +18,6 @@ const ITEMS = [
 
 export default function PhoneAppBar() {
   const path = usePagePath();
-  // The header slims once the page is scrolled (ENTRY 507 (3)): a mark on <html> that the phone CSS reads; passive, and
-  // only written when it changes.
-  useEffect(() => {
-    const root = document.documentElement;
-    const on = () => { const s = window.scrollY > 40; if ((root.dataset.scrolled === '1') !== s) root.dataset.scrolled = s ? '1' : ''; };
-    on();
-    window.addEventListener('scroll', on, { passive: true });
-    return () => window.removeEventListener('scroll', on);
-  }, []);
   // Whether the phone menu is open (MobileMenu.tsx says so): the Menu button is then marked and closes it.
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
