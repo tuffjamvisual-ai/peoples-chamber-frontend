@@ -378,7 +378,7 @@ export default async function HomePage() {
               <SubFold tablets label="Commission research from opengovt">
               <section className="og-promo" aria-labelledby="og-promo-head">
                 <div className="og-kicker">opengovt service</div>
-                <h2 id="og-promo-head" className="og-promo-head">Want something investigated from the public record?</h2>
+                <h2 id="og-promo-head" className="og-promo-head">Want something investigated?</h2>
                 <p>Commission an independent, fully sourced research report. Every figure cited; the findings are ours, not the client&rsquo;s.</p>
                 <p className="og-promo-price">From £295, with a fixed quote for each enquiry, including data not yet on opengovt</p>
                 <Link href="/commission" className="og-promo-btn">Commission research</Link>
