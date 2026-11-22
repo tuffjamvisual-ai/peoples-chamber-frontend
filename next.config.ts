@@ -217,6 +217,10 @@ const nextConfig: NextConfig = {
     const reportsRedirects = [
       { source: '/editorials', destination: '/reports', statusCode: 301 as const },
       { source: '/briefings', destination: '/reports', statusCode: 301 as const },
+      // The old section pages (Cowork ENTRY 502, 22 Nov 2026): the menu's new headings took their place; their links stay.
+      { source: '/sections/local', destination: '/sections/your-area', statusCode: 301 as const },
+      { source: '/sections/accountability', destination: '/sections/money-and-influence', statusCode: 301 as const },
+      { source: '/sections/vote', destination: '/sections/parties', statusCode: 301 as const },
     ];
     // The two Reform crypto bill reports merged (owner's approval, 24 Oct 2026): the older one, hb9k2xq7mw, and its
     // sources page 301 to q7m3k9xw2r.
@@ -227,9 +231,9 @@ const nextConfig: NextConfig = {
     // MPs, Parties and Departments became groups of Parliament in the menu (owner's decision, 25 Oct 2026, report 62):
     // their section pages go permanently (308) to the matching group on the Parliament section page.
     const sectionRedirects = [
-      { source: '/sections/mps', destination: '/sections/parliament#mps', permanent: true },
-      { source: '/sections/parties', destination: '/sections/parliament#parties', permanent: true },
-      { source: '/sections/departments', destination: '/sections/parliament#departments', permanent: true },
+      { source: '/sections/mps', destination: '/sections/parliament#members', permanent: true }, // ENTRY 502: the Members group
+      // /sections/parties is a section page again (Cowork ENTRY 502), so its old redirect to Parliament is gone.
+      { source: '/sections/departments', destination: '/sections/government', permanent: true }, // ENTRY 502: Departments are under Government
     ];
     // Organisations merged into their lobbying registry page once the registry recorded their Companies House number
     // (owner, 27 Oct 2026, numbers checked on Companies House): the company page, and its record lists, go to the

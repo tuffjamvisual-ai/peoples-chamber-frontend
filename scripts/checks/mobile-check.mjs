@@ -16,7 +16,7 @@ import { chromium } from 'playwright';
 import sharp from 'sharp';
 
 // The 32 pages Cowork measures (4 Nov 2026).
-const PAGES = ['/', '/search?q=nhs', '/directory', '/topics/housing', '/sections/parliament', '/sections/accountability', '/sections/vote', '/departments/housing', '/parties', '/parties/labour/bio', '/parties/manifestos', '/bills/4035', '/laws', '/divisions', '/lords/100', '/mps', '/councils', '/councils/manchester', '/organisations/serco-limited', '/donors', '/expenses', '/lobbying', '/transparency/ministers-meetings', '/editorials/q1yfr4lome', '/transparency/revolving-door', '/polls', '/this-week', '/your-area', '/support', '/contact', '/donations/government-contractors', '/transparency/state-dashboard'];
+const PAGES = ['/', '/search?q=nhs', '/directory', '/topics/housing', '/sections/parliament', '/sections/money-and-influence', '/sections/parties', '/departments/housing', '/parties', '/parties/labour/bio', '/parties/manifestos', '/bills/4035', '/laws', '/divisions', '/lords/100', '/mps', '/councils', '/councils/manchester', '/organisations/serco-limited', '/donors', '/expenses', '/lobbying', '/transparency/ministers-meetings', '/editorials/q1yfr4lome', '/transparency/revolving-door', '/polls', '/this-week', '/your-area', '/support', '/contact', '/donations/government-contractors', '/transparency/state-dashboard'];
 const PHONES = [{ width: 375, height: 812 }, { width: 360, height: 780 }];
 const DESKTOP = { width: 1440, height: 900 };
 const slug = (p) => (p === '/' ? 'home' : p.slice(1).replace(/[/?=]/g, '_'));

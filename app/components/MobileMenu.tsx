@@ -2,7 +2,7 @@
 
 // Phone header and menu (owner's choice, 25 Oct 2026, report 47; the TaxPayers' Alliance pattern): under 768px the
 // header is one row, the wordmark with a search icon and a menu icon, and the menu icon opens a full screen panel
-// listing the top level sections as large links (10 of the 11 in NAV, as Commission is the button), with "Commission research" as the one call to action,
+// listing the menu's headings as folds (ENTRY 502: the same headings as the desktop row, from lib/site-nav.ts), with "Commission research" as the one call to action,
 // first in the panel with "Get the weekly email" so both show without scrolling on a 320 by 740 phone (MOB1, 8 Nov 2026). Each section's
 // page (/sections/<slug>) lists that section's pages, so every page in the desktop menu is two taps away. Hidden from 768px up (opengov-shell.css), where the desktop header and dropdowns are unchanged.
 //
@@ -18,27 +18,28 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AccountTab from './AccountTab';
 import { PHONE_MENU_GROUPS } from '@/lib/site-nav';
-import { phoneUpTo } from '@/lib/breakpoints';
 
-type Section = { label: string; href: string };
 const PANEL_ID = 'og-menu-panel';
 // The account row's links, at least 44px tall to tap (owner, 4 Nov 2026). The panel shows only under 768px.
 const ACCOUNT_CSS = '.og-menu-account a { display: inline-block; box-sizing: border-box; min-height: 44px; line-height: 24px; }';
-// Under 640px the links are in four groups (owner, 4 Nov 2026; lib/site-nav.ts); from 640px to 767px the flat list stays.
-const GROUPS_CSS = `.og-menu-groups { display: none; }
-@media ${phoneUpTo(767.98)} {
-  .og-menu-flat { display: none; }
-  .og-menu-groups { display: block; width: 100%; box-sizing: border-box; padding: 0 16px; text-align: left; }
-  .og-menu-group + .og-menu-group { margin-top: 12px; }
-  .og-menu-group h2 { margin: 0 0 2px; padding-bottom: 4px; border-bottom: 1px solid #14100d; font-size: 15px; font-weight: bold; letter-spacing: 0.04em; color: #7a1612; }
-  .og-menu-group ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
-  .og-menu-group a { display: block; box-sizing: border-box; min-height: 44px; align-content: center; color: #14100d; text-decoration: none; font-size: 17px; line-height: 1.2; }
-  .og-menu-group a:active { color: #7a1612; }
-  .og-menu-group a:focus-visible { outline: 2px solid #7a1612; outline-offset: 1px; }
-  .og-menu-account { margin-top: 14px; }
-}`;
+// The phone menu (Cowork ENTRY 502, owner approved 22 Nov 2026): the same headings as the desktop row, each a closed fold
+// that opens to its links, built from lib/site-nav.ts (PHONE_MENU_GROUPS is made from NAV), so the two menus always
+// match at every phone width. A native <details>: no script needed to open a heading. Search and A to Z follow.
+const GROUPS_CSS = `.og-menu-groups { display: block; width: 100%; box-sizing: border-box; padding: 0 16px; text-align: left; }
+.og-menu-group { border-bottom: 1px solid rgba(20,16,13,0.35); }
+.og-menu-group > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; min-height: 48px; font-size: 18px; font-weight: bold; color: #14100d; }
+.og-menu-group > summary::-webkit-details-marker { display: none; }
+.og-menu-group > summary::after { content: '+'; font-size: 22px; color: #7a1612; }
+.og-menu-group[open] > summary::after { content: '\\2212'; }
+.og-menu-group > summary:focus-visible { outline: 2px solid #7a1612; outline-offset: 1px; }
+.og-menu-group ul { list-style: none; margin: 0 0 10px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
+.og-menu-group a, .og-menu-more a { display: block; box-sizing: border-box; min-height: 44px; align-content: center; color: #14100d; text-decoration: none; font-size: 17px; line-height: 1.2; }
+.og-menu-group a:active, .og-menu-more a:active { color: #7a1612; }
+.og-menu-group a:focus-visible, .og-menu-more a:focus-visible { outline: 2px solid #7a1612; outline-offset: 1px; }
+.og-menu-more { display: flex; gap: 24px; padding: 4px 0 0; }
+.og-menu-account { margin-top: 14px; }`;
 
-export default function MobileMenu({ sections }: { sections: Section[] }) {
+export default function MobileMenu() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -74,7 +75,7 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { e.preventDefault(); closeMenu(); return; }
       if (e.key !== 'Tab' || !panelRef.current) return;
-      // Only what shows at this width (the flat list and the groups are toggled by CSS), in the order it shows.
+      // Only what shows (links inside a closed heading are hidden), in the order it shows.
       const items = [...panelRef.current.querySelectorAll<HTMLElement>('a[href], button')].filter((el) => el.offsetParent !== null);
       if (!items.length) return;
       const first = items[0], last = items[items.length - 1];
@@ -140,21 +141,18 @@ export default function MobileMenu({ sections }: { sections: Section[] }) {
         </div>
         <nav aria-label="Sections" className="og-menu-groups">
           {PHONE_MENU_GROUPS.map((g) => (
-            <div key={g.label} className="og-menu-group">
-              <h2>{g.label}</h2>
+            <details key={g.label} className="og-menu-group">
+              <summary>{g.label}</summary>
               <ul>
+                <li><a href={g.href} onClick={(e) => follow(e, g.href)}>All in {g.label}</a></li>
                 {g.links.map((l) => <li key={l.href}><a href={l.href} onClick={(e) => follow(e, l.href)}>{l.label}</a></li>)}
               </ul>
-            </div>
+            </details>
           ))}
-        </nav>
-        <nav aria-label="Sections" className="og-menu-flat">
-          <ul className="og-menu-list">
-            {/* Commission is the button below, not a section link as well (owner, 4 Nov 2026). */}
-            {sections.filter((s) => s.label !== 'Commission').map((s) => (
-              <li key={s.href}><a href={s.href} onClick={(e) => follow(e, s.href)}>{s.label}</a></li>
-            ))}
-          </ul>
+          <div className="og-menu-more">
+            <a href="/search" onClick={(e) => follow(e, '/search')}>Search</a>
+            <a href="/directory" onClick={(e) => follow(e, '/directory')}>A - Z Directory</a>
+          </div>
         </nav>
         <style>{ACCOUNT_CSS}</style>
         {/* The account links and Support Us, which sit on the folder tab on larger screens. */}

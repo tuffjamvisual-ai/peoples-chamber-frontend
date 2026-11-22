@@ -29,7 +29,8 @@ const EXCLUDED: Record<string, string> = {
 };
 // Index pages of dynamic routes that readers use: each must be in the directory.
 const DYNAMIC_INDEXES = ['/transparency/ministers-meetings', '/transparency/hospitality', '/transparency/appgs', '/transparency/revolving-door',
-  '/transparency/donations', '/transparency/contracts', '/sections/parliament', '/sections/local', '/sections/accountability', '/sections/vote'];
+  '/transparency/donations', '/transparency/contracts', '/sections/your-area', '/sections/parliament', '/sections/government', '/sections/money-and-influence',
+  '/sections/state-of-the-nation', '/sections/read', '/sections/parties'];
 
 function routes(dir: string, base = ''): string[] {
   const out: string[] = [];

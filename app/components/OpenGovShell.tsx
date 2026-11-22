@@ -2,7 +2,6 @@ import './opengov-shell.css';
 import { preload } from 'react-dom';
 import Link from 'next/link';
 import AccountTab from './AccountTab';
-import { NAV, menuHref } from '@/lib/site-nav';
 import MobileMenu from './MobileMenu';
 import HeaderNav from './HeaderNav';
 import FeedbackFooterLink from './FeedbackFooterLink';
@@ -80,7 +79,7 @@ export default function OpenGovShell({
           </div>
 
           {/* Phones (under 768px): the one-row header's search and menu icons (MobileMenu.tsx); hidden from 768px up. */}
-          <MobileMenu sections={NAV.map((item) => ({ label: item.label, href: menuHref(item) }))} />
+          <MobileMenu />
 
           <nav aria-label="Primary" className="og-navwrap" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(1.5%) rotate(-2.5deg)' }}>
             {/* No dropdowns (report 60): each section links to its page listing every link in it (HeaderNav.tsx). */}
@@ -111,8 +110,8 @@ export default function OpenGovShell({
             <footer style={{ marginTop: '48px', paddingTop: '18px', borderTop: '1px solid rgba(20,16,13,0.25)', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d' }}>
               {/* The Open Parliament Licence attribution on every page (owner, 31 Oct 2026), above the independence line: its
                   wording is a licence condition. Footer compaction (T2 ENTRY 6 and 7, owner approved 14 Nov 2026): the short
-                  independence line, the four links (Contact is in the site menu and the phone menu; Commission research on the
-                  homepage and in the menu), 8px between parts, line height 1.4, at every width. */}
+                  independence line, the site links (ENTRY 502) and the four legal links, 8px between parts, line height 1.4, at every
+                  width. */}
               <p style={{ margin: '0 0 8px', color: '#14100d', lineHeight: 1.4, maxWidth: '82ch' }}>
                 Contains Parliamentary information licensed under the{' '}
                 <a href={OPEN_PARLIAMENT_LICENCE_URL} rel="noopener" className="og-footer-licence" style={{ color: '#7a1612' }}>Open Parliament Licence v3.0</a>.
@@ -120,6 +119,19 @@ export default function OpenGovShell({
               <p style={{ margin: '0 0 8px', color: '#14100d', lineHeight: 1.4, maxWidth: '82ch' }}>
                 opengovt is independent and is not affiliated with GOV.UK.
               </p>
+              {/* About, Contact, Commission research, Donate and the newsletter (Cowork ENTRY 502, owner approved 22 Nov 2026):
+                  out of the main menu row, here on every page, before the legal links. */}
+              <div className="og-footer-links" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 10px', lineHeight: 1.4, margin: '0 0 8px' }}>
+                <a href="/about" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">About</a>
+                <span aria-hidden >·</span>
+                <a href="/contact" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Contact</a>
+                <span aria-hidden >·</span>
+                <a href="/commission" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Commission research</a>
+                <span aria-hidden >·</span>
+                <a href="/donate" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Donate</a>
+                <span aria-hidden >·</span>
+                <a href="/newsletter" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Newsletter</a>
+              </div>
               <div className="og-footer-links" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 10px', lineHeight: 1.4 }}>
                 <a href="/privacy" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Privacy</a>
                 <span aria-hidden >·</span>
