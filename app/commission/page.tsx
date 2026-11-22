@@ -27,7 +27,7 @@ const ACCENT = '#7a1612';
 const SERVICE = {
   name: 'Commissioned research',
   price: COMMISSION_PRICE,
-  body: 'Your enquiry investigated from the public record: spending traced, decisions documented and responsibility named. We decide how to investigate, and you get one round of amendments.',
+  body: 'Your enquiry investigated: spending traced, decisions documented and responsibility named. We decide how to investigate, and you get one round of amendments.',
   delivery: 'Delivery date agreed in your quote',
 };
 
@@ -84,7 +84,7 @@ export default function CommissionPage() {
             the two actions come up the screen; from 768px as before. */}
         <SubFold label="Our approach">
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          opengovt investigates enquiries about public money, decisions and accountability from the public record. You
+          opengovt investigates enquiries about public money, decisions and accountability. You
           tell us what you want investigated and why; we decide how to investigate it. Every figure is sourced, every
           finding can be checked, and the conclusions are ours, not the client&rsquo;s.
         </p>
