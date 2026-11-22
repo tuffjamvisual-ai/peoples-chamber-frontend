@@ -170,6 +170,10 @@ export default async function HomePage() {
                   above the research promotion (UX1c). Each column is at least 280px, so they stack on phones. Aligned to the top
                   (T1-MPb, 11 Nov 2026), so suggestions under the council box grow below it and the search box never moves. */}
               <style>{`.og-finders { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px 20px; align-items: start; margin-bottom: 28px; } @media (min-width: 640px) { .og-finders { grid-template-columns: repeat(2, minmax(0, 1fr)); } } .og-finders > form, .og-finders > section { margin: 0 !important; }`}</style>
+              {/* Under 360px (Cowork ENTRY 503 VR, 22 Nov 2026): the four boxes give their text more room, so each placeholder fits
+                  whole ('Name, constituency or postcode' was cut off at 320px): less padding, the arrow closer to the edge and the
+                  placeholder's letters slightly closer. The text stays 16px (so phones do not zoom in on a tap). */}
+              <style>{`@media (max-width: 359.98px) { .og-finders .og-sbox-input { padding-left: 6px !important; padding-right: 22px !important; } .og-finders .og-sbox-input::placeholder { letter-spacing: -0.03em; } .og-finders .og-sbox-btn { right: 2px !important; } }`}</style>
               <div className="og-finders">
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
                 <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt</label>
