@@ -2,7 +2,7 @@
 //   npx tsx --tsconfig tsconfig.json --test scripts/checks/state-of-the-nation.test.ts
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { periodLabel, formatValue, changeText, fytd, onsFigure, reviewedFigure, headlineFour, ONS_SERIES, type Figure } from '../../lib/state-of-the-nation';
+import { periodLabel, formatValue, changeText, fytd, onsFigure, reviewedFigure, headlineSix, ONS_SERIES, type Figure } from '../../lib/state-of-the-nation';
 
 test('periods: months, rolling three months (named by the middle month), quarters', () => {
   assert.equal(periodLabel('2026 SEP', 'month'), 'September 2026');
@@ -60,9 +60,10 @@ test('reviewed figures show only when Cowork has checked them; otherwise "Not ye
   assert.equal(reviewedFigure(item, {}).value, null);
 });
 
-test('homepage band: inflation, unemployment, borrowing this year, and NHS waits or else the Crown Court backlog', () => {
+test('homepage band (ENTRY 508): net migration, GDP growth, inflation, NHS waiting list, homelessness, borrowing this year', () => {
   const f = (id: string, value: string | null): Figure => ({ id, group: 'Economy', label: id, value, period: null, change: null, sourceUrl: null, sourceName: null, publishedOn: null, isNew: false });
-  const base = [f('cpi', '3.5%'), f('unemployment', '4.7%'), f('borrowing-ytd', '£97.8bn'), f('crown-court', '80,829')];
-  assert.deepEqual(headlineFour([...base, f('nhs-waiting', null)]).map((x) => x.id), ['cpi', 'unemployment', 'borrowing-ytd', 'crown-court']);
-  assert.deepEqual(headlineFour([...base, f('nhs-waiting', '7.4m')]).map((x) => x.id), ['cpi', 'unemployment', 'borrowing-ytd', 'nhs-waiting']);
+  // ENTRY 508: the six, in this order, whatever order the page holds them in; unemployment and the Crown Court are not among them.
+  const all = [f('unemployment', '4.7%'), f('borrowing-ytd', '£111.3bn'), f('crown-court', '80,829'), f('temp-accommodation', '135,580'),
+    f('nhs-waiting', '7.38 million'), f('cpi', '3.6%'), f('gdp-q', '0.7%'), f('net-migration', '171,000')];
+  assert.deepEqual(headlineSix(all).map((x) => x.id), ['net-migration', 'gdp-q', 'cpi', 'nhs-waiting', 'temp-accommodation', 'borrowing-ytd']);
 });

@@ -208,6 +208,31 @@ export function reviewedFigure(item: { id: string; group: Group; label: string }
   };
 }
 
+// The NHS England waiting list (Cowork ENTRY 508, 22 Nov 2026): when the reviewed file has no checked value, the RTT
+// figure the public services dashboard already reads automatically each month (dashboard_indicators,
+// rtt_waiting_list; scripts read NHS England's RTT time series). Read only, through the tagged cache, so a dashboard sync
+// refreshes this page. Its period is shown as 'England, <month year>'.
+type RttRow = { value: number | null; period: string | null; prev_value: number | null; prev_period: string | null; released_at: string | null; source_url: string | null };
+async function nhsWaitingFromDashboard(now = Date.now()): Promise<Partial<Figure> | null> {
+  // Loaded here, not at the top, so the pure helpers above stay testable outside the server.
+  const [{ supabase }, { cachedQuery }, { tableTags }] = await Promise.all([import('@/lib/supabase'), import('@/lib/tagged-read'), import('@/lib/source-tags')]);
+  const { data, error } = await cachedQuery(['q:lib/state-of-the-nation:rtt'], tableTags('dashboard_indicators'), () => supabase
+    .from('dashboard_indicators').select('value, period, prev_value, prev_period, released_at, source_url').eq('indicator_key', 'rtt_waiting_list').maybeSingle());
+  if (error || !data) return null;
+  const r = data as RttRow;
+  if (r.value == null || !r.period || !/^\d{4}-\d{2}$/.test(r.period)) return null;
+  const month = (p: string) => `${MONTH_NAMES[Number(p.slice(5, 7)) - 1]} ${p.slice(0, 4)}`;
+  const millions = (v: number) => `${(v / 1e6).toFixed(2)} million`;
+  const published = r.released_at ? r.released_at.slice(0, 10) : null;
+  return {
+    value: millions(r.value), period: `England, ${month(r.period)}`,
+    change: r.prev_value != null && r.prev_period && /^\d{4}-\d{2}$/.test(r.prev_period)
+      ? `${r.value > r.prev_value ? 'up' : r.value < r.prev_value ? 'down' : 'unchanged'} from ${millions(r.prev_value)} in ${month(r.prev_period)}` : null,
+    sourceUrl: r.source_url, sourceName: 'NHS England, Referral to Treatment (RTT) waiting times statistics',
+    publishedOn: published, isNew: published ? recent(published, now) : false,
+  };
+}
+
 export async function stateOfTheNation(): Promise<{ figures: Figure[]; onsError: string | null }> {
   let ons: Record<string, OnsData> | null = null, onsError: string | null = null;
   try { ons = await onsData(); } catch (e) { onsError = (e as Error).message; }
@@ -216,6 +241,8 @@ export async function stateOfTheNation(): Promise<{ figures: Figure[]; onsError:
     ...ONS_SERIES.map((s) => (ons ? onsFigure(s, ons[s.id]) : { id: s.id, group: s.group, label: s.label, value: null, period: null, change: null, sourceUrl: null, sourceName: null, publishedOn: null, isNew: false })),
     ...REVIEWED_ITEMS.map((i) => reviewedFigure(i, reviewed)),
   ];
+  const nhs = figures.find((f) => f.id === 'nhs-waiting');
+  if (nhs && !nhs.value) { const auto = await nhsWaitingFromDashboard().catch(() => null); if (auto) Object.assign(nhs, auto); }
   const order = new Map([...ONS_SERIES.map((s) => s.id), ...REVIEWED_ITEMS.map((r) => r.id)].map((id, n) => [id, n]));
   // Within each group: the order of ENTRY 105.
   const want: Record<Group, string[]> = {
@@ -231,10 +258,10 @@ export async function stateOfTheNation(): Promise<{ figures: Figure[]; onsError:
   return { figures, onsError };
 }
 
-// The four figures on the homepage band: inflation, unemployment, borrowing this year, and the NHS waiting list (or the
-// Crown Court backlog when the NHS figure has not been checked yet).
-export function headlineFour(figures: Figure[]): Figure[] {
-  const by = (id: string) => figures.find((f) => f.id === id);
-  const fourth = by('nhs-waiting')?.value ? by('nhs-waiting') : by('crown-court');
-  return [by('cpi'), by('unemployment'), by('borrowing-ytd'), fourth].filter((f): f is Figure => !!f);
+// The homepage band's six figures (Cowork ENTRY 508, owner approved 22 Nov 2026, matched to the public's main concerns in
+// the Ipsos Issues Index): net migration, GDP growth, inflation (CPI), the NHS waiting list, homelessness (households in
+// temporary accommodation) and government borrowing this year. Unemployment and the Crown Court stay on the page only.
+export const HEADLINE_IDS = ['net-migration', 'gdp-q', 'cpi', 'nhs-waiting', 'temp-accommodation', 'borrowing-ytd'] as const;
+export function headlineSix(figures: Figure[]): Figure[] {
+  return HEADLINE_IDS.map((id) => figures.find((f) => f.id === id)).filter((f): f is Figure => !!f);
 }
