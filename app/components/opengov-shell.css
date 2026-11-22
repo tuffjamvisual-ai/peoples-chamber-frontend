@@ -225,6 +225,7 @@
   .og-footer-links { gap: 0 16px !important; }
   .og-footer-links span[aria-hidden] { display: none !important; }
   .og-fl-pair { gap: 0; }
+}
 
 /* ---- Phone app feel (Cowork ENTRY 507, owner approved a DEMO, 22 Nov 2026; preview only) ----
    (2) The bottom app bar (PhoneAppBar.tsx): fixed to the screen's foot above the phone's home bar (safe area), five items
