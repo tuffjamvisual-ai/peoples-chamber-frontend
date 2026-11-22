@@ -191,6 +191,31 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
   // IPSA's own figure where it has one; otherwise our sum (one year's rows, at most about 700, under any row cap).
   const share = IPSA_STAFF_SHARE[YEAR] != null ? null : await staffingShare(YEAR);
 
+  // The year links and what drives the totals (ENTRY 495). On phones they follow the ten MPs and the three figures (the
+  // copy after the list), so the list starts on the first screen (A6: it started at 703px of 668 with them above);
+  // from 768px up, above the list as before.
+  const context = (
+    <>
+      {/* ENTRY 495: every published year, the shown one marked; links are saved pages, no query string (A16). */}
+      {years.length > 1 && (
+        <p style={{ fontSize: '16px', margin: '0 0 12px' }}>
+          {years.map((y, i) => (
+            <span key={y}>
+              {i > 0 && ' · '}
+              {y === YEAR ? <strong>{yearShort(y)}</strong> : <Link href={expensesYearHref(y, years[0])} style={{ color: ACCENT, textDecoration: 'underline' }}>{yearShort(y)}</Link>}
+            </span>
+          ))}
+        </p>
+      )}
+      {/* ENTRY 495 (c): what drives the totals. */}
+      <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '720px', margin: '0 0 12px' }}>
+        {IPSA_STAFF_SHARE[YEAR] != null
+          ? `Staff are about four fifths of MPs' business costs: ${IPSA_STAFF_SHARE[YEAR]} per cent in ${yearShort(YEAR)}, according to IPSA.`
+          : share != null ? `Staff are about four fifths of MPs' business costs: ${(share * 100).toFixed(1)} per cent in ${yearShort(YEAR)}, by our sum of IPSA's figures.` : ''}{' '}
+        Travel distance (MPs from Scotland and Northern Ireland travel furthest) and whether an MP can claim for accommodation (MPs for London Area seats cannot) explain much of the difference between MPs.
+      </p>
+    </>
+  );
   return (
     <OpenGovShell>
       <BackLink
@@ -221,27 +246,10 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
           </Link>
         </p>
 
-        {/* ENTRY 495: every published year, the shown one marked; links are saved pages, no query string (A16). */}
-        {years.length > 1 && (
-          <p style={{ fontSize: '16px', margin: '0 0 12px' }}>
-            {years.map((y, i) => (
-              <span key={y}>
-                {i > 0 && ' · '}
-                {y === YEAR ? <strong>{yearShort(y)}</strong> : <Link href={expensesYearHref(y, years[0])} style={{ color: ACCENT, textDecoration: 'underline' }}>{yearShort(y)}</Link>}
-              </span>
-            ))}
-          </p>
-        )}
-        {/* ENTRY 495 (c): what drives the totals. */}
-        <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '720px', margin: '0 0 12px' }}>
-          {IPSA_STAFF_SHARE[YEAR] != null
-            ? `Staff are about four fifths of MPs' business costs: ${IPSA_STAFF_SHARE[YEAR]} per cent in ${yearShort(YEAR)}, according to IPSA.`
-            : share != null ? `Staff are about four fifths of MPs' business costs: ${(share * 100).toFixed(1)} per cent in ${yearShort(YEAR)}, by our sum of IPSA's figures.` : ''}{' '}
-          Travel distance (MPs from Scotland and Northern Ireland travel furthest) and whether an MP can claim for accommodation (MPs for London Area seats cannot) explain much of the difference between MPs.
-        </p>
+        <div className="ex-ctx-w">{context}</div>
         {/* Phones (UX3b, 10 Nov 2026): the three figures follow the ten MPs (the copy after the list), so the list starts on
             the first screen (A6). From 640px up, here as before. */}
-        <style>{`.ex-stats-p { display: none; } @media ${phoneUpTo(767.98)} { .ex-stats-w { display: none !important; } .ex-stats-p { display: grid; } }`}</style>
+        <style>{`.ex-stats-p, .ex-ctx-p { display: none; } @media ${phoneUpTo(767.98)} { .ex-stats-w, .ex-ctx-w { display: none !important; } .ex-stats-p { display: grid; } .ex-ctx-p { display: block; } }`}</style>
         <div
           className="ex-stats-w"
           style={{
@@ -311,6 +319,7 @@ export async function ExpensesView({ year: YEAR, years }: { year: string; years:
           <Stat label="Average" value={top.length ? fmtMoney(grandTotal / top.length) : '£0'} />
           <Stat label="Year" value={YEAR_LABEL} />
       </div>
+      <div className="ex-ctx-p" style={{ margin: '16px 0 0' }}>{context}</div>
 
       <p style={{ marginTop: '32px', fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
         Totals reflect spend recorded against budgets and uncapped categories for the {YEAR_LABEL} financial year.
