@@ -3,7 +3,7 @@ import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import NavTrail from './components/NavTrail';
 import RefClick from './components/RefClick';
 import { PHONE_ENHANCE_JS } from '@/lib/phone-enhance';
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bebas_Neue } from "next/font/google";
 import { buildSiteGraph, serialiseJsonLd } from '@/lib/JsonLd';
 import localFont from "next/font/local";
@@ -57,6 +57,10 @@ const SITE_URL = "https://www.opengovt.uk";
 const SITE_NAME = "opengovt";
 const SITE_DESCRIPTION =
   "opengovt: independent UK Parliament tracker and government transparency record.";
+
+// The phone app feel (Cowork ENTRY 507): the browser bar takes the phone header's colour, and the page may run under a
+// phone's notch and home bar (viewport-fit cover), with the header and the bottom bar padded by the safe areas.
+export const viewport: Viewport = { themeColor: '#d9b97f', viewportFit: 'cover' };
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
