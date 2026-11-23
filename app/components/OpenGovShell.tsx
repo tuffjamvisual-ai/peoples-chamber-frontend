@@ -2,6 +2,7 @@ import './opengov-shell.css';
 import { preload } from 'react-dom';
 import Link from 'next/link';
 import AccountTab from './AccountTab';
+import XLogo from './XLogo';
 import MobileMenu from './MobileMenu';
 import PhoneAppBar from './PhoneAppBar';
 import HeaderNav from './HeaderNav';
@@ -159,9 +160,9 @@ export default function OpenGovShell({
                 <span className="og-fl-pair"><span aria-hidden >·</span>
                   <FeedbackFooterLink style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale" />
                 </span>
-                {/* X (owner, Cowork ENTRY 512, 22 Nov 2026): in this row, so it shows on phones and desktop alike. */}
+                {/* X (owner, Cowork ENTRY 512, 22 Nov 2026; the X logo, change 3, 23 Nov): in this row, so it shows on phones and desktop alike. */}
                 <span className="og-fl-pair"><span aria-hidden >·</span>
-                  <a href="https://x.com/opengovtuk" target="_blank" rel="noopener noreferrer" aria-label="opengovt on X" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">X</a>
+                  <a href="https://x.com/opengovtuk" target="_blank" rel="noopener noreferrer" aria-label="opengovt on X" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale"><XLogo /></a>
                 </span>
               </div>
             </footer>

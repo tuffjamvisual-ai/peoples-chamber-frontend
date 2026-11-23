@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import XLogo from './XLogo';
 
 const BG = '#0d0d0d'
 const BORDER = '#4a4a4a'
@@ -59,7 +60,7 @@ export default function SiteFooter() {
                 style={linkStyle}
                 aria-label="opengovt on X"
               >
-                X
+                <XLogo />
               </a>
               <a
                 href="https://github.com/tuffjamvisual-ai/peoples-chamber-frontend"
