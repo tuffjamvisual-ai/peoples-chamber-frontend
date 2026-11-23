@@ -31,6 +31,7 @@ import { donationDates, peerLastVotes } from './dates';
 import { orgCanonical, thinSupplier, peerNoActivity, type OrgCanonicalFields, type ThinSupplierFields } from '@/lib/index-rules';
 import { cachedOrganisationList } from '@/lib/organisations';
 import { listPath } from '@/lib/list-path';
+import { letterOf, lobbyingLetterHref } from '@/lib/lobbying-az';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -578,7 +579,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
   // The organisation's most recent ministerial meeting or lobbying register quarter.
-  const lobbyOrgs = await fetchAllRows<{ org_id: number; slug: string; last_meeting: string | null; last_lobbying_quarter: string | null }>('lobby_org_rankings', 'org_id, slug, last_meeting, last_lobbying_quarter', (q) => q.order('org_id'));
+  const lobbyOrgs = await fetchAllRows<{ org_id: number; slug: string; name: string | null; last_meeting: string | null; last_lobbying_quarter: string | null }>('lobby_org_rankings', 'org_id, slug, name, last_meeting, last_lobbying_quarter', (q) => q.order('org_id'));
   // Organisation pages (report 71), one per organisation_index row. A failed read leaves them out rather than failing
   // the sitemap.
   // The date is the organisation's most recent donation, contract, grant, meeting or lobbying quarter.
@@ -605,6 +606,18 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     const o = orgBySlug.get(l.slug);
     return !(o && o.lobby_org_id != null && Number(o.lobby_org_id) === Number(l.org_id) && orgCanonical(o, Number(l.org_id)) === 'organisations');
   };
+  // The lobbying A to Z (Cowork ENTRY 536 item 2): /lobbying/a-z and a page per letter with organisations, each dated by
+  // the newest meeting or lobbying quarter of the organisations it lists.
+  const lobbyLetterDates = new Map<string, (string | null)[]>();
+  for (const o of lobbyOrgs) {
+    if (!o.slug || !o.name) continue;
+    const l = letterOf(o.name);
+    lobbyLetterDates.set(l, [...(lobbyLetterDates.get(l) ?? []), o.last_meeting, o.last_lobbying_quarter]);
+  }
+  const lobbyAzEntries: MetadataRoute.Sitemap = lobbyLetterDates.size ? [
+    { url: `${SITE}/lobbying/a-z`, ...dated(newest(...[...lobbyLetterDates.values()].flat())), changeFrequency: 'monthly' as const, priority: 0.5 },
+    ...[...lobbyLetterDates].map(([l, ds]) => ({ url: `${SITE}${lobbyingLetterHref(l)}`, ...dated(newest(...ds)), changeFrequency: 'monthly' as const, priority: 0.4 })),
+  ] : [];
   const lobbyEntries: MetadataRoute.Sitemap = lobbyOrgs.filter((o) => o.slug && lobbyListed(o)).map((o) => ({
     url: `${SITE}/lobbying/${o.slug}`,
     ...dated(newest(o.last_meeting, o.last_lobbying_quarter)),
@@ -702,6 +715,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     ...petitionEntries,
     ...constituencyEntries,
     ...orgListPages,
+    ...lobbyAzEntries,
     ...edmArchiveEntries,
     ...motionEntries,
     ...questionEntries,

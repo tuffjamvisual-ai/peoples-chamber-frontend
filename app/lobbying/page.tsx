@@ -4,6 +4,7 @@
 
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
+import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import LastUpdated from '../components/LastUpdated';
@@ -188,6 +189,10 @@ export default async function LobbyingPage() {
           Lobbyists quarterly returns, both under the Open Government Licence v3.0.
           </SubFold>
         </section>
+        {/* Every organisation, A to Z (Cowork ENTRY 536 item 2): the rankings show 30; this reaches every lobbying page. */}
+        <p style={{ fontSize: '16px', margin: '16px 0' }}>
+          <Link href="/lobbying/a-z" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Every organisation, A to Z</Link>
+        </p>
         {/* T1-MOB batch 2: on phones the two dates fold together; from 768px as before. */}
         <SubFold label="When the figures were updated">
         <LastUpdated sourceKey="lobbying_meetings" />
