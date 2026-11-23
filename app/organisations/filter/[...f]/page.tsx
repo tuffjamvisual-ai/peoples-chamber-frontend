@@ -9,12 +9,21 @@ import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 export const revalidate = false;
 export function generateStaticParams() { return []; }
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: true },
-  title: { absolute: 'Organisations: donations, contracts, grants and lobbying' },
-  description: PAGE_DESCRIPTIONS['/organisations'],
-  alternates: { canonical: '/organisations' },
-};
+// Page 2 onward of the whole list, with no filter, is indexable and canonical to itself (owner approved 23 Nov 2026,
+// Cowork ENTRY 536 item 3), so every organisation is a plain link from an indexable page; any filtered variant stays
+// noindex, follow and points to /organisations as before.
+export async function generateMetadata({ params }: { params: Promise<{ f: string[] }> }): Promise<Metadata> {
+  const { f } = await params;
+  const c = listChoices('/organisations', f);
+  const page = Number(c?.page ?? 1);
+  const plainPage = !!c && !c.has && Number.isInteger(page) && page > 1;
+  return {
+    robots: plainPage ? { index: true, follow: true } : { index: false, follow: true },
+    title: { absolute: plainPage ? `Organisations: donations, contracts, grants and lobbying (page ${page})` : 'Organisations: donations, contracts, grants and lobbying' },
+    description: PAGE_DESCRIPTIONS['/organisations'],
+    alternates: { canonical: plainPage && c ? listPath('/organisations', c) : '/organisations' },
+  };
+}
 
 export default async function OrganisationsFiltered({ params }: { params: Promise<{ f: string[] }> }) {
   const { f } = await params;

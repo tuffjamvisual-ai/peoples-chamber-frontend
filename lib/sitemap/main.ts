@@ -29,6 +29,8 @@ import { isLaw } from '@/lib/bill-status';
 import { peerHasPage } from '@/lib/peers';
 import { donationDates, peerLastVotes } from './dates';
 import { orgCanonical, thinSupplier, peerNoActivity, type OrgCanonicalFields, type ThinSupplierFields } from '@/lib/index-rules';
+import { cachedOrganisationList } from '@/lib/organisations';
+import { listPath } from '@/lib/list-path';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -610,6 +612,13 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  // /organisations page 2 onward, A to Z, 100 a page, indexable since Cowork ENTRY 536 item 3, so every organisation is a
+  // plain link from an indexable page. No lastmod (a list page; no single date). A failed read leaves them out.
+  const orgListPages: MetadataRoute.Sitemap = await cachedOrganisationList().then((all) => {
+    const pages = Math.max(1, Math.ceil(all.length / 100));
+    return Array.from({ length: pages - 1 }, (_, i) => ({ url: `${SITE}${listPath('/organisations', { page: String(i + 2) })}`, changeFrequency: 'weekly' as const, priority: 0.4 }));
+  }).catch((e) => { console.error(`sitemap: organisation list pages left out (${e instanceof Error ? e.message : String(e)})`); return []; });
+
   const orgEntries: MetadataRoute.Sitemap = orgSlugs.filter(orgListed).map((o) => ({
     url: `${SITE}/organisations/${o.slug}`,
     ...dated(newest(o.last_donation, o.last_contract, o.last_grant, o.last_meeting, o.last_lobbying_quarter)),
@@ -692,6 +701,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     ...pmqsYearEntries,
     ...petitionEntries,
     ...constituencyEntries,
+    ...orgListPages,
     ...edmArchiveEntries,
     ...motionEntries,
     ...questionEntries,
