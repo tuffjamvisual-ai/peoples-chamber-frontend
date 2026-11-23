@@ -307,11 +307,21 @@ async function main() {
         r.outside = await page.evaluate(outsideLinks, A9_LICENCE.source);
         r.a20 = newTabFailures(await page.evaluate(collectLinks), page.url());
         // A17 (owner, 18 Nov 2026, Cowork ENTRY 320; the PMQs tile approved on 13 Nov never reached the live homepage): the
-        // homepage links to /pmqs and has the PMQs search box (a form sending to /pmqs); and (ENTRY 327) links to /reports (the
+        // homepage links to /pmqs and has the PMQs search box (a form sending to /pmqs), or the archive box in its place while
+        // the archive is on (ENTRY 503, 521); and (ENTRY 327) links to /reports (the
         // ranking pages' row went in ENTRY 372).
         if (new URL(p.url, 'http://x').pathname === '/') r.a17 = await page.evaluate(() => [
           ...(document.querySelector('a[href="/pmqs"]') ? [] : ['no link to /pmqs']),
-          ...(document.querySelector('form[action="/pmqs"] input[name="q"]') ? [] : ['no PMQs search box (form action /pmqs with a q field)']),
+          // ENTRY 503 (owner, 22 Nov 2026; Cowork ENTRY 521): while the archive is on (ARCHIVE_ENABLED=1, Production) the
+          // archive search box takes the PMQs box's place: a form sending to /archive with a q field and the line
+          // 'Free account needed.'; while it is off, the PMQs box. Which one is expected is read from the page itself (the
+          // archive box is present or not), so the same check runs on Production, previews and local builds.
+          ...(document.querySelector('form[action="/archive"]')
+            ? [
+                ...(document.querySelector('form[action="/archive"] input[name="q"]') ? [] : ['archive search box has no q field']),
+                ...(/Free account needed\./.test(document.querySelector('form[action="/archive"]').textContent) ? [] : ["archive search box without 'Free account needed.'"]),
+              ]
+            : (document.querySelector('form[action="/pmqs"] input[name="q"]') ? [] : ['no search box in the PMQs slot (neither the archive box, form action /archive, nor the PMQs box, form action /pmqs with a q field)'])),
           // ENTRY 327 (owner, 18 Nov 2026): every report. The council ranking pages' row was removed by the owner on 19 Nov
           // 2026 (Cowork ENTRY 372); those pages are reached from /reports, the directory and the menu.
           ...['/reports'].filter((h) => !document.querySelector(`a[href="${h}"]`)).map((h) => `no link to ${h}`),
