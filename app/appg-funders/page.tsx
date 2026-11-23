@@ -135,11 +135,15 @@ export default async function AppgFundersIndex() {
         <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold', padding: '8px 0' }}>
           Funders of one APPG ({single.length})
         </summary>
+        {/* Phones (owner standing rule, Cowork ENTRY 539 and 542, 23 Nov 2026): opened, the first 25, then a running count and
+            "Show more" (25 a press without JavaScript, 10 with it); every name stays in the page. Wider, the whole list as before. */}
+        <ShowAll id="appg-funders-single" count={single.length} rows="> li" first={25}>
         <ul style={{ listStyle: 'none', padding: '8px 0', columns: '2 280px', columnGap: '24px', fontSize: '15px' }}>
           {single.map((r) => (
             <li key={r.name} style={{ padding: '2px 0', breakInside: 'avoid' }}>{r.name}</li>
           ))}
         </ul>
+        </ShowAll>
       </details>
 
       <p style={{ fontSize: '15px' }}>
