@@ -64,7 +64,8 @@ function parseCsv(text) {
 // Every published report and briefing, from the site's own sitemap, so a new one is measured from the day it appears
 // (owner, 5 Nov 2026: all of them, not a sample). A missing or unreadable sitemap stops the audit rather than skip them.
 async function reportPages(base) {
-  const res = await fetch(`${base}/sitemap.xml`);
+  // Reports and briefings are in their own sitemap since ENTRY 531 item 2 (one sitemap per page type).
+  const res = await fetch(`${base}/sitemaps/editorials.xml`);
   if (!res.ok) throw new Error(`sitemap: HTTP ${res.status}`);
   const paths = [...(await res.text()).matchAll(/<loc>[^<]*?(\/(editorials|briefings)\/[^/<]+)<\/loc>/g)];
   if (!paths.length) throw new Error('sitemap: no reports or briefings found');

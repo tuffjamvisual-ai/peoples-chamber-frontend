@@ -26,6 +26,7 @@ import { FORMER_MP_PROFILE_IDS } from '@/lib/former-mp-profile-ids';
 import { billIndexable, currentSessionBillIds } from '@/lib/bill-indexing';
 import { isLaw } from '@/lib/bill-status';
 import { peerHasPage } from '@/lib/peers';
+import { donationDates, peerLastVotes } from './dates';
 import { orgCanonical, thinSupplier, peerNoActivity, type OrgCanonicalFields, type ThinSupplierFields } from '@/lib/index-rules';
 
 const SITE = 'https://www.opengovt.uk';
@@ -73,7 +74,7 @@ async function fetchAllRows<T>(
 // so a deploy or a bulk import never tells search engines that every page changed.
 
 // The newest of a record's dates, no later than today (a contract can carry a future date). Undefined when it has none.
-function newest(...dates: (string | null | undefined)[]): Date | undefined {
+export function newest(...dates: (string | null | undefined)[]): Date | undefined {
   const today = new Date().toISOString().slice(0, 10);
   const d = dates.filter((x): x is string => !!x).map((x) => x.slice(0, 10)).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x) && x <= today).sort().pop();
   return d ? new Date(d) : undefined;
@@ -97,7 +98,7 @@ const loadedOrChanged = (loaded: string, changedAt: string | null | undefined) =
 // The last guard: no lastmod before 1970 or in the future; such an entry is listed with no date
 // (scripts/checks/sitemap-dates-check.mjs fails the push check if one gets through).
 const EARLIEST_LASTMOD = Date.parse('1970-01-01T00:00:00Z');
-function validDates(entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
+export function validDates(entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
   const now = Date.now();
   return entries.map((e) => {
     if (e.lastModified == null) return e;
@@ -346,13 +347,16 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     'slug, recipient_name, mp_party_string',
     (q) => q.order('slug', { ascending: true }),
   );
+  // A party's money page: the newest of its donations' dates (published, else reported, then accepted; Cowork ENTRY 531).
+  // A failed read leaves the dates out rather than failing the sitemap.
+  const donated = await donationDates().catch((e) => { console.error(`sitemap: donation dates not read (${e instanceof Error ? e.message : String(e)})`); return null; });
   const partyEntries: MetadataRoute.Sitemap = [];
   for (const p of parties) {
     partyEntries.push({ url: `${SITE}/parties/${p.slug}`, changeFrequency: 'weekly', priority: 0.7 });
     // The verdict page only while it is shown (T1-VERD, 12 Nov 2026); hidden, it sends readers to the party's first page.
     if (partyVerdictShown(p.slug)) partyEntries.push({ url: `${SITE}/parties/${p.slug}/bio`, changeFrequency: 'weekly', priority: 0.7 });
     if (p.recipient_name) {
-      partyEntries.push({ url: `${SITE}/parties/${p.slug}/money`, changeFrequency: 'weekly', priority: 0.8 });
+      partyEntries.push({ url: `${SITE}/parties/${p.slug}/money`, ...dated(newest(donated?.recipient(p.recipient_name))), changeFrequency: 'weekly', priority: 0.8 });
     }
     if (p.mp_party_string) {
       partyEntries.push({ url: `${SITE}/parties/${p.slug}/whip`, ...dated(newest(lastVoteByParty.get(p.mp_party_string))), changeFrequency: 'weekly', priority: 0.7 });
@@ -440,14 +444,18 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     await drop('lords_division_votes', 'member_id', (q) => q);
     return left;
   })().catch((e) => { console.error(`sitemap: peers with no activity not checked (${e instanceof Error ? e.message : String(e)})`); return new Set<number>(); });
+  // Each peer's most recent Lords vote (Cowork ENTRY 531, the MP pages' rule; votes held from 4 Sep 2024). A peer with no
+  // recorded vote has no date; a failed read leaves the dates out rather than failing the sitemap.
+  const peerVoted = await peerLastVotes().catch((e) => { console.error(`sitemap: peer last votes not read (${e instanceof Error ? e.message : String(e)})`); return new Map<number, string>(); });
   const peerEntries: MetadataRoute.Sitemap = peers.filter((p) => !noActivity.has(p.member_id)).map((p) => ({
     url: `${SITE}/lords/${p.member_id}`,
+    ...dated(newest(peerVoted.get(p.member_id))),
     changeFrequency: 'weekly',
     priority: 0.5,
   }));
   // Every earlier former peer's basic page (Cowork ENTRY 369, owner approved in ENTRY 429): left before 4 July 2024, or
   // with no end date while not current (the rows lib/peers.ts peerHasPage gives no full page). Indexable, so all listed.
-  // No lastmod: the row holds no date for the page.
+  // Dated by the peer's last Lords vote where one is held (since 4 Sep 2024); otherwise no lastmod.
   const formerPeers = await fetchAllRows<{ member_id: number }>(
     'peers',
     'member_id',
@@ -455,6 +463,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
   );
   const formerPeerEntries: MetadataRoute.Sitemap = formerPeers.map((p) => ({
     url: `${SITE}/lords/${p.member_id}`,
+    ...dated(newest(peerVoted.get(p.member_id))),
     changeFrequency: 'yearly',
     priority: 0.3,
   }));

@@ -125,20 +125,25 @@ const SITEMAP_NEWS_BUDGET_MS = 90_000;
 export const NEWS_SITEMAP_TAGS = tableTags('press_releases', ...REF_TABLES, ...ITEM_TABLES);
 
 export async function indexableNewsSlugs(): Promise<string[]> {
+  return (await indexableNews()).map((n) => n.slug);
+}
+
+// The same releases with their publish date (the sitemap's lastmod, Cowork ENTRY 531: the page shows that release).
+export async function indexableNews(): Promise<{ slug: string; publishedAt: string | null }[]> {
   const since = new Date(Date.now() - SITEMAP_NEWS_DAYS * 86400_000).toISOString();
   const { data, error } = await supabase.from('press_releases')
-    .select('id, title, description, organisation, body, news_slug')
+    .select('id, title, description, organisation, body, news_slug, published_at')
     .not('news_slug', 'is', null).not('removed_upstream', 'is', true).gte('published_at', since)
     .order('published_at', { ascending: false }).order('id', { ascending: false }).limit(SITEMAP_NEWS_MAX);
   if (error) throw new Error(`news sitemap releases: ${error.message}`);
-  const rows = (data || []) as (ReleaseInput & { news_slug: string })[];
-  const out: string[] = [];
+  const rows = (data || []) as (ReleaseInput & { news_slug: string; published_at: string | null })[];
+  const out: { slug: string; publishedAt: string | null }[] = [];
   const started = Date.now();
   for (let i = 0; i < rows.length; i += SITEMAP_NEWS_AT_ONCE) {
     if (Date.now() - started > SITEMAP_NEWS_BUDGET_MS) break;
     const batch = rows.slice(i, i + SITEMAP_NEWS_AT_ONCE);
     const records = await Promise.all(batch.map((r) => newsRecord({ id: r.id, title: r.title, organisation: r.organisation, body: r.body, description: r.description })));
-    batch.forEach((r, j) => { if (newsRecordIndexable(records[j])) out.push(r.news_slug.toLowerCase()); });
+    batch.forEach((r, j) => { if (newsRecordIndexable(records[j])) out.push({ slug: r.news_slug.toLowerCase(), publishedAt: r.published_at }); });
   }
   return out;
 }
