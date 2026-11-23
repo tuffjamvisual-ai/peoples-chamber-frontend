@@ -12,6 +12,8 @@ import PageSources from '../components/PageSources';
 import { phoneUpTo } from '@/lib/breakpoints';
 
 import '@/app/components/search-box-desk.css';
+import MoreChain from '../components/MoreChain';
+import { SubFold } from '../components/PhoneFolds';
 // F04 batch 3 (ENTRY 134; T2's f04-32-routes.md section 9): the list, rendered by /organisations (static),
 // /organisations/filter/[...f] (has and page in the path) and /organisations/search (?q=, rewritten there by next.config.ts).
 
@@ -64,6 +66,7 @@ export default async function OrganisationsListing({ q = '', has, page = 1 }: { 
   // Past the last page of a list without a search: 404, so junk page numbers cannot fill the cache (F04 batch 3).
   if (!q && page > pages) notFound();
   const shown = list.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const plainPage = !q && !filter && page > 1;
   // A search stays a ?q= address (the rewrite serves it); otherwise the filter and page are in the path (F04 batch 3).
   const link = (o: { q?: string; has?: string; page?: number }) => o.q
     ? `/organisations?${new URLSearchParams({ q: o.q, ...(o.has ? { has: o.has } : {}), ...(o.page && o.page > 1 ? { page: String(o.page) } : {}) })}`
@@ -128,6 +131,24 @@ export default async function OrganisationsListing({ q = '', has, page = 1 }: { 
       {!q && list.length === 0 && <p style={{ fontFamily: FONT, fontSize: '15px' }}>No organisation has this connection.</p>}
       {q && list.length === 0 && <p style={{ fontFamily: FONT, fontSize: '15px' }}>No organisation page matches. Try a shorter name, or a donor search on <Link href={`/search?q=${encodeURIComponent(q)}`} style={{ color: ACCENT }}>the site search</Link>.</p>}
 
+      {/* /organisations page 2 onward, whole list (owner, Cowork ENTRY 536, 23 Nov 2026): on phones and tablets the rows sit
+          in a fold naming the count; opened, 25 at a time with the count shown. Every organisation stays in the page as a
+          link. Page 1, filters and searches keep their pager as before; from 1,024px the whole page shows as before. */}
+      {plainPage ? (
+        <SubFold label={`Organisations ${((page - 1) * PER_PAGE + 1).toLocaleString('en-GB')} to ${((page - 1) * PER_PAGE + shown.length).toLocaleString('en-GB')}, A to Z`}>
+        <MoreChain phoneOnly counted step={25} ordered style={{ borderTop: `1px solid ${HAIRLINE}` }} items={shown.map((r) => (
+          <li key={r.slug} style={{ padding: '10px 0', borderBottom: `1px solid ${HAIRLINE}` }}>
+            <Link href={`/organisations/${r.slug}`} className="no-hover-scale" style={{ color: INK, fontWeight: 'bold', fontSize: '16px', textDecoration: 'none', overflowWrap: 'anywhere' }}>{r.name}</Link>
+            <div style={{ fontFamily: FONT, fontSize: '15px', marginTop: '3px', lineHeight: 1.5, overflowWrap: 'anywhere' }}>
+              {/* No Companies House link in the rows (owner, Cowork ENTRY 422, 20 Nov 2026: sources only in the Sources fold);
+                  each organisation's own page has its Companies House record in its fold. */}
+              <span className="org-wide">{datasetsLine(r)}</span>
+              <span className="org-phone">{phoneCountsLine(r)}</span>
+            </div>
+          </li>
+        ))} />
+        </SubFold>
+      ) : (
       <NoJsPager id="orgs-rows" count={(shown).length} rows="> li" size={25}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0, borderTop: `1px solid ${HAIRLINE}` }}>
         {shown.map((r) => (
@@ -143,6 +164,7 @@ export default async function OrganisationsListing({ q = '', has, page = 1 }: { 
         ))}
       </ol>
       </NoJsPager>
+      )}
 
       {pages > 1 && (
         <nav aria-label="Pagination" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px', marginTop: '24px', fontFamily: FONT, fontSize: '15px' }}>

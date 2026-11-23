@@ -6,6 +6,8 @@ import BackLink from '../../../../components/BackLink';
 import PrevNext from '../../../../components/PrevNext';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import EdmYearLinks from '../../../EdmYearLinks';
+import MoreChain from '../../../../components/MoreChain';
+import { SubFold } from '../../../../components/PhoneFolds';
 import { edmState } from '@/lib/edm-pages';
 import { edmMonthHref, edmYearHref, edmYearMonths, edmYears, edmsInMonth } from '@/lib/edm-archive';
 import { petitionDate } from '@/lib/petition-pages';
@@ -80,8 +82,11 @@ export default async function EdmMonthPage({ params }: { params: Promise<Params>
       </p>
       {nav}
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 8px' }}>{n0(rows.length)} {rows.length === 1 ? 'motion' : 'motions'} in {label}</p>
-      <ul aria-label={`Motions tabled in ${label}`} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-        {rows.map((r) => (
+      {/* Phones and tablets (owner, Cowork ENTRY 536, 23 Nov 2026): the list in a fold naming its count; opened, the first 25,
+          then 'Show 25 more' adds 25 at a time with the count shown. Every motion stays in the page as a link (hidden, not
+          removed), with or without JavaScript. From 1,024px the whole list shows as before. */}
+      <SubFold label={`${n0(rows.length)} ${rows.length === 1 ? 'motion' : 'motions'} in ${label}`}>
+      <MoreChain phoneOnly counted step={25} items={rows.map((r) => (
           <li key={r.id} style={{ borderBottom: '1px solid rgba(20,16,13,0.25)' }}>
             <Link href={`/edms/${r.id}`} prefetch={false} className="no-hover-scale" style={{ display: 'block', minHeight: '44px', padding: '12px 0', color: INK, textDecoration: 'none' }}>
               <span style={{ display: 'block', fontSize: '17px', fontWeight: 'bold', lineHeight: 1.35, textDecoration: 'underline', overflowWrap: 'anywhere' }}>{r.title}</span>
@@ -91,8 +96,8 @@ export default async function EdmMonthPage({ params }: { params: Promise<Params>
               </span>
             </Link>
           </li>
-        ))}
-      </ul>
+        ))} />
+      </SubFold>
       {nav}
       <EdmYearLinks years={around.years} current={year} />
     </OpenGovShell>

@@ -5,6 +5,8 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import LetterLinks from '../LetterLinks';
+import MoreChain from '../../../components/MoreChain';
+import { SubFold } from '../../../components/PhoneFolds';
 import { LETTERS, lobbyingByLetter, lobbyingLetterHref } from '@/lib/lobbying-az';
 
 // /lobbying/a-z/<letter> (owner approved 23 Nov 2026, Cowork ENTRY 536 item 2): every organisation with a lobbying page
@@ -50,13 +52,15 @@ export default async function LobbyingLetter({ params }: { params: Promise<Param
         {list.length.toLocaleString('en-GB')} {list.length === 1 ? 'organisation' : 'organisations'} under {label(letter)}, A to Z.
       </p>
       <LetterLinks counts={counts} current={letter} />
-      <ul aria-label={`Organisations under ${letter.toUpperCase()}`} style={{ listStyle: 'none', margin: 0, padding: 0, maxWidth: '720px' }}>
-        {list.map((o) => (
+      {/* Phones and tablets (owner, Cowork ENTRY 536, 23 Nov 2026): a fold naming the count; opened, 25 at a time with the
+          count shown. Every organisation stays in the page as a link. From 1,024px the whole list shows as before. */}
+      <SubFold label={`${list.length.toLocaleString('en-GB')} ${list.length === 1 ? 'organisation' : 'organisations'} under ${letter.toUpperCase()}`}>
+      <MoreChain phoneOnly counted step={25} style={{ maxWidth: '720px' }} items={list.map((o) => (
           <li key={o.slug} style={{ borderBottom: '1px solid rgba(20,16,13,0.25)' }}>
             <Link href={`/lobbying/${o.slug}`} prefetch={false} className="no-hover-scale" style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '8px 0', color: INK, textDecoration: 'underline', fontSize: '17px', overflowWrap: 'anywhere' }}>{o.name}</Link>
           </li>
-        ))}
-      </ul>
+        ))} />
+      </SubFold>
     </OpenGovShell>
   );
 }
