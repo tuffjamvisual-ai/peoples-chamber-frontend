@@ -132,11 +132,11 @@ export default async function OrganisationsListing({ q = '', has, page = 1 }: { 
       {q && list.length === 0 && <p style={{ fontFamily: FONT, fontSize: '15px' }}>No organisation page matches. Try a shorter name, or a donor search on <Link href={`/search?q=${encodeURIComponent(q)}`} style={{ color: ACCENT }}>the site search</Link>.</p>}
 
       {/* /organisations page 2 onward, whole list (owner, Cowork ENTRY 536, 23 Nov 2026): on phones and tablets the rows sit
-          in a fold naming the count; opened, 25 at a time with the count shown. Every organisation stays in the page as a
+          in a fold naming the count; opened, 12 at a time with the count shown (owner, ENTRY 536 choice 2: tall rows). Every organisation stays in the page as a
           link. Page 1, filters and searches keep their pager as before; from 1,024px the whole page shows as before. */}
       {plainPage ? (
         <SubFold label={`Organisations ${((page - 1) * PER_PAGE + 1).toLocaleString('en-GB')} to ${((page - 1) * PER_PAGE + shown.length).toLocaleString('en-GB')}, A to Z`}>
-        <MoreChain phoneOnly counted step={25} ordered style={{ borderTop: `1px solid ${HAIRLINE}` }} items={shown.map((r) => (
+        <MoreChain phoneOnly counted step={12} ordered style={{ borderTop: `1px solid ${HAIRLINE}` }} items={shown.map((r) => (
           <li key={r.slug} style={{ padding: '10px 0', borderBottom: `1px solid ${HAIRLINE}` }}>
             <Link href={`/organisations/${r.slug}`} className="no-hover-scale" style={{ color: INK, fontWeight: 'bold', fontSize: '16px', textDecoration: 'none', overflowWrap: 'anywhere' }}>{r.name}</Link>
             <div style={{ fontFamily: FONT, fontSize: '15px', marginTop: '3px', lineHeight: 1.5, overflowWrap: 'anywhere' }}>
