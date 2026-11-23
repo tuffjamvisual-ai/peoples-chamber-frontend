@@ -37,11 +37,12 @@ const ROUTES = routes('app')
   .map((r) => ({ r, re: new RegExp('^' + r.replace(/\[\[?\.\.\.[^\]]+\]\]?/g, '.+').replace(/\[[^\]]+\]/g, '[^/]+') + '$'), dyn: (r.match(/\[/g) ?? []).length }))
   .sort((a, b) => a.dyn - b.dyn); // a fixed route wins over a dynamic one that also matches
 
-// One address per route type, from the sitemap (following a sitemap index if there is one).
+// One address per route type, from every sitemap in /sitemap-index.xml (T2, 23 Nov 2026: since ENTRY 531 item 2 the
+// record pages of 13 types are in their own sitemaps, and the 6 older type sitemaps were missed before).
 async function sitemapPages(): Promise<string[]> {
   const locs = async (u: string): Promise<string[]> => [...(await (await fetch(u)).text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  let urls = await locs(BASE + '/sitemap.xml');
-  if (urls.every((u) => /sitemap[^/]*\.xml$/.test(u))) urls = (await Promise.all(urls.map((u) => locs(BASE + new URL(u).pathname)))).flat();
+  const files = await locs(BASE + '/sitemap-index.xml');
+  const urls = (await Promise.all(files.map((u) => locs(BASE + new URL(u).pathname)))).flat();
   const byType = new Map<string, string>();
   for (const u of urls) {
     const p = decodeURI(new URL(u).pathname).replace(/\/$/, '') || '/';

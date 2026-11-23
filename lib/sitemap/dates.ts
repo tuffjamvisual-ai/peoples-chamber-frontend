@@ -3,7 +3,12 @@
 //   donors            the newest date the Electoral Commission published one of the donor's donations (published_date);
 //                     a donor with none published: the newest reported_date, then the newest accepted_date
 //   party /money      the same, over the donations the party received (recipient_name)
-//   Lords members     the peer's most recent Lords vote (the MP pages' rule); votes held from 4 Sep 2024
+//   Lords members     the peer's most recent Lords vote: the later of that division's date and the time its row was
+//                     loaded into our database, created_at (the owner's 7 Nov rule, Cowork ENTRY 531: when OUR page
+//                     changed). Not updated_at: it equals synced_at, a nightly touch (all 448 rows, 23 Nov 2026), so it
+//                     would date pages to a sync, not a change. Votes held from 4 Sep 2024
+// Donations keep the content dates only: political_donations.updated_at is not a load time (the syncs touch thousands of
+// rows at once: 19,749 on 1 Nov, 9,468 on 23 Nov 2026), so it would date pages to a sweep, not a change.
 // Both are read once a day into the data cache (no reads per page): donations by keyset paging (about 94 reads of 1,000
 // rows, as the donor registry already does), Lords votes in groups of whole divisions, newest first (about 150 reads).
 import { unstable_cache } from 'next/cache';
@@ -54,11 +59,21 @@ export async function donationDates(): Promise<{ donor: (names: string[]) => str
 // Each peer's most recent vote: divisions newest first, read in groups whose votes fit one read (at most 1,000 rows),
 // so a peer's first appearance is their latest vote.
 async function readPeerLastVotes(): Promise<[number, string][]> {
-  const { data, error } = await supabase.from('lords_divisions').select('division_id, division_date, content_count, not_content_count')
-    .order('division_date', { ascending: false }).order('division_id', { ascending: false }).limit(5000);
-  if (error) throw new Error(`sitemap lords divisions: ${error.message}`);
-  const divisions = (data ?? []) as { division_id: number; division_date: string | null; content_count: number | null; not_content_count: number | null }[];
-  const dateOf = new Map(divisions.map((x) => [x.division_id, day(x.division_date)]));
+  // Every division, by keyset paging (the API returns at most 1,000 rows a read; T2, 23 Nov 2026), then newest first.
+  type Div = { division_id: number; division_date: string | null; content_count: number | null; not_content_count: number | null; created_at: string | null; updated_at: string | null };
+  const all: Div[] = [];
+  for (let last = 0; ; ) {
+    const { data, error } = await supabase.from('lords_divisions').select('division_id, division_date, content_count, not_content_count, created_at, updated_at')
+      .gt('division_id', last).order('division_id', { ascending: true }).limit(1000);
+    if (error) throw new Error(`sitemap lords divisions: ${error.message}`);
+    const page = (data ?? []) as Div[];
+    all.push(...page);
+    if (page.length < 1000) break;
+    last = page[page.length - 1].division_id;
+  }
+  const divisions = all.sort((a, b) => (day(b.division_date) ?? '').localeCompare(day(a.division_date) ?? '') || b.division_id - a.division_id);
+  // The day the page shows the vote: the later of the division's date and its row's load (created_at).
+  const dateOf = new Map(divisions.map((x) => [x.division_id, later(day(x.division_date), day(x.created_at))]));
   const last = new Map<number, string>();
   let group: number[] = [], size = 0;
   const flush = async () => {
@@ -83,7 +98,7 @@ async function readPeerLastVotes(): Promise<[number, string][]> {
   return [...last];
 }
 
-const peerLastVotesShared = unstable_cache(readPeerLastVotes, ['sitemap-peer-last-votes-v1'], { tags: ['sitemap', 'sitemap:lords'], revalidate: DAY });
+const peerLastVotesShared = unstable_cache(readPeerLastVotes, ['sitemap-peer-last-votes-v3'], { tags: ['sitemap', 'sitemap:lords'], revalidate: DAY });
 
 export async function peerLastVotes(): Promise<Map<number, string>> {
   return new Map(await peerLastVotesShared());

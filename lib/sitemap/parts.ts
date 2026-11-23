@@ -15,10 +15,14 @@
 //   news                   recent press releases whose page is indexable (ENTRY 368 GO): the "What the record shows"
 //                          box adds enough (lib/news-record-core.ts newsRecordIndexable, the page's own test); only
 //                          releases of the last 30 days are judged (lib/news-record.ts indexableNewsSlugs, its cost)
-// lastmod (Cowork ENTRY 531 item 1, owner approved 23 Nov 2026; the file's rule: a true date or none): donors, the newest
-// published (else reported, then accepted) date of their donations (lib/sitemap/dates.ts); instruments, the newest of the
-// laid, made and in force dates; their division pages, the division date; secretariats, the newest register edition of
-// the APPGs listed; news, the release's publish date. People and agencies stay undated: their rows hold only fetch and
+// lastmod (Cowork ENTRY 531 item 1, owner approved 23 Nov 2026; the owner's 7 Nov rule: when OUR page last changed, the
+// later of the rows' load or last change and the content's own date, where a load time is held): donors, the newest
+// published (else reported, then accepted) date of their donations, content dates only, as the donations' updated_at is
+// a bulk sync touch, not a load (lib/sitemap/dates.ts); instruments, the newest of the laid, made and in force dates and
+// the row's updated_at (a load); their division pages, the later of the division date and the row's updated_at;
+// secretariats, the later of the newest register edition of the APPGs listed and their scraped_at (the load); news, the
+// release's publish date only, as fetched_at moves on every re-fetch (142 of 329 releases of the last 30 days were
+// fetched again days after publishing, 23 Nov 2026), so it is a sync time, not a load. People and agencies stay undated: their rows hold only fetch and
 // sync times, which say when we looked, not when the content changed.
 // Left out on purpose: debates (a debate page decides noindex from its content, read live from Hansard) and contracts
 // (held for the owner: about 235,000 pages).
@@ -67,8 +71,9 @@ export const PARTS: Record<string, Part> = {
   secretariats: {
     tags: ['sitemap:secretariats'],
     build: async () => {
-      const rows = await readAll<{ secretariat: string | null; register_edition: string | null }>(() => supabase.from('appgs'), { columns: 'slug, secretariat, register_edition', orderBy: 'slug', label: 'sitemap secretariats', filter: (q) => q.not('secretariat', 'is', null) });
-      return datedEntries('/secretariats', collect(rows.map((r) => [secretariatNameToSlug(String(r.secretariat ?? '')), r.register_edition])), 'monthly', 0.4);
+      const rows = await readAll<{ secretariat: string | null; register_edition: string | null; scraped_at: string | null }>(() => supabase.from('appgs'), { columns: 'slug, secretariat, register_edition, scraped_at', orderBy: 'slug', label: 'sitemap secretariats', filter: (q) => q.not('secretariat', 'is', null) });
+      const slugOf = (r: { secretariat: string | null }) => secretariatNameToSlug(String(r.secretariat ?? ''));
+      return datedEntries('/secretariats', collect(rows.flatMap((r) => [[slugOf(r), r.register_edition], [slugOf(r), r.scraped_at]] as [string, string | null][])), 'monthly', 0.4);
     },
   },
   people: {
@@ -88,11 +93,11 @@ export const PARTS: Record<string, Part> = {
   'statutory-instruments': {
     tags: ['sitemap:statutory-instruments'],
     build: async () => {
-      const api = await readAll<{ api_id: string | null; laid_date: string | null; made_date: string | null; in_force_date: string | null }>(() => supabase.from('statutory_instruments'), { columns: 'api_id, laid_date, made_date, in_force_date', orderBy: 'api_id', label: 'sitemap statutory instruments' });
-      const div = await readAll<{ division_id: number | null; date: string | null }>(() => supabase.from('statutory_instrument'), { columns: 'division_id, date', orderBy: 'division_id', label: 'sitemap statutory instrument divisions', filter: (q) => q.not('division_id', 'is', null) });
+      const api = await readAll<{ api_id: string | null; laid_date: string | null; made_date: string | null; in_force_date: string | null; updated_at: string | null }>(() => supabase.from('statutory_instruments'), { columns: 'api_id, laid_date, made_date, in_force_date, updated_at', orderBy: 'api_id', label: 'sitemap statutory instruments' });
+      const div = await readAll<{ division_id: number | null; date: string | null; updated_at: string | null }>(() => supabase.from('statutory_instrument'), { columns: 'division_id, date, updated_at', orderBy: 'division_id', label: 'sitemap statutory instrument divisions', filter: (q) => q.not('division_id', 'is', null) });
       return [
-        ...datedEntries('/statutory-instruments', collect(api.filter((r) => isApiId(String(r.api_id ?? ''))).flatMap((r) => [[String(r.api_id), r.laid_date], [String(r.api_id), r.made_date], [String(r.api_id), r.in_force_date]] as [string, string | null][])), 'monthly', 0.4),
-        ...datedEntries('/statutory-instruments', collect(div.map((r) => [String(r.division_id ?? ''), r.date])), 'monthly', 0.4),
+        ...datedEntries('/statutory-instruments', collect(api.filter((r) => isApiId(String(r.api_id ?? ''))).flatMap((r) => [[String(r.api_id), r.laid_date], [String(r.api_id), r.made_date], [String(r.api_id), r.in_force_date], [String(r.api_id), r.updated_at]] as [string, string | null][])), 'monthly', 0.4),
+        ...datedEntries('/statutory-instruments', collect(div.flatMap((r) => [[String(r.division_id ?? ''), r.date], [String(r.division_id ?? ''), r.updated_at]] as [string, string | null][])), 'monthly', 0.4),
       ];
     },
   },
@@ -139,7 +144,7 @@ async function builtEntries(name: string): Promise<SitemapEntry[] | null> {
   if (!part) return null;
   let read = cached.get(name);
   if (!read) {
-    read = unstable_cache(async () => pack(await part.build()), ['sitemap-part', name, 'v2'], { tags: ['sitemap', `sitemap:${name}`, ...part.tags], revalidate: DAY });
+    read = unstable_cache(async () => pack(await part.build()), ['sitemap-part', name, 'v4'], { tags: ['sitemap', `sitemap:${name}`, ...part.tags], revalidate: DAY });
     cached.set(name, read);
   }
   return unpack(await read());
