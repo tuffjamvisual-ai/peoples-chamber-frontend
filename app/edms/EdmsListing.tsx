@@ -6,6 +6,8 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { displayMpName } from '@/lib/mp-name';
 import { supabaseAdminRead } from '@/lib/supabase-admin';
 import { allEdms, edmState, memberEdmIds } from '@/lib/edm-pages';
+import { edmYears } from '@/lib/edm-archive';
+import EdmYearLinks from './EdmYearLinks';
 import { petitionDate } from '@/lib/petition-pages';
 import { ShowAll } from '@/app/components/NoJsPager';
 import { cachedQuery } from '@/lib/tagged-read';
@@ -135,6 +137,8 @@ export default async function EdmsListing({ s }: { s: Search }) {
           <a href={`${href({ show: String(show + STEP) })}#m${show + 1}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '44px', padding: '8px 12px', border: `1px solid ${INK}`, fontSize: '15px', fontWeight: 'bold', color: INK, textDecoration: 'none' }}>Show more ({n0(list.length - show)} left)</a>
         </p>
       )}
+      {/* Every motion by year and month, as plain links (Cowork ENTRY 536 item 1), after the list so the search stays first. */}
+      <EdmYearLinks years={await edmYears()} />
       {/* T1-5x (owner, 10 Nov 2026): the key to Open and Closed, after the list. */}
       <AboutThisData>
         <p>Open means tabled this session and not withdrawn. Closed means tabled in an earlier session.</p>

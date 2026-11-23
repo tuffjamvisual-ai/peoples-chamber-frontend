@@ -9,7 +9,8 @@ import { archiveSessions } from '@/lib/pmqs-archive';
 import { STANDARDS } from '@/lib/standards-cases';
 import { allPetitions } from '@/lib/petition-pages';
 import { allConstituencies } from '@/lib/constituency-pages';
-import { edmSitemapRows } from '@/lib/edm-pages';
+import { allEdms, edmSitemapRows } from '@/lib/edm-pages';
+import { edmMonthHref, edmYearHref } from '@/lib/edm-archive';
 import { questionDepartmentStats } from '@/lib/question-pages';
 import { QUESTION_DEPARTMENTS } from '@/lib/question-departments';
 import { editorialModifiedIso } from '@/lib/JsonLd';
@@ -268,6 +269,26 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
 
   // /edms and each motion with 10 or more signatures, dated by its latest signature. Others stay indexable by link.
   const motionRows = await edmSitemapRows().catch(() => []);
+  // The EDM year and month pages (Cowork ENTRY 536 item 1), each dated by the newest of what it shows: the motions' tabled
+  // dates and, where held, their latest signature. A failed read leaves them out.
+  const edmArchiveEntries: MetadataRoute.Sitemap = await (async () => {
+    const { rows } = await allEdms();
+    const lastSig = new Map(motionRows.map((m) => [m.id, m.last]));
+    const byMonth = new Map<string, string[]>();
+    for (const r of rows) {
+      if (!/^\d{4}-\d{2}/.test(r.date_tabled)) continue;
+      const k = r.date_tabled.slice(0, 7);
+      const l = byMonth.get(k) ?? [];
+      l.push(r.date_tabled, ...(lastSig.has(r.id) ? [lastSig.get(r.id) as string] : []));
+      byMonth.set(k, l);
+    }
+    const byYear = new Map<number, string[]>();
+    for (const [k, ds] of byMonth) { const y = Number(k.slice(0, 4)); byYear.set(y, [...(byYear.get(y) ?? []), ...ds]); }
+    return [
+      ...[...byYear].map(([y, ds]) => ({ url: `${SITE}${edmYearHref(y)}`, ...dated(newest(...ds)), changeFrequency: 'monthly' as const, priority: 0.5 })),
+      ...[...byMonth].map(([k, ds]) => ({ url: `${SITE}${edmMonthHref(Number(k.slice(0, 4)), Number(k.slice(5, 7)))}`, ...dated(newest(...ds)), changeFrequency: 'monthly' as const, priority: 0.5 })),
+    ];
+  })().catch((e) => { console.error(`sitemap: EDM year and month pages left out (${e instanceof Error ? e.message : String(e)})`); return []; });
   const motionEntries: MetadataRoute.Sitemap = motionRows.length ? [{ url: `${SITE}/edms`, ...dated(newest(...motionRows.map((m) => m.last))), changeFrequency: 'daily' as const, priority: 0.6 }, ...motionRows.map((m) => ({ url: `${SITE}/edms/${m.id}`, ...dated(newest(m.last)), changeFrequency: 'weekly' as const, priority: 0.4 }))] : [];
 
   // Every constituency page: dated by the seat's latest election or change of MP.
@@ -671,6 +692,7 @@ export async function buildMainEntries(): Promise<MetadataRoute.Sitemap> {
     ...pmqsYearEntries,
     ...petitionEntries,
     ...constituencyEntries,
+    ...edmArchiveEntries,
     ...motionEntries,
     ...questionEntries,
     ...partyEntries,
