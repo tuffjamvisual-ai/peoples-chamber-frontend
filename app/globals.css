@@ -584,11 +584,14 @@ details[open] > summary .st-more { display: none; }
   .og-scroll-arrow { display: none !important; }
 }
 /* Phones in the app view (owner, Cowork ENTRY 525, 23 Nov 2026: "Arrow at page end only"): the up arrow, shown by
-   FloatingScrollDownButton only at the bottom of a long page (og-scroll-arrow-up). A 44px tap area; the white round
-   button stays 36px inside it. Tablets and desktop as above. */
+   FloatingScrollDownButton only at the bottom of a long page (og-scroll-arrow-up). A 44px tap area with a 36px round
+   outline inside it, see-through (ENTRY 527). Tablets and desktop as above. */
 @media (max-width: 767.98px) {
   .og-scroll-arrow.og-scroll-arrow-up { display: flex !important; width: 44px !important; height: 44px !important; background: transparent !important; border: 0 !important; box-shadow: none !important; }
-  .og-scroll-arrow.og-scroll-arrow-up::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.12); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18); }
+  /* Transparent (owner, Cowork ENTRY 527, 23 Nov 2026): no fill and no shadow, so the words underneath show; a thin
+     outline and the arrow in the site's ink (#14100d, far above 3:1 on the paper) keep the button visible. */
+  .og-scroll-arrow.og-scroll-arrow-up::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: transparent; border: 1.5px solid #14100d; box-shadow: none; }
+  .og-scroll-arrow.og-scroll-arrow-up { color: #14100d !important; }
   .og-scroll-arrow.og-scroll-arrow-up svg { position: relative; }
   .og-scroll-arrow.og-scroll-arrow-up:focus-visible { outline: 2px solid #7a1612; outline-offset: 0; border-radius: 50%; }
 }

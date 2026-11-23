@@ -39,3 +39,8 @@
   .og-finders .og-sbox-row > :not(.og-sbox-btn) { flex: 1 1 auto !important; min-width: 0 !important; max-width: 323px !important; }
   .og-finders .og-sbox-row .og-sbox-input { width: 100% !important; max-width: 323px !important; min-width: 0 !important; }
 }
+/* 1,024 to 1,199px, where those fields are narrower (owner approved 23 Nov 2026, Cowork ENTRY 527): 10px padding instead
+   of 14px so each placeholder ('Name, constituency or postcode') shows in full. 1,200px and wider unchanged. */
+@media (min-width: 1024px) and (max-width: 1199.98px) {
+  .og-finders .og-sbox-row .og-sbox-input { padding-left: 10px !important; padding-right: 10px !important; }
+}
