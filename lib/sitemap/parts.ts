@@ -144,7 +144,7 @@ async function builtEntries(name: string): Promise<SitemapEntry[] | null> {
   if (!part) return null;
   let read = cached.get(name);
   if (!read) {
-    read = unstable_cache(async () => pack(await part.build()), ['sitemap-part', name, 'v4'], { tags: ['sitemap', `sitemap:${name}`, ...part.tags], revalidate: DAY });
+    read = unstable_cache(async () => pack(await part.build()), ['sitemap-part', name, 'v5'], { tags: ['sitemap', `sitemap:${name}`, ...part.tags], revalidate: DAY });
     cached.set(name, read);
   }
   return unpack(await read());
