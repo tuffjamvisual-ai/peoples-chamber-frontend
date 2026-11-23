@@ -1,5 +1,6 @@
 import { cloneElement, type ReactElement, type ReactNode } from 'react';
 import { phoneUpTo, wideFrom, listFoldFor, foldShort } from '@/lib/breakpoints';
+import { jsOffStepFor } from '@/lib/fold-steps';
 
 // Long lists on phones with JavaScript off (owner, 6 Nov 2026; the 10,000px rule). With JavaScript on the phone script (lib/phone-enhance.ts) already
 // shortens lists, and from 640px up lists show whole, so nothing here applies to either: the styles match only `html:not(.og-js)` under 640px.
@@ -52,6 +53,48 @@ export function ShowAllDetails({ id, count, first, noun, stepStyle }: { id: stri
   );
 }
 
+// Without JavaScript (owner standing rule, Cowork ENTRY 539 and 542, 23 Nov 2026: no fold opens a long list in one go):
+// in place of the one "Show all" fold, a chain of native folds, each showing the next `step` rows (25, or fewer for
+// tall rows: lib/fold-steps.ts) and
+// saying how many show so far ("Show 25 more · 30 of 215 shown"). Every row stays in the page. With JavaScript the
+// existing fold and the phone script's steps of 10 are used exactly as before, so nothing changes for most readers;
+// from 1,024px (or wherever the list does not fold) nothing changes either.
+const stepClass = (id: string) => `njp-st-${id}`;
+export function JsOffSteps({ id, count, first, step = jsOffStepFor(id), noun }: { id: string; count: number; first: number; step?: number; noun?: MoreNoun }) {
+  const k = Math.ceil(Math.max(0, count - first) / step);
+  return (
+    <>
+      {Array.from({ length: k }, (_, i) => {
+        const shown = first + i * step;
+        const n = Math.min(step, count - shown);
+        return (
+          <details key={i} className={`njp-sa njp-st ${stepClass(id)} ${stepClass(id)}-${i + 1}`}>
+            <summary><span className="njp-sa-more">Show {n.toLocaleString('en-GB')} more{noun ? ` ${n === 1 ? noun.one : noun.many}` : ''} · {shown.toLocaleString('en-GB')} of {count.toLocaleString('en-GB')} shown</span></summary>
+          </details>
+        );
+      })}
+    </>
+  );
+}
+// The rules for those steps, inside the list's fold media query: with JavaScript off, each closed step hides the rows from
+// its start on, a step shows only once the one before it is open, an open step's own button goes, and the one "Show all"
+// fold and its count are not used. `row(from)` is the list's row selector from row `from` on.
+function jsOffStepCss(id: string, count: number, first: number, step: number, row: (from: number) => string): string {
+  const k = Math.ceil(Math.max(0, count - first) / step);
+  if (!k) return '';
+  const off = 'html:not(.og-js) ';
+  const rules = [
+    `${off}.${stepClass(id)}{display:block}`,
+    `${off}.${showAllClass(id)}:not(.njp-st),${off}.og-more-count:has(+ .${showAllClass(id)}:not(.njp-st)){display:none!important}`,
+    `.${stepClass(id)}[open] > summary{display:none}`,
+  ];
+  for (let i = 1; i <= k; i++) {
+    rules.push(`${off}:has(> .${stepClass(id)}-${i}:not([open])):not(:has(:target)) > ${row(first + (i - 1) * step + 1)}{display:none!important}`);
+    if (i > 1) rules.push(`${off}:has(> .${stepClass(id)}-${i - 1}:not([open])) > .${stepClass(id)}-${i}{display:none!important}`);
+  }
+  return rules.join('');
+}
+
 // How many rows fit on each screen, from each row's height, so that long rows get fewer companions.
 export function pagesByHeight(heights: number[], room: number, most = Infinity): number[] {
   const sizes: number[] = [];
@@ -64,7 +107,7 @@ export function pagesByHeight(heights: number[], room: number, most = Infinity):
   return sizes;
 }
 
-export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, first = PHONE_FIRST, ownMore = false, noun, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; first?: number; ownMore?: boolean; noun?: MoreNoun; children?: ReactElement<{ className?: string }> }) {
+export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, first = PHONE_FIRST, ownMore = false, noun, jsOffStep = jsOffStepFor(id), children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; first?: number; ownMore?: boolean; noun?: MoreNoun; jsOffStep?: number; children?: ReactElement<{ className?: string }> }) {
   const split = sizes ?? Array.from({ length: Math.ceil(count / size) }, () => size);
   const cardCss = cards ? `@media ${phoneUpTo(767.98)} {${cards.map((label, i) => (label ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${i + 1})::before{content:${JSON.stringify(`${label}: `)};font-weight:bold}` : '')).join('')}${title ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${title}){font-weight:bold;font-size:16px}` : ''}}` : '';
   const cardClass = cards ? `njc njc-${id}` : '';
@@ -76,15 +119,18 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
   const closed = `:has(> .${showAllClass(id)}:not([open])):not(:has(:target))`;
   // ownMore (MP2f-10): with JavaScript on the page's own "Show more" is the only control, so the rule and "Show all" are
   // for JavaScript off only (html:not(.og-js)); without it they hold either way, as before.
-  const jsOff = ownMore ? 'html:not(.og-js) ' : '';
+  // Without JavaScript the step chain (JsOffSteps) now does this, 25 rows a press (ENTRY 542): the one-press rule holds with
+  // JavaScript only (html.og-js), where the phone script moves it on by 10; a list with its own Show more needs no rule
+  // with JavaScript, as before.
+  const rowFrom = (from: number) => (rows ? `.${listClass} ${rows}:nth-child(n+${from})` : `.${itemClass}:nth-child(n+${from} of .${itemClass})`);
   const phoneCss = showAll
-    ? `@media ${listFoldFor(count)} {${rows ? `${jsOff}${closed} > .${listClass} ${rows}:nth-child(n+${first + 1})` : `${jsOff}${closed} > .${itemClass}:nth-child(n+${first + 1} of .${itemClass})`}{display:none!important}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}}`
+    ? `.${stepClass(id)}{display:none}@media ${listFoldFor(count)} {${ownMore ? '' : `html.og-js ${closed} > ${rowFrom(first + 1)}{display:none!important}`}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}${jsOffStepCss(id, count, first, jsOffStep, rowFrom)}}`
     : '';
   // Its own id, so the step script can move the rule on by 10 rows a press (ShowAllDetails' data-step-style).
   const stepStyle = `njp-css-${id}`;
   const phoneStyle = phoneCss ? <style id={stepStyle} dangerouslySetInnerHTML={{ __html: phoneCss }} /> : null;
   const ownList = (extra: string) => children ? cloneElement(children as ReactElement<{ className?: string; 'data-own-more'?: string }>, { className: [children.props.className, extra, cardClass].filter(Boolean).join(' '), ...(showAll ? { 'data-own-more': '' } : {}) }) : null;
-  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} stepStyle={ownMore ? undefined : stepStyle} /> : null}</>;
+  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} stepStyle={ownMore ? undefined : stepStyle} /> : null}{children && showAll ? <JsOffSteps id={id} count={count} first={first} step={jsOffStep} noun={noun} /> : null}</>;
   const pages = split.length;
   const nums = Array.from({ length: pages }, (_, i) => i + 1);
   const upTo = (k: number) => split.slice(0, k).reduce((a, b) => a + b, 0);   // rows on screens 1 to k
@@ -114,6 +160,7 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
       {ownList(list)}
       {children && nums.map((k) => <PagerNav key={k} id={id} k={k} pages={pages} always={always} wide={wide && always} />)}
       {children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} stepStyle={ownMore ? undefined : stepStyle} /> : null}
+      {children && showAll ? <JsOffSteps id={id} count={count} first={first} step={jsOffStep} noun={noun} /> : null}
     </>
   );
 }
@@ -146,6 +193,7 @@ export function NoJsPagerLinks({ id, count, size = 25, sizes, first = PHONE_FIRS
           2026, ENTRY 286: no show-all buttons): the paired NoJsPager (same id, no children) holds the rule the step script
           moves on, in <style id="njp-css-<id>">. Without JavaScript one press still shows the rest. */}
       {count > first && <ShowAllDetails id={id} count={count} first={first} stepStyle={`njp-css-${id}`} />}
+      {count > first && <JsOffSteps id={id} count={count} first={first} />}
     </>
   );
 }
