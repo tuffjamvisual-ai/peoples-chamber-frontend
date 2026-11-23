@@ -51,8 +51,9 @@ export default async function ArchiveSessionView({ session }: { session: Archive
         <Link href={pmqsYearHref(Number(session.date.slice(0, 4)))} prefetch={false} style={link}>Every session in {session.date.slice(0, 4)}</Link>
       </p>
       <div style={{ color: INK }}>
-        {/* Phones: as many exchanges as fit the 2,500px length (UX5, T1-6, 11 Nov 2026); wider, as before. */}
-        <MoreChain mainAction ordered first={openingCount(exchanges.map(heightAt375))} phoneFirst={openingCount(exchanges.map(heightAt375), PHONE_ROOM)} items={exchanges.map((e) => (
+        {/* Phones: as many exchanges as fit the 2,500px length (UX5, T1-6, 11 Nov 2026); wider, as before. Then 3 a press, with or
+            without JavaScript (Cowork ENTRY 542 item 6, 23 Nov 2026: an exchange is about 400px, so 25 a press added +9,592px). */}
+        <MoreChain mainAction ordered step={3} jsStep={3} first={openingCount(exchanges.map(heightAt375))} phoneFirst={openingCount(exchanges.map(heightAt375), PHONE_ROOM)} items={exchanges.map((e) => (
           <li key={e.lead.order} id={`r-${e.lead.order}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
             <Name c={e.lead} linked={once(e.lead)} />
             <p style={body}>{e.lead.text}</p>

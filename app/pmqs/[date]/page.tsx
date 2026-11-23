@@ -87,7 +87,7 @@ export default async function PmqsSessionPage({ params }: { params: Promise<{ da
       {/* The questions as every list (owner approved 18 Nov 2026, ENTRY 286 and 302): under 1,024px the first 3, then Show 10
           more with the count and Show fewer (the page length limit lifted here, ENTRY 302); from 1,024px every question. Was
           a phone-only chain that opened with as many as fitted 1,300px, with no count. */}
-      <MoreChain mainAction ordered style={{ color: INK }} items={exchanges.map((e) => (
+      <MoreChain mainAction ordered jsStep={3} style={{ color: INK }} items={exchanges.map((e) => (
           <li key={e.id} id={`q-${e.id}`} style={{ padding: '14px 0', borderTop: '1px solid rgba(20,16,13,0.25)' }}>
             <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px' }}>{firstMention(e.asker.id) ? <Link href={`/mps/${e.asker.id}`} style={link}>{e.asker.name}</Link> : e.asker.name}</p>
             <p style={body}>{e.question}</p>

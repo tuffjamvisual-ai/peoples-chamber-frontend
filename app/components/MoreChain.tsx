@@ -23,20 +23,22 @@ const PHONE_FIRST = 3;
 // On phones and tablets with JavaScript each press adds 10 (owner rule; Cowork ENTRY 152 item 1, 16 Nov 2026): the chain's
 // folds are opened 10 items at a time by lib/phone-enhance.ts, so the first label says 10 (mc-n-js, html.og-js); without
 // JavaScript a press opens the next fold whole and the label says so (mc-n-nojs). From 1,024px up nothing changes: 25 a press.
-const phoneCount = (n: number) => <><span className="mc-n-nojs">{n.toLocaleString('en-GB')}</span><span className="mc-n-js">{Math.min(10, n).toLocaleString('en-GB')}</span></>;
+const phoneCount = (n: number, js = 10) => <><span className="mc-n-nojs">{n.toLocaleString('en-GB')}</span><span className="mc-n-js">{Math.min(js, n).toLocaleString('en-GB')}</span></>;
 
+// jsStep (Cowork ENTRY 542 item 6, 23 Nov 2026): with JavaScript on phones and tablets, how many each press adds in place
+// of 10 (data-step-n on the opening list, read by lib/phone-enhance.ts), for tall items.
 // counted (Cowork ENTRY 536, 23 Nov 2026): each 'Show N more' also says how many show so far, e.g. '25 of 169 shown'. Off
 // by default, so every existing list is unchanged.
-type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean; mainAction?: boolean; phoneFirst?: number; counted?: boolean };
+type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean; mainAction?: boolean; phoneFirst?: number; counted?: boolean; jsStep?: number };
 
-export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false, mainAction = false, phoneFirst = PHONE_FIRST, counted = false }: Props) {
+export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false, mainAction = false, phoneFirst = PHONE_FIRST, counted = false, jsStep }: Props) {
   const pf = Math.max(1, Math.min(phoneFirst, PHONE_FIRST));
   const opening = Math.max(1, Math.min(first ?? step, step));
   const Tag = ordered ? 'ol' : 'ul';
   // The count before the chain's first fold (ENTRY 239 A4, MOB-LISTS): '3 of 120' on phones and tablets with JavaScript (it
   // is hidden elsewhere, globals.css .og-more-count); lib/phone-enhance.ts updates it and keeps it above the buttons.
   const count = (total: number) => <p className="og-more-count og-fold-short" aria-live="polite">{pf.toLocaleString('en-GB')} of {total.toLocaleString('en-GB')}</p>;
-  const list = (some: ReactNode[], firstList = false, mark = false, short = false) => <Tag className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : '', short ? 'mc-short' : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
+  const list = (some: ReactNode[], firstList = false, mark = false, short = false) => <Tag data-step-n={firstList && jsStep && jsStep !== 10 ? jsStep : undefined} className={[className, firstList ? 'mc-first' : '', firstList && pf < PHONE_FIRST ? `mc-pf${pf}` : '', short ? 'mc-short' : ''].filter(Boolean).join(' ') || undefined} data-own-more="" data-main-action={mark ? '' : undefined} style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}>{some}</Tag>;
   if (items.length <= opening) {
     if (phoneOnly || items.length <= pf) return list(items, false, mainAction);
     // A list of 25 or fewer shows whole from 1,024px (ENTRY 286): .mc-short keeps the globals.css fold under 1,024px only.
@@ -51,7 +53,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
     <summary>
       <span className="st-more">
         Show {from === opening && !phoneOnly
-          ? <><span className="mc-n-wide">{next(from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{phoneCount(next(from) + from - Math.min(pf, from))}</span></>
+          ? <><span className="mc-n-wide">{next(from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{phoneCount(next(from) + from - Math.min(pf, from), jsStep)}</span></>
           : next(from).toLocaleString('en-GB')} more{counted ? ` · ${from.toLocaleString('en-GB')} of ${items.length.toLocaleString('en-GB')} shown` : ''}
       </span>
       <span className="st-less">Show fewer</span>

@@ -194,7 +194,10 @@ function shorten(){
 // first rows show, a "Show fewer" button after the fold goes back to the first rows; the open fold's own summary says
 // "Show fewer" too.
 var STEP=10;
-function stepLabel(d,left){var m=d.querySelector('.st-more');if(!m)return;var n=Math.min(STEP,left),one=d.getAttribute('data-step-one'),many=d.getAttribute('data-step-many');m.textContent='Show '+n.toLocaleString('en-GB')+' more'+(one?' '+(n===1?one:many):'')}
+// A list's own step (owner standing rule, Cowork ENTRY 539 and 542 item 6, 23 Nov 2026): data-step-n, fewer than 10 where
+// rows are tall (lib/fold-steps.ts), so one press adds no more than about 1,500px; 10 where it is not given, as before.
+function stepN(d){return +d.getAttribute('data-step-n')||STEP}
+function stepLabel(d,left){var m=d.querySelector('.st-more');if(!m)return;var n=Math.min(stepN(d),left),one=d.getAttribute('data-step-one'),many=d.getAttribute('data-step-many');m.textContent='Show '+n.toLocaleString('en-GB')+' more'+(one?' '+(n===1?one:many):'')}
 // The count before a stepped fold ('3 of 120', ENTRY 239 A4): what shows of the whole list.
 // data-step-total (DataList, ENTRY 286): the whole list's size where the fold holds only this page's rows; the count then
 // says what shows of the whole list ('13 of 812').
@@ -222,7 +225,7 @@ document.addEventListener('click',function(e){
   if(!s||!listsWide())return;
   var d=s.parentElement;
   if(d.open){setTimeout(function(){stepTo(d,0)},0);return}
-  var added=(d.__added||0)+STEP,left=+d.getAttribute('data-step-left');
+  var added=(d.__added||0)+stepN(d),left=+d.getAttribute('data-step-left');
   if(added>=left){if(d.__fewer){d.__fewer.remove();d.__fewer=null}stepCount(d,null);return}
   e.preventDefault();stepTo(d,added);
 });
@@ -239,7 +242,7 @@ function chainOf(d){
   var items=[].slice.call(first.children),ds=[],x=d;
   while(x){x.__start=items.length;ds.push(x);var l=x.querySelector(':scope > ul, :scope > ol');if(l)items=items.concat([].slice.call(l.children));x=x.querySelector(':scope > details.mc-more')}
   pf=Math.min(pf,items.length);
-  d.__chain={first:first,top:d,pf:pf,items:items,ds:ds,n:pf,cnt:cnt};return d.__chain;
+  d.__chain={first:first,top:d,pf:pf,items:items,ds:ds,n:pf,cnt:cnt,step:stepN(first)};return d.__chain;
 }
 function chainShow(c,n){
   n=Math.min(n,c.items.length);c.n=n;var on=n>c.pf;
@@ -249,20 +252,20 @@ function chainShow(c,n){
   if(!on){if(c.more){c.more.remove();c.fewer.remove();c.more=c.fewer=null}if(c.cnt)c.top.before(c.cnt);return}
   if(!c.more){
     c.more=document.createElement('button');c.more.type='button';c.more.className='og-phone-more';
-    c.more.addEventListener('click',function(){chainShow(c,c.n+STEP)});
+    c.more.addEventListener('click',function(){chainShow(c,c.n+c.step)});
     c.fewer=document.createElement('button');c.fewer.type='button';c.fewer.className='og-phone-more st-fewer';c.fewer.textContent='Show fewer';
     c.fewer.addEventListener('click',function(){chainShow(c,c.pf);var r=c.first.getBoundingClientRect();if(r.top<0)c.first.scrollIntoView({block:'start'})});
     c.top.after(c.more,c.fewer);
   }
   if(c.cnt)c.more.before(c.cnt);
   var left=c.items.length-n;
-  c.more.style.display=left>0?'':'none';c.more.textContent='Show '+Math.min(STEP,left).toLocaleString('en-GB')+' more';
+  c.more.style.display=left>0?'':'none';c.more.textContent='Show '+Math.min(c.step,left).toLocaleString('en-GB')+' more';
 }
 document.addEventListener('click',function(e){
   var s=e.target.closest&&e.target.closest('details.mc-more > summary');
   if(!s||!listsWide())return;
   var c=chainOf(s.parentElement);if(!c)return;
-  e.preventDefault();chainShow(c,c.n+STEP);
+  e.preventDefault();chainShow(c,c.n+c.step);
 });
 // Tap areas of links in running text (MOB-TAPS, Cowork ENTRY 274 and 276): 44px, centred, drawn by ::after (globals.css).
 // Where two links' areas would overlap although the links do not, both are cut back to meet halfway between the links, so a

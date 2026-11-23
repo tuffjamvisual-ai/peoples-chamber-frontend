@@ -1,4 +1,5 @@
 import { cloneElement, type ReactElement } from 'react';
+import { jsOnStepFor } from '@/lib/fold-steps';
 import { listFoldFor, foldShort } from '@/lib/breakpoints';
 
 // DataList (T1-GUARD, owner approved 13 Nov 2026): the shared list for data that grows. New data lists use it; existing
@@ -68,8 +69,8 @@ export default function DataList({ id, count, page, href, rows = '> li', perPage
           the fold is (.og-fold-short for a list of 25 or fewer, hidden from 1,024px). */}
       {more > 0 && <p className={['og-more-count', foldShort(count)].filter(Boolean).join(' ')} aria-live="polite">{(start + first).toLocaleString('en-GB')} of {count.toLocaleString('en-GB')}</p>}
       {more > 0 && (
-        <details className="dl-more" data-step-style={`dl-step-${id}`} data-step-from={start + first + 1} data-step-left={more} data-step-total={count}>
-          <summary><span className="st-more">Show {Math.min(10, more).toLocaleString('en-GB')} more</span><span className="st-less">Show fewer</span></summary>
+        <details className="dl-more" data-step-style={`dl-step-${id}`} data-step-from={start + first + 1} data-step-left={more} data-step-total={count} data-step-n={jsOnStepFor(id) !== 10 ? jsOnStepFor(id) : undefined}>
+          <summary><span className="st-more">Show {Math.min(jsOnStepFor(id), more).toLocaleString('en-GB')} more</span><span className="st-less">Show fewer</span></summary>
         </details>
       )}
       {pages > 1 && (

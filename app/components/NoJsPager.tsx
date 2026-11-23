@@ -1,6 +1,6 @@
 import { cloneElement, type ReactElement, type ReactNode } from 'react';
 import { phoneUpTo, wideFrom, listFoldFor, foldShort } from '@/lib/breakpoints';
-import { jsOffStepFor } from '@/lib/fold-steps';
+import { jsOffStepFor, jsOnStepFor } from '@/lib/fold-steps';
 
 // Long lists on phones with JavaScript off (owner, 6 Nov 2026; the 10,000px rule). With JavaScript on the phone script (lib/phone-enhance.ts) already
 // shortens lists, and from 640px up lists show whole, so nothing here applies to either: the styles match only `html:not(.og-js)` under 640px.
@@ -38,15 +38,17 @@ export const showAllClass = (id: string) => `njp-sa-${id}`;
 export type MoreNoun = { one: string; many: string };
 export function ShowAllDetails({ id, count, first, noun, stepStyle }: { id: string; count: number; first: number; noun?: MoreNoun; stepStyle?: string }) {
   const n = Math.max(0, count - first);
-  // The first press shows 10 with JavaScript (lib/phone-enhance.ts), the rest without it; the label names what it adds.
-  const shown = stepStyle ? Math.min(10, n) : n;
+  // The first press shows 10 with JavaScript (lib/phone-enhance.ts), or the list's own smaller step for tall rows
+  // (lib/fold-steps.ts jsOnStepFor, data-step-n); the label names what it adds.
+  const jsStep = jsOnStepFor(id);
+  const shown = stepStyle ? Math.min(jsStep, n) : n;
   // The count before the fold (ENTRY 239 A4, MOB-LISTS): '3 of 120', only where the press steps by 10 with JavaScript (a list
   // with its own Show more has PhoneMore's count); lib/phone-enhance.ts updates it on each press.
   return (
     <>
     {/* A list of 25 or fewer shows whole from 1,024px, so its count and button are hidden there (ENTRY 286, .og-fold-short). */}
     {stepStyle && <p className={['og-more-count', foldShort(count)].filter(Boolean).join(' ')} aria-live="polite">{first.toLocaleString('en-GB')} of {count.toLocaleString('en-GB')}</p>}
-    <details className={['njp-sa', showAllClass(id), foldShort(count)].filter(Boolean).join(' ')} data-step-style={stepStyle} data-step-from={stepStyle ? first + 1 : undefined} data-step-left={stepStyle ? n : undefined} data-step-one={noun?.one} data-step-many={noun?.many}>
+    <details className={['njp-sa', showAllClass(id), foldShort(count)].filter(Boolean).join(' ')} data-step-style={stepStyle} data-step-from={stepStyle ? first + 1 : undefined} data-step-left={stepStyle ? n : undefined} data-step-n={stepStyle && jsStep !== 10 ? jsStep : undefined} data-step-one={noun?.one} data-step-many={noun?.many}>
       <summary><span className="njp-sa-more st-more">Show {shown.toLocaleString('en-GB')} more{noun ? ` ${shown === 1 ? noun.one : noun.many}` : ''}</span><span className="njp-sa-less">Show fewer</span></summary>
     </details>
     </>

@@ -51,3 +51,39 @@ export function jsOffStepFor(id: string): number {
   for (const [re, step] of STEPS) if (re.test(id)) return step;
   return JS_OFF_STEP;
 }
+
+// With JavaScript (Cowork ENTRY 542 item 6, 23 Nov 2026): the phone script steps every list by 10 a press; a list whose rows
+// are tall carries a smaller step (data-step-n), 1,450px divided by its row height as measured at 375 with JavaScript on
+// (the ENTRY 539 audit and this branch's), at least 2. A list not named here steps by 10, as before.
+export const JS_ON_STEP = 10;
+const JS_STEPS: [RegExp, number][] = [
+  [/^laws-rows$/, 2],                             // /laws: rows about 604px
+  [/^polls$/, 3],                                 // /polls: rows about 373px
+  [/^div-days$/, 4],                              // /divisions: rows about 341px
+  [/^pq-day$/, 4],                                // /pmqs/1945-to-1961/1945-08-21: rows about 342px
+  [/^treaties-rows$/, 4],                         // /treaties: rows about 314px
+  [/^mwv-rows$/, 5],                              // /laws/made-without-a-vote: rows about 260px
+  [/^polls-archive$/, 5],                         // /polls/archive: rows about 274px
+  [/^press-releases$/, 5],                        // /transparency/press-releases: rows about 251px
+  [/^roi-rows$/, 5],                              // /transparency/register-of-interests: rows about 244px
+  [/^q-meets$/, 6],                               // /transparency/special-advisers quarter, media meetings: rows about 241px
+  [/^dcs-rows$/, 6],                              // /donations/constituencies: rows about 216px
+  [/^earnings$/, 6],                              // /earnings: rows about 235px
+  [/^foi$/, 6],                                   // /transparency/freedom-of-information: rows about 227px
+  [/^topic-reports$/, 6],                         // /topics/climate-and-energy: rows about 214px
+  [/^tr-appgs$/, 6],                              // /transparency/appgs: rows about 210px
+  [/^q-hosp$/, 7],                                // /transparency/special-advisers quarter, hospitality: rows about 191px
+  [/^contractors-matched$/, 7],                   // /donations/government-contractors: rows about 185px
+  [/^cpov-a$/, 7],                                // /councils/child-poverty: rows about 199px
+  [/^foreig-\d+$/, 7],                            // /donations/foreign: rows about 185px
+  [/^mpa$/, 7],                                   // /transparency/mp-activity: rows about 204px
+  [/^departments-grid$/, 8],                      // /departments: rows about 162px
+  [/^fsm-a$/, 8],                                 // /councils/free-school-meals: rows about 176px
+  [/^manifesto-policy$/, 8],                      // /parties/manifestos: rows about 176px
+  [/^trustf-0$/, 8],                              // /donations/trust-funded: rows about 172px
+  [/^q-active$/, 9],                               // /transparency/special-advisers quarter, most active: rows about 155px
+];
+export function jsOnStepFor(id: string): number {
+  for (const [re, step] of JS_STEPS) if (re.test(id)) return step;
+  return JS_ON_STEP;
+}
