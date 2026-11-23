@@ -6,6 +6,7 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import { LookupError, POSTCODE_RE, cleanPostcode, codesForPostcode } from '@/lib/area-lookup';
 import { allConstituencies, type SeatListRow } from '@/lib/constituency-pages';
 import { PetitionCredit } from '../petitions/PetitionCredit';
+import { ShowAll } from '../components/NoJsPager';
 
 import '@/app/components/search-box-desk.css';
 // The constituencies list (moved from page.tsx for F04 batch 3, COWORK-TO-T1 ENTRY 134; T2's f04-32-routes.md section 1):
@@ -17,8 +18,11 @@ import '@/app/components/search-box-desk.css';
 const INK = '#14100d';
 const fold = (s: string) => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLocaleLowerCase('en-GB');
 
-function SeatLinks({ seats }: { seats: SeatListRow[] }) {
-  return (
+// id (owner standing rule, Cowork ENTRY 539 and 542, 23 Nov 2026): a region's list inside its fold; on phones it opens to
+// the first 25, then a running count and "Show more" (25 a press without JavaScript, 10 with it). Every seat stays in the
+// page. From 1,024px the whole list as before. Without an id (search results) the list is as before.
+function SeatLinks({ seats, id }: { seats: SeatListRow[]; id?: string }) {
+  const list = (
     <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
       {seats.map((s) => (
         <li key={s.ons_code} style={{ borderBottom: '1px solid rgba(20,16,13,0.25)' }}>
@@ -27,6 +31,7 @@ function SeatLinks({ seats }: { seats: SeatListRow[] }) {
       ))}
     </ul>
   );
+  return id ? <ShowAll id={id} count={seats.length} rows="> li" first={25}>{list}</ShowAll> : list;
 }
 
 export default async function ConstituenciesListing({ q = '' }: { q?: string }) {
@@ -82,10 +87,10 @@ export default async function ConstituenciesListing({ q = '' }: { q?: string }) 
               return (
                 <details key={region} className="pa-fold pa-year">
                   <summary>{region} ({inRegion.length})</summary>
-                  <SeatLinks seats={inRegion} />
+                  <SeatLinks seats={inRegion} id={`seats-${region.toLowerCase().replace(/[^a-z]+/g, '-')}`} />
                 </details>
               );
-            }) : <SeatLinks seats={here} />}
+            }) : <SeatLinks seats={here} id={`seats-${nation.toLowerCase().replace(/[^a-z]+/g, '-')}`} />}
           </details>
         );
       })}

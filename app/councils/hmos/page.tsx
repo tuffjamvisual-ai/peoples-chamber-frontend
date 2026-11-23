@@ -11,6 +11,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import CouncilSearch from '../../components/CouncilSearch';
 import NoJsPager from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import PageSources from '@/app/components/PageSources';
 import '../../components/phone-table.css';
 import { supabase } from '@/lib/supabase';
@@ -155,14 +156,22 @@ export default async function HmosPage() {
               <details key={reg} className="hmo-fold">
                 <summary style={{ ...h3, margin: '6px 0' }}>{reg} ({inReg.length} councils)</summary>
                 {own.length > 0 && <Table id={`hmo-${rid}`} items={own} nation="England" />}
-                {counties.map((cs) => (
-                  <div key={cs}>
-                    <h4 style={{ ...h3, fontSize: '15px', textTransform: 'none', letterSpacing: 0, margin: '14px 0 6px' }}>
-                      <Link href={`/councils/${cs}#housing`} style={{ color: INK }}>{bySlug.get(cs)?.name ?? cs}</Link>
-                    </h4>
-                    <Table id={`hmo-${rid}-${cs}`} items={inReg.filter((i) => i.parent === cs)} nation="England" />
-                  </div>
-                ))}
+                {/* Phones (owner standing rule, Cowork ENTRY 539 and 542, 23 Nov 2026): each county's councils in a fold naming
+                    the county and its count, so opening a region does not open every council at once; every council stays in
+                    the page. From the phone width up the fold is not there and the page is as before. */}
+                {counties.map((cs) => {
+                  const inCounty = inReg.filter((i) => i.parent === cs);
+                  return (
+                    <SubFold key={cs} label={`${bySlug.get(cs)?.name ?? cs} (${inCounty.length} ${inCounty.length === 1 ? 'council' : 'councils'})`}>
+                      <div>
+                        <h4 style={{ ...h3, fontSize: '15px', textTransform: 'none', letterSpacing: 0, margin: '14px 0 6px' }}>
+                          <Link href={`/councils/${cs}#housing`} style={{ color: INK }}>{bySlug.get(cs)?.name ?? cs}</Link>
+                        </h4>
+                        <Table id={`hmo-${rid}-${cs}`} items={inCounty} nation="England" />
+                      </div>
+                    </SubFold>
+                  );
+                })}
               </details>
             );
           })}
