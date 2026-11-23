@@ -4,6 +4,7 @@
 // kept from April to June 2026 on). The page's HTML holds every quarter; the latest is shown first, and the selector
 // switches between them in the browser.
 import NoJsPager, { ShowAll } from '@/app/components/NoJsPager';
+import { SubFold } from '@/app/components/PhoneFolds';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
@@ -72,6 +73,9 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
 
       <section style={{ marginBottom: '36px' }}>
         <h2 style={sectionH2}>{roster.length} advisers named in {quarter} declarations</h2>
+        {/* Phones and tablets (owner standing rule, Cowork ENTRY 539 and 542, 23 Nov 2026): each part of the quarter in its own
+            fold under its heading, so opening the quarter does not open every list at once. From 1,024px as before. */}
+        <SubFold tablets label={`${areas.length} ${areas.length === 1 ? 'department' : 'departments'}`}>
         {areas.map(([area, list]) => (
           <details key={area} style={{ marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
             <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold', padding: '6px 0', color: ACCENT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -82,18 +86,24 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
                 <Link href={`/departments/${deptSlugs[area]}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Department page: ministers, budget and record →</Link>
               </p>
             )}
+            {/* Opened on phones and tablets, the first 25 names with a count, then more (ENTRY 542); one list in two columns
+                wider, as before. */}
+            <ShowAll id={`q-area-${area.toLowerCase().replace(/[^a-z]+/g, '-')}`} count={list.length} rows="> li" first={25}>
             <ul style={{ listStyle: 'none', padding: '8px 0', margin: 0, columns: '2 280px', columnGap: '24px', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' }}>
               {list.sort((a, b) => a.name.localeCompare(b.name)).map((r) => (
                 <li key={`${r.area}|${r.name}`} style={{ padding: '2px 0', breakInside: 'avoid' }}>{r.name}</li>
               ))}
             </ul>
+            </ShowAll>
           </details>
         ))}
+        </SubFold>
       </section>
 
       {activity.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={sectionH2}>Most active Special Advisers in {quarter}</h2>
+          <SubFold tablets label={`The ${Math.min(activity.length, 30)} most active`}>
           <ShowAll id="q-active" count={Math.min(activity.length, 30)}>
           <table style={tableStyle}>
             <thead>
@@ -120,12 +130,14 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
             </tbody>
           </table>
           </ShowAll>
+          </SubFold>
         </section>
       )}
 
       {gifts.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={sectionH2}>Gifts</h2>
+          <SubFold tablets label={`${gifts.length} ${gifts.length === 1 ? 'gift' : 'gifts'}`}>
           <NoJsPager id="q-gifts" count={(gifts).length} rows="> tbody > tr" size={25}>
           <table style={tableStyle}>
             <thead>
@@ -154,12 +166,14 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
             </tbody>
           </table>
           </NoJsPager>
+          </SubFold>
         </section>
       )}
 
       {hosps.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={sectionH2}>Hospitality</h2>
+          <SubFold tablets label={`${hosps.length} ${hosps.length === 1 ? 'entry' : 'entries'}`}>
           <NoJsPager id="q-hosp" count={(hosps).length} rows="> tbody > tr" size={25}>
           <table style={tableStyle}>
             <thead>
@@ -186,12 +200,14 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
             </tbody>
           </table>
           </NoJsPager>
+          </SubFold>
         </section>
       )}
 
       {meets.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={sectionH2}>Meetings with senior media figures</h2>
+          <SubFold tablets label={`${meets.length} ${meets.length === 1 ? 'meeting' : 'meetings'}`}>
           <NoJsPager id="q-meets" count={(meets).length} rows="> tbody > tr" size={25}>
           <table style={tableStyle}>
             <thead>
@@ -218,6 +234,7 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
             </tbody>
           </table>
           </NoJsPager>
+          </SubFold>
         </section>
       )}
 

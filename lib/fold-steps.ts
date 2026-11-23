@@ -13,6 +13,10 @@ const STEPS: [RegExp, number][] = [
   [/^pq-day$/, 4],                                // /pmqs/1945-to-1961/1945-08-21: rows about 261 to 301px
   [/^press-releases$/, 5],                        // /transparency/press-releases: rows about 246px
   [/^roi-rows$/, 5],                              // /transparency/register-of-interests: rows about 248px
+  [/^rg-\d{4}-\d{2}$/, 5],                       // /reports month cards (JavaScript off): rows about 278px
+  [/^q-meets$/, 13],                               // /transparency/special-advisers quarter, media meetings: rows about 106px
+  [/^q-hosp$/, 18],                                // /transparency/special-advisers quarter, hospitality: rows about 80px
+  [/^q-active$/, 22],                              // /transparency/special-advisers quarter, most active: rows about 63px
   [/^cpov-a$/, 6],                                // /councils/child-poverty: rows about 226px
   [/^fsm-a$/, 7],                                 // /councils/free-school-meals: rows about 204px
   [/^topic-reports$/, 7],                         // /topics/climate-and-energy: rows about 207px

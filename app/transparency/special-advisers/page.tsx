@@ -10,6 +10,7 @@
 
 import PageSources from '@/app/components/PageSources';
 import { NoJsFold } from '@/app/components/NoJsPager';
+import MoreChain from '@/app/components/MoreChain';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -187,8 +188,11 @@ export default async function SpecialAdvisersPage() {
           {known && (
             <>
               <h3 style={groupH3}>Each Cabinet post, with today&rsquo;s minister</h3>
-              {departments.map(({ post, rows, advisersSince }) => (
-                <div key={post.minister_title} style={{ padding: '12px 0 14px', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+              {/* Phones and tablets (owner standing rule, Cowork ENTRY 539 and 542, 23 Nov 2026): the first 2 posts, then "Show 2
+                  more" with the count, with or without JavaScript (a post is up to about 580px with JavaScript); every post stays in the page.
+                  From 1,024px every post shows as before. */}
+              <MoreChain phoneOnly counted step={2} style={{ listStyle: 'none', margin: 0, padding: 0 }} items={departments.map(({ post, rows, advisersSince }) => (
+                <li key={post.minister_title} style={{ padding: '12px 0 14px', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <p style={{ fontSize: '17px', lineHeight: 1.5, margin: '0 0 4px' }}>
                     <span style={{ fontWeight: 'bold' }}>{post.post_name}: </span>
                     {post.member_id != null && mpPages.has(post.member_id)
@@ -209,8 +213,8 @@ export default async function SpecialAdvisersPage() {
                       </p>
                     </>
                   )}
-                </div>
-              ))}
+                </li>
+              ))} />
             </>
           )}
           </NoJsFold>

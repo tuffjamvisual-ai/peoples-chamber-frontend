@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { NoJsFold } from '@/app/components/NoJsPager';
+import NoJsPager, { NoJsFold } from '@/app/components/NoJsPager';
 import { useRouter } from 'next/navigation';
 import { wordsOf, anyWordMatches } from '@/lib/search/words';
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
@@ -275,9 +275,14 @@ export default function ReportsArchive({ items }: { items: ArchiveItem[] }) {
               {/* Phones with JavaScript off only (NoJsFold without 'always'): each month folded under 'N reports', the first
                   open, so the page is not 40,000px long; with JavaScript there are no month folds (ENTRY 306). */}
               <NoJsFold id={`rf-${m.key}`} label={`${m.idx.length} ${m.idx.length === 1 ? 'report' : 'reports'}`} open={mi === 0}>
+              {/* Inside the fold, phones with JavaScript off (owner standing rule, Cowork ENTRY 539 and 542, 23 Nov 2026): the
+                  first 4 reports, then "Show 5 more" with the count (lib/fold-steps.ts, the cards are tall). ownMore: with
+                  JavaScript the page's own pager is the only control, as before. Every report stays in the page. */}
+              <NoJsPager id={`rg-${m.key}`} ownMore count={m.idx.length} rows="> *" size={Math.max(m.idx.length, 1)} first={4}>
               <div className="reports-month-grid">
                 {m.idx.map((i) => card(i, mi === firstShownMonth && i === m.idx.find((k) => onPage[k]), onPage[i]))}
               </div>
+              </NoJsPager>
               </NoJsFold>
             </section>
           );
