@@ -8,9 +8,9 @@
 //   W4 cookie banner, first visit: shown, inside the screen, its foot at or above the app bar's top (neither covers the
 //      other); after Reject it is gone.
 //   W5 no sideways scroll: the page is no wider than the screen.
-//   W6 page length (A3, the same rule as rendered-checks.mjs): at 375px wide, as the page opens, at most 2,500px not
-//      counting article text and the app bar's room; a page already over it in rendered-baseline.json may not grow by
-//      more than 200px. Measured with the 375px profile only, as A3 is defined at 375px.
+//   W6 page length (A3: the same rule, imported from length-rule.mjs, which rendered-checks.mjs also uses: its limits,
+//      the owner's lifted page types and the 200px growth allowance), at 375px wide as the page opens, not counting
+//      article text and the app bar's room. Measured with the 375px profile only, as A3 is defined at 375px.
 // Pace: one page load a second at most (the live site reads the production database); 10 pages x 4 profiles.
 //   node scripts/checks/qa/webkit-iphone.mjs [--base https://www.opengovt.uk] [--out <folder for pictures>] [--json <file>]
 // Exit code 1 when any check fails.
@@ -19,6 +19,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { webkit, devices } from 'playwright';
 import { TOP_PAGES } from './vr-pages.mjs';
+import { limitFor, a3Verdict } from './length-rule.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -26,8 +27,6 @@ const opt = (name, def) => { const i = argv.indexOf(name); return i >= 0 ? argv[
 const BASE = opt('--base', 'https://www.opengovt.uk').replace(/\/$/, '');
 const OUT = opt('--out', null);
 const JSON_OUT = opt('--json', null);
-const LIMIT_PX = 2500;
-const GROWTH_PX = 200;
 // The three named in ENTRY 524, and a 375px phone for the length rule (A3 is measured at 375px).
 const PROFILES = [
   { name: 'iPhone 15', length: false },
@@ -135,11 +134,9 @@ for (const prof of PROFILES) {
         });
         r.height = h;
         const b = baseline[url];
-        if (h > LIMIT_PX) {
-          const known = b?.height != null && b.height > LIMIT_PX;
-          if (!known) r.fails.push(`W6 ${h}px at 375px, over ${LIMIT_PX}px`);
-          else if (h > b.height + GROWTH_PX) r.fails.push(`W6 ${h}px, longer than its baseline ${b.height}px`);
-        }
+        const v = a3Verdict(url, h, b?.height);
+        if (v && !v.known) r.fails.push(`W6 ${h}px at 375px, over ${limitFor(url)}px`);
+        else if (v?.grown) r.fails.push(`W6 ${h}px, longer than its baseline ${b.height}px`);
       }
       if (url === '/mps' && prof.name === 'iPhone SE') await shot(page, 'webkit-iphonese-mps.png');
     } catch (e) {
