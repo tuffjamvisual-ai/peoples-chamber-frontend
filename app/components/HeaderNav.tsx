@@ -12,6 +12,11 @@ export default function HeaderNav() {
   const current = currentSection(pathname);
   return (
     <ul className="ng-nav">
+      {/* Home first (owner, Cowork ENTRY 519, 23 Nov 2026): same style as the others, marked on the homepage. Desktop row
+          only; the phone menu keeps its own Home link (MobileMenu.tsx). */}
+      <li key="Home">
+        <a href="/" aria-current={pathname === '/' ? 'page' : undefined}>Home</a>
+      </li>
       {NAV.map((item) => {
         const href = menuHref(item);
         return (
