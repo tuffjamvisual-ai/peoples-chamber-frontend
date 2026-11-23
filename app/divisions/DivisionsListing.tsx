@@ -11,6 +11,7 @@ import Unavailable from '@/app/components/Unavailable';
 import { divisionYears } from '@/lib/division-links';
 import { handled } from '@/lib/settle';
 import DivisionYearLinks from './DivisionYearLinks';
+import DivisionMonthLinks from './DivisionMonthLinks';
 import { ShowAll } from '../components/NoJsPager';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
@@ -136,6 +137,12 @@ export default async function DivisionsListing({ pageNum }: { pageNum: number })
           )}
         </nav>
       )}
+
+      {/* Every month page, linked straight from here (Cowork ENTRY 536 item 4), after the list; folded on phones like the
+          year links, so the phone page keeps its length. */}
+      <SubFold label="Browse by month">
+      <DivisionMonthLinks years={await yearsP} />
+      </SubFold>
 
       {/* Cowork ENTRY 410 (owner, 20 Nov 2026): the source the date line named, in a Sources fold. */}
       <PageSources sources={[{ label: 'UK Parliament, Commons Votes', href: 'https://votes.parliament.uk/' }]} />
