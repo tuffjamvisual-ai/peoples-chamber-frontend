@@ -60,7 +60,7 @@ export default function SiteFooter() {
                 style={linkStyle}
                 aria-label="opengovt on X"
               >
-                <XLogo />
+                <XLogo white />
               </a>
               <a
                 href="https://github.com/tuffjamvisual-ai/peoples-chamber-frontend"
