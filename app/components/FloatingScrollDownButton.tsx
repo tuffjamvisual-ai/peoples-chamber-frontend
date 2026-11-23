@@ -24,10 +24,16 @@ const AT_BOTTOM_PX = 200;          // within this distance of the end counts as 
 const MIN_PAGE_HEIGHT_SCREENS = 1.5;
 const FOLDER_SELECTOR = '.dossier-content, .pca-folder-content';
 
-type Pos = { visible: boolean; atBottom: boolean; left: number | null; top: number | null };
+// Phones in the app view (under 768px; owner, Cowork ENTRY 525, 23 Nov 2026: "Arrow at page end only"): the arrow shows
+// only at the bottom of a long page, pointing up, as "Back to top"; never the down arrow. Its tap area is 44px (the
+// round button stays 36px inside it, globals.css), it sits above the app bar, the cookie banner and the newsletter
+// strip and clear of the footer links, and after the jump focus goes to the page's main content.
+const PHONE_QUERY = '(max-width: 767.98px)';
+const PHONE_TAP = 44;              // px
+type Pos = { visible: boolean; atBottom: boolean; left: number | null; top: number | null; phone: boolean };
 
 export default function FloatingScrollDownButton() {
-  const [pos, setPos] = useState<Pos>({ visible: false, atBottom: false, left: null, top: null });
+  const [pos, setPos] = useState<Pos>({ visible: false, atBottom: false, left: null, top: null, phone: false });
   // Height of the newsletter strip while it shows (report 78): the arrow is lifted above it with a transform, which
   // moves it without a layout shift.
   const [lift, setLift] = useState(0);
@@ -44,24 +50,40 @@ export default function FloatingScrollDownButton() {
       const viewport = window.innerHeight;
       const total = Math.max(doc.scrollHeight, document.body.scrollHeight);
       const remaining = total - (window.scrollY + viewport);
-      const visible = total > viewport * MIN_PAGE_HEIGHT_SCREENS;
       const atBottom = remaining <= AT_BOTTOM_PX;
+      const phone = window.matchMedia?.(PHONE_QUERY).matches ?? false;
+      const size = phone ? PHONE_TAP : BUTTON;
+      // On phones only at the bottom (the up arrow); elsewhere as before.
+      const visible = total > viewport * MIN_PAGE_HEIGHT_SCREENS && (!phone || atBottom);
 
       let left: number | null = null;
-      let top = viewport - GAP_FROM_SCREEN_BOTTOM - BUTTON;
+      let top = viewport - GAP_FROM_SCREEN_BOTTOM - size;
       const folder = document.querySelector<HTMLElement>(FOLDER_SELECTOR);
       if (folder) {
         const r = folder.getBoundingClientRect();
         left = r.left + r.width / 2;
         // Keep the button on the paper: never below the folder's bottom edge
         // (or above its top edge on very short screens).
-        top = Math.min(top, r.bottom - GAP_FROM_FOLDER_EDGE - BUTTON);
+        top = Math.min(top, r.bottom - GAP_FROM_FOLDER_EDGE - size);
         top = Math.max(top, r.top + GAP_FROM_FOLDER_EDGE);
       }
       // Above the cookie bar while it shows (fixed to the foot of the screen at every width, T1-7ab), never on it.
       const bar = [...document.querySelectorAll<HTMLElement>('.og-cookie-banner')].find((el) => el.getClientRects().length && getComputedStyle(el).position === 'fixed');
-      if (bar) top = Math.min(top, bar.getBoundingClientRect().top - GAP_FROM_FOLDER_EDGE - BUTTON);
-      setPos({ visible, atBottom, left, top });
+      if (bar) top = Math.min(top, bar.getBoundingClientRect().top - GAP_FROM_FOLDER_EDGE - size);
+      if (phone) {
+        // Above the app bar (fixed to the screen's foot), never on it.
+        const appbar = document.querySelector<HTMLElement>('.og-appbar');
+        if (appbar && appbar.getClientRects().length) top = Math.min(top, appbar.getBoundingClientRect().top - GAP_FROM_FOLDER_EDGE - size);
+        // Clear of the footer links' tap areas: if the button would cover any of them, it goes above that row.
+        const x = left ?? window.innerWidth / 2;
+        for (const a of document.querySelectorAll<HTMLElement>('.og-footer-links a, .og-footer-links button')) {
+          const r = a.getBoundingClientRect();
+          if (!r.width || r.bottom < 0 || r.top > viewport) continue;
+          const overlaps = x + size / 2 > r.left && x - size / 2 < r.right && top + size > r.top && top < r.bottom;
+          if (overlaps) top = Math.min(top, r.top - GAP_FROM_FOLDER_EDGE - size);
+        }
+      }
+      setPos({ visible, atBottom, left, top, phone });
     };
     // Measured straight away (not on the next animation frame): animation
     // frames pause in background tabs and can lag while a page loads, which
@@ -87,9 +109,11 @@ export default function FloatingScrollDownButton() {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const total = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
     window.scrollTo({ top: pos.atBottom ? 0 : total, behavior: reduce ? 'auto' : 'smooth' });
+    // Phones: focus goes to the top of the page's content, so the keyboard and screen readers start there.
+    if (pos.phone && pos.atBottom) document.getElementById('main-content')?.focus({ preventScroll: true });
   };
 
-  const label = pos.atBottom ? 'Scroll to top' : 'Scroll to bottom';
+  const label = pos.phone ? 'Back to top' : pos.atBottom ? 'Scroll to top' : 'Scroll to bottom';
 
   return (
     <button
@@ -99,7 +123,7 @@ export default function FloatingScrollDownButton() {
       title={label}
       tabIndex={pos.visible ? 0 : -1}
       aria-hidden={!pos.visible}
-      className="no-hover-scale og-scroll-arrow"
+      className={`no-hover-scale og-scroll-arrow${pos.phone && pos.visible ? ' og-scroll-arrow-up' : ''}`}
       style={{
         position: 'fixed',
         left: pos.left != null ? `${pos.left}px` : '50%',

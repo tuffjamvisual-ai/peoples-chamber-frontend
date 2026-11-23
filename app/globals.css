@@ -583,6 +583,15 @@ details[open] > summary .st-more { display: none; }
 @media (max-width: 1023.98px), (pointer: coarse) {
   .og-scroll-arrow { display: none !important; }
 }
+/* Phones in the app view (owner, Cowork ENTRY 525, 23 Nov 2026: "Arrow at page end only"): the up arrow, shown by
+   FloatingScrollDownButton only at the bottom of a long page (og-scroll-arrow-up). A 44px tap area; the white round
+   button stays 36px inside it. Tablets and desktop as above. */
+@media (max-width: 767.98px) {
+  .og-scroll-arrow.og-scroll-arrow-up { display: flex !important; width: 44px !important; height: 44px !important; background: transparent !important; border: 0 !important; box-shadow: none !important; }
+  .og-scroll-arrow.og-scroll-arrow-up::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.12); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18); }
+  .og-scroll-arrow.og-scroll-arrow-up svg { position: relative; }
+  .og-scroll-arrow.og-scroll-arrow-up:focus-visible { outline: 2px solid #7a1612; outline-offset: 0; border-radius: 50%; }
+}
 
 /* Search results under 480px (ENTRY 135 M5): the type label ("Organisation", "MP") on its own line above the name, so the
    name has the full width (at 320 the label took 137 of 296px and names broke mid word). */
