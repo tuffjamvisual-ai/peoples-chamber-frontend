@@ -8,6 +8,11 @@
 // whenever the script has not run (JavaScript off, or before it loads), the whole biography shows exactly as before: the
 // server's HTML holds every page, none hidden, and no pager.
 //
+// Without JavaScript on a phone (owner standing rule, Cowork ENTRY 539 and 542 item 7, 23 Nov 2026: no fold opens a long
+// section in one go): after each page a native fold, "Continue reading · page 2 of 6", shows the next page; while it is
+// closed everything after it in the biography is hidden (a link to #bio-page-<n> still shows its page). With JavaScript
+// these folds are not shown (the pager above does the work), and from 768px up they are not shown either.
+//
 // No network request: every page is in the HTML; the others carry the hidden attribute.
 // Address: the page is in the section's own anchor, #bio-page-<n>, added with history.pushState, so Back and Forward step
 // through the pages; arriving with #bio-page-<n> opens that page (the section fold opens for it: PhoneFolds).
@@ -35,6 +40,16 @@ const CSS = `
 .mp-bio-pager button:disabled { opacity: 0.4; cursor: default; }
 .mp-bio-page { scroll-margin-top: 12px; }
 .mp-bio-page:focus:not(:focus-visible) { outline: none; }
+`;
+const NOJS_CSS = `
+.mp-bio-more { display: none; }
+@media ${PHONE} {
+  html:not(.og-js) .mp-bio-more { display: block; margin: 12px 0 4px; }
+  html:not(.og-js) .mp-bio-more > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 12px; border: 1px solid #14100d; font-size: 15px; font-weight: bold; cursor: pointer; list-style: none; }
+  html:not(.og-js) .mp-bio-more > summary::-webkit-details-marker { display: none; }
+  html:not(.og-js) .mp-bio-more[open] > summary { display: none; }
+  html:not(.og-js) .mp-bio-body:not(:has(.mp-bio-page:target)) > .mp-bio-more:not([open]) ~ * { display: none !important; }
+}
 `;
 
 export default function BioPager({ paragraphs, paragraphStyle, after }: { paragraphs: string[]; paragraphStyle?: (index: number) => CSSProperties; after?: ReactNode }) {
@@ -102,10 +117,11 @@ export default function BioPager({ paragraphs, paragraphStyle, after }: { paragr
     <>
       {/* data-article-body: the biography's inline source links are citations in its text, which A9 allows there
           (rendered-checks.mjs). Without the mark, an MP whose biography shows first failed A9 (/mps/206, 16 Nov 2026). */}
-      <div data-article-body="" style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
+      <div data-article-body="" className={n > 1 ? 'mp-bio-body' : undefined} style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
+        {n > 1 && <style>{NOJS_CSS}</style>}
         {n <= 1
           ? blocks.map((b, idx) => <BioBlockView key={idx} block={b} idx={idx} paragraphStyle={paragraphStyle} />)
-          : pages.map((ids, i) => (
+          : pages.map((ids, i) => [
             <div
               key={i}
               id={`bio-page-${i + 1}`}
@@ -117,8 +133,9 @@ export default function BioPager({ paragraphs, paragraphStyle, after }: { paragr
               tabIndex={paged ? -1 : undefined}
             >
               {ids.map((idx) => <BioBlockView key={idx} block={blocks[idx]} idx={idx} paragraphStyle={paragraphStyle} />)}
-            </div>
-          ))}
+            </div>,
+            i < n - 1 ? <details key={`more-${i}`} className="mp-bio-more"><summary>Continue reading · page {i + 2} of {n}</summary></details> : null,
+          ])}
       </div>
       {/* The page count and buttons straight under the text on every page, then (last page only) 'Last reviewed' and the
           Sources fold (Cowork, ENTRY 445 PART B PICTURES OK: with 20 sources open the buttons were far below the text). */}

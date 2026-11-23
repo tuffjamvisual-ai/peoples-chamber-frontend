@@ -2,7 +2,6 @@
 
 import PageSources from '../../components/PageSources';
 import { companiesHouseUrl, companyNumberAsFiled } from '@/lib/companies-house';
-import PhoneMore from '../../components/PhoneMore';
 import { shortDayMonthYear, shortMonthYear } from '@/lib/short-date';
 import { useToday } from '@/app/components/useToday';
 import { londonDay } from '@/lib/london-date';
@@ -11,7 +10,7 @@ import { billSummary } from '@/lib/bill-summary';
 import StandardsFindings, { type ConductFinding } from './StandardsFindings';
 import { pmqsLinks, type PmqsCounts } from '@/lib/pmqs-counts';
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useId } from 'react';
+import { Fragment, isValidElement, useCallback, useEffect, useMemo, useRef, useState, useId } from 'react';
 import { showNewResults } from '@/lib/show-new-results';
 import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
@@ -29,7 +28,7 @@ import PhoneTable from '../../components/PhoneTable';
 import PhoneFolds, { SubFold } from '../../components/PhoneFolds';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
 import AppgSource, { appgAmount } from '../../components/AppgSource';
-import NoJsPager, { pagesByHeight } from '@/app/components/NoJsPager';
+import NoJsPager, { ShowAll } from '@/app/components/NoJsPager';
 
 // MP page folds on phones (owner, 7 Nov 2026, PF2): every long list in a fold pages under 640px, with JavaScript on as well
 // as off (NoJsPager always), so opening any one fold leaves the page at 10,000px or less. Rows of very different lengths
@@ -1361,7 +1360,11 @@ export default function MagazineProfileSections({
                     </p>
                   )}
                   {(older.length > 0 || voteTotal > votesPerPage || !!votingArchive) && (
-                    <SubFold label="Older votes and every vote by year" summary={voteTotal > RECENT_VOTES ? `${(voteTotal - Math.min(RECENT_VOTES, voteList.length)).toLocaleString('en-GB')} more` : null}>
+                    <>
+                    {/* Phones (owner standing rule, Cowork ENTRY 539 and 542 item 7, 23 Nov 2026): the older votes and the votes
+                        by year from Hansard each in their own fold, so neither opening adds more than about 1,500px. From the
+                        phone width up both show as before. */}
+                    {(older.length > 0 || voteTotal > votesPerPage) && <SubFold label="Older votes" summary={voteTotal > RECENT_VOTES ? `${(voteTotal - Math.min(RECENT_VOTES, voteList.length)).toLocaleString('en-GB')} more` : null}>
                       {voteTotal > votesPerPage && (
                         <p ref={votePageRef} id="mp-vote-page" style={{ fontWeight: 'bold', margin: '4px 0 8px', scrollMarginTop: '16px' }}>
                           Showing {(votesPerPage * (vPage - 1) + (vPage === 1 ? Math.min(RECENT_VOTES, voteList.length) : 0) + 1).toLocaleString('en-GB')} to {Math.min(votesPerPage * vPage, voteTotal).toLocaleString('en-GB')} of {voteTotal.toLocaleString('en-GB')}{vQuery ? ` matching \u201c${vQuery}\u201d` : ''}
@@ -1381,9 +1384,10 @@ export default function MagazineProfileSections({
                           </div>
                         );
                       })()}
-                      {/* MP1 (owner, 7 Nov 2026): the votes from Hansard, October 2004 to March 2016, with one total and one list by year. */}
-                      {votingArchive}
-                    </SubFold>
+                    </SubFold>}
+                    {/* MP1 (owner, 7 Nov 2026): the votes from Hansard, October 2004 to March 2016, with one total and one list by year. */}
+                    {votingArchive && <SubFold label="Every vote by year">{votingArchive}</SubFold>}
+                    </>
                   )}
                 </>
               );
@@ -1395,7 +1399,7 @@ export default function MagazineProfileSections({
           <>
             <h2 style={sectionH2}>Bills Sponsored</h2>
             <SectionUpdated date={lastUpdated.bills} />
-            <NoJsPager id="bills-sponsored" always count={sponsoredBills.length} rows="> li" sizes={pagesByHeight(sponsoredBills.map((b) => phoneRowPx(b.title, b.current_stage, billSummary(b))), 1200)}>
+            <NoJsPager id="bills-sponsored" always count={sponsoredBills.length} rows="> li" rowPx={sponsoredBills.map((b) => phoneRowPx(b.title, b.current_stage, billSummary(b)))} room={1200}>
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
               {sponsoredBills.map((b) => (
                 <li key={b.id} style={{ padding: '12px 0', borderBottom: inkDivider }}>
@@ -1699,7 +1703,7 @@ export default function MagazineProfileSections({
                   <h3 style={{ ...sectionH3, marginTop: '8px' }}>
                     {b.label} <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({b.rows.length})</span>
                   </h3>
-                  <NoJsPager id={`interests-${b.key}`} always count={b.rows.length} rows="> li" sizes={pagesByHeight(b.rows.map((i) => phoneRowPx(i.category_name, i.interest_text, ...(Array.isArray(i.child_interests) ? i.child_interests.map((c) => c.interest) : []))), Math.max(800, Math.floor(3500 / grouped.length)))}>
+                  <NoJsPager id={`interests-${b.key}`} always count={b.rows.length} rows="> li" rowPx={b.rows.map((i) => phoneRowPx(i.category_name, i.interest_text, ...(Array.isArray(i.child_interests) ? i.child_interests.map((c) => c.interest) : [])))} room={Math.max(800, Math.floor(3500 / grouped.length))}>
                   <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
                     {b.rows.map((i, idx) => renderRow(i, idx))}
                   </ul>
@@ -1717,7 +1721,7 @@ export default function MagazineProfileSections({
                   <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '8px 0' }}>
                     Entries that appeared in the Register of Members&rsquo; Financial Interests published since March 2024 but are no longer listed.
                   </p>
-                  <NoJsPager id="interests-former" always count={formerInterests.length} rows="> li" sizes={pagesByHeight(formerInterests.map((i) => phoneRowPx(i.category_name, i.interest_text, i.last_seen_date)), 1500)}>
+                  <NoJsPager id="interests-former" always count={formerInterests.length} rows="> li" rowPx={formerInterests.map((i) => phoneRowPx(i.category_name, i.interest_text, i.last_seen_date))} room={1500}>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: '1.7' }}>
                     {formerInterests.map((i, idx) => (
                       <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
@@ -1894,7 +1898,7 @@ export default function MagazineProfileSections({
                     Electoral Commission donation figures for these funders could not be loaded just now.
                   </p>
                 )}
-                <FirstThenAll wrap={(kids) => <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>{kids}</ul>} items={appgs.map((a) => (
+                <FirstThenAll itemPx={480} wrap={(kids) => <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>{kids}</ul>} items={appgs.map((a) => (
                     <li key={a.slug} style={{ padding: '10px 0', borderBottom: inkDivider }}>
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                         <strong>{a.title}</strong>
@@ -3207,18 +3211,21 @@ export function MpReportList({ items }: { items: MpReports['items'] }) {
 // in their list (the same <ul> as before, or none).
 // A list on the MP page (the Background timeline's phases, Roles, ...) follows the owner's list rule at every width
 // (DECISIONS 15 and 16 Nov 2026; Cowork ENTRY 182 item 5, T2's mp-768-heights.md): it opens with 3, "Show N more" adds 10,
-// with "Show fewer" (PhoneMore, LIST_FOLD). Every item is in the HTML; without JavaScript all show. It showed 5 and then
+// with "Show fewer" (LIST_FOLD). Every item is in the HTML; without JavaScript, steps too (below). It showed 5 and then
 // the rest in a fold that opened only under 768px, so ten MP pages ran past 3,000px at 768.
-function FirstThenAll({ items, wrap }: { items: React.ReactNode[]; wrap: (kids: React.ReactNode[]) => React.ReactNode }) {
+// Phones and tablets (owner standing rule, Cowork ENTRY 539 and 542 item 7, 23 Nov 2026): the shared ShowAll in place of
+// PhoneMore, so the list steps with JavaScript off too (PhoneMore showed the whole list without it), by height: itemPx is a
+// typical item's height at 375 (an APPG with its funders is about 480px). The items are the list's children when wrap
+// draws a <ul> or <ol> (committees, posts, party history, APPGs), else the div's own (T2, 17 Nov 2026, ENTRY 210).
+function FirstThenAll({ items, wrap, itemPx = 80 }: { items: React.ReactNode[]; wrap: (kids: React.ReactNode[]) => React.ReactNode; itemPx?: number }) {
   const id = `ftl-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   if (items.length <= 3) return <>{wrap(items)}</>;
+  const drawn = wrap(items);
+  const ownList = isValidElement(drawn) && (drawn.type === 'ul' || drawn.type === 'ol');
   return (
-    <>
-      <div id={id}>{wrap(items)}</div>
-      {/* The items are the list's children when wrap draws a <ul> or <ol> (committees, posts, party history, APPGs), else the
-          div's own (T2, 17 Nov 2026, ENTRY 210: '#id' alone hid nothing and its button did nothing). */}
-      <PhoneMore selector={`:is(#${id}, #${id} > ul, #${id} > ol)`} total={items.length} />
-    </>
+    <ShowAll id={id} count={items.length} rows="> *" first={3} rowPx={items.map(() => itemPx)}>
+      {ownList ? (drawn as React.ReactElement<{ className?: string }>) : <div>{drawn}</div>}
+    </ShowAll>
   );
 }
 

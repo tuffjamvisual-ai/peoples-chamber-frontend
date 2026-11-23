@@ -14,6 +14,10 @@ const STEPS: [RegExp, number][] = [
   [/^press-releases$/, 5],                        // /transparency/press-releases: rows about 246px
   [/^roi-rows$/, 5],                              // /transparency/register-of-interests: rows about 248px
   [/^rg-\d{4}-\d{2}$/, 5],                       // /reports month cards (JavaScript off): rows about 278px
+  [/^petitions-local$/, 6],                        // /mps/<id>, local petitions: rows about 233px (JavaScript on)
+  [/^edms-(open-)?motions/, 9],                    // /mps/<id>, early day motions: rows about 131 to 158px
+  [/^house-debates$/, 8],                          // /mps/<id>, debates: rows about 134 to 168px
+  [/^diary-meetings$/, 9],                         // /mps/<id>, ministers' diary meetings: rows about 108 to 147px
   [/^q-meets$/, 13],                               // /transparency/special-advisers quarter, media meetings: rows about 106px
   [/^q-hosp$/, 18],                                // /transparency/special-advisers quarter, hospitality: rows about 80px
   [/^q-active$/, 22],                              // /transparency/special-advisers quarter, most active: rows about 63px
@@ -67,6 +71,10 @@ const JS_STEPS: [RegExp, number][] = [
   [/^press-releases$/, 5],                        // /transparency/press-releases: rows about 251px
   [/^roi-rows$/, 5],                              // /transparency/register-of-interests: rows about 244px
   [/^q-meets$/, 6],                               // /transparency/special-advisers quarter, media meetings: rows about 241px
+  [/^petitions-local$/, 6],                        // /mps/<id>, local petitions: rows about 233px
+  [/^house-debates$/, 8],                          // /mps/<id>, debates: rows about 168px
+  [/^diary-meetings$/, 9],                         // /mps/<id>, ministers' diary meetings: rows about 160px
+  [/^edms-(open-)?motions/, 9],                    // /mps/<id>, early day motions: rows about 151 to 158px                               // /transparency/special-advisers quarter, media meetings: rows about 241px
   [/^dcs-rows$/, 6],                              // /donations/constituencies: rows about 216px
   [/^earnings$/, 6],                              // /earnings: rows about 235px
   [/^foi$/, 6],                                   // /transparency/freedom-of-information: rows about 227px

@@ -36,11 +36,11 @@ export const showAllClass = (id: string) => `njp-sa-${id}`;
 // noun (optional): what a row is, so two buttons near each other say what each adds ("Show 4 more divisions on 3 November",
 // "Show 11 more sitting days"; Cowork 13 Nov 2026, ENTRY 9); without it, "Show N more".
 export type MoreNoun = { one: string; many: string };
-export function ShowAllDetails({ id, count, first, noun, stepStyle }: { id: string; count: number; first: number; noun?: MoreNoun; stepStyle?: string }) {
+export function ShowAllDetails({ id, count, first, noun, stepStyle, jsStepN }: { id: string; count: number; first: number; noun?: MoreNoun; stepStyle?: string; jsStepN?: number }) {
   const n = Math.max(0, count - first);
   // The first press shows 10 with JavaScript (lib/phone-enhance.ts), or the list's own smaller step for tall rows
   // (lib/fold-steps.ts jsOnStepFor, data-step-n); the label names what it adds.
-  const jsStep = jsOnStepFor(id);
+  const jsStep = jsStepN ?? jsOnStepFor(id);
   const shown = stepStyle ? Math.min(jsStep, n) : n;
   // The count before the fold (ENTRY 239 A4, MOB-LISTS): '3 of 120', only where the press steps by 10 with JavaScript (a list
   // with its own Show more has PhoneMore's count); lib/phone-enhance.ts updates it on each press.
@@ -62,16 +62,40 @@ export function ShowAllDetails({ id, count, first, noun, stepStyle }: { id: stri
 // existing fold and the phone script's steps of 10 are used exactly as before, so nothing changes for most readers;
 // from 1,024px (or wherever the list does not fold) nothing changes either.
 const stepClass = (id: string) => `njp-st-${id}`;
-export function JsOffSteps({ id, count, first, step = jsOffStepFor(id), noun }: { id: string; count: number; first: number; step?: number; noun?: MoreNoun }) {
-  const k = Math.ceil(Math.max(0, count - first) / step);
+// The steps' sizes: `step` rows each (the last what is left), or, given each row's estimated height (rowPx), as many rows
+// as fit STEP_ROOM, at least one, so a list of rows of very different heights steps by height (the MP page's lists).
+// STEP_ROOM is 1,000px of estimate: the estimates (phoneRowPx, rowHeight, blockHeight) run 10 to 60 per cent under the
+// rendered height at 375 (measured on /mps/172 and /mps/185, 23 Nov 2026), so a step lands near 1,500px at most.
+const STEP_ROOM = 1000;
+// The rows shown before the first step, given heights: as many as fit STEP_ROOM, 1 to `first`.
+export function firstByHeight(rowPx: number[], first: number): number {
+  let px = 0, n = 0;
+  for (const h of rowPx) { if (n >= first || (n > 0 && px + h > STEP_ROOM)) break; px += h; n++; }
+  return Math.max(1, n);
+}
+export function stepSizes(count: number, first: number, step: number, rowPx?: number[]): number[] {
+  if (count <= first) return [];
+  if (rowPx && rowPx.length === count) return pagesByHeight(rowPx.slice(first), STEP_ROOM);
+  return Array.from({ length: Math.ceil((count - first) / step) }, (_, i) => Math.min(step, count - first - i * step));
+}
+// With JavaScript, given row heights: one step for the whole list (the phone script's step is one number), 800px of
+// estimate over the rows' mean height, 1 to 10; less than STEP_ROOM, as a run of rows taller than the mean must fit too.
+export function jsStepByHeight(rowPx: number[], first: number): number {
+  const rest = rowPx.slice(first);
+  if (!rest.length) return 10;
+  const mean = rest.reduce((a, b) => a + b, 0) / rest.length;
+  return Math.max(1, Math.min(10, Math.floor(800 / Math.max(1, mean))));
+}
+export function JsOffSteps({ id, count, first, step = jsOffStepFor(id), rowPx, noun }: { id: string; count: number; first: number; step?: number; rowPx?: number[]; noun?: MoreNoun }) {
+  const sizes = stepSizes(count, first, step, rowPx);
+  const starts = sizes.map((_, i) => first + sizes.slice(0, i).reduce((x, y) => x + y, 0));
   return (
     <>
-      {Array.from({ length: k }, (_, i) => {
-        const shown = first + i * step;
-        const n = Math.min(step, count - shown);
+      {sizes.map((n, i) => {
+        const from = starts[i];
         return (
           <details key={i} className={`njp-sa njp-st ${stepClass(id)} ${stepClass(id)}-${i + 1}`}>
-            <summary><span className="njp-sa-more">Show {n.toLocaleString('en-GB')} more{noun ? ` ${n === 1 ? noun.one : noun.many}` : ''} · {shown.toLocaleString('en-GB')} of {count.toLocaleString('en-GB')} shown</span></summary>
+            <summary><span className="njp-sa-more">Show {n.toLocaleString('en-GB')} more{noun ? ` ${n === 1 ? noun.one : noun.many}` : ''} · {from.toLocaleString('en-GB')} of {count.toLocaleString('en-GB')} shown</span></summary>
           </details>
         );
       })}
@@ -81,19 +105,21 @@ export function JsOffSteps({ id, count, first, step = jsOffStepFor(id), noun }: 
 // The rules for those steps, inside the list's fold media query: with JavaScript off, each closed step hides the rows from
 // its start on, a step shows only once the one before it is open, an open step's own button goes, and the one "Show all"
 // fold and its count are not used. `row(from)` is the list's row selector from row `from` on.
-function jsOffStepCss(id: string, count: number, first: number, step: number, row: (from: number) => string): string {
-  const k = Math.ceil(Math.max(0, count - first) / step);
-  if (!k) return '';
+function jsOffStepCss(id: string, sizes: number[], first: number, row: (from: number) => string): string {
+  if (!sizes.length) return '';
   const off = 'html:not(.og-js) ';
   const rules = [
     `${off}.${stepClass(id)}{display:block}`,
     `${off}.${showAllClass(id)}:not(.njp-st),${off}.og-more-count:has(+ .${showAllClass(id)}:not(.njp-st)){display:none!important}`,
     `.${stepClass(id)}[open] > summary{display:none}`,
   ];
-  for (let i = 1; i <= k; i++) {
-    rules.push(`${off}:has(> .${stepClass(id)}-${i}:not([open])):not(:has(:target)) > ${row(first + (i - 1) * step + 1)}{display:none!important}`);
+  let from = first;
+  sizes.forEach((n, j) => {
+    const i = j + 1;
+    rules.push(`${off}:has(> .${stepClass(id)}-${i}:not([open])):not(:has(:target)) > ${row(from + 1)}{display:none!important}`);
     if (i > 1) rules.push(`${off}:has(> .${stepClass(id)}-${i - 1}:not([open])) > .${stepClass(id)}-${i}{display:none!important}`);
-  }
+    from += n;
+  });
   return rules.join('');
 }
 
@@ -109,8 +135,14 @@ export function pagesByHeight(heights: number[], room: number, most = Infinity):
   return sizes;
 }
 
-export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, first = PHONE_FIRST, ownMore = false, noun, jsOffStep = jsOffStepFor(id), children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; first?: number; ownMore?: boolean; noun?: MoreNoun; jsOffStep?: number; children?: ReactElement<{ className?: string }> }) {
-  const split = sizes ?? Array.from({ length: Math.ceil(count / size) }, () => size);
+export default function NoJsPager({ id, count, rows, size = 25, sizes, always = false, wide = false, cards, title, first: firstIn = PHONE_FIRST, ownMore = false, noun, jsOffStep = jsOffStepFor(id), rowPx, room = 3000, most, children }: { id: string; count: number; rows?: string; size?: number; sizes?: number[]; rowPx?: number[]; room?: number; most?: number; always?: boolean; wide?: boolean; cards?: (string | null)[]; title?: number; first?: number; ownMore?: boolean; noun?: MoreNoun; jsOffStep?: number; children?: ReactElement<{ className?: string }> }) {
+  // Given heights, the opening rows on phones fit STEP_ROOM too (ENTRY 542 item 7: three tall visits opened +1,968px).
+  const first = rowPx ? firstByHeight(rowPx, firstIn) : firstIn;
+  // rowPx (ENTRY 542 item 7): each row's estimated height at 375; the screens are then pagesByHeight(rowPx, room, most), as
+  // the callers passed in `sizes` before, and the phone steps follow the heights too (stepSizes, jsStepByHeight).
+  const split = sizes ?? (rowPx ? pagesByHeight(rowPx, room, most) : Array.from({ length: Math.ceil(count / size) }, () => size));
+  const stepList = stepSizes(count, first, jsOffStep, rowPx);
+  const jsStepN = rowPx ? jsStepByHeight(rowPx, first) : undefined;
   const cardCss = cards ? `@media ${phoneUpTo(767.98)} {${cards.map((label, i) => (label ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${i + 1})::before{content:${JSON.stringify(`${label}: `)};font-weight:bold}` : '')).join('')}${title ? `html:not(.og-js) .njc-${id} > tbody > tr > :nth-child(${title}){font-weight:bold;font-size:16px}` : ''}}` : '';
   const cardClass = cards ? `njc njc-${id}` : '';
   const cardStyle = cards ? <style dangerouslySetInnerHTML={{ __html: cardCss }} /> : null;
@@ -126,13 +158,13 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
   // with JavaScript, as before.
   const rowFrom = (from: number) => (rows ? `.${listClass} ${rows}:nth-child(n+${from})` : `.${itemClass}:nth-child(n+${from} of .${itemClass})`);
   const phoneCss = showAll
-    ? `.${stepClass(id)}{display:none}@media ${listFoldFor(count)} {${ownMore ? '' : `html.og-js ${closed} > ${rowFrom(first + 1)}{display:none!important}`}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}${jsOffStepCss(id, count, first, jsOffStep, rowFrom)}}`
+    ? `.${stepClass(id)}{display:none}@media ${listFoldFor(count)} {${ownMore ? '' : `html.og-js ${closed} > ${rowFrom(first + 1)}{display:none!important}`}.njp-p-${id}{display:none!important}${ownMore ? `html.og-js .${showAllClass(id)}{display:none!important}` : ''}${jsOffStepCss(id, stepList, first, rowFrom)}}`
     : '';
   // Its own id, so the step script can move the rule on by 10 rows a press (ShowAllDetails' data-step-style).
   const stepStyle = `njp-css-${id}`;
   const phoneStyle = phoneCss ? <style id={stepStyle} dangerouslySetInnerHTML={{ __html: phoneCss }} /> : null;
   const ownList = (extra: string) => children ? cloneElement(children as ReactElement<{ className?: string; 'data-own-more'?: string }>, { className: [children.props.className, extra, cardClass].filter(Boolean).join(' '), ...(showAll ? { 'data-own-more': '' } : {}) }) : null;
-  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} stepStyle={ownMore ? undefined : stepStyle} /> : null}{children && showAll ? <JsOffSteps id={id} count={count} first={first} step={jsOffStep} noun={noun} /> : null}</>;
+  if (split.length <= 1) return <>{cardStyle}{phoneStyle}{children ? ownList(showAll ? listClass : '') : null}{children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} stepStyle={ownMore ? undefined : stepStyle} jsStepN={jsStepN} /> : null}{children && showAll ? <JsOffSteps id={id} count={count} first={first} step={jsOffStep} rowPx={rowPx} noun={noun} /> : null}</>;
   const pages = split.length;
   const nums = Array.from({ length: pages }, (_, i) => i + 1);
   const upTo = (k: number) => split.slice(0, k).reduce((a, b) => a + b, 0);   // rows on screens 1 to k
@@ -161,8 +193,8 @@ export default function NoJsPager({ id, count, rows, size = 25, sizes, always = 
       {nums.map((k) => <PagerNav key={`top-${k}`} id={id} k={k} pages={pages} always={always} wide={wide && always} top />)}
       {ownList(list)}
       {children && nums.map((k) => <PagerNav key={k} id={id} k={k} pages={pages} always={always} wide={wide && always} />)}
-      {children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} stepStyle={ownMore ? undefined : stepStyle} /> : null}
-      {children && showAll ? <JsOffSteps id={id} count={count} first={first} step={jsOffStep} noun={noun} /> : null}
+      {children && showAll ? <ShowAllDetails id={id} count={count} first={first} noun={noun} stepStyle={ownMore ? undefined : stepStyle} jsStepN={jsStepN} /> : null}
+      {children && showAll ? <JsOffSteps id={id} count={count} first={first} step={jsOffStep} rowPx={rowPx} noun={noun} /> : null}
     </>
   );
 }
@@ -181,8 +213,9 @@ function PagerNav({ id, k, pages, always = false, wide = false, top = false }: {
 // The Previous and Next links for rows that are siblings (`items` above): put after the last of them.
 // A plain list or table (MP2f-2, 9 Nov 2026): on phones the first rows and "Show all <N>" after it, with no paging at any
 // width; nothing changes from 640px up. rows: from the list to its rows, "> tbody > tr" for a table, "> li" for a list.
-export function ShowAll({ id, count, rows = '> tbody > tr', first, noun, children }: { id: string; count: number; rows?: string; first?: number; noun?: MoreNoun; children: ReactElement<{ className?: string }> }) {
-  return <NoJsPager id={id} count={count} rows={rows} size={Math.max(count, 1)} first={first} noun={noun}>{children}</NoJsPager>;
+// rowPx (ENTRY 542 item 7): each row's estimated height at 375, so the phone steps follow the heights (one screen still).
+export function ShowAll({ id, count, rows = '> tbody > tr', first, noun, rowPx, children }: { id: string; count: number; rows?: string; first?: number; noun?: MoreNoun; rowPx?: number[]; children: ReactElement<{ className?: string }> }) {
+  return <NoJsPager id={id} count={count} rows={rows} size={Math.max(count, 1)} sizes={rowPx ? [Math.max(count, 1)] : undefined} rowPx={rowPx} first={first} noun={noun}>{children}</NoJsPager>;
 }
 
 // With "Show all" on phones (MP2f) after them, for rows that are siblings.

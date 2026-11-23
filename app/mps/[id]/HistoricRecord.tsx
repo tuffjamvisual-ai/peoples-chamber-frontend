@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import NoJsPager, { pagesByHeight } from '@/app/components/NoJsPager';
+import NoJsPager from '@/app/components/NoJsPager';
 import { divisionHref } from '@/lib/division-links';
 import { ARCHIVE_NOTE, HANSARD_LABEL, archiveDate, memberVoteSummary, registerHistory, type RegisterBlock, type RegisterCategory, type MemberVoteSummary, type RegisterHistory } from '@/lib/historic-archive';
 
@@ -65,7 +65,7 @@ function Category({ category, id }: { category: RegisterCategory; id: string }) 
       <summary>
         {category.label} ({category.entries.toLocaleString('en-GB')})
       </summary>
-      <NoJsPager id={id} always count={category.blocks.length} rows="> li" sizes={pagesByHeight(category.blocks.map(blockHeight), 3000)}>
+      <NoJsPager id={id} always count={category.blocks.length} rows="> li" rowPx={category.blocks.map(blockHeight)} room={3000}>
         <ul style={{ listStyle: 'none', margin: '0 0 12px', padding: 0 }}>
           {category.blocks.map((b, i) => (
             <li key={i} style={{ padding: '8px 0', borderBottom: `1px solid ${HAIRLINE}`, fontSize: '15px', lineHeight: 1.55 }}>

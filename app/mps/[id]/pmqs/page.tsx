@@ -12,7 +12,7 @@ import { archiveRole, longDateArchive, memberArchive, type MemberContribution } 
 import { lookupMember, memberName } from '@/lib/former-mps';
 import { idsFor } from '@/lib/historic-archive';
 import { failSoft } from '@/lib/fail-soft';
-import NoJsPager, { NoJsPagerLinks, njpItem, pagesByHeight } from '../../../components/NoJsPager';
+import NoJsPager, { NoJsPagerLinks, njpItem } from '../../../components/NoJsPager';
 
 import BackLink from '@/app/components/BackLink';
 import { cachedQuery } from '@/lib/tagged-read';
@@ -127,7 +127,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
       <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 16px', color: INK }}>
         {questions.length} {questions.length === 1 ? 'question' : 'questions'} at <Link href="/pmqs" style={{ color: ACCENT, textDecoration: 'underline' }}>Prime Minister&rsquo;s Questions</Link> since July 2024, newest first, from Hansard.
       </p>
-      <NoJsPager id="pmqs-asked" always count={questions.length} rows="> li" sizes={pagesByHeight(questions.map((q) => rowHeight(q.text)), 4000, 25)}>
+      <NoJsPager id="pmqs-asked" always count={questions.length} rows="> li" rowPx={questions.map((q) => rowHeight(q.text))} room={4000} most={25}>
         <ul data-own-more="" data-main-action style={{ listStyle: 'none', margin: 0, padding: 0, color: INK }}>
           {questions.map((q) => (
           <li key={q.extId} style={{ padding: '10px 0', borderTop: '1px solid rgba(20,16,13,0.25)', fontSize: '15px', lineHeight: 1.6 }}>
@@ -149,7 +149,7 @@ export default async function MpPmqsPage({ params }: { params: Promise<{ id: str
           {archiveYears.map((y) => (
             <details key={y.year} className={`pa-fold ${njpItem('pa-years')}`}>
               <summary>{y.year}: {y.rows.length.toLocaleString('en-GB')}</summary>
-              <NoJsPager id={`pa-${y.year}`} always count={y.rows.length} rows="> li" sizes={pagesByHeight(y.rows.map((r) => rowHeight(r.text)), 4000, 25)}>
+              <NoJsPager id={`pa-${y.year}`} always count={y.rows.length} rows="> li" rowPx={y.rows.map((r) => rowHeight(r.text))} room={4000} most={25}>
                 <ul className="pa-list" data-own-more="" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                   {y.rows.map((r) => (
                     <li key={`${r.date}-${r.order}`}>
