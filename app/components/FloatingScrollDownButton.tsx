@@ -74,13 +74,17 @@ export default function FloatingScrollDownButton() {
         // Above the app bar (fixed to the screen's foot), never on it.
         const appbar = document.querySelector<HTMLElement>('.og-appbar');
         if (appbar && appbar.getClientRects().length) top = Math.min(top, appbar.getBoundingClientRect().top - GAP_FROM_FOLDER_EDGE - size);
-        // Clear of the footer links' tap areas: if the button would cover any of them, it goes above that row.
+        // Clear of the footer links' tap areas: if the button would cover any of them, it goes above that link's row,
+        // and the check repeats from the start (moving up past one row can land it on a row above), until nothing
+        // overlaps; at most once per link, so it always ends (T2's point, owner approved, Cowork ENTRY 530).
         const x = left ?? window.innerWidth / 2;
-        for (const a of document.querySelectorAll<HTMLElement>('.og-footer-links a, .og-footer-links button')) {
-          const r = a.getBoundingClientRect();
-          if (!r.width || r.bottom < 0 || r.top > viewport) continue;
-          const overlaps = x + size / 2 > r.left && x - size / 2 < r.right && top + size > r.top && top < r.bottom;
-          if (overlaps) top = Math.min(top, r.top - GAP_FROM_FOLDER_EDGE - size);
+        const links = [...document.querySelectorAll<HTMLElement>('.og-footer-links a, .og-footer-links button')]
+          .map((a) => a.getBoundingClientRect())
+          .filter((r) => r.width && r.bottom >= 0 && r.top <= viewport);
+        for (let pass = 0; pass <= links.length; pass++) {
+          const hit = links.find((r) => x + size / 2 > r.left && x - size / 2 < r.right && top + size > r.top && top < r.bottom);
+          if (!hit) break;
+          top = Math.min(top, hit.top - GAP_FROM_FOLDER_EDGE - size);
         }
       }
       setPos({ visible, atBottom, left, top, phone });
