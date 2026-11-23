@@ -118,8 +118,13 @@ export const SPLIT_TYPES: Record<string, string[]> = {
 };
 // The split type a main address belongs to: its first path part names the type and it has a second part (a record page,
 // a year or month page, a session page), so the type's own list page stays in /sitemap.xml.
+// Hub pages two levels down that stay in /sitemap.xml with the other hub and list pages (the push checks' hub coverage
+// looks for every static route there): the lobbying A to Z (Cowork ENTRY 536 item 2), not lobbying.xml with the records.
+const MAIN_HUBS = new Set(['/lobbying/a-z']);
 export function splitTypeOf(url: string): string | null {
-  const parts = url.slice(SITE.length).split('/').filter(Boolean);
+  const path = url.slice(SITE.length);
+  if (MAIN_HUBS.has(path)) return null;
+  const parts = path.split('/').filter(Boolean);
   if (parts.length < 2) return null;
   for (const [t, firsts] of Object.entries(SPLIT_TYPES)) if (firsts.includes(parts[0])) return t;
   return null;
