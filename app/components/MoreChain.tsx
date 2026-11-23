@@ -25,9 +25,11 @@ const PHONE_FIRST = 3;
 // JavaScript a press opens the next fold whole and the label says so (mc-n-nojs). From 1,024px up nothing changes: 25 a press.
 const phoneCount = (n: number) => <><span className="mc-n-nojs">{n.toLocaleString('en-GB')}</span><span className="mc-n-js">{Math.min(10, n).toLocaleString('en-GB')}</span></>;
 
-type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean; mainAction?: boolean; phoneFirst?: number };
+// counted (Cowork ENTRY 536, 23 Nov 2026): each 'Show N more' also says how many show so far, e.g. '25 of 169 shown'. Off
+// by default, so every existing list is unchanged.
+type Props = { items: ReactNode[]; step?: number; first?: number; ordered?: boolean; className?: string; style?: React.CSSProperties; phoneOnly?: boolean; mainAction?: boolean; phoneFirst?: number; counted?: boolean };
 
-export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false, mainAction = false, phoneFirst = PHONE_FIRST }: Props) {
+export default function MoreChain({ items, step = 25, first, ordered = false, className, style, phoneOnly = false, mainAction = false, phoneFirst = PHONE_FIRST, counted = false }: Props) {
   const pf = Math.max(1, Math.min(phoneFirst, PHONE_FIRST));
   const opening = Math.max(1, Math.min(first ?? step, step));
   const Tag = ordered ? 'ol' : 'ul';
@@ -50,7 +52,7 @@ export default function MoreChain({ items, step = 25, first, ordered = false, cl
       <span className="st-more">
         Show {from === opening && !phoneOnly
           ? <><span className="mc-n-wide">{next(from).toLocaleString('en-GB')}</span><span className="mc-n-phone">{phoneCount(next(from) + from - Math.min(pf, from))}</span></>
-          : next(from).toLocaleString('en-GB')} more
+          : next(from).toLocaleString('en-GB')} more{counted ? ` · ${from.toLocaleString('en-GB')} of ${items.length.toLocaleString('en-GB')} shown` : ''}
       </span>
       <span className="st-less">Show fewer</span>
     </summary>

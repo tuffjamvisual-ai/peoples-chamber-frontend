@@ -12,6 +12,7 @@ import { getPetition, isRevisedResponse, ourDebateGuid, petitionConstituencies, 
 import { PetitionCredit } from '../PetitionCredit';
 import { ShowAll } from '../../components/NoJsPager';
 import { SubFold } from '../../components/PhoneFolds';
+import MoreChain from '../../components/MoreChain';
 
 import BackLink from '@/app/components/BackLink';
 // One petition (owner, backlog item 15a, 6 Nov 2026): the title, background and details as written, its dates and count, the
@@ -158,7 +159,10 @@ export default async function PetitionPage({ params }: { params: Promise<{ id: s
           {rest.length > 0 && (
             <details className="mc-more">
               <summary>Show the other {n0(rest.length)} {rest.length === 1 ? 'constituency' : 'constituencies'}</summary>
-              <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>{rest.map((c) => <Row key={c.gss} c={c} />)}</ol>
+              {/* Phones (owner standing rule, Cowork ENTRY 539 and 542, 23 Nov 2026): opened, the first 25, then 25 more a press
+                  with the count shown, with or without JavaScript; every constituency stays in the page. From 640px the whole
+                  list shows when the fold opens, as before. */}
+              <MoreChain phoneOnly counted ordered step={25} style={{ listStyle: 'none', margin: 0, padding: 0 }} items={rest.map((c) => <Row key={c.gss} c={c} />)} />
             </details>
           )}
         </>
