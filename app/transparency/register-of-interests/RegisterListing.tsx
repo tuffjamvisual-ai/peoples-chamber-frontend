@@ -194,7 +194,7 @@ export default async function RegisterListing({ sp, strict = false }: { sp: SP; 
   const hasFilters = !!(q || mpId || cat || isValidDate(from) || isValidDate(to));
   const fmtDate = (iso: string | null) =>
     iso
-      ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })
+      ? new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' }) // Parliament's own UK date, no zone stored
       : '';
 
   return (

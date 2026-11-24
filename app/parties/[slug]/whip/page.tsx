@@ -66,7 +66,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   if (!party || !party.mp_party_string) {
     return (
       <OpenGovShell pageStamp="Parties">
-        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>How tightly {party.name} MPs vote together</h1>
+        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>{party.name} and the whip</h1>
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>Party not found, or has no MP party mapping (cohesion not calculable).</p>
       </OpenGovShell>
     );

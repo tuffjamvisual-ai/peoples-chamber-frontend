@@ -12,6 +12,17 @@ export function londonDay(at: Date = new Date()): string {
   return LONDON.format(at);
 }
 
+/** The moment a London day begins, as a UTC time: 23:00 the day before in summer. */
+export function londonDayStart(day: string): string {
+  const utc = Date.parse(`${day}T00:00:00.000Z`);
+  return new Date(londonDay(new Date(utc - 3600000)) === day ? utc - 3600000 : utc).toISOString();
+}
+
+/** The last moment of a London day, as a UTC time. */
+export function londonDayEnd(day: string): string {
+  return new Date(Date.parse(londonDayStart(addDays(day, 1))) - 1).toISOString();
+}
+
 /** The date n days after (or before, n < 0) a 'YYYY-MM-DD' date. */
 export function addDays(day: string, n: number): string {
   const [y, m, d] = day.split('-').map(Number);

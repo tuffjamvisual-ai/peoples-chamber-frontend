@@ -12,6 +12,7 @@ import BackLink from '../../components/BackLink';
 import Pagination from '../../components/Pagination';
 import { ShowAll } from '@/app/components/NoJsPager';
 import { cachedQuery } from '@/lib/tagged-read';
+import { londonDay, londonDayEnd, londonDayStart } from '@/lib/london-date';
 import { tableTags } from '@/lib/source-tags';
 
 import '@/app/components/search-box-desk.css';
@@ -181,7 +182,8 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#f4e8d4';
 const isCommonsRow = (r: Release) => (r.gov_url || '').includes('parliament.uk');
-const toDateStr = (iso: string | null | undefined) => (iso ? iso.slice(0, 10) : null);
+// The London day, as the dates on the page say it (GOV.UK's UK midnight is 23:00 UTC the day before in summer).
+const toDateStr = (iso: string | null | undefined) => (iso ? londonDay(new Date(iso)) : null);
 function fmtLongDate(dateStr: string): string {
   const d = new Date(`${dateStr}T12:00:00Z`);
   if (Number.isNaN(d.getTime())) return dateStr;
@@ -300,8 +302,8 @@ export default async function PressListing({ sp, strict = false }: { sp: { q?: s
     const earliestDate = toDateStr(earliestRes.data?.published_at);
     if (strict && sp.date && (!earliestDate || !latestDate || sp.date < earliestDate || sp.date > latestDate)) notFound();
     const currentDate = sp.date && DATE_RE.test(sp.date) ? sp.date : latestDate || '';
-    const dayStart = `${currentDate}T00:00:00.000Z`;
-    const dayEnd = `${currentDate}T23:59:59.999Z`;
+    const dayStart = currentDate ? londonDayStart(currentDate) : '';
+    const dayEnd = currentDate ? londonDayEnd(currentDate) : '';
 
     const [dayRes, prevRes, nextRes] = await Promise.all([
       cachedQuery(['q:app/transparency/press-releases/page.tsx:208a949039', JSON.stringify([COLS, dayStart, dayEnd])], tableTags('press_releases'), () => supabase.from('press_releases').select(COLS).gte('published_at', dayStart).lte('published_at', dayEnd).order('published_at', { ascending: false, nullsFirst: false })),
