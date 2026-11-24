@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import HaveYourSay from '@/app/components/HaveYourSay';
+import { billOfTheWeek } from '@/lib/bill-of-the-week';
 import { HEADLINE as LOWEST_SCORES_HEADLINE, MEASURE_COUNT as LOWEST_SCORES_MEASURES } from './council-areas/lowest-scores/data';
 import { X_CARD, X_SQUARE_IMAGE } from '@/lib/og/x-card';
 import SotnBand from './components/SotnBand';
@@ -120,6 +122,8 @@ export default async function HomePage() {
   // the press release sync refreshes whenever it stores a new release.
   const [rawPressReleases, pressCheckedAt] = await Promise.all([loadLatestWhitehall(), pressSyncCheckedAt()]);
   const expensesYear = expensesYearShort(await latestExpensesYear());
+  // Bill of the week for 'Have your say in Parliament' (ENTRY 550, 553, 554): lib/bill-of-the-week.ts.
+  const weekBill = await billOfTheWeek(renderedOn);
   const whitehallItems = (rawPressReleases ?? [])
     .flatMap((row) => {
       if (!row.gov_url) return [];
@@ -180,6 +184,10 @@ export default async function HomePage() {
                   whole ('Name, constituency or postcode' was cut off at 320px): less padding, the arrow closer to the edge and the
                   placeholder's letters slightly closer. The text stays 16px (so phones do not zoom in on a tap). */}
               <style>{`@media (max-width: 359.98px) { .og-finders .og-sbox-input { padding-left: 6px !important; padding-right: 22px !important; } .og-finders .og-sbox-input::placeholder { letter-spacing: -0.03em; } .og-finders .og-sbox-btn { right: 2px !important; } }`}</style>
+              {/* Phones (under 768px; owner approved, Cowork ENTRY 555): the four search boxes are not shown; the bottom bar's
+                  Search, Your MP and Archive do their work. display: none, so a screen reader does not find them either; tablets
+                  and desktop unchanged. */}
+              <style>{`@media (max-width: 767.98px) { .og-finders { display: none !important; } }`}</style>
               <div className="og-finders">
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
                 <label htmlFor="home-search-q" className="og-kicker og-search-label">Search opengovt</label>
@@ -311,6 +319,9 @@ export default async function HomePage() {
               {/* State of the nation (T1-SOTN, layout change approved by the owner 15 Nov 2026, ENTRY 105): on desktop four
                   headline official figures under the finders, linking to /state-of-the-nation; on phones and tablets the
                   compact strip after the lead story (ENTRY 233). */}
+              {/* Have your say in Parliament (owner approved, Cowork ENTRY 550, 553, 554): after the search area, before State
+                  of the nation, the band's width; it replaces the Bills tracker card lower down. */}
+              <HaveYourSay bill={weekBill} />
               <SotnBand variant="band" />
               <div className="og-lead">
             <div className="og-main">
@@ -397,11 +408,7 @@ export default async function HomePage() {
 
               {/* "If an Election Were Held Now" reader card removed 17 Oct 2026 (owner's decision): its
                   total was a launch seed of 4,106 votes plus 1 real reader vote. */}
-              <Link className="og-block og-card" href="/bills">
-                <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>Bills tracker</div>
-                <div className="og-head">Every bill. Every vote. Every law.</div>
-                <p>Follow what Parliament is doing, in plain English, then cast your own vote on every bill. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Browse bills and reader polls &rarr;</span></p>
-              </Link>
+              {/* The Bills tracker card is gone: its link is in 'Have your say in Parliament' near the top (ENTRY 550). */}
 
               <FeaturedBrief n={2} only="desk" />
 
