@@ -77,7 +77,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
   const ownOldStory = /^https?:\/\/(www\.)?thepeopleschamber\.uk\//.test(row.source_url)
 
   const dateLabel = row.published_at
-    ? new Date(row.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    ? new Date(row.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })
     : ''
 
   return (

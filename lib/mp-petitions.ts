@@ -39,7 +39,7 @@ export const loadMpPetitions = unstable_cache(async (memberId: number): Promise<
     .from('petition_constituency_signatures')
     .select('petition_id, signature_count, rank_in_petition, petitions(action, state, signature_count, constituency_count, opened_at, closed_at, government_response_at, debated_on, url)')
     .eq('constituency_gss_code', gss)
-    .order('signature_count', { ascending: false })
+    .order('signature_count', { ascending: false }).order('petition_id', { ascending: false })
     .limit(PETITIONS_SHOWN);
   if (error) throw new Error(`/api/mps/${memberId}/petitions: ${error.message}`);
   const rows = ((data ?? []) as unknown as Row[]).filter((r) => r.petitions && r.petitions.action);

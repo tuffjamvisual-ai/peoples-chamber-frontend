@@ -17,7 +17,7 @@ export default async function LastUpdated({ sourceKey, at }: { sourceKey: string
   const newest = at !== undefined ? (at ? new Date(at) : null) : await newestTimestamp(src);
   if (!newest) return null;
 
-  const when = newest.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const when = newest.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' });
 
   return (
     <p

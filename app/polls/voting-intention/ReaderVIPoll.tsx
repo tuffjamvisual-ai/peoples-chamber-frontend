@@ -23,7 +23,7 @@ const PARTIES: Party[] = [
 function fmtDate(iso: string | null): string {
   if (!iso) return '';
   try {
-    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' });
   } catch {
     return '';
   }

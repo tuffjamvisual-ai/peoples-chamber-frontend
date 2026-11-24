@@ -724,7 +724,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 }
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' })
 }
 
 function explanationPoints(raw: string): string[] {

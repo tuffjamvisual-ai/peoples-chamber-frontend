@@ -194,7 +194,7 @@ export default async function RegisterListing({ sp, strict = false }: { sp: SP; 
   const hasFilters = !!(q || mpId || cat || isValidDate(from) || isValidDate(to));
   const fmtDate = (iso: string | null) =>
     iso
-      ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+      ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })
       : '';
 
   return (

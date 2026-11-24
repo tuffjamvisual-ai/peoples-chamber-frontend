@@ -23,7 +23,7 @@ const MONO = 'var(--font-special-elite), monospace';
 const PER_PAGE = 50;
 
 function fmtDate(d: string) {
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' });
 }
 
 // "3 November" for a day's own "Show N more divisions on 3 November" (Cowork 13 Nov 2026, ENTRY 9).

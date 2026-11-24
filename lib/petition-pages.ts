@@ -79,9 +79,9 @@ export type MpPetitionsTop = { petitions: { id: number; title: string; here: num
 // The MP page's "Petitions in this constituency": the five most signed. The page keeps for a week, so it says when the
 // counts were checked; the Petitions tab and /petitions?constituency= stay current.
 async function topPetitionsInConstituencyRead(gss: string): Promise<MpPetitionsTop> {
-  const { data, error } = await cachedQuery(['q:lib/petition-pages.ts:5360d5d08d', JSON.stringify([gss])], tableTags('petition_constituency_signatures'), () => db.from('petition_constituency_signatures')
+  const { data, error } = await cachedQuery(['q:lib/petition-pages.ts:5360d5d08d:tie', JSON.stringify([gss])], tableTags('petition_constituency_signatures'), () => db.from('petition_constituency_signatures')
     .select('petition_id, signature_count, petitions(action, signature_count, state, checked_at)')
-    .eq('constituency_gss_code', gss).order('signature_count', { ascending: false }).limit(5));
+    .eq('constituency_gss_code', gss).order('signature_count', { ascending: false }).order('petition_id', { ascending: false }).limit(5));
   if (error) throw new Error(`top petitions ${gss}: ${error.message}`);
   type Row = { petition_id: number; signature_count: number; petitions: { action: string; signature_count: number; state: string; checked_at: string | null } | null };
   const rows = ((data ?? []) as unknown as Row[]).filter((r) => r.petitions);

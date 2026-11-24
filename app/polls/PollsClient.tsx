@@ -505,7 +505,7 @@ const VI_PARTIES = [
 
 function fmtVIDate(iso: string | null): string {
   if (!iso) return ''
-  try { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) } catch { return '' }
+  try { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' }) } catch { return '' }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -508,19 +508,19 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   };
   const pEdms: Promise<EdmTabData> = withTimeout(
     Promise.all([
-      cachedQuery(['q:app/mps/[id]/page.tsx:d4760d4c22', JSON.stringify([memberId, EDMS_FETCHED])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
+      cachedQuery(['q:app/mps/[id]/page.tsx:d4760d4c22:tie', JSON.stringify([memberId, EDMS_FETCHED])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
         .from('early_day_motions')
         .select('id, title, uin_with_suffix, date_tabled, signature_count, status, is_prayer, amendment_to_motion_id', { count: 'exact' })
         .eq('primary_sponsor_id', memberId)
-        .order('date_tabled', { ascending: false })
+        .order('date_tabled', { ascending: false }).order('id', { ascending: false })
         .limit(EDMS_FETCHED)),
-      cachedQuery(['q:app/mps/[id]/page.tsx:7434e89171', JSON.stringify([memberId, EDMS_FETCHED])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
+      cachedQuery(['q:app/mps/[id]/page.tsx:7434e89171:tie', JSON.stringify([memberId, EDMS_FETCHED])], [mpTag(memberId), MP_PAGES_TAG], () => supabase
         .from('early_day_motion_signatures')
         .select('edm_id, sponsoring_order, signed_at, early_day_motions(title, uin_with_suffix, date_tabled, signature_count, status, is_prayer, amendment_to_motion_id)', { count: 'exact' })
         .eq('member_id', memberId)
         .eq('is_withdrawn', false)
         .gt('sponsoring_order', 1)
-        .order('signed_at', { ascending: false })
+        .order('signed_at', { ascending: false }).order('edm_id', { ascending: false }) // equal days keep one order (ENTRY 645)
         .limit(EDMS_FETCHED)),
     ]),
     5000,

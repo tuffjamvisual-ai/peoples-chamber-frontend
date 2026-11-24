@@ -48,6 +48,7 @@ const SEAT_META = { label: 'Constituency', color: '#2a4a6e' };
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric',
+    timeZone: 'Europe/London',
   });
 }
 

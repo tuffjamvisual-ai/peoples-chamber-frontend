@@ -93,7 +93,7 @@ export type MpEdmsTop = { tabled: LinkedEdm[]; signed: LinkedEdm[] };
 export async function latestEdmsForMp(memberId: number): Promise<MpEdmsTop> {
   const [tabled, signed] = await Promise.all([
     cachedQuery(['q:lib/edm-pages.ts:719bd24d93', JSON.stringify([memberId])], tableTags('early_day_motions'), () => db.from('early_day_motions').select('id, uin_with_suffix, title').eq('primary_sponsor_id', memberId).order('date_tabled', { ascending: false }).order('id', { ascending: false }).limit(5)),
-    cachedQuery(['q:lib/edm-pages.ts:aa49590eb6', JSON.stringify([memberId])], tableTags('early_day_motion_signatures'), () => db.from('early_day_motion_signatures').select('edm_id, early_day_motions(uin_with_suffix, title, primary_sponsor_id)').eq('member_id', memberId).eq('is_withdrawn', false).order('signed_at', { ascending: false }).limit(15)),
+    cachedQuery(['q:lib/edm-pages.ts:aa49590eb6:tie', JSON.stringify([memberId])], tableTags('early_day_motion_signatures'), () => db.from('early_day_motion_signatures').select('edm_id, early_day_motions(uin_with_suffix, title, primary_sponsor_id)').eq('member_id', memberId).eq('is_withdrawn', false).order('signed_at', { ascending: false }).order('edm_id', { ascending: false }).limit(15)),
   ]);
   if (tabled.error) throw new Error(`motions tabled by ${memberId}: ${tabled.error.message}`);
   if (signed.error) throw new Error(`motions signed by ${memberId}: ${signed.error.message}`);

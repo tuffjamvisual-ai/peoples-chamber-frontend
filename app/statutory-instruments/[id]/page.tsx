@@ -3,7 +3,7 @@
 
 import { ShowAll } from '@/app/components/NoJsPager'
 import formerNames from '@/lib/data/former-mp-names.json'
-import { namedTitle } from '@/lib/seo-title';
+import { namedTitle, shortDate } from '@/lib/seo-title';
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -25,10 +25,17 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!isApiId(id)) {
     const divisionId = parseInt(id, 10)
     if (!Number.isFinite(divisionId)) notFound()
-    const { count, error } = await cachedQuery(['q:app/statutory-instruments/[id]/page.tsx:c8e6e72df9', JSON.stringify([divisionId])], tableTags('statutory_instrument'), () => supabase.from('statutory_instrument').select('division_id', { count: 'exact', head: true }).eq('division_id', divisionId))
+    const { data: division, error } = await cachedQuery(['q:app/statutory-instruments/[id]/page.tsx:c8e6e72df9:title', JSON.stringify([divisionId])], tableTags('statutory_instrument'), () => supabase.from('statutory_instrument').select('title, date, ayes, noes').eq('division_id', divisionId).limit(1).maybeSingle())
     if (error) throw new Error(`/statutory-instruments/[id] metadata: ${error.message}`)
-    if (!count) notFound()
-    return {}
+    if (!division) notFound()
+    // ENTRY 645 (7): its own title, description and canonical; these pages had the site's generic ones.
+    const title = division.title || `Statutory instrument, division ${divisionId}`
+    const votes = division.ayes != null && division.noes != null ? ` ${division.ayes} voted aye and ${division.noes} voted no.` : ''
+    return {
+      title: namedTitle(title, (n) => [`${n}: Commons vote`, n]),
+      description: `How MPs voted on ${title}${shortDate(division.date) ? ` on ${shortDate(division.date)}` : ''}.${votes}`,
+      alternates: { canonical: `/statutory-instruments/${divisionId}` },
+    }
   }
   const si = await getSi(id)
   if (!si) notFound()
@@ -122,7 +129,7 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
 
   const ayes_total = si.ayes ?? ayes.length
   const noes_total = si.noes ?? noes.length
-  const dateLabel = new Date(si.date as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const dateLabel = new Date(si.date as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })
 
   return (
     <OpenGovShell pageStamp="Statutory Instrument">

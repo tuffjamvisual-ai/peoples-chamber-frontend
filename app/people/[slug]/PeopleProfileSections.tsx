@@ -74,7 +74,7 @@ const sectionH2: React.CSSProperties = {
 };
 
 const fmtDate = (s?: string | null) =>
-  s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' }) : '';
 const fmtMonthYear = (s?: string | null) =>
   s ? shortMonthYear(s) : '';
 

@@ -69,7 +69,7 @@ function fmtDate(iso: string | null | undefined): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' });
 }
 
 // ============================ MP variant =================================
@@ -467,7 +467,7 @@ async function renderPressRelease(props: PressReleaseProps) {
                 {r.title}
                 {r.published_at && (
                   <span style={subStyle}>
-                    {new Date(r.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    {new Date(r.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' })}
                   </span>
                 )}
               </Link>

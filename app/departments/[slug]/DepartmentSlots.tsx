@@ -130,7 +130,7 @@ export function ReleasesSlot({ releases }: { releases: PressReleaseItem[] }) {
             <span style={{ display: 'block', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: '#14100d', marginTop: '3px' }}>
               {r.organisation && r.published_at ? `${r.organisation} · ` : (r.organisation ?? '')}
               {r.published_at
-                ? new Date(r.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                ? new Date(r.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' })
                 : ''}
             </span>
           </li>
@@ -156,7 +156,7 @@ export function InvestigationsSlot({ investigations }: { investigations: Investi
               )}
               <span style={{ display: 'block', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', marginTop: '4px' }}>
                 {item.type} · {item.kicker && item.kicker.toLowerCase() !== item.type.toLowerCase() ? `${item.kicker} · ` : ''}
-                {new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                {new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' })}
               </span>
               <ContinueToArticle style={{ fontSize: '15px', marginTop: '4px' }} />
             </Link>

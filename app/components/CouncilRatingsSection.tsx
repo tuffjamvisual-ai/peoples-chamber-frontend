@@ -66,7 +66,7 @@ function Flags({ flags }: { flags: LeagueFlag[] }) {
 }
 
 function eventLabel(e: FinanceEvent): string {
-  if (e.event_type === 'section_114') return `Section 114 notice${e.event_date ? `, ${new Date(e.event_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : ''}`;
+  if (e.event_type === 'section_114') return `Section 114 notice${e.event_date ? `, ${new Date(e.event_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })}` : ''}`;
   if (e.event_type === 'intervention') return `Government intervention since ${e.period}`;
   if (e.event_type === 'best_value_inspection') return `Best value inspection, ${e.period}`;
   if (e.event_type === 'exceptional_support') return `Exceptional financial support, ${e.period}${e.amount_gbp != null ? ` (£${(e.amount_gbp / 1e6).toFixed(1)}m)` : ''}`;

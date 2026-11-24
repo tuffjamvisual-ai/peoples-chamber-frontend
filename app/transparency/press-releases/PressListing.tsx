@@ -57,7 +57,7 @@ function fmtDate(iso: string | null): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' });
 }
 
 // Group a set of releases by month, most recent first (input is already sorted).
@@ -65,7 +65,7 @@ function groupByMonth(items: Release[]): Map<string, Release[]> {
   const grouped = new Map<string, Release[]>();
   for (const r of items) {
     const monthLabel = r.published_at
-      ? new Date(r.published_at).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+      ? new Date(r.published_at).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'Europe/London' })
       : 'Undated';
     if (!grouped.has(monthLabel)) grouped.set(monthLabel, []);
     grouped.get(monthLabel)!.push(r);
@@ -185,7 +185,7 @@ const toDateStr = (iso: string | null | undefined) => (iso ? iso.slice(0, 10) : 
 function fmtLongDate(dateStr: string): string {
   const d = new Date(`${dateStr}T12:00:00Z`);
   if (Number.isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' });
 }
 
 const SEARCH_PER = 100;

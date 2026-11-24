@@ -110,7 +110,7 @@ function paragraphize(raw: string): string {
 function fmtDate(s?: string) {
   if (!s) return '';
   const d = new Date(s);
-  return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' });
 }
 
 // The chair and group interjections, which neither open a debate nor count as speakers.

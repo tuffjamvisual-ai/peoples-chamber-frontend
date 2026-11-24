@@ -64,7 +64,7 @@ function fmtLongDay(iso: string): string {
 function fmtDay(iso: string | null | undefined): string {
   if (!iso) return 'n/a';
   const d = new Date(iso);
-  return isNaN(d.getTime()) ? 'n/a' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return isNaN(d.getTime()) ? 'n/a' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' });
 }
 
 

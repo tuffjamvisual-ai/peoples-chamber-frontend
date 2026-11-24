@@ -63,7 +63,7 @@ const sectionH2: React.CSSProperties = {
 };
 
 function fmtDate(d: string) {
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' });
 }
 
 export default async function TopicPage({ params }: { params: Promise<{ slug: string }> }) {

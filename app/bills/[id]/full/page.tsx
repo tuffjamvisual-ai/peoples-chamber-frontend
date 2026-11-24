@@ -91,7 +91,7 @@ function fmtDate(iso?: string): string {
   if (!iso) return ''
   const d = new Date(iso)
   if (!Number.isFinite(d.getTime())) return ''
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' })
 }
 
 // Where a publication's title links (23 Oct 2026): its own link, else its first file through the Bills API

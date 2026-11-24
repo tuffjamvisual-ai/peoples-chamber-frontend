@@ -16,7 +16,7 @@ const MONO = 'var(--font-special-elite), monospace';
 const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' };
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/London' });
 }
 
 // Every bill and Act on a topic, newest first, 20 a page (owner's approval, 22 Oct 2026). Shared by

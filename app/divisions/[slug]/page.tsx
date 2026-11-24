@@ -160,6 +160,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: 'Europe/London',
   });
 
   // Search title and description (owner's approval, 23 Oct 2026), built from the division's own data only.
@@ -281,6 +282,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: 'Europe/London',
   });
 
   // Bill backlink: if any vote row has bill_id, link to that bill (not a hidden one: bill.hidden_reason, a 404).

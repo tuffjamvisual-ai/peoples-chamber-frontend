@@ -449,7 +449,7 @@ const fmtMoney = (n: number) =>
   new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(n || 0);
 
 const fmtDate = (s?: string | null) =>
-  s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' }) : '';
 
 // Background tab (24 Oct 2026): the timeline's phase headings, in order, and the entry layout. Compact layout (owner,
 // 31 Oct 2026): one line per entry where it fits, "<years> <title>, <organisation>", wrapping on narrow screens, with
@@ -1016,7 +1016,7 @@ export default function MagazineProfileSections({
         <div className="mp-bio-provenance" style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid rgba(20,16,13,0.18)', fontSize: '15px' }}>
           {bio?.bio_last_reviewed && (
             <p style={{ margin: '0 0 8px' }}>
-              Last reviewed: {new Date(`${bio.bio_last_reviewed}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+              Last reviewed: {new Date(`${bio.bio_last_reviewed}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })}
             </p>
           )}
         </div>
@@ -2559,7 +2559,7 @@ export default function MagazineProfileSections({
                       .slice(0, 200)
                       .map((d) => {
                       const date = d.accepted_date || d.received_date || d.reported_date;
-                      const dateText = date ? new Date(date).toLocaleDateString('en-GB') : '';
+                      const dateText = date ? new Date(date).toLocaleDateString('en-GB', { timeZone: 'Europe/London' }) : '';
                       const crn = (d.company_registration_number || '').trim();
                       const donorRunning = cumulativeById.get(d.id) ?? null;
                       const donorRow = byDonor.get((d.donor_name || '(anonymous)').trim() || '(anonymous)');
@@ -2791,7 +2791,7 @@ export default function MagazineProfileSections({
                     <ul style={{ listStyle: 'none', padding: '6px 0 0 0' }}>
                       {refused.slice(0, 50).map((c, i) => (
                         <li key={c.claim_number ?? `r-${i}`} style={{ padding: '4px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                          {c.claim_date && <><span style={{ fontFamily: 'monospace' }}>{new Date(c.claim_date).toLocaleDateString('en-GB')}</span>{' · '}</>}
+                          {c.claim_date && <><span style={{ fontFamily: 'monospace' }}>{new Date(c.claim_date).toLocaleDateString('en-GB', { timeZone: 'Europe/London' })}</span>{' · '}</>}
                           {c.category || '?'}
                           {(c.short_description || c.cost_type) && <> · {c.short_description || c.cost_type}</>}
                           {', '}<strong>{fmtMoney(Number(c.amount_not_paid))}</strong>
@@ -2808,7 +2808,7 @@ export default function MagazineProfileSections({
                     <ul style={{ listStyle: 'none', padding: '6px 0 0 0' }}>
                       {repaid.slice(0, 50).map((c, i) => (
                         <li key={c.claim_number ?? `p-${i}`} style={{ padding: '4px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                          {c.claim_date && <><span style={{ fontFamily: 'monospace' }}>{new Date(c.claim_date).toLocaleDateString('en-GB')}</span>{' · '}</>}
+                          {c.claim_date && <><span style={{ fontFamily: 'monospace' }}>{new Date(c.claim_date).toLocaleDateString('en-GB', { timeZone: 'Europe/London' })}</span>{' · '}</>}
                           {c.category || '?'}
                           {(c.short_description || c.cost_type) && <> · {c.short_description || c.cost_type}</>}
                           {', repaid '}<strong>{fmtMoney(Number(c.amount_repaid))}</strong>
@@ -2911,7 +2911,7 @@ export default function MagazineProfileSections({
                                   const statusColor = notPaid > 0 ? '#a64030' : repaid > 0 ? '#7a4a16' : 'inherit';
                                   return (
                                     <tr key={c.claim_number ?? `${e.year}-${i}`} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                                      <td style={{ padding: '3px 3px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '-'}</td>
+                                      <td style={{ padding: '3px 3px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB', { timeZone: 'Europe/London' }) : '-'}</td>
                                       <td style={{ padding: '3px 3px' }}>{c.category || '-'}</td>
                                       <td style={{ padding: '3px 3px' }}>{desc}</td>
                                       <td style={{ padding: '3px 3px', color: statusColor }}>

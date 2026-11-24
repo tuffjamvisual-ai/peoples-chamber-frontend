@@ -30,8 +30,9 @@ export type DebateRow = { hansard_ext_id: string; title: string; sitting_date: s
 export const SECTIONS = ['Commons Chamber', 'Westminster Hall', 'General Committees'];
 
 function fmtDate(d: string) {
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-GB', {
+  return new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    timeZone: 'Europe/London',
   });
 }
 

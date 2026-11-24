@@ -250,7 +250,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const record = await releaseRecord(slug)
 
   const dateLabel = release.published_at
-    ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })
     : ''
 
   return (

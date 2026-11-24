@@ -105,7 +105,7 @@ async function newsReadNextImpl(r: { id: number; title: string; organisation: st
   let n = 0;
   for (const m of named) { if (n >= 2) break; if (pick.add({ href: `/mps/${m.member_id}`, label: m.name, note: m.role })) n++; }
   for (const p of (related.data || []) as { news_slug: string; title: string; published_at: string | null }[]) {
-    pick.add({ href: `/news/${p.news_slug}`, label: p.title, note: p.published_at ? new Date(p.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : undefined });
+    pick.add({ href: `/news/${p.news_slug}`, label: p.title, note: p.published_at ? new Date(p.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' }) : undefined });
   }
   pick.add(topicFor(r.title));
   return pick.result();

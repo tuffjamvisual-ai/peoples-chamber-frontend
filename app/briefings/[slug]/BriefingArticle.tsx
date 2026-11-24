@@ -47,7 +47,7 @@ export default function BriefingArticle({ b, banner }: { b: BriefingRow; slug: s
         </h1>
         {(b.published_at || b.created_at) && (
           <div style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            {new Date(b.published_at || b.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {textReadingLabel(b.headline, b.body)}
+            {new Date(b.published_at || b.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })} · {textReadingLabel(b.headline, b.body)}
           </div>
         )}
       </header>

@@ -144,7 +144,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
           {piece.publishedAt && (
             <div className="art-after" style={{ marginTop: '8px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-              {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })}
               {/* T1-UPDATED (owner approved 12 Nov, Cowork 13 Nov 2026): the latest stored update date, only when later than the
                   publish date; the same on phones and wider screens. */}
               {updatedIso && <> · Updated {new Date(updatedIso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}</>}
