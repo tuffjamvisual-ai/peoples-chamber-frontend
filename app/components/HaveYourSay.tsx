@@ -42,8 +42,10 @@ const CSS = `
   .hys-cols { display: block; margin: 0 0 8px; }
   .hys-stage-m { display: block; margin: 0 0 2px; font-size: 10.5px; letter-spacing: 0.06em; color: #e4ded8; }
   .hys-bill { font-size: 14px; margin: 0 0 8px; }
-  .hys-tile { flex-direction: row; gap: 8px; min-height: 44px; padding: 6px 8px; }
+  /* Both tiles the same (Cowork ENTRY 586): the word above its label, centred, the label on one line. */
+  .hys-tile { flex-direction: column; gap: 2px; min-height: 56px; padding: 6px 6px; }
   .hys-tile b { font-size: 15px; }
+  .hys-tile span { white-space: nowrap; }
   .hys-tile span { font-size: 15px; }
   .hys-btn { min-height: 44px; margin: 0 0 6px; font-size: 15px; }
   .hys-small-m { display: block; font-size: 15px; }

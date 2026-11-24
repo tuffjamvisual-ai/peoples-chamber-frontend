@@ -63,7 +63,15 @@ async function mpForPostcode(pc: string): Promise<{ mp: MpRow | null; found: boo
   return { mp: mps.find((m) => norm(String(m.constituency ?? '')) === norm(constituency)) ?? null, found: true };
 }
 
+// Never fails a search (T2, 24 Nov 2026): any error in a lookup gives an empty Your area, logged.
 export async function yourArea(q: string): Promise<YourArea> {
+  try { return await lookUp(q); } catch (e) {
+    console.error(`search Your area: ${e instanceof Error ? e.message : String(e)}`);
+    return { postcode: false, postcodeNotFound: false, council: null, councilChoices: [], councilSuggestions: [], mps: [], mpsTotal: 0 };
+  }
+}
+
+async function lookUp(q: string): Promise<YourArea> {
   const out: YourArea = { postcode: false, postcodeNotFound: false, council: null, councilChoices: [], councilSuggestions: [], mps: [], mpsTotal: 0 };
   const pc = q.toUpperCase().replace(/\s+/g, '');
   out.postcode = POSTCODE_RE.test(pc);

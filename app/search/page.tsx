@@ -370,9 +370,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
   // Shabana Mahmood, an area code for its council or constituency; special advisers are matched here too. In memory,
   // from cached lists (lib/search/name-index.ts). With All only.
   const contentRead = q.length >= 2 ? searchContent(q, type, dept, from, to, sort) : Promise.resolve([]);
-  const named: QueryNames = inAll ? await queryNames(q) : { recordQ: q, found: null, spads: [] };
   // Your area (Cowork ENTRY 555, 556): the desktop council and MP boxes' results for the same words, with All only.
-  const area = inAll ? await yourArea(q) : null;
+  // Started here, before the other reads, and awaited with them (T2: never make a search wait for postcodes.io first).
+  const areaRead = inAll ? yourArea(q) : Promise.resolve(null);
+  const named: QueryNames = inAll ? await queryNames(q) : { recordQ: q, found: null, spads: [] };
   const rq = named.recordQ;
   const [allResults, seats, councils, peers, donorSearch, orgList, namedMps]: [SearchResult[], ConstituencySearchResult[], CouncilSearchResult[], PeerSearchResult[], { results: DonorNameResult[]; more: boolean; totalNames: number }, OrgListRow[], SearchResult[] | null] = await Promise.all([
     contentRead,
@@ -384,6 +385,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
     // The MPs for a name found inside the query (the every-word search of the whole query finds none).
     named.found ? searchContent(rq, 'mp', null, null, null) : Promise.resolve(null),
   ]);
+  const area = await areaRead;
   // Some of the words (Cowork ENTRY 384 stage B2): fewer than LOOSE_BELOW reports, releases, bills and votes with every
   // word, so the search is tried again with some of them (lib/search-content.ts searchContentLoose), listed after the
   // every-word results and labelled.
