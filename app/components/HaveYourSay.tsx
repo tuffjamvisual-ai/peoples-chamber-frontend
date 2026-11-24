@@ -9,8 +9,8 @@ import type { BillOfTheWeek } from '@/lib/bill-of-the-week';
 // No tiles on one row, the button and the shorter small print. Every link carries ?from=home (ENTRY 550's measuring).
 // No vote is recorded here: Aye and No go to the bill page's #vote, where the page and its sign in do that.
 // Text lines are divs, not paragraphs, so the site's phone body text rule (app/layout.tsx) leaves their sizes alone.
-// Text sizes: 15px and up from 768px (the site's minimum); on phones the sizes ENTRY 554 approved (about 15.5px heading,
-// 10.5px stage line, 14px title).
+// Text sizes: 15px and up (the site's minimum), except the two the owner approved smaller on phones (ENTRY 554 and 579 (4):
+// the 10.5px stage line and the 14px title), marked data-size-ok for the size check (scripts/checks/black-ink-scan.js).
 
 const SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 
@@ -44,9 +44,9 @@ const CSS = `
   .hys-bill { font-size: 14px; margin: 0 0 8px; }
   .hys-tile { flex-direction: row; gap: 8px; min-height: 44px; padding: 6px 8px; }
   .hys-tile b { font-size: 15px; }
-  .hys-tile span { font-size: 12px; }
+  .hys-tile span { font-size: 15px; }
   .hys-btn { min-height: 44px; margin: 0 0 6px; font-size: 15px; }
-  .hys-small-m { display: block; font-size: 11px; }
+  .hys-small-m { display: block; font-size: 15px; }
 }
 `;
 
@@ -80,8 +80,8 @@ export default function HaveYourSay({ bill }: { bill: BillOfTheWeek | null }) {
         {bill && (
           <div className="hys-week">
             <h3 className="hys-ph hys-ph-bill">Bill of the week</h3>
-            <div className="hys-stage-m">BILL OF THE WEEK{stageShort ? ` · ${stageShort}` : ''}</div>
-            <Link href={billHref} className="hys-bill" prefetch={false}>{bill.title}</Link>
+            <div className="hys-stage-m" data-size-ok="ENTRY 554 owner approved design">BILL OF THE WEEK{stageShort ? ` · ${stageShort}` : ''}</div>
+            <Link href={billHref} className="hys-bill" prefetch={false} data-size-ok="ENTRY 554 owner approved design">{bill.title}</Link>
             {stageLong && <div className="hys-stage">{stageLong}</div>}
             <div className="hys-tiles">
               <Link href={`/bills/${bill.id}?from=home#vote`} className="hys-tile" prefetch={false}><b>AYE</b><span>Support the bill</span></Link>

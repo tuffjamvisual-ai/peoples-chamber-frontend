@@ -27,7 +27,9 @@
       const svgEl = el.closest('svg');
       const ctm = svgEl && el instanceof SVGGraphicsElement ? el.getScreenCTM() : null;
       const px = parseFloat(cs.fontSize) * (ctm ? Math.hypot(ctm.a, ctm.b) : 1);
-      if (px < 14.95) out.push({ page: path, kind: 'size', text: t.slice(0, 40), colour: '', alpha: 1, size: Math.round(px * 10) / 10, tag: el.tagName.toLowerCase(), path: label(el) });
+      // An element the owner approved below 15px carries data-size-ok="<ENTRY>" (or sits inside one); only the size rule is
+      // lifted for it, the colour rule still holds. Add one only with the approving ENTRY.
+      if (px < 14.95 && !el.closest('[data-size-ok]')) out.push({ page: path, kind: 'size', text: t.slice(0, 40), colour: '', alpha: 1, size: Math.round(px * 10) / 10, tag: el.tagName.toLowerCase(), path: label(el) });
       if (svgEl) continue; // chart colours are checked by eye: fills, not text colour
       const c = parse(cs.color); if (!c) continue;
       const alpha = Math.round(c.a * op * 1000) / 1000;
