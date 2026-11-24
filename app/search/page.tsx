@@ -1,4 +1,6 @@
 import NoJsPager from '@/app/components/NoJsPager';
+import SearchYourArea from './YourArea';
+import { yourArea } from '@/lib/search-your-area';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
@@ -369,6 +371,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
   // from cached lists (lib/search/name-index.ts). With All only.
   const contentRead = q.length >= 2 ? searchContent(q, type, dept, from, to, sort) : Promise.resolve([]);
   const named: QueryNames = inAll ? await queryNames(q) : { recordQ: q, found: null, spads: [] };
+  // Your area (Cowork ENTRY 555, 556): the desktop council and MP boxes' results for the same words, with All only.
+  const area = inAll ? await yourArea(q) : null;
   const rq = named.recordQ;
   const [allResults, seats, councils, peers, donorSearch, orgList, namedMps]: [SearchResult[], ConstituencySearchResult[], CouncilSearchResult[], PeerSearchResult[], { results: DonorNameResult[]; more: boolean; totalNames: number }, OrgListRow[], SearchResult[] | null] = await Promise.all([
     contentRead,
@@ -527,6 +531,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       <SearchTracker q={q} resultsCount={resultsCount} />
       {/* The search term log (Cowork ENTRY 375 item 2): the term, this box (or the homepage's, via=home), the same count. */}
       {q && <SearchLog term={q} box={homeBox('site', sp.via)} results={resultsCount} />}
+      {inAll && <SearchYourArea q={q} area={area} archive={process.env.ARCHIVE_ENABLED === '1'} />}
 
       {q.length >= 2 && isEmpty && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
