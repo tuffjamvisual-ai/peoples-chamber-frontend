@@ -7,6 +7,7 @@
 // /bills and the opengovt Polls: ink-on-parchment, Special Elite labels,
 // serif body, with the vote presented as an official ballot paper.
 
+import { londonDay } from '@/lib/london-date';
 import { stageWithHouse, startedIn } from '@/lib/bill-stage';
 import { skipDataCache } from '@/lib/data-cache-skip';
 import { supabase } from '@/lib/supabase'
@@ -910,8 +911,12 @@ function VoteBar({
   )
 }
 
-// A sitting dated after the bill was withdrawn will not happen: it shows "Cancelled" (UX1a).
+// A sitting dated after the bill was withdrawn will not happen: it shows "Cancelled" (UX1a). A sitting dated after today
+// has not happened: it shows "Scheduled for <date>" (owner, Cowork ENTRY 579 (2), 24 Nov 2026; Parliament gives some
+// private members' bills dates months ahead, e.g. /bills/4092's 1st and 2nd reading on 12 Mar 2027, which read as done).
+// Today is the London date when the page is built; the bills sync's tag refresh rebuilds it.
 function StageGroup({ label, colour, stages, cancelled }: { label: string; colour: string; stages: Stage[]; cancelled?: (date: string) => boolean }) {
+  const today = londonDay();
   return (
     <div>
       <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', marginBottom: '12px', color: colour === ACCENT ? ACCENT : INK }}>
@@ -926,7 +931,7 @@ function StageGroup({ label, colour, stages, cancelled }: { label: string; colou
               {stage.stageSittings[0]?.date && (
                 cancelled?.(stage.stageSittings[0].date)
                   ? <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>Cancelled (was {fmtDate(stage.stageSittings[0].date)})</span>
-                  : <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{fmtDate(stage.stageSittings[0].date)}</span>
+                  : <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{stage.stageSittings[0].date.slice(0, 10) > today ? `Scheduled for ${fmtDate(stage.stageSittings[0].date)}` : fmtDate(stage.stageSittings[0].date)}</span>
               )}
             </div>
           </li>
