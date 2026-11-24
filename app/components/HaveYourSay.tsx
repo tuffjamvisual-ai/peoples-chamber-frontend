@@ -87,11 +87,12 @@ export default function HaveYourSay({ bill }: { bill: BillOfTheWeek | null }) {
               <Link href={`/bills/${bill.id}?from=home#vote`} className="hys-tile" prefetch={false}><b>AYE</b><span>Support the bill</span></Link>
               <Link href={`/bills/${bill.id}?from=home#vote`} className="hys-tile" prefetch={false}><b>NO</b><span>Oppose the bill</span></Link>
             </div>
-            <div className="hys-why">Chosen automatically: the bill with the next scheduled Commons vote.</div>
+            <div className="hys-why">Chosen automatically: the bill with the next scheduled Commons debate stage.</div>
           </div>
         )}
       </div>
-      <Link href="/bills?from=home" className="hys-btn" prefetch={false}>Explore bills and cast your vote &rarr;</Link>
+      {/* The homepage's main action on phones (Cowork ENTRY 582; A6 takes the first one shown: the search box from 768px). */}
+      <Link href="/bills?from=home" className="hys-btn" prefetch={false} data-main-action="">Explore bills and cast your vote &rarr;</Link>
       <div className="hys-small hys-small-d">Free registration to vote. Independent reader polls, not official parliamentary votes or representative surveys.</div>
       <div className="hys-small hys-small-m">Reader polls, not official votes. Free registration to vote.</div>
     </section>

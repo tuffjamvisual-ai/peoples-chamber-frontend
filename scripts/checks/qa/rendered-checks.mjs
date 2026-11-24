@@ -24,6 +24,8 @@
 //       (elements marked data-article-body: editorials, briefings, press releases; owner, 9 Nov 2026, QA2d). Baseline: audit/mp2's
 //       page-lengths.csv when MP2 writes it, else page-length-baseline.json (measured when this check was added).
 //   A6  first screen on phones (QA6, owner, 10 Nov 2026): the page's main action, the element marked data-main-action (the
+//       first one shown at that width, so a page can mark one control for phones and another for wider screens: the
+//       homepage, Cowork ENTRY 582; when none is shown, the first marked, so 'main-hidden' still reports it) (the
 //       search field, postcode field, first question or first record), must start above 760px at 430 x 932 (UX3h), above
 //       700px at 390 x 844 and above 520px at 320 x 568; at 844 x 390 the h1 and the main action must both start within
 //       390px. Measured from the top of the page as it opens, JavaScript on. Each page's failures are codes (no-main-action,
@@ -354,7 +356,7 @@ async function main() {
         await pg.waitForTimeout(300);
         const t = await pg.evaluate(() => {
           const top = (el) => (el && el.getClientRects().length ? Math.round(el.getBoundingClientRect().top + window.scrollY) : null);
-          const main = document.querySelector('[data-main-action]');
+          const main = [...document.querySelectorAll('[data-main-action]')].find((el) => el.getClientRects().length) ?? document.querySelector('[data-main-action]');
           const first = document.querySelector('[data-first-result]');
           return { main: main ? top(main) : undefined, h1: top(document.querySelector('h1')), first: first ? top(first) : undefined };
         });
@@ -422,7 +424,7 @@ async function main() {
         await fp.goto(BASE + r.url, { waitUntil: 'load', timeout: 60000 });
         await fp.waitForTimeout(300);
         const x = await fp.evaluate(() => {
-          const main = document.querySelector('[data-main-action]');
+          const main = [...document.querySelectorAll('[data-main-action]')].find((el) => el.getClientRects().length) ?? document.querySelector('[data-main-action]');
           const banner = [...document.querySelectorAll('.og-cookie-banner')].find((b) => b.getClientRects().length);
           if (!main || !main.getClientRects().length || !banner) return null;
           const m = main.getBoundingClientRect(), b = banner.getBoundingClientRect();
