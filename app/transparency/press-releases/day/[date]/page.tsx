@@ -17,6 +17,8 @@ export const metadata: Metadata = {
 
 export default async function PressReleasesDay({ params }: { params: Promise<{ date: string }> }) {
   const { date } = await params;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date) notFound();
+  // A month or day that cannot exist is a 404; toISOString of an invalid date throws (T2, ENTRY 645).
+  const at = /^\d{4}-\d{2}-\d{2}$/.test(date) ? Date.parse(`${date}T00:00:00Z`) : NaN;
+  if (Number.isNaN(at) || new Date(at).toISOString().slice(0, 10) !== date) notFound();
   return <PressListing sp={{ date }} strict />;
 }
