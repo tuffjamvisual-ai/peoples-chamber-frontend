@@ -3,6 +3,7 @@ import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { displayMpName } from '@/lib/mp-name';
+import { londonDay } from '@/lib/london-date';
 import { searchFormerMps } from '@/lib/former-mps';
 import { billStatus } from '@/lib/bill-status';
 import { getParliamentSessions, sessionTitle } from '@/lib/parliament-sessions';
@@ -69,6 +70,11 @@ function unwrapPhrase(q: string): string {
   return q.trim().slice(1, -1);
 }
 
+// The London day a piece was published, as its own page says it (ENTRY 645).
+function publishedDay(v: string | null | undefined): string | undefined {
+  return v ? (v.length > 10 ? londonDay(new Date(v)) : v) : undefined;
+}
+
 function toDateStr(v: string | null | undefined): string | undefined {
   if (!v) return undefined;
   return v.slice(0, 10);
@@ -103,7 +109,7 @@ async function queryEditorials(
     type: 'editorial' as const,
     title: r.headline,
     standfirst: listSummary(r) || undefined,
-    date: toDateStr(r.published_at),
+    date: publishedDay(r.published_at),
     url: `/editorials/${r.slug}`,
     kicker: r.kicker ?? undefined,
   }));
@@ -147,7 +153,7 @@ async function queryPressReleases(
       type: 'pressRelease' as const,
       title: r.title,
       standfirst: r.description ?? undefined,
-      date: toDateStr(r.published_at),
+      date: publishedDay(r.published_at),
       url: `/news/${newsSlug}`,
       org: r.organisation ?? undefined,
     }];
@@ -180,7 +186,7 @@ async function queryBriefings(
   return (data ?? []).map((r) => ({
     type: 'briefing' as const,
     title: r.headline,
-    date: toDateStr(r.published_at),
+    date: publishedDay(r.published_at),
     url: `/briefings/${r.slug}`,
   }));
 }
