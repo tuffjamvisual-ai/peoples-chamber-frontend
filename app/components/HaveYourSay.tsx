@@ -86,8 +86,8 @@ export default function HaveYourSay({ bill }: { bill: BillOfTheWeek | null }) {
             <Link href={billHref} className="hys-bill" prefetch={false} data-size-ok="ENTRY 554 owner approved design">{bill.title}</Link>
             {stageLong && <div className="hys-stage">{stageLong}</div>}
             <div className="hys-tiles">
-              <Link href={`/bills/${bill.id}?from=home#vote`} className="hys-tile" prefetch={false}><b>AYE</b><span>Support the bill</span></Link>
-              <Link href={`/bills/${bill.id}?from=home#vote`} className="hys-tile" prefetch={false}><b>NO</b><span>Oppose the bill</span></Link>
+              <Link href={`/bills/${bill.id}?from=home#vote`} className="hys-tile" prefetch={false} data-a10-allow="ENTRY 589 owner: Have your say card links its bill 3 times (title, AYE, NO)"><b>AYE</b><span>Support the bill</span></Link>
+              <Link href={`/bills/${bill.id}?from=home#vote`} className="hys-tile" prefetch={false} data-a10-allow="ENTRY 589 owner: Have your say card links its bill 3 times (title, AYE, NO)"><b>NO</b><span>Oppose the bill</span></Link>
             </div>
             <div className="hys-why">Chosen automatically: the bill with the next scheduled Commons debate stage.</div>
           </div>

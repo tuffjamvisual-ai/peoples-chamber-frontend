@@ -172,7 +172,9 @@ export const A9_LICENCE = /^https?:\/\/(www\.)?(nationalarchives\.gov\.uk\/doc\/
 function a10Scan() {
   const main = document.querySelector('main#main-content') || document.body;
   const shown = (el) => el.getClientRects().length > 0 && !el.parentElement?.closest('details:not([open])');
-  const skip = (a) => !!a.closest('[data-og-back], [role="navigation"][aria-label^="Pages"], nav[aria-label="Pagination"], nav[aria-label="Jump to a letter"], [data-council-tab], footer');
+  // data-a10-allow="<ENTRY>": a link the owner approved repeating, marked on the link itself so the exception covers only it
+  // (ENTRY 589: the homepage card's AYE and NO tiles link the bill again; the title is the one counted).
+  const skip = (a) => !!a.closest('[data-og-back], [role="navigation"][aria-label^="Pages"], nav[aria-label="Pagination"], nav[aria-label="Jump to a letter"], [data-council-tab], footer, [data-a10-allow]');
   const counts = new Map();
   for (const a of main.querySelectorAll('a[href]')) {
     if (!shown(a) || skip(a)) continue;
