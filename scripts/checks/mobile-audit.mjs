@@ -151,6 +151,9 @@ function measure() {
     if (!t.nodeValue.trim()) continue;
     const p = t.parentElement;
     if (!p || /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE|OPTION)$/.test(p.tagName) || tiny.has(p) || !visible(p)) continue;
+    // Text the owner approved below 15px carries data-size-ok="<ENTRY>" (or sits inside one), as black-ink-scan.js skips it
+    // (Cowork ENTRY 554: the homepage card's stage line and bill title).
+    if (p.closest('[data-size-ok]')) continue;
     const size = parseFloat(getComputedStyle(p).fontSize);
     if (size < 14.95) tiny.set(p, size);
   }
