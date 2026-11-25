@@ -9,6 +9,7 @@ import { SubFold } from '@/app/components/PhoneFolds';
 import { cachedQuery } from '@/lib/tagged-read';
 import { tableTags } from '@/lib/source-tags';
 import { listPath, pastTheEnd, slug } from '@/lib/list-path';
+import { goneDebateIds, leaveOut } from '@/lib/gone-debates';
 
 import '@/app/components/search-box-desk.css';
 // Commons debates index. Metadata is held in our `debates` table (synced daily
@@ -39,6 +40,8 @@ function fmtDate(d: string) {
 export default async function DebatesListing({ section, q, pageNum, found }: { section: string | null; q: string; pageNum: number; found?: { data: DebateRow[] | null; count: number | null } }) {
   const from = (pageNum - 1) * PER_PAGE;
 
+  // Debates Hansard no longer holds have no page: left out (ENTRY 649 (4)). A search passes its own rows, already without them.
+  const gone = found ? null : leaveOut(await goneDebateIds());
   const buildQuery = () => {
     let query = supabase
       .from('debates')
@@ -47,10 +50,11 @@ export default async function DebatesListing({ section, q, pageNum, found }: { s
       .order('title', { ascending: true })
       .range(from, from + PER_PAGE - 1);
     if (section) query = query.eq('section', section);
+    if (gone) query = query.not('id', 'in', gone);
     return query;
   };
   // A16: the lists without a search in the shared data cache under the debates tag, keyed by section and page.
-  const { data, count } = found ?? await cachedQuery(['debates-list-v1', section ?? '', '', pageNum], tableTags('debates'), buildQuery)
+  const { data, count } = found ?? await cachedQuery(['debates-list-v2', section ?? '', '', pageNum], tableTags('debates'), buildQuery)
     .catch((e) => { if (pastTheEnd(e)) notFound(); throw e; });
   const rows = data || [];
   const total = count || 0;

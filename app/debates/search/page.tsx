@@ -1,3 +1,4 @@
+import { goneDebateIds, leaveOut } from '@/lib/gone-debates';
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import DebatesListing, { DEBATE_COLUMNS, PER_PAGE, SECTIONS, type DebateRow } from '../DebatesListing';
@@ -36,10 +37,12 @@ export default async function DebatesSearch({ searchParams }: { searchParams: Pr
   const from = (pageNum - 1) * PER_PAGE;
   let found;
   try {
-    found = await cachedQuery(['debates-search-v1', section ?? '', key, pageNum], tableTags('debates'), () => {
+    const gone = leaveOut(await goneDebateIds()); // ENTRY 649 (4): as the list
+    found = await cachedQuery(['debates-search-v2', section ?? '', key, pageNum], tableTags('debates'), () => {
       let query = supabase.from('debates').select(DEBATE_COLUMNS, { count: 'exact' })
         .order('sitting_date', { ascending: false }).order('title', { ascending: true }).range(from, from + PER_PAGE - 1);
       if (section) query = query.eq('section', section);
+      if (gone) query = query.not('id', 'in', gone);
       const pattern = ilikeWords(key);
       if (pattern) query = query.ilike('title', pattern);
       return query;
