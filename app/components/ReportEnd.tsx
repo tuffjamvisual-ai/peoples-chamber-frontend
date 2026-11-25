@@ -19,7 +19,7 @@ export default async function ReportEnd({ piece, lead = [] }: { piece: Editorial
       <section aria-labelledby="report-newsletter" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', maxWidth: '680px', color: INK }}>
         <h2 id="report-newsletter" style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 6px' }}>Weekly newsletter</h2>
         <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0 }}>opengovt Weekly brings you the most important investigations, overlooked documents, questionable claims and public spending stories from the week. Delivered every Sunday.</p>
-        <NewsletterSignup source="article-end" minFontPx={15} />
+        <NewsletterSignup source="article-end-editorials" minFontPx={15} />
       </section>
     </>
   );
