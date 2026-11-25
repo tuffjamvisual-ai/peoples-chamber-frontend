@@ -202,7 +202,11 @@ const nextConfig: NextConfig = {
       // run before the proxy, so they win over its 410 for a /departments/<slug> that is not a department.
       // /donations has no index page (ENTRY 135 L1, owner approved 15 Nov 2026): the donors index is /donors.
       { source: '/donations', destination: '/donors', permanent: true },
-      { source: '/departments/uk-biobank-limited', destination: '/organisations/uk-biobank', permanent: true },
+      // Straight to the page /organisations/uk-biobank names as canonical, so no chain (owner approved 25 Nov 2026, ENTRY 649 (3)).
+      { source: '/departments/uk-biobank-limited', destination: '/lobbying/uk-biobank', permanent: true },
+      // The science department was disbanded in July 2026 and its science and innovation work moved to the Department for Business,
+      // Innovation, Science and Trade, whose page this is (GOV.UK; owner approved 25 Nov 2026, ENTRY 649 (1)).
+      { source: '/departments/science-tech', destination: '/departments/business-trade', permanent: true },
       { source: '/departments/secretary-of-state-for-health-and-social-care-acting-as-part-of-the-crown-through-uk-health-security-agency', destination: '/agencies/uk-health-security-agency', permanent: true },
     ];
     // /bills?page=N moved to /bills/page/N so every page is cached (owner's approval, 21 Oct 2026).
