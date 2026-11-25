@@ -6,6 +6,7 @@ import { notFound, redirect } from 'next/navigation'
 import { PAGE_LIMIT, SECTIONS, cleanSearch, dayKey, sectionCount, sectionRows, sectionTags } from './sectionData'
 import Link from 'next/link'
 import OpenGovShell from '../../components/OpenGovShell'
+import ArchiveLink from '../../components/ArchiveLink'
 import Pagination from '../../components/Pagination'
 import TransparencyClient from './TransparencyClient'
 import { PHONE } from '@/lib/breakpoints'
@@ -200,6 +201,7 @@ export default async function SectionListing({ section, page, q, searched }: {
           </>
         )}
       </header>
+      {section === 'donations' && page === 1 && !searchTerm && <ArchiveLink />}
 
       <TransparencyClient
         rows={rows || []}

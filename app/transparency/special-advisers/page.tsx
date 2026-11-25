@@ -14,6 +14,7 @@ import MoreChain from '@/app/components/MoreChain';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
+import ArchiveLink from '../../components/ArchiveLink';
 import BackLink from '../../components/BackLink';
 import AboutThisData from '../../components/AboutThisData';
 import SeeAlso from '../../components/SeeAlso';
@@ -172,6 +173,7 @@ export default async function SpecialAdvisersPage() {
           Who advises Whitehall, and what they declared
         </h1>
       </header>
+      <ArchiveLink />
 
       {release && appointments.length > 0 && (
         <section data-main-action id={SPAD_LIST_ANCHOR} style={{ marginBottom: '40px', scrollMarginTop: '16px' }}>

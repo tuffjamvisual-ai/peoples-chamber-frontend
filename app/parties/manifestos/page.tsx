@@ -12,6 +12,7 @@
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
+import ArchiveLink from '../../components/ArchiveLink';
 import BackLink from '../../components/BackLink';
 import ManifestoPicker, { type ThemeRow } from './ManifestoPicker';
 import { phoneUpTo } from '@/lib/breakpoints';
@@ -210,6 +211,7 @@ export default async function PartiesIndex() {
             Manifesto Comparisons
           </h1>
         </header>
+        <ArchiveLink />
 
         {anyPartyPoliciesShown() && (
         <p

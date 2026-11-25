@@ -13,7 +13,8 @@ const INK = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.18)';
 export const RELATED_MAX = 3;
 
-export default async function ExploreNext({ piece, lead = [] }: { piece: EditorialEntry; lead?: { href: string; label: string }[] }) {
+/** The links of the Related list, so the Read next block under it never repeats one (ENTRY 667). */
+export async function relatedLinks(piece: EditorialEntry, lead: { href: string; label: string }[] = []): Promise<{ href: string; label: string }[]> {
   const { base, data, next, latest, picked } = await exploreNextSelection(piece);
   const seen = new Set<string>();
   const links: { href: string; label: string }[] = [];
@@ -22,6 +23,11 @@ export default async function ExploreNext({ piece, lead = [] }: { piece: Editori
   for (const l of lead) add(l.href, l.label);
   for (const d of data) add(d.href, d.label);
   for (const e of [...next, ...latest]) add(`${base}/${e.slug}`, e.headline);
+  return links;
+}
+
+export default async function ExploreNext({ piece, lead = [] }: { piece: EditorialEntry; lead?: { href: string; label: string }[] }) {
+  const links = await relatedLinks(piece, lead);
   if (!links.length) return null;
   return (
     <nav aria-label="Related" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px', fontSize: '15px', lineHeight: 1.7, color: INK }}>
