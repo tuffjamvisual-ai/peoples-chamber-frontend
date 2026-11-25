@@ -22,8 +22,8 @@
 // Source down (Cowork 13 Nov 2026, COWORK-TO-T1 ENTRY 4; Parliament's API answered 503 on 11 and 13 Nov): when no call
 // answers and the calls get server errors (HTTP 5xx, or timeouts alongside them), the source is down, not our sync. The
 // run stops after DOWN_AFTER_ERRORS such errors in a row, keeps its position, records "source:<route>" in sync_cursor
-// (lib/source-status.ts) and returns 200 with source_unavailable (e.g. "HTTP 503") and no partial flag, so the freshness
-// monitor reports the source as down rather than a failed or stalled sync. Nothing is written, so the pages keep the
+// (lib/source-status.ts) and returns 503 with source_unavailable (e.g. "HTTP 503") and no partial flag (200 until 25 Nov
+// 2026, ENTRY 665): the run is recorded as failed, and the freshness monitor names the source as down (its one alert). Nothing is written, so the pages keep the
 // last good data. The first run the source answers clears the record.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -281,7 +281,8 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
     // No partial flag: this is not a stalled pass of ours (lib/sync-heartbeat.ts records cycles only for runs that have one).
     const { partial: _partial, ...rest } = body;
     void _partial;
-    return { status: 200, body: { ...rest, ok: true, source_unavailable: downReason, source_down_since: down?.since ?? null } };
+    // A failure, not a success (owner, 25 Nov 2026, Cowork ENTRY 665 (10)): 11 runs from 14 Nov were recorded as 200 with 0 rows.
+    return { status: 503, body: { ...rest, ok: false, source_unavailable: downReason, source_down_since: down?.since ?? null } };
   }
   if (answered > 0) await clearSourceDown(supabase, CURSOR_ROUTE);
   if (allFailed) return { status: errorAnswers ? 502 : 504, body: { ...body, error: errorAnswers ? 'every API call failed' : 'no API answered within the time limit' } };

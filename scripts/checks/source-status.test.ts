@@ -66,14 +66,14 @@ test('marking keeps the first time it was seen and counts runs; clearing removes
   assert.match(sourceDownMessage(b!), /^source unavailable \(HTTP 503\) since 2026-11-13 02:48 UTC, last seen 2026-11-14 02:48 UTC \(2 runs\); our sync ran and wrote nothing/);
 });
 
-test('statutory instruments sync: a source answering 503 returns 200, stops early, writes no rows and records the source as down', async () => {
+test('statutory instruments sync: a source answering 503 is a failed run (503), stops early, writes no rows and records the source as down', async () => {
   // Ten instruments waiting for their timelines, so the run would go on calling if it did not stop early.
   const { db, cursor, writes } = fakeDb({}, { statutory_instruments: Array.from({ length: 10 }, (_, i) => ({ api_id: `si${i}` })) });
   let calls = 0;
   const fetchFn = (async () => { calls++; return new Response('Service Unavailable', { status: 503 }); }) as typeof fetch;
   const r = await runSiTreatiesSync({ supabase: db, fetchFn, gapMs: 0, budgetMs: 60_000, log: () => {} });
-  assert.equal(r.status, 200);
-  assert.equal(r.body.ok, true);
+  assert.equal(r.status, 503);
+  assert.equal(r.body.ok, false);
   assert.equal(r.body.source_unavailable, 'HTTP 503');
   assert.ok(!('partial' in r.body), 'no partial flag, so it is not counted as a stalled pass');
   assert.equal(calls, DOWN_AFTER_ERRORS, `stops after ${DOWN_AFTER_ERRORS} server errors in a row`);

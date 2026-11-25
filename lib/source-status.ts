@@ -1,6 +1,6 @@
 // Source availability (Cowork 13 Nov 2026, COWORK-TO-T1 ENTRY 4): when an outside source is down (it answers every call
 // with a server error, e.g. Parliament's statutory instruments API with HTTP 503 on 11 and 13 Nov 2026), the sync that
-// reads it records that here and returns without failing. Nothing is written, so the pages keep the last good data, and
+// reads it records that here and answers 503, a failed run (200 until 25 Nov 2026, ENTRY 665). Nothing is written, so the pages keep the last good data, and
 // the freshness monitor (app/api/monitor-freshness) says the source is down rather than that our sync failed.
 //
 // One row per route in sync_cursor, under "source:<route>". The first run that gets an answer from the source clears it.

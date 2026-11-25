@@ -145,7 +145,7 @@ async function GET_impl(req: Request) {
     alerted.add(route);
   }
   // Sources down (Cowork 13 Nov 2026, COWORK-TO-T1 ENTRY 4; lib/source-status.ts): a sync whose outside source answered
-  // only server errors records "source:<route>" and returns 200. The alert says the source is down, not that our sync
+  // only server errors records "source:<route>" and answers 503 (ENTRY 665). The alert says the source is down, not that our sync
   // failed; the pages keep the last good data. Cleared by the first run the source answers.
   const sourcesDown: Array<{ route: string } & SourceDown> = [];
   {
