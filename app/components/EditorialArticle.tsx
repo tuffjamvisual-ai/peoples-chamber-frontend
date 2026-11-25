@@ -79,8 +79,8 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
           {/* The one Related list (T1-5x S6): the piece's related links or Read next, then the data and more reports, at most 3. */}
           <ExploreNext piece={piece} lead={related ?? readNext} />
-          {/* Reports only (owner, 25 Nov 2026, Cowork ENTRY 667): three more reports and the newsletter sign up. */}
-          {basePath === '/editorials' && <ReportEnd piece={piece} lead={related ?? readNext} />}
+          {/* Reports only (owner, 25 Nov 2026, Cowork ENTRY 670): the newsletter sign up. */}
+          {basePath === '/editorials' && <ReportEnd />}
         </article>
     </>
   );
