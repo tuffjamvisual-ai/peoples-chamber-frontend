@@ -15,34 +15,35 @@ import type { BillOfTheWeek } from '@/lib/bill-of-the-week';
 const SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 
 const CSS = `
-.hys { margin: 0 0 28px; padding: 18px 20px 14px; border-radius: 16px; background: #5b5550; border: 1px solid #77706a; color: #f2f2f2; font-family: ${SANS}; }
+.hys { margin: 0 0 28px; padding: 12px 18px 10px; border-radius: 16px; background: #5b5550; border: 1px solid #77706a; color: #f2f2f2; font-family: ${SANS}; }
 .hys a { color: inherit; }
-.hys-kicker { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: #e4ded8; }
-.hys-h { margin: 0 0 6px; font-family: ${SANS}; font-size: 22px; font-weight: 700; line-height: 1.25; color: #f2f2f2; }
-.hys-lead { margin: 0 0 16px; max-width: 62ch; font-size: 15px; line-height: 1.5; color: #e4ded8; }
-.hys-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 0 0 14px; }
-.hys-ph { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 6px; font-family: ${SANS}; font-size: 17px; font-weight: 700; color: #f2f2f2; }
-.hys-line { margin: 0 0 10px; font-size: 15px; line-height: 1.45; color: #e4ded8; }
+.hys-kicker { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: #e4ded8; }
+.hys-h { margin: 0 0 4px; font-family: ${SANS}; font-size: 22px; font-weight: 700; line-height: 1.2; color: #f2f2f2; }
+.hys-lead { margin: 0 0 10px; max-width: 62ch; font-size: 15px; line-height: 1.5; color: #e4ded8; }
+.hys-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 0 0 10px; }
+.hys-ph { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 4px; font-family: ${SANS}; font-size: 17px; font-weight: 700; color: #f2f2f2; }
+.hys-line { margin: 0 0 6px; font-size: 15px; line-height: 1.45; color: #e4ded8; }
 .hys-bill { display: inline-block; margin: 0 0 4px; font-size: 17px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .hys-stage { margin: 0 0 10px; font-size: 15px; color: #e4ded8; }
 .hys-stage-m { display: none; }
 .hys-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.hys-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 64px; padding: 8px; border-radius: 8px; background: #665f59; border: 1px solid #8a827b; color: #f2f2f2; text-decoration: none; text-align: center; font-size: 15px; }
+.hys-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; padding: 6px; border-radius: 8px; background: #665f59; border: 1px solid #8a827b; color: #f2f2f2; text-decoration: none; text-align: center; font-size: 15px; }
 .hys-tile b { font-size: 16px; letter-spacing: 0.06em; }
 .hys-tile span { color: #e4ded8; }
 .hys-why { margin: 8px 0 0; font-size: 15px; color: #e4ded8; }
-.hys-btn { display: flex; align-items: center; justify-content: center; min-height: 44px; margin: 0 0 8px; padding: 8px 18px; border-radius: 999px; background: #f3e9d2; color: #14100d !important; text-decoration: none; font-size: 16px; font-weight: 600; }
-.hys-small { margin: 0; text-align: center; font-size: 15px; line-height: 1.4; color: #e4ded8; }
+.hys-btn { display: flex; align-items: center; justify-content: center; min-height: 44px; margin: 0 0 4px; padding: 6px 18px; border-radius: 999px; background: #f3e9d2; color: #14100d !important; text-decoration: none; font-size: 16px; font-weight: 600; }
+.hys-small { margin: 0; text-align: center; font-size: 15px; line-height: 1.3; color: #e4ded8; }
 .hys-small-m { display: none; }
 .hys svg { flex: 0 0 auto; }
+/* Less height (owner, 26 Nov 2026, Cowork ENTRY 699): smaller padding and gaps; text sizes unchanged, the button still 44px. */
 /* Owner, 26 Nov 2026 (Cowork ENTRY 694, 695): no Bill of the week at any width (its line and stage, the bill title, Aye and No);
    'Your vote. Their vote.' takes the row alone from 768px. The bill is still read and passed (ENTRY 695: the fetch stays). */
 .hys-week { display: none; }
 .hys-cols { grid-template-columns: 1fr; }
 @media (max-width: 767.98px) {
-  .hys { padding: 10px 12px 8px; margin: 0 0 18px; }
+  .hys { padding: 8px 12px 6px; margin: 0 0 18px; }
   .hys-kicker, .hys-lead, .hys-yours, .hys-ph-bill, .hys-stage, .hys-why, .hys-small-d { display: none; }
-  .hys-h { font-size: 15.5px; margin: 0 0 4px; }
+  .hys-h { font-size: 15.5px; line-height: 1.2; margin: 0 0 4px; }
   .hys-cols { display: none; }
   .hys-stage-m { display: block; margin: 0 0 2px; font-size: 10.5px; letter-spacing: 0.06em; color: #e4ded8; }
   .hys-bill { font-size: 14px; margin: 0 0 8px; }
@@ -51,7 +52,7 @@ const CSS = `
   .hys-tile b { font-size: 15px; }
   .hys-tile span { white-space: nowrap; }
   .hys-tile span { font-size: 15px; }
-  .hys-btn { min-height: 44px; margin: 0 0 6px; font-size: 15px; }
+  .hys-btn { min-height: 44px; margin: 0 0 3px; padding: 4px 18px; font-size: 15px; }
   .hys-small-m { display: block; font-size: 15px; }
 }
 `;
