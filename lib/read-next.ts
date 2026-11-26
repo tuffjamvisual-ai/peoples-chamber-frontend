@@ -124,7 +124,7 @@ const currentMps = memo(async () => {
 async function editorialReadNextImpl(piece: EditorialEntry): Promise<ReadNextLink[]> {
   const sel = await exploreNextSelection(piece);
   const pick = new Picker(sel.hrefs);
-  const text = piece.body.map((b) => ('text' in b && typeof b.text === 'string' ? b.text : b.type === 'list' ? b.items.join(' ') : '')).join(' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  const text = piece.body.map((b) => ('text' in b && typeof b.text === 'string' ? b.text : b.type === 'list' ? b.items.join(' ') : b.type === 'fold' ? b.items.map((x) => x.text).join(' ') : '')).join(' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
   const mps = (await currentMps())
     .map((m) => ({ ...m, plainName: (m.name || '').replace(/^(Rt Hon |Sir |Dame |Dr |Mr |Mrs |Ms )+/i, '').trim() }))
     .filter((m) => m.plainName.split(/\s+/).length >= 2)

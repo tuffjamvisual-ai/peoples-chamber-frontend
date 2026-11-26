@@ -7,7 +7,7 @@
 // An address may hold balanced brackets (Hansard: ...Bill(Lords)(FirstSitting)).
 const LINK = /\[[^\]]+\]\((?:[^()\s]|\([^()\s]*\))+\)/;
 const BARE = /\bhttps?:\/\/\S+|\bwww\.[a-z0-9-]+\.[a-z]\S*/i;
-const NOT_TEXT = new Set(['href', 'photoHref', 'photo', 'photoAlt', 'type', 'level']);
+const NOT_TEXT = new Set(['href', 'photoHref', 'photo', 'photoAlt', 'type', 'level', 'url']); /* url: a fold line's source (ENTRY 705), as a Sources item's */
 
 // The first link in one piece of text, or null.
 export function textLink(s: string): string | null {

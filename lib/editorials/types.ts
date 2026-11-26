@@ -59,6 +59,10 @@ export type Block =
   | { type: 'paragraph'; text: string }
   // A bulleted list (T1-PUB-ASY, 13 Nov 2026): each item is one line, with the same [text](url) links as a paragraph.
   | { type: 'list'; items: string[] }
+  // A closed fold under the block before it (owner, 26 Nov 2026, Cowork ENTRY 705, 706): label is the words beside the + (for
+  // example 'All 10 entries'), items one line each. A line's source address is its own url field, as the Sources list's
+  // {text, url} (no link inside the text: ENTRY 288, scripts/body-links.ts); the line is drawn as that link. BodyFold.tsx.
+  | { type: 'fold'; label: string; items: { text: string; url?: string }[] }
   // Key-figure callout. stat is the display value (any string — number, %, £ etc.),
   // label is what it measures, context is an optional source/explanatory line.
   | { type: 'statBlock'; stat: string; label: string; context?: string }
