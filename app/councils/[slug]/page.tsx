@@ -338,7 +338,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     (spendingBreakdownRows.length > 0
       ? spendingBreakdownRows.reduce((sum, r) => sum + (r.value_pounds ?? 0), 0)
       : null);
-  const spendingPeriodLabel = (spendingAggregateRow ?? spendingBreakdownRows[0])?.period_label ?? null;
+  // Written 2025/26, as the other years on the page (house style: no hyphens in our wording; T2 26 Nov 23:49).
+  const spendingPeriodLabel = ((spendingAggregateRow ?? spendingBreakdownRows[0])?.period_label ?? null)?.replace(/\b(\d{4})-(\d{2})\b/g, '$1/$2') ?? null;
   const spendingSource = (spendingAggregateRow ?? spendingBreakdownRows[0])?.source ?? null;
   const showServiceSpending = spendingBreakdownRows.length > 0;
   // Rows that round to £0m are hidden from the displayed list (not from
