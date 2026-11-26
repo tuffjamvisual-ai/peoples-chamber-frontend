@@ -583,18 +583,9 @@ details[open] > summary .st-more { display: none; }
 @media (max-width: 1023.98px), (pointer: coarse) {
   .og-scroll-arrow { display: none !important; }
 }
-/* Phones in the app view (owner, Cowork ENTRY 525, 23 Nov 2026: "Arrow at page end only"): the up arrow, shown by
-   FloatingScrollDownButton only at the bottom of a long page (og-scroll-arrow-up). A 44px tap area with a 36px round
-   outline inside it, see-through (ENTRY 527). Tablets and desktop as above. */
-@media (max-width: 767.98px) {
-  .og-scroll-arrow.og-scroll-arrow-up { display: flex !important; width: 44px !important; height: 44px !important; background: transparent !important; border: 0 !important; box-shadow: none !important; }
-  /* Transparent (owner, Cowork ENTRY 527, 23 Nov 2026): no fill and no shadow, so the words underneath show; a thin
-     outline and the arrow in the site's ink (#14100d, far above 3:1 on the paper) keep the button visible. */
-  .og-scroll-arrow.og-scroll-arrow-up::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: transparent; border: 1.5px solid #14100d; box-shadow: none; }
-  .og-scroll-arrow.og-scroll-arrow-up { color: #14100d !important; }
-  .og-scroll-arrow.og-scroll-arrow-up svg { position: relative; }
-  .og-scroll-arrow.og-scroll-arrow-up:focus-visible { outline: 2px solid #7a1612; outline-offset: 0; border-radius: 50%; }
-}
+/* Phones (owner, Cowork ENTRY 696, 26 Nov 2026): no floating scroll arrow at all below 768px, down or up (it was the up
+   arrow at a page's end, ENTRY 525 and 527). The rule above already hides it there; the class FloatingScrollDownButton
+   adds at a page's end (og-scroll-arrow-up) no longer brings it back. Tablets and desktop unchanged. */
 
 /* Search results under 480px (ENTRY 135 M5): the type label ("Organisation", "MP") on its own line above the name, so the
    name has the full width (at 320 the label took 137 of 296px and names broke mid word). */
@@ -645,4 +636,11 @@ html.ya-wait .og-main-content { min-height: 110vh; }
   /* A link inside such a label (the commission form's 'terms for commissioned research') sits above the layer, so a tap on it
      opens the link rather than setting the box (T2, 18 Nov 2026 15:50; the label makes no stacking context). */
   .og-main-content label:has(> input:is([type="checkbox"], [type="radio"])) a { position: relative; z-index: 1; }
+}
+
+/* Phones (owner, 26 Nov 2026, Cowork ENTRY 693: "too big" on mobile): below 768px no Related list on reports and no
+   'Search opengovt archives' box (the line on special advisers, donations and manifestos, ArchiveLink, and the homepage's
+   search box). From 768px both as before; the newsletter box stays on phones. */
+@media (max-width: 767.98px) {
+  .og-related-rep, [data-archive-link], .og-archive-home { display: none !important; }
 }

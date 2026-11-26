@@ -35,11 +35,15 @@ const CSS = `
 .hys-small { margin: 0; text-align: center; font-size: 15px; line-height: 1.4; color: #e4ded8; }
 .hys-small-m { display: none; }
 .hys svg { flex: 0 0 auto; }
+/* Owner, 26 Nov 2026 (Cowork ENTRY 694, 695): no Bill of the week at any width (its line and stage, the bill title, Aye and No);
+   'Your vote. Their vote.' takes the row alone from 768px. The bill is still read and passed (ENTRY 695: the fetch stays). */
+.hys-week { display: none; }
+.hys-cols { grid-template-columns: 1fr; }
 @media (max-width: 767.98px) {
   .hys { padding: 10px 12px 8px; margin: 0 0 18px; }
   .hys-kicker, .hys-lead, .hys-yours, .hys-ph-bill, .hys-stage, .hys-why, .hys-small-d { display: none; }
   .hys-h { font-size: 15.5px; margin: 0 0 4px; }
-  .hys-cols { display: block; margin: 0 0 8px; }
+  .hys-cols { display: none; }
   .hys-stage-m { display: block; margin: 0 0 2px; font-size: 10.5px; letter-spacing: 0.06em; color: #e4ded8; }
   .hys-bill { font-size: 14px; margin: 0 0 8px; }
   /* Both tiles the same (Cowork ENTRY 586): the word above its label, centred, the label on one line. */

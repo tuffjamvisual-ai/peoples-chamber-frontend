@@ -250,7 +250,7 @@ export default async function HomePage() {
                   (ARCHIVE_ENABLED, read when this saved page is built); otherwise the PMQs box, so the slot is never empty. A plain
                   GET form to /archive?q=, which asks signed out readers to sign in. The PMQs search stays in the menu and A to Z. */}
               {process.env.ARCHIVE_ENABLED === '1' ? (
-              <form action="/archive" method="get" className="og-pmqs-search" style={{ margin: 0 }}>
+              <form action="/archive" method="get" className="og-pmqs-search og-archive-home" style={{ margin: 0 }}>
                 <label htmlFor="home-archive-q" className="og-kicker og-search-label">Search opengovt archives</label>
                 <div className="og-sbox-row" style={{ position: 'relative' }}>
                   <input id="home-archive-q" name="q" type="search" maxLength={200} placeholder="Hansard, answers and laws"
