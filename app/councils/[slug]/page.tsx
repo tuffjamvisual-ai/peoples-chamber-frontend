@@ -462,11 +462,11 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               {(c.political_control || councilTax || audit.length > 0 || ombudsmanLatest) && (
                 <Section title="At a glance">
                   {c.political_control && (
-                    <DataRow label="Who runs it" value={c.political_control_status || c.political_control}
+                    <DataRow label="Who runs it" value={[c.political_control, controlStatusText(c.political_control_status)].filter(Boolean).join('. ')}
                       sub={c.updated_at ? `Council records, updated ${longDay(c.updated_at)}` : 'Council records'} />
                   )}
                   {councilTax && (
-                    <DataRow label={`Band D ${councilTax.year.replace('-', '/')}`} value={`£${councilTax.council_band_d.toFixed(2)}${bandDChange(councilTax)}`}
+                    <DataRow label={`Band D ${councilTax.year.replace('-', '/')}`} value={`£${councilTax.council_band_d.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${bandDChange(councilTax)}`}
                       sub={<>The council’s own share. Source: <a href={councilTax.source_url}>government council tax figures {councilTax.year.replace('-', '/')}</a></>} />
                   )}
                   {audit.length > 0 && (
@@ -474,7 +474,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       sub={<>Source: <a href={audit[0].source_url}>PSAA monthly opinion data, {sourceMonthText(audit[0].source_month)}</a></>} />
                   )}
                   {warnings.length > 0 && (
-                    <DataRow label="Financial warnings" value={warnings.map((w) => <span key={w} style={{ display: 'block' }}>{w}</span>)} valueColour={ACCENT}
+                    <DataRow label="Financial warnings" value={warnings.map((w) => <span key={w} style={{ display: 'block' }}>{w.replace(/\b(\d{4})-(\d{2})\b/g, '$1/$2')}</span>)} valueColour={ACCENT}
                       sub="Government records of section 114 notices, intervention and exceptional financial support" />
                   )}
                   {ombudsmanLatest && ombudsmanLatest.upheld + ombudsmanLatest.not_upheld > 0 && (
