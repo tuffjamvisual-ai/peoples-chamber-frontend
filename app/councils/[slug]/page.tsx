@@ -3,6 +3,8 @@
 // political control, leadership and finance phases land.
 
 import type { Metadata } from 'next';
+import { loadAudit, latestAudit, auditLine, sourceMonthText, yearText, AUDIT_STATUS_WORDS, BACKSTOP_NOTE } from '@/lib/council-audit';
+import { BUDGET_LABEL_BY_NATION, spendingDiffersNote } from '@/lib/council-budget-label';
 import { metaDescription } from '@/lib/meta-description';
 import { namedTitle } from '@/lib/seo-title';
 import RelatedLine from '../../components/RelatedLine';
@@ -21,11 +23,11 @@ import PageSources, { type PageSource } from '../../components/PageSources';
 import { OMBUDSMAN_SOURCES, OMBUDSMAN_NOTE } from '../../components/CouncilOmbudsmanSection';
 import FoldNotes from '../../components/FoldNotes';
 import { OGL_NOTE, CC_BY_SA_4_URL, type FoldNote } from '@/lib/fold-notes';
-import { MEASURE_SOURCE_URLS } from '@/lib/council-league';
+import { MEASURE_SOURCE_URLS, getCouncilFinance } from '@/lib/council-league';
 import niWelfare from '@/lib/data/ni-welfare.json';
 import CouncilTabs from './CouncilTabs';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
-import { Dated, recordText, showsWelfare, tabsWithContent } from './panels';
+import { Dated, recordText, showsWelfare, tabsWithContent, keyFor } from './panels';
 import RecordDate from '../../components/RecordDate';
 import { longDay } from '@/lib/record-dates';
 import CouncilRatingsSection, { CouncilRatingsSourceNotes } from '../../components/CouncilRatingsSection';
@@ -279,11 +281,26 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const lazyTabs = await tabsWithContent({ c, parent, children });
   // The date lines under each section (owner, 4 Nov 2026): this council's own row, its own periods, or the newest sync of
   // the table behind the section (lib/record-dates.ts).
+  // Each from this council's own rows (Cowork ENTRY 755 item 3 (d)); a county's welfare figure is its districts' sum.
+  const childCodes = children.map((d) => d.gss_code).filter((g): g is string => !!g);
+  const ownCode = c.gss_code ? [c.gss_code] : [];
   const [publicHealthDate, welfareDate] = await Promise.all([
-    recordText({ updated: ['council_public_health_metrics', 'updated_at'] }),
-    recordText({ updated: ['welfare_local_authority_summary', 'updated_at'] }),
+    recordText({ updated: ['council_public_health_metrics', 'updated_at'], key: keyFor('council_public_health_metrics', ownCode) }),
+    recordText({ updated: ['welfare_local_authority_summary', 'updated_at'], key: keyFor('welfare_local_authority_summary', c.type === 'county' ? childCodes : ownCode) }),
   ]);
   const councilUpdated = c.updated_at ? `Updated ${longDay(c.updated_at)}` : null;
+  // The summary box and 'Can you trust the accounts?' (Cowork ENTRY 755 items 1 and 2, ENTRY 756): England's own sources only.
+  const english = !!c.gss_code && c.gss_code.startsWith('E');
+  const [auditRows, finance, ombudsmanLatest] = await Promise.all([
+    loadAudit(c.gss_code),
+    english ? getCouncilFinance(c.gss_code!).catch(() => null) : Promise.resolve(null),
+    english
+      ? tagDb([COUNCIL_DATA_TAG]).from('council_ombudsman').select('year, upheld, not_upheld').eq('gss', c.gss_code!).order('year', { ascending: false }).limit(1).maybeSingle()
+          .then(({ data }) => (data as { year: string; upheld: number; not_upheld: number } | null) ?? null)
+      : Promise.resolve(null),
+  ]);
+  const audit = latestAudit(auditRows);
+  const warnings = finance ? financeWarnings(finance.events) : [];
 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null || councilTax != null;
   const hasLeadership = c.political_control != null || c.chief_exec != null || c.chief_exec_note != null || c.leader_source_url != null || byelections.length > 0;
@@ -442,6 +459,31 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
               </div>
 
+              {(c.political_control || councilTax || audit.length > 0 || ombudsmanLatest) && (
+                <Section title="At a glance">
+                  {c.political_control && (
+                    <DataRow label="Who runs it" value={c.political_control_status || c.political_control}
+                      sub={c.updated_at ? `Council records, updated ${longDay(c.updated_at)}` : 'Council records'} />
+                  )}
+                  {councilTax && (
+                    <DataRow label={`Band D ${councilTax.year.replace('-', '/')}`} value={`£${councilTax.council_band_d.toFixed(2)}${bandDChange(councilTax)}`}
+                      sub={<>The council’s own share. Source: <a href={councilTax.source_url}>government council tax figures {councilTax.year.replace('-', '/')}</a></>} />
+                  )}
+                  {audit.length > 0 && (
+                    <DataRow label="Accounts audit" value={audit.map((r) => <span key={r.year} style={{ display: 'block' }}>{auditLine(r)}</span>)}
+                      sub={<>Source: <a href={audit[0].source_url}>PSAA monthly opinion data, {sourceMonthText(audit[0].source_month)}</a></>} />
+                  )}
+                  {warnings.length > 0 && (
+                    <DataRow label="Financial warnings" value={warnings.map((w) => <span key={w} style={{ display: 'block' }}>{w}</span>)} valueColour={ACCENT}
+                      sub="Government records of section 114 notices, intervention and exceptional financial support" />
+                  )}
+                  {ombudsmanLatest && ombudsmanLatest.upheld + ombudsmanLatest.not_upheld > 0 && (
+                    <DataRow label="Ombudsman" value={`Of ${ombudsmanLatest.upheld + ombudsmanLatest.not_upheld} investigated, ${ombudsmanLatest.upheld} upheld`}
+                      sub={`Local Government and Social Care Ombudsman, ${ombudsmanLatest.year.replace('-', '/')}`} />
+                  )}
+                </Section>
+              )}
+
               {hasLeadership && (
                 <Section title="Political Control & Leadership" date={councilUpdated} source="councils.updated_at"
                   // NI2 (9 Nov 2026): as of when the seat figures are; where they come from is in the Sources fold (ENTRY 410).
@@ -597,7 +639,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             money: <>
               {hasFinance && (
                 <Section title="Finance" date={councilTax ? `Period ${councilTax.year.replace('-', '/')}` : councilUpdated} source={councilTax ? undefined : 'councils.updated_at'}>
-                  <DataRow label="Annual revenue budget" value={c.revenue_budget_mn != null ? `£${c.revenue_budget_mn.toLocaleString()}m` : null} />
+                  {c.revenue_budget_mn != null && BUDGET_LABEL_BY_NATION[c.country] && (
+                    <DataRow label={BUDGET_LABEL_BY_NATION[c.country].label} value={`£${c.revenue_budget_mn.toLocaleString()}m`} sub={BUDGET_LABEL_BY_NATION[c.country].sub} />
+                  )}
                   {councilTax ? (
                     <DataRow label={`Council tax ${councilTax.year.replace('-', '/')} (Band D)`} value={councilTaxValue(councilTax, c.name, c.type)} sub={councilTaxSub(councilTax)} />
                   ) : (
@@ -624,6 +668,18 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 </Section>
               )}
 
+              {auditRows.length > 0 && (
+                <Section title="Can you trust the accounts?"
+                  sourceLine={{ text: `PSAA monthly opinion data, ${sourceMonthText(auditRows[0].source_month)}`, source: 'council_audit_opinions.source_month' }}>
+                  {auditRows.map((r) => (
+                    <DataRow key={r.year} label={`${yearText(r.year)} accounts`} value={AUDIT_STATUS_WORDS[r.status] ?? r.status}
+                      sub={r.status === 'Unsigned' ? null : <>{r.signed_date ? `Signed ${longDay(r.signed_date)} by ${r.firm}. ` : `${r.firm}. `}{r.status === 'Delivered by backstop' ? BACKSTOP_NOTE : null}</>} />
+                  ))}
+                  <DataRow label="Source" value={<a href={auditRows[0].source_url}>Public Sector Audit Appointments, monthly audit opinion data</a>}
+                    sub="PSAA gives whether, when and by which firm each opinion was signed. It does not say what the auditor found." />
+                </Section>
+              )}
+
               {showServiceSpending && (
                 <Section title="Council Spending by Service" date={spendingPeriodLabel ? `Period ${spendingPeriodLabel}` : null}>
                   <DataRow
@@ -635,9 +691,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                         !spendingAggregateRow
                           ? `Sum of this council's ${spendingBreakdownRows.length} reported service categories. ${c.country} does not publish a single total figure in this source.`
                           : null,
-                        c.revenue_budget_mn != null
-                          ? 'May not match "Annual revenue budget" above. That figure is a different accounting measure (budgeted resource requirement) for a different year than this outturn total.'
-                          : null,
+                        c.revenue_budget_mn != null ? spendingDiffersNote(c.country, spendingPeriodLabel) : null,
                       ]
                         .filter(Boolean)
                         .join(' · ')
@@ -659,6 +713,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
             </>,
             health: <>
+              {/* Counties (Cowork ENTRY 755 item 3 (c)): the public health import loaded districts and unitaries only, though the
+                  sources publish county figures; until those are loaded the county says so and points to its districts. */}
+              {c.type === 'county' && children.length > 0 && (
+                <Section title="Public Health">
+                  <DataRow label="County figures" value={`Figures for smoking, physical activity, weight and life expectancy are on each district’s page in ${c.short_name || c.name}. This site has not yet loaded them for the county as a whole.`} />
+                </Section>
+              )}
               {showPublicHealth && (
                 <Section title="Public Health" date={publicHealthDate} source="council_public_health_metrics.updated_at">
                   <PublicHealthRow label="Smoking (adults)" row={publicHealthByKey.get('smoking_prevalence')} nation={c.country} />
@@ -674,10 +735,10 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               <Dated
                 C={CouncilRatingsSection}
                 props={{ gssCode: c.gss_code, type: c.type, name: c.short_name || c.name, districtCodes: children.map((d) => d.gss_code).filter((g): g is string => !!g) }}
-                source={{ updated: ['area_ratings', 'synced_at'] }}
+                source={{ updated: ['council_reserves', 'synced_at'], key: keyFor('council_reserves', ownCode) }}
               />
               {/* Ombudsman complaints (England, council_ombudsman): every council has its own figures. */}
-              <Dated C={CouncilOmbudsmanSection} props={{ gssCode: c.gss_code }} source={{ updated: ['council_ombudsman', 'imported_at'] }} />
+              <Dated C={CouncilOmbudsmanSection} props={{ gssCode: c.gss_code }} source={{ updated: ['council_ombudsman', 'imported_at'], key: keyFor('council_ombudsman', ownCode) }} />
             </>,
           }}
           slug={c.slug}
@@ -853,6 +914,28 @@ function councilTaxValue(t: CouncilTax, councilName: string, type: string): Reac
     </>
   );
 }
+// ' up £7.37 (3.0 per cent) on 2025/26' after the Band D figure in the summary box; nothing when there is no earlier year.
+function bandDChange(t: CouncilTax): string {
+  if (t.council_band_d_prev == null || t.council_band_d_prev <= 0) return '';
+  const d = t.council_band_d - t.council_band_d_prev;
+  const pc = (Math.abs(d) / t.council_band_d_prev) * 100;
+  if (Math.abs(d) < 0.005) return ', the same as the year before';
+  return `, ${d > 0 ? 'up' : 'down'} £${Math.abs(d).toFixed(2)} (${pc.toFixed(1)} per cent) on the year before`;
+}
+
+// The summary box's financial warnings, from the government's records of section 114 notices, intervention and exceptional
+// financial support (council_finance_events), with their years; as the Ratings tab's warning flags word them.
+function financeWarnings(events: { event_type: string; period: string; event_date: string | null }[]): string[] {
+  const out: string[] = [];
+  const s114 = [...new Set(events.filter((e) => e.event_type === 'section_114').map((e) => (e.event_date || e.period).slice(0, 4)))].sort();
+  if (s114.length) out.push(`Section 114 notice: ${s114.join(', ')}`);
+  const intv = events.filter((e) => e.event_type === 'intervention').map((e) => e.period).sort();
+  if (intv.length) out.push(`Government intervention since ${intv[0]}`);
+  const efs = events.filter((e) => e.event_type === 'exceptional_support').map((e) => e.period).sort();
+  if (efs.length) out.push(`Exceptional financial support: ${efs.length === 1 ? efs[0] : `${efs.length} years, latest ${efs[efs.length - 1]}`}`);
+  return out;
+}
+
 function councilTaxSub(t: CouncilTax): string {
   const base = 'Band D is the middle band that council tax is set from; most homes are in lower bands and pay less.';
   const nation = t.nation === 'Scotland'

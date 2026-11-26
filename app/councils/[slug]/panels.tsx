@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import { tagDb, COUNCIL_DATA_TAG } from '@/lib/page-reads';
 import { COUNCIL_LAZY_TABS, type CouncilLazyTab } from '@/lib/council-panels';
-import { latestPeriod, updatedDate } from '@/lib/record-dates';
+import { latestPeriod, updatedDate, type RowKey } from '@/lib/record-dates';
 import RecordDate from '../../components/RecordDate';
 import CouncilCrimeSection from '../../components/CouncilCrimeSection';
 import CouncilChildPovertySection from '../../components/CouncilChildPovertySection';
@@ -35,16 +35,30 @@ export type PanelContext = { c: PanelCouncil; parent: { slug: string; name: stri
 // cache, so the panel route's render repeats none of them against the database within the cache period.
 type Part = { node: ReactNode; read: () => unknown };
 // Where a section's date comes from: its table's newest sync stamp, or for a table with none its newest period.
-type DateSource = { updated: [string, string] } | { period: [string, string] } | null;
-const updated = (table: string, column: string): DateSource => ({ updated: [table, column] });
+// key, when given, keeps the date to this council's own rows (or its districts'): see lib/record-dates.ts.
+type DateSource = ({ updated: [string, string] } | { period: [string, string] }) & { key?: RowKey } | null;
+const updated = (table: string, column: string, key?: RowKey): DateSource => ({ updated: [table, column], key });
+// The column each table names its council by (Cowork ENTRY 755 item 3 (d)).
+export const COUNCIL_KEY: Record<string, string> = {
+  area_free_school_meals: 'area_code', area_ratings: 'area_gss_code', council_blue_badges: 'ons_code', council_broadband: 'council_gss_code',
+  council_child_poverty: 'council_gss_code', council_children_in_care: 'ons_code', council_claimant_count: 'council_gss_code',
+  council_crime_stats: 'council_gss_code', council_ehcp: 'gss', council_fly_tipping: 'gss', council_fuel_poverty: 'council_gss_code',
+  council_hmos: 'ons_code', council_homelessness: 'council_gss_code', council_house_prices: 'council_gss_code', council_ombudsman: 'gss',
+  council_pip_mobility: 'gss', council_public_health_metrics: 'council_gss_code', council_reserves: 'council_gss_code',
+  council_road_casualties: 'council_gss_code', council_road_condition: 'ons_code', council_youth_first_entrants: 'area_code',
+  school_inspections: 'la_gss_code', sewage_overflows: 'council_gss_code', welfare_local_authority_summary: 'council_gss_code',
+};
+export const keyFor = (table: string, codes: string[]): RowKey => {
+  const col = COUNCIL_KEY[table]; if (!col) throw new Error(`no council key for ${table}`); return [col, codes];
+};
 
 export async function recordText(source: DateSource): Promise<string | null> {
   if (!source) return null;
   if ('updated' in source) {
-    const d = await updatedDate(...source.updated, [COUNCIL_DATA_TAG]);
+    const d = await updatedDate(...source.updated, [COUNCIL_DATA_TAG], source.key);
     return d && `Updated ${d}`;
   }
-  const p = await latestPeriod(...source.period, [COUNCIL_DATA_TAG]);
+  const p = await latestPeriod(...source.period, [COUNCIL_DATA_TAG], source.key);
   return p && `Period ${p}`;
 }
 
@@ -75,38 +89,38 @@ export function panelParts(tab: CouncilLazyTab, { c, parent, children }: PanelCo
   switch (tab) {
     case 'work':
       return [
-        part(CouncilClaimantCountSection, { gssCode: c.gss_code }, updated('council_claimant_count', 'synced_at')),
+        part(CouncilClaimantCountSection, { gssCode: c.gss_code }, updated('council_claimant_count', 'synced_at', keyFor('council_claimant_count', [c.gss_code]))),
         ...(showsWelfare(c.gss_code) ? [{ node: welfareSlot, read: () => true }] : []),
-        part(CouncilPipMobilitySection, { gssCode: c.gss_code }, updated('council_pip_mobility', 'fetched_at')),
-        part(CouncilBlueBadgesSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_blue_badges', 'updated_at'))),
-        part(CouncilChildPovertySection, { gssCodes: ownOrDistricts, isCounty }, updated('council_child_poverty', 'updated_at')),
-        part(CouncilFuelPovertySection, { gssCode: c.gss_code }, updated('council_fuel_poverty', 'synced_at')),
+        part(CouncilPipMobilitySection, { gssCode: c.gss_code }, updated('council_pip_mobility', 'fetched_at', keyFor('council_pip_mobility', [c.gss_code]))),
+        part(CouncilBlueBadgesSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_blue_badges', 'updated_at', keyFor('council_blue_badges', [c.gss_code])))),
+        part(CouncilChildPovertySection, { gssCodes: ownOrDistricts, isCounty }, updated('council_child_poverty', 'updated_at', keyFor('council_child_poverty', ownOrDistricts))),
+        part(CouncilFuelPovertySection, { gssCode: c.gss_code }, updated('council_fuel_poverty', 'synced_at', keyFor('council_fuel_poverty', [c.gss_code]))),
       ];
     case 'housing':
       return [
-        part(CouncilHousePricesSection, { gssCode: c.gss_code }, updated('council_house_prices', 'synced_at')),
-        part(CouncilHomelessnessSection, { gssCodes: ownOrDistricts, isCounty }, updated('council_homelessness', 'synced_at')),
-        part(CouncilHmoSection, { gssCodes: ownOrDistricts, isCounty, country: c.country, ownCode: c.gss_code, ownName: c.name }, updated('council_hmos', 'updated_at')),
+        part(CouncilHousePricesSection, { gssCode: c.gss_code }, updated('council_house_prices', 'synced_at', keyFor('council_house_prices', [c.gss_code]))),
+        part(CouncilHomelessnessSection, { gssCodes: ownOrDistricts, isCounty }, updated('council_homelessness', 'synced_at', keyFor('council_homelessness', ownOrDistricts))),
+        part(CouncilHmoSection, { gssCodes: ownOrDistricts, isCounty, country: c.country, ownCode: c.gss_code, ownName: c.name }, updated('council_hmos', 'updated_at', keyFor('council_hmos', ownOrDistricts))),
       ];
     case 'crime':
       return [
-        part(CouncilCrimeSection, { gssCodes: ownOrDistricts, population: c.population, isCounty }, updated('council_crime_stats', 'updated_at')),
-        part(CouncilYouthJusticeSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_youth_first_entrants', 'updated_at'))),
-        part(CouncilRoadCasualtiesSection, { gssCode: c.gss_code, ...pointer }, own(updated('council_road_casualties', 'synced_at'))),
-        part(CouncilRoadConditionSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_road_condition', 'updated_at'))),
-        part(CouncilFlyTippingSection, { gssCode: c.gss_code, country: c.country }, c.country === 'England' || c.country === 'Wales' ? { period: ['council_fly_tipping', 'year'] } : null),
+        part(CouncilCrimeSection, { gssCodes: ownOrDistricts, population: c.population, isCounty }, updated('council_crime_stats', 'updated_at', keyFor('council_crime_stats', ownOrDistricts))),
+        part(CouncilYouthJusticeSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_youth_first_entrants', 'updated_at', keyFor('council_youth_first_entrants', [c.gss_code])))),
+        part(CouncilRoadCasualtiesSection, { gssCode: c.gss_code, ...pointer }, own(updated('council_road_casualties', 'synced_at', keyFor('council_road_casualties', [c.gss_code])))),
+        part(CouncilRoadConditionSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_road_condition', 'updated_at', keyFor('council_road_condition', [c.gss_code])))),
+        part(CouncilFlyTippingSection, { gssCode: c.gss_code, country: c.country }, c.country === 'England' || c.country === 'Wales' ? { period: ['council_fly_tipping', 'year'], key: keyFor('council_fly_tipping', [c.gss_code]) } : null),
       ];
     case 'schools':
       return [
-        part(CouncilSchoolInspectionsSection, { gssCode: c.gss_code, ...pointer, fullListHref: `/councils/${c.slug}/schools` }, own(updated('school_inspections', 'synced_at'))),
-        part(CouncilFreeSchoolMealsSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('area_free_school_meals', 'updated_at'))),
-        part(CouncilChildrenInCareSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_children_in_care', 'updated_at'))),
-        part(CouncilEhcpSection, { gssCode: c.gss_code, ...pointer }, own(updated('council_ehcp', 'imported_at'))),
+        part(CouncilSchoolInspectionsSection, { gssCode: c.gss_code, ...pointer, fullListHref: `/councils/${c.slug}/schools` }, own(updated('school_inspections', 'synced_at', keyFor('school_inspections', [c.gss_code])))),
+        part(CouncilFreeSchoolMealsSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('area_free_school_meals', 'updated_at', keyFor('area_free_school_meals', [c.gss_code])))),
+        part(CouncilChildrenInCareSection, { gssCode: c.gss_code, country: c.country, ...pointer }, own(updated('council_children_in_care', 'updated_at', keyFor('council_children_in_care', [c.gss_code])))),
+        part(CouncilEhcpSection, { gssCode: c.gss_code, ...pointer }, own(updated('council_ehcp', 'imported_at', keyFor('council_ehcp', [c.gss_code])))),
       ];
     case 'broadband':
-      return [part(CouncilConnectivitySection, { gssCodes: ownOrDistricts, isCounty }, updated('council_broadband', 'synced_at'))];
+      return [part(CouncilConnectivitySection, { gssCodes: ownOrDistricts, isCounty }, updated('council_broadband', 'synced_at', keyFor('council_broadband', ownOrDistricts)))];
     case 'sewage':
-      return [part(CouncilSewageSection, { gssCode: c.gss_code, isCounty, districtCodes, fullListHref: `/councils/${c.slug}/sewage` }, updated('sewage_overflows', 'synced_at'))];
+      return [part(CouncilSewageSection, { gssCode: c.gss_code, isCounty, districtCodes, fullListHref: `/councils/${c.slug}/sewage` }, updated('sewage_overflows', 'synced_at', keyFor('sewage_overflows', [c.gss_code])))];
   }
 }
 
