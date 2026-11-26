@@ -31,8 +31,10 @@ function wordsIn(value: unknown): number {
   return 0;
 }
 
+// A closed fold (the 'fold' block, ENTRY 705) is a reference list the reader opens only to check, not text read through, so it
+// is not counted (26 Nov 2026: the freebies report's ten folds of register entries made it '15 min read' instead of 4).
 export function entryWords(entry: EditorialEntry): number {
-  return countWords(entry.headline) + wordsIn(entry.body);
+  return countWords(entry.headline) + wordsIn(entry.body.filter((b) => b.type !== 'fold'));
 }
 
 export function minutesForWords(words: number): number {
