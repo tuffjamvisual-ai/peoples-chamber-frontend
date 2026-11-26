@@ -19,6 +19,10 @@ const CSS = `
 .art-fold > summary:focus-visible { outline: 3px solid ${ACCENT}; outline-offset: 2px; }
 `;
 
+// A line's address becomes a link only if it is http(s) (T2, 26 Nov 2026, as lib/newsletter-issue.ts): anything else, such as
+// javascript:, is never a link; the line is then shown as plain text.
+export const foldHref = (u: string | undefined): string | null => (u && /^https?:\/\//i.test(u.trim()) ? u.trim() : null);
+
 export default function BodyFold({ label, children }: { label: string; children: ReactNode }) {
   return (
     <details className="art-fold" data-body-fold="" style={{ margin: '-14px 0 20px', fontSize: '15px' }}>

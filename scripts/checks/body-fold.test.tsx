@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
-import BodyFold from '../../app/components/BodyFold';
+import BodyFold, { foldHref } from '../../app/components/BodyFold';
 import { extractBodyText } from '../editorial-row';
 import { bodyLinks } from '../body-links';
 import type { Block } from '../../lib/editorials/types';
@@ -34,4 +34,10 @@ test('a line\'s url is a source field, as a Sources item\'s; a link written insi
   assert.deepEqual(bodyLinks([fold]), []);
   const bad = { type: 'fold', label: 'All 1 entries', items: [{ text: 'see [this](https://example.org/x)' }] };
   assert.equal(bodyLinks([bad]).length, 1);
+});
+
+test('only an http(s) address becomes a link (T2): javascript:, data: and others are never links', () => {
+  assert.equal(foldHref('https://interests-api.parliament.uk/api/v2/Interests/10051'), 'https://interests-api.parliament.uk/api/v2/Interests/10051');
+  assert.equal(foldHref(' http://example.org/x '), 'http://example.org/x');
+  for (const bad of ['javascript:alert(1)', ' JavaScript:alert(1)', 'data:text/html,x', '//evil.test/x', '/mps/1', 'mailto:a@b.c', '', undefined]) assert.equal(foldHref(bad), null, String(bad));
 });

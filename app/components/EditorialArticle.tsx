@@ -15,7 +15,7 @@ import DataBlock from './DataBlock';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
 import ContentBadge from './ContentBadge';
 import SourcesFold from './SourcesFold';
-import BodyFold from './BodyFold';
+import BodyFold, { foldHref } from './BodyFold';
 import { SourcesList } from './SourcesList';
 import EvidencePanel from './EvidencePanel';
 import ShareButton from './ShareButton';
@@ -235,7 +235,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
     case 'list':
       return <ul key={i} style={{ margin: '0 0 20px', paddingLeft: '1.4em', listStyle: 'disc' }}>{block.items.map((t, j) => <li key={j} style={{ marginBottom: '4px' }}>{withLinks(t)}</li>)}</ul>;
     case 'fold':
-      return <BodyFold key={i} label={block.label}>{block.items.map((t, j) => <li key={j} style={{ marginBottom: '4px', overflowWrap: 'anywhere' }}>{t.url ? <a href={t.url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', textDecorationColor: ACCENT }}>{t.text}</a> : t.text}</li>)}</BodyFold>;
+      return <BodyFold key={i} label={block.label}>{block.items.map((t, j) => { const href = foldHref(t.url); return <li key={j} style={{ marginBottom: '4px', overflowWrap: 'anywhere' }}>{href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ display: 'block', color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', textDecorationColor: ACCENT }}>{t.text}</a> : t.text}</li>; })}</BodyFold>;
     case 'statBlock':
       return <KeyStat key={i} stat={block.stat} label={block.label} context={block.context} />;
     case 'dataBlock':
