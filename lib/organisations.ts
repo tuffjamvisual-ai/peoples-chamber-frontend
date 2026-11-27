@@ -105,6 +105,20 @@ export const getOrganisation = cache(async (slug: string): Promise<OrgIndexRow |
   return data ? corrected(numbers(data as OrgIndexRow)) : null;
 });
 
+// An old address of a company page (Cowork ENTRY 771 fix 3, migration 2026-11-27a): organisation_slugs keeps every slug a company
+// has had; one with current = false sends the reader on, permanently, to the company's page as organisation_index now names it.
+// null when the slug was never a company page's (a real 404) or the company has no page now.
+export const oldSlugTarget = cache(async (slug: string): Promise<string | null> => {
+  const { data, error } = await cachedQuery(['q:lib/organisations.ts:old-slug', JSON.stringify([slug])], tableTags('organisation_slugs', 'organisation_index'), async () => {
+    const old = await supabase.from('organisation_slugs').select('company_number').eq('slug', slug).eq('current', false).maybeSingle();
+    if (old.error || !old.data) return old;
+    return supabase.from('organisation_index').select('slug').eq('company_number', (old.data as { company_number: string }).company_number).limit(1).maybeSingle();
+  });
+  if (error) throw new Error(`organisation_slugs ${slug}: ${error.message}`);
+  const to = (data as { slug?: string } | null)?.slug;
+  return to && to !== slug ? to : null;
+});
+
 // Companies House numbers checked on find-and-update.company-information.service.gov.uk on 7 Nov 2026, where the name there matches
 // the name we hold, for organisations whose name another page shares. Only these go in a page title. Not confirmed, so left out:
 // 00209907 and 00303675 (Deloitte LLP: no such company; OC303675 is Deloitte LLP), 09223384 (National Grid Electricity

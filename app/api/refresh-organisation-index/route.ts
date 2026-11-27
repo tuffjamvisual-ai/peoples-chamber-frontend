@@ -32,7 +32,7 @@ async function GET_impl(req: Request) {
   const r = await refreshStore(supabaseAdmin, 'refresh_organisation_index');
   const after = r.ok ? await fp() : null;
   const changed = r.ok && (before === null || after === null || before !== after);
-  if (changed) refreshTables('organisation_index', 'organisation_contracts', 'contract_awards');
+  if (changed) refreshTables('organisation_index', 'organisation_contracts', 'contract_awards', 'organisation_slugs');
   if (r.ok && !(typeof r.result === 'number' && r.result > 0)) {
     return NextResponse.json({ ok: false, error: `refresh returned ${String(r.result)} rows`, ms: r.ms }, { status: 500 });
   }

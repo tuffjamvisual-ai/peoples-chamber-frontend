@@ -12,7 +12,7 @@ import { countOf, ledBy } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageSources from '@/app/components/PageSources';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBreadcrumbs, SITE } from '@/lib/JsonLd';
@@ -21,8 +21,7 @@ import { cleanDept, quarterLabel } from '@/lib/lobbying';
 import { ecDonationSearchUrl, EC_DONATIONS_SEARCH } from '@/lib/ec-links';
 import {
   getOrganisation, orgNameShared, getOrgAlsoSee, getOrgDonations, getOrgContracts, getOrgHeldBack, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl, GRANTNAV_HOME,
-  FIND_TENDER_HOME, findTenderNoticeNumber, ocidsWithContractPages, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, getOrgNameBasisNotices, type OrgIndexRow,
-} from '@/lib/organisations';
+  FIND_TENDER_HOME, findTenderNoticeNumber, ocidsWithContractPages, money, fmtDay, buyerLabel, orgSummaryLine, nameNote, getOrgNameBasisNotices, type OrgIndexRow, oldSlugTarget } from '@/lib/organisations';
 import { getOrgBySlug } from '@/lib/lobbying';
 import { orgCanonical, thinSupplier } from '@/lib/index-rules';
 
@@ -54,7 +53,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const org = await getOrganisation(slug);
   // An address with no record: a real 404, noindex and 'Page not found' (T1-DONOR404, owner approved 12 Nov 2026).
-  if (!org) notFound();
+  // An old address of a company page goes on, permanently, to the page (ENTRY 771 fix 3); anything else is a real 404.
+  if (!org) { const to = await oldSlugTarget(slug); if (to) permanentRedirect(`/organisations/${to}`); notFound(); }
   const held = [org.donations && 'donations', (org.contracts || org.framework_places) && 'contracts', org.grants && 'grants', org.meetings && 'meetings with ministers', org.lobbying_quarters && 'lobbying'].filter(Boolean) as string[];
   const heldText = held.length > 1 ? `${held.slice(0, -1).join(', ')} and ${held[held.length - 1]}` : held[0] || 'public records';
   // With no number held, the type we hold.
@@ -89,7 +89,8 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
   skipDataCache(); // ENTRY 487: this request's per record reads are not written to the data cache
   const { slug } = await params;
   const org = await getOrganisation(slug);
-  if (!org) notFound();
+  // An old address of a company page goes on, permanently, to the page (ENTRY 771 fix 3); anything else is a real 404.
+  if (!org) { const to = await oldSlugTarget(slug); if (to) permanentRedirect(`/organisations/${to}`); notFound(); }
   const [donations, contracts, grants, registry, heldBack, alsoSee, byName] = await Promise.all([
     org.donations ? getOrgDonations(org, LATEST) : Promise.resolve([]),
     org.contracts + org.framework_places ? getOrgContracts(org.company_number, LATEST) : Promise.resolve([]),
