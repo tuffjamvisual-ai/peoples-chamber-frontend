@@ -468,11 +468,11 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   )}
                   {councilTax && (
                     <DataRow label={`Band D ${councilTax.year.replace('-', '/')}`} value={`£${councilTax.council_band_d.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${bandDChange(councilTax)}`}
-                      sub={<>The council’s own share. Source: <a href={councilTax.source_url}>government council tax figures {councilTax.year.replace('-', '/')}</a></>} />
+                      sub={`The council’s own share. Source: government council tax figures ${councilTax.year.replace('-', '/')} (link in Sources)`} />
                   )}
                   {audit.length > 0 && (
                     <DataRow label="Accounts audit" value={audit.map((r) => <span key={r.year} style={{ display: 'block' }}>{auditLine(r)}</span>)}
-                      sub={<>Source: <a href={audit[0].source_url}>PSAA monthly opinion data, {sourceMonthText(audit[0].source_month)}</a></>} />
+                      sub={`Source: PSAA monthly opinion data, ${sourceMonthText(audit[0].source_month)} (link in Sources)`} />
                   )}
                   {warnings.length > 0 && (
                     <DataRow label="Financial warnings" value={warnings.map((w) => <span key={w} style={{ display: 'block' }}>{w.replace(/\b(\d{4})-(\d{2})\b/g, '$1/$2')}</span>)} valueColour={ACCENT}
@@ -676,7 +676,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                     <DataRow key={r.year} label={`${yearText(r.year)} accounts`} value={AUDIT_STATUS_WORDS[r.status] ?? r.status}
                       sub={r.status === 'Unsigned' ? null : <>{r.signed_date ? `Signed ${longDay(r.signed_date)} by ${r.firm}. ` : `${r.firm}. `}{r.status === 'Delivered by backstop' ? BACKSTOP_NOTE : null}</>} />
                   ))}
-                  <DataRow label="Source" value={<a href={auditRows[0].source_url}>Public Sector Audit Appointments, monthly audit opinion data</a>}
+                  <DataRow label="Source" value="Public Sector Audit Appointments, monthly audit opinion data (link in Sources)"
                     sub="PSAA gives whether, when and by which firm each opinion was signed. It does not say what the auditor found." />
                 </Section>
               )}
@@ -773,6 +773,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           c.wikipedia_url && { label: `${c.name} on Wikipedia (the description of the council)`, href: c.wikipedia_url },
           c.population_source && c.population_source_url && { label: `Population: ${c.population_source}`, href: c.population_source_url },
           councilTax?.source_url && { label: `Council tax ${councilTax.year.replace('-', '/')}: ${councilTaxPublisher(councilTax)}, council tax levels`, href: councilTax.source_url },
+          // The accounts audit (ENTRY 755, 756): links to other sites go in Sources only (QA1 A9).
+          auditRows.length > 0 && { label: `Accounts audit: Public Sector Audit Appointments, monthly audit opinion data, ${sourceMonthText(auditRows[0].source_month)}`, href: auditRows[0].source_url },
           showServiceSpending && spendingSource && SERVICE_SPENDING_SOURCES[spendingSource] && { label: `Spending by service${spendingPeriodLabel ? ` ${spendingPeriodLabel}` : ''}: ${SERVICE_SPENDING_SOURCES[spendingSource].label}`, href: SERVICE_SPENDING_SOURCES[spendingSource].href },
           ...(showPublicHealth ? [...new Set([...publicHealthByKey.values()].filter((r) => r.value != null).map((r) => r.source))].map((k) => PUBLIC_HEALTH_SOURCES[k]).filter(Boolean) : []),
           ...(/^E/.test(c.gss_code ?? '') ? OMBUDSMAN_SOURCES : []),
