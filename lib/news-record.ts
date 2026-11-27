@@ -100,10 +100,17 @@ const reader: NewsRecordReader = {
 };
 
 // The box for one release, or null when a read fails (the page is shown without it, and stays noindex, follow).
+// Cached per release (Cowork ENTRY 771 fix 4): its key holds the release itself (an edited release is a new entry) and the week it is
+// built in (so every box is built again at least once a week, picking up new matching questions, debates, motions, bills and divisions);
+// it is NOT tied to the six item tables' tags any more. Before, every sync that touched written questions (or any of the six) cleared
+// every release's box, and each news page then ran the full text search again: pg_stat_statements on 27 Nov showed that search as the
+// database's heaviest read (36,488 calls in 15 days, about 920 blocks from disk a call). NEWS_RECORD_TAG clears all boxes on purpose.
+export const NEWS_RECORD_TAG = 'news-record';
+export const newsRecordWeek = (now = Date.now()) => Math.floor(now / (7 * 86400_000));
 export async function newsRecord(r: ReleaseInput): Promise<NewsRecord | null> {
   return optionalSection(`news record (news ${r.id})`, async () => {
     const refs = await loadRefs();
-    return tagged(['news-record-v1', r.id, keyHash(r)], tableTags(...REF_TABLES, ...ITEM_TABLES), () => buildNewsRecord(r, refs, reader));
+    return tagged(['news-record-v2', r.id, keyHash(r), newsRecordWeek()], [NEWS_RECORD_TAG], () => buildNewsRecord(r, refs, reader));
   }, null);
 }
 
