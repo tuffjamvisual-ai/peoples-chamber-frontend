@@ -46,6 +46,7 @@
     "nodemailer": "^10.1.0",
     "pdfjs-dist": "^4.10.38",
     "tailwindcss": "^4",
+    "tsx": "4.23.15",
     "typescript": "^5"
   },
   "browserslist": [
