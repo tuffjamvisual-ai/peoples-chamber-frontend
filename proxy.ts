@@ -1,3 +1,4 @@
+import { clientIp } from '@/lib/client-ip'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { councilCodeLocation, goneAction, GONE_HTML } from '@/lib/url-gone'
@@ -92,9 +93,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
-             request.headers.get('x-real-ip') ||
-             'unknown'
+  const ip = clientIp(request.headers) // ENTRY 795: the Worker's reader address when its secret matches, else as before (lib/client-ip.ts)
 
   const now = Date.now()
   sweep(now)

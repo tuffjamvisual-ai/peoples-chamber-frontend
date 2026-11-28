@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { normaliseFeedback, validateFeedback, feedbackEmail, UNAVAILABLE_MESSAGE, SUCCESS_MESSAGE } from '@/lib/feedback';
 import { sendFeedback } from '@/lib/email';
+import { clientIp } from '@/lib/client-ip';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +30,7 @@ function overLimit(ip: string, now: number): boolean {
 }
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+  const ip = clientIp(request.headers);
   if (overLimit(ip, Date.now())) {
     return NextResponse.json({ error: 'Too many messages. Please try again later or email contact@opengovt.uk.' }, { status: 429, headers: { 'Retry-After': '3600' } });
   }

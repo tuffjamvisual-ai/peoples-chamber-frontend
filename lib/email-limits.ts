@@ -23,7 +23,7 @@ export function overIpLimit(route: string, ip: string, now = Date.now()): boolea
   recent.set(key, [...times, now]);
   return false;
 }
-export const clientIp = (h: Headers) => h.get('x-forwarded-for')?.split(',')[0]?.trim() || h.get('x-real-ip') || 'unknown';
+export { clientIp } from './client-ip'; // ENTRY 795: one helper for every rate limit (lib/client-ip.ts)
 export const utcDayStart = (now = new Date()) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString();
 
 const TABLE = { newsletter: ['newsletter_subscribers', 'last_sent_at'], signup: ['users', 'verification_sent_at'] } as const;
