@@ -336,9 +336,13 @@ const nextConfig: NextConfig = {
         .map((source) => ({ source, headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }] })),
       // Only www.opengovt.uk is indexed (owner, 28 Oct 2026): the vercel.app address and preview deployments carry
       // noindex, so search engines never list a copy. Pages still open normally there.
+      // Option D (Cowork ENTRY 798 finding A, 804): the Worker on www.opengovt.uk passes some requests to this app at
+      // origin.opengovt.uk and says so with x-optd-real-host: www.opengovt.uk (it drops a reader's own copy); such an
+      // answer then carries exactly the headers www gets. Any other request on origin (a crawler sends no such header)
+      // still gets noindex. Next applies this rule only when neither item matches (headers.md, 'missing').
       {
         source: '/:path*',
-        missing: [{ type: 'host' as const, value: 'www.opengovt.uk' }],
+        missing: [{ type: 'host' as const, value: 'www.opengovt.uk' }, { type: 'header' as const, key: 'x-optd-real-host', value: 'www\\.opengovt\\.uk' }],
         headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
       },
       // The newsletter's web copies (the email's "View in your browser"): never indexed (COWORK-TO-T1 ENTRY 84, owner
